@@ -133,7 +133,7 @@ dirty state, so running one test after the other may cause spurious failures.
 To run the integration tests for Starboard CLI with code coverage enabled, run:
 
 ```
-make itests-starboard
+make itests-trivy-operator
 ```
 
 To open the test coverage report in your web browser, run:
@@ -149,7 +149,7 @@ To run the integration tests for Starboard Operator and view the coverage report
 OPERATOR_NAMESPACE=starboard-system \
   OPERATOR_TARGET_NAMESPACES=default \
   OPERATOR_LOG_DEV_MODE=true \
-  make itests-starboard-operator
+  make itests-trivy-operator-operator
 go tool cover -html=itest/starboard-operator/coverage.txt
 ```
 

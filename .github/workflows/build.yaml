@@ -194,7 +194,6 @@ jobs:
     if: "false"  # TODO It's broken on a release candidate PRs because it's using container image that has not been released yet.
     name: Test Helm Chart
     needs:
-      - itest-starboard-cli
       - itest-trivy-operator
       - integration-operator-conftest
     runs-on: ubuntu-20.04

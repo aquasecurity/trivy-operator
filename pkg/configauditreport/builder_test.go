@@ -233,45 +233,46 @@ func TestScanJobBuilder(t *testing.T) {
 			Get()
 		g.Expect(err).ToNot(HaveOccurred())
 		g.Expect(job).NotTo(BeNil())
-		g.Expect(job).To(Equal(&batchv1.Job{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      "scan-configauditreport-5bfbdd65c9",
-				Namespace: "trivy-operator-ns",
-				Labels: map[string]string{
-					trivyoperator.LabelResourceSpecHash:         "7c48697ccf",
-					trivyoperator.LabelPluginConfigHash:         "hash-test",
-					trivyoperator.LabelConfigAuditReportScanner: "plugin-test",
-					trivyoperator.LabelK8SAppManagedBy:          "trivy-operator",
-					trivyoperator.LabelResourceKind:             "ClusterRole",
-					trivyoperator.LabelResourceNameHash:         "6f69bb5b79",
-					trivyoperator.LabelResourceNamespace:        "",
-				},
-				Annotations: map[string]string{
-					trivyoperator.LabelResourceName: "system:controller:node-controller",
-				},
-			},
-			Spec: batchv1.JobSpec{
-				BackoffLimit:          pointer.Int32Ptr(0),
-				Completions:           pointer.Int32Ptr(1),
-				ActiveDeadlineSeconds: pointer.Int64Ptr(3),
-				Template: corev1.PodTemplateSpec{
-					ObjectMeta: metav1.ObjectMeta{
-						Labels: map[string]string{
-							trivyoperator.LabelResourceSpecHash:         "7c48697ccf",
-							trivyoperator.LabelPluginConfigHash:         "hash-test",
-							trivyoperator.LabelConfigAuditReportScanner: "plugin-test",
-							trivyoperator.LabelK8SAppManagedBy:          "trivy-operator",
-							trivyoperator.LabelResourceKind:             "ClusterRole",
-							trivyoperator.LabelResourceNameHash:         "6f69bb5b79",
-							trivyoperator.LabelResourceNamespace:        "",
-						},
-						Annotations: map[string]string{
-							trivyoperator.LabelResourceName: "system:controller:node-controller",
-						},
+		g.Expect(job).To(Equal(
+			&batchv1.Job{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "scan-configauditreport-5bfbdd65c9",
+					Namespace: "trivy-operator-ns",
+					Labels: map[string]string{
+						trivyoperator.LabelResourceSpecHash:         "66f8596c77",
+						trivyoperator.LabelPluginConfigHash:         "hash-test",
+						trivyoperator.LabelConfigAuditReportScanner: "plugin-test",
+						trivyoperator.LabelK8SAppManagedBy:          "trivy-operator",
+						trivyoperator.LabelResourceKind:             "ClusterRole",
+						trivyoperator.LabelResourceNameHash:         "6f69bb5b79",
+						trivyoperator.LabelResourceNamespace:        "",
 					},
-					Spec: corev1.PodSpec{},
+					Annotations: map[string]string{
+						trivyoperator.LabelResourceName: "system:controller:node-controller",
+					},
 				},
-			},
-		}))
+				Spec: batchv1.JobSpec{
+					BackoffLimit:          pointer.Int32Ptr(0),
+					Completions:           pointer.Int32Ptr(1),
+					ActiveDeadlineSeconds: pointer.Int64Ptr(3),
+					Template: corev1.PodTemplateSpec{
+						ObjectMeta: metav1.ObjectMeta{
+							Labels: map[string]string{
+								trivyoperator.LabelResourceSpecHash:         "66f8596c77",
+								trivyoperator.LabelPluginConfigHash:         "hash-test",
+								trivyoperator.LabelConfigAuditReportScanner: "plugin-test",
+								trivyoperator.LabelK8SAppManagedBy:          "trivy-operator",
+								trivyoperator.LabelResourceKind:             "ClusterRole",
+								trivyoperator.LabelResourceNameHash:         "6f69bb5b79",
+								trivyoperator.LabelResourceNamespace:        "",
+							},
+							Annotations: map[string]string{
+								trivyoperator.LabelResourceName: "system:controller:node-controller",
+							},
+						},
+						Spec: corev1.PodSpec{},
+					},
+				},
+			}))
 	})
 }

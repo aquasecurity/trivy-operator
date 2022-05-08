@@ -1,0 +1,63 @@
+{
+  "PolarisOutputVersion": "1.0",
+  "AuditTime": "2020-04-24T12:02:39Z",
+  "SourceType": "Cluster",
+  "SourceName": "https://10.96.0.1:443",
+  "DisplayName": "https://10.96.0.1:443",
+  "ClusterInfo": {
+    "Version": "1.18",
+    "Nodes": 1,
+    "Pods": 20,
+    "Namespaces": 7,
+    "Controllers": 20
+  },
+  "Results": [
+    {
+      "Name": "csp-database",
+      "Namespace": "aqua",
+      "Kind": "Deployment",
+      "Results": {},
+      "PodResult": {
+        "Name": "",
+        "Results": {
+          "hostIPCSet": {
+            "ID": "hostIPCSet",
+            "Message": "Host IPC is not configured",
+            "Success": false,
+            "Severity": "danger",
+            "Category": "Security"
+          },
+          "hostNetworkSet": {
+            "ID": "hostNetworkSet",
+            "Message": "Host network is not configured",
+            "Success": true,
+            "Severity": "warning",
+            "Category": "Networking"
+          }
+        },
+        "ContainerResults": [
+          {
+            "Name": "db",
+            "Results": {
+              "cpuLimitsMissing": {
+                "ID": "cpuLimitsMissing",
+                "Message": "CPU limits are set",
+                "Success": false,
+                "Severity": "warning",
+                "Category": "Resources"
+              },
+              "cpuRequestsMissing": {
+                "ID": "cpuRequestsMissing",
+                "Message": "CPU requests are set",
+                "Success": true,
+                "Severity": "warning",
+                "Category": "Resources"
+              }
+            }
+          }
+        ]
+      },
+      "CreatedTime": "0001-01-01T00:00:00Z"
+    }
+  ]
+}

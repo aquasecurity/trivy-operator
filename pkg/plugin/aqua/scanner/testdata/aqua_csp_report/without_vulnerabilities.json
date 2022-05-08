@@ -1,0 +1,46 @@
+{
+  "image": "redis:5",
+  "scan_started": {
+    "seconds": 1594032104,
+    "nanos": 157149877
+  },
+  "scan_duration": 5,
+  "image_size": 98302720,
+  "os": "debian",
+  "version": "10",
+  "image_assurance_results": {},
+  "vulnerability_summary": {
+    "total": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "negligible": 9,
+    "sensitive": 0,
+    "malware": 0,
+    "critical": 0
+  },
+  "scan_options": {
+    "scan_executables": true,
+    "scan_sensitive_data": true,
+    "scan_malware": true,
+    "scan_files": true,
+    "scan_timeout": 3600000000000,
+    "manual_pull_fallback": true,
+    "save_adhoc_scans": true,
+    "dockerless": true,
+    "system_image_platform": "amd64:::",
+    "enable_fast_scanning": true,
+    "memoryThrottling": true,
+    "suggest_os_upgrade": true
+  },
+  "initiating_user": "scanner",
+  "data_date": 1593991449,
+  "pull_name": "redis:5",
+  "changed_result": false,
+  "required_image_platform": "amd64:::",
+  "scanned_image_platform": "amd64::linux:",
+  "security_feeds_used": {
+    "executables": "89843f8deaef1d"
+  },
+  "local": true
+}

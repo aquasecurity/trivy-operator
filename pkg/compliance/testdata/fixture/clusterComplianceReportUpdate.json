@@ -1,0 +1,712 @@
+{
+  "kind": "ClusterComplianceReport",
+  "apiVersion": "aquasecurity.github.io/v1alpha1",
+  "metadata": {
+    "name": "nsa",
+    "resourceVersion": "1000",
+    "creationTimestamp": null
+  },
+  "spec": {
+    "name": "nsa",
+    "description": "National Security Agency - Kubernetes Hardening Guidance",
+    "cron": "0/4 * * * * ? *",
+    "version": "1.0",
+    "controls": [
+      {
+        "id": "1.0",
+        "name": "Non-root containers",
+        "description": "Check that container is not running as root",
+        "kinds": [
+          "Workload"
+        ],
+        "mapping": {
+          "scanner": "config-audit",
+          "checks": [
+            {
+              "id": "KSV012"
+            }
+          ]
+        },
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "1.1",
+        "name": "Immutable container file systems",
+        "description": "Check that container root file system is immutable",
+        "kinds": [
+          "Workload"
+        ],
+        "mapping": {
+          "scanner": "config-audit",
+          "checks": [
+            {
+              "id": "KSV014"
+            }
+          ]
+        },
+        "severity": "LOW"
+      },
+      {
+        "id": "1.2",
+        "name": "Preventing privileged containers",
+        "description": "Controls whether Pods can run privileged containers",
+        "kinds": [
+          "Workload"
+        ],
+        "mapping": {
+          "scanner": "config-audit",
+          "checks": [
+            {
+              "id": "KSV017"
+            }
+          ]
+        },
+        "severity": "HIGH"
+      },
+      {
+        "id": "1.3",
+        "name": "Share containers process namespaces",
+        "description": "Controls whether containers can share process namespaces",
+        "kinds": [
+          "Workload"
+        ],
+        "mapping": {
+          "scanner": "config-audit",
+          "checks": [
+            {
+              "id": "KSV008"
+            }
+          ]
+        },
+        "severity": "HIGH"
+      },
+      {
+        "id": "1.4",
+        "name": "Share host process namespaces.",
+        "description": "Controls whether share host process namespaces",
+        "kinds": [
+          "Workload"
+        ],
+        "mapping": {
+          "scanner": "config-audit",
+          "checks": [
+            {
+              "id": "KSV009"
+            }
+          ]
+        },
+        "severity": "HIGH"
+      },
+      {
+        "id": "1.5",
+        "name": "use the host network",
+        "description": "Controls whether containers can use the host network",
+        "kinds": [
+          "Workload"
+        ],
+        "mapping": {
+          "scanner": "config-audit",
+          "checks": [
+            {
+              "id": "KSV010"
+            }
+          ]
+        },
+        "severity": "HIGH"
+      },
+      {
+        "id": "1.6",
+        "name": "Run with root privileges or with root group membership",
+        "description": "Controls whether container applications can run with root privileges or with root group membership",
+        "kinds": [
+          "Workload"
+        ],
+        "mapping": {
+          "scanner": "config-audit",
+          "checks": [
+            {
+              "id": "KSV029"
+            }
+          ]
+        },
+        "severity": "LOW"
+      },
+      {
+        "id": "1.7",
+        "name": "Restricts escalation to root privileges",
+        "description": "Control check restrictions escalation to root privileges",
+        "kinds": [
+          "Workload"
+        ],
+        "mapping": {
+          "scanner": "config-audit",
+          "checks": [
+            {
+              "id": "KSV001"
+            }
+          ]
+        },
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "1.8",
+        "name": "Sets the SELinux context of the container",
+        "description": "Control checks if pod sets the SELinux context of the container",
+        "kinds": [
+          "Workload"
+        ],
+        "mapping": {
+          "scanner": "config-audit",
+          "checks": [
+            {
+              "id": "KSV002"
+            }
+          ]
+        },
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "1.9",
+        "name": "Restrict a container's access to resources with AppArmor",
+        "description": "Control checks the restriction of containers access to resources with AppArmor",
+        "kinds": [
+          "Workload"
+        ],
+        "mapping": {
+          "scanner": "config-audit",
+          "checks": [
+            {
+              "id": "KSV030"
+            }
+          ]
+        },
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "1.10",
+        "name": "Sets the seccomp profile used to sandbox containers.",
+        "description": "Control checks the sets the seccomp profile used to sandbox containers",
+        "kinds": [
+          "Workload"
+        ],
+        "mapping": {
+          "scanner": "config-audit",
+          "checks": [
+            {
+              "id": "KSV030"
+            }
+          ]
+        },
+        "severity": "LOW"
+      },
+      {
+        "id": "1.11",
+        "name": "Protecting Pod service account tokens",
+        "description": "Control check whether disable secret token been mount ,automountServiceAccountToken: false",
+        "kinds": [
+          "Workload"
+        ],
+        "mapping": {
+          "scanner": "config-audit",
+          "checks": [
+            {
+              "id": "KSV036"
+            }
+          ]
+        },
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "1.12",
+        "name": "Namespace kube-system should not be used by users",
+        "defaultStatus": "PASS",
+        "description": "Control check whether Namespace kube-system is not being used by users",
+        "kinds": [
+          "NetworkPolicy"
+        ],
+        "mapping": {
+          "scanner": "config-audit",
+          "checks": [
+            {
+              "id": "KSV037"
+            }
+          ]
+        },
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "2.0",
+        "name": "Pod and/or namespace Selectors usage",
+        "description": "Control check validate pod and/or namespace Selectors usage",
+        "kinds": [
+          "Workload"
+        ],
+        "mapping": {
+          "scanner": "config-audit",
+          "checks": [
+            {
+              "id": "KSV038"
+            }
+          ]
+        },
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "3.0",
+        "name": "Use CNI plugin that supports NetworkPolicy API",
+        "description": "Control check whether check cni plugin installed\t",
+        "kinds": [
+          "Node"
+        ],
+        "mapping": {
+          "scanner": "kube-bench",
+          "checks": [
+            {
+              "id": "5.3.1"
+            }
+          ]
+        },
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "4.0",
+        "name": "Use ResourceQuota policies to limit resources",
+        "description": "Control check the use of ResourceQuota policies to limit resources",
+        "defaultStatus": "FAIL",
+        "kinds": [
+          "ResourceQuota"
+        ],
+        "mapping": {
+          "scanner": "config-audit",
+          "checks": [
+            {
+              "id": "<check need to be added>"
+            }
+          ]
+        },
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "5.0",
+        "name": "Control plan disable insecure port",
+        "description": "Control check whether control plan disable insecure port",
+        "kinds": [
+          "Node"
+        ],
+        "mapping": {
+          "scanner": "kube-bench",
+          "checks": [
+            {
+              "id": "1.2.19"
+            }
+          ]
+        },
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "5.1",
+        "name": "Encrypt etcd communication",
+        "description": "Control check whether etcd communication is encrypted",
+        "kinds": [
+          "Node"
+        ],
+        "mapping": {
+          "scanner": "kube-bench",
+          "checks": [
+            {
+              "id": "2.1"
+            }
+          ]
+        },
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "6.0",
+        "name": "Ensure kube config file permission",
+        "description": "Control check whether kube config file permissions",
+        "kinds": [
+          "Node"
+        ],
+        "mapping": {
+          "scanner": "kube-bench",
+          "checks": [
+            {
+              "id": "4.1.3"
+            },
+            {
+              "id": "4.1.4"
+            }
+          ]
+        },
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "6.1",
+        "name": "Check that encryption resource has been set",
+        "description": "Control checks whether encryption resource has been set",
+        "kinds": [
+          "Node"
+        ],
+        "mapping": {
+          "scanner": "kube-bench",
+          "checks": [
+            {
+              "id": "1.2.31"
+            },
+            {
+              "id": "1.2.32"
+            }
+          ]
+        },
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "6.2",
+        "name": "Check encryption provider",
+        "description": "Control checks whether encryption provider has been set",
+        "kinds": [
+          "Node"
+        ],
+        "mapping": {
+          "scanner": "kube-bench",
+          "checks": [
+            {
+              "id": "1.2.3"
+            }
+          ]
+        },
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "7.0",
+        "name": "Make sure anonymous-auth is unset",
+        "description": "Control checks whether anonymous-auth is unset",
+        "kinds": [
+          "Node"
+        ],
+        "mapping": {
+          "scanner": "kube-bench",
+          "checks": [
+            {
+              "id": "1.2.1"
+            }
+          ]
+        },
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "7.1",
+        "name": "Make sure -authorization-mode=RBAC",
+        "description": "Control check whether RBAC permission is in use",
+        "kinds": [
+          "Node"
+        ],
+        "mapping": {
+          "scanner": "kube-bench",
+          "checks": [
+            {
+              "id": "1.2.7"
+            },
+            {
+              "id": "1.2.8"
+            }
+          ]
+        },
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "8.0",
+        "name": "Audit policy is configure",
+        "description": "Control check whether audit policy is configure",
+        "kinds": [
+          "Node"
+        ],
+        "mapping": {
+          "scanner": "kube-bench",
+          "checks": [
+            {
+              "id": "3.2.1"
+            }
+          ]
+        },
+        "severity": "HIGH"
+      },
+      {
+        "id": "8.1",
+        "name": "Audit log path is configure",
+        "description": "Control check whether audit log path is configured",
+        "kinds": [
+          "Node"
+        ],
+        "mapping": {
+          "scanner": "kube-bench",
+          "checks": [
+            {
+              "id": "1.2.22"
+            }
+          ]
+        },
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "8.2",
+        "name": "Audit log aging",
+        "description": "Control check whether audit log aging is configure",
+        "kinds": [
+          "Node"
+        ],
+        "mapping": {
+          "scanner": "kube-bench",
+          "checks": [
+            {
+              "id": "1.2.23"
+            }
+          ]
+        },
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "9.0",
+        "name": "Service mesh is configure",
+        "description": "Control check whether service mesh is used in cluster",
+        "kinds": [
+          "Node"
+        ],
+        "mapping": {
+          "scanner": "kube-bench",
+          "checks": [
+            {
+              "id": "<check need to be added>"
+            }
+          ]
+        },
+        "severity": "MEDIUM"
+      }
+    ]
+  },
+  "status": {
+    "updateTimestamp": "2022-03-09T08:52:44Z",
+    "summary": {
+      "passCount": 3,
+      "failCount": 5
+    },
+    "controlCheck": [
+      {
+        "id": "1.3",
+        "name": "Share containers process namespaces",
+        "description": "Controls whether containers can share process namespaces",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "HIGH"
+      },
+      {
+        "id": "1.4",
+        "name": "Share host process namespaces.",
+        "description": "Controls whether share host process namespaces",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "HIGH"
+      },
+      {
+        "id": "1.12",
+        "name": "Namespace kube-system should not be used by users",
+        "description": "Control check whether Namespace kube-system is not being used by users",
+        "passTotal": 1,
+        "failTotal": 0,
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "8.0",
+        "name": "Audit policy is configure",
+        "description": "Control check whether audit policy is configure",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "HIGH"
+      },
+      {
+        "id": "9.0",
+        "name": "Service mesh is configure",
+        "description": "Control check whether service mesh is used in cluster",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "1.0",
+        "name": "Non-root containers",
+        "description": "Check that container is not running as root",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "3.0",
+        "name": "Use CNI plugin that supports NetworkPolicy API",
+        "description": "Control check whether check cni plugin installed\t",
+        "passTotal": 1,
+        "failTotal": 0,
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "7.0",
+        "name": "Make sure anonymous-auth is unset",
+        "description": "Control checks whether anonymous-auth is unset",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "1.8",
+        "name": "Sets the SELinux context of the container",
+        "description": "Control checks if pod sets the SELinux context of the container",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "1.10",
+        "name": "Sets the seccomp profile used to sandbox containers.",
+        "description": "Control checks the sets the seccomp profile used to sandbox containers",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "LOW"
+      },
+      {
+        "id": "8.1",
+        "name": "Audit log path is configure",
+        "description": "Control check whether audit log path is configured",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "1.6",
+        "name": "Run with root privileges or with root group membership",
+        "description": "Controls whether container applications can run with root privileges or with root group membership",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "LOW"
+      },
+      {
+        "id": "1.11",
+        "name": "Protecting Pod service account tokens",
+        "description": "Control check whether disable secret token been mount ,automountServiceAccountToken: false",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "1.5",
+        "name": "use the host network",
+        "description": "Controls whether containers can use the host network",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "HIGH"
+      },
+      {
+        "id": "2.0",
+        "name": "Pod and/or namespace Selectors usage",
+        "description": "Control check validate the pod and/or namespace Selectors usage",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "5.0",
+        "name": "Control plan disable insecure port",
+        "description": "Control check whether control plan disable insecure port",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "7.1",
+        "name": "Make sure -authorization-mode=RBAC",
+        "description": "Control check whether RBAC permission is in use",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "1.7",
+        "name": "Restricts escalation to root privileges",
+        "description": "Control check restrictions escalation to root privileges",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "1.2",
+        "name": "Preventing privileged containers",
+        "description": "Controls whether Pods can run privileged containers",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "HIGH"
+      },
+      {
+        "id": "4.0",
+        "name": "Use ResourceQuota policies to limit resources",
+        "description": "Control check the use of ResourceQuota policies to limit resources",
+        "passTotal": 0,
+        "failTotal": 1,
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "8.2",
+        "name": "Audit log aging",
+        "description": "Control check whether audit log aging is configure",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "1.1",
+        "name": "Immutable container file systems",
+        "description": "Check that container root file system is immutable",
+        "passTotal": 1,
+        "failTotal": 2,
+        "severity": "LOW"
+      },
+      {
+        "id": "6.0",
+        "name": "Ensure kube config file permission",
+        "description": "Control check whether kube config file permissions",
+        "passTotal": 0,
+        "failTotal": 2,
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "6.1",
+        "name": "Check that encryption resource has been set",
+        "description": "Control checks whether encryption resource has been set",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "6.2",
+        "name": "Check encryption provider",
+        "description": "Control checks whether encryption provider has been set",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "5.1",
+        "name": "Encrypt etcd communication",
+        "description": "Control check whether etcd communication is encrypted",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "1.9",
+        "name": "Restrict a container's access to resources with AppArmor",
+        "description": "Control checks the restriction of containers access to resources with AppArmor",
+        "passTotal": 0,
+        "failTotal": 0,
+        "severity": "MEDIUM"
+      }
+    ]
+  }
+}

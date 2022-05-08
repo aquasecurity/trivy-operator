@@ -1,0 +1,18 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Integration / Operator / Conftest" type="GoTestRunConfiguration" factoryName="Go Test">
+    <module name="trivy-operator" />
+    <working_directory value="$PROJECT_DIR$/itest/trivy-operator/configauditreport/conftest" />
+    <envs>
+      <env name="OPERATOR_NAMESPACE" value="trivy-operator" />
+      <env name="OPERATOR_TARGET_NAMESPACES" value="default" />
+    </envs>
+    <root_directory value="$PROJECT_DIR$" />
+    <kind value="PACKAGE" />
+    <package value="github.com/aquasecurity/trivy-operator/itest/trivy-operator/configauditreport/conftest" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$" />
+    <framework value="gotest" />
+    <pattern value="^\QTestIntegrationOperatorWithConftest\E$" />
+    <method v="2" />
+  </configuration>
+</component>

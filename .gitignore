@@ -1,0 +1,21 @@
+.idea/
+.vscode/
+
+bin/
+dist/
+
+coverage.txt
+itest/coverage.txt
+itest/itest.test
+vendor
+
+# Ignore Mac DS_Store files
+*.DS_Store
+
+site/
+
+## helm chart
+output/*
+.cr-release-packages/*
+## idea files
+*.iml

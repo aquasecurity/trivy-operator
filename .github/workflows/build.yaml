@@ -1,0 +1,263 @@
+---
+# This workflow is triggered on push or pull request for the main branch.
+# It runs tests and various checks to validate that the proposed changes
+# will not introduce any regression after merging the code to the main branch.
+name: Build
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '.github/ISSUE_TEMPLATE/*.md'
+      - '*.md'
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'LICENSE'
+      - 'NOTICE'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '.github/ISSUE_TEMPLATE/*.md'
+      - '*.md'
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'LICENSE'
+      - 'NOTICE'
+
+env:
+  GO_VERSION: "1.17"
+  KIND_VERSION: "v0.11.1"
+  KIND_IMAGE: "kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6"
+
+# Disable permissions granted to the GITHUB_TOKEN for all the available scopes.
+permissions: {}
+
+# Cancel any in-flight jobs for the same PR branch so there's only one active at a time.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-code:
+    name: Verify code
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Cached Go dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Verify Go code
+        uses: golangci/golangci-lint-action@v3.1.0
+        with:
+          args: --verbose
+          version: latest
+          skip-pkg-cache: true
+          skip-build-cache: true
+      - name: Verify YAML code
+        uses: ibiqlik/action-yamllint@v3
+      - name: Vendor Go modules
+        run: go mod vendor
+      - name: Verify generated Go code
+        run: GOPATH="$(go env GOPATH)" ./hack/verify-codegen.sh
+  unit-tests:
+    name: Run unit tests
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Run unit tests
+        run: make unit-tests
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.txt
+  itest-starboard-cli:
+    name: Run integration tests / Starboard CLI
+    needs:
+      - unit-tests
+      - verify-code
+    runs-on: ubuntu-20.04
+    timeout-minutes: 15
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Setup Kubernetes cluster (KIND)
+        uses: engineerd/setup-kind@v0.5.0
+        with:
+          version: ${{ env.KIND_VERSION }}
+          image: ${{ env.KIND_IMAGE }}
+      - name: Test connection to Kubernetes cluster
+        run: |
+          kubectl cluster-info
+          kubectl wait --for=condition=Ready nodes --all --timeout=300s
+          kubectl describe node
+      - name: Run integration tests
+        run: |
+          make itests-starboard
+        env:
+          KUBECONFIG: /home/runner/.kube/config
+          STARBOARD_TEST_CLI_LOG_LEVEL: "0"
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./itest/trivy-operator/coverage.txt
+  itest-trivy-operator:
+    name: Run integration tests / Trivy Operator
+    needs:
+      - unit-tests
+      - verify-code
+    runs-on: ubuntu-20.04
+    timeout-minutes: 15
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Setup Kubernetes cluster (KIND)
+        uses: engineerd/setup-kind@v0.5.0
+        with:
+          version: ${{ env.KIND_VERSION }}
+          image: ${{ env.KIND_IMAGE }}
+      - name: Test connection to Kubernetes cluster
+        run: |
+          kubectl cluster-info
+          kubectl wait --for=condition=Ready nodes --all --timeout=300s
+          kubectl describe node
+      - name: Run integration tests
+        run: |
+          kubectl apply -f deploy/crd/vulnerabilityreports.crd.yaml \
+            -f deploy/crd/configauditreports.crd.yaml \
+            -f deploy/crd/clusterconfigauditreports.crd.yaml \
+            -f deploy/crd/clustercompliancereports.crd.yaml \
+            -f deploy/crd/clustercompliancedetailreports.crd.yaml \
+            -f deploy/crd/ciskubebenchreports.crd.yaml
+          kubectl apply -f deploy/static/01-trivy-operator.ns.yaml \
+            -f deploy/static/02-trivy-operator.rbac.yaml
+          kubectl apply -f deploy/static/03-trivy-operator.config.yaml \
+            -f deploy/static/04-trivy-operator.policies.yaml
+          make itests-trivy-operator
+        env:
+          KUBECONFIG: /home/runner/.kube/config
+          OPERATOR_NAMESPACE: trivy-system
+          OPERATOR_TARGET_NAMESPACES: default
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./itest/trivy-operator/coverage.txt
+  integration-operator-conftest:
+    name: Integration / Operator / Conftest
+    needs:
+      - unit-tests
+      - verify-code
+    runs-on: ubuntu-20.04
+    timeout-minutes: 15
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Setup Kubernetes cluster (KIND)
+        uses: engineerd/setup-kind@v0.5.0
+        with:
+          version: ${{ env.KIND_VERSION }}
+          image: ${{ env.KIND_IMAGE }}
+      - name: Test connection to Kubernetes cluster
+        run: |
+          kubectl cluster-info
+          kubectl wait --for=condition=Ready nodes --all --timeout=300s
+          kubectl describe node
+      - name: Run integration tests
+        run: |
+          kubectl apply -f deploy/crd/vulnerabilityreports.crd.yaml \
+            -f deploy/crd/configauditreports.crd.yaml \
+            -f deploy/crd/clusterconfigauditreports.crd.yaml \
+            -f deploy/crd/clustercompliancereports.crd.yaml \
+            -f deploy/crd/clustercompliancedetailreports.crd.yaml \
+            -f deploy/crd/ciskubebenchreports.crd.yaml
+          kubectl apply -f deploy/static/01-trivy-operator.ns.yaml \
+            -f deploy/static/02-trivy-operator.rbac.yaml
+          kubectl apply -f deploy/static/03-trivy-operator.config.yaml
+          make integration-operator-conftest
+        env:
+          KUBECONFIG: /home/runner/.kube/config
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./itest/trivy-operator/configauditreport/conftest/coverage.txt
+  test-helm-chart:
+    if: "false"  # TODO It's broken on a release candidate PRs because it's using container image that has not been released yet.
+    name: Test Helm Chart
+    needs:
+      - itest-starboard-cli
+      - itest-trivy-operator
+      - integration-operator-conftest
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Install Helm
+        uses: azure/setup-helm@18bc76811624f360dbd7f18c2d4ecb32c7b87bab  # v1.1
+        with:
+          version: v3.5.0
+      - name: Set up python
+        uses: actions/setup-python@98f2ad02fd48d057ee3b4d4f66525b231c3e52b6  # v2.3.0
+        with:
+          python-version: 3.7
+      - name: Setup Chart Linting
+        id: lint
+        uses: helm/chart-testing-action@dae259e86a35ff09145c0805e2d7dd3f7207064a  # v2.1.0
+      - name: Setup Kubernetes cluster (KIND)
+        uses: helm/kind-action@94729529f85113b88f4f819c17ce61382e6d8478  # v1.2.0
+        with:
+          version: ${{ env.KIND_VERSION }}
+          image: ${{ env.KIND_IMAGE }}
+      - name: Run chart-testing
+        run: ct lint-and-install --validate-maintainers=false --charts deploy/helm

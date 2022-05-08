@@ -1,0 +1,108 @@
+site_name: Trivy Operator
+site_url: https://aquasecurity.github.io/trivyoperator/
+site_description: Kubernetes-native security toolkit
+docs_dir: docs/
+repo_name: GitHub
+repo_url: https://github.com/aquasecurity/trivyoperator
+edit_uri: ""
+copyright: Copyright 2019-2022 Aqua Security Software Ltd.
+
+nav:
+  - Introduction: index.md
+  - Trivy Operator:
+      - Overview: operator/index.md
+      - Installation:
+          - kubectl: operator/installation/kubectl.md
+          - Helm: operator/installation/helm.md
+          - Operator Lifecycle Manager: operator/installation/olm.md
+          - Upgrade: operator/installation/upgrade.md
+      - Getting Started: operator/getting-started.md
+      - Configuration: operator/configuration.md
+      - Troubleshooting: operator/troubleshooting.md
+  - Starboard CLI:
+      - Overview: cli/index.md
+      - Installation:
+          - From the Binary Releases: cli/installation/binary-releases.md
+          - Krew: cli/installation/krew.md
+          - Docker: cli/installation/docker.md
+          - From Source (Linux, macOS): cli/installation/source.md
+      - Getting Started: cli/getting-started.md
+      - Troubleshooting: cli/troubleshooting.md
+  - Settings: settings.md
+  - Vulnerability Scanning:
+      - Overview: vulnerability-scanning/index.md
+      - Trivy Scanner: vulnerability-scanning/trivy.md
+      - Aqua Enterprise Scanner: vulnerability-scanning/aqua-enterprise.md
+      - Private Registries: vulnerability-scanning/private-registries.md
+      - Managed Registries: vulnerability-scanning/managed-registries.md
+  - Configuration Auditing:
+      - Overview: configuration-auditing/index.md
+      - Built-in Configuration Audit Policies: configuration-auditing/built-in-policies.md
+      - Infrastructure Scanners:
+          - Overview: configuration-auditing/infrastructure-scanners/index.md
+      - Pluggable Scanners:
+          - Overview: configuration-auditing/pluggable-scanners/index.md
+          - Polaris: configuration-auditing/pluggable-scanners/polaris.md
+          - Conftest: configuration-auditing/pluggable-scanners/conftest.md
+  - Integrations:
+      - Octant Plugin: integrations/octant.md
+      - Lens Extension: integrations/lens.md
+      - Prometheus Exporter: integrations/prometheus.md
+  - Tutorials:
+      - Writing Custom Configuration Audit Policies: tutorials/writing-custom-configuration-audit-policies.md
+      - Manage Access to Security Reports: tutorials/manage_access_to_security_reports.md
+  - Custom Resource Definitions:
+      - Overview: crds/index.md
+      - VulnerabilityReport: crds/vulnerability-report.md
+      - ClusterVulnerabilityReport: crds/clustervulnerability-report.md
+      - ConfigAuditReport: crds/configaudit-report.md
+      - ClusterConfigAuditReport: crds/clusterconfigaudit-report.md
+      - CISKubeBenchReport: crds/ciskubebench-report.md
+      - KubeHunterReport: crds/kubehunter-report.md
+      - ClusterComplianceReport: crds/clustercompliance-report.md
+      - ClusterComplianceDetailReport: crds/clustercompliancedetail-report.md
+  - Compliance Reports:
+      - National Security Agency: compliance/nsa-1.0.md
+  - Frequently Asked Questions: faq.md
+  - Further Reading: further-reading.md
+
+theme:
+  name: material
+  custom_dir: overrides
+  language: 'en'
+  logo: images/trivyoperator-icon-white.svg
+
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - admonition
+  - toc:
+      permalink: true
+
+# All data defined under extra is automatically exposed as a variable and can
+# be used from the template. For example, {{ var.version }}.
+#
+# Requires pip install mike and pip install git+https://${GH_TOKEN}@github.com/squidfunk/mkdocs-material-insiders.git
+extra:
+  generator: false
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/aquasecurity
+    - icon: fontawesome/brands/slack
+      link: https://slack.aquasec.com/
+    - icon: fontawesome/brands/youtube
+      link: https://www.youtube.com/channel/UCZd5NF4XJRaU-yfextsY-pw
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/AquaSecTeam
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/aquasecteam/
+  version:
+    provider: mike
+  var:
+    prev_git_tag: "v0.15.3"
+    chart_version: 0.10.4
+
+# Requires pip install mkdocs-macros-plugin
+plugins:
+  - search
+  - macros

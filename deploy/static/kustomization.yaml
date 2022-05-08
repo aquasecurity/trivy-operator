@@ -1,0 +1,6 @@
+resources:
+  - trivy-operator.yaml
+images:
+  - name: docker.io/aquasec/trivy-operator
+    newName: docker.io/aquasec/trivy-operator
+    newTag: dev

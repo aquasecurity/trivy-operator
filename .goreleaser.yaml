@@ -8,25 +8,6 @@ before:
   hooks:
     - go mod download
 builds:
-  - id: starboard
-    main: ./cmd/starboard/main.go
-    binary: starboard
-    goos:
-      - darwin
-      - linux
-      - windows
-    goarch:
-      - amd64
-      - arm
-      - arm64
-      - s390x
-    goarm:
-      - "7"
-    ignore:
-      - goos: darwin
-        goarch: s390x
-      - goos: windows
-        goarch: s390x
   - id: trivy-operator
     main: ./cmd/trivy-operator/main.go
     binary: trivy-operator
@@ -40,22 +21,10 @@ builds:
       - ppc64le
     goarm:
       - "7"
-  - id: starboard-scanner-aqua
-    main: ./cmd/scanner-aqua/main.go
-    binary: starboard-scanner-aqua
-    goos:
-      - linux
-    goarch:
-      - amd64
-      - arm
-      - arm64
-      - s390x
-    goarm:
-      - "7"
 archives:
   - name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
     builds:
-      - starboard
+      - trivy-operator
     replacements:
       amd64: x86_64
       arm: ARM
@@ -76,24 +45,6 @@ changelog:
       - '^release'
 dockers:
   - image_templates:
-      - "docker.io/aquasec/starboard:{{ .Version }}-amd64"
-    use: buildx
-    goos: linux
-    dockerfile: build/starboard/Dockerfile
-    goarch: amd64
-    ids:
-      - starboard
-    build_flag_templates:
-      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.description=Command line interface for Starboard"
-      - "--label=org.opencontainers.image.vendor=Aqua Security"
-      - "--label=org.opencontainers.image.version={{ .Version }}"
-      - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/starboard"
-      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/starboard/v{{ .Version }}/"
-      - "--platform=linux/amd64"
-  - image_templates:
       - "docker.io/aquasec/trivy-operator:{{ .Version }}-amd64"
     use: buildx
     goos: linux
@@ -103,13 +54,13 @@ dockers:
       - trivy-operator
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
-      - "--label=org.opencontainers.image.description=Keeps Starboard resources updated"
+      - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"
       - "--label=org.opencontainers.image.vendor=Aqua Security"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/starboard"
+      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/trivy-operator"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/starboard/v{{ .Version }}/"
+      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/trivy-operator/v{{ .Version }}/"
       - "--platform=linux/amd64"
   - image_templates:
       - "docker.io/aquasec/trivy-operator:{{ .Version }}-ubi8-amd64"
@@ -121,50 +72,14 @@ dockers:
       - trivy-operator
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
-      - "--label=org.opencontainers.image.description=Keeps Starboard resources updated"
+      - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"
       - "--label=org.opencontainers.image.vendor=Aqua Security"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/starboard"
+      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/trivy-operator"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/starboard/v{{ .Version }}/"
+      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/trivy-operator/v{{ .Version }}/"
       - "--platform=linux/amd64"
-  - image_templates:
-      - "docker.io/aquasec/starboard-scanner-aqua:{{ .Version }}-amd64"
-    use: buildx
-    goos: linux
-    dockerfile: build/scanner-aqua/Dockerfile
-    goarch: amd64
-    ids:
-      - starboard-scanner-aqua
-    build_flag_templates:
-      - "--label=org.opencontainers.image.title=starboard-scanner-aqua"
-      - "--label=org.opencontainers.image.description=Aqua scanner for Starboard"
-      - "--label=org.opencontainers.image.vendor=Aqua Security"
-      - "--label=org.opencontainers.image.version={{ .Version }}"
-      - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/starboard"
-      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/starboard/v{{ .Version }}/"
-      - "--platform=linux/amd64"
-  - image_templates:
-      - "docker.io/aquasec/starboard:{{ .Version }}-arm64"
-    use: buildx
-    goos: linux
-    dockerfile: build/starboard/Dockerfile
-    goarch: arm64
-    ids:
-      - starboard
-    build_flag_templates:
-      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.description=Command line interface for Starboard"
-      - "--label=org.opencontainers.image.vendor=Aqua Security"
-      - "--label=org.opencontainers.image.version={{ .Version }}"
-      - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/starboard"
-      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/starboard/v{{ .Version }}/"
-      - "--platform=linux/arm64"
   - image_templates:
       - "docker.io/aquasec/trivy-operator:{{ .Version }}-arm64"
     use: buildx
@@ -175,13 +90,13 @@ dockers:
       - trivy-operator
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
-      - "--label=org.opencontainers.image.description=Keeps Starboard resources updated"
+      - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"
       - "--label=org.opencontainers.image.vendor=Aqua Security"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/starboard"
+      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/trivy-operator"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/starboard/v{{ .Version }}/"
+      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/trivy-operator/v{{ .Version }}/"
       - "--platform=linux/arm64"
   - image_templates:
       - "docker.io/aquasec/trivy-operator:{{ .Version }}-ubi8-arm64"
@@ -193,50 +108,14 @@ dockers:
       - trivy-operator
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
-      - "--label=org.opencontainers.image.description=Keeps Starboard resources updated"
+      - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"
       - "--label=org.opencontainers.image.vendor=Aqua Security"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/starboard"
+      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/trivy-operator"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/starboard/v{{ .Version }}/"
+      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/trivy-operator/v{{ .Version }}/"
       - "--platform=linux/arm64"
-  - image_templates:
-      - "docker.io/aquasec/starboard-scanner-aqua:{{ .Version }}-arm64"
-    use: buildx
-    goos: linux
-    dockerfile: build/scanner-aqua/Dockerfile
-    goarch: arm64
-    ids:
-      - starboard-scanner-aqua
-    build_flag_templates:
-      - "--label=org.opencontainers.image.title=starboard-scanner-aqua"
-      - "--label=org.opencontainers.image.description=Aqua scanner for Starboard"
-      - "--label=org.opencontainers.image.vendor=Aqua Security"
-      - "--label=org.opencontainers.image.version={{ .Version }}"
-      - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/starboard"
-      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/starboard/v{{ .Version }}/"
-      - "--platform=linux/arm64"
-  - image_templates:
-      - "docker.io/aquasec/starboard:{{ .Version }}-s390x"
-    use: buildx
-    goos: linux
-    dockerfile: build/starboard/Dockerfile
-    goarch: s390x
-    ids:
-      - starboard
-    build_flag_templates:
-      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
-      - "--label=org.opencontainers.image.description=Command line interface for Starboard"
-      - "--label=org.opencontainers.image.vendor=Aqua Security"
-      - "--label=org.opencontainers.image.version={{ .Version }}"
-      - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/starboard"
-      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/starboard/v{{ .Version }}/"
-      - "--platform=linux/s390x"
   - image_templates:
       - "docker.io/aquasec/trivy-operator:{{ .Version }}-s390x"
     use: buildx
@@ -247,13 +126,13 @@ dockers:
       - trivy-operator
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
-      - "--label=org.opencontainers.image.description=Keeps Starboard resources updated"
+      - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"
       - "--label=org.opencontainers.image.vendor=Aqua Security"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/starboard"
+      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/trivy-operator"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/starboard/v{{ .Version }}/"
+      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/trivy-operator/v{{ .Version }}/"
       - "--platform=linux/s390x"
   - image_templates:
       - "docker.io/aquasec/trivy-operator:{{ .Version }}-ppc64le"
@@ -265,13 +144,13 @@ dockers:
       - trivy-operator
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
-      - "--label=org.opencontainers.image.description=Keeps Starboard resources updated"
+      - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"
       - "--label=org.opencontainers.image.vendor=Aqua Security"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/starboard"
+      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/trivy-operator"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/starboard/v{{ .Version }}/"
+      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/trivy-operator/v{{ .Version }}/"
       - "--platform=linux/ppc64le"
   - image_templates:
       - "docker.io/aquasec/trivy-operator:{{ .Version }}-ubi8-s390x"
@@ -283,31 +162,13 @@ dockers:
       - trivy-operator
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
-      - "--label=org.opencontainers.image.description=Keeps Starboard resources updated"
+      - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"
       - "--label=org.opencontainers.image.vendor=Aqua Security"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/starboard"
+      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/trivy-operator"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/starboard/v{{ .Version }}/"
-      - "--platform=linux/s390x"
-  - image_templates:
-      - "docker.io/aquasec/starboard-scanner-aqua:{{ .Version }}-s390x"
-    use: buildx
-    goos: linux
-    dockerfile: build/scanner-aqua/Dockerfile
-    goarch: s390x
-    ids:
-      - starboard-scanner-aqua
-    build_flag_templates:
-      - "--label=org.opencontainers.image.title=starboard-scanner-aqua"
-      - "--label=org.opencontainers.image.description=Aqua scanner for Starboard"
-      - "--label=org.opencontainers.image.vendor=Aqua Security"
-      - "--label=org.opencontainers.image.version={{ .Version }}"
-      - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/starboard"
-      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/starboard/v{{ .Version }}/"
+      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/trivy-operator/v{{ .Version }}/"
       - "--platform=linux/s390x"
   - image_templates:
       - "docker.io/aquasec/trivy-operator:{{ .Version }}-ubi8-ppc64le"
@@ -319,20 +180,15 @@ dockers:
       - trivy-operator
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
-      - "--label=org.opencontainers.image.description=Keeps Starboard resources updated"
+      - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"
       - "--label=org.opencontainers.image.vendor=Aqua Security"
       - "--label=org.opencontainers.image.version={{ .Version }}"
       - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/starboard"
+      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/trivy-operator"
       - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/starboard/v{{ .Version }}/"
+      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/trivy-operator/v{{ .Version }}/"
       - "--platform=linux/ppc64le"
 docker_manifests:
-  - name_template: "aquasec/starboard:{{ .Version }}"
-    image_templates:
-      - "aquasec/starboard:{{ .Version }}-amd64"
-      - "aquasec/starboard:{{ .Version }}-arm64"
-      - "aquasec/starboard:{{ .Version }}-s390x"
   - name_template: "aquasec/trivy-operator:{{ .Version }}"
     image_templates:
       - "aquasec/trivy-operator:{{ .Version }}-amd64"
@@ -345,8 +201,3 @@ docker_manifests:
       - "aquasec/trivy-operator:{{ .Version }}-ubi8-arm64"
       - "aquasec/trivy-operator:{{ .Version }}-ubi8-s390x"
       - "aquasec/trivy-operator:{{ .Version }}-ubi8-ppc64le"
-  - name_template: "aquasec/starboard-scanner-aqua:{{ .Version }}"
-    image_templates:
-      - "aquasec/starboard-scanner-aqua:{{ .Version }}-amd64"
-      - "aquasec/starboard-scanner-aqua:{{ .Version }}-arm64"
-      - "aquasec/starboard-scanner-aqua:{{ .Version }}-s390x"

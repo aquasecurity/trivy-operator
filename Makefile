@@ -16,9 +16,7 @@ GINKGO=$(GOBIN)/ginkgo
 SOURCES := $(shell find . -name '*.go')
 
 IMAGE_TAG := dev
-STARBOARD_CLI_IMAGE := aquasec/starboard:$(IMAGE_TAG)
 TRIVY_OPERATOR_IMAGE := aquasec/trivy-operator:$(IMAGE_TAG)
-STARBOARD_SCANNER_AQUA_IMAGE := aquasec/starboard-scanner-aqua:$(IMAGE_TAG)
 TRIVY_OPERATOR_IMAGE_UBI8 := aquasec/trivy-operator:$(IMAGE_TAG)-ubi8
 
 MKDOCS_IMAGE := aquasec/mkdocs-material:trivy-operator
@@ -28,19 +26,11 @@ MKDOCS_PORT := 8000
 all: build
 
 .PHONY: build
-build: build-starboard-cli build-trivy-operator build-starboard-scanner-aqua
-
-## Builds the trivy-operator binary
-build-starboard-cli: $(SOURCES)
-	CGO_ENABLED=0 go build -o ./bin/starboard ./cmd/starboard/main.go
+build: build-trivy-operator
 
 ## Builds the trivy-operator binary
 build-trivy-operator: $(SOURCES)
 	CGO_ENABLED=0 GOOS=linux go build -o ./bin/trivy-operator ./cmd/trivy-operator/main.go
-
-## Builds the scanner-aqua binary
-build-starboard-scanner-aqua: $(SOURCES)
-	CGO_ENABLED=0 GOOS=linux go build -o ./bin/starboard-scanner-aqua ./cmd/scanner-aqua/main.go
 
 .PHONY: get-ginkgo
 ## Installs Ginkgo CLI
@@ -59,57 +49,40 @@ compile-templates: get-qtc
 
 .PHONY: test
 ## Runs both unit and integration tests
-test: unit-tests itests-starboard itests-trivy-operator
+test: unit-tests itests-trivy-operator itests-trivy-operator
 
 .PHONY: unit-tests
 ## Runs unit tests with code coverage enabled
 unit-tests: $(SOURCES)
 	go test -v -short -race -timeout 30s -coverprofile=coverage.txt ./...
 
-.PHONY: itests-starboard
-## Runs integration tests for Starboard CLI with code coverage enabled
-itests-starboard: check-kubeconfig get-ginkgo
-	@$(GINKGO) \
-	-coverprofile=coverage.txt \
-	-coverpkg=github.com/aquasecurity/starboard/pkg/cmd,\
-	github.com/aquasecurity/starboard/pkg/plugin,\
-	github.com/aquasecurity/starboard/pkg/kube,\
-	github.com/aquasecurity/starboard/pkg/kubebench,\
-	github.com/aquasecurity/starboard/pkg/kubehunter,\
-	github.com/aquasecurity/starboard/pkg/plugin/trivy,\
-	github.com/aquasecurity/starboard/pkg/plugin/polaris,\
-	github.com/aquasecurity/starboard/pkg/plugin/conftest,\
-	github.com/aquasecurity/starboard/pkg/configauditreport,\
-	github.com/aquasecurity/starboard/pkg/vulnerabilityreport \
-	./itest/starboard
-
 .PHONY: itests-trivy-operator
-## Runs integration tests for Starboard Operator with code coverage enabled
+## Runs integration tests for Trivy Operator with code coverage enabled
 itests-trivy-operator: check-kubeconfig get-ginkgo
 	@$(GINKGO) \
 	-coverprofile=coverage.txt \
-	-coverpkg=github.com/aquasecurity/starboard/pkg/operator,\
-	github.com/aquasecurity/starboard/pkg/operator/predicate,\
-	github.com/aquasecurity/starboard/pkg/operator/controller,\
-	github.com/aquasecurity/starboard/pkg/plugin,\
-	github.com/aquasecurity/starboard/pkg/plugin/trivy,\
-	github.com/aquasecurity/starboard/pkg/plugin/polaris,\
-	github.com/aquasecurity/starboard/pkg/plugin/conftest,\
-	github.com/aquasecurity/starboard/pkg/configauditreport,\
-	github.com/aquasecurity/starboard/pkg/vulnerabilityreport,\
-	github.com/aquasecurity/starboard/pkg/kubebench \
+	-coverpkg=github.com/aquasecurity/trivy-operator/pkg/operator,\
+	github.com/aquasecurity/trivy-operator/pkg/operator/predicate,\
+	github.com/aquasecurity/trivy-operator/pkg/operator/controller,\
+	github.com/aquasecurity/trivy-operator/pkg/plugin,\
+	github.com/aquasecurity/trivy-operator/pkg/plugin/trivy,\
+	github.com/aquasecurity/trivy-operator/pkg/plugin/polaris,\
+	github.com/aquasecurity/trivy-operator/pkg/plugin/conftest,\
+	github.com/aquasecurity/trivy-operator/pkg/configauditreport,\
+	github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport,\
+	github.com/aquasecurity/trivy-operator/pkg/kubebench \
 	./itest/trivy-operator
 
 .PHONY: integration-operator-conftest
 integration-operator-conftest: check-kubeconfig get-ginkgo
 	@$(GINKGO) \
 	-coverprofile=coverage.txt \
-	-coverpkg=github.com/aquasecurity/starboard/pkg/operator,\
-	github.com/aquasecurity/starboard/pkg/operator/predicate,\
-	github.com/aquasecurity/starboard/pkg/operator/controller,\
-	github.com/aquasecurity/starboard/pkg/plugin,\
-	github.com/aquasecurity/starboard/pkg/plugin/conftest,\
-	github.com/aquasecurity/starboard/pkg/configauditreport \
+	-coverpkg=github.com/aquasecurity/trivy-operator/pkg/operator,\
+	github.com/aquasecurity/trivy-operator/pkg/operator/predicate,\
+	github.com/aquasecurity/trivy-operator/pkg/operator/controller,\
+	github.com/aquasecurity/trivy-operator/pkg/plugin,\
+	github.com/aquasecurity/trivy-operator/pkg/plugin/conftest,\
+	github.com/aquasecurity/trivy-operator/pkg/configauditreport \
 	./itest/trivy-operator/configauditreport/conftest
 
 .PHONY: check-kubeconfig
@@ -127,26 +100,16 @@ clean:
 
 ## Builds Docker images for all binaries
 docker-build: \
-	docker-build-starboard-cli \
 	docker-build-trivy-operator \
-	docker-build-trivy-operator-ubi8 \
-	docker-build-starboard-scanner-aqua
+	docker-build-trivy-operator-ubi8
 
-## Builds Docker image for Starboard CLI
-docker-build-starboard-cli: build-starboard-cli
-	$(DOCKER) build --no-cache -t $(STARBOARD_CLI_IMAGE) -f build/starboard/Dockerfile bin
-
-## Builds Docker image for Starboard operator
+## Builds Docker image for trivy-operator
 docker-build-trivy-operator: build-trivy-operator
 	$(DOCKER) build --no-cache -t $(TRIVY_OPERATOR_IMAGE) -f build/trivy-operator/Dockerfile bin
 	
-## Builds Docker image for Starboard operator ubi8
+## Builds Docker image for trivy-operator ubi8
 docker-build-trivy-operator-ubi8: build-trivy-operator
 	$(DOCKER) build --no-cache -f build/trivy-operator/Dockerfile.ubi8 -t $(TRIVY_OPERATOR_IMAGE_UBI8) bin
-
-## Builds Docker image for Aqua scanner
-docker-build-starboard-scanner-aqua: build-starboard-scanner-aqua
-	$(DOCKER) build --no-cache -t $(STARBOARD_SCANNER_AQUA_IMAGE) -f build/scanner-aqua/Dockerfile bin
 
 kind-load-images: \
 	docker-build-trivy-operator \
@@ -163,9 +126,7 @@ mkdocs-serve:
 .PHONY: \
 	clean \
 	docker-build \
-	docker-build-starboard-cli \
 	docker-build-trivy-operator \
 	docker-build-trivy-operator-ubi8 \
-	docker-build-starboard-scanner-aqua \
 	kind-load-images \
 	mkdocs-serve

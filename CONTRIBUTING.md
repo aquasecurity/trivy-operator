@@ -72,11 +72,9 @@ Each commit message doesn't have to follow conventions as long as it is clear an
 
 | Binary               | Image                                          | Description                                                   |
 |----------------------|------------------------------------------------|---------------------------------------------------------------|
-| `starboard`          | `docker.io/aquasec/starboard:dev`              | Starboard command-line interface                              |
 | `trivy-operator`     | `docker.io/aquasec/trivy-operator:dev`         | Trivy Operator                                                |
-| `trivy-scanner-aqua` | `docker.io/aquasec/starboard-scanner-aqua:dev` | Starboard plugin to integrate with Aqua vulnerability scanner |
 
-To build all Starboard binaries, run:
+To build all Starboard binary, run:
 
 ```
 make
@@ -93,9 +91,7 @@ make docker-build
 To load Docker images into your KIND cluster, run:
 
 ```
-kind load docker-image aquasec/starboard:dev
 kind load docker-image aquasec/trivy-operator:dev
-kind load docker-image aquasec/starboard-scanner-aqua:dev
 ```
 
 ## Run Tests
@@ -344,7 +340,7 @@ You can delete the default catalog that OLM ships with to avoid duplicate entrie
 kubectl delete catalogsource operatorhubio-catalog -n olm
 ```
 
-Inspect the list of loaded packagemanifests on the system with the following command to filter for the Starboard Operator:
+Inspect the list of loaded package manifests on the system with the following command to filter for the Starboard Operator:
 
 ```console
 $ kubectl get packagemanifests

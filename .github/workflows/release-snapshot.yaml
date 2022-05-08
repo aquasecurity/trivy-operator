@@ -44,13 +44,6 @@ jobs:
         with:
           version: v1.7.0
           args: release --snapshot --skip-publish --rm-dist
-      - name: Scan Starboard CLI image for vulnerabilities
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'docker.io/aquasec/starboard:${{ github.sha }}-amd64'
-          exit-code: '1'
-          ignore-unfixed: true
-          severity: 'CRITICAL,HIGH'
       - name: Scan Trivy Operator image for vulnerabilities
         uses: aquasecurity/trivy-action@master
         with:
@@ -58,10 +51,4 @@ jobs:
           exit-code: '1'
           ignore-unfixed: true
           severity: 'CRITICAL,HIGH'
-      - name: Scan Starboard Scanner Aqua image for vulnerabilities
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'docker.io/aquasec/starboard-scanner-aqua:${{ github.sha }}-amd64'
-          exit-code: '1'
-          ignore-unfixed: true
-          severity: 'CRITICAL,HIGH'
+

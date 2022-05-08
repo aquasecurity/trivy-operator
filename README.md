@@ -42,8 +42,6 @@ Trivy-Operator can be used:
 - As a [Kubernetes operator] to automatically update security reports in response to workload and other changes on a
   Kubernetes cluster - for example, initiating a vulnerability scan when a new Pod is started or running CIS Benchmarks
   when a new Node is added.
-- As a [command][cli], so you can trigger scans and view the risks in a kubectl-compatible way or as part of your CI/CD
-  pipeline.
 
   ![](docs/images/starboard-cli-with-octant-demo.gif)
 
@@ -55,9 +53,6 @@ and some APIs and [Custom Resource Definitions] may change.
 # Documentation
 
 The official [Documentation] provides detailed installation, configuration, troubleshooting, and quick start guides.
-
-Learn how to install the Starboard command [From the Binary Releases] and follow the [Getting Started][getting-started-cli]
-guide to generate your first vulnerability and configuration audit reports.
 
 You can install the Starboard Operator with [Static YAML Manifests] and follow the [Getting Started][getting-started-operator]
 guide to see how vulnerability and configuration audit reports are generated automatically.
@@ -104,11 +99,8 @@ Join the community, and talk to us about any matter in [GitHub Discussions] or [
 
 [Custom Resource Definitions]: https://aquasecurity.github.io/starboard/latest/crds/
 [Go module]: https://pkg.go.dev/github.com/aquasecurity/trivy-operator/pkg
-[cli]: https://aquasecurity.github.io/trivy-operator/latest/cli
 [Documentation]: https://aquasecurity.github.io/trivy-operator/
-[From the Binary Releases]: https://aquasecurity.github.io/trivy-operator/latest/cli/installation/binary-releases/
 [Static YAML Manifests]: https://aquasecurity.github.io/trivy-operator/latest/operator/installation/kubectl/
-[getting-started-cli]: https://aquasecurity.github.io/trivy-operator/latest/cli/getting-started/
 [getting-started-operator]: https://aquasecurity.github.io/trivy-operator/latest/operator/getting-started/
 [Kubernetes operator]: https://aquasecurity.github.io/trivy-operator/latest/operator
 

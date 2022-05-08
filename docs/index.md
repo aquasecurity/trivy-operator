@@ -34,13 +34,13 @@ Trivy-Operator can be used:
 
 ## What's Next?
 
-- Learn how to install the Starboard command [From the Binary Releases](./cli/installation/binary-releases.md) and
+- Learn how to install the Trivy-operator command [From the Binary Releases](./cli/installation/binary-releases.md) and
   follow the [Getting Started](./cli/getting-started.md) guide to generate your first vulnerability and configuration
   audit reports.
-- Install the Starboard Operator with [kubectl](./operator/installation/kubectl.md) and follow the
+- Install the Trivy-operator Operator with [kubectl](./operator/installation/kubectl.md) and follow the
   [Getting Started](./operator/getting-started.md) guide to see how vulnerability and configuration audit reports are
   generated automatically.
-- Read more about the motivations for the project in the [Starboard: The Kubernetes-Native Toolkit for Unifying Security]
+- Read more about the motivations for the project in the [Trivy-operator: The Kubernetes-Native Toolkit for Unifying Security]
   blog.
 - See a detailed introduction to Starboard with demos at [KubeCon + CloudNativeCon NA 2020][kubecon-video].
 - Join the community, and talk to us about any matter in [GitHub Discussions] or [Slack].
@@ -48,7 +48,7 @@ Trivy-Operator can be used:
 [Custom Resource Definitions]: ./crds/index.md
 [cli]: cli/index.md
 [Kubernetes operator]: operator/index.md
-[Go module]: https://pkg.go.dev/github.com/aquasecurity/starboard@{{ git.tag }}
+[Go module]: https://pkg.go.dev/github.com/aquasecurity/trivy-operator@{{ git.tag }}
 [Octant Plugin]: ./integrations/octant.md
 [Lens Extension]: integrations/lens.md
 [kubectl]: https://kubernetes.io/docs/reference/kubectl/

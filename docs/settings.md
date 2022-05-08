@@ -1,17 +1,13 @@
 # Settings
 
-The Starboard CLI and Trivy Operator read configuration settings from ConfigMaps, as well as Secrets that holds
+Trivy Operator read configuration settings from ConfigMaps, as well as Secrets that holds
 confidential settings (such as a GitHub token). Trivy-Operator plugins read configuration and secret data from ConfigMaps
 and Secrets named after the plugin. For example, Trivy configuration is stored in the ConfigMap and Secret named
 `trivy-operator-trivy-config`.
 
-The `starboard install` command ensures the `starboard` ConfigMap and the `starboard` Secret in the `starboard`
-namespace with default settings. Similarly, the operator ensures the `starboard` ConfigMap and the `starboard` Secret in
-the `OPERATOR_NAMESPACE`.
-
 You can change the default settings with `kubectl patch` or `kubectl edit` commands. For example, by default Trivy
 displays vulnerabilities with all severity levels (`UNKNOWN`, `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`). However, you can
-display only `HIGH` and `CRITICAL` vulnerabilities by patching the `trivy.severity` value in the `starboard-trivy-config`
+display only `HIGH` and `CRITICAL` vulnerabilities by patching the `trivy.severity` value in the `trivy-operator-trivy-config`
 ConfigMap:
 
 ```
@@ -66,8 +62,7 @@ configuration settings for common use cases. For example, switch Trivy from [Sta
 | `compliance.failEntriesLimit`                  | `"10"`                                | Limit the number of fail entries per control check in the cluster compliance detail report.                                                                                                                                         |
 
 !!! tip
-    You can find it handy to delete a configuration key, which was not created by default by the `starboard install`
-    command. For example, the following `kubectl patch` command deletes the `trivy.httpProxy` key:
+    You can delete a configuration key.For example, the following `kubectl patch` command deletes the `trivy.httpProxy` key:
     ```
     TRIVY_OPERATOR_NAMESPACE=<your trivy operator namespace>
     ```
@@ -77,6 +72,5 @@ configuration settings for common use cases. For example, switch Trivy from [Sta
       -p '[{"op": "remove", "path": "/data/trivy.httpProxy"}]'
     ```
 
-[Standalone]: ./vulnerability-scanning/trivy.md#standalone
 [ClientServer]: ./vulnerability-scanning/trivy.md#clientserver
 [tolerations]: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration

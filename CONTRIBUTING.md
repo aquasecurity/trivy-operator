@@ -1,6 +1,6 @@
 # Contributing
 
-These guidelines will help you get started with the Starboard project.
+These guidelines will help you get started with the Trivy-operator project.
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@ These guidelines will help you get started with the Starboard project.
   - [Cove Coverage](#code-coverage)
 - [Custom Resource Definitions](#custom-resource-definitions)
   - [Generate Code](#generate-code)
-- [Test Starboard Operator](#test-starboard-operator)
+- [Test Trivy Operator](#test-trivy-operator)
   - [In Cluster](#in-cluster)
   - [Out of Cluster](#out-of-cluster)
 - [Update Static YAML Manifests](#update-static-yaml-manifests)
@@ -74,7 +74,7 @@ Each commit message doesn't have to follow conventions as long as it is clear an
 |----------------------|------------------------------------------------|---------------------------------------------------------------|
 | `trivy-operator`     | `docker.io/aquasec/trivy-operator:dev`         | Trivy Operator                                                |
 
-To build all Starboard binary, run:
+To build all Trivy-operator binary, run:
 
 ```
 make
@@ -82,7 +82,7 @@ make
 
 This uses the `go build` command and builds binaries in the `./bin` directory.
 
-To build all Starboard binaries into Docker images, run:
+To build all Trivy-operator binary into Docker images, run:
 
 ```
 make docker-build
@@ -97,7 +97,7 @@ kind load docker-image aquasec/trivy-operator:dev
 ## Run Tests
 
 We generally require tests to be added for all, but the most trivial of changes. However, unit tests alone don't
-provide guarantees about the behaviour of Starboard. To verify that each Go module correctly interacts with its
+provide guarantees about the behaviour of Trivy-operator. To verify that each Go module correctly interacts with its
 collaborators, more coarse grained integration tests might be required.
 
 ### Run Unit Tests
@@ -123,30 +123,21 @@ variable is pointing to that cluster configuration file. For example:
 export KUBECONFIG=~/.kube/config
 ```
 
-There are separate integration tests for Starboard CLI and for Trivy-Operator Operator. The tests may leave the cluster in a
-dirty state, so running one test after the other may cause spurious failures.
-
-To run the integration tests for Starboard CLI with code coverage enabled, run:
-
-```
-make itests-trivy-operator
-```
-
 To open the test coverage report in your web browser, run:
 
 ```
-go tool cover -html=itest/starboard/coverage.txt
+go tool cover -html=itest/trivy-operator/coverage.txt
 ```
 
-To run the integration tests for Starboard Operator and view the coverage report, first do the
+To run the integration tests for Trivy-operator Operator and view the coverage report, first do the
 [prerequisite steps](#prerequisites), and then run:
 
 ```
-OPERATOR_NAMESPACE=starboard-system \
+OPERATOR_NAMESPACE=trivy-system \
   OPERATOR_TARGET_NAMESPACES=default \
   OPERATOR_LOG_DEV_MODE=true \
   make itests-trivy-operator-operator
-go tool cover -html=itest/starboard-operator/coverage.txt
+go tool cover -html=itest/trivy-operator/coverage.txt
 ```
 
 ### Code Coverage
@@ -175,9 +166,9 @@ In addition, there is a second script called `./hack/verify-codegen.sh`. This sc
 `./hack/update-codegen.sh` script and checks whether anything changed, and then it terminates with a nonzero return
 code if any of the generated files is not up-to-date. We're running it as a step in the CI workflow.
 
-## Test Starboard Operator
+## Test Trivy Operator
 
-You can deploy the operator in the `starboard-system` namespace and configure it to watch the `default` namespace.
+You can deploy the operator in the `trivy-system` namespace and configure it to watch the `default` namespace.
 In OLM terms such install mode is called *SingleNamespace*. The *SingleNamespace* mode is good to get started with a
 basic development workflow. For other install modes see [Operator Multitenancy with OperatorGroups][olm-operator-groups].
 
@@ -185,9 +176,9 @@ basic development workflow. For other install modes see [Operator Multitenancy w
 
 1. Build the operator binary into the Docker image and load it from your host into KIND cluster nodes:
    ```
-   make docker-build-starboard-operator && kind load docker-image aquasec/starboard-operator:dev
+   make docker-build-trivy-operator && kind load docker-image aquasec/trivy-operator:dev
    ```
-2. Create the `starboard-operator` Deployment in the `starboard-system` namespace to run the operator's container:
+2. Create the `trivy-operator` Deployment in the `trivy-system` namespace to run the operator's container:
    ```
    kubectl create -k deploy/static
    ```
@@ -202,21 +193,21 @@ kubectl delete -k deploy/static
 
 1. Deploy the operator in cluster:
    ```
-   kubectl apply -f deploy/static/starboard.yaml
+   kubectl apply -f deploy/static/trivy-operator.yaml
    ```
 2. Scale the operator down to zero replicas:
    ```
-   kubectl scale deployment starboard-operator \
-     -n starboard-system \
+   kubectl scale deployment trivy-operator \
+     -n trivy-system \
      --replicas 0
    ```
 3. Delete pending scan jobs with:
    ```
-   kubectl delete jobs -n starboard-system --all
+   kubectl delete jobs -n trivy-system --all
    ```
 4. Run the main method of the operator program:
    ```
-   OPERATOR_NAMESPACE=starboard-system \
+   OPERATOR_NAMESPACE=trivy-system \
      OPERATOR_TARGET_NAMESPACES=default \
      OPERATOR_LOG_DEV_MODE=true \
      OPERATOR_CIS_KUBERNETES_BENCHMARK_ENABLED=true \
@@ -228,33 +219,33 @@ kubectl delete -k deploy/static
      OPERATOR_VULNERABILITY_SCANNER_REPORT_TTL="" \
      OPERATOR_BATCH_DELETE_LIMIT=3 \
      OPERATOR_BATCH_DELETE_DELAY="30s" \
-     go run cmd/starboard-operator/main.go
+     go run cmd/trivy-operator/main.go
    ```
 
 You can uninstall the operator with:
 
 ```
-kubectl delete -f deploy/static/starboard.yaml
+kubectl delete -f deploy/static/trivy-operator.yaml
 ```
 
 ## Update Static YAML Manifests
 
 ```
-mkdir -p $TMPDIR/starboard-helm-template
+mkdir -p $TMPDIR/trivy-operator-helm-template
 ```
 
 ```
-helm template starboard-operator ./deploy/helm \
-  --namespace starboard-system --create-namespace \
+helm template trivy-operator ./deploy/helm \
+  --namespace trivy-system --create-namespace \
   --set="targetNamespaces=default" \
   --set="managedBy=kubectl" \
-  --output-dir=$TMPDIR/starboard-helm-template
+  --output-dir=$TMPDIR/trivy-operator-helm-template
 ```
 
 ```
-cp $TMPDIR/starboard-helm-template/starboard-operator/templates/rbac.yaml deploy/static/02-starboard-operator.rbac.yaml
-cp $TMPDIR/starboard-helm-template/starboard-operator/templates/config.yaml deploy/static/03-starboard-operator.config.yaml
-cp $TMPDIR/starboard-helm-template/starboard-operator/templates/deployment.yaml deploy/static/04-starboard-operator.deployment.yaml
+cp $TMPDIR/trivy-operator-helm-template/starboard-operator/templates/rbac.yaml deploy/static/02-starboard-operator.rbac.yaml
+cp $TMPDIR/trivy-operator-helm-template/starboard-operator/templates/config.yaml deploy/static/03-starboard-operator.config.yaml
+cp $TMPDIR/trivy-operator-helm-template/starboard-operator/templates/deployment.yaml deploy/static/04-starboard-operator.deployment.yaml
 ```
 
 ## Operator Lifecycle Manager (OLM)

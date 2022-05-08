@@ -1,4 +1,4 @@
-![Starboard logo](docs/images/trivy-operator-logo.png)
+![Trivy-operator logo](docs/images/trivy-operator-logo.png)
 
 > Kubernetes-native security toolkit.
 
@@ -9,7 +9,7 @@
 [![Go Report Card][report-card-img]][report-card]
 [![License][license-img]][license]
 [![GitHub All Releases][github-all-releases-img]][release]
-![Docker Pulls Starboard][docker-pulls-starboard]
+![Docker Pulls Trivy-operator][docker-pulls-trivy-operator]
 ![Docker Pulls Trivy Operator][docker-pulls-trivy-operator]
 
 # Introduction
@@ -34,7 +34,7 @@ Trivy-Operator provides:
 - The [Octant Plugin] and the [Lens Extension] that make security reports available through familiar Kubernetes interfaces.
 
 <p align="center">
-<img src="docs/images/trivy-operator-overview.png" alt="Starboard Overview"/>
+<img src="docs/images/trivy-operator-overview.png" alt="Trivy-operator Overview"/>
 </p>
 
 Trivy-Operator can be used:
@@ -42,8 +42,6 @@ Trivy-Operator can be used:
 - As a [Kubernetes operator] to automatically update security reports in response to workload and other changes on a
   Kubernetes cluster - for example, initiating a vulnerability scan when a new Pod is started or running CIS Benchmarks
   when a new Node is added.
-
-  ![](docs/images/starboard-cli-with-octant-demo.gif)
 
 # Status
 
@@ -54,10 +52,10 @@ and some APIs and [Custom Resource Definitions] may change.
 
 The official [Documentation] provides detailed installation, configuration, troubleshooting, and quick start guides.
 
-You can install the Starboard Operator with [Static YAML Manifests] and follow the [Getting Started][getting-started-operator]
+You can install the Trivy-operator Operator with [Static YAML Manifests] and follow the [Getting Started][getting-started-operator]
 guide to see how vulnerability and configuration audit reports are generated automatically.
 
-Read more about the motivations for the project in the [Starboard: The Kubernetes-Native Toolkit for Unifying Security]
+Read more about the motivations for the project in the [Trivy-operator: The Kubernetes-Native Toolkit for Unifying Security]
 blog.
 
 # Contributing

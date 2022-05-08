@@ -98,7 +98,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: starboard-policies-config
-  namespace: trivyoperator-system
+  namespace: trivy-operator-system
   labels:
     app.kubernetes.io/name: starboard-operator
     app.kubernetes.io/instance: starboard-operator

@@ -171,20 +171,20 @@ spec:
             - cp
             - -v
             - /usr/local/bin/trivy
-            - /var/trivyoperator/trivy
+            - /var/trivy-operator/trivy
           volumeMounts:
             - name: scan-volume
-              mountPath: /var/trivyoperator
+              mountPath: /var/trivy-operator
         - name: trivy-download-db
           image: aquasec/trivy:0.19.2
           command:
-            - /var/trivyoperator/trivy
+            - /var/trivy-operator/trivy
             - --download-db-only
             - --cache-dir
-            - /var/trivyoperator/trivy-db
+            - /var/trivy-operator/trivy-db
           volumeMounts:
             - name: scan-volume
-              mountPath: /var/trivyoperator
+              mountPath: /var/trivy-operator
       containers:
         - name: nginx
           image: example.registry.com/nginx:1.16
@@ -193,16 +193,16 @@ spec:
             # Trivy must run as root, so we set UID here.
             runAsUser: 0
           command:
-            - /var/trivyoperator/trivy
+            - /var/trivy-operator/trivy
             - --cache-dir
-            - /var/trivyoperator/trivy-db
+            - /var/trivy-operator/trivy-db
             - fs
             - --format
             - json
             - /
           volumeMounts:
             - name: scan-volume
-              mountPath: /var/trivyoperator
+              mountPath: /var/trivy-operator
 ```
 
 If you observe in the job spec, this scan job will run in `poc-ns` namespace and it is running with image 

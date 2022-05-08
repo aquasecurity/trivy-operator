@@ -1,0 +1,865 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trivy-operator-policies-config
+  labels:
+    {{- include "trivy-operator.labels" . | nindent 4 }}
+data:
+  library.kubernetes.rego: "package lib.kubernetes\n\ndefault is_gatekeeper = false\n\nis_gatekeeper
+    {\n\thas_field(input, \"review\")\n\thas_field(input.review, \"object\")\n}\n\nobject
+    = input {\n\tnot is_gatekeeper\n}\n\nobject = input.review.object {\n\tis_gatekeeper\n}\n\nformat(msg)
+    = gatekeeper_format {\n\tis_gatekeeper\n\tgatekeeper_format = {\"msg\": msg}\n}\n\nformat(msg)
+    = msg {\n\tnot is_gatekeeper\n}\n\nname = object.metadata.name\n\ndefault namespace
+    = \"default\"\n\nnamespace = object.metadata.namespace\n\n#annotations = object.metadata.annotations\n\nkind
+    = object.kind\n\nis_pod {\n\tkind = \"Pod\"\n}\n\nis_cronjob {\n\tkind = \"CronJob\"\n}\n\ndefault
+    is_controller = false\n\nis_controller {\n\tkind = \"Deployment\"\n}\n\nis_controller
+    {\n\tkind = \"StatefulSet\"\n}\n\nis_controller {\n\tkind = \"DaemonSet\"\n}\n\nis_controller
+    {\n\tkind = \"ReplicaSet\"\n}\n\nis_controller {\n\tkind = \"ReplicationController\"\n}\n\nis_controller
+    {\n\tkind = \"Job\"\n}\n\nsplit_image(image) = [image, \"latest\"] {\n\tnot contains(image,
+    \":\")\n}\n\nsplit_image(image) = [image_name, tag] {\n\t[image_name, tag] = split(image,
+    \":\")\n}\n\npod_containers(pod) = all_containers {\n\tkeys = {\"containers\",
+    \"initContainers\"}\n\tall_containers = [c | keys[k]; c = pod.spec[k][_]]\n}\n\ncontainers[container]
+    {\n\tpods[pod]\n\tall_containers = pod_containers(pod)\n\tcontainer = all_containers[_]\n}\n\ncontainers[container]
+    {\n\tall_containers = pod_containers(object)\n\tcontainer = all_containers[_]\n}\n\npods[pod]
+    {\n\tis_pod\n\tpod = object\n}\n\npods[pod] {\n\tis_controller\n\tpod = object.spec.template\n}\n\npods[pod]
+    {\n\tis_cronjob\n\tpod = object.spec.jobTemplate.spec.template\n}\n\nvolumes[volume]
+    {\n\tpods[pod]\n\tvolume = pod.spec.volumes[_]\n}\n\ndropped_capability(container,
+    cap) {\n\tcontainer.securityContext.capabilities.drop[_] == cap\n}\n\nadded_capability(container,
+    cap) {\n\tcontainer.securityContext.capabilities.add[_] == cap\n}\n\nhas_field(obj,
+    field) {\n\tobj[field]\n}\n\nno_read_only_filesystem(c) {\n\tnot has_field(c,
+    \"securityContext\")\n}\n\nno_read_only_filesystem(c) {\n\thas_field(c, \"securityContext\")\n\tnot
+    has_field(c.securityContext, \"readOnlyRootFilesystem\")\n}\n\npriviledge_escalation_allowed(c)
+    {\n\tnot has_field(c, \"securityContext\")\n}\n\npriviledge_escalation_allowed(c)
+    {\n\thas_field(c, \"securityContext\")\n\thas_field(c.securityContext, \"allowPrivilegeEscalation\")\n}\n\nannotations[annotation]
+    {\n\tpods[pod]\n\tannotation = pod.metadata.annotations\n}\n\nhost_ipcs[host_ipc]
+    {\n\tpods[pod]\n\thost_ipc = pod.spec.hostIPC\n}\n\nhost_networks[host_network]
+    {\n\tpods[pod]\n\thost_network = pod.spec.hostNetwork\n}\n\nhost_pids[host_pid]
+    {\n\tpods[pod]\n\thost_pid = pod.spec.hostPID\n}\n\nhost_aliases[host_alias] {\n\tpods[pod]\n\thost_alias
+    = pod.spec\n}\n"
+  library.utils.rego: "package lib.utils\n\nhas_key(x, k) {\n\t_ = x[k]\n}\n"
+  policy.1_host_ipc.kinds: Workload
+  policy.1_host_ipc.rego: "package appshield.kubernetes.KSV008\n\nimport data.lib.kubernetes\n\ndefault
+    failHostIPC = false\n\n__rego_metadata__ := {\n\t\"id\": \"KSV008\",\n\t\"avd_id\":
+    \"AVD-KSV-0008\",\n\t\"title\": \"Access to host IPC namespace\",\n\t\"short_code\":
+    \"no-shared-ipc-namespace\",\n\t\"version\": \"v1.0.0\",\n\t\"severity\": \"HIGH\",\n\t\"type\":
+    \"Kubernetes Security Check\",\n\t\"description\": \"Sharing the host’s IPC namespace
+    allows container processes to communicate with processes on the host.\",\n\t\"recommended_actions\":
+    \"Do not set 'spec.template.spec.hostIPC' to true.\",\n\t\"url\": \"https://kubernetes.io/docs/concepts/security/pod-security-standards/#baseline\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    failHostIPC is true if spec.hostIPC is set to true (on all resources)\nfailHostIPC
+    {\n\tkubernetes.host_ipcs[_] == true\n}\n\ndeny[res] {\n\tfailHostIPC\n\n\tmsg
+    := kubernetes.format(sprintf(\"%s '%s' should not set 'spec.template.spec.hostIPC'
+    to true\", [kubernetes.kind, kubernetes.name]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\":
+    __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.1_host_network.kinds: Workload
+  policy.1_host_network.rego: "package appshield.kubernetes.KSV009\n\nimport data.lib.kubernetes\n\ndefault
+    failHostNetwork = false\n\n__rego_metadata__ := {\n\t\"id\": \"KSV009\",\n\t\"avd_id\":
+    \"AVD-KSV-0009\",\n\t\"title\": \"Access to host network\",\n\t\"short_code\":
+    \"no-host-network\",\n\t\"version\": \"v1.0.0\",\n\t\"severity\": \"HIGH\",\n\t\"type\":
+    \"Kubernetes Security Check\",\n\t\"description\": \"Sharing the host’s network
+    namespace permits processes in the pod to communicate with processes bound to
+    the host’s loopback adapter.\",\n\t\"recommended_actions\": \"Do not set 'spec.template.spec.hostNetwork'
+    to true.\",\n\t\"url\": \"https://kubernetes.io/docs/concepts/security/pod-security-standards/#baseline\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    failHostNetwork is true if spec.hostNetwork is set to true (on all controllers)\nfailHostNetwork
+    {\n\tkubernetes.host_networks[_] == true\n}\n\ndeny[res] {\n\tfailHostNetwork\n\n\tmsg
+    := kubernetes.format(sprintf(\"%s '%s' should not set 'spec.template.spec.hostNetwork'
+    to true\", [kubernetes.kind, kubernetes.name]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\":
+    __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.1_host_pid.kinds: Workload
+  policy.1_host_pid.rego: "package appshield.kubernetes.KSV010\n\nimport data.lib.kubernetes\n\ndefault
+    failHostPID = false\n\n__rego_metadata__ := {\n\t\"id\": \"KSV010\",\n\t\"avd_id\":
+    \"AVD-KSV-0010\",\n\t\"title\": \"Access to host PID\",\n\t\"short_code\": \"no-host-pid\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"HIGH\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"Sharing the host’s PID namespace allows visibility on host processes, potentially
+    leaking information such as environment variables and configuration.\",\n\t\"recommended_actions\":
+    \"Do not set 'spec.template.spec.hostPID' to true.\",\n\t\"url\": \"https://kubernetes.io/docs/concepts/security/pod-security-standards/#baseline\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    failHostPID is true if spec.hostPID is set to true (on all controllers)\nfailHostPID
+    {\n\tkubernetes.host_pids[_] == true\n}\n\ndeny[res] {\n\tfailHostPID\n\n\tmsg
+    := kubernetes.format(sprintf(\"%s '%s' should not set 'spec.template.spec.hostPID'
+    to true\", [kubernetes.kind, kubernetes.name]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\":
+    __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.1_non_core_volume_types.kinds: Workload
+  policy.1_non_core_volume_types.rego: "package appshield.kubernetes.KSV028\n\nimport
+    data.lib.kubernetes\nimport data.lib.utils\n\n__rego_metadata__ := {\n\t\"id\":
+    \"KSV028\",\n\t\"avd_id\": \"AVD-KSV-0028\",\n\t\"title\": \"Non-ephemeral volume
+    types used\",\n\t\"short_code\": \"no-non-ephemeral-volumes\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"LOW\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"In addition to restricting HostPath volumes, usage of non-ephemeral volume types
+    should be limited to those defined through PersistentVolumes.\",\n\t\"recommended_actions\":
+    \"Do not Set 'spec.volumes[*]' to any of the disallowed volume types.\",\n\t\"url\":
+    \"https://kubernetes.io/docs/concepts/security/pod-security-standards/#restricted\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    Add disallowed volume type\ndisallowed_volume_types = [\n\t\"gcePersistentDisk\",\n\t\"awsElasticBlockStore\",\n\t#
+    \"hostPath\", Baseline detects spec.volumes[*].hostPath\n\t\"gitRepo\",\n\t\"nfs\",\n\t\"iscsi\",\n\t\"glusterfs\",\n\t\"rbd\",\n\t\"flexVolume\",\n\t\"cinder\",\n\t\"cephFS\",\n\t\"flocker\",\n\t\"fc\",\n\t\"azureFile\",\n\t\"vsphereVolume\",\n\t\"quobyte\",\n\t\"azureDisk\",\n\t\"portworxVolume\",\n\t\"scaleIO\",\n\t\"storageos\",\n\t\"csi\",\n]\n\n#
+    getDisallowedVolumes returns a list of volume names\n# which set volume type to
+    any of the disallowed volume types\ngetDisallowedVolumes[name] {\n\tvolume :=
+    kubernetes.volumes[_]\n\ttype := disallowed_volume_types[_]\n\tutils.has_key(volume,
+    type)\n\tname := volume.name\n}\n\n# failVolumeTypes is true if any of volume
+    has a disallowed\n# volume type\nfailVolumeTypes {\n\tcount(getDisallowedVolumes)
+    > 0\n}\n\ndeny[res] {\n\tfailVolumeTypes\n\n\tmsg := kubernetes.format(sprintf(\"%s
+    '%s' should set 'spec.volumes[*]' to type 'PersistentVolumeClaim'\", [kubernetes.kind,
+    kubernetes.name]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\":
+    __rego_metadata__.title,\n\t\t\"severity\": __rego_metadata__.severity,\n\t\t\"type\":
+    __rego_metadata__.type,\n\t}\n}\n"
+  policy.2_can_elevate_its_own_privileges.kinds: Workload
+  policy.2_can_elevate_its_own_privileges.rego: "package appshield.kubernetes.KSV001\n\nimport
+    data.lib.kubernetes\nimport data.lib.utils\n\ndefault checkAllowPrivilegeEscalation
+    = false\n\n__rego_metadata__ := {\n\t\"id\": \"KSV001\",\n\t\"avd_id\": \"AVD-KSV-0001\",\n\t\"title\":
+    \"Process can elevate its own privileges\",\n\t\"short_code\": \"no-self-privesc\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"MEDIUM\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"A program inside the container can elevate its own privileges and run as root,
+    which might give the program control over the container and node.\",\n\t\"recommended_actions\":
+    \"Set 'set containers[].securityContext.allowPrivilegeEscalation' to 'false'.\",\n\t\"url\":
+    \"https://kubernetes.io/docs/concepts/security/pod-security-standards/#restricted\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    getNoPrivilegeEscalationContainers returns the names of all containers which have\n#
+    securityContext.allowPrivilegeEscalation set to false.\ngetNoPrivilegeEscalationContainers[container]
+    {\n\tallContainers := kubernetes.containers[_]\n\tallContainers.securityContext.allowPrivilegeEscalation
+    == false\n\tcontainer := allContainers.name\n}\n\n# getPrivilegeEscalationContainers
+    returns the names of all containers which have\n# securityContext.allowPrivilegeEscalation
+    set to true or not set.\ngetPrivilegeEscalationContainers[container] {\n\tcontainer
+    := kubernetes.containers[_].name\n\tnot getNoPrivilegeEscalationContainers[container]\n}\n\n#
+    checkAllowPrivilegeEscalation is true if any container has\n# securityContext.allowPrivilegeEscalation
+    set to true or not set.\ncheckAllowPrivilegeEscalation {\n\tcount(getPrivilegeEscalationContainers)
+    > 0\n}\n\ndeny[res] {\n\tcheckAllowPrivilegeEscalation\n\n\tmsg := kubernetes.format(sprintf(\"Container
+    '%s' of %s '%s' should set 'securityContext.allowPrivilegeEscalation' to false\",
+    [getPrivilegeEscalationContainers[_], kubernetes.kind, kubernetes.name]))\n\n\tres
+    := {\n\t\t\"msg\": msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.2_privileged.kinds: Workload
+  policy.2_privileged.rego: "package appshield.kubernetes.KSV017\n\nimport data.lib.kubernetes\n\ndefault
+    failPrivileged = false\n\n__rego_metadata__ := {\n\t\"id\": \"KSV017\",\n\t\"avd_id\":
+    \"AVD-KSV-0017\",\n\t\"title\": \"Privileged container\",\n\t\"short_code\": \"no-privileged-containers\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"HIGH\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"Privileged containers share namespaces with the host system and do not offer
+    any security. They should be used exclusively for system containers that require
+    high privileges.\",\n\t\"recommended_actions\": \"Change 'containers[].securityContext.privileged'
+    to 'false'.\",\n\t\"url\": \"https://kubernetes.io/docs/concepts/security/pod-security-standards/#baseline\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    getPrivilegedContainers returns all containers which have\n# securityContext.privileged
+    set to true.\ngetPrivilegedContainers[container] {\n\tallContainers := kubernetes.containers[_]\n\tallContainers.securityContext.privileged
+    == true\n\tcontainer := allContainers.name\n}\n\n# failPrivileged is true if there
+    is ANY container with securityContext.privileged\n# set to true.\nfailPrivileged
+    {\n\tcount(getPrivilegedContainers) > 0\n}\n\ndeny[res] {\n\tfailPrivileged\n\n\tmsg
+    := kubernetes.format(sprintf(\"Container '%s' of %s '%s' should set 'securityContext.privileged'
+    to false\", [getPrivilegedContainers[_], kubernetes.kind, kubernetes.name]))\n\tres
+    := {\n\t\t\"msg\": msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.3_runs_as_root.kinds: Workload
+  policy.3_runs_as_root.rego: "package appshield.kubernetes.KSV012\n\nimport data.lib.kubernetes\nimport
+    data.lib.utils\n\ndefault checkRunAsNonRoot = false\n\n__rego_metadata__ := {\n\t\"id\":
+    \"KSV012\",\n\t\"avd_id\": \"AVD-KSV-0012\",\n\t\"title\": \"Runs as root user\",\n\t\"short_code\":
+    \"no-root\",\n\t\"version\": \"v1.0.0\",\n\t\"severity\": \"MEDIUM\",\n\t\"type\":
+    \"Kubernetes Security Check\",\n\t\"description\": \"'runAsNonRoot' forces the
+    running image to run as a non-root user to ensure least privileges.\",\n\t\"recommended_actions\":
+    \"Set 'containers[].securityContext.runAsNonRoot' to true.\",\n\t\"url\": \"https://kubernetes.io/docs/concepts/security/pod-security-standards/#restricted\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    getNonRootContainers returns the names of all containers which have\n# securityContext.runAsNonRoot
+    set to true.\ngetNonRootContainers[container] {\n\tallContainers := kubernetes.containers[_]\n\tallContainers.securityContext.runAsNonRoot
+    == true\n\tcontainer := allContainers.name\n}\n\n# getRootContainers returns the
+    names of all containers which have\n# securityContext.runAsNonRoot set to false
+    or not set.\ngetRootContainers[container] {\n\tcontainer := kubernetes.containers[_].name\n\tnot
+    getNonRootContainers[container]\n}\n\n# checkRunAsNonRoot is true if securityContext.runAsNonRoot
+    is set to false\n# or if securityContext.runAsNonRoot is not set.\ncheckRunAsNonRootContainers
+    {\n\tcount(getRootContainers) > 0\n}\n\ncheckRunAsNonRootPod {\n\tallPods := kubernetes.pods[_]\n\tnot
+    allPods.spec.securityContext.runAsNonRoot\n}\n\ndeny[res] {\n\tcheckRunAsNonRootPod\n\n\tcheckRunAsNonRootContainers\n\n\tmsg
+    := kubernetes.format(sprintf(\"Container '%s' of %s '%s' should set 'securityContext.runAsNonRoot'
+    to true\", [getRootContainers[_], kubernetes.kind, kubernetes.name]))\n\n\tres
+    := {\n\t\t\"msg\": msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.3_specific_capabilities_added.kinds: Workload
+  policy.3_specific_capabilities_added.rego: "package appshield.kubernetes.KSV022\n\nimport
+    data.lib.kubernetes\n\ndefault failAdditionalCaps = false\n\n__rego_metadata__
+    := {\n\t\"id\": \"KSV022\",\n\t\"avd_id\": \"AVD-KSV-0022\",\n\t\"title\": \"Non-default
+    capabilities added\",\n\t\"short_code\": \"no-non-default-capabilities\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"MEDIUM\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"Adding NET_RAW or capabilities beyond the default set must be disallowed.\",\n\t\"recommended_actions\":
+    \"Do not set spec.containers[*].securityContext.capabilities.add and spec.initContainers[*].securityContext.capabilities.add\",\n\t\"url\":
+    \"https://kubernetes.io/docs/concepts/security/pod-security-standards/#baseline\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    Add allowed capabilities to this set\nallowed_caps = set()\n\n# getContainersWithDisallowedCaps
+    returns a list of containers which have\n# additional capabilities not included
+    in the allowed capabilities list\ngetContainersWithDisallowedCaps[container] {\n\tallContainers
+    := kubernetes.containers[_]\n\tset_caps := {cap | cap := allContainers.securityContext.capabilities.add[_]}\n\tcaps_not_allowed
+    := set_caps - allowed_caps\n\tcount(caps_not_allowed) > 0\n\tcontainer := allContainers.name\n}\n\n#
+    cap_msg is a string of allowed capabilities to be print as part of deny message\ncaps_msg
+    = \"\" {\n\tcount(allowed_caps) == 0\n} else = msg {\n\tmsg := sprintf(\" or set
+    it to the following allowed values: %s\", [concat(\", \", allowed_caps)])\n}\n\n#
+    failAdditionalCaps is true if there are containers which set additional capabilities\n#
+    not included in the allowed capabilities list\nfailAdditionalCaps {\n\tcount(getContainersWithDisallowedCaps)
+    > 0\n}\n\ndeny[res] {\n\tfailAdditionalCaps\n\n\tmsg := sprintf(\"Container '%s'
+    of %s '%s' should not set 'securityContext.capabilities.add'%s\", [getContainersWithDisallowedCaps[_],
+    kubernetes.kind, kubernetes.name, caps_msg])\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\":
+    __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.4_hostpath_volumes_mounted.kinds: Workload
+  policy.4_hostpath_volumes_mounted.rego: "package appshield.kubernetes.KSV023\n\nimport
+    data.lib.kubernetes\nimport data.lib.utils\n\ndefault failHostPathVolume = false\n\n__rego_metadata__
+    := {\n\t\"id\": \"KSV023\",\n\t\"avd_id\": \"AVD-KSV-0023\",\n\t\"title\": \"hostPath
+    volumes mounted\",\n\t\"short_code\": \"no-mounted-hostpath\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"MEDIUM\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"HostPath volumes must be forbidden.\",\n\t\"recommended_actions\": \"Do not
+    set 'spec.volumes[*].hostPath'.\",\n\t\"url\": \"https://kubernetes.io/docs/concepts/security/pod-security-standards/#baseline\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\nfailHostPathVolume
+    {\n\tvolumes := kubernetes.volumes\n\tutils.has_key(volumes[_], \"hostPath\")\n}\n\ndeny[res]
+    {\n\tfailHostPathVolume\n\n\tmsg := kubernetes.format(sprintf(\"%s '%s' should
+    not set 'spec.template.volumes.hostPath'\", [kubernetes.kind, kubernetes.name]))\n\n\tres
+    := {\n\t\t\"msg\": msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.4_runs_with_a_root_gid.kinds: Workload
+  policy.4_runs_with_a_root_gid.rego: "package appshield.kubernetes.KSV029\n\nimport
+    data.lib.kubernetes\nimport data.lib.utils\n\ndefault failRootGroupId = false\n\n__rego_metadata__
+    := {\n\t\"id\": \"KSV029\",\n\t\"avd_id\": \"AVD-KSV-0029\",\n\t\"title\": \"A
+    root primary or supplementary GID set\",\n\t\"short_code\": \"no-run-root-gid\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"LOW\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"Containers should be forbidden from running with a root primary or supplementary
+    GID.\",\n\t\"recommended_actions\": \"Set 'containers[].securityContext.runAsGroup'
+    to a non-zero integer or leave undefined.\",\n\t\"url\": \"https://kubernetes.io/docs/concepts/security/pod-security-standards/#restricted\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    getContainersWithRootGroupId returns a list of containers\n# with root group id
+    set\ngetContainersWithRootGroupId[name] {\n\tcontainer := kubernetes.containers[_]\n\tcontainer.securityContext.runAsGroup
+    == 0\n\tname := container.name\n}\n\n# failRootGroupId is true if root group id
+    is set on pod\nfailRootGroupId {\n\tpod := kubernetes.pods[_]\n\tpod.spec.securityContext.runAsGroup
+    == 0\n}\n\n# failRootGroupId is true if root group id is set on pod\nfailRootGroupId
+    {\n\tpod := kubernetes.pods[_]\n\tutils.has_key(pod.spec.securityContext, \"supplementalGroups\")\n}\n\n#
+    failRootGroupId is true if root group id is set on pod\nfailRootGroupId {\n\tpod
+    := kubernetes.pods[_]\n\tutils.has_key(pod.spec.securityContext, \"fsGroup\")\n}\n\ndeny[res]
+    {\n\tfailRootGroupId\n\n\tmsg := kubernetes.format(sprintf(\"%s '%s' should set
+    'spec.securityContext.runAsGroup', 'spec.securityContext.supplementalGroups[*]'
+    and 'spec.securityContext.fsGroup' to integer greater than 0\", [kubernetes.kind,
+    kubernetes.name]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\":
+    __rego_metadata__.title,\n\t\t\"severity\": __rego_metadata__.severity,\n\t\t\"type\":
+    __rego_metadata__.type,\n\t}\n}\n\ndeny[res] {\n\tcount(getContainersWithRootGroupId)
+    > 0\n\n\tmsg := kubernetes.format(sprintf(\"Container '%s' of %s '%s' should set
+    'spec.securityContext.runAsGroup' to integer greater than  0\", [getContainersWithRootGroupId[_],
+    kubernetes.kind, kubernetes.name]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\":
+    __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.5_access_to_host_ports.kinds: Workload
+  policy.5_access_to_host_ports.rego: "package appshield.kubernetes.KSV024\n\nimport
+    data.lib.kubernetes\n\ndefault failHostPorts = false\n\n__rego_metadata__ := {\n\t\"id\":
+    \"KSV024\",\n\t\"avd_id\": \"AVD-KSV-0024\",\n\t\"title\": \"Access to host ports\",\n\t\"short_code\":
+    \"no-host-port-access\",\n\t\"version\": \"v1.0.0\",\n\t\"severity\": \"HIGH\",\n\t\"type\":
+    \"Kubernetes Security Check\",\n\t\"description\": \"HostPorts should be disallowed,
+    or at minimum restricted to a known list.\",\n\t\"recommended_actions\": \"Do
+    not set spec.containers[*].ports[*].hostPort and spec.initContainers[*].ports[*].hostPort.\",\n\t\"url\":
+    \"https://kubernetes.io/docs/concepts/security/pod-security-standards/#baseline\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    Add allowed host ports to this set\nallowed_host_ports = set()\n\n# getContainersWithDisallowedHostPorts
+    returns a list of containers which have\n# host ports not included in the allowed
+    host port list\ngetContainersWithDisallowedHostPorts[container] {\n\tallContainers
+    := kubernetes.containers[_]\n\tset_host_ports := {port | port := allContainers.ports[_].hostPort}\n\thost_ports_not_allowed
+    := set_host_ports - allowed_host_ports\n\tcount(host_ports_not_allowed) > 0\n\tcontainer
+    := allContainers.name\n}\n\n# host_ports_msg is a string of allowed host ports
+    to be print as part of deny message\nhost_ports_msg = \"\" {\n\tcount(allowed_host_ports)
+    == 0\n} else = msg {\n\tmsg := sprintf(\" or set it to the following allowed values:
+    %s\", [concat(\", \", allowed_host_ports)])\n}\n\n# failHostPorts is true if there
+    are containers which set host ports\n# not included in the allowed host ports
+    list\nfailHostPorts {\n\tcount(getContainersWithDisallowedHostPorts) > 0\n}\n\ndeny[res]
+    {\n\tfailHostPorts\n\n\tmsg := sprintf(\"Container '%s' of %s '%s' should not
+    set host ports, 'ports[*].hostPort'%s\", [getContainersWithDisallowedHostPorts[_],
+    kubernetes.kind, kubernetes.name, host_ports_msg])\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\":
+    __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.5_runtime_default_seccomp_profile_not_set.kinds: Workload
+  policy.5_runtime_default_seccomp_profile_not_set.rego: "package appshield.kubernetes.KSV030\n\nimport
+    data.lib.kubernetes\nimport data.lib.utils\n\ndefault failSeccompProfileType =
+    false\n\n__rego_metadata__ := {\n\t\"id\": \"KSV030\",\n\t\"avd_id\": \"AVD-KSV-0030\",\n\t\"title\":
+    \"Default Seccomp profile not set\",\n\t\"short_code\": \"use-default-seccomp\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"LOW\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"The RuntimeDefault seccomp profile must be required, or allow specific additional
+    profiles.\",\n\t\"recommended_actions\": \"Set 'spec.securityContext.seccompProfile.type',
+    'spec.containers[*].securityContext.seccompProfile' and 'spec.initContainers[*].securityContext.seccompProfile'
+    to 'RuntimeDefault' or undefined.\",\n\t\"url\": \"https://kubernetes.io/docs/concepts/security/pod-security-standards/#restricted\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    containers\ngetContainersWithDisallowedSeccompProfileType[name] {\n\tcontainer
+    := kubernetes.containers[_]\n\ttype := container.securityContext.seccompProfile.type\n\tnot
+    type == \"RuntimeDefault\"\n\tname := container.name\n}\n\n# pods\nfailSeccompProfileType
+    {\n\tpod := kubernetes.pods[_]\n\ttype := pod.spec.securityContext.seccompProfile.type\n\tnot
+    type == \"RuntimeDefault\"\n}\n\n# annotations (Kubernetes pre-v1.19)\nfailSeccompAnnotation
+    {\n\tannotations := kubernetes.annotations[_]\n\tval := annotations[\"seccomp.security.alpha.kubernetes.io/pod\"]\n\tval
+    != \"runtime/default\"\n}\n\n# annotations\ndeny[res] {\n\tfailSeccompAnnotation\n\n\tmsg
+    := kubernetes.format(sprintf(\"%s '%s' should set 'seccomp.security.alpha.kubernetes.io/pod'
+    to 'runtime/default'\", [kubernetes.kind, kubernetes.name]))\n\n\tres := {\n\t\t\"msg\":
+    msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n\n#
+    pods\ndeny[res] {\n\tfailSeccompProfileType\n\n\tmsg := kubernetes.format(sprintf(\"%s
+    '%s' should set 'spec.securityContext.seccompProfile.type' to 'RuntimeDefault'\",
+    [kubernetes.kind, kubernetes.name]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\":
+    __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n\n#
+    containers\ndeny[res] {\n\tcount(getContainersWithDisallowedSeccompProfileType)
+    > 0\n\n\tmsg := kubernetes.format(sprintf(\"Container '%s' of %s '%s' should set
+    'spec.containers[*].securityContext.seccompProfile.type' to 'RuntimeDefault'\",
+    [getContainersWithDisallowedSeccompProfileType[_], kubernetes.kind, kubernetes.name]))\n\n\tres
+    := {\n\t\t\"msg\": msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.6_apparmor_policy_disabled.kinds: Workload
+  policy.6_apparmor_policy_disabled.rego: "package appshield.kubernetes.KSV002\n\nimport
+    data.lib.kubernetes\n\ndefault failAppArmor = false\n\n__rego_metadata__ := {\n\t\"id\":
+    \"KSV002\",\n\t\"avd_id\": \"AVD-KSV-0002\",\n\t\"title\": \"Default AppArmor
+    profile not set\",\n\t\"short_code\": \"use-default-apparmor-profile\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"MEDIUM\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"A program inside the container can bypass AppArmor protection policies.\",\n\t\"recommended_actions\":
+    \"Remove 'container.apparmor.security.beta.kubernetes.io' annotation or set it
+    to 'runtime/default'.\",\n\t\"url\": \"https://kubernetes.io/docs/concepts/security/pod-security-standards/#baseline\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\napparmor_keys[container]
+    = key {\n\tcontainer := kubernetes.containers[_].name\n\tkey := sprintf(\"%s/%s\",
+    [\"container.apparmor.security.beta.kubernetes.io\", container])\n}\n\ncustom_apparmor_containers[container]
+    {\n\tkey := apparmor_keys[container]\n\tannotations := kubernetes.annotations[_]\n\tval
+    := annotations[key]\n\tval != \"runtime/default\"\n}\n\ndeny[res] {\n\tcontainer
+    := custom_apparmor_containers[_]\n\n\tmsg := kubernetes.format(sprintf(\"Container
+    '%s' of %s '%s' should specify an AppArmor profile\", [container, kubernetes.kind,
+    kubernetes.name]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\":
+    __rego_metadata__.title,\n\t\t\"severity\": __rego_metadata__.severity,\n\t\t\"type\":
+    __rego_metadata__.type,\n\t}\n}\n"
+  policy.7_selinux_custom_options_set.kinds: Workload
+  policy.7_selinux_custom_options_set.rego: "package appshield.kubernetes.KSV025\n\nimport
+    data.lib.kubernetes\nimport data.lib.utils\n\ndefault failSELinux = false\n\n__rego_metadata__
+    := {\n\t\"id\": \"KSV025\",\n\t\"avd_id\": \"AVD-KSV-0025\",\n\t\"title\": \"SELinux
+    custom options set\",\n\t\"short_code\": \"no-custom-selinux-options\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"MEDIUM\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"Setting a custom SELinux user or role option should be forbidden.\",\n\t\"recommended_actions\":
+    \"Do not set 'spec.securityContext.seLinuxOptions', spec.containers[*].securityContext.seLinuxOptions
+    and spec.initContainers[*].securityContext.seLinuxOptions.\",\n\t\"url\": \"https://kubernetes.io/docs/concepts/security/pod-security-standards/#baseline\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\nallowed_selinux_types
+    := [\"container_t\", \"container_init_t\", \"container_kvm_t\"]\n\ngetAllSecurityContexts[context]
+    {\n\tcontext := kubernetes.containers[_].securityContext\n}\n\ngetAllSecurityContexts[context]
+    {\n\tcontext := kubernetes.pods[_].spec.securityContext\n}\n\nfailSELinuxType[type]
+    {\n\tcontext := getAllSecurityContexts[_]\n\n\ttrace(context.seLinuxOptions.type)\n\tcontext.seLinuxOptions
+    != null\n\tcontext.seLinuxOptions.type != null\n\n\tnot hasAllowedType(context.seLinuxOptions)\n\n\ttype
+    := context.seLinuxOptions.type\n}\n\nfailForbiddenSELinuxProperties[key] {\n\tcontext
+    := getAllSecurityContexts[_]\n\n\tcontext.seLinuxOptions != null\n\n\tforbiddenProps
+    := getForbiddenSELinuxProperties(context)\n\tkey := forbiddenProps[_]\n}\n\ngetForbiddenSELinuxProperties(context)
+    = keys {\n\tforbiddenProperties = [\"role\", \"user\"]\n\tkeys := {msg |\n\t\tkey
+    := forbiddenProperties[_]\n\t\tutils.has_key(context.seLinuxOptions, key)\n\t\tmsg
+    := sprintf(\"'%s'\", [key])\n\t}\n}\n\nhasAllowedType(options) {\n\tallowed_selinux_types[_]
+    == options.type\n}\n\ndeny[res] {\n\ttype := failSELinuxType[_]\n\n\tmsg := kubernetes.format(sprintf(\"%s
+    '%s' uses invalid seLinux type '%s'\", [kubernetes.kind, kubernetes.name, type]))\n\n\tres
+    := {\n\t\t\"msg\": msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n\ndeny[res]
+    {\n\tkeys := failForbiddenSELinuxProperties\n\n\tcount(keys) > 0\n\n\tmsg := kubernetes.format(sprintf(\"%s
+    '%s' uses restricted properties in seLinuxOptions: (%s)\", [kubernetes.kind, kubernetes.name,
+    concat(\", \", keys)]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\":
+    __rego_metadata__.title,\n\t\t\"severity\": __rego_metadata__.severity,\n\t\t\"type\":
+    __rego_metadata__.type,\n\t}\n}\n"
+  policy.8_non_default_proc_masks_set.kinds: Workload
+  policy.8_non_default_proc_masks_set.rego: "package appshield.kubernetes.KSV027\n\nimport
+    data.lib.kubernetes\nimport data.lib.utils\n\ndefault failProcMount = false\n\n__rego_metadata__
+    := {\n\t\"id\": \"KSV027\",\n\t\"avd_id\": \"AVD-KSV-0027\",\n\t\"title\": \"Non-default
+    /proc masks set\",\n\t\"short_code\": \"no-custom-proc-mask\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"MEDIUM\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"The default /proc masks are set up to reduce attack surface, and should be required.\",\n\t\"recommended_actions\":
+    \"Do not set spec.containers[*].securityContext.procMount and spec.initContainers[*].securityContext.procMount.\",\n\t\"url\":
+    \"https://kubernetes.io/docs/concepts/security/pod-security-standards/#baseline\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    failProcMountOpts is true if securityContext.procMount is set in any container\nfailProcMountOpts
+    {\n\tallContainers := kubernetes.containers[_]\n\tutils.has_key(allContainers.securityContext,
+    \"procMount\")\n}\n\ndeny[res] {\n\tfailProcMountOpts\n\n\tmsg := kubernetes.format(sprintf(\"%s
+    '%s' should not set 'spec.containers[*].securityContext.procMount' or 'spec.initContainers[*].securityContext.procMount'\",
+    [kubernetes.kind, kubernetes.name]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\":
+    __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.9_unsafe_sysctl_options_set.kinds: Workload
+  policy.9_unsafe_sysctl_options_set.rego: "package appshield.kubernetes.KSV026\n\nimport
+    data.lib.kubernetes\nimport data.lib.utils\n\ndefault failSysctls = false\n\n__rego_metadata__
+    := {\n\t\"id\": \"KSV026\",\n\t\"avd_id\": \"AVD-KSV-0026\",\n\t\"title\": \"Unsafe
+    sysctl options set\",\n\t\"short_code\": \"no-unsafe-sysctl\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"MEDIUM\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"Sysctls can disable security mechanisms or affect all containers on a host,
+    and should be disallowed except for an allowed 'safe' subset. A sysctl is considered
+    safe if it is namespaced in the container or the Pod, and it is isolated from
+    other Pods or processes on the same Node.\",\n\t\"recommended_actions\": \"Do
+    not set 'spec.securityContext.sysctls' or set to values in an allowed subset\",\n\t\"url\":
+    \"https://kubernetes.io/docs/concepts/security/pod-security-standards/#baseline\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    Add allowed sysctls\nallowed_sysctls = {\n\t\"kernel.shm_rmid_forced\",\n\t\"net.ipv4.ip_local_port_range\",\n\t\"net.ipv4.tcp_syncookies\",\n\t\"net.ipv4.ping_group_range\",\n}\n\n#
+    failSysctls is true if a disallowed sysctl is set\nfailSysctls {\n\tpod := kubernetes.pods[_]\n\tset_sysctls
+    := {sysctl | sysctl := pod.spec.securityContext.sysctls[_].name}\n\tsysctls_not_allowed
+    := set_sysctls - allowed_sysctls\n\tcount(sysctls_not_allowed) > 0\n}\n\ndeny[res]
+    {\n\tfailSysctls\n\n\tmsg := kubernetes.format(sprintf(\"%s '%s' should set 'securityContext.sysctl'
+    to the allowed values\", [kubernetes.kind, kubernetes.name]))\n\n\tres := {\n\t\t\"msg\":
+    msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.CPU_not_limited.kinds: Workload
+  policy.CPU_not_limited.rego: "package appshield.kubernetes.KSV011\n\nimport data.lib.kubernetes\nimport
+    data.lib.utils\n\ndefault failLimitsCPU = false\n\n__rego_metadata__ := {\n\t\"id\":
+    \"KSV011\",\n\t\"avd_id\": \"AVD-KSV-0011\",\n\t\"title\": \"CPU not limited\",\n\t\"short_code\":
+    \"limit-cpu\",\n\t\"version\": \"v1.0.0\",\n\t\"severity\": \"LOW\",\n\t\"type\":
+    \"Kubernetes Security Check\",\n\t\"description\": \"Enforcing CPU limits prevents
+    DoS via resource exhaustion.\",\n\t\"recommended_actions\": \"Set a limit value
+    under 'containers[].resources.limits.cpu'.\",\n\t\"url\": \"https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-resource-requests-and-limits\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    getLimitsCPUContainers returns all containers which have set resources.limits.cpu\ngetLimitsCPUContainers[container]
+    {\n\tallContainers := kubernetes.containers[_]\n\tutils.has_key(allContainers.resources.limits,
+    \"cpu\")\n\tcontainer := allContainers.name\n}\n\n# getNoLimitsCPUContainers returns
+    all containers which have not set\n# resources.limits.cpu\ngetNoLimitsCPUContainers[container]
+    {\n\tcontainer := kubernetes.containers[_].name\n\tnot getLimitsCPUContainers[container]\n}\n\n#
+    failLimitsCPU is true if containers[].resources.limits.cpu is not set\n# for ANY
+    container\nfailLimitsCPU {\n\tcount(getNoLimitsCPUContainers) > 0\n}\n\ndeny[res]
+    {\n\tfailLimitsCPU\n\n\tmsg := kubernetes.format(sprintf(\"Container '%s' of %s
+    '%s' should set 'resources.limits.cpu'\", [getNoLimitsCPUContainers[_], kubernetes.kind,
+    kubernetes.name]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\":
+    __rego_metadata__.title,\n\t\t\"severity\": __rego_metadata__.severity,\n\t\t\"type\":
+    __rego_metadata__.type,\n\t}\n}\n"
+  policy.CPU_requests_not_specified.kinds: Workload
+  policy.CPU_requests_not_specified.rego: "package appshield.kubernetes.KSV015\n\nimport
+    data.lib.kubernetes\nimport data.lib.utils\n\ndefault failRequestsCPU = false\n\n__rego_metadata__
+    := {\n\t\"id\": \"KSV015\",\n\t\"avd_id\": \"AVD-KSV-0015\",\n\t\"title\": \"CPU
+    requests not specified\",\n\t\"short_code\": \"no-unspecified-cpu-requests\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"LOW\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"When containers have resource requests specified, the scheduler can make better
+    decisions about which nodes to place pods on, and how to deal with resource contention.\",\n\t\"recommended_actions\":
+    \"Set 'containers[].resources.requests.cpu'.\",\n\t\"url\": \"https://cloud.google.com/blog/products/containers-kubernetes/kubernetes-best-practices-resource-requests-and-limits\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    getRequestsCPUContainers returns all containers which have set resources.requests.cpu\ngetRequestsCPUContainers[container]
+    {\n\tallContainers := kubernetes.containers[_]\n\tutils.has_key(allContainers.resources.requests,
+    \"cpu\")\n\tcontainer := allContainers.name\n}\n\n# getNoRequestsCPUContainers
+    returns all containers which have not set\n# resources.requests.cpu\ngetNoRequestsCPUContainers[container]
+    {\n\tcontainer := kubernetes.containers[_].name\n\tnot getRequestsCPUContainers[container]\n}\n\n#
+    failRequestsCPU is true if containers[].resources.requests.cpu is not set\n# for
+    ANY container\nfailRequestsCPU {\n\tcount(getNoRequestsCPUContainers) > 0\n}\n\ndeny[res]
+    {\n\tfailRequestsCPU\n\n\tmsg := kubernetes.format(sprintf(\"Container '%s' of
+    %s '%s' should set 'resources.requests.cpu'\", [getNoRequestsCPUContainers[_],
+    kubernetes.kind, kubernetes.name]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\":
+    __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.SYS_ADMIN_capability.kinds: Workload
+  policy.SYS_ADMIN_capability.rego: "package appshield.kubernetes.KSV005\n\nimport
+    data.lib.kubernetes\n\ndefault failCapsSysAdmin = false\n\n__rego_metadata__ :=
+    {\n\t\"id\": \"KSV005\",\n\t\"avd_id\": \"AVD-KSV-0005\",\n\t\"title\": \"SYS_ADMIN
+    capability added\",\n\t\"short_code\": \"no-sysadmin-capability\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"HIGH\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"SYS_ADMIN gives the processes running inside the container privileges that are
+    equivalent to root.\",\n\t\"recommended_actions\": \"Remove the SYS_ADMIN capability
+    from 'containers[].securityContext.capabilities.add'.\",\n\t\"url\": \"https://kubesec.io/basics/containers-securitycontext-capabilities-add-index-sys-admin/\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    getCapsSysAdmin returns the names of all containers which include\n# 'SYS_ADMIN'
+    in securityContext.capabilities.add.\ngetCapsSysAdmin[container] {\n\tallContainers
+    := kubernetes.containers[_]\n\tallContainers.securityContext.capabilities.add[_]
+    == \"SYS_ADMIN\"\n\tcontainer := allContainers.name\n}\n\n# failCapsSysAdmin is
+    true if securityContext.capabilities.add\n# includes 'SYS_ADMIN'.\nfailCapsSysAdmin
+    {\n\tcount(getCapsSysAdmin) > 0\n}\n\ndeny[res] {\n\tfailCapsSysAdmin\n\n\tmsg
+    := kubernetes.format(sprintf(\"Container '%s' of %s '%s' should not include 'SYS_ADMIN'
+    in 'securityContext.capabilities.add'\", [getCapsSysAdmin[_], kubernetes.kind,
+    kubernetes.name]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\":
+    __rego_metadata__.title,\n\t\t\"severity\": __rego_metadata__.severity,\n\t\t\"type\":
+    __rego_metadata__.type,\n\t}\n}\n"
+  policy.capabilities_no_drop_all.kinds: Workload
+  policy.capabilities_no_drop_all.rego: "package appshield.kubernetes.KSV003\n\nimport
+    data.lib.kubernetes\n\ndefault checkCapsDropAll = false\n\n__rego_metadata__ :=
+    {\n\t\"id\": \"KSV003\",\n\t\"avd_id\": \"AVD-KSV-0003\",\n\t\"title\": \"Default
+    capabilities not dropped\",\n\t\"short_code\": \"drop-default-capabilities\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"LOW\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"The container should drop all default capabilities and add only those that are
+    needed for its execution.\",\n\t\"recommended_actions\": \"Add 'ALL' to containers[].securityContext.capabilities.drop.\",\n\t\"url\":
+    \"https://kubesec.io/basics/containers-securitycontext-capabilities-drop-index-all/\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    Get all containers which include 'ALL' in security.capabilities.drop\ngetCapsDropAllContainers[container]
+    {\n\tallContainers := kubernetes.containers[_]\n\tallContainers.securityContext.capabilities.drop[_]
+    == \"ALL\"\n\tcontainer := allContainers.name\n}\n\n# Get all containers which
+    don't include 'ALL' in security.capabilities.drop\ngetCapsNoDropAllContainers[container]
+    {\n\tcontainer := kubernetes.containers[_].name\n\tnot getCapsDropAllContainers[container]\n}\n\n#
+    checkCapsDropAll is true if capabilities drop does not include 'ALL',\n# or if
+    capabilities drop is not specified at all.\ncheckCapsDropAll {\n\tcount(getCapsNoDropAllContainers)
+    > 0\n}\n\ndeny[res] {\n\tcheckCapsDropAll\n\n\tmsg := kubernetes.format(sprintf(\"Container
+    '%s' of %s '%s' should add 'ALL' to 'securityContext.capabilities.drop'\", [getCapsNoDropAllContainers[_],
+    kubernetes.kind, kubernetes.name]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\":
+    __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.capabilities_no_drop_at_least_one.kinds: Workload
+  policy.capabilities_no_drop_at_least_one.rego: "package appshield.kubernetes.KSV004\n\nimport
+    data.lib.kubernetes\nimport data.lib.utils\n\ndefault failCapsDropAny = false\n\n__rego_metadata__
+    := {\n\t\"id\": \"KSV004\",\n\t\"avd_id\": \"AVD-KSV-0004\",\n\t\"title\": \"Unused
+    capabilities should be dropped (drop any)\",\n\t\"short_code\": \"drop-unused-capabilities\",\n\t\"version\":
+    \"v0.0.0\",\n\t\"severity\": \"LOW\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"Security best practices require containers to run with minimal required capabilities.\",\n\t\"recommended_actions\":
+    \"Specify at least one unneeded capability in 'containers[].securityContext.capabilities.drop'\",\n\t\"url\":
+    \"https://kubesec.io/basics/containers-securitycontext-capabilities-drop-index-all/\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    getCapsDropAnyContainers returns names of all containers\n# which set securityContext.capabilities.drop\ngetCapsDropAnyContainers[container]
+    {\n\tallContainers := kubernetes.containers[_]\n\tutils.has_key(allContainers.securityContext.capabilities,
+    \"drop\")\n\tcontainer := allContainers.name\n}\n\n# getNoCapsDropContainers returns
+    names of all containers which\n# do not set securityContext.capabilities.drop\ngetNoCapsDropContainers[container]
+    {\n\tcontainer := kubernetes.containers[_].name\n\tnot getCapsDropAnyContainers[container]\n}\n\n#
+    failCapsDropAny is true if ANY container does not\n# set securityContext.capabilities.drop\nfailCapsDropAny
+    {\n\tcount(getNoCapsDropContainers) > 0\n}\n\ndeny[res] {\n\tfailCapsDropAny\n\n\tmsg
+    := kubernetes.format(sprintf(\"Container '%s' of '%s' '%s' in '%s' namespace should
+    set securityContext.capabilities.drop\", [getNoCapsDropContainers[_], lower(kubernetes.kind),
+    kubernetes.name, kubernetes.namespace]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\":
+    __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.file_system_not_read_only.kinds: Workload
+  policy.file_system_not_read_only.rego: "package appshield.kubernetes.KSV014\n\nimport
+    data.lib.kubernetes\n\ndefault failReadOnlyRootFilesystem = false\n\n__rego_metadata__
+    := {\n\t\"id\": \"KSV014\",\n\t\"avd_id\": \"AVD-KSV-0014\",\n\t\"title\": \"Root
+    file system is not read-only\",\n\t\"short_code\": \"use-readonly-filesystem\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"LOW\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"An immutable root file system prevents applications from writing to their local
+    disk. This can limit intrusions, as attackers will not be able to tamper with
+    the file system or write foreign executables to disk.\",\n\t\"recommended_actions\":
+    \"Change 'containers[].securityContext.readOnlyRootFilesystem' to 'true'.\",\n\t\"url\":
+    \"https://kubesec.io/basics/containers-securitycontext-readonlyrootfilesystem-true/\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    getReadOnlyRootFilesystemContainers returns all containers that have\n# securityContext.readOnlyFilesystem
+    set to true.\ngetReadOnlyRootFilesystemContainers[container] {\n\tallContainers
+    := kubernetes.containers[_]\n\tallContainers.securityContext.readOnlyRootFilesystem
+    == true\n\tcontainer := allContainers.name\n}\n\n# getNotReadOnlyRootFilesystemContainers
+    returns all containers that have\n# securityContext.readOnlyRootFilesystem set
+    to false or not set at all.\ngetNotReadOnlyRootFilesystemContainers[container]
+    {\n\tcontainer := kubernetes.containers[_].name\n\tnot getReadOnlyRootFilesystemContainers[container]\n}\n\n#
+    failReadOnlyRootFilesystem is true if ANY container sets\n# securityContext.readOnlyRootFilesystem
+    set to false or not set at all.\nfailReadOnlyRootFilesystem {\n\tcount(getNotReadOnlyRootFilesystemContainers)
+    > 0\n}\n\ndeny[res] {\n\tfailReadOnlyRootFilesystem\n\n\tmsg := kubernetes.format(sprintf(\"Container
+    '%s' of %s '%s' should set 'securityContext.readOnlyRootFilesystem' to true\",
+    [getNotReadOnlyRootFilesystemContainers[_], kubernetes.kind, kubernetes.name]))\n\n\tres
+    := {\n\t\t\"msg\": msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.manages_etc_hosts.kinds: Workload
+  policy.manages_etc_hosts.rego: "package appshield.kubernetes.KSV007\n\nimport data.lib.kubernetes\nimport
+    data.lib.utils\n\ndefault failHostAliases = false\n\n__rego_metadata__ := {\n\t\"id\":
+    \"KSV007\",\n\t\"avd_id\": \"AVD-KSV-0007\",\n\t\"title\": \"hostAliases is set\",\n\t\"short_code\":
+    \"no-hostaliases\",\n\t\"version\": \"v1.0.0\",\n\t\"severity\": \"LOW\",\n\t\"type\":
+    \"Kubernetes Security Check\",\n\t\"description\": \"Managing /etc/hosts aliases
+    can prevent the container engine from modifying the file after a pod’s containers
+    have already been started.\",\n\t\"recommended_actions\": \"Do not set 'spec.template.spec.hostAliases'.\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    failHostAliases is true if spec.hostAliases is set (on all controllers)\nfailHostAliases
+    {\n\tutils.has_key(kubernetes.host_aliases[_], \"hostAliases\")\n}\n\ndeny[res]
+    {\n\tfailHostAliases\n\n\tmsg := kubernetes.format(sprintf(\"'%s' '%s' in '%s'
+    namespace should not set spec.template.spec.hostAliases\", [lower(kubernetes.kind),
+    kubernetes.name, kubernetes.namespace]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\":
+    __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.memory_not_limited.kinds: Workload
+  policy.memory_not_limited.rego: "package appshield.kubernetes.KSV018\n\nimport data.lib.kubernetes\nimport
+    data.lib.utils\n\ndefault failLimitsMemory = false\n\n__rego_metadata__ := {\n\t\"id\":
+    \"KSV018\",\n\t\"avd_id\": \"AVD-KSV-0018\",\n\t\"title\": \"Memory not limited\",\n\t\"short_code\":
+    \"limit-memory\",\n\t\"version\": \"v1.0.0\",\n\t\"severity\": \"LOW\",\n\t\"type\":
+    \"Kubernetes Security Check\",\n\t\"description\": \"Enforcing memory limits prevents
+    DoS via resource exhaustion.\",\n\t\"recommended_actions\": \"Set a limit value
+    under 'containers[].resources.limits.memory'.\",\n\t\"url\": \"https://kubesec.io/basics/containers-resources-limits-memory/\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    getLimitsMemoryContainers returns all containers which have set resources.limits.memory\ngetLimitsMemoryContainers[container]
+    {\n\tallContainers := kubernetes.containers[_]\n\tutils.has_key(allContainers.resources.limits,
+    \"memory\")\n\tcontainer := allContainers.name\n}\n\n# getNoLimitsMemoryContainers
+    returns all containers which have not set\n# resources.limits.memory\ngetNoLimitsMemoryContainers[container]
+    {\n\tcontainer := kubernetes.containers[_].name\n\tnot getLimitsMemoryContainers[container]\n}\n\n#
+    failLimitsMemory is true if containers[].resources.limits.memory is not set\n#
+    for ANY container\nfailLimitsMemory {\n\tcount(getNoLimitsMemoryContainers) >
+    0\n}\n\ndeny[res] {\n\tfailLimitsMemory\n\n\tmsg := kubernetes.format(sprintf(\"Container
+    '%s' of %s '%s' should set 'resources.limits.memory'\", [getNoLimitsMemoryContainers[_],
+    kubernetes.kind, kubernetes.name]))\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\":
+    __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.memory_requests_not_specified.kinds: Workload
+  policy.memory_requests_not_specified.rego: "package appshield.kubernetes.KSV016\n\nimport
+    data.lib.kubernetes\nimport data.lib.utils\n\ndefault failRequestsMemory = false\n\n__rego_metadata__
+    := {\n\t\"id\": \"KSV016\",\n\t\"avd_id\": \"AVD-KSV-0016\",\n\t\"title\": \"Memory
+    requests not specified\",\n\t\"short_code\": \"no-unspecified-memory-requests\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"LOW\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"When containers have memory requests specified, the scheduler can make better
+    decisions about which nodes to place pods on, and how to deal with resource contention.\",\n\t\"recommended_actions\":
+    \"Set 'containers[].resources.requests.memory'.\",\n\t\"url\": \"https://kubesec.io/basics/containers-resources-limits-memory/\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    getRequestsMemoryContainers returns all containers which have set resources.requests.memory\ngetRequestsMemoryContainers[container]
+    {\n\tallContainers := kubernetes.containers[_]\n\tutils.has_key(allContainers.resources.requests,
+    \"memory\")\n\tcontainer := allContainers.name\n}\n\n# getNoRequestsMemoryContainers
+    returns all containers which have not set\n# resources.requests.memory\ngetNoRequestsMemoryContainers[container]
+    {\n\tcontainer := kubernetes.containers[_].name\n\tnot getRequestsMemoryContainers[container]\n}\n\n#
+    failRequestsMemory is true if containers[].resources.requests.memory is not set\n#
+    for ANY container\nfailRequestsMemory {\n\tcount(getNoRequestsMemoryContainers)
+    > 0\n}\n\ndeny[res] {\n\tfailRequestsMemory\n\n\tmsg := kubernetes.format(sprintf(\"Container
+    '%s' of %s '%s' should set 'resources.requests.memory'\", [getNoRequestsMemoryContainers[_],
+    kubernetes.kind, kubernetes.name]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\":
+    __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.mounts_docker_socket.kinds: Workload
+  policy.mounts_docker_socket.rego: "package appshield.kubernetes.KSV006\n\nimport
+    data.lib.kubernetes\n\nname = input.metadata.name\n\ndefault checkDockerSocket
+    = false\n\n__rego_metadata__ := {\n\t\"id\": \"KSV006\",\n\t\"avd_id\": \"AVD-KSV-0006\",\n\t\"title\":
+    \"hostPath volume mounted with docker.sock\",\n\t\"short_code\": \"no-docker-sock-mount\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"HIGH\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"Mounting docker.sock from the host can give the container full root access to
+    the host.\",\n\t\"recommended_actions\": \"Do not specify /var/run/docker.socket
+    in 'spec.template.volumes.hostPath.path'.\",\n\t\"url\": \"https://kubesec.io/basics/spec-volumes-hostpath-path-var-run-docker-sock/\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    checkDockerSocket is true if volumes.hostPath.path is set to /var/run/docker.sock\n#
+    and is false if volumes.hostPath is set to some other path or not set.\ncheckDockerSocket
+    {\n\tvolumes := kubernetes.volumes\n\tvolumes[_].hostPath.path == \"/var/run/docker.sock\"\n}\n\ndeny[res]
+    {\n\tcheckDockerSocket\n\n\tmsg := kubernetes.format(sprintf(\"%s '%s' should
+    not specify '/var/run/docker.socker' in 'spec.template.volumes.hostPath.path'\",
+    [kubernetes.kind, kubernetes.name]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\":
+    __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.protect_core_components_namespace.kinds: Workload
+  policy.protect_core_components_namespace.rego: "package appshield.kubernetes.KSV037\n\nimport
+    data.lib.kubernetes\nimport data.lib.utils\n\n__rego_metadata__ := {\n\t\"id\":
+    \"KSV037\",\n\t\"avd_id\": \"AVD-KSV-0037\",\n\t\"title\": \"User Pods should
+    not be placed in kube-system namespace\",\n\t\"short_code\": \"no-user-pods-in-system-namespace\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"MEDIUM\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"ensure that User pods are not placed in kube-system namespace\",\n\t\"recommended_actions\":
+    \"Deploy the use pods into a designated namespace which is not kube-system.\",\n\t\"url\":
+    \"https://kubernetes.io/docs/reference/setup-tools/kubeadm/implementation-details/\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\ndeny[res]
+    {\n\tsystemNamespaceInUse(input.metadata, input.spec)\n\tmsg := sprintf(\"%s '%s'
+    should not be set with 'kube-system' namespace\", [kubernetes.kind, kubernetes.name])\n\tres
+    := {\n\t\t\"msg\": msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n\nsystemNamespaceInUse(metadata,
+    spec) {\n\tkubernetes.namespace == \"kube-system\"\n\tnot core_component(metadata,
+    spec)\n}\n\ncore_component(metadata, spec) {\n\tkubernetes.has_field(metadata.labels,
+    \"tier\")\n\tmetadata.labels.tier == \"control-plane\"\n\tkubernetes.has_field(spec,
+    \"priorityClassName\")\n\tspec.priorityClassName == \"system-node-critical\"\n\tkubernetes.has_field(metadata.labels,
+    \"component\")\n\tcoreComponentLabels := [\"kube-apiserver\", \"etcd\", \"kube-controller-manager\",
+    \"kube-scheduler\"]\n\tmetadata.labels.component = coreComponentLabels[_]\n}\n"
+  policy.protecting_pod_service_account_tokens.kinds: Workload
+  policy.protecting_pod_service_account_tokens.rego: "package appshield.kubernetes.KSV036\n\nimport
+    data.lib.kubernetes\nimport data.lib.utils\n\n__rego_metadata__ := {\n\t\"id\":
+    \"KSV036\",\n\t\"avd_id\": \"AVD-KSV-0036\",\n\t\"title\": \"Protecting Pod service
+    account tokens\",\n\t\"short_code\": \"no-auto-mount-service-token\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"MEDIUM\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"ensure that Pod specifications disable the secret token being mounted by setting
+    automountServiceAccountToken: false\",\n\t\"recommended_actions\": \"Remove 'container.apparmor.security.beta.kubernetes.io'
+    annotation or set it to 'runtime/default'.\",\n\t\"url\": \"https://kubernetes.io/docs/reference/access-authn-authz/service-accounts-admin/#serviceaccount-admission-controller\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\ndeny[res]
+    {\n\tmountServiceAccountToken(input.spec)\n\tmsg := kubernetes.format(sprintf(\"Container
+    of %s '%s' should set 'spec.automountServiceAccountToken' to false\", [kubernetes.kind,
+    kubernetes.name]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\":
+    __rego_metadata__.title,\n\t\t\"severity\": __rego_metadata__.severity,\n\t\t\"type\":
+    __rego_metadata__.type,\n\t}\n}\n\nmountServiceAccountToken(spec) {\n\thas_key(spec,
+    \"automountServiceAccountToken\")\n\tspec.automountServiceAccountToken == true\n}\n\n#
+    if there is no automountServiceAccountToken spec, check on volumeMount in containers.
+    Service Account token is mounted on /var/run/secrets/kubernetes.io/serviceaccount\nmountServiceAccountToken(spec)
+    {\n\tnot has_key(spec, \"automountServiceAccountToken\")\n\t\"/var/run/secrets/kubernetes.io/serviceaccount\"
+    == kubernetes.containers[_].volumeMounts[_].mountPath\n}\n\nhas_key(x, k) {\n\t_
+    = x[k]\n}\n"
+  policy.runs_with_GID_le_10000.kinds: Workload
+  policy.runs_with_GID_le_10000.rego: "package appshield.kubernetes.KSV021\n\nimport
+    data.lib.kubernetes\nimport data.lib.utils\n\ndefault failRunAsGroup = false\n\n__rego_metadata__
+    := {\n\t\"id\": \"KSV021\",\n\t\"avd_id\": \"AVD-KSV-0021\",\n\t\"title\": \"Runs
+    with low group ID\",\n\t\"short_code\": \"use-high-gid\",\n\t\"version\": \"v1.0.0\",\n\t\"severity\":
+    \"MEDIUM\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\": \"Force
+    the container to run with group ID > 10000 to avoid conflicts with the host’s
+    user table.\",\n\t\"recommended_actions\": \"Set 'containers[].securityContext.runAsGroup'
+    to an integer > 10000.\",\n\t\"url\": \"https://kubesec.io/basics/containers-securitycontext-runasuser/\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    getGroupIdContainers returns the names of all containers which have\n# securityContext.runAsGroup
+    less than or equal to 10000.\ngetGroupIdContainers[container] {\n\tallContainers
+    := kubernetes.containers[_]\n\tallContainers.securityContext.runAsGroup <= 10000\n\tcontainer
+    := allContainers.name\n}\n\n# getGroupIdContainers returns the names of all containers
+    which do\n# not have securityContext.runAsGroup set.\ngetGroupIdContainers[container]
+    {\n\tallContainers := kubernetes.containers[_]\n\tnot utils.has_key(allContainers.securityContext,
+    \"runAsGroup\")\n\tcontainer := allContainers.name\n}\n\n# getGroupIdContainers
+    returns the names of all containers which do\n# not have securityContext set.\ngetGroupIdContainers[container]
+    {\n\tallContainers := kubernetes.containers[_]\n\tnot utils.has_key(allContainers,
+    \"securityContext\")\n\tcontainer := allContainers.name\n}\n\n# failRunAsGroup
+    is true if securityContext.runAsGroup is less than or\n# equal to 10000 or if
+    securityContext.runAsGroup is not set.\nfailRunAsGroup {\n\tcount(getGroupIdContainers)
+    > 0\n}\n\ndeny[res] {\n\tfailRunAsGroup\n\n\tmsg := kubernetes.format(sprintf(\"Container
+    '%s' of %s '%s' should set 'securityContext.runAsGroup' > 10000\", [getGroupIdContainers[_],
+    kubernetes.kind, kubernetes.name]))\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\":
+    __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.runs_with_UID_le_10000.kinds: Workload
+  policy.runs_with_UID_le_10000.rego: "package appshield.kubernetes.KSV020\n\nimport
+    data.lib.kubernetes\nimport data.lib.utils\n\ndefault failRunAsUser = false\n\n__rego_metadata__
+    := {\n\t\"id\": \"KSV020\",\n\t\"avd_id\": \"AVD-KSV-0020\",\n\t\"title\": \"Runs
+    with low user ID\",\n\t\"short_code\": \"use-high-uid\",\n\t\"version\": \"v1.0.0\",\n\t\"severity\":
+    \"MEDIUM\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\": \"Force
+    the container to run with user ID > 10000 to avoid conflicts with the host’s user
+    table.\",\n\t\"recommended_actions\": \"Set 'containers[].securityContext.runAsUser'
+    to an integer > 10000.\",\n\t\"url\": \"https://kubesec.io/basics/containers-securitycontext-runasuser/\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    getUserIdContainers returns the names of all containers which have\n# securityContext.runAsUser
+    less than or equal to 100000.\ngetUserIdContainers[container] {\n\tallContainers
+    := kubernetes.containers[_]\n\tallContainers.securityContext.runAsUser <= 10000\n\tcontainer
+    := allContainers.name\n}\n\n# getUserIdContainers returns the names of all containers
+    which do\n# not have securityContext.runAsUser set.\ngetUserIdContainers[container]
+    {\n\tallContainers := kubernetes.containers[_]\n\tnot utils.has_key(allContainers.securityContext,
+    \"runAsUser\")\n\tcontainer := allContainers.name\n}\n\n# getUserIdContainers
+    returns the names of all containers which do\n# not have securityContext set.\ngetUserIdContainers[container]
+    {\n\tallContainers := kubernetes.containers[_]\n\tnot utils.has_key(allContainers,
+    \"securityContext\")\n\tcontainer := allContainers.name\n}\n\n# failRunAsUser
+    is true if securityContext.runAsUser is less than or\n# equal to 10000 or if securityContext.runAsUser
+    is not set.\nfailRunAsUser {\n\tcount(getUserIdContainers) > 0\n}\n\ndeny[res]
+    {\n\tfailRunAsUser\n\n\tmsg := kubernetes.format(sprintf(\"Container '%s' of %s
+    '%s' should set 'securityContext.runAsUser' > 10000\", [getUserIdContainers[_],
+    kubernetes.kind, kubernetes.name]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\":
+    __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.selector_usage_in_network_policies.kinds: NetworkPolicy
+  policy.selector_usage_in_network_policies.rego: "package appshield.kubernetes.KSV038\n\nimport
+    data.lib.kubernetes\nimport data.lib.utils\n\n__rego_metadata__ := {\n\t\"id\":
+    \"KSV038\",\n\t\"avd_id\": \"AVD-KSV-0038\",\n\t\"title\": \"Selector usage in
+    network policies\",\n\t\"short_code\": \"selector-usage-in-network-policies\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"MEDIUM\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"ensure that network policies selectors are applied to pods or namespaces to
+    restricted ingress and egress traffic within the pod network\",\n\t\"recommended_actions\":
+    \"create network policies and ensure that pods are selected using the podSelector
+    and/or the namespaceSelector options\",\n\t\"url\": \"https://kubernetes.io/docs/tasks/administer-cluster/declare-network-policy/\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\ndeny[res]
+    {\n\tnot hasSelector(input.spec)\n\tmsg := \"Network policy should uses podSelector
+    and/or the namespaceSelector to restrict ingress and egress traffic within the
+    Pod network\"\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\":
+    __rego_metadata__.title,\n\t\t\"severity\": __rego_metadata__.severity,\n\t\t\"type\":
+    __rego_metadata__.type,\n\t}\n}\n\nhasSelector(spec) {\n\tlower(kubernetes.kind)
+    == \"networkpolicy\"\n\tkubernetes.has_field(spec, \"podSelector\")\n\tkubernetes.has_field(spec.podSelector,
+    \"matchLabels\")\n}\n\nhasSelector(spec) {\n\tlower(kubernetes.kind) == \"networkpolicy\"\n\tkubernetes.has_field(spec,
+    \"namespaceSelector\")\n}\n\nhasSelector(spec) {\n\tlower(kubernetes.kind) ==
+    \"networkpolicy\"\n\tkubernetes.has_field(spec, \"podSelector\")\n}\n\nhasSelector(spec)
+    {\n\tlower(kubernetes.kind) == \"networkpolicy\"\n\tkubernetes.has_field(spec,
+    \"ingress\")\n\tkubernetes.has_field(spec.ingress[_], \"from\")\n\tkubernetes.has_field(spec.ingress[_].from[_],
+    \"namespaceSelector\")\n}\n\nhasSelector(spec) {\n\tlower(kubernetes.kind) ==
+    \"networkpolicy\"\n\tkubernetes.has_field(spec, \"ingress\")\n\tkubernetes.has_field(spec.ingress[_],
+    \"from\")\n\tkubernetes.has_field(spec.ingress[_].from[_], \"podSelector\")\n}\n\nhasSelector(spec)
+    {\n\tlower(kubernetes.kind) == \"networkpolicy\"\n\tkubernetes.has_field(spec,
+    \"egress\")\n\tkubernetes.has_field(spec.egress[_], \"to\")\n\tkubernetes.has_field(spec.egress[_].to[_],
+    \"podSelector\")\n}\n\nhasSelector(spec) {\n\tlower(kubernetes.kind) == \"networkpolicy\"\n\tkubernetes.has_field(spec,
+    \"egress\")\n\tkubernetes.has_field(spec.egress[_], \"to\")\n\tkubernetes.has_field(spec.egress[_].to[_],
+    \"namespaceSelector\")\n}\n\nhasSelector(spec) {\n\tlower(kubernetes.kind) ==
+    \"networkpolicy\"\n\tkubernetes.spec.podSelector == {}\n\tcontains(input.spec.policyType,
+    \"Egress\")\n}\n\nhasSelector(spec) {\n\tlower(kubernetes.kind) == \"networkpolicy\"\n\tkubernetes.spec.podSelector
+    == {}\n\tcontains(input.spec.policyType, \"Ingress\")\n}\n\ncontains(arr, elem)
+    {\n\tarr[_] = elem\n}\n"
+  policy.tiller_is_deployed.kinds: Workload
+  policy.tiller_is_deployed.rego: "package appshield.kubernetes.KSV202\n\nimport data.lib.kubernetes\n\n__rego_metadata__
+    := {\n\t\"id\": \"KSV102\",\n\t\"avd_id\": \"AVD-KSV-0102\",\n\t\"title\": \"Tiller
+    Is Deployed\",\n\t\"short_code\": \"no-tiller\",\n\t\"version\": \"v1.0.0\",\n\t\"severity\":
+    \"Critical\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"Check if Helm Tiller component is deployed.\",\n\t\"recommended_actions\": \"Migrate
+    to Helm v3 which no longer has Tiller component\",\n}\n\n__rego_input__ := {\n\t\"combine\":
+    false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n# Get all containers
+    and check kubernetes metadata for tiller\ntillerDeployed[container] {\n\tcurrentContainer
+    := kubernetes.containers[_]\n\tcheckMetadata(input.metadata)\n\tcontainer := currentContainer.name\n}\n\n#
+    Get all containers and check each image for tiller\ntillerDeployed[container]
+    {\n\tcurrentContainer := kubernetes.containers[_]\n\tcontains(currentContainer.image,
+    \"tiller\")\n\tcontainer := currentContainer.name\n}\n\n# Get all pods and check
+    each metadata for tiller\ntillerDeployed[pod] {\n\tcurrentPod := kubernetes.pods[_]\n\tcheckMetadata(currentPod.metadata)\n\tpod
+    := currentPod.metadata.name\n}\n\ndeny[res] {\n\tmsg := kubernetes.format(sprintf(\"container
+    '%s' of %s '%s' in '%s' namespace shouldn't have tiller deployed\", [tillerDeployed[_],
+    lower(kubernetes.kind), kubernetes.name, kubernetes.namespace]))\n\n\tres := {\n\t\t\"msg\":
+    msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n\n#
+    Check for tiller by resource name\ncheckMetadata(metadata) {\n\tcontains(metadata.name,
+    \"tiller\")\n}\n\n# Check for tiller by app label\ncheckMetadata(metadata) {\n\tmetadata.labels.app
+    == \"helm\"\n}\n\n# Check for tiller by name label\ncheckMetadata(metadata) {\n\tmetadata.labels.name
+    == \"tiller\"\n}\n"
+  policy.use_limit_range.kinds: LimitRange
+  policy.use_limit_range.rego: "package appshield.kubernetes.KSV039\n\nimport data.lib.kubernetes\nimport
+    data.lib.utils\n\n__rego_metadata__ := {\n\t\"id\": \"KSV039\",\n\t\"avd_id\":
+    \"AVD-KSV-0039\",\n\t\"title\": \"limit range usage\",\n\t\"short_code\": \"limit-range-usage\",\n\t\"severity\":
+    \"LOW\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\": \"ensure
+    limit range policy has configure in order to limit resource usage for namespaces
+    or nodes\",\n\t\"recommended_actions\": \"create limit range policy with a default
+    request and limit, min and max request, for each container.\",\n\t\"url\": \"https://kubernetes.io/docs/concepts/policy/limit-range/\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\ndeny[res]
+    {\n\tnot limitRangeConfigure\n\tmsg := \"limit range policy with a default request
+    and limit, min and max request, for each container should be configure\"\n\tres
+    := {\n\t\t\"msg\": msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n\nlimitRangeConfigure
+    {\n\tlower(input.kind) == \"limitrange\"\n\tinput.spec[limits]\n\tkubernetes.has_field(input.spec.limits[_],
+    \"type\")\n\tkubernetes.has_field(input.spec.limits[_], \"max\")\n\tkubernetes.has_field(input.spec.limits[_],
+    \"min\")\n\tkubernetes.has_field(input.spec.limits[_], \"default\")\n\tkubernetes.has_field(input.spec.limits[_],
+    \"defaultRequest\")\n}\n"
+  policy.use_resource_quota.kinds: ResourceQuota
+  policy.use_resource_quota.rego: "package appshield.kubernetes.KSV040\n\nimport data.lib.kubernetes\nimport
+    data.lib.utils\n\n__rego_metadata__ := {\n\t\"id\": \"KSV040\",\n\t\"avd_id\":
+    \"AVD-KSV-0040\",\n\t\"title\": \"resource quota usage\",\n\t\"short_code\": \"resource-quota-usage\",\n\t\"severity\":
+    \"LOW\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\": \"ensure
+    resource quota policy has configure in order to limit aggregate resource usage
+    within namespace\",\n\t\"recommended_actions\": \"create resource quota policy
+    with mem and cpu quota per each namespace\",\n\t\"url\": \"https://kubernetes.io/docs/tasks/administer-cluster/manage-resources/quota-memory-cpu-namespace/\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\ndeny[res]
+    {\n\tnot resourceQuotaConfigure\n\tmsg := \"resource quota policy with hard memory
+    and cpu quota per namespace should be configure\"\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\":
+    __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n\nresourceQuotaConfigure
+    {\n\tlower(input.kind) == \"resourcequota\"\n\tinput.spec[hard]\n\tkubernetes.has_field(input.spec.hard,
+    \"requests.cpu\")\n\tkubernetes.has_field(input.spec.hard, \"requests.memory\")\n\tkubernetes.has_field(input.spec.hard,
+    \"limits.cpu\")\n\tkubernetes.has_field(input.spec.hard, \"limits.memory\")\n}\n"
+  policy.uses_image_tag_latest.kinds: Workload
+  policy.uses_image_tag_latest.rego: "package appshield.kubernetes.KSV013\n\nimport
+    data.lib.kubernetes\n\ndefault checkUsingLatestTag = false\n\n__rego_metadata__
+    := {\n\t\"id\": \"KSV013\",\n\t\"avd_id\": \"AVD-KSV-0013\",\n\t\"title\": \"Image
+    tag ':latest' used\",\n\t\"short_code\": \"use-specific-tags\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"LOW\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"It is best to avoid using the ':latest' image tag when deploying containers
+    in production. Doing so makes it hard to track which version of the image is running,
+    and hard to roll back the version.\",\n\t\"recommended_actions\": \"Use a specific
+    container image tag that is not 'latest'.\",\n\t\"url\": \"https://kubernetes.io/docs/concepts/configuration/overview/#container-images\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    getTaggedContainers returns the names of all containers which\n# have tagged images.\ngetTaggedContainers[container]
+    {\n\t# If the image defines a digest value, we don't care about the tag\n\tallContainers
+    := kubernetes.containers[_]\n\tdigest := split(allContainers.image, \"@\")[1]\n\tcontainer
+    := allContainers.name\n}\n\ngetTaggedContainers[container] {\n\t# No digest, look
+    at tag\n\tallContainers := kubernetes.containers[_]\n\ttag := split(allContainers.image,
+    \":\")[1]\n\ttag != \"latest\"\n\tcontainer := allContainers.name\n}\n\n# getUntaggedContainers
+    returns the names of all containers which\n# have untagged images or images with
+    the latest tag.\ngetUntaggedContainers[container] {\n\tcontainer := kubernetes.containers[_].name\n\tnot
+    getTaggedContainers[container]\n}\n\n# checkUsingLatestTag is true if there is
+    a container whose image tag\n# is untagged or uses the latest tag.\ncheckUsingLatestTag
+    {\n\tcount(getUntaggedContainers) > 0\n}\n\ndeny[res] {\n\tcheckUsingLatestTag\n\n\tmsg
+    := kubernetes.format(sprintf(\"Container '%s' of %s '%s' should specify an image
+    tag\", [getUntaggedContainers[_], kubernetes.kind, kubernetes.name]))\n\n\tres
+    := {\n\t\t\"msg\": msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.uses_untrusted_azure_registry.kinds: Workload
+  policy.uses_untrusted_azure_registry.rego: "package appshield.kubernetes.KSV032\n\nimport
+    data.lib.kubernetes\nimport data.lib.utils\n\ndefault failTrustedAzureRegistry
+    = false\n\n__rego_metadata__ := {\n\t\"id\": \"KSV032\",\n\t\"avd_id\": \"AVD-KSV-0032\",\n\t\"title\":
+    \"All container images must start with the *.azurecr.io domain\",\n\t\"short_code\":
+    \"use-azure-image-prefix\",\n\t\"version\": \"v1.0.0\",\n\t\"severity\": \"MEDIUM\",\n\t\"type\":
+    \"Kubernetes Security Check\",\n\t\"description\": \"Containers should only use
+    images from trusted registries.\",\n\t\"recommended_actions\": \"Use images from
+    trusted Azure registries.\",\n}\n\n__rego_input__ := {\n\t\"combine\": false,\n\t\"selector\":
+    [{\"type\": \"kubernetes\"}],\n}\n\n# getContainersWithTrustedAzureRegistry returns
+    a list of containers\n# with image from a trusted Azure registry\ngetContainersWithTrustedAzureRegistry[name]
+    {\n\tcontainer := kubernetes.containers[_]\n\timage := container.image\n\n\t#
+    get image registry/repo parts\n\timage_parts := split(image, \"/\")\n\n\t# images
+    with only one part do not specify a registry\n\tcount(image_parts) > 1\n\tregistry
+    = image_parts[0]\n\tendswith(registry, \"azurecr.io\")\n\tname := container.name\n}\n\n#
+    getContainersWithUntrustedAzureRegistry returns a list of containers\n# with image
+    from an untrusted Azure registry\ngetContainersWithUntrustedAzureRegistry[name]
+    {\n\tname := kubernetes.containers[_].name\n\tnot getContainersWithTrustedAzureRegistry[name]\n}\n\n#
+    failTrustedAzureRegistry is true if a container uses an image from an\n# untrusted
+    Azure registry\nfailTrustedAzureRegistry {\n\tcount(getContainersWithUntrustedAzureRegistry)
+    > 0\n}\n\ndeny[res] {\n\tfailTrustedAzureRegistry\n\n\tmsg := kubernetes.format(sprintf(\"container
+    %s of %s %s in %s namespace should restrict container image to your specific registry
+    domain. For Azure any domain ending in 'azurecr.io'\", [getContainersWithUntrustedAzureRegistry[_],
+    lower(kubernetes.kind), kubernetes.name, kubernetes.namespace]))\n\n\tres := {\n\t\t\"msg\":
+    msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  policy.uses_untrusted_gcr_registry.kinds: Workload
+  policy.uses_untrusted_gcr_registry.rego: "package appshield.kubernetes.KSV033\n\nimport
+    data.lib.kubernetes\nimport data.lib.utils\n\ndefault failTrustedGCRRegistry =
+    false\n\n__rego_metadata__ := {\n\t\"id\": \"KSV033\",\n\t\"avd_id\": \"AVD-KSV-0033\",\n\t\"title\":
+    \"All container images must start with a GCR domain\",\n\t\"short_code\": \"use-gcr-domain\",\n\t\"version\":
+    \"v1.0.0\",\n\t\"severity\": \"MEDIUM\",\n\t\"type\": \"Kubernetes Security Check\",\n\t\"description\":
+    \"Containers should only use images from trusted GCR registries.\",\n\t\"recommended_actions\":
+    \"Use images from trusted GCR registries.\",\n}\n\n__rego_input__ := {\n\t\"combine\":
+    false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n# list of trusted
+    GCR registries\ntrusted_gcr_registries = [\n\t\"gcr.io\",\n\t\"us.gcr.io\",\n\t\"eu.gcr.io\",\n\t\"asia.gcr.io\",\n]\n\n#
+    getContainersWithTrustedGCRRegistry returns a list of containers\n# with image
+    from a trusted gcr registry\ngetContainersWithTrustedGCRRegistry[name] {\n\tcontainer
+    := kubernetes.containers[_]\n\timage := container.image\n\n\t# get image registry/repo
+    parts\n\timage_parts := split(image, \"/\")\n\n\t# images with only one part do
+    not specify a registry\n\tcount(image_parts) > 1\n\tregistry = image_parts[0]\n\ttrusted
+    := trusted_gcr_registries[_]\n\tendswith(registry, trusted)\n\tname := container.name\n}\n\n#
+    getContainersWithUntrustedGCRRegistry returns a list of containers\n# with image
+    from an untrusted gcr registry\ngetContainersWithUntrustedGCRRegistry[name] {\n\tname
+    := kubernetes.containers[_].name\n\tnot getContainersWithTrustedGCRRegistry[name]\n}\n\n#
+    failTrustedGCRRegistry is true if a container uses an image from an\n# untrusted
+    gcr registry\nfailTrustedGCRRegistry {\n\tcount(getContainersWithUntrustedGCRRegistry)
+    > 0\n}\n\ndeny[res] {\n\tfailTrustedGCRRegistry\n\n\tmsg := kubernetes.format(sprintf(\"container
+    %s of %s %s in %s namespace should restrict container image to your specific registry
+    domain. See the full GCR list here: https://cloud.google.com/container-registry/docs/overview#registries\",
+    [getContainersWithUntrustedGCRRegistry[_], lower(kubernetes.kind), kubernetes.name,
+    kubernetes.namespace]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\": __rego_metadata__.id,\n\t\t\"title\":
+    __rego_metadata__.title,\n\t\t\"severity\": __rego_metadata__.severity,\n\t\t\"type\":
+    __rego_metadata__.type,\n\t}\n}\n"

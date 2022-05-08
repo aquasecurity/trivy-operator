@@ -1,0 +1,11 @@
+---
+extends: default
+
+rules:
+  line-length: disable
+  truthy: disable
+  document-start: disable
+
+ignore: |
+  /deploy/
+  .krew.yaml

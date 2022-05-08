@@ -1,0 +1,174 @@
+{
+  "apiVersion": "v1",
+  "items": [
+    {
+      "apiVersion": "aquasecurity.github.io/v1alpha1",
+      "kind": "ConfigAuditReport",
+      "metadata": {
+        "creationTimestamp": "2022-02-24T09:13:26Z",
+        "generation": 1,
+        "labels": {
+          "plugin-config-hash": "78bf5dccc5",
+          "resource-spec-hash": "65c6f56fd9",
+          "trivy-operator.resource.kind": "Pod",
+          "trivy-operator.resource.name": "rss-site",
+          "trivy-operator.resource.namespace": "default"
+        },
+        "name": "pod-rss-site",
+        "namespace": "default",
+        "ownerReferences": [
+          {
+            "apiVersion": "v1",
+            "blockOwnerDeletion": false,
+            "controller": true,
+            "kind": "Pod",
+            "name": "rss-site",
+            "uid": "5cbf85d2-09f5-458a-9499-c65e71ff7610"
+          }
+        ],
+        "resourceVersion": "1153705",
+        "uid": "88a1ddd4-1f13-4222-9649-034f1a251458"
+      },
+      "report": {
+        "checks": [
+          {
+            "category": "Security",
+            "checkID": "KSV014",
+            "messages": ["Container 'front-end' of Pod 'rss-site' should set 'securityContext.readOnlyRootFilesystem' to true"],
+            "severity": "danger",
+            "success": false
+          },
+          {
+            "category": "Security",
+            "checkID": "KSV014",
+            "messages": ["Container 'rss-reader' of Pod 'rss-site' should set 'securityContext.readOnlyRootFilesystem' to true"],
+            "severity": "danger",
+            "success": false
+          },
+          {
+            "category": "Security",
+            "checkID": "KSV013",
+            "messages": ["Container 'front-end' of Pod 'rss-site' should specify an image tag"],
+            "severity": "danger",
+            "success": false
+          },
+          {
+            "category": "Security",
+            "checkID": "KSV013",
+            "messages": ["Container 'rss-reader' of Pod 'rss-site' should specify an image tag"],
+            "severity": "danger",
+            "success": false
+          }
+        ],
+        "containerChecks": {},
+        "podChecks": [
+          {
+            "category": "Security",
+            "checkID": "KSV014",
+            "messages": ["Container 'front-end' of Pod 'rss-site' should set 'securityContext.readOnlyRootFilesystem' to true"],
+            "severity": "danger",
+            "success": false
+          },
+          {
+            "category": "Security",
+            "checkID": "KSV014",
+            "messages": ["Container 'rss-reader' of Pod 'rss-site' should set 'securityContext.readOnlyRootFilesystem' to true"],
+            "severity": "danger",
+            "success": false
+          },
+          {
+            "category": "Security",
+            "checkID": "KSV013",
+            "messages": ["Container 'front-end' of Pod 'rss-site' should specify an image tag"],
+            "severity": "danger",
+            "success": false
+          },
+          {
+            "category": "Security",
+            "checkID": "KSV013",
+            "messages": ["Container 'rss-reader' of Pod 'rss-site' should specify an image tag"],
+            "severity": "danger",
+            "success": false
+          }
+        ],
+        "scanner": {
+          "name": "Conftest",
+          "vendor": "Open Policy Agent",
+          "version": "v0.28.2"
+        },
+        "summary": {
+          "dangerCount": 4,
+          "passCount": 0,
+          "warningCount": 0
+        },
+        "updateTimestamp": "2022-02-24T09:13:26Z"
+      }
+    },
+    {
+      "apiVersion": "aquasecurity.github.io/v1alpha1",
+      "kind": "ConfigAuditReport",
+      "metadata": {
+        "creationTimestamp": "2022-02-24T09:13:29Z",
+        "generation": 1,
+        "labels": {
+          "plugin-config-hash": "78bf5dccc5",
+          "resource-spec-hash": "b6cddc7bd",
+          "trivy-operator.resource.kind": "ReplicaSet",
+          "trivy-operator.resource.name": "memcached-sample-6c765df685",
+          "trivy-operator.resource.namespace": "default"
+        },
+        "name": "replicaset-memcached-sample-6c765df685",
+        "namespace": "default",
+        "ownerReferences": [
+          {
+            "apiVersion": "apps/v1",
+            "blockOwnerDeletion": false,
+            "controller": true,
+            "kind": "ReplicaSet",
+            "name": "memcached-sample-6c765df685",
+            "uid": "9a16e744-e834-40ab-abb0-588c8d3dc7d2"
+          }
+        ],
+        "resourceVersion": "1153775",
+        "uid": "dd25ff00-0533-4004-b8b2-815454da9fa3"
+      },
+      "report": {
+        "checks": [
+          {
+            "category": "Security",
+            "checkID": "KSV014",
+            "messages": ["Container 'memcached' of ReplicaSet 'memcached-sample-6c765df685' should set 'securityContext.readOnlyRootFilesystem' to true"],
+            "severity": "danger",
+            "success": false
+          }
+        ],
+        "containerChecks": {},
+        "podChecks": [
+          {
+            "category": "Security",
+            "checkID": "KSV014",
+            "messages": ["Container 'memcached' of ReplicaSet 'memcached-sample-6c765df685' should set 'securityContext.readOnlyRootFilesystem' to true"],
+            "severity": "danger",
+            "success": false
+          }
+        ],
+        "scanner": {
+          "name": "Conftest",
+          "vendor": "Open Policy Agent",
+          "version": "v0.28.2"
+        },
+        "summary": {
+          "dangerCount": 1,
+          "passCount": 1,
+          "warningCount": 0
+        },
+        "updateTimestamp": "2022-02-24T09:13:29Z"
+      }
+    }
+  ],
+  "kind": "List",
+  "metadata": {
+    "resourceVersion": "",
+    "selfLink": ""
+  }
+}

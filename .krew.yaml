@@ -1,0 +1,87 @@
+apiVersion: krew.googlecontainertools.github.com/v1alpha2
+kind: Plugin
+metadata:
+  name: starboard
+spec:
+  version: "{{ .TagName }}"
+  homepage: https://github.com/aquasecurity/trivy-operator
+  shortDescription: >-
+    Toolkit for finding risks in kubernetes resources
+  description: |+2
+    Starboard enables results from vulnerability scanners, workload auditors,
+    and configuration benchmark tests to be incorporated into Kubernetes CRDs
+    (Custom Resource Definitions) and from there, accessed through the 
+    Kubernetes API. 
+
+    Users familiar with kubectl or with a dashboard tool like Octant can find
+    security risk information at their fingertips.
+
+  caveats: |
+    The plugin requires access to create Jobs and CustomResources.
+  platforms:
+    - selector:
+        matchLabels:
+          os: darwin
+          arch: amd64
+      {{addURIAndSha "https://github.com/aquasecurity/trivy-operator/releases/download/{{ .TagName }}/starboard_darwin_x86_64.tar.gz" .TagName | indent 6}}
+      files:
+        - from: trivy-operator
+          to: .
+        - from: LICENSE
+          to: .
+      bin: trivy-operator
+    - selector:
+        matchLabels:
+          os: linux
+          arch: amd64
+      {{addURIAndSha "https://github.com/aquasecurity/trivy-operator/releases/download/{{ .TagName }}/starboard_linux_x86_64.tar.gz" .TagName | indent 6}}
+      files:
+        - from: trivy-operator
+          to: .
+        - from: LICENSE
+          to: .
+      bin: trivy-operator
+    - selector:
+        matchLabels:
+          os: windows
+          arch: amd64
+      {{addURIAndSha "https://github.com/aquasecurity/trivy-operator/releases/download/{{ .TagName }}/starboard_windows_x86_64.zip" .TagName | indent 6}}
+      files:
+        - from: trivy-operator.exe
+          to: .
+        - from: LICENSE
+          to: .
+      bin: trivy-operator.exe
+    - selector:
+        matchLabels:
+          os: darwin
+          arch: arm64
+      {{addURIAndSha "https://github.com/aquasecurity/trivy-operator/releases/download/{{ .TagName }}/starboard_darwin_ARM64.tar.gz" .TagName | indent 6}}
+      files:
+        - from: trivy-operator
+          to: .
+        - from: LICENSE
+          to: .
+      bin: trivy-operator
+    - selector:
+        matchLabels:
+          os: linux
+          arch: arm64
+      {{addURIAndSha "https://github.com/aquasecurity/trivy-operator/releases/download/{{ .TagName }}/starboard_linux_ARM64.tar.gz" .TagName | indent 6}}
+      files:
+        - from: trivy-operator
+          to: .
+        - from: LICENSE
+          to: .
+      bin: trivy-operator
+    - selector:
+        matchLabels:
+          os: windows
+          arch: arm64
+      {{addURIAndSha "https://github.com/aquasecurity/trivy-operator/releases/download/{{ .TagName }}/starboard_windows_ARM64.zip" .TagName | indent 6}}
+      files:
+        - from: trivy-operator.exe
+          to: .
+        - from: LICENSE
+          to: .
+      bin: trivy-operator.exe

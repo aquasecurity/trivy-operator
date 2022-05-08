@@ -1,0 +1,478 @@
+# Default values for the trivy-operator Helm chart, these are used to render
+# the templates into valid k8s Resources.
+
+# managedBy is similar to .Release.Service but allows to overwrite the value
+managedBy: Helm
+
+# targetNamespace defines where you want trivy-operator to operate. By
+# default, it's a blank string to select all namespaces, but you can specify
+# another namespace, or a comma separated list of namespaces.
+targetNamespaces: ""
+
+# excludeNamespaces is a comma separated list of namespaces (or glob patterns)
+# to be excluded from scanning. Only applicable in the all namespaces install
+# mode, i.e. when the targetNamespaces values is a blank string.
+excludeNamespaces: "kube-system,{{ .Release.Namespace }}"
+
+nameOverride: ""
+fullnameOverride: ""
+
+operator:
+  # replicas the number of replicas of the operator's pod
+  replicas: 1
+
+  # leaderElectionId determines the name of the resource that leader election
+  # will use for holding the leader lock.
+  leaderElectionId: "trivyoperator-lock"
+
+  # logDevMode the flag to enable development mode (more human-readable output, extra stack traces and logging information, etc)
+  logDevMode: false
+
+  # scanJobTimeout the length of time to wait before giving up on a scan job
+  scanJobTimeout: 5m
+
+  # scanJobsConcurrentLimit the maximum number of scan jobs create by the operator
+  scanJobsConcurrentLimit: 10
+
+  # scanJobsRetryDelay the duration to wait before retrying a failed scan job
+  scanJobsRetryDelay: 30s
+
+  # vulnerabilityScannerEnabled the flag to enable vulnerability scanner
+  vulnerabilityScannerEnabled: true
+  # vulnerabilityScannerReportTTL the flag to set how long a vulnerability report should exist. "" means that the vulnerabilityScannerReportTTL feature is disabled
+  vulnerabilityScannerReportTTL: ""
+  # configAuditScannerEnabled the flag to enable configuration audit scanner
+  configAuditScannerEnabled: false
+  # configAuditScannerBuiltIn the flag to enable built-in configuration audit scanner
+  configAuditScannerBuiltIn: true
+  # kubernetesBenchmarkEnabled the flag to enable CIS Kubernetes Benchmark scanner
+  kubernetesBenchmarkEnabled: true
+  # clusterComplianceEnabled the flag to enable cluster compliance report generation
+  clusterComplianceEnabled: true
+  # batchDeleteLimit the maximum number of config audit reports deleted by the operator when the plugin's config has changed.
+  batchDeleteLimit: 10
+  # vulnerabilityScannerScanOnlyCurrentRevisions the flag to only create vulnerability scans on the current revision of a deployment.
+  vulnerabilityScannerScanOnlyCurrentRevisions: false
+  # configAuditScannerScanOnlyCurrentRevisions the flag to only create config audit scans on the current revision of a deployment.
+  configAuditScannerScanOnlyCurrentRevisions: false
+  # batchDeleteDelay the duration to wait before deleting another batch of config audit reports.
+  batchDeleteDelay: 10s
+image:
+  repository: "docker.io/aquasec/trivy-operator"
+  # tag is an override of the image tag, which is by default set by the
+  # appVersion field in Chart.yaml.
+  tag: ""
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+# service only expose a metrics endpoint for prometheus to scrape,
+# trivy-operator does not have a user interface.
+service:
+  type: ClusterIP
+  metricsPort: 80
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+
+trivyOperator:
+  # vulnerabilityReportsPlugin the name of the plugin that generates vulnerability reports. Either `Trivy` or `Aqua`.
+  vulnerabilityReportsPlugin: "Trivy"
+  # configAuditReportsPlugin the name of the plugin that generates config audit reports. Either `Polaris` or `Conftest`.
+  configAuditReportsPlugin: "Polaris"
+
+  # scanJobTolerations tolerations to be applied to the scanner pods so that they can run on nodes with matching taints
+  scanJobTolerations: []
+  # If you do want to specify tolerations, uncomment the following lines, adjust them as necessary, and remove the
+  # square brackets after 'scanJobTolerations:'.
+  # - key: "key1"
+  #   operator: "Equal"
+  #   value: "value1"
+  #   effect: "NoSchedule"
+
+  # scanJobAnnotations comma-separated representation of the annotations which the user wants the scanner pods to be
+  # annotated with. Example: `foo=bar,env=stage` will annotate the scanner pods with the annotations `foo: bar` and `env: stage`
+  scanJobAnnotations: ""
+
+  # scanJobPodTemplateLabels comma-separated representation of the labels which the user wants the scanner pods to be
+  # labeled with. Example: `foo=bar,env=stage` will labeled the scanner pods with the labels `foo: bar` and `env: stage`
+  scanJobPodTemplateLabels: ""
+
+trivy:
+  # createConfig indicates whether to create config objects
+  createConfig: true
+
+  # imageRef the Trivy image reference.
+  imageRef: docker.io/aquasec/trivy:0.25.2
+
+  # mode is the Trivy client mode. Either Standalone or ClientServer. Depending
+  # on the active mode other settings might be applicable or required.
+  mode: Standalone
+
+  # httpProxy is the HTTP proxy used by Trivy to download the vulnerabilities database from GitHub.
+  #
+  # httpProxy:
+
+  # httpsProxy is the HTTPS proxy used by Trivy to download the vulnerabilities database from GitHub.
+  #
+  # httpsProxy:
+
+  # noProxy is a comma separated list of IPs and domain names that are not subject to proxy settings.
+  #
+  # noProxy:
+
+  # Registries without SSL. There can be multiple registries with different keys.
+  nonSslRegistries: {}
+  #  pocRegistry: poc.myregistry.harbor.com.pl
+  #  qaRegistry: qa.registry.aquasec.com
+  #  internalRegistry: registry.registry.svc:5000
+
+  # Mirrored registries. There can be multiple registries with different keys.
+  # Make sure to quote registries containing dots
+  registry: 
+    mirror: {}
+    # "docker.io": docker-mirror.example.com
+
+  # severity is a comma separated list of severity levels reported by Trivy.
+  severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+
+  # ignoreUnfixed is the flag to show only fixed vulnerabilities in
+  # vulnerabilities reported by Trivy. Set to "true" to enable it.
+  #
+  ignoreUnfixed: "false"
+
+  # timeout is the duration to wait for scan completion.
+  timeout: "5m0s"
+
+  # ignoreFile can be used to tell Trivy to ignore vulnerabilities by ID (one per line)
+  #
+  # ignoreFile: |
+  #   CVE-1970-0001
+  #   CVE-1970-0002
+
+  # resources resource requests and limits
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100M
+    limits:
+      cpu: 500m
+      memory: 500M
+
+  # githubToken is the GitHub access token used by Trivy to download the vulnerabilities
+  # database from GitHub. Only applicable in Standalone mode.
+  #
+  # githubToken: "*****"
+
+  # serverURL is the endpoint URL of the Trivy server. Required in ClientServer mode.
+  #
+  # serverURL: "https://trivy.trivy:4975"
+
+  # serverInsecure is the flag to enable insecure connection to the Trivy server.
+  #
+  # serverInsecure: true
+  # serverToken is the token to authenticate Trivy client with Trivy server. Only
+  # applicable in ClientServer mode.
+  #
+  # serverToken: "*****"
+
+  # serverTokenHeader is the name of the HTTP header used to send the authentication
+  # token to Trivy server. Only application in ClientServer mode when
+  # trivy.serverToken is specified.
+  serverTokenHeader: "Trivy-Token"
+
+  # serverCustomHeaders is a comma separated list of custom HTTP headers sent by
+  # Trivy client to Trivy server. Only applicable in ClientServer mode.
+  #
+  # serverCustomHeaders: "foo=bar"
+
+  dbRepository: "ghcr.io/aquasecurity/trivy-db"
+
+compliance:
+  # failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report
+  failEntriesLimit: 10
+kubeBench:
+  imageRef: docker.io/aquasec/kube-bench:v0.6.6
+
+polaris:
+  # createConfig indicates whether to create config objects
+  createConfig: true
+
+  # imageRef the image reference
+  imageRef: quay.io/fairwinds/polaris:4.2
+
+  # resources resource requests and limits
+  resources:
+    requests:
+      cpu: 50m
+      memory: 50M
+    limits:
+      cpu: 300m
+      memory: 300M
+
+  config:
+    checks:
+      # reliability
+      multipleReplicasForDeployment: ignore
+      priorityClassNotSet: ignore
+      # resources
+      cpuRequestsMissing: warning
+      cpuLimitsMissing: warning
+      memoryRequestsMissing: warning
+      memoryLimitsMissing: warning
+      # images
+      tagNotSpecified: danger
+      pullPolicyNotAlways: ignore
+      # healthChecks
+      readinessProbeMissing: warning
+      livenessProbeMissing: warning
+      # networking
+      hostNetworkSet: warning
+      hostPortSet: warning
+      # security
+      hostIPCSet: danger
+      hostPIDSet: danger
+      notReadOnlyRootFilesystem: warning
+      privilegeEscalationAllowed: danger
+      runAsRootAllowed: warning
+      runAsPrivileged: danger
+      dangerousCapabilities: danger
+      insecureCapabilities: warning
+    exemptions:
+      - controllerNames:
+        - kube-apiserver
+        - kube-proxy
+        - kube-scheduler
+        - etcd-manager-events
+        - kube-controller-manager
+        - kube-dns
+        - etcd-manager-main
+        rules:
+        - hostPortSet
+        - hostNetworkSet
+        - readinessProbeMissing
+        - livenessProbeMissing
+        - cpuRequestsMissing
+        - cpuLimitsMissing
+        - memoryRequestsMissing
+        - memoryLimitsMissing
+        - runAsRootAllowed
+        - runAsPrivileged
+        - notReadOnlyRootFilesystem
+        - hostPIDSet
+      - controllerNames:
+        - kube-flannel-ds
+        rules:
+        - notReadOnlyRootFilesystem
+        - runAsRootAllowed
+        - notReadOnlyRootFilesystem
+        - readinessProbeMissing
+        - livenessProbeMissing
+        - cpuLimitsMissing
+      - controllerNames:
+        - cert-manager
+        rules:
+        - notReadOnlyRootFilesystem
+        - runAsRootAllowed
+        - readinessProbeMissing
+        - livenessProbeMissing
+      - controllerNames:
+        - cluster-autoscaler
+        rules:
+        - notReadOnlyRootFilesystem
+        - runAsRootAllowed
+        - readinessProbeMissing
+      - controllerNames:
+        - vpa
+        rules:
+        - runAsRootAllowed
+        - readinessProbeMissing
+        - livenessProbeMissing
+        - notReadOnlyRootFilesystem
+      - controllerNames:
+        - datadog
+        rules:
+        - runAsRootAllowed
+        - readinessProbeMissing
+        - livenessProbeMissing
+        - notReadOnlyRootFilesystem
+      - controllerNames:
+        - nginx-ingress-controller
+        rules:
+        - privilegeEscalationAllowed
+        - insecureCapabilities
+        - runAsRootAllowed
+      - controllerNames:
+        - dns-controller
+        - datadog-datadog
+        - kube-flannel-ds
+        - kube2iam
+        - aws-iam-authenticator
+        - datadog
+        - kube2iam
+        rules:
+        - hostNetworkSet
+      - controllerNames:
+        - aws-iam-authenticator
+        - aws-cluster-autoscaler
+        - kube-state-metrics
+        - dns-controller
+        - external-dns
+        - dnsmasq
+        - autoscaler
+        - kubernetes-dashboard
+        - install-cni
+        - kube2iam
+        rules:
+        - readinessProbeMissing
+        - livenessProbeMissing
+      - controllerNames:
+        - aws-iam-authenticator
+        - nginx-ingress-default-backend
+        - aws-cluster-autoscaler
+        - kube-state-metrics
+        - dns-controller
+        - external-dns
+        - kubedns
+        - dnsmasq
+        - autoscaler
+        - tiller
+        - kube2iam
+        rules:
+        - runAsRootAllowed
+      - controllerNames:
+        - aws-iam-authenticator
+        - nginx-ingress-controller
+        - nginx-ingress-default-backend
+        - aws-cluster-autoscaler
+        - kube-state-metrics
+        - dns-controller
+        - external-dns
+        - kubedns
+        - dnsmasq
+        - autoscaler
+        - tiller
+        - kube2iam
+        rules:
+        - notReadOnlyRootFilesystem
+      - controllerNames:
+        - cert-manager
+        - dns-controller
+        - kubedns
+        - dnsmasq
+        - autoscaler
+        - insights-agent-goldilocks-vpa-install
+        - datadog
+        rules:
+        - cpuRequestsMissing
+        - cpuLimitsMissing
+        - memoryRequestsMissing
+        - memoryLimitsMissing
+      - controllerNames:
+        - kube2iam
+        - kube-flannel-ds
+        rules:
+        - runAsPrivileged
+      - controllerNames:
+        - kube-hunter
+        rules:
+        - hostPIDSet
+      - controllerNames:
+        - polaris
+        - kube-hunter
+        - goldilocks
+        - insights-agent-goldilocks-vpa-install
+        rules:
+        - notReadOnlyRootFilesystem
+      - controllerNames:
+        - insights-agent-goldilocks-controller
+        rules:
+        - livenessProbeMissing
+        - readinessProbeMissing
+      - controllerNames:
+        - insights-agent-goldilocks-vpa-install
+        - kube-hunter
+        rules:
+        - runAsRootAllowed
+
+conftest:
+  # createConfig indicates whether to create config objects
+  createConfig: true
+
+  # imageRef the image reference
+  imageRef: docker.io/openpolicyagent/conftest:v0.30.0
+
+  # resources resource requests and limits
+  resources:
+    requests:
+      cpu: 50m
+      memory: 50M
+    limits:
+      cpu: 300m
+      memory: 300M
+  library: {}
+    # kubernetes.rego: |
+    #   << REGO >>
+    # utils.rego: |
+    #   << REGO >>
+  policy: {}
+    # access_to_host_pid:
+    #   rego: |
+    #     << REGO >>
+    #   kinds: Workload
+    # configmap_with_sensitive_data:
+    #   rego: |
+    #     << REGO >>
+    #   kinds: ConfigMap
+
+aqua:
+  # imageRef Aqua scanner image reference. The tag determines the version of the scanner binary executable and it must
+  # be compatible with version of Aqua server.
+  imageRef: docker.io/aquasec/scanner:5.3
+  # serverURL the endpoint URL of Aqua management console
+  serverURL:
+  # username the Aqua management console username
+  username:
+  # password the Aqua management console password
+  password:
+
+rbac:
+  create: true
+serviceAccount:
+  # Specifies whether a service account should be created.
+  create: true
+  annotations: {}
+  # name specifies the name of the k8s Service Account. If not set and create is
+  # true, a name is generated using the fullname template.
+  name: ""
+
+# podAnnotations annotations added to the operator's pod
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext:
+  privileged: false
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

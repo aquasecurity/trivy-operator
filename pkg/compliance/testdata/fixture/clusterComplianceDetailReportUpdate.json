@@ -1,0 +1,112 @@
+{
+  "kind": "ClusterComplianceDetailReport",
+  "apiVersion": "aquasecurity.github.io/v1alpha1",
+  "metadata": {
+    "name": "nsa-details",
+    "resourceVersion": "2",
+    "creationTimestamp": null
+  },
+  "report": {
+    "updateTimestamp": "2022-03-14T14:33:21Z",
+    "type": {
+      "name": "nsa-details",
+      "description": "national security agency - kubernetes hardening guidance",
+      "version": "1.0"
+    },
+    "summary": {
+      "passCount": 3,
+      "failCount": 5
+    },
+    "controlCheck": [
+      {
+        "id": "1.1",
+        "name": "Immutable container file systems",
+        "description": "Check that container root file system is immutable",
+        "severity": "LOW",
+        "checkResults": [
+          {
+            "objectType": "Pod",
+            "id": "KSV014",
+            "details": [
+              {
+                "name": "pod-rss-site",
+                "namespace": "default",
+                "msg": "Container 'rss-reader' of Pod 'rss-site' should set 'securityContext.readOnlyRootFilesystem' to true",
+                "status": "FAIL"
+              }
+            ]
+          },
+          {
+            "objectType": "ReplicaSet",
+            "id": "KSV014",
+            "details": [
+              {
+                "name": "replicaset-memcached-sample-6c765df685",
+                "namespace": "default",
+                "msg": "Container 'memcached' of ReplicaSet 'memcached-sample-6c765df685' should set 'securityContext.readOnlyRootFilesystem' to true",
+                "status": "FAIL"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "4.0",
+        "name": "Use ResourceQuota policies to limit resources",
+        "description": "Control check the use of ResourceQuota policies to limit resources",
+        "severity": "CRITICAL",
+        "checkResults": [
+          {
+            "objectType": "ResourceQuota",
+            "details": [
+              {
+                "msg": "Resource do not exist in cluster",
+                "status": "FAIL"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "6.0",
+        "name": "Ensure kube config file permission",
+        "description": "Control check whether kube config file permissions",
+        "severity": "CRITICAL",
+        "checkResults": [
+          {
+            "objectType": "Node",
+            "id": "4.1.3",
+            "remediation": "Run the below command (based on the file location on your system) on the each worker node.\nFor example,\nchmod 644 /etc/kubernetes/proxy.conf\n",
+            "details": [
+              {
+                "name": "local-control-plane",
+                "msg": "",
+                "status": "FAIL"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "6.0",
+        "name": "Ensure kube config file permission",
+        "description": "Control check whether kube config file permissions",
+        "severity": "CRITICAL",
+        "checkResults": [
+          {
+            "objectType": "Node",
+            "id": "4.1.4",
+            "remediation": "Run the below command (based on the file location on your system) on the each worker node.\nFor example, chown root:root /etc/kubernetes/proxy.conf\n",
+            "details": [
+              {
+                "name": "local-control-plane",
+                "msg": "",
+                "status": "FAIL"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "Controls": [
+    {
+      "id": "1",
+      "version": "1.5",
+      "text": "Master Node Security Configuration",
+      "node_type": "master",
+      "tests": [
+        {
+          "section": "1.1",
+          "pass": 15,
+          "fail": 1,
+          "warn": 5,
+          "info": 0,
+          "desc": "Master Node Configuration Files ",
+          "results": [
+            {
+              "test_number": "1.1.1",
+              "test_desc": "test desc",
+              "audit": "audit",
+              "AuditConfig": "",
+              "type": "",
+              "remediation": "remeds",
+              "test_info": [
+                "test-info"
+              ],
+              "status": "PASS",
+              "actual_value": "permissions=600\n",
+              "scored": true,
+              "expected_result": "exp-result"
+            }
+          ]
+        }
+      ],
+      "total_pass": 41,
+      "total_fail": 13,
+      "total_warn": 11,
+      "total_info": 0
+    }
+  ]
+}

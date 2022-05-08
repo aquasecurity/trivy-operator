@@ -1,0 +1,195 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trivy-operator
+  labels:
+    {{- include "trivy-operator.labels" . | nindent 4 }}
+data:
+  {{- with .Values.trivyOperator.scanJobTolerations }}
+  scanJob.tolerations: {{ . | toJson | quote }}
+  {{- end }}
+  {{- with .Values.trivyOperator.scanJobAnnotations }}
+  scanJob.annotations: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.trivyOperator.scanJobPodTemplateLabels }}
+  scanJob.podTemplateLabels: {{ . | quote }}
+  {{- end }}
+  {{- if .Values.operator.vulnerabilityScannerEnabled }}
+  vulnerabilityReports.scanner: {{ .Values.trivyOperator.vulnerabilityReportsPlugin | quote }}
+  {{- end }}
+  {{- if .Values.operator.configAuditScannerEnabled }}
+  configAuditReports.scanner: {{ .Values.trivyOperator.configAuditReportsPlugin | quote }}
+  {{- end }}
+  {{- if .Values.operator.kubernetesBenchmarkEnabled }}
+  kube-bench.imageRef: {{ required ".Values.kubeBench.imageRef is required" .Values.kubeBench.imageRef | quote }}
+  {{- end }}
+  {{- if .Values.operator.clusterComplianceEnabled }}
+  compliance.failEntriesLimit: {{ required ".Values.compliance.failEntriesLimit is required" .Values.compliance.failEntriesLimit | quote }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: trivy-operator
+  labels:
+    {{- include "trivy-operator.labels" . | nindent 4 }}
+{{- if eq .Values.trivyOperator.vulnerabilityReportsPlugin "Trivy" }}
+{{- with .Values.trivy }}
+{{- if .createConfig }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trivy-operator-trivy-config
+  labels:
+    {{- include "trivy-operator.labels" $ | nindent 4 }}
+data:
+  trivy.imageRef: {{ required ".Values.trivy.imageRef is required" .imageRef | quote }}
+  trivy.mode: {{ .mode | quote }}
+  {{- if .httpProxy }}
+  trivy.httpProxy: {{ .httpProxy | quote }}
+  {{- end }}
+  {{- if .httpsProxy }}
+  trivy.httpsProxy: {{ .httpsProxy | quote }}
+  {{- end }}
+  {{- if .serverInsecure }}
+  trivy.serverInsecure: {{ .serverInsecure | quote }}
+  {{- end }}
+  {{- if .noProxy }}
+  trivy.noProxy: {{ .noProxy | quote }}
+  {{- end }}
+  {{- range $key, $registry := .nonSslRegistries }}
+  trivy.nonSslRegistry.{{ $key }}: {{ $registry | quote }}
+  {{- end }}
+  {{- range $key, $registry := .registry.mirror }}
+  trivy.registry.mirror.{{ $key }}: {{ $registry | quote }}
+  {{- end }}
+  trivy.severity: {{ .severity | quote }}
+  trivy.dbRepository: {{ .dbRepository | quote }}
+  {{- if .ignoreUnfixed }}
+  trivy.ignoreUnfixed: {{ .ignoreUnfixed | quote }}
+  {{- end }}
+  {{- if .timeout }}
+  trivy.timeout: {{ .timeout | quote }}
+  {{- end }}
+  {{- with .ignoreFile }}
+  trivy.ignoreFile: |
+{{- . | trim | nindent 4 }}
+  {{- end }}
+  {{- if eq .mode "ClientServer" }}
+  trivy.serverURL: {{ required ".Values.trivy.serverURL is required" .serverURL | quote }}
+  {{- end }}
+  {{- with .resources }}
+    {{- with .requests }}
+      {{- if .cpu }}
+  trivy.resources.requests.cpu: {{ .cpu }}
+      {{- end }}
+      {{- if hasKey . "memory" }}
+  trivy.resources.requests.memory: {{ .memory }}
+      {{- end }}
+    {{- end }}
+    {{- with .limits }}
+      {{- if .cpu }}
+  trivy.resources.limits.cpu: {{ .cpu }}
+      {{- end }}
+      {{- if .memory }}
+  trivy.resources.limits.memory: {{ .memory }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: trivy-operator-trivy-config
+  labels:
+    {{- include "trivy-operator.labels" $ | nindent 4 }}
+data:
+  {{- if .githubToken }}
+  trivy.githubToken: {{ .githubToken | b64enc | quote }}
+  {{- end }}
+  {{- if eq .mode "ClientServer" }}
+  {{- if .serverToken }}
+  trivy.serverToken: {{ .serverToken | b64enc | quote }}
+  {{- end }}
+  {{- if .serverCustomHeaders }}
+  trivy.serverCustomHeaders: {{ .serverCustomHeaders | b64enc | quote }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- if eq .Values.trivyOperator.configAuditReportsPlugin "Conftest" }}
+{{- with .Values.conftest }}
+{{- if .createConfig }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trivy-operator-conftest-config
+  labels:
+    {{- include "trivy-operator.labels" $ | nindent 4 }}
+data:
+  conftest.imageRef: {{ required ".Values.conftest.imageRef is required" .imageRef | quote }}
+  {{- with .resources }}
+  conftest.resources.requests.cpu: {{ .requests.cpu | quote }}
+  conftest.resources.requests.memory: {{ .requests.memory | quote }}
+  conftest.resources.limits.cpu: {{ .limits.cpu | quote }}
+  conftest.resources.limits.memory: {{ .limits.memory | quote }}
+  {{- end }}
+  {{- range $key, $val := .library }}
+  conftest.library.{{ $key }}: {{ $val | quote }}
+  {{- end }}
+  {{- range $key, $val := .policy }}
+  conftest.policy.{{ $key }}.rego: {{ $val.rego | quote }}
+  conftest.policy.{{ $key }}.kinds: {{ $val.kinds | quote }}
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- if eq .Values.trivyOperator.configAuditReportsPlugin "Polaris" }}
+{{- with .Values.polaris }}
+{{- if .createConfig }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trivy-operator-polaris-config
+  labels:
+    {{- include "trivy-operator.labels" $ | nindent 4 }}
+data:
+  polaris.imageRef: {{ required ".Values.polaris.imageRef is required" .imageRef | quote }}
+  {{- with .resources }}
+  polaris.resources.requests.cpu: {{ .requests.cpu | quote }}
+  polaris.resources.requests.memory: {{ .requests.memory | quote }}
+  polaris.resources.limits.cpu: {{ .limits.cpu | quote }}
+  polaris.resources.limits.memory: {{ .limits.memory | quote }}
+  {{- end }}
+  polaris.config.yaml: |
+  {{- toYaml .config | nindent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- if eq .Values.trivyOperator.vulnerabilityReportsPlugin "Aqua" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trivy-operator-aqua-config
+  labels:
+     {{- include "trivy-operator.labels" . | nindent 4 }}
+data:
+  aqua.imageRef: {{ required ".Values.aqua.imageRef is required!" .Values.aqua.imageRef | quote }}
+  aqua.serverURL: {{ required ".Values.aqua.serverURL is required!" .Values.aqua.serverURL | quote }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: trivy-operator-aqua-config
+  labels:
+    {{- include "trivy-operator.labels" . | nindent 4 }}
+data:
+  aqua.username: {{ required ".Values.aqua.username is required!" .Values.aqua.username | b64enc | quote }}
+  aqua.password: {{ required ".Values.aqua.password is required!" .Values.aqua.password | b64enc | quote }}
+{{- end}}

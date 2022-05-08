@@ -1,0 +1,38 @@
+{
+    "scanner": {
+        "name": "kube-bench",
+        "vendor": "Aqua Security",
+        "version": "v0.6.6"
+    },
+    "summary": {
+        "passCount": 41,
+        "infoCount": 0,
+        "warnCount": 11,
+        "failCount": 13
+    },
+    "sections": [{
+        "id": "1",
+        "version": "1.5",
+        "text": "Master Node Security Configuration",
+        "node_type": "master",
+        "total_pass": 41,
+        "total_fail": 13,
+        "total_warn": 11,
+        "total_info": 0,
+        "tests": [{
+            "section": "1.1",
+            "pass": 15,
+            "fail": 1,
+            "warn": 5,
+            "info": 0,
+            "desc": "Master Node Configuration Files ",
+            "results": [{
+                "test_number": "1.1.1",
+                "test_desc": "test desc",
+                "remediation": "remeds",
+                "status": "PASS",
+                "scored": true
+            }]
+        }]
+    }]
+}

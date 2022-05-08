@@ -1,0 +1,119 @@
+{% import "github.com/aquasecurity/starboard/pkg/apis/aquasecurity/v1alpha1" %}
+
+{% func (p *NamespaceReport) Title() %}
+Aqua Starboard Namespace Security Report - Namespace: {%s p.Namespace.Name %}
+{% endfunc %}
+
+{% func (p *NamespaceReport) Body() %}
+<div class="container">
+
+  <div class="col mt-5">
+    <div class="row text-center">{%= imgAquaLogo() %}</div>
+    <div class="row mt-4 text-center">
+      <h2 class="text-muted mx-auto">Aqua Starboard Namespace Security Report</h2>
+    </div>
+    <div class="row text-center">
+      <h3 class="text-muted mx-auto">{%s string(p.Namespace.Kind) %}: {%s p.Namespace.Name %}</h3>
+    </div>
+    <div class="row text-center">
+      <h3 class="text-muted mx-auto">Generated on {%s p.GeneratedAt.Format("2 Jan 2006 15:04:01") %}</h3>
+    </div>
+  </div>
+
+  <div class="row">
+    <h3>Top 5 vulnerable images by count</h3>
+    <table class="table table-sm table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">Image</th>
+          <th scope="col">Critical</th>
+          <th scope="col">High</th>
+          <th scope="col">Other</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for _, report := range p.Top5VulnerableImages %}
+      {% code
+        summary := report.Report.Summary
+        otherCount := summary.MediumCount + summary.LowCount + summary.UnknownCount
+      %}
+      <tr>
+        <td>{%= imageReference(report.Report.Registry, report.Report.Artifact) %}</td>
+        <td>{%d summary.CriticalCount %}</td>
+        <td>{%d summary.HighCount %}</td>
+        <td>{%d otherCount %}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="row">
+    <h3>Top 5 vulnerabilities by score</h3>
+    <table class="table table-sm table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Severity</th>
+          <th scope="col">Score</th>
+          <th scope="col">Affected Workloads</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for _, vulnerability := range p.Top5Vulnerability %}
+      <tr>
+        <td><a href="{%s vulnerability.PrimaryLink %}">{%s vulnerability.VulnerabilityID %}</a></td>
+        <td>{%s string(vulnerability.Severity) %}</td>
+        <td>{%f *vulnerability.Score %}</td>
+        <td>{%d vulnerability.AffectedWorkloads %}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="row">
+    <h3>Top 5 failed workload configs</h3>
+    <table class="table table-sm table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Severity</th>
+          <th scope="col">Category</th>
+          <th scope="col">Affected Workloads</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for _, report := range p.Top5FailedChecks %}
+      <tr>
+        <td>{%s report.ID %}</td>
+        <td>{%v report.Severity %}</td>
+        <td>{%s report.Category %}</td>
+        <td>{%d report.AffectedWorkloads %}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+{% endfunc %}
+
+{% func imageReference(registry v1alpha1.Registry, artifact v1alpha1.Artifact) %}
+  {% if artifact.Tag != "" && artifact.Digest != "" %}
+    {%s registry.Server %}/{%s artifact.Repository %}:{%s artifact.Tag %}@{%s artifact.Digest %}
+    {% return %}
+  {% endif %}
+
+  {% if artifact.Tag == "" && artifact.Digest != "" %}
+    {%s registry.Server %}/{%s artifact.Repository %}@{%s artifact.Digest %}
+    {% return %}
+  {% endif %}
+
+  {% if artifact.Tag != "" && artifact.Digest == "" %}
+    {%s registry.Server %}/{%s artifact.Repository %}:{%s artifact.Tag %}
+    {% return %}
+  {% endif %}
+
+  {%s registry.Server %}/{%s artifact.Repository %}:{%s artifact.Tag %}
+{% endfunc %}

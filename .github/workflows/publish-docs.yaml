@@ -1,0 +1,43 @@
+---
+# This is a manually triggered workflow to build and publish the MkDocs from the
+# specified Git revision to GitHub pages on https://aquasecurity.github.io/trivy-operator.
+name: Publish documentation
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: The branch, tag or SHA to deploy, e.g. v0.0.1
+        required: true
+
+# Disable permissions granted to the GITHUB_TOKEN for all the available scopes.
+permissions: {}
+
+jobs:
+  deploy:
+    name: Deploy documentation
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@a12a3943b4bdde767164f792f33f40b04645d846
+        with:
+          ref: ${{ github.event.inputs.ref }}
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@98f2ad02fd48d057ee3b4d4f66525b231c3e52b6
+        with:
+          python-version: 3.x
+      - run: |
+          pip install git+https://${GH_TOKEN}@github.com/squidfunk/mkdocs-material-insiders.git
+          pip install mike
+          pip install mkdocs-macros-plugin
+        env:
+          # Note: It is not the same as ${{ secrets.GITHUB_TOKEN }} !
+          GH_TOKEN: ${{ secrets.MKDOCS_AQUA_BOT }}
+      - run: |
+          git config user.name "aqua-bot"
+          git config user.email "aqua-bot@users.noreply.github.com"
+      - run: |
+          mike deploy --push --update-aliases ${{ github.event.inputs.ref }} latest

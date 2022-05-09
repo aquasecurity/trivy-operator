@@ -26,10 +26,10 @@ import (
 )
 
 type PrivateRegistryConfig struct {
-	Server   string `env:"STARBOARD_TEST_REGISTRY_SERVER"`
-	Username string `env:"STARBOARD_TEST_REGISTRY_USERNAME"`
-	Password string `env:"STARBOARD_TEST_REGISTRY_PASSWORD"`
-	ImageRef string `env:"STARBOARD_TEST_REGISTRY_PRIVATE_IMAGE_REF"`
+	Server   string `env:"TRIVY_OPERATOR_TEST_REGISTRY_SERVER"`
+	Username string `env:"TRIVY_OPERATOR_TEST_REGISTRY_USERNAME"`
+	Password string `env:"TRIVY_OPERATOR_TEST_REGISTRY_PASSWORD"`
+	ImageRef string `env:"TRIVY_OPERATOR_TEST_REGISTRY_PRIVATE_IMAGE_REF"`
 }
 
 func (c *PrivateRegistryConfig) Parse() error {

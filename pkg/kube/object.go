@@ -111,9 +111,9 @@ func IsClusterScopedKind(kind string) bool {
 // ObjectRefToLabels encodes the specified ObjectRef as a set of labels.
 //
 // If Object's name cannot be used as the value of the
-// trivyoperator.LabelResourceName label, as a fallback, this method will calculate
+// trivy-operator.LabelResourceName label, as a fallback, this method will calculate
 // a hash of the Object's name and use it as the value of the
-// trivyoperator.LabelResourceNameHash label.
+// trivy-operator.LabelResourceNameHash label.
 func ObjectRefToLabels(obj ObjectRef) map[string]string {
 	labels := map[string]string{
 		trivyoperator.LabelResourceKind:      string(obj.Kind),
@@ -224,7 +224,7 @@ func ObjectRefFromKindAndObjectKey(kind Kind, name client.ObjectKey) ObjectRef {
 
 // ComputeSpecHash computes hash of the specified K8s client.Object. The hash is
 // used to indicate whether the client.Object should be rescanned or not by
-// adding it as the trivyoperator.LabelResourceSpecHash label to an instance of a
+// adding it as the trivy-operator.LabelResourceSpecHash label to an instance of a
 // security report.
 func ComputeSpecHash(obj client.Object) (string, error) {
 	switch t := obj.(type) {

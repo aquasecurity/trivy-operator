@@ -125,7 +125,6 @@ jobs:
   release:
     name: Release
     needs:
-      - itest-trivyoperator
       - itest-trivy-operator
       - integration-operator-conftest
     runs-on: ubuntu-20.04

@@ -283,7 +283,7 @@ func (c *configManager) EnsureDefault(ctx context.Context) error {
 			Namespace: c.namespace,
 			Name:      SecretName,
 			Labels: labels.Set{
-				LabelK8SAppManagedBy: "trivyoperator",
+				LabelK8SAppManagedBy: "trivy-operator",
 			},
 		},
 	}

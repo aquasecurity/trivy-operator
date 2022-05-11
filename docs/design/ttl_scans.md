@@ -6,7 +6,7 @@ Add an option to automatically delete old security reports. In this first versio
 
 ## Motivation
 
-In [537](https://github.com/aquasecurity/starboard/issues/537) we talk about a need to run nightly vulnerability scans of CVE:s.
+In [537](https://github.com/aquasecurity/trivy-operator/issues/537) we talk about a need to run nightly vulnerability scans of CVE:s.
 This way we can make sure to get new CVE reports for long time running pods as well.
 
 ## Proposal
@@ -23,9 +23,9 @@ got a ttl outweighs the "issue" of generating a new annotation.
 
 ### Example
 
-Below you can see a shortened version of the yaml. Notice the `metadata.annotations.starboard.aquasecurity.github.io/report-ttl` which is new.
-The operator would automatically apply the `starboard.aquasecurity.github.io/report-ttl` annotation to all new reports that it generates assuming that the environment variable is set.
-In theory users could also extend the TTL manually for a specific report by changing the starboard.aquasecurity.github.io/report-ttl annotation per VulnerabilityReport.
+Below you can see a shortened version of the yaml. Notice the `metadata.annotations.trivy-operator.aquasecurity.github.io/report-ttl` which is new.
+The operator would automatically apply the `trivy-operator.aquasecurity.github.io/report-ttl` annotation to all new reports that it generates assuming that the environment variable is set.
+In theory users could also extend the TTL manually for a specific report by changing the trivy-operator.aquasecurity.github.io/report-ttl annotation per VulnerabilityReport.
 
 ```vulnerabilityReport.yaml
 apiVersion: aquasecurity.github.io/v1alpha1
@@ -33,13 +33,13 @@ kind: VulnerabilityReport
 metadata:
   creationTimestamp: "2021-12-08T12:03:48Z"
   annotations:
-    starboard.aquasecurity.github.io/report-ttl: 24h
+    trivy-operator.aquasecurity.github.io/report-ttl: 24h
   labels:
     resource-spec-hash: 86b58dcb99
-    starboard.container.name: manager
-    starboard.resource.kind: ReplicaSet
-    starboard.resource.name: source-controller-b5d5cfdf4
-    starboard.resource.namespace: flux-system
+    trivy-operator.container.name: manager
+    trivy-operator.resource.kind: ReplicaSet
+    trivy-operator.resource.name: source-controller-b5d5cfdf4
+    trivy-operator.resource.namespace: flux-system
   name: replicaset-source-controller-b5d5cfdf4-manager
 report:
   artifact:
@@ -71,4 +71,4 @@ The bad thing hear is that we would have to manage yet another cronjob/job. We w
 It would also trigger removal of multiple reports at the same time, compared to the event driven solution that would be much more precise per report
 and thus spreading out the new reports more.
 
-But the good thing is that everyone knows how jobs/cronjobs works especially since it's already well used within the starboard operator.
+But the good thing is that everyone knows how jobs/cronjobs works especially since it's already well used within the trivy-operator operator.

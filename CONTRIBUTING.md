@@ -136,7 +136,7 @@ To run the integration tests for Trivy-operator Operator and view the coverage r
 OPERATOR_NAMESPACE=trivy-system \
   OPERATOR_TARGET_NAMESPACES=default \
   OPERATOR_LOG_DEV_MODE=true \
-  make itests-trivy-operator-operator
+  make itests-trivy-operator
 go tool cover -html=itest/trivy-operator/coverage.txt
 ```
 
@@ -243,9 +243,9 @@ helm template trivy-operator ./deploy/helm \
 ```
 
 ```
-cp $TMPDIR/trivy-operator-helm-template/starboard-operator/templates/rbac.yaml deploy/static/02-starboard-operator.rbac.yaml
-cp $TMPDIR/trivy-operator-helm-template/starboard-operator/templates/config.yaml deploy/static/03-starboard-operator.config.yaml
-cp $TMPDIR/trivy-operator-helm-template/starboard-operator/templates/deployment.yaml deploy/static/04-starboard-operator.deployment.yaml
+cp $TMPDIR/trivy-operator-helm-template/trivy-operator/templates/rbac.yaml deploy/static/02-trivy-operator.rbac.yaml
+cp $TMPDIR/trivy-operator-helm-template/trivy-operator/templates/config.yaml deploy/static/03-trivy-operator.config.yaml
+cp $TMPDIR/trivy-operator-helm-template/trivy-operator/templates/deployment.yaml deploy/static/04-starboard-operator.deployment.yaml
 ```
 
 ## Operator Lifecycle Manager (OLM)

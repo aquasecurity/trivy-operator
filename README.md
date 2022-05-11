@@ -73,29 +73,29 @@ Trivy-Operator is an [Aqua Security](https://aquasec.com) open source project.
 Learn about our [Open Source Work and Portfolio].  
 Join the community, and talk to us about any matter in [GitHub Discussions] or [Slack].
 
-[release-img]: https://img.shields.io/github/release/aquasecurity/starboard.svg?logo=github
+[release-img]: https://img.shields.io/github/release/aquasecurity/trivy-operator.svg?logo=github
 [release]: https://github.com/aquasecurity/trivy-operator/releases
-[action-build-img]: https://github.com/aquasecurity/starboard/actions/workflows/build.yaml/badge.svg
+[action-build-img]: https://github.com/aquasecurity/trivy-operator/actions/workflows/build.yaml/badge.svg
 [action-build]: https://github.com/aquasecurity/trivy-operator/actions/workflows/build.yaml
-[action-release-snapshot-img]: https://github.com/aquasecurity/starboard/actions/workflows/release-snapshot.yaml/badge.svg
-[action-release-snapshot]: https://github.com/aquasecurity/starboard/actions/workflows/release-snapshot.yaml
-[cov-img]: https://codecov.io/github/aquasecurity/starboard/branch/main/graph/badge.svg
-[cov]: https://codecov.io/github/aquasecurity/starboard
-[report-card-img]: https://goreportcard.com/badge/github.com/aquasecurity/starboard
-[report-card]: https://goreportcard.com/report/github.com/aquasecurity/starboard
-[license-img]: https://img.shields.io/github/license/aquasecurity/starboard.svg
-[license]: https://github.com/aquasecurity/starboard/blob/main/LICENSE
-[github-all-releases-img]: https://img.shields.io/github/downloads/aquasecurity/starboard/total?logo=github
-[docker-pulls-starboard]: https://img.shields.io/docker/pulls/aquasec/starboard?logo=docker&label=docker%20pulls%20%2F%20starboard
-[docker-pulls-starboard-operator]: https://img.shields.io/docker/pulls/aquasec/starboard-operator?logo=docker&label=docker%20pulls%20%2F%20starboard%20operator
-[Starboard: The Kubernetes-Native Toolkit for Unifying Security]: https://blog.aquasec.com/starboard-kubernetes-tools
+[action-release-snapshot-img]: https://github.com/aquasecurity/trivy-operator/actions/workflows/release-snapshot.yaml/badge.svg
+[action-release-snapshot]: https://github.com/aquasecurity/trivy-operator/actions/workflows/release-snapshot.yaml
+[cov-img]: https://codecov.io/github/aquasecurity/trivy-operator/branch/main/graph/badge.svg
+[cov]: https://codecov.io/github/aquasecurity/trivy-operator
+[report-card-img]: https://goreportcard.com/badge/github.com/aquasecurity/trivy-operator
+[report-card]: https://goreportcard.com/report/github.com/aquasecurity/trivy-operator
+[license-img]: https://img.shields.io/github/license/aquasecurity/trivy-operator.svg
+[license]: https://github.com/aquasecurity/trivy-operator/blob/main/LICENSE
+[github-all-releases-img]: https://img.shields.io/github/downloads/aquasecurity/trivy-operator/total?logo=github
+[docker-pulls-trivy-operator]: https://img.shields.io/docker/pulls/aquasec/trivy-operator?logo=docker&label=docker%20pulls%20%2F%20trivy-operator
+[docker-pulls-trivy-operator]: https://img.shields.io/docker/pulls/aquasec/trivy-operator?logo=docker&label=docker%20pulls%20%2F%20trivy-operator%20operator
+[trivy-operator: The Kubernetes-Native Toolkit for Unifying Security]: https://blog.aquasec.com/trivy-operator-kubernetes-tools
 [Contributing]: CONTRIBUTING.md
 [Roadmap]: ROADMAP.md
 [GitHub Discussions]: https://github.com/aquasecurity/trivy-operator/discussions
 [Slack]: https://slack.aquasec.com/
 [Open Source Work and Portfolio]: https://www.aquasec.com/products/open-source-projects/
 
-[Custom Resource Definitions]: https://aquasecurity.github.io/starboard/latest/crds/
+[Custom Resource Definitions]: https://aquasecurity.github.io/trivy-operator/latest/crds/
 [Go module]: https://pkg.go.dev/github.com/aquasecurity/trivy-operator/pkg
 [Documentation]: https://aquasecurity.github.io/trivy-operator/
 [Static YAML Manifests]: https://aquasecurity.github.io/trivy-operator/latest/operator/installation/kubectl/

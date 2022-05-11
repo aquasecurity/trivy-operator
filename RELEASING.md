@@ -58,9 +58,9 @@
    1. Trivy-operator container images published to DockerHub
        `docker.io/aquasec/trivy-operator:0.13.1`
    2. Trivy-operator container images published to Amazon ECR Public Gallery
-       `public.ecr.aws/aquasecurity/starboard-operator:0.13.1`
+       `public.ecr.aws/aquasecurity/trivy-operator:0.13.1`
  7. Publish the Helm chart by manually triggering the [`.github/workflows/publish-helm-chart.yaml`] workflow
-8. Publish docs on https://aquasecurity.github.io/starboard/ by manually triggering the [`.github/workflows/publish-docs.yaml`] workflow
+8. Publish docs on https://aquasecurity.github.io/trivy-operator/ by manually triggering the [`.github/workflows/publish-docs.yaml`] workflow
 9. Submit trivy-operator Operator to OperatorHub and ArtifactHUB by opening the PR to the https://github.com/k8s-operatorhub/community-operators repository.
 
 [`deploy/helm/Chart.yaml`]: ./deploy/helm/Chart.yaml
@@ -72,13 +72,13 @@
 [`deploy/crd/configauditreports.crd.yaml`]: ./deploy/crd/configauditreports.crd.yaml
 [`deploy/crd/kubehunterreports.crd.yaml`]: ./deploy/crd/kubehunterreports.crd.yaml
 [`deploy/crd/vulnerabilityreports.crd.yaml`]: ./deploy/crd/vulnerabilityreports.crd.yaml
-[`deploy/static/05-starboard-operator.deployment.yaml`]: ./deploy/static/05-trivy-operator.deployment.yaml
-[`deploy/static/04-starboard-operator.policies.yaml`]: ./deploy/static/04-trivy-operator.policies.yaml
-[`deploy/static/03-starboard-operator.config.yaml`]: ./deploy/static/03-trivy-operator.config.yaml
-[`deploy/static/02-starboard-operator.rbac.yaml`]: ./deploy/static/02-trivy-operator.rbac.yaml
-[`deploy/static/01-starboard-operator.ns.yaml`]: ./deploy/static/01-trivy-operator.ns.yaml
+[`deploy/static/05-trivy-operator.deployment.yaml`]: ./deploy/static/05-trivy-operator.deployment.yaml
+[`deploy/static/04-trivy-operator.policies.yaml`]: ./deploy/static/04-trivy-operator.policies.yaml
+[`deploy/static/03-trivy-operator.config.yaml`]: ./deploy/static/03-trivy-operator.config.yaml
+[`deploy/static/02-trivy-operator.rbac.yaml`]: ./deploy/static/02-trivy-operator.rbac.yaml
+[`deploy/static/01-trivy-operator.ns.yaml`]: ./deploy/static/01-trivy-operator.ns.yaml
 [`deploy/specs/nsa-1.0.yaml`]: ./deploy/specs/nsa-1.0.yaml
-[`deploy/static/starboard.yaml`]: ./deploy/static/trivy-operator.yaml
+[`deploy/static/trivy-operator.yaml`]: ./deploy/static/trivy-operator.yaml
 [`mkdocs.yml`]: ./mkdocs.yml
 [`.github/workflows/release.yaml`]: ./.github/workflows/release.yaml
 [`.github/workflows/publish-helm-chart.yaml`]: ./.github/workflows/publish-helm-chart.yaml

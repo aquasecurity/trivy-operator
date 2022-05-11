@@ -5,7 +5,7 @@ Currently the data model is the same as [kube-hunter]'s output, but we can make 
 party pen testing tools.
 
 As shown in the following listing there's zero to one instances of KubeHunterReports with hardcoded name `cluster`.
-Since there's no built-in Kubernetes resource that represents a cluster Starboard does not set any owner reference.
+Since there's no built-in Kubernetes resource that represents a cluster trivy-operator does not set any owner reference.
 
 ```yaml
 apiVersion: aquasecurity.github.io/v1alpha1
@@ -13,8 +13,8 @@ kind: KubeHunterReport
 metadata:
   name: cluster
   labels:
-    starboard.resource.kind: Cluster
-    starboard.resource.name: cluster
+    trivy-operator.resource.kind: Cluster
+    trivy-operator.resource.name: cluster
   uid: 958ca06b-6393-4e44-a6a6-11ce823c94fe
 report:
   scanner:

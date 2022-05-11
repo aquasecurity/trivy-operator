@@ -18,9 +18,9 @@ metadata:
   name: replicaset-nginx-6d4cf56db6
   namespace: default
   labels:
-    starboard.resource.kind: ReplicaSet
-    starboard.resource.name: nginx-6d4cf56db6
-    starboard.resource.namespace: default
+    trivy-operator.resource.kind: ReplicaSet
+    trivy-operator.resource.name: nginx-6d4cf56db6
+    trivy-operator.resource.namespace: default
     plugin-config-hash: 7f65d98b75
     resource-spec-hash: 7cb64cb677
   uid: d5cf8847-c96d-4534-beb9-514a34230302
@@ -82,7 +82,7 @@ report:
 ```
 
 Third party Kubernetes configuration checkers, linters, and sanitizers that are compliant with the ConfigAuditReport
-schema can be integrated with Starboard.
+schema can be integrated with trivy-operator.
 
 !!! note
     The challenge with onboarding third party configuration checkers is that they tend to have different interfaces

@@ -11,8 +11,8 @@ kind: CISKubeBenchReport
 metadata:
   name: kind-control-plane
   labels:
-    starboard.resource.kind: Node
-    starboard.resource.name: kind-control-plane
+    trivy-operator.resource.kind: Node
+    trivy-operator.resource.name: kind-control-plane
   uid: 4aec0c8e-c98d-4b53-8727-1e22cacdb772
   ownerReferences:
     - apiVersion: v1

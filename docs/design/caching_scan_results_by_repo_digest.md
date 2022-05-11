@@ -52,7 +52,7 @@ No resources found
 ```
 
 ```console
-$ starboard scan vulnerabilityreports deploy/nginx -n foo -v 3
+$ trivy-operator scan vulnerabilityreports deploy/nginx -n foo -v 3
 I1008 19:58:19.355462   62385 scanner.go:72] Getting Pod template for workload: {Deployment nginx foo}
 I1008 19:58:19.358802   62385 scanner.go:89] Checking if images were already scanned
 I1008 19:58:19.360411   62385 scanner.go:95] Cached scan reports: 0
@@ -85,7 +85,7 @@ NAME         REPOSITORY      TAG    DIGEST   SCANNER   AGE   CRITICAL   HIGH   M
 ```
 
 ```console
-$ starboard scan vulnerabilityreports deploy/nginx -n bar -v 3
+$ trivy-operator scan vulnerabilityreports deploy/nginx -n bar -v 3
 I1008 19:59:23.891718   62478 scanner.go:72] Getting Pod template for workload: {Deployment nginx bar}
 I1008 19:59:23.895310   62478 scanner.go:89] Checking if image nginx:1.16 was already scanned
 I1008 19:59:23.903058   62478 scanner.go:95] Cache hit

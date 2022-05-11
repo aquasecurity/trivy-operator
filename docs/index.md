@@ -42,7 +42,7 @@ Trivy-Operator can be used:
   generated automatically.
 - Read more about the motivations for the project in the [Trivy-operator: The Kubernetes-Native Toolkit for Unifying Security]
   blog.
-- See a detailed introduction to Starboard with demos at [KubeCon + CloudNativeCon NA 2020][kubecon-video].
+- See a detailed introduction to trivy-operator with demos at [KubeCon + CloudNativeCon NA 2020][kubecon-video].
 - Join the community, and talk to us about any matter in [GitHub Discussions] or [Slack].
 
 [Custom Resource Definitions]: ./crds/index.md
@@ -53,7 +53,7 @@ Trivy-Operator can be used:
 [Lens Extension]: integrations/lens.md
 [kubectl]: https://kubernetes.io/docs/reference/kubectl/
 [Trivy-Operator: The Kubernetes-Native Toolkit for Unifying Security]: https://blog.aquasec.com/starboard-kubernetes-tools
-[GitHub Discussions]: https://github.com/aquasecurity/starboard/discussions/
+[GitHub Discussions]: https://github.com/aquasecurity/trivy-operator/discussions/
 [Slack]: https://slack.aquasec.com/
 [kubecon-video]: https://www.youtube.com/watch?v=cgcwIY1HVI0
 [kube-hunter]: https://github.com/aquasecurity/kube-hunter

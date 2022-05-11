@@ -2,11 +2,11 @@
 
 ## Overview
 
-Starboard (with Conftest plugin) evaluates all policies on a given Kubernetes (K8s) resource, which is not efficient for
+trivy-operator (with Conftest plugin) evaluates all policies on a given Kubernetes (K8s) resource, which is not efficient for
 two reasons:
 
-1. Starboard creates a scan Job to audit a K8s resource even if there are no Rego policies defined for its kind.
-2. Starboard rescans all K8s resources even if the change in Rego policies is only related to a particular kind.
+1. trivy-operator creates a scan Job to audit a K8s resource even if there are no Rego policies defined for its kind.
+2. trivy-operator rescans all K8s resources even if the change in Rego policies is only related to a particular kind.
 
 ## Solution
 
@@ -48,7 +48,7 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   namespace: trivy-operator
-  name: starboard-conftest-config
+  name: trivy-operator-conftest-config
 data:
   conftest.imageRef: openpolicyagent/conftest:v0.30.0
   conftest.resources.requests.cpu: 50
@@ -79,10 +79,10 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   namespace: trivy-operator
-  name: starboard-conftest-config
+  name: trivy-operator-conftest-config
   annotations:
     # Introduce a way to version configuration schema.
-    starboard.plugin.config.version: "v2"
+    trivy-operator.plugin.config.version: "v2"
 data:
   conftest.imageRef: openpolicyagent/conftest:v0.30.0
   conftest.resources.requests.cpu: 50
@@ -118,7 +118,7 @@ ConfigAuditReport instance. The `resource-spec-hash` is used to rescan a resourc
 container image tag), whereas the `plugin-config-hash` is used to rescan the resource when Conftest config has changed
 (e.g. add new Rego policy or edit existing one).
 
-> :bulb: Starboard operator has a dedicated controller to watch changes to the `starboard-conftest-config` ConfigMap.
+> :bulb: Trivy operator has a dedicated controller to watch changes to the `trivy-operator-conftest-config` ConfigMap.
 > Whenever there's a change the controller calculates a new hash and deletes all ConfigAuditReports, which do not have
 > the same value of the `plugin-config-hash` label.
 

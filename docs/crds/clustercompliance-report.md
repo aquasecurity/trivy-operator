@@ -9,7 +9,7 @@ The NSA compliance report is composed of two parts:
 - `spec:` represents the compliance control checks specification, check details, and the mapping to the security scanner
   (this part is defined by the user)
 - `status:` represents the compliance control checks (as defined by spec mapping) results extracted from the security
-  scanners reports (this part is output by starboard)
+  scanners reports (this part is output by trivy-operator)
 
 The following shows a sample ClusterComplianceReport NSA specification associated with the `cluster`:
 
@@ -22,9 +22,9 @@ metadata:
   creationTimestamp: '2022-03-27T07:03:29Z'
   generation: 2
   labels:
-    app.kubernetes.io/instance: starboard-operator
+    app.kubernetes.io/instance: trivy-operator
     app.kubernetes.io/managed-by: kubectl
-    app.kubernetes.io/name: starboard-operator
+    app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/version: {{ git.tag[1:] }}
   name: nsa
   resourceVersion: '15745'

@@ -1,6 +1,6 @@
 # Writing Custom Configuration Audit Policies
 
-Starboard ships with a set of [Built-in Configuration Audit Policies] defined as OPA [Rego] policies. You can also
+trivy-operator ships with a set of [Built-in Configuration Audit Policies] defined as OPA [Rego] policies. You can also
 define custom policies and associate them with applicable Kubernetes resources to extend basic configuration audit
 functionality.
 
@@ -28,7 +28,7 @@ __rego_metadata__ := {
 ```
 
 Note that the `recommended_labels` policy in scoped to the `starboard.policy.k8s.custom` package to avoid naming
-collision with built-in policies that are pre-installed with Starboard.
+collision with built-in policies that are pre-installed with trivy-operator.
 
 Once we've got our metadata defined, we need to create the logic of the policy, which is done in the `deny` or `warn`
 rule.
@@ -55,7 +55,7 @@ specified by the `input` resource object from the set of recommended labels. The
 called `missing`. Finally, we check if the `missing` set is empty. If not, the `deny` rule fails with the appropriate
 message.
 
-The `input` document is set by Starboard to a Kubernetes resource when the policy is evaluated. For pods, it would look
+The `input` document is set by trivy-operator to a Kubernetes resource when the policy is evaluated. For pods, it would look
 something like the following listing:
 
 ```json
@@ -90,18 +90,18 @@ You can find the complete Rego code listing in [recommended_labels.rego](./recom
 ## Testing a Policy
 
 Now that you've created the policy, you need to test it to make sure it works as intended. To do that, add policy code to
-the `starboard-policies-config` ConfigMap and associate it with any (`*`) Kubernetes resource kind:
+the `trivy-operator-policies-config` ConfigMap and associate it with any (`*`) Kubernetes resource kind:
 
 ```yaml
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: starboard-policies-config
-  namespace: trivy-operator-system
+  name: trivy-operator-policies-config
+  namespace: trivy-system
   labels:
-    app.kubernetes.io/name: starboard-operator
-    app.kubernetes.io/instance: starboard-operator
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
     app.kubernetes.io/version: "{{ git.tag[1:] }}"
     app.kubernetes.io/managed-by: kubectl
 data:
@@ -134,15 +134,15 @@ data:
     }
 ```
 
-In this example, to add a new policy, you must define two data entries in the `starboard-policies-config`
+In this example, to add a new policy, you must define two data entries in the `trivy-operator-policies-config`
 ConfigMap:
 
 1. The `policy.<your_policy_name>.kinds` entry is used to designate applicable Kubernetes resources as a comma separated
    list of Kubernetes kinds (e.g., `Pod,ConfigMap,NetworkPolicy`). There is also a special value (`Workload`) that you
-   can use to select all Kubernetes workloads, and (`*`) to select all Kubernetes resources recognized by Starboard.
+   can use to select all Kubernetes workloads, and (`*`) to select all Kubernetes resources recognized by trivy-operator.
 2. The `policy.<your_policy_name>.rego` entry holds the policy Rego code.
 
-Starboard automatically detects policies added to the `starboard-policies-config` ConfigMap and immediately rescans
+trivy-operator automatically detects policies added to the `trivy-operator-policies-config` ConfigMap and immediately rescans
 applicable Kubernetes resources.
 
 Let's create the `test` ConfigMap without recommended labels:
@@ -158,7 +158,7 @@ that's failing:
 ```console
 $ kubectl get configauditreport configmap-test -o wide
 NAME             SCANNER     AGE   CRITICAL  HIGH   MEDIUM   LOW
-configmap-test   Starboard   24s   0         0      0        1
+configmap-test   trivy-operator   24s   0         0      0        1
 ```
 
 If you describe the report you'll see that it's failing because of our custom policy:
@@ -168,9 +168,9 @@ apiVersion: aquasecurity.github.io/v1alpha1
 kind: ConfigAuditReport
 metadata:
   labels:
-    starboard.resource.kind: ConfigMap
-    starboard.resource.name: test
-    starboard.resource.namespace: default
+    trivy-operator.resource.kind: ConfigMap
+    trivy-operator.resource.name: test
+    trivy-operator.resource.namespace: default
     plugin-config-hash: df767ff5f
     resource-spec-hash: 7c96769cf
   name: configmap-test
@@ -183,7 +183,7 @@ metadata:
     name: test
 report:
   scanner:
-    name: Starboard
+    name: trivy-operator
     vendor: Aqua Security
     version: {{ git.tag }}
   summary:

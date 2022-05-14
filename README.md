@@ -61,7 +61,6 @@ Kubernetes-native ways.
 
 * See [Contributing] for information about setting up your development environment, and the contribution workflow that
   we expect.
-* See [Roadmap] for tentative features in a 1.0.0 release.
 
 ---
 Trivy-Operator is an [Aqua Security](https://aquasec.com) open source project.  
@@ -85,7 +84,6 @@ Join the community, and talk to us about any matter in [GitHub Discussions] or [
 [docker-pulls-trivy-operator]: https://img.shields.io/docker/pulls/aquasec/trivy-operator?logo=docker&label=docker%20pulls%20%2F%20trivy-operator%20operator
 [trivy-operator: The Kubernetes-Native Toolkit for Unifying Security]: https://blog.aquasec.com/trivy-operator-kubernetes-tools
 [Contributing]: CONTRIBUTING.md
-[Roadmap]: ROADMAP.md
 [GitHub Discussions]: https://github.com/aquasecurity/trivy-operator/discussions
 [Slack]: https://slack.aquasec.com/
 [Open Source Work and Portfolio]: https://www.aquasec.com/products/open-source-projects/

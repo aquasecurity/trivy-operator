@@ -128,7 +128,7 @@ trivy:
 
   # Mirrored registries. There can be multiple registries with different keys.
   # Make sure to quote registries containing dots
-  registry: 
+  registry:
     mirror: {}
     # "docker.io": docker-mirror.example.com
 
@@ -155,7 +155,7 @@ trivy:
       cpu: 100m
       memory: 100M
     limits:
-      cpu: 500m
+      cpu: 500mct lint-and-install --validate-maintainers=false --charts deploy/helm
       memory: 500M
 
   # githubToken is the GitHub access token used by Trivy to download the vulnerabilities

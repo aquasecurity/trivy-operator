@@ -155,7 +155,7 @@ trivy:
       cpu: 100m
       memory: 100M
     limits:
-      cpu: 500mct lint-and-install --validate-maintainers=false --charts deploy/helm
+      cpu: 500m
       memory: 500M
 
   # githubToken is the GitHub access token used by Trivy to download the vulnerabilities

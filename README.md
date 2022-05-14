@@ -26,7 +26,6 @@ Trivy-Operator provides:
 
 - Automated vulnerability scanning for Kubernetes workloads.
 - Automated configuration audits for Kubernetes resources with predefined rules or custom Open Policy Agent (OPA) policies.
-- Penetration test results for a Kubernetes cluster.
 - [Custom Resource Definitions] and a [Go module] to work with and integrate a range of security scanners.
 - The [Octant Plugin] and the [Lens Extension] that make security reports available through familiar Kubernetes interfaces.
 

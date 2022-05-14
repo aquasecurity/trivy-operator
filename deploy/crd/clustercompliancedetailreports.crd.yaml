@@ -5,7 +5,7 @@ metadata:
   name: clustercompliancedetailreports.aquasecurity.github.io
   labels:
     app.kubernetes.io/managed-by: trivy-operator
-    app.kubernetes.io/version: "0.0.2"
+    app.kubernetes.io/version: "0.0.3"
 spec:
   group: aquasecurity.github.io
   versions:

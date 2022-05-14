@@ -10,7 +10,6 @@
 [![License][license-img]][license]
 [![GitHub All Releases][github-all-releases-img]][release]
 ![Docker Pulls Trivy-operator][docker-pulls-trivy-operator]
-![Docker Pulls Trivy Operator][docker-pulls-trivy-operator]
 
 # Introduction
 
@@ -19,7 +18,7 @@ users about security issues in Kubernetes workloads and infrastructure component
 might be, they tend to sit alongside Kubernetes, with each new product requiring users to learn a separate set of
 commands and installation steps in order to operate them and find critical security information.
 
-Trivy-Operator attempts to integrate heterogeneous security tools by incorporating their outputs into Kubernetes CRDs
+Trivy-Operator leverage the trivy security tools by incorporating it outputs into Kubernetes CRDs
 (Custom Resource Definitions) and from there, making security reports accessible through the Kubernetes API. This way
 users can find and view the risks that relate to different resources in what we call a Kubernetes-native way.
 
@@ -27,8 +26,6 @@ Trivy-Operator provides:
 
 - Automated vulnerability scanning for Kubernetes workloads.
 - Automated configuration audits for Kubernetes resources with predefined rules or custom Open Policy Agent (OPA) policies.
-- Automated infrastructures scanning and compliance checks with CIS Benchmarks published by the Center for Internet Security (CIS).
-- Automated compliance report - NSA, CISA Kubernetes Hardening Kubernetes Guidance v1.0 
 - Penetration test results for a Kubernetes cluster.
 - [Custom Resource Definitions] and a [Go module] to work with and integrate a range of security scanners.
 - The [Octant Plugin] and the [Lens Extension] that make security reports available through familiar Kubernetes interfaces.
@@ -40,8 +37,7 @@ Trivy-Operator provides:
 Trivy-Operator can be used:
 
 - As a [Kubernetes operator] to automatically update security reports in response to workload and other changes on a
-  Kubernetes cluster - for example, initiating a vulnerability scan when a new Pod is started or running CIS Benchmarks
-  when a new Node is added.
+  Kubernetes cluster - for example, initiating a vulnerability and misconfiguration scan when a new Pod is started.
 
 # Status
 
@@ -97,7 +93,7 @@ Join the community, and talk to us about any matter in [GitHub Discussions] or [
 
 [Custom Resource Definitions]: https://aquasecurity.github.io/trivy-operator/latest/crds/
 [Go module]: https://pkg.go.dev/github.com/aquasecurity/trivy-operator/pkg
-[Documentation]: https://aquasecurity.github.io/trivy-operator/
+[Documentation]: https://aquasecurity.github.io/trivy
 [Static YAML Manifests]: https://aquasecurity.github.io/trivy-operator/latest/operator/installation/kubectl/
 [getting-started-operator]: https://aquasecurity.github.io/trivy-operator/latest/operator/getting-started/
 [Kubernetes operator]: https://aquasecurity.github.io/trivy-operator/latest/operator

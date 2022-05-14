@@ -128,7 +128,7 @@ trivy:
 
   # Mirrored registries. There can be multiple registries with different keys.
   # Make sure to quote registries containing dots
-  registry: 
+  registry:
     mirror: {}
     # "docker.io": docker-mirror.example.com
 

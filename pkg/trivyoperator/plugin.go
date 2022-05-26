@@ -52,7 +52,7 @@ type PluginContext interface {
 // with the given name.
 // TODO Rename to GetPluginConfigObjectName as this method is used to determine the name of ConfigMaps and Secrets.
 func GetPluginConfigMapName(pluginName string) string {
-	return "trivyoperator-" + strings.ToLower(pluginName) + "-config"
+	return "trivy-operator-" + strings.ToLower(pluginName) + "-config"
 }
 
 type pluginContext struct {
@@ -90,7 +90,7 @@ func (p *pluginContext) GetConfig() (PluginConfig, error) {
 
 	err := p.client.Get(context.Background(), types.NamespacedName{
 		Namespace: p.namespace,
-		Name:      fmt.Sprintf("trivyoperator-%s-config", strings.ToLower(p.GetName())),
+		Name:      GetPluginConfigMapName(strings.ToLower(p.GetName())),
 	}, cm)
 	if err != nil {
 		return PluginConfig{}, err
@@ -98,7 +98,7 @@ func (p *pluginContext) GetConfig() (PluginConfig, error) {
 
 	err = p.client.Get(context.Background(), types.NamespacedName{
 		Namespace: p.namespace,
-		Name:      fmt.Sprintf("trivyoperator-%s-config", strings.ToLower(p.GetName())),
+		Name:      GetPluginConfigMapName(strings.ToLower(p.GetName())),
 	}, secret)
 
 	var secretData map[string][]byte

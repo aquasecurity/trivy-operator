@@ -13,7 +13,7 @@ import (
 func TestGetPluginConfigMapName(t *testing.T) {
 	g := gomega.NewGomegaWithT(t)
 	name := trivyoperator.GetPluginConfigMapName("Conftest")
-	g.Expect(name).To(gomega.Equal("trivyoperator-conftest-config"))
+	g.Expect(name).To(gomega.Equal("trivy-operator-conftest-config"))
 }
 
 func TestPluginContext_GetConfig(t *testing.T) {
@@ -25,7 +25,7 @@ func TestPluginContext_GetConfig(t *testing.T) {
 			WithScheme(trivyoperator.NewScheme()).
 			WithObjects(&corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "trivyoperator-polaris-config",
+					Name:      "trivy-operator-polaris-config",
 					Namespace: "trivyoperator-ns",
 				},
 				Data: map[string]string{
@@ -58,7 +58,7 @@ func TestPluginContext_GetConfig(t *testing.T) {
 			WithScheme(trivyoperator.NewScheme()).
 			WithObjects(&corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "trivyoperator-polaris-config",
+					Name:      "trivy-operator-polaris-config",
 					Namespace: "trivyoperator-ns",
 				},
 				Data: map[string]string{
@@ -66,7 +66,7 @@ func TestPluginContext_GetConfig(t *testing.T) {
 				},
 			}, &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "trivyoperator-polaris-config",
+					Name:      "trivy-operator-polaris-config",
 					Namespace: "trivyoperator-ns",
 				},
 				Data: map[string][]byte{

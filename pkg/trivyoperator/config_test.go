@@ -97,9 +97,9 @@ func TestConfigData_GetConfigAuditReportsScanner(t *testing.T) {
 
 func TestConfigData_GetScanJobTolerations(t *testing.T) {
 	testCases := []struct {
-		name     string
-		config   trivyoperator.ConfigData
-		expected []corev1.Toleration
+		name        string
+		config      trivyoperator.ConfigData
+		expected    []corev1.Toleration
 		expectError string
 	}{
 		{
@@ -166,9 +166,9 @@ func TestConfigData_GetScanJobTolerations(t *testing.T) {
 
 func TestConfigData_GetScanJobAnnotations(t *testing.T) {
 	testCases := []struct {
-		name     string
-		config   trivyoperator.ConfigData
-		expected map[string]string
+		name        string
+		config      trivyoperator.ConfigData
+		expected    map[string]string
 		expectError string
 	}{
 		{
@@ -219,9 +219,9 @@ func TestConfigData_GetScanJobAnnotations(t *testing.T) {
 
 func TestConfigData_GetScanJobPodTemplateLabels(t *testing.T) {
 	testCases := []struct {
-		name     string
-		config   trivyoperator.ConfigData
-		expected labels.Set
+		name        string
+		config      trivyoperator.ConfigData
+		expected    labels.Set
 		expectError string
 	}{
 		{
@@ -298,9 +298,9 @@ func TestConfigData_GetComplianceFailEntriesLimit(t *testing.T) {
 
 func TestConfigData_GetKubeBenchImageRef(t *testing.T) {
 	testCases := []struct {
-		name          string
-		configData    trivyoperator.ConfigData
-		expectedError string
+		name             string
+		configData       trivyoperator.ConfigData
+		expectedError    string
 		expectedImageRef string
 	}{
 		{
@@ -332,9 +332,9 @@ func TestConfigData_GetKubeBenchImageRef(t *testing.T) {
 
 func TestConfigData_GetKubeHunterImageRef(t *testing.T) {
 	testCases := []struct {
-		name          string
-		configData    trivyoperator.ConfigData
-		expectedError string
+		name             string
+		configData       trivyoperator.ConfigData
+		expectedError    string
 		expectedImageRef string
 	}{
 		{
@@ -560,7 +560,7 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 
 		_, err = clientset.CoreV1().ConfigMaps(namespace).
 			Get(context.TODO(), trivyoperator.GetPluginConfigMapName("Polaris"), metav1.GetOptions{})
-		g.Expect(err).To(gomega.MatchError(`configmaps "trivyoperator-polaris-config" not found`))
+		g.Expect(err).To(gomega.MatchError(`configmaps "trivy-operator-polaris-config" not found`))
 	})
 
 }

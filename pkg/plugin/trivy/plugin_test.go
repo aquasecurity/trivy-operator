@@ -456,7 +456,7 @@ func TestPlugin_Init(t *testing.T) {
 		var cm corev1.ConfigMap
 		err = client.Get(context.Background(), types.NamespacedName{
 			Namespace: "trivyoperator-ns",
-			Name:      "trivyoperator-trivy-config",
+			Name:      "trivy-operator-trivy-config",
 		}, &cm)
 		require.NoError(t, err)
 		assert.Equal(t, corev1.ConfigMap{
@@ -465,7 +465,7 @@ func TestPlugin_Init(t *testing.T) {
 				Kind:       "ConfigMap",
 			},
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      "trivyoperator-trivy-config",
+				Name:      "trivy-operator-trivy-config",
 				Namespace: "trivyoperator-ns",
 				Labels: map[string]string{
 					"app.kubernetes.io/managed-by": "trivyoperator",
@@ -495,7 +495,7 @@ func TestPlugin_Init(t *testing.T) {
 					Kind:       "ConfigMap",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:            "trivyoperator-trivy-config",
+					Name:            "trivy-operator-trivy-config",
 					Namespace:       "trivyoperator-ns",
 					ResourceVersion: "1",
 				},
@@ -520,7 +520,7 @@ func TestPlugin_Init(t *testing.T) {
 		var cm corev1.ConfigMap
 		err = client.Get(context.Background(), types.NamespacedName{
 			Namespace: "trivyoperator-ns",
-			Name:      "trivyoperator-trivy-config",
+			Name:      "trivy-operator-trivy-config",
 		}, &cm)
 		require.NoError(t, err)
 		assert.Equal(t, corev1.ConfigMap{
@@ -529,7 +529,7 @@ func TestPlugin_Init(t *testing.T) {
 				Kind:       "ConfigMap",
 			},
 			ObjectMeta: metav1.ObjectMeta{
-				Name:            "trivyoperator-trivy-config",
+				Name:            "trivy-operator-trivy-config",
 				Namespace:       "trivyoperator-ns",
 				ResourceVersion: "1",
 			},
@@ -564,7 +564,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 		ValueFrom: &corev1.EnvVarSource{
 			ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 				LocalObjectReference: corev1.LocalObjectReference{
-					Name: "trivyoperator-trivy-config",
+					Name: "trivy-operator-trivy-config",
 				},
 				Key:      "trivy.timeout",
 				Optional: pointer.BoolPtr(true),
@@ -634,7 +634,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpProxy",
 										Optional: pointer.BoolPtr(true),
@@ -646,7 +646,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpsProxy",
 										Optional: pointer.BoolPtr(true),
@@ -658,7 +658,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.noProxy",
 										Optional: pointer.BoolPtr(true),
@@ -671,7 +671,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.githubToken",
 										Optional: pointer.BoolPtr(true),
@@ -715,7 +715,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.severity",
 										Optional: pointer.BoolPtr(true),
@@ -727,7 +727,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.ignoreUnfixed",
 										Optional: pointer.BoolPtr(true),
@@ -740,7 +740,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipFiles",
 										Optional: pointer.BoolPtr(true),
@@ -752,7 +752,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipDirs",
 										Optional: pointer.BoolPtr(true),
@@ -764,7 +764,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpProxy",
 										Optional: pointer.BoolPtr(true),
@@ -776,7 +776,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpsProxy",
 										Optional: pointer.BoolPtr(true),
@@ -788,7 +788,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.noProxy",
 										Optional: pointer.BoolPtr(true),
@@ -883,7 +883,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpProxy",
 										Optional: pointer.BoolPtr(true),
@@ -895,7 +895,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpsProxy",
 										Optional: pointer.BoolPtr(true),
@@ -907,7 +907,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.noProxy",
 										Optional: pointer.BoolPtr(true),
@@ -919,7 +919,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.githubToken",
 										Optional: pointer.BoolPtr(true),
@@ -963,7 +963,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.severity",
 										Optional: pointer.BoolPtr(true),
@@ -975,7 +975,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.ignoreUnfixed",
 										Optional: pointer.BoolPtr(true),
@@ -988,7 +988,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipFiles",
 										Optional: pointer.BoolPtr(true),
@@ -1000,7 +1000,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipDirs",
 										Optional: pointer.BoolPtr(true),
@@ -1012,7 +1012,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1024,7 +1024,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpsProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1036,7 +1036,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.noProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1135,7 +1135,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1147,7 +1147,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpsProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1159,7 +1159,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.noProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1171,7 +1171,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.githubToken",
 										Optional: pointer.BoolPtr(true),
@@ -1215,7 +1215,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.severity",
 										Optional: pointer.BoolPtr(true),
@@ -1227,7 +1227,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.ignoreUnfixed",
 										Optional: pointer.BoolPtr(true),
@@ -1240,7 +1240,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipFiles",
 										Optional: pointer.BoolPtr(true),
@@ -1252,7 +1252,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipDirs",
 										Optional: pointer.BoolPtr(true),
@@ -1264,7 +1264,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1276,7 +1276,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpsProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1288,7 +1288,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.noProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1383,7 +1383,7 @@ CVE-2019-1543`,
 						VolumeSource: corev1.VolumeSource{
 							ConfigMap: &corev1.ConfigMapVolumeSource{
 								LocalObjectReference: corev1.LocalObjectReference{
-									Name: "trivyoperator-trivy-config",
+									Name: "trivy-operator-trivy-config",
 								},
 								Items: []corev1.KeyToPath{
 									{
@@ -1407,7 +1407,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1419,7 +1419,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpsProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1431,7 +1431,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.noProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1443,7 +1443,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.githubToken",
 										Optional: pointer.BoolPtr(true),
@@ -1487,7 +1487,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.severity",
 										Optional: pointer.BoolPtr(true),
@@ -1499,7 +1499,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.ignoreUnfixed",
 										Optional: pointer.BoolPtr(true),
@@ -1512,7 +1512,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipFiles",
 										Optional: pointer.BoolPtr(true),
@@ -1524,7 +1524,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipDirs",
 										Optional: pointer.BoolPtr(true),
@@ -1536,7 +1536,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1548,7 +1548,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpsProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1560,7 +1560,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.noProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1666,7 +1666,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1678,7 +1678,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpsProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1690,7 +1690,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.noProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1703,7 +1703,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.githubToken",
 										Optional: pointer.BoolPtr(true),
@@ -1747,7 +1747,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.severity",
 										Optional: pointer.BoolPtr(true),
@@ -1759,7 +1759,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.ignoreUnfixed",
 										Optional: pointer.BoolPtr(true),
@@ -1772,7 +1772,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipFiles",
 										Optional: pointer.BoolPtr(true),
@@ -1784,7 +1784,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipDirs",
 										Optional: pointer.BoolPtr(true),
@@ -1796,7 +1796,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1808,7 +1808,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpsProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1820,7 +1820,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.noProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1912,7 +1912,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1924,7 +1924,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpsProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1936,7 +1936,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.noProxy",
 										Optional: pointer.BoolPtr(true),
@@ -1948,7 +1948,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.severity",
 										Optional: pointer.BoolPtr(true),
@@ -1960,7 +1960,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.ignoreUnfixed",
 										Optional: pointer.BoolPtr(true),
@@ -1973,7 +1973,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipFiles",
 										Optional: pointer.BoolPtr(true),
@@ -1985,7 +1985,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipDirs",
 										Optional: pointer.BoolPtr(true),
@@ -1997,7 +1997,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.serverTokenHeader",
 										Optional: pointer.BoolPtr(true),
@@ -2009,7 +2009,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.serverToken",
 										Optional: pointer.BoolPtr(true),
@@ -2021,7 +2021,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.serverCustomHeaders",
 										Optional: pointer.BoolPtr(true),
@@ -2102,7 +2102,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpProxy",
 										Optional: pointer.BoolPtr(true),
@@ -2114,7 +2114,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpsProxy",
 										Optional: pointer.BoolPtr(true),
@@ -2126,7 +2126,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.noProxy",
 										Optional: pointer.BoolPtr(true),
@@ -2138,7 +2138,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.severity",
 										Optional: pointer.BoolPtr(true),
@@ -2150,7 +2150,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.ignoreUnfixed",
 										Optional: pointer.BoolPtr(true),
@@ -2163,7 +2163,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipFiles",
 										Optional: pointer.BoolPtr(true),
@@ -2175,7 +2175,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipDirs",
 										Optional: pointer.BoolPtr(true),
@@ -2187,7 +2187,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.serverTokenHeader",
 										Optional: pointer.BoolPtr(true),
@@ -2199,7 +2199,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.serverToken",
 										Optional: pointer.BoolPtr(true),
@@ -2211,7 +2211,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.serverCustomHeaders",
 										Optional: pointer.BoolPtr(true),
@@ -2293,7 +2293,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpProxy",
 										Optional: pointer.BoolPtr(true),
@@ -2305,7 +2305,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpsProxy",
 										Optional: pointer.BoolPtr(true),
@@ -2317,7 +2317,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.noProxy",
 										Optional: pointer.BoolPtr(true),
@@ -2329,7 +2329,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.severity",
 										Optional: pointer.BoolPtr(true),
@@ -2341,7 +2341,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.ignoreUnfixed",
 										Optional: pointer.BoolPtr(true),
@@ -2354,7 +2354,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipFiles",
 										Optional: pointer.BoolPtr(true),
@@ -2366,7 +2366,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipDirs",
 										Optional: pointer.BoolPtr(true),
@@ -2378,7 +2378,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.serverTokenHeader",
 										Optional: pointer.BoolPtr(true),
@@ -2390,7 +2390,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.serverToken",
 										Optional: pointer.BoolPtr(true),
@@ -2402,7 +2402,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.serverCustomHeaders",
 										Optional: pointer.BoolPtr(true),
@@ -2488,7 +2488,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpProxy",
 										Optional: pointer.BoolPtr(true),
@@ -2500,7 +2500,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpsProxy",
 										Optional: pointer.BoolPtr(true),
@@ -2512,7 +2512,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.noProxy",
 										Optional: pointer.BoolPtr(true),
@@ -2524,7 +2524,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.severity",
 										Optional: pointer.BoolPtr(true),
@@ -2536,7 +2536,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.ignoreUnfixed",
 										Optional: pointer.BoolPtr(true),
@@ -2549,7 +2549,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipFiles",
 										Optional: pointer.BoolPtr(true),
@@ -2561,7 +2561,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipDirs",
 										Optional: pointer.BoolPtr(true),
@@ -2573,7 +2573,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.serverTokenHeader",
 										Optional: pointer.BoolPtr(true),
@@ -2585,7 +2585,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.serverToken",
 										Optional: pointer.BoolPtr(true),
@@ -2597,7 +2597,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.serverCustomHeaders",
 										Optional: pointer.BoolPtr(true),
@@ -2681,7 +2681,7 @@ CVE-2019-1543`,
 						VolumeSource: corev1.VolumeSource{
 							ConfigMap: &corev1.ConfigMapVolumeSource{
 								LocalObjectReference: corev1.LocalObjectReference{
-									Name: "trivyoperator-trivy-config",
+									Name: "trivy-operator-trivy-config",
 								},
 								Items: []corev1.KeyToPath{
 									{
@@ -2705,7 +2705,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpProxy",
 										Optional: pointer.BoolPtr(true),
@@ -2717,7 +2717,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpsProxy",
 										Optional: pointer.BoolPtr(true),
@@ -2729,7 +2729,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.noProxy",
 										Optional: pointer.BoolPtr(true),
@@ -2741,7 +2741,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.severity",
 										Optional: pointer.BoolPtr(true),
@@ -2753,7 +2753,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.ignoreUnfixed",
 										Optional: pointer.BoolPtr(true),
@@ -2766,7 +2766,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipFiles",
 										Optional: pointer.BoolPtr(true),
@@ -2778,7 +2778,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipDirs",
 										Optional: pointer.BoolPtr(true),
@@ -2790,7 +2790,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.serverTokenHeader",
 										Optional: pointer.BoolPtr(true),
@@ -2802,7 +2802,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.serverToken",
 										Optional: pointer.BoolPtr(true),
@@ -2814,7 +2814,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.serverCustomHeaders",
 										Optional: pointer.BoolPtr(true),
@@ -2945,7 +2945,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpProxy",
 										Optional: pointer.BoolPtr(true),
@@ -2957,7 +2957,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpsProxy",
 										Optional: pointer.BoolPtr(true),
@@ -2969,7 +2969,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.noProxy",
 										Optional: pointer.BoolPtr(true),
@@ -2982,7 +2982,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.githubToken",
 										Optional: pointer.BoolPtr(true),
@@ -3030,7 +3030,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.severity",
 										Optional: pointer.BoolPtr(true),
@@ -3042,7 +3042,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipFiles",
 										Optional: pointer.BoolPtr(true),
@@ -3054,7 +3054,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipDirs",
 										Optional: pointer.BoolPtr(true),
@@ -3066,7 +3066,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpProxy",
 										Optional: pointer.BoolPtr(true),
@@ -3078,7 +3078,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpsProxy",
 										Optional: pointer.BoolPtr(true),
@@ -3090,7 +3090,7 @@ CVE-2019-1543`,
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivyoperator-trivy-config",
+											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.noProxy",
 										Optional: pointer.BoolPtr(true),
@@ -3150,7 +3150,7 @@ CVE-2019-1543`,
 			fakeclient := fake.NewClientBuilder().WithObjects(
 				&corev1.ConfigMap{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      "trivyoperator-trivy-config",
+						Name:      "trivy-operator-trivy-config",
 						Namespace: "trivyoperator-ns",
 					},
 					Data: tc.config,
@@ -3263,7 +3263,7 @@ CVE-2019-1543`,
 							ValueFrom: &corev1.EnvVarSource{
 								ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 									LocalObjectReference: corev1.LocalObjectReference{
-										Name: "trivyoperator-trivy-config",
+										Name: "trivy-operator-trivy-config",
 									},
 									Key:      "trivy.httpProxy",
 									Optional: pointer.BoolPtr(true),
@@ -3275,7 +3275,7 @@ CVE-2019-1543`,
 							ValueFrom: &corev1.EnvVarSource{
 								ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 									LocalObjectReference: corev1.LocalObjectReference{
-										Name: "trivyoperator-trivy-config",
+										Name: "trivy-operator-trivy-config",
 									},
 									Key:      "trivy.httpsProxy",
 									Optional: pointer.BoolPtr(true),
@@ -3287,7 +3287,7 @@ CVE-2019-1543`,
 							ValueFrom: &corev1.EnvVarSource{
 								ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 									LocalObjectReference: corev1.LocalObjectReference{
-										Name: "trivyoperator-trivy-config",
+										Name: "trivy-operator-trivy-config",
 									},
 									Key:      "trivy.noProxy",
 									Optional: pointer.BoolPtr(true),
@@ -3300,7 +3300,7 @@ CVE-2019-1543`,
 							ValueFrom: &corev1.EnvVarSource{
 								SecretKeyRef: &corev1.SecretKeySelector{
 									LocalObjectReference: corev1.LocalObjectReference{
-										Name: "trivyoperator-trivy-config",
+										Name: "trivy-operator-trivy-config",
 									},
 									Key:      "trivy.githubToken",
 									Optional: pointer.BoolPtr(true),
@@ -3348,7 +3348,7 @@ CVE-2019-1543`,
 							ValueFrom: &corev1.EnvVarSource{
 								ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 									LocalObjectReference: corev1.LocalObjectReference{
-										Name: "trivyoperator-trivy-config",
+										Name: "trivy-operator-trivy-config",
 									},
 									Key:      "trivy.severity",
 									Optional: pointer.BoolPtr(true),
@@ -3360,7 +3360,7 @@ CVE-2019-1543`,
 							ValueFrom: &corev1.EnvVarSource{
 								ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 									LocalObjectReference: corev1.LocalObjectReference{
-										Name: "trivyoperator-trivy-config",
+										Name: "trivy-operator-trivy-config",
 									},
 									Key:      "trivy.skipFiles",
 									Optional: pointer.BoolPtr(true),
@@ -3372,7 +3372,7 @@ CVE-2019-1543`,
 							ValueFrom: &corev1.EnvVarSource{
 								ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 									LocalObjectReference: corev1.LocalObjectReference{
-										Name: "trivyoperator-trivy-config",
+										Name: "trivy-operator-trivy-config",
 									},
 									Key:      "trivy.skipDirs",
 									Optional: pointer.BoolPtr(true),
@@ -3384,7 +3384,7 @@ CVE-2019-1543`,
 							ValueFrom: &corev1.EnvVarSource{
 								ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 									LocalObjectReference: corev1.LocalObjectReference{
-										Name: "trivyoperator-trivy-config",
+										Name: "trivy-operator-trivy-config",
 									},
 									Key:      "trivy.httpProxy",
 									Optional: pointer.BoolPtr(true),
@@ -3396,7 +3396,7 @@ CVE-2019-1543`,
 							ValueFrom: &corev1.EnvVarSource{
 								ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 									LocalObjectReference: corev1.LocalObjectReference{
-										Name: "trivyoperator-trivy-config",
+										Name: "trivy-operator-trivy-config",
 									},
 									Key:      "trivy.httpsProxy",
 									Optional: pointer.BoolPtr(true),
@@ -3408,7 +3408,7 @@ CVE-2019-1543`,
 							ValueFrom: &corev1.EnvVarSource{
 								ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
 									LocalObjectReference: corev1.LocalObjectReference{
-										Name: "trivyoperator-trivy-config",
+										Name: "trivy-operator-trivy-config",
 									},
 									Key:      "trivy.noProxy",
 									Optional: pointer.BoolPtr(true),
@@ -3466,7 +3466,7 @@ CVE-2019-1543`,
 			fakeclient := fake.NewClientBuilder().WithObjects(
 				&corev1.ConfigMap{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      "trivyoperator-trivy-config",
+						Name:      "trivy-operator-trivy-config",
 						Namespace: "trivyoperator-ns",
 					},
 					Data: tc.config,
@@ -3572,7 +3572,7 @@ var (
 func TestPlugin_ParseVulnerabilityReportData(t *testing.T) {
 	config := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "trivyoperator-trivy-config",
+			Name:      "trivy-operator-trivy-config",
 			Namespace: "trivyoperator-ns",
 		},
 		Data: map[string]string{

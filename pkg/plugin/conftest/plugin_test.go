@@ -224,7 +224,7 @@ deny[res] {
 			client := fake.NewClientBuilder().WithObjects(
 				&corev1.ConfigMap{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:            "trivyoperator-conftest-config",
+						Name:            "trivy-operator-conftest-config",
 						Namespace:       "trivyoperator-ns",
 						ResourceVersion: "0",
 					},
@@ -268,7 +268,7 @@ func TestPlugin_Init(t *testing.T) {
 		var cm corev1.ConfigMap
 		err = client.Get(context.Background(), types.NamespacedName{
 			Namespace: "trivyoperator-ns",
-			Name:      "trivyoperator-conftest-config",
+			Name:      "trivy-operator-conftest-config",
 		}, &cm)
 		g.Expect(err).ToNot(HaveOccurred())
 		g.Expect(cm).To(Equal(corev1.ConfigMap{
@@ -277,7 +277,7 @@ func TestPlugin_Init(t *testing.T) {
 				Kind:       "ConfigMap",
 			},
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      "trivyoperator-conftest-config",
+				Name:      "trivy-operator-conftest-config",
 				Namespace: "trivyoperator-ns",
 				Labels: map[string]string{
 					"app.kubernetes.io/managed-by": "trivyoperator",
@@ -300,7 +300,7 @@ func TestPlugin_Init(t *testing.T) {
 		client := fake.NewClientBuilder().WithObjects(
 			&corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:            "trivyoperator-conftest-config",
+					Name:            "trivy-operator-conftest-config",
 					Namespace:       "trivyoperator-ns",
 					ResourceVersion: "0",
 				},
@@ -323,7 +323,7 @@ func TestPlugin_Init(t *testing.T) {
 		var cm corev1.ConfigMap
 		err = client.Get(context.Background(), types.NamespacedName{
 			Namespace: "trivyoperator-ns",
-			Name:      "trivyoperator-conftest-config",
+			Name:      "trivy-operator-conftest-config",
 		}, &cm)
 		g.Expect(err).ToNot(HaveOccurred())
 		g.Expect(cm).To(Equal(corev1.ConfigMap{
@@ -332,7 +332,7 @@ func TestPlugin_Init(t *testing.T) {
 				Kind:       "ConfigMap",
 			},
 			ObjectMeta: metav1.ObjectMeta{
-				Name:            "trivyoperator-conftest-config",
+				Name:            "trivy-operator-conftest-config",
 				Namespace:       "trivyoperator-ns",
 				ResourceVersion: "0",
 			},
@@ -352,7 +352,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 		WithServiceAccountName("trivyoperator-sa").
 		WithClient(fake.NewClientBuilder().WithObjects(&corev1.ConfigMap{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      "trivyoperator-conftest-config",
+				Name:      "trivy-operator-conftest-config",
 				Namespace: "trivyoperator-ns",
 			},
 			Data: map[string]string{
@@ -538,7 +538,7 @@ func TestPlugin_ParseConfigAuditReportData(t *testing.T) {
 			WithServiceAccountName("trivyoperator-sa").
 			WithClient(fake.NewClientBuilder().WithObjects(&corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "trivyoperator-conftest-config",
+					Name:      "trivy-operator-conftest-config",
 					Namespace: "trivyoperator-ns",
 				},
 				Data: map[string]string{
@@ -680,7 +680,7 @@ func TestPlugin_ParseConfigAuditReportData(t *testing.T) {
 			WithServiceAccountName("trivyoperator-sa").
 			WithClient(fake.NewClientBuilder().WithObjects(&corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "trivyoperator-conftest-config",
+					Name:      "trivy-operator-conftest-config",
 					Namespace: "trivyoperator-ns",
 				},
 				Data: map[string]string{
@@ -820,7 +820,7 @@ func TestPlugin_ConfigHash(t *testing.T) {
 			WithClient(fake.NewClientBuilder().
 				WithObjects(&corev1.ConfigMap{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      "trivyoperator-conftest-config",
+						Name:      "trivy-operator-conftest-config",
 						Namespace: "trivyoperator-ns",
 					},
 					Data: data,

@@ -255,7 +255,7 @@ func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, obj client.Obje
 		moduleName := strings.TrimPrefix(module, keyPrefixPolicy)
 		moduleName = strings.TrimPrefix(moduleName, keyPrefixLibrary)
 
-		// Copy policies so even if the trivyoperator-conftest-config ConfigMap has changed
+		// Copy policies so even if the trivy-operator-conftest-config ConfigMap has changed
 		// before the scan Job is run, it won't fail with references to non-existent config key error.
 		secretData[module] = script
 

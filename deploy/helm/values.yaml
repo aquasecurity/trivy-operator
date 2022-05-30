@@ -77,7 +77,7 @@ service:
 trivyOperator:
   # vulnerabilityReportsPlugin the name of the plugin that generates vulnerability reports. Either `Trivy` or `Aqua`.
   vulnerabilityReportsPlugin: "Trivy"
-  # configAuditReportsPlugin the name of the plugin that generates config audit reports. Either `Polaris` or `Conftest`.
+  # configAuditReportsPlugin the name of the plugin that generates config audit reports. Either `Polaris`.
   configAuditReportsPlugin: "Polaris"
 
   # scanJobTolerations tolerations to be applied to the scanner pods so that they can run on nodes with matching taints
@@ -393,36 +393,6 @@ polaris:
         - kube-hunter
         rules:
         - runAsRootAllowed
-
-conftest:
-  # createConfig indicates whether to create config objects
-  createConfig: true
-
-  # imageRef the image reference
-  imageRef: docker.io/openpolicyagent/conftest:v0.30.0
-
-  # resources resource requests and limits
-  resources:
-    requests:
-      cpu: 50m
-      memory: 50M
-    limits:
-      cpu: 300m
-      memory: 300M
-  library: {}
-    # kubernetes.rego: |
-    #   << REGO >>
-    # utils.rego: |
-    #   << REGO >>
-  policy: {}
-    # access_to_host_pid:
-    #   rego: |
-    #     << REGO >>
-    #   kinds: Workload
-    # configmap_with_sensitive_data:
-    #   rego: |
-    #     << REGO >>
-    #   kinds: ConfigMap
 
 aqua:
   # imageRef Aqua scanner image reference. The tag determines the version of the scanner binary executable and it must

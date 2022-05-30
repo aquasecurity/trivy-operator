@@ -15,7 +15,6 @@ implementation of the [Polaris plugin].
 These are currently integrated configuration checkers:
 
 * [Polaris by Fairwinds Ops](./polaris.md)
-* [Conftest by Open Policy Agent](./conftest.md)
 
 ## What's Next?
 

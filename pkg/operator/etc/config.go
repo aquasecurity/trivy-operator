@@ -31,10 +31,9 @@ type Config struct {
 	ConfigAuditScannerScanOnlyCurrentRevisions   bool           `env:"OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS" envDefault:"false"`
 
 	// ConfigAuditScannerBuiltIn tells Trivy-Operator to use the built-in
-	// configuration audit scanner instead of Polaris or Conftest
-	// plugins.
+	// configuration audit scanner instead of Polaris plugins.
 	//
-	// You cannot use Polaris or Conftest and the built-in scanner at the same
+	// You cannot use Polaris and the built-in scanner at the same
 	// time. The built-in scanners is much faster and does not create Kubernetes
 	// Job objects to perform scans asynchronously. Instead, it evaluates OPA
 	// Rego policies synchronously within the reconciliation loop.

@@ -67,23 +67,10 @@ itests-trivy-operator: check-kubeconfig get-ginkgo
 	github.com/aquasecurity/trivy-operator/pkg/plugin,\
 	github.com/aquasecurity/trivy-operator/pkg/plugin/trivy,\
 	github.com/aquasecurity/trivy-operator/pkg/plugin/polaris,\
-	github.com/aquasecurity/trivy-operator/pkg/plugin/conftest,\
 	github.com/aquasecurity/trivy-operator/pkg/configauditreport,\
 	github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport,\
 	github.com/aquasecurity/trivy-operator/pkg/kubebench \
 	./itest/trivy-operator
-
-.PHONY: integration-operator-conftest
-integration-operator-conftest: check-kubeconfig get-ginkgo
-	@$(GINKGO) \
-	-coverprofile=coverage.txt \
-	-coverpkg=github.com/aquasecurity/trivy-operator/pkg/operator,\
-	github.com/aquasecurity/trivy-operator/pkg/operator/predicate,\
-	github.com/aquasecurity/trivy-operator/pkg/operator/controller,\
-	github.com/aquasecurity/trivy-operator/pkg/plugin,\
-	github.com/aquasecurity/trivy-operator/pkg/plugin/conftest,\
-	github.com/aquasecurity/trivy-operator/pkg/configauditreport \
-	./itest/trivy-operator/configauditreport/conftest
 
 .PHONY: check-kubeconfig
 check-kubeconfig:

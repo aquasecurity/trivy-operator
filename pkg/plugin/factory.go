@@ -6,7 +6,6 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/plugin/aqua"
-	"github.com/aquasecurity/trivy-operator/pkg/plugin/conftest"
 	"github.com/aquasecurity/trivy-operator/pkg/plugin/polaris"
 	"github.com/aquasecurity/trivy-operator/pkg/plugin/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -15,10 +14,9 @@ import (
 )
 
 const (
-	Trivy    trivyoperator.Scanner = "Trivy"
-	Aqua     trivyoperator.Scanner = "Aqua"
-	Polaris  trivyoperator.Scanner = "Polaris"
-	Conftest trivyoperator.Scanner = "Conftest"
+	Trivy   trivyoperator.Scanner = "Trivy"
+	Aqua    trivyoperator.Scanner = "Aqua"
+	Polaris trivyoperator.Scanner = "Polaris"
 )
 
 type Resolver struct {
@@ -89,7 +87,7 @@ func (r *Resolver) GetVulnerabilityPlugin() (vulnerabilityreport.Plugin, trivyop
 
 // GetConfigAuditPlugin is a factory method that instantiates the configauditreport.Plugin.
 //
-// Trivy-Operator supports Polaris and Conftest as configuration auditing tools.
+// Trivy-Operator supports Polaris as configuration auditing tools.
 //
 // You could add your own scanner by implementing the configauditreport.Plugin interface.
 func (r *Resolver) GetConfigAuditPlugin() (configauditreport.Plugin, trivyoperator.PluginContext, error) {
@@ -108,8 +106,6 @@ func (r *Resolver) GetConfigAuditPlugin() (configauditreport.Plugin, trivyoperat
 	switch scanner {
 	case Polaris:
 		return polaris.NewPlugin(ext.NewSystemClock()), pluginContext, nil
-	case Conftest:
-		return conftest.NewPlugin(ext.NewGoogleUUIDGenerator(), ext.NewSystemClock()), pluginContext, nil
 	}
 	return nil, nil, fmt.Errorf("unsupported configuration audit scanner plugin: %s", scanner)
 }

@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/aquasecurity/trivy-operator/itest/helper"
-	"github.com/aquasecurity/trivy-operator/pkg/plugin/conftest"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	batchv1beta1 "k8s.io/api/batch/v1beta1"
@@ -447,13 +446,6 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 				}
 				err := inputs.Create(ctx, svc)
 				Expect(err).ToNot(HaveOccurred())
-			})
-
-			It("Should create ConfigAuditReport", func() {
-				if inputs.ConfigAuditReportsPlugin != conftest.Plugin {
-					Skip("This test is only relevant for Conftest plugin")
-				}
-				Eventually(inputs.HasConfigAuditReportOwnedBy(svc), inputs.AssertTimeout).Should(BeTrue())
 			})
 
 			AfterEach(func() {

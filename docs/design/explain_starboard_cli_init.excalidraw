@@ -756,38 +756,6 @@
       "boundElementIds": null
     },
     {
-      "id": "GGSAOP8fue66LXnMqvh6Z",
-      "type": "text",
-      "x": 1673.2293090820312,
-      "y": 359.03155517578125,
-      "width": 241,
-      "height": 25,
-      "angle": 0,
-      "strokeColor": "#e67700",
-      "backgroundColor": "transparent",
-      "fillStyle": "hachure",
-      "strokeWidth": 1,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [
-        "S1S44pFS-fbSle9nXJbsf",
-        "T9o9_XZdYiQKtRrn1Ln4Z"
-      ],
-      "strokeSharpness": "sharp",
-      "seed": 1370516937,
-      "version": 388,
-      "versionNonce": 796799017,
-      "isDeleted": false,
-      "boundElementIds": null,
-      "text": "CRD: kubehunterreports",
-      "fontSize": 20,
-      "fontFamily": 1,
-      "textAlign": "left",
-      "verticalAlign": "top",
-      "baseline": 18
-    },
-    {
       "id": "WBXUF6p7Yng_ERNmoa9LU",
       "type": "rectangle",
       "x": 1309.9816284179688,

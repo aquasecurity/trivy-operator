@@ -36,10 +36,6 @@ func (c *FakeAquasecurityV1alpha1) ConfigAuditReports(namespace string) v1alpha1
 	return &FakeConfigAuditReports{c, namespace}
 }
 
-func (c *FakeAquasecurityV1alpha1) KubeHunterReports() v1alpha1.KubeHunterReportInterface {
-	return &FakeKubeHunterReports{c}
-}
-
 func (c *FakeAquasecurityV1alpha1) VulnerabilityReports(namespace string) v1alpha1.VulnerabilityReportInterface {
 	return &FakeVulnerabilityReports{c, namespace}
 }

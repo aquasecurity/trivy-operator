@@ -58,8 +58,6 @@ const (
 	KeyVulnerabilityScansInSameNamespace = "vulnerabilityReports.scanJobsInSameNamespace"
 	keyConfigAuditReportsScanner         = "configAuditReports.scanner"
 	keyKubeBenchImageRef                 = "kube-bench.imageRef"
-	keyKubeHunterImageRef                = "kube-hunter.imageRef"
-	keyKubeHunterQuick                   = "kube-hunter.quick"
 	keyScanJobTolerations                = "scanJob.tolerations"
 	keyScanJobAnnotations                = "scanJob.annotations"
 	keyScanJobPodTemplateLabels          = "scanJob.podTemplateLabels"
@@ -84,8 +82,6 @@ func GetDefaultConfig() ConfigData {
 		keyConfigAuditReportsScanner:   "Polaris",
 
 		"kube-bench.imageRef":         "docker.io/aquasec/kube-bench:v0.6.6",
-		"kube-hunter.imageRef":        "docker.io/aquasec/kube-hunter:0.6.5",
-		"kube-hunter.quick":           "false",
 		"compliance.failEntriesLimit": "10",
 	}
 }
@@ -167,21 +163,6 @@ func (c ConfigData) GetScanJobPodTemplateLabels() (labels.Set, error) {
 
 func (c ConfigData) GetKubeBenchImageRef() (string, error) {
 	return c.GetRequiredData(keyKubeBenchImageRef)
-}
-
-func (c ConfigData) GetKubeHunterImageRef() (string, error) {
-	return c.GetRequiredData(keyKubeHunterImageRef)
-}
-
-func (c ConfigData) GetKubeHunterQuick() (bool, error) {
-	val, ok := c[keyKubeHunterQuick]
-	if !ok {
-		return false, nil
-	}
-	if val != "false" && val != "true" {
-		return false, fmt.Errorf("property kube-hunter.quick must be either \"false\" or \"true\", got %q", val)
-	}
-	return val == "true", nil
 }
 
 func (c ConfigData) GetRequiredData(key string) (string, error) {

@@ -202,12 +202,7 @@ exemptions:
     rules:
     - runAsPrivileged
   - controllerNames:
-    - kube-hunter
-    rules:
-    - hostPIDSet
-  - controllerNames:
     - polaris
-    - kube-hunter
     - goldilocks
     - insights-agent-goldilocks-vpa-install
     rules:
@@ -219,7 +214,6 @@ exemptions:
     - readinessProbeMissing
   - controllerNames:
     - insights-agent-goldilocks-vpa-install
-    - kube-hunter
     rules:
     - runAsRootAllowed
 `

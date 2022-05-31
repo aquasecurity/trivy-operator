@@ -26,7 +26,6 @@
       4. [`deploy/crd/clusterconfigauditreports.crd.yaml`]
       5. [`deploy/crd/clustervulnerabilityreports.crd.yaml`]
       6. [`deploy/crd/configauditreports.crd.yaml`]
-      7. [`deploy/crd/kubehunterreports.crd.yaml`]
       8. [`deploy/crd/vulnerabilityreports.crd.yaml`]
       9. [`deploy/static/05-trivy-operator.deployment.yaml`]
       10. [`deploy/static/04-trivy-operator.policies.yaml`]
@@ -70,7 +69,6 @@
 [`deploy/crd/clusterconfigauditreports.crd.yaml`]: ./deploy/crd/clusterconfigauditreports.crd.yaml
 [`deploy/crd/clustervulnerabilityreports.crd.yaml`]: ./deploy/crd/clustervulnerabilityreports.crd.yaml
 [`deploy/crd/configauditreports.crd.yaml`]: ./deploy/crd/configauditreports.crd.yaml
-[`deploy/crd/kubehunterreports.crd.yaml`]: ./deploy/crd/kubehunterreports.crd.yaml
 [`deploy/crd/vulnerabilityreports.crd.yaml`]: ./deploy/crd/vulnerabilityreports.crd.yaml
 [`deploy/static/05-trivy-operator.deployment.yaml`]: ./deploy/static/05-trivy-operator.deployment.yaml
 [`deploy/static/04-trivy-operator.policies.yaml`]: ./deploy/static/04-trivy-operator.policies.yaml

@@ -132,6 +132,5 @@ spec:
     plural: clustercompliancereports
     kind: ClusterComplianceReport
     listKind: ClusterComplianceReportList
-    categories: [ ]
     shortNames:
       - compliance

@@ -37,6 +37,5 @@ spec:
     plural: clustercompliancedetailreports
     kind: ClusterComplianceDetailReport
     listKind: ClusterComplianceDetailReportList
-    categories: [ ]
     shortNames:
       - compliancedetail

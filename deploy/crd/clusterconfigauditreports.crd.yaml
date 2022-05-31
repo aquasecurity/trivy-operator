@@ -51,6 +51,5 @@ spec:
     plural: clusterconfigauditreports
     kind: ClusterConfigAuditReport
     listKind: ClusterConfigAuditReportList
-    categories: []
     shortNames:
       - clusterconfigaudit

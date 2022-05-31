@@ -127,6 +127,5 @@ spec:
     plural: kubehunterreports
     kind: KubeHunterReport
     listKind: KubeHunterReportList
-    categories: []
     shortNames:
       - kubehunter

@@ -1,7 +1,7 @@
 # ConfigAuditReport
 
-An instance of the ConfigAuditReport represents checks performed by configuration auditing tools, such as [Polaris]
-and [Conftest], against a Kubernetes object's configuration. For example, check that a given container image runs as
+An instance of the ConfigAuditReport represents checks performed by configuration auditing tools, such as [Polaris], 
+against a Kubernetes object's configuration. For example, check that a given container image runs as
 non-root user or that a container has resource requests and limits set. Checks might relate to Kubernetes workloads
 and other namespaced Kubernetes objects such as Services, ConfigMaps, Roles, and RoleBindings.
 
@@ -90,4 +90,3 @@ schema can be integrated with trivy-operator.
     for known configuration pitfalls.
 
 [Polaris]: ./../configuration-auditing/pluggable-scanners/polaris.md
-[Conftest]: ./../configuration-auditing/pluggable-scanners/conftest.md

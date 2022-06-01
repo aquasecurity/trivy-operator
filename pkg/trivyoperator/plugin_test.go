@@ -12,8 +12,8 @@ import (
 
 func TestGetPluginConfigMapName(t *testing.T) {
 	g := gomega.NewGomegaWithT(t)
-	name := trivyoperator.GetPluginConfigMapName("Conftest")
-	g.Expect(name).To(gomega.Equal("trivy-operator-conftest-config"))
+	name := trivyoperator.GetPluginConfigMapName("Trivy")
+	g.Expect(name).To(gomega.Equal("trivy-operator-trivy-config"))
 }
 
 func TestPluginContext_GetConfig(t *testing.T) {

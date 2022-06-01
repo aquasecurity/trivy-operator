@@ -105,9 +105,9 @@
       }
     ],
     "scanner": {
-      "name": "Conftest",
-      "vendor": "Open Policy Agent",
-      "version": "v0.28.2"
+      "name": "Trivy",
+      "vendor": "Aqua Security",
+      "version": "v0.0.1"
     },
     "summary": {
       "dangerCount": 4,

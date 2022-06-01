@@ -78,55 +78,10 @@ jobs:
           KUBECONFIG: /home/runner/.kube/config
           OPERATOR_NAMESPACE: trivy-system
           OPERATOR_TARGET_NAMESPACES: default
-  integration-operator-conftest:
-    name: Integration / Operator / Conftest
-    needs:
-      - unit-tests
-    runs-on: ubuntu-20.04
-    timeout-minutes: 15
-    steps:
-      - name: Setup Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: ${{ env.GO_VERSION }}
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-      - name: Setup Kubernetes cluster (KIND)
-        uses: engineerd/setup-kind@v0.5.0
-        with:
-          version: ${{ env.KIND_VERSION }}
-          image: ${{ env.KIND_IMAGE }}
-      - name: Test connection to Kubernetes cluster
-        run: |
-          kubectl cluster-info
-          kubectl wait --for=condition=Ready nodes --all --timeout=300s
-          kubectl describe node
-      - name: Run integration tests
-        run: |
-          kubectl apply -f deploy/crd/vulnerabilityreports.crd.yaml \
-                 -f deploy/crd/configauditreports.crd.yaml \
-                 -f deploy/crd/clusterconfigauditreports.crd.yaml \
-                 -f deploy/crd/clustercompliancereports.crd.yaml \
-                 -f deploy/crd/clustercompliancedetailreports.crd.yaml \
-                 -f deploy/crd/ciskubebenchreports.crd.yaml
-          kubectl apply -f deploy/static/01-trivy-operator.ns.yaml \
-            -f deploy/static/02-trivy-operator.rbac.yaml
-          make integration-operator-conftest
-        env:
-          KUBECONFIG: /home/runner/.kube/config
-          OPERATOR_NAMESPACE: trivy-system
-          OPERATOR_TARGET_NAMESPACES: default
   release:
     name: Release
     needs:
       - itest-trivy-operator
-      - integration-operator-conftest
     runs-on: ubuntu-20.04
     env:
       DOCKER_CLI_EXPERIMENTAL: "enabled"

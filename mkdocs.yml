@@ -34,7 +34,6 @@ nav:
       - Pluggable Scanners:
           - Overview: configuration-auditing/pluggable-scanners/index.md
           - Polaris: configuration-auditing/pluggable-scanners/polaris.md
-          - Conftest: configuration-auditing/pluggable-scanners/conftest.md
   - Integrations:
       - Octant Plugin: integrations/octant.md
       - Lens Extension: integrations/lens.md

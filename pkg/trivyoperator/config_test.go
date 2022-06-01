@@ -70,11 +70,11 @@ func TestConfigData_GetConfigAuditReportsScanner(t *testing.T) {
 			expectedScanner: "Polaris",
 		},
 		{
-			name: "Should return Conftest",
+			name: "Should return Trivy",
 			configData: trivyoperator.ConfigData{
-				"configAuditReports.scanner": "Conftest",
+				"configAuditReports.scanner": "Trivy",
 			},
-			expectedScanner: "Conftest",
+			expectedScanner: "Trivy",
 		},
 		{
 			name:          "Should return error when value is not set",
@@ -430,7 +430,7 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 				},
 				Data: map[string]string{
 					"foo":                        "bar",
-					"configAuditReports.scanner": "Conftest",
+					"configAuditReports.scanner": "Trivy",
 				},
 			},
 			&corev1.Secret{
@@ -445,10 +445,10 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 			&corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: namespace,
-					Name:      trivyoperator.GetPluginConfigMapName("Conftest"),
+					Name:      trivyoperator.GetPluginConfigMapName("Trivy"),
 				},
 				Data: map[string]string{
-					"conftest.policy.my-check.rego": "<REGO>",
+					"trivy.policy.my-check.rego": "<REGO>",
 				},
 			},
 		)
@@ -461,7 +461,7 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 		g.Expect(err).ToNot(gomega.HaveOccurred())
 		g.Expect(cm.Data).To(gomega.Equal(map[string]string{
 			"foo":                        "bar",
-			"configAuditReports.scanner": "Conftest",
+			"configAuditReports.scanner": "Trivy",
 		}))
 
 		secret, err := clientset.CoreV1().Secrets(namespace).
@@ -472,10 +472,10 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 		}))
 
 		pluginConfig, err := clientset.CoreV1().ConfigMaps(namespace).
-			Get(context.TODO(), trivyoperator.GetPluginConfigMapName("Conftest"), metav1.GetOptions{})
+			Get(context.TODO(), trivyoperator.GetPluginConfigMapName("Trivy"), metav1.GetOptions{})
 		g.Expect(err).ToNot(gomega.HaveOccurred())
 		g.Expect(pluginConfig.Data).To(gomega.Equal(map[string]string{
-			"conftest.policy.my-check.rego": "<REGO>",
+			"trivy.policy.my-check.rego": "<REGO>",
 		}))
 
 		_, err = clientset.CoreV1().ConfigMaps(namespace).

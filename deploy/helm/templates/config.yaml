@@ -120,34 +120,6 @@ data:
 {{- end }}
 {{- end }}
 {{- end }}
-{{- if eq .Values.trivyOperator.configAuditReportsPlugin "Conftest" }}
-{{- with .Values.conftest }}
-{{- if .createConfig }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: trivy-operator-conftest-config
-  labels:
-    {{- include "trivy-operator.labels" $ | nindent 4 }}
-data:
-  conftest.imageRef: {{ required ".Values.conftest.imageRef is required" .imageRef | quote }}
-  {{- with .resources }}
-  conftest.resources.requests.cpu: {{ .requests.cpu | quote }}
-  conftest.resources.requests.memory: {{ .requests.memory | quote }}
-  conftest.resources.limits.cpu: {{ .limits.cpu | quote }}
-  conftest.resources.limits.memory: {{ .limits.memory | quote }}
-  {{- end }}
-  {{- range $key, $val := .library }}
-  conftest.library.{{ $key }}: {{ $val | quote }}
-  {{- end }}
-  {{- range $key, $val := .policy }}
-  conftest.policy.{{ $key }}.rego: {{ $val.rego | quote }}
-  conftest.policy.{{ $key }}.kinds: {{ $val.kinds | quote }}
-  {{- end }}
-{{- end }}
-{{- end }}
-{{- end }}
 {{- if eq .Values.trivyOperator.configAuditReportsPlugin "Polaris" }}
 {{- with .Values.polaris }}
 {{- if .createConfig }}

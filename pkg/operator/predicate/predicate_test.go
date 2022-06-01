@@ -194,7 +194,7 @@ var _ = Describe("Predicate", func() {
 
 		Context("When object does not have desired name", func() {
 			It("Should return false", func() {
-				instance := predicate.HasName("trivyoperator-conftest-config")
+				instance := predicate.HasName("trivyoperator-trivy-config")
 				obj := &corev1.Pod{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "trivyoperator",

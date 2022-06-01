@@ -49,7 +49,6 @@ nav:
       - ConfigAuditReport: crds/configaudit-report.md
       - ClusterConfigAuditReport: crds/clusterconfigaudit-report.md
       - CISKubeBenchReport: crds/ciskubebench-report.md
-      - KubeHunterReport: crds/kubehunter-report.md
       - ClusterComplianceReport: crds/clustercompliance-report.md
       - ClusterComplianceDetailReport: crds/clustercompliancedetail-report.md
   - Compliance Reports:

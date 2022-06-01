@@ -39,7 +39,7 @@ with new plugin's configuration.
 
 !!! warning
     Currently, the operator supports [vulnerabilityreports], [configauditreports], and [ciskubebenchreports] security
-    resources. We plan to support [kubehunterreports]. We also plan to implement rescan on configurable schedule, for
+    resources. We also plan to implement rescan on configurable schedule, for
     example every 24 hours.
 
 ## What's Next?
@@ -49,7 +49,6 @@ with new plugin's configuration.
 [vulnerabilityreports]: ./../crds/vulnerability-report.md
 [configauditreports]: ./../crds/configaudit-report.md
 [ciskubebenchreports]: ./../crds/ciskubebench-report.md
-[kubehunterreports]: ./../crds/kubehunter-report.md
 [clustercompliancereports]: ./../crds/clustercompliance-report.md
 [clustercompliancedetailreports]: ./../crds/clustercompliancedetail-report.md
 

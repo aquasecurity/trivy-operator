@@ -14,6 +14,4 @@ type ClusterVulnerabilityReportExpansion interface{}
 
 type ConfigAuditReportExpansion interface{}
 
-type KubeHunterReportExpansion interface{}
-
 type VulnerabilityReportExpansion interface{}

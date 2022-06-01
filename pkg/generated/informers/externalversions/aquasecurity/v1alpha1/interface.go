@@ -20,8 +20,6 @@ type Interface interface {
 	ClusterVulnerabilityReports() ClusterVulnerabilityReportInformer
 	// ConfigAuditReports returns a ConfigAuditReportInformer.
 	ConfigAuditReports() ConfigAuditReportInformer
-	// KubeHunterReports returns a KubeHunterReportInformer.
-	KubeHunterReports() KubeHunterReportInformer
 	// VulnerabilityReports returns a VulnerabilityReportInformer.
 	VulnerabilityReports() VulnerabilityReportInformer
 }
@@ -65,11 +63,6 @@ func (v *version) ClusterVulnerabilityReports() ClusterVulnerabilityReportInform
 // ConfigAuditReports returns a ConfigAuditReportInformer.
 func (v *version) ConfigAuditReports() ConfigAuditReportInformer {
 	return &configAuditReportInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
-}
-
-// KubeHunterReports returns a KubeHunterReportInformer.
-func (v *version) KubeHunterReports() KubeHunterReportInformer {
-	return &kubeHunterReportInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
 }
 
 // VulnerabilityReports returns a VulnerabilityReportInformer.

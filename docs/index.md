@@ -52,4 +52,3 @@ Trivy-Operator can be used:
 [GitHub Discussions]: https://github.com/aquasecurity/trivy-operator/discussions/
 [Slack]: https://slack.aquasec.com/
 [kubecon-video]: https://www.youtube.com/watch?v=cgcwIY1HVI0
-[kube-hunter]: https://github.com/aquasecurity/kube-hunter

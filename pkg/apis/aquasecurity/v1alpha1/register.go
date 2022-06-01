@@ -36,8 +36,6 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&ClusterVulnerabilityReportList{},
 		&CISKubeBenchReport{},
 		&CISKubeBenchReportList{},
-		&KubeHunterReport{},
-		&KubeHunterReportList{},
 		&ConfigAuditReport{},
 		&ConfigAuditReportList{},
 		&ClusterConfigAuditReport{},

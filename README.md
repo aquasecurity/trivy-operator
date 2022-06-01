@@ -80,7 +80,7 @@ Join the community, and talk to us about any matter in [GitHub Discussions] or [
 [license-img]: https://img.shields.io/github/license/aquasecurity/trivy-operator.svg
 [license]: https://github.com/aquasecurity/trivy-operator/blob/main/LICENSE
 [github-all-releases-img]: https://img.shields.io/github/downloads/aquasecurity/trivy-operator/total?logo=github
-[docker-pulls-trivy-operator]: https://img.shields.io/docker/pulls/aquasec/trivy-operator?logo=docker&label=docker%20pulls%20%2F%20trivy-operator
+[docker-pulls-trivy-operator]: https://img.shields.io/docker/pulls/aquasec/trivy-operator?logo=docker&label=docker%20pulls%20%2F%20trivy%20operator
 [trivy-operator: The Kubernetes-Native Toolkit for Unifying Security]: https://blog.aquasec.com/trivy-operator-kubernetes-tools
 [Contributing]: CONTRIBUTING.md
 [GitHub Discussions]: https://github.com/aquasecurity/trivy-operator/discussions

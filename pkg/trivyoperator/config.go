@@ -79,7 +79,7 @@ type ConfigManager interface {
 func GetDefaultConfig() ConfigData {
 	return map[string]string{
 		keyVulnerabilityReportsScanner: "Trivy",
-		keyConfigAuditReportsScanner:   "Polaris",
+		keyConfigAuditReportsScanner:   "Trivy",
 
 		"kube-bench.imageRef":         "docker.io/aquasec/kube-bench:v0.6.6",
 		"compliance.failEntriesLimit": "10",
@@ -304,7 +304,7 @@ func (c *configManager) Delete(ctx context.Context) error {
 	if err != nil && !apierrors.IsNotFound(err) {
 		return err
 	}
-	err = c.client.CoreV1().ConfigMaps(c.namespace).Delete(ctx, GetPluginConfigMapName("Polaris"), metav1.DeleteOptions{})
+	err = c.client.CoreV1().ConfigMaps(c.namespace).Delete(ctx, GetPluginConfigMapName("Trivy"), metav1.DeleteOptions{})
 	if err != nil && !apierrors.IsNotFound(err) {
 		return err
 	}

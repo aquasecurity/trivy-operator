@@ -182,6 +182,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			WithServiceAccountName(operatorConfig.ServiceAccount).
 			WithConfig(trivyOperatorConfig).
 			WithClient(mgr.GetClient()).
+			// TODO (josedonizetti): what should be returned here now?
 			GetConfigAuditPlugin()
 		if err != nil {
 			return err

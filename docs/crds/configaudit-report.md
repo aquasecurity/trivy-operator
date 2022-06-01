@@ -1,6 +1,6 @@
 # ConfigAuditReport
 
-An instance of the ConfigAuditReport represents checks performed by configuration auditing tools, such as [Polaris], 
+An instance of the ConfigAuditReport represents checks performed by configuration auditing tools, such as [Trivy], 
 against a Kubernetes object's configuration. For example, check that a given container image runs as
 non-root user or that a container has resource requests and limits set. Checks might relate to Kubernetes workloads
 and other namespaced Kubernetes objects such as Services, ConfigMaps, Roles, and RoleBindings.
@@ -34,9 +34,9 @@ metadata:
 report:
   updateTimestamp: '2021-05-20T12:38:10Z'
   scanner:
-    name: Polaris
-    vendor: Fairwinds Ops
-    version: '4.2'
+    name: Trivy 
+    vendor: Aqua Security
+    version: '0.0.3'
   summary:
     criticalCount: 2
     highCount: 0
@@ -88,5 +88,3 @@ schema can be integrated with trivy-operator.
     The challenge with onboarding third party configuration checkers is that they tend to have different interfaces
     to perform scans and vary in output formats for a relatively common goal, which is inspecting deployment descriptors
     for known configuration pitfalls.
-
-[Polaris]: ./../configuration-auditing/pluggable-scanners/polaris.md

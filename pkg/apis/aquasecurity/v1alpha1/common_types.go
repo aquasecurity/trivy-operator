@@ -26,19 +26,11 @@ const (
 // StringToSeverity returns the enum constant of Severity with the specified
 // name. The name must match exactly an identifier used to declare an enum
 // constant. (Extraneous whitespace characters are not permitted.)
-//
-// Note that this method maps severity name `DANGER` to SeverityCritical
-// and `WARNING` to SeverityLow. This logic is in place to support Polaris
-// plugin, which has its own, proprietary severity levels.
 func StringToSeverity(name string) (Severity, error) {
 	s := strings.ToUpper(name)
 	switch s {
 	case "CRITICAL", "HIGH", "MEDIUM", "LOW", "NONE", "UNKNOWN":
 		return Severity(s), nil
-	case "DANGER":
-		return SeverityCritical, nil
-	case "WARNING":
-		return SeverityLow, nil
 	default:
 		return "", fmt.Errorf("unrecognized name literal: %s", name)
 	}

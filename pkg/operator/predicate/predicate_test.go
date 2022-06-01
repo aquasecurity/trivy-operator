@@ -178,10 +178,10 @@ var _ = Describe("Predicate", func() {
 	Describe("When checking a HasName predicate", func() {
 		Context("When object has desired name", func() {
 			It("Should return true", func() {
-				instance := predicate.HasName("trivyoperator-polaris-config")
+				instance := predicate.HasName("trivyoperator-trivy-config")
 				obj := &corev1.Pod{
 					ObjectMeta: metav1.ObjectMeta{
-						Name: "trivyoperator-polaris-config",
+						Name: "trivyoperator-trivy-config",
 					},
 				}
 

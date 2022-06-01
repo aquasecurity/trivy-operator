@@ -6,7 +6,6 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/plugin/aqua"
-	"github.com/aquasecurity/trivy-operator/pkg/plugin/polaris"
 	"github.com/aquasecurity/trivy-operator/pkg/plugin/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
@@ -14,9 +13,8 @@ import (
 )
 
 const (
-	Trivy   trivyoperator.Scanner = "Trivy"
-	Aqua    trivyoperator.Scanner = "Aqua"
-	Polaris trivyoperator.Scanner = "Polaris"
+	Trivy trivyoperator.Scanner = "Trivy"
+	Aqua  trivyoperator.Scanner = "Aqua"
 )
 
 type Resolver struct {
@@ -87,25 +85,23 @@ func (r *Resolver) GetVulnerabilityPlugin() (vulnerabilityreport.Plugin, trivyop
 
 // GetConfigAuditPlugin is a factory method that instantiates the configauditreport.Plugin.
 //
-// Trivy-Operator supports Polaris as configuration auditing tools.
+// Trivy-Operator supports Trivy as configuration auditing tools.
 //
 // You could add your own scanner by implementing the configauditreport.Plugin interface.
 func (r *Resolver) GetConfigAuditPlugin() (configauditreport.Plugin, trivyoperator.PluginContext, error) {
-	scanner, err := r.config.GetConfigAuditReportsScanner()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	pluginContext := trivyoperator.NewPluginContext().
-		WithName(string(scanner)).
-		WithNamespace(r.namespace).
-		WithServiceAccountName(r.serviceAccountName).
-		WithClient(r.client).
-		Get()
-
-	switch scanner {
-	case Polaris:
-		return polaris.NewPlugin(ext.NewSystemClock()), pluginContext, nil
-	}
-	return nil, nil, fmt.Errorf("unsupported configuration audit scanner plugin: %s", scanner)
+	//	scanner, err := r.config.GetConfigAuditReportsScanner()
+	//	if err != nil {
+	//		return nil, nil, err
+	//	}
+	//
+	//	pluginContext := trivyoperator.NewPluginContext().
+	//		WithName(string(scanner)).
+	//		WithNamespace(r.namespace).
+	//		WithServiceAccountName(r.serviceAccountName).
+	//		WithClient(r.client).
+	//		Get()
+	//
+	// TODO(josedonizetti): there is no plugin to be returned
+	//return nil, nil, fmt.Errorf("unsupported configuration audit scanner plugin: %s", scanner)
+	return nil, nil, nil
 }

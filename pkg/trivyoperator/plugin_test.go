@@ -25,7 +25,7 @@ func TestPluginContext_GetConfig(t *testing.T) {
 			WithScheme(trivyoperator.NewScheme()).
 			WithObjects(&corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "trivy-operator-polaris-config",
+					Name:      "trivy-operator-trivy-config",
 					Namespace: "trivyoperator-ns",
 				},
 				Data: map[string]string{
@@ -35,7 +35,7 @@ func TestPluginContext_GetConfig(t *testing.T) {
 			Build()
 
 		pluginContext := trivyoperator.NewPluginContext().
-			WithName("polaris").
+			WithName("trivy").
 			WithNamespace("trivyoperator-ns").
 			WithClient(client).
 			Get()
@@ -58,7 +58,7 @@ func TestPluginContext_GetConfig(t *testing.T) {
 			WithScheme(trivyoperator.NewScheme()).
 			WithObjects(&corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "trivy-operator-polaris-config",
+					Name:      "trivy-operator-trivy-config",
 					Namespace: "trivyoperator-ns",
 				},
 				Data: map[string]string{
@@ -66,7 +66,7 @@ func TestPluginContext_GetConfig(t *testing.T) {
 				},
 			}, &corev1.Secret{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "trivy-operator-polaris-config",
+					Name:      "trivy-operator-trivy-config",
 					Namespace: "trivyoperator-ns",
 				},
 				Data: map[string][]byte{
@@ -76,7 +76,7 @@ func TestPluginContext_GetConfig(t *testing.T) {
 			Build()
 
 		pluginContext := trivyoperator.NewPluginContext().
-			WithName("polaris").
+			WithName("trivy").
 			WithNamespace("trivyoperator-ns").
 			WithClient(client).
 			Get()

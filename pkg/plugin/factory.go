@@ -3,7 +3,6 @@ package plugin
 import (
 	"fmt"
 
-	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/plugin/aqua"
 	"github.com/aquasecurity/trivy-operator/pkg/plugin/trivy"
@@ -81,27 +80,4 @@ func (r *Resolver) GetVulnerabilityPlugin() (vulnerabilityreport.Plugin, trivyop
 		return aqua.NewPlugin(ext.NewGoogleUUIDGenerator(), r.buildInfo), pluginContext, nil
 	}
 	return nil, nil, fmt.Errorf("unsupported vulnerability scanner plugin: %s", scanner)
-}
-
-// GetConfigAuditPlugin is a factory method that instantiates the configauditreport.Plugin.
-//
-// Trivy-Operator supports Trivy as configuration auditing tools.
-//
-// You could add your own scanner by implementing the configauditreport.Plugin interface.
-func (r *Resolver) GetConfigAuditPlugin() (configauditreport.Plugin, trivyoperator.PluginContext, error) {
-	//	scanner, err := r.config.GetConfigAuditReportsScanner()
-	//	if err != nil {
-	//		return nil, nil, err
-	//	}
-	//
-	//	pluginContext := trivyoperator.NewPluginContext().
-	//		WithName(string(scanner)).
-	//		WithNamespace(r.namespace).
-	//		WithServiceAccountName(r.serviceAccountName).
-	//		WithClient(r.client).
-	//		Get()
-	//
-	// TODO(josedonizetti): there is no plugin to be returned
-	//return nil, nil, fmt.Errorf("unsupported configuration audit scanner plugin: %s", scanner)
-	return nil, nil, nil
 }

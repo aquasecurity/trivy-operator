@@ -8,8 +8,6 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
-	// CISKubeBenchReports returns a CISKubeBenchReportInformer.
-	CISKubeBenchReports() CISKubeBenchReportInformer
 	// ClusterComplianceDetailReports returns a ClusterComplianceDetailReportInformer.
 	ClusterComplianceDetailReports() ClusterComplianceDetailReportInformer
 	// ClusterComplianceReports returns a ClusterComplianceReportInformer.
@@ -33,11 +31,6 @@ type version struct {
 // New returns a new Interface.
 func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakListOptions internalinterfaces.TweakListOptionsFunc) Interface {
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
-}
-
-// CISKubeBenchReports returns a CISKubeBenchReportInformer.
-func (v *version) CISKubeBenchReports() CISKubeBenchReportInformer {
-	return &cISKubeBenchReportInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
 }
 
 // ClusterComplianceDetailReports returns a ClusterComplianceDetailReportInformer.

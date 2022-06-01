@@ -1,32 +1,4 @@
 {
-  "1.1": [
-    {
-      "ObjectType": "Node",
-      "ID": "1.1",
-      "Remediation": "aaa",
-      "Details": [
-        {
-          "Name": "",
-          "Namespace": "",
-          "Status": "PASS"
-        }
-      ]
-    }
-  ],
-  "2.2": [
-    {
-      "ObjectType": "Node",
-      "ID": "2.2",
-      "Remediation": "bbb",
-      "Details": [
-        {
-          "Name": "",
-          "Namespace": "",
-          "Status": "FAIL"
-        }
-      ]
-    }
-  ],
   "KSV037": [
     {
       "ObjectType": "Pod",

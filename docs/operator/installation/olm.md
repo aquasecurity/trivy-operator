@@ -108,7 +108,6 @@ You have to manually delete custom resource definitions created by the OLM opera
     kubectl delete crd vulnerabilityreports.aquasecurity.github.io
     kubectl delete crd configauditreports.aquasecurity.github.io
     kubectl delete crd clusterconfigauditreports.aquasecurity.github.io
-    kubectl delete crd ciskubebenchreports.aquasecurity.github.io
     kubectl delete crd clustercompliancereports.aquasecurity.github.io
     kubectl delete crd clustercompliancedetailreports.aquasecurity.github.io
     ```

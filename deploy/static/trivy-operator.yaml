@@ -357,56 +357,6 @@ spec:
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: ciskubebenchreports.aquasecurity.github.io
-  labels:
-    app.kubernetes.io/managed-by: trivy-operator
-    app.kubernetes.io/version: "0.0.5"
-spec:
-  group: aquasecurity.github.io
-  versions:
-    - name: v1alpha1
-      served: true
-      storage: true
-      additionalPrinterColumns:
-        - jsonPath: .report.scanner.name
-          type: string
-          name: Scanner
-        - jsonPath: .metadata.creationTimestamp
-          type: date
-          name: Age
-        - jsonPath: .report.summary.failCount
-          type: integer
-          name: Fail
-          priority: 1
-        - jsonPath: .report.summary.warnCount
-          type: integer
-          name: Warn
-          priority: 1
-        - jsonPath: .report.summary.infoCount
-          type: integer
-          name: Info
-          priority: 1
-        - jsonPath: .report.summary.passCount
-          type: integer
-          name: Pass
-          priority: 1
-      schema:
-        openAPIV3Schema:
-          x-kubernetes-preserve-unknown-fields: true
-          type: "object"
-  scope: Cluster
-  names:
-    singular: ciskubebenchreport
-    plural: ciskubebenchreports
-    kind: CISKubeBenchReport
-    listKind: CISKubeBenchReportList
-    categories: []
-    shortNames:
-      - kubebench
----
-apiVersion: apiextensions.k8s.io/v1
-kind: CustomResourceDefinition
-metadata:
   name: clustercompliancereports.aquasecurity.github.io
   labels:
     app.kubernetes.io/managed-by: trivy-operator
@@ -498,8 +448,8 @@ spec:
                         properties:
                           scanner:
                             type: string
-                            pattern: '^config-audit$|^kube-bench$'
-                            description: 'scanner define the name of the scanner which produce data, currently only config-audit and kube-bench are supported'
+                            pattern: 'config-audit'
+                            description: 'scanner define the name of the scanner which produce data, currently only config-audit is supported'
                           checks:
                             type: array
                             items:
@@ -728,7 +678,6 @@ rules:
       - vulnerabilityreports
       - configauditreports
       - clusterconfigauditreports
-      - ciskubebenchreports
       - clustercompliancereports
       - clustercompliancedetailreports
     verbs:
@@ -806,7 +755,6 @@ metadata:
 data:
   vulnerabilityReports.scanner: "Trivy"
   configAuditReports.scanner: "Trivy"
-  kube-bench.imageRef: "docker.io/aquasec/kube-bench:v0.6.6"
   compliance.failEntriesLimit: "10"
 ---
 apiVersion: v1

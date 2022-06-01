@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"reflect"
+
+	"github.com/stretchr/testify/assert"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -22,7 +23,6 @@ func TestGetObjListByName(t *testing.T) {
 		scannerName string
 		want        string
 	}{
-		{name: "kube bench scanner name", scannerName: KubeBench, want: "*v1alpha1.CISKubeBenchReportList"},
 		{name: "conf audit scanner name", scannerName: ConfigAudit, want: "*v1alpha1.ConfigAuditReportList"},
 		{name: "no scanner name", scannerName: "", want: ""},
 	}
@@ -43,7 +43,6 @@ func TestByScanner(t *testing.T) {
 		scannerName string
 		want        string
 	}{
-		{name: "kube bench scanner name", scannerName: KubeBench, want: "*compliance.kubeBench"},
 		{name: "conf audit scanner name", scannerName: ConfigAudit, want: "*compliance.configAudit"},
 	}
 	for _, tt := range tests {
@@ -91,11 +90,6 @@ func TestMapComplianceScannerToResource(t *testing.T) {
 				for key, val := range tt.want {
 					if scanner, ok := mapData[key]; ok {
 						for kScanner, kVal := range scanner {
-							if cis, ok := kVal.(*v1alpha1.CISKubeBenchReportList); ok {
-								if len(cis.Items) == val[kScanner] {
-									match = true
-								}
-							}
 							if cis, ok := kVal.(*v1alpha1.ConfigAuditReportList); ok {
 								if len(cis.Items) == val[kScanner] {
 									match = true
@@ -115,17 +109,12 @@ func GetClient(t *testing.T, filePath ...string) client.Client {
 		return fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithLists().Build()
 	}
 	if len(filePath) == 2 {
-		var cisBenchList v1alpha1.CISKubeBenchReportList
-		err := loadResource(filePath[0], &cisBenchList)
-		if err != nil {
-			t.Error(err)
-		}
 		var confAuditList v1alpha1.ConfigAuditReportList
-		err = loadResource(filePath[1], &confAuditList)
+		err := loadResource(filePath[1], &confAuditList)
 		if err != nil {
 			panic(err)
 		}
-		return fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithLists(&cisBenchList, &confAuditList).Build()
+		return fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithLists(&confAuditList).Build()
 	}
 	t.Error(fmt.Errorf("wrong num of file paths"))
 	return nil
@@ -140,9 +129,7 @@ func TestMapReportDataToMap(t *testing.T) {
 		wantResult map[string]*ScannerCheckResult
 	}{
 		{name: "map config audit report", objectType: "Pod", reportList: getConfAudit([]string{"KSV037", "KSV038"}, []bool{true, false}, []string{"aaa", "bbb"}), wantResult: getWantResults("./testdata/fixture/config_audit_check_result.json"), mapfunc: configAudit{}.mapReportData},
-		{name: "map cis benchmark report", objectType: "Node", reportList: getCisInstance([]string{"1.1", "2.2"}, []string{"PASS", "FAIL"}, []string{"aaa", "bbb"}), wantResult: getWantResults("./testdata/fixture/cis_bench_check_result.json"), mapfunc: kubeBench{}.mapReportData},
 		{name: "map empty config report", objectType: "Pod", reportList: &v1alpha1.ConfigAuditReportList{}, wantResult: map[string]*ScannerCheckResult{}, mapfunc: configAudit{}.mapReportData},
-		{name: "map empty cis report ", objectType: "Node", reportList: &v1alpha1.CISKubeBenchReportList{}, wantResult: map[string]*ScannerCheckResult{}, mapfunc: kubeBench{}.mapReportData},
 	}
 
 	for _, tt := range tests {
@@ -184,14 +171,4 @@ func getConfAudit(testIds []string, testStatus []bool, remediation []string) *v1
 		ID: testIds[0], Remediation: remediation[0], Success: testStatus[0]}, {
 		ID: testIds[1], Remediation: remediation[1], Success: testStatus[1],
 	}}}}}}
-}
-
-func getCisInstance(testIds []string, testStatus []string, remediation []string) *v1alpha1.CISKubeBenchReportList {
-	return &v1alpha1.CISKubeBenchReportList{
-		Items: []v1alpha1.CISKubeBenchReport{{Report: v1alpha1.CISKubeBenchReportData{Sections: []v1alpha1.CISKubeBenchSection{
-			{Tests: []v1alpha1.CISKubeBenchTests{
-				{Results: []v1alpha1.CISKubeBenchResult{
-					{TestNumber: testIds[0], Status: testStatus[0], Remediation: remediation[0]},
-					{TestNumber: testIds[1], Status: testStatus[1], Remediation: remediation[1]}}}},
-			}}}}}}
 }

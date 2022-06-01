@@ -3,6 +3,7 @@ package compliance
 import (
 	"context"
 	"fmt"
+
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/emirpasic/gods/sets/hashset"
@@ -20,16 +21,11 @@ type Mapper interface {
 	mapReportData(objType string, objList client.ObjectList) map[string]*ScannerCheckResult
 }
 
-type kubeBench struct {
-}
-
 type configAudit struct {
 }
 
 func byScanner(scanner string) (Mapper, error) {
 	switch scanner {
-	case KubeBench:
-		return &kubeBench{}, nil
 	case ConfigAudit:
 		return &configAudit{}, nil
 	}
@@ -41,30 +37,6 @@ type CheckDetails struct {
 	ID          string
 	Status      string
 	Remediation string
-}
-
-func (kb kubeBench) mapReportData(objType string, objList client.ObjectList) map[string]*ScannerCheckResult {
-	scannerCheckResultMap := make(map[string]*ScannerCheckResult, 0)
-	cb, ok := objList.(*v1alpha1.CISKubeBenchReportList)
-	if !ok || len(cb.Items) == 0 {
-		return scannerCheckResultMap
-	}
-	for _, item := range cb.Items {
-		name := item.GetName()
-		nameSpace := item.Namespace
-		for _, section := range item.Report.Sections {
-			for _, check := range section.Tests {
-				for _, result := range check.Results {
-					if _, ok := scannerCheckResultMap[result.TestNumber]; !ok {
-						scannerCheckResultMap[result.TestNumber] = &ScannerCheckResult{ID: result.TestNumber, Remediation: result.Remediation, ObjectType: objType}
-						scannerCheckResultMap[result.TestNumber].Details = make([]ResultDetails, 0)
-					}
-					scannerCheckResultMap[result.TestNumber].Details = append(scannerCheckResultMap[result.TestNumber].Details, ResultDetails{Name: name, Namespace: nameSpace, Status: v1alpha1.ControlStatus(result.Status)})
-				}
-			}
-		}
-	}
-	return scannerCheckResultMap
 }
 
 func (ac configAudit) mapReportData(objType string, objList client.ObjectList) map[string]*ScannerCheckResult {
@@ -122,8 +94,6 @@ func mapComplianceScannerToResource(cli client.Client, ctx context.Context, reso
 
 func getObjListByName(scannerName string) client.ObjectList {
 	switch scannerName {
-	case KubeBench:
-		return &v1alpha1.CISKubeBenchReportList{}
 	case ConfigAudit:
 		return &v1alpha1.ConfigAuditReportList{}
 	default:

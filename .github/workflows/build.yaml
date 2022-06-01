@@ -127,8 +127,7 @@ jobs:
             -f deploy/crd/configauditreports.crd.yaml \
             -f deploy/crd/clusterconfigauditreports.crd.yaml \
             -f deploy/crd/clustercompliancereports.crd.yaml \
-            -f deploy/crd/clustercompliancedetailreports.crd.yaml \
-            -f deploy/crd/ciskubebenchreports.crd.yaml
+            -f deploy/crd/clustercompliancedetailreports.crd.yaml
           kubectl apply -f deploy/static/01-trivy-operator.ns.yaml \
             -f deploy/static/02-trivy-operator.rbac.yaml
           kubectl apply -f deploy/static/03-trivy-operator.config.yaml \

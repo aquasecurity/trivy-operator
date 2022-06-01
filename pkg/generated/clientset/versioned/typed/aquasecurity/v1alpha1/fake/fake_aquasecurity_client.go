@@ -12,10 +12,6 @@ type FakeAquasecurityV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeAquasecurityV1alpha1) CISKubeBenchReports() v1alpha1.CISKubeBenchReportInterface {
-	return &FakeCISKubeBenchReports{c}
-}
-
 func (c *FakeAquasecurityV1alpha1) ClusterComplianceDetailReports(namespace string) v1alpha1.ClusterComplianceDetailReportInterface {
 	return &FakeClusterComplianceDetailReports{c, namespace}
 }

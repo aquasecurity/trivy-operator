@@ -282,40 +282,6 @@ func TestConfigData_GetComplianceFailEntriesLimit(t *testing.T) {
 	}
 }
 
-func TestConfigData_GetKubeBenchImageRef(t *testing.T) {
-	testCases := []struct {
-		name             string
-		configData       trivyoperator.ConfigData
-		expectedError    string
-		expectedImageRef string
-	}{
-		{
-			name:          "Should return error",
-			configData:    trivyoperator.ConfigData{},
-			expectedError: "property kube-bench.imageRef not set",
-		},
-		{
-			name: "Should return image reference from config data",
-			configData: trivyoperator.ConfigData{
-				"kube-bench.imageRef": "gcr.io/aquasecurity/kube-bench:0.4.0",
-			},
-			expectedImageRef: "gcr.io/aquasecurity/kube-bench:0.4.0",
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			imageRef, err := tc.configData.GetKubeBenchImageRef()
-			if tc.expectedError != "" {
-				require.EqualError(t, err, tc.expectedError)
-			} else {
-				require.NoError(t, err)
-				assert.Equal(t, tc.expectedImageRef, imageRef)
-			}
-		})
-	}
-}
-
 func TestGetVersionFromImageRef(t *testing.T) {
 	testCases := []struct {
 		imageRef        string

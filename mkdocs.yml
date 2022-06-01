@@ -43,7 +43,6 @@ nav:
       - ClusterVulnerabilityReport: crds/clustervulnerability-report.md
       - ConfigAuditReport: crds/configaudit-report.md
       - ClusterConfigAuditReport: crds/clusterconfigaudit-report.md
-      - CISKubeBenchReport: crds/ciskubebench-report.md
       - ClusterComplianceReport: crds/clustercompliance-report.md
       - ClusterComplianceDetailReport: crds/clustercompliancedetail-report.md
   - Compliance Reports:

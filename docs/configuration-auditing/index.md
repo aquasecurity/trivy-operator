@@ -11,9 +11,8 @@ Operator continuously checks images, workloads, and Kubernetes infrastructure co
 security standards and generates detailed assessment reports, which are then stored in the default Kubernetes database.
 
 Kubernetes applications and other core configuration objects, such as Ingress, NetworkPolicy, ResourceQuota, RBAC
-resources, are evaluated against [Built-in Policies]. Beyond that, cluster nodes are constantly assessed against the CIS
-Kubernetes Benchmarks with the kube-bench [Infrastructure Scanner]. The results of all these scans are stored as
-[ConfigAuditReport], [ClusterConfigAuditReport], and [CISKubeBenchReport] resources, which could be further aggregated
+resources, are evaluated against [Built-in Policies]. The results of all these scans are stored as
+[ConfigAuditReport], and [ClusterConfigAuditReport] resources, which could be further aggregated
 into a [ClusterComplianceReport] such as [NSA, CISA Kubernetes Hardening Guidance].
 
 Additionally, application and infrastructure owners can integrate these reports into incident response workflows for
@@ -23,6 +22,5 @@ active remediation.
 [Infrastructure Scanner]: ./infrastructure-scanners/index.md
 [ConfigAuditReport]: ./../crds/configaudit-report.md
 [ClusterConfigAuditReport]: ./../crds/clusterconfigaudit-report.md
-[CISKubeBenchReport]: ./../crds/ciskubebench-report.md
 [ClusterComplianceReport]: ./../crds/clustercompliance-report.md
 [NSA, CISA Kubernetes Hardening Guidance]: ./../compliance/nsa-1.0.md

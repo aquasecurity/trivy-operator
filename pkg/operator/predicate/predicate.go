@@ -118,13 +118,6 @@ var IsConfigAuditReportScan = predicate.NewPredicateFuncs(func(obj client.Object
 	return false
 })
 
-var IsKubeBenchReportScan = predicate.NewPredicateFuncs(func(obj client.Object) bool {
-	if _, ok := obj.GetLabels()[trivyoperator.LabelKubeBenchReportScanner]; ok {
-		return true
-	}
-	return false
-})
-
 var IsLinuxNode = predicate.NewPredicateFuncs(func(obj client.Object) bool {
 	if os, exists := obj.GetLabels()[corev1.LabelOSStable]; exists && os == "linux" {
 		return true

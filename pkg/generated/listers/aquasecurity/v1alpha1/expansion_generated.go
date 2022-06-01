@@ -2,10 +2,6 @@
 
 package v1alpha1
 
-// CISKubeBenchReportListerExpansion allows custom methods to be added to
-// CISKubeBenchReportLister.
-type CISKubeBenchReportListerExpansion interface{}
-
 // ClusterComplianceDetailReportListerExpansion allows custom methods to be added to
 // ClusterComplianceDetailReportLister.
 type ClusterComplianceDetailReportListerExpansion interface{}

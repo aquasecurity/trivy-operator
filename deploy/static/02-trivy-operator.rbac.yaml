@@ -134,7 +134,6 @@ rules:
       - vulnerabilityreports
       - configauditreports
       - clusterconfigauditreports
-      - ciskubebenchreports
       - clustercompliancereports
       - clustercompliancedetailreports
     verbs:

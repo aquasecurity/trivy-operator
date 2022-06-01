@@ -10,10 +10,6 @@ Inspect created ConfigAuditReports by:
 
     kubectl get configauditreports --all-namespaces -o wide
 
-Inspect created CISKubeBenchReports by:
-
-    kubectl get ciskubebenchreports -o wide
-
 Inspect the work log of trivy-operator by:
 
     kubectl logs -n {{ .Release.Namespace }} deployment/{{ include "trivy-operator.fullname" . }}

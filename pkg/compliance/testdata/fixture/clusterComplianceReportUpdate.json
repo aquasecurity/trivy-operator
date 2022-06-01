@@ -487,8 +487,8 @@
   "status": {
     "updateTimestamp": "2022-03-09T08:52:44Z",
     "summary": {
-      "passCount": 3,
-      "failCount": 5
+      "passCount": 2,
+      "failCount": 3
     },
     "controlCheck": [
       {
@@ -543,7 +543,7 @@
         "id": "3.0",
         "name": "Use CNI plugin that supports NetworkPolicy API",
         "description": "Control check whether check cni plugin installed\t",
-        "passTotal": 1,
+        "passTotal": 0,
         "failTotal": 0,
         "severity": "CRITICAL"
       },
@@ -672,7 +672,7 @@
         "name": "Ensure kube config file permission",
         "description": "Control check whether kube config file permissions",
         "passTotal": 0,
-        "failTotal": 2,
+        "failTotal": 0,
         "severity": "CRITICAL"
       },
       {

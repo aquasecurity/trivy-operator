@@ -23,7 +23,6 @@ nav:
   - Vulnerability Scanning:
       - Overview: vulnerability-scanning/index.md
       - Trivy Scanner: vulnerability-scanning/trivy.md
-      - Aqua Enterprise Scanner: vulnerability-scanning/aqua-enterprise.md
       - Private Registries: vulnerability-scanning/private-registries.md
       - Managed Registries: vulnerability-scanning/managed-registries.md
   - Configuration Auditing:

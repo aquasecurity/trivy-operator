@@ -38,8 +38,7 @@ configure it to watch the `default` namespaces:
    ```
 4. (Optional) Configure Trivy-Operator by creating the `trivy-operator` ConfigMap and the `trivy-operator` secret in
    the `trivy-system` namespace. For example, you can use Trivy
-   in [ClientServer](./../../vulnerability-scanning/trivy.md#clientserver) mode or
-   [Aqua Enterprise](./../../vulnerability-scanning/aqua-enterprise.md) as an active vulnerability scanner.
+   in [ClientServer](./../../vulnerability-scanning/trivy.md#clientserver) mode 
    If you skip this step, the operator will ensure default [Settings](./../../settings.md) on startup:
    ```
    kubectl apply -f https://raw.githubusercontent.com/aquasecurity/trivy-operator/{{ git.tag }}/deploy/static/03-trivy-operator.config.yaml

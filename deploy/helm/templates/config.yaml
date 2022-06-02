@@ -120,29 +120,6 @@ data:
 {{- end }}
 {{- end }}
 {{- end }}
-{{- if eq .Values.trivyOperator.configAuditReportsPlugin "Polaris" }}
-{{- with .Values.polaris }}
-{{- if .createConfig }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: trivy-operator-polaris-config
-  labels:
-    {{- include "trivy-operator.labels" $ | nindent 4 }}
-data:
-  polaris.imageRef: {{ required ".Values.polaris.imageRef is required" .imageRef | quote }}
-  {{- with .resources }}
-  polaris.resources.requests.cpu: {{ .requests.cpu | quote }}
-  polaris.resources.requests.memory: {{ .requests.memory | quote }}
-  polaris.resources.limits.cpu: {{ .limits.cpu | quote }}
-  polaris.resources.limits.memory: {{ .limits.memory | quote }}
-  {{- end }}
-  polaris.config.yaml: |
-  {{- toYaml .config | nindent 4 }}
-{{- end }}
-{{- end }}
-{{- end }}
 {{- if eq .Values.trivyOperator.vulnerabilityReportsPlugin "Aqua" }}
 ---
 apiVersion: v1

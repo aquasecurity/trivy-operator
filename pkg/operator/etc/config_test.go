@@ -1,24 +1,12 @@
 package etc_test
 
 import (
-	"os"
 	"testing"
 
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-func TestGetOperatorConfig(t *testing.T) {
-
-	t.Run("Should return error when plugin-based and built-in scanners are enabled", func(t *testing.T) {
-		os.Setenv("OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED", "true")
-		os.Setenv("OPERATOR_CONFIG_AUDIT_SCANNER_BUILTIN", "true")
-		_, err := etc.GetOperatorConfig()
-		assert.EqualError(t, err, "plugin-based and built-in configuration audit scanners cannot be enabled at the same time")
-	})
-
-}
 
 func TestOperator_GetTargetNamespaces(t *testing.T) {
 	testCases := []struct {

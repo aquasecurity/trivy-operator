@@ -176,46 +176,19 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	}
 
 	if operatorConfig.ConfigAuditScannerEnabled {
-		plugin, pluginContext, err := plugin.NewResolver().
-			WithBuildInfo(buildInfo).
-			WithNamespace(operatorNamespace).
-			WithServiceAccountName(operatorConfig.ServiceAccount).
-			WithConfig(trivyOperatorConfig).
-			WithClient(mgr.GetClient()).
-			GetConfigAuditPlugin()
-		if err != nil {
-			return err
-		}
-
-		err = plugin.Init(pluginContext)
-		if err != nil {
-			return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
-		}
-
-		if err = (&controller.ConfigAuditReportReconciler{
-			Logger:         ctrl.Log.WithName("reconciler").WithName("configauditreport"),
+		setupLog.Info("Enabling built-in configuration audit scanner")
+		if err = (&configauditreport.ResourceController{
+			Logger:         ctrl.Log.WithName("resourcecontroller"),
 			Config:         operatorConfig,
 			ConfigData:     trivyOperatorConfig,
 			Client:         mgr.GetClient(),
 			ObjectResolver: objectResolver,
-			LimitChecker:   limitChecker,
-			LogsReader:     logsReader,
-			Plugin:         plugin,
-			PluginContext:  pluginContext,
 			ReadWriter:     configauditreport.NewReadWriter(mgr.GetClient()),
+			BuildInfo:      buildInfo,
 		}).SetupWithManager(mgr); err != nil {
-			return fmt.Errorf("unable to setup configauditreport reconciler: %w", err)
+			return fmt.Errorf("unable to setup resource controller: %w", err)
 		}
 
-		if err = (&controller.PluginsConfigReconciler{
-			Logger:        ctrl.Log.WithName("reconciler").WithName("pluginsconfig"),
-			Config:        operatorConfig,
-			Client:        mgr.GetClient(),
-			Plugin:        plugin,
-			PluginContext: pluginContext,
-		}).SetupWithManager(mgr); err != nil {
-			return fmt.Errorf("unable to setup %T: %w", controller.PluginsConfigReconciler{}, err)
-		}
 	}
 
 	if operatorConfig.CISKubernetesBenchmarkEnabled {
@@ -230,21 +203,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			Plugin:       kubebench.NewKubeBenchPlugin(ext.NewSystemClock(), trivyOperatorConfig),
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup ciskubebenchreport reconciler: %w", err)
-		}
-	}
-
-	if operatorConfig.ConfigAuditScannerBuiltIn {
-		setupLog.Info("Enabling built-in configuration audit scanner")
-		if err = (&configauditreport.ResourceController{
-			Logger:         ctrl.Log.WithName("resourcecontroller"),
-			Config:         operatorConfig,
-			ConfigData:     trivyOperatorConfig,
-			Client:         mgr.GetClient(),
-			ObjectResolver: objectResolver,
-			ReadWriter:     configauditreport.NewReadWriter(mgr.GetClient()),
-			BuildInfo:      buildInfo,
-		}).SetupWithManager(mgr); err != nil {
-			return fmt.Errorf("unable to setup resource controller: %w", err)
 		}
 	}
 

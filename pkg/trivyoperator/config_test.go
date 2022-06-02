@@ -63,13 +63,6 @@ func TestConfigData_GetConfigAuditReportsScanner(t *testing.T) {
 		expectedScanner trivyoperator.Scanner
 	}{
 		{
-			name: "Should return Polaris",
-			configData: trivyoperator.ConfigData{
-				"configAuditReports.scanner": "Polaris",
-			},
-			expectedScanner: "Polaris",
-		},
-		{
 			name: "Should return Trivy",
 			configData: trivyoperator.ConfigData{
 				"configAuditReports.scanner": "Trivy",
@@ -477,10 +470,6 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 		g.Expect(pluginConfig.Data).To(gomega.Equal(map[string]string{
 			"trivy.policy.my-check.rego": "<REGO>",
 		}))
-
-		_, err = clientset.CoreV1().ConfigMaps(namespace).
-			Get(context.TODO(), trivyoperator.GetPluginConfigMapName("Polaris"), metav1.GetOptions{})
-		g.Expect(err).To(gomega.MatchError(`configmaps "trivy-operator-polaris-config" not found`))
 	})
 
 }

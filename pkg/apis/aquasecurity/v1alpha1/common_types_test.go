@@ -33,14 +33,6 @@ func TestStringToSeverity(t *testing.T) {
 			name:             "LOW",
 			expectedSeverity: v1alpha1.SeverityLow,
 		},
-		{
-			name:             "danger",
-			expectedSeverity: v1alpha1.SeverityCritical,
-		},
-		{
-			name:             "warning",
-			expectedSeverity: v1alpha1.SeverityLow,
-		},
 	}
 
 	for _, tc := range testCases {

@@ -86,11 +86,9 @@ spec:
             - name: OPERATOR_VULNERABILITY_SCANNER_REPORT_TTL
               value: ""
             - name: OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED
-              value: "false"
+              value: "true"
             - name: OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS
               value: "false"
-            - name: OPERATOR_CONFIG_AUDIT_SCANNER_BUILTIN
-              value: "true"
             - name: OPERATOR_CLUSTER_COMPLIANCE_ENABLED
               value: "false"
           ports:

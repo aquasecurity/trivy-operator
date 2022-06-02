@@ -85,8 +85,6 @@ spec:
               value: {{ .Values.operator.configAuditScannerEnabled | quote }}
             - name: OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS
               value: {{ .Values.operator.configAuditScannerScanOnlyCurrentRevisions | quote }}
-            - name: OPERATOR_CONFIG_AUDIT_SCANNER_BUILTIN
-              value: {{ .Values.operator.configAuditScannerBuiltIn | quote }}
             - name: OPERATOR_CLUSTER_COMPLIANCE_ENABLED
               value: {{ .Values.operator.clusterComplianceEnabled | quote }}
             {{- if gt (int .Values.operator.replicas) 1 }}

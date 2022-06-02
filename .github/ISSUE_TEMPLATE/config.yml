@@ -1,8 +1,14 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Bug report
+    # yamllint disable-line rule:line-length
+    url: https://github.com/aquasecurity/trivy/issues/new?labels=kind%2Fbug,target%2Fkubernetes&template=BUG_REPORT.md
+    about: If something isn't working as expected.
   - name: Feature request
-    url: https://github.com/aquasecurity/trivy-operator/discussions/new?category_id=18526499
-    about: Share ideas for new features
-  - name: Ask a question
-    url: https://github.com/aquasecurity/trivy-operator/discussions/new?category_id=18526498
-    about: Ask questions and discuss with other community members
+    # yamllint disable-line rule:line-length
+    url: https://github.com/aquasecurity/trivy/issues/new?labels=kind%2Ffeature,target%2Fkubernetes&template=FEATURE_REQUEST.md
+    about: I have a suggestion (and might want to implement myself)!
+  - name: Support Question
+    # yamllint disable-line rule:line-length
+    url: https://github.com/aquasecurity/trivy/discussions/new?category=help-support
+    about: If you have a question about Trivy Operator.

@@ -1,19 +1,11 @@
 package plugin
 
 import (
-	"fmt"
-
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
-	"github.com/aquasecurity/trivy-operator/pkg/plugin/aqua"
 	"github.com/aquasecurity/trivy-operator/pkg/plugin/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-)
-
-const (
-	Trivy trivyoperator.Scanner = "Trivy"
-	Aqua  trivyoperator.Scanner = "Aqua"
 )
 
 type Resolver struct {
@@ -56,7 +48,7 @@ func (r *Resolver) WithClient(client client.Client) *Resolver {
 // GetVulnerabilityPlugin is a factory method that instantiates the vulnerabilityreport.Plugin.
 //
 // Trivy-Operator currently supports Trivy scanner in Standalone and ClientServer
-// mode, and Aqua Enterprise scanner.
+// mode.
 //
 // You could add your own scanner by implementing the vulnerabilityreport.Plugin interface.
 func (r *Resolver) GetVulnerabilityPlugin() (vulnerabilityreport.Plugin, trivyoperator.PluginContext, error) {
@@ -73,11 +65,5 @@ func (r *Resolver) GetVulnerabilityPlugin() (vulnerabilityreport.Plugin, trivyop
 		WithTrivyOperatorConfig(r.config).
 		Get()
 
-	switch scanner {
-	case Trivy:
-		return trivy.NewPlugin(ext.NewSystemClock(), ext.NewGoogleUUIDGenerator(), r.client), pluginContext, nil
-	case Aqua:
-		return aqua.NewPlugin(ext.NewGoogleUUIDGenerator(), r.buildInfo), pluginContext, nil
-	}
-	return nil, nil, fmt.Errorf("unsupported vulnerability scanner plugin: %s", scanner)
+	return trivy.NewPlugin(ext.NewSystemClock(), ext.NewGoogleUUIDGenerator(), r.client), pluginContext, nil
 }

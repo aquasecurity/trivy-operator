@@ -30,13 +30,6 @@ func TestConfigData_GetVulnerabilityReportsScanner(t *testing.T) {
 			expectedScanner: "Trivy",
 		},
 		{
-			name: "Should return Aqua",
-			configData: trivyoperator.ConfigData{
-				"vulnerabilityReports.scanner": "Aqua",
-			},
-			expectedScanner: "Aqua",
-		},
-		{
 			name:          "Should return error when value is not set",
 			configData:    trivyoperator.ConfigData{},
 			expectedError: "property vulnerabilityReports.scanner not set",

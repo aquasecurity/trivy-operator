@@ -24,8 +24,7 @@ kubectl logs deployment/trivy-operator -n trivy-system
 
 Trivy-Operator ensures the default [Settings] stored in ConfigMaps and Secrets created in the `trivy-system` namespace.
 You can always change these settings by editing configuration objects. For example, you can use Trivy in [ClientServer]
-mode, which is more efficient that the [Standalone] mode, or switch to [Aqua Enterprise] as an alternative vulnerability
-scanner.
+mode, which is more efficient that the [Standalone] mode.
 
 You can further adjust the [Configuration](./../configuration.md) of the operator with environment variables. For
 example, to change the target namespace from all namespaces to the `default` namespace edit the `trivy-operator`
@@ -57,7 +56,6 @@ kubectl delete -f https://raw.githubusercontent.com/aquasecurity/trivy-operator/
 [Settings]: ./../../settings.md
 [Standalone]: ./../../vulnerability-scanning/trivy.md#standalone
 [ClientServer]: ./../../vulnerability-scanning/trivy.md#clientserver
-[Aqua Enterprise]: ./../../vulnerability-scanning/aqua-enterprise.md
 [Kustomize]: https://kustomize.io
 [Helm]: ./helm.md
 [NSA, CISA Kubernetes Hardening Guidance v1.0]: ./../../specs/NSA_Kubernetes_Hardening_Guidance_1.0.pdf

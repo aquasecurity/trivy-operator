@@ -73,7 +73,7 @@ service:
     prometheus.io/path: /metrics
 
 trivyOperator:
-  # vulnerabilityReportsPlugin the name of the plugin that generates vulnerability reports. Either `Trivy` or `Aqua`.
+  # vulnerabilityReportsPlugin the name of the plugin that generates vulnerability reports `Trivy`
   vulnerabilityReportsPlugin: "Trivy"
   # configAuditReportsPlugin the name of the plugin that generates config audit reports.
   configAuditReportsPlugin: "Trivy"

@@ -120,25 +120,3 @@ data:
 {{- end }}
 {{- end }}
 {{- end }}
-{{- if eq .Values.trivyOperator.vulnerabilityReportsPlugin "Aqua" }}
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: trivy-operator-aqua-config
-  labels:
-     {{- include "trivy-operator.labels" . | nindent 4 }}
-data:
-  aqua.imageRef: {{ required ".Values.aqua.imageRef is required!" .Values.aqua.imageRef | quote }}
-  aqua.serverURL: {{ required ".Values.aqua.serverURL is required!" .Values.aqua.serverURL | quote }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: trivy-operator-aqua-config
-  labels:
-    {{- include "trivy-operator.labels" . | nindent 4 }}
-data:
-  aqua.username: {{ required ".Values.aqua.username is required!" .Values.aqua.username | b64enc | quote }}
-  aqua.password: {{ required ".Values.aqua.password is required!" .Values.aqua.password | b64enc | quote }}
-{{- end}}

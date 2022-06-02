@@ -109,6 +109,13 @@ mkdocs-serve:
 	$(DOCKER) build -t $(MKDOCS_IMAGE) -f build/mkdocs-material/Dockerfile bin
 	$(DOCKER) run --name mkdocs-serve --rm -v $(PWD):/docs -p $(MKDOCS_PORT):8000 $(MKDOCS_IMAGE)
 
+$(GOBIN)/labeler:
+	go install github.com/knqyf263/labeler@latest
+
+.PHONY: label
+label: $(GOBIN)/labeler
+	labeler apply misc/triage/labels.yaml -r aquasecurity/trivy-operator -l 5
+
 .PHONY: \
 	clean \
 	docker-build \

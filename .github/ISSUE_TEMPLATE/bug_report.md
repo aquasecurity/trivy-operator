@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Tell us about a problem you are experiencing
+about: If something isn't working as expected.
 ---
 
 **What steps did you take and what happened:**

@@ -1,8 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Feature request
-    url: https://github.com/aquasecurity/trivy-operator/discussions/new?category_id=18526499
-    about: Share ideas for new features
-  - name: Ask a question
+  - name: Support Question
     url: https://github.com/aquasecurity/trivy-operator/discussions/new?category_id=18526498
-    about: Ask questions and discuss with other community members
+    about: If you have a question about Trivy operator.

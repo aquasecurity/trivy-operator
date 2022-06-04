@@ -27,7 +27,7 @@ Trivy-Operator provides:
 - Automated vulnerability scanning for Kubernetes workloads.
 - Automated configuration audits for Kubernetes resources with predefined rules or custom Open Policy Agent (OPA) policies.
 - [Custom Resource Definitions] and a [Go module] to work with and integrate a range of security scanners.
-- The [Octant Plugin] and the [Lens Extension] that make security reports available through familiar Kubernetes interfaces.
+- The [Lens Extension] that make security reports available through familiar Kubernetes interfaces.
 
 <p align="center">
 <img src="docs/images/trivy-operator-overview.png" alt="Trivy-operator Overview"/>
@@ -50,8 +50,6 @@ The official [Documentation] provides detailed installation, configuration, trou
 You can install the Trivy-operator Operator with [Static YAML Manifests] and follow the [Getting Started][getting-started-operator]
 guide to see how vulnerability and configuration audit reports are generated automatically.
 
-Read more about the motivations for the project in the [Trivy-operator: The Kubernetes-Native Toolkit for Unifying Security]
-blog.
 
 # Contributing
 
@@ -81,19 +79,17 @@ Join the community, and talk to us about any matter in [GitHub Discussions] or [
 [license]: https://github.com/aquasecurity/trivy-operator/blob/main/LICENSE
 [github-all-releases-img]: https://img.shields.io/github/downloads/aquasecurity/trivy-operator/total?logo=github
 [docker-pulls-trivy-operator]: https://img.shields.io/docker/pulls/aquasec/trivy-operator?logo=docker&label=docker%20pulls%20%2F%20trivy%20operator
-[trivy-operator: The Kubernetes-Native Toolkit for Unifying Security]: https://blog.aquasec.com/trivy-operator-kubernetes-tools
 [Contributing]: CONTRIBUTING.md
 [GitHub Discussions]: https://github.com/aquasecurity/trivy-operator/discussions
 [Slack]: https://slack.aquasec.com/
 [Open Source Work and Portfolio]: https://www.aquasec.com/products/open-source-projects/
 
-[Custom Resource Definitions]: https://aquasecurity.github.io/trivy-operator/latest/crds/
+[Custom Resource Definitions]: https://github.com/aquasecurity/trivy-operator/tree/main/deploy/crd
 [Go module]: https://pkg.go.dev/github.com/aquasecurity/trivy-operator/pkg
 [Documentation]: https://aquasecurity.github.io/trivy
-[Static YAML Manifests]: https://aquasecurity.github.io/trivy-operator/latest/operator/installation/kubectl/
-[getting-started-operator]: https://aquasecurity.github.io/trivy-operator/latest/operator/getting-started/
-[Kubernetes operator]: https://aquasecurity.github.io/trivy-operator/latest/operator
+[Static YAML Manifests]: https://aquasecurity.github.io/trivy/latest/docs/kubernetes/operator/installation/kubectl/
+[getting-started-operator]: https://aquasecurity.github.io/trivy/latest/docs/kubernetes/operator/getting-started/
+[Kubernetes operator]: https://aquasecurity.github.io/trivy/latest/docs/kubernetes/operator/
 
-[Octant Plugin]: https://aquasecurity.github.io/trivy-operator/latest/integrations/octant
-[Lens Extension]: https://aquasecurity.github.io/trivy-operator/latest/integrations/lens
+[Lens Extension]: https://github.com/aquasecurity/trivy-operator-lens-extension
 [kubectl]: https://kubernetes.io/docs/reference/kubectl

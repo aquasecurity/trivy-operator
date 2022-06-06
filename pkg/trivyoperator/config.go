@@ -80,7 +80,6 @@ func GetDefaultConfig() ConfigData {
 		keyVulnerabilityReportsScanner: "Trivy",
 		keyConfigAuditReportsScanner:   "Trivy",
 
-		"kube-bench.imageRef":         "docker.io/aquasec/kube-bench:v0.6.6",
 		"compliance.failEntriesLimit": "10",
 	}
 }

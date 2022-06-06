@@ -237,7 +237,6 @@ spec:
     plural: vulnerabilityreports
     kind: VulnerabilityReport
     listKind: VulnerabilityReportList
-    categories: []
     shortNames:
       - vuln
       - vulns
@@ -294,7 +293,6 @@ spec:
     plural: configauditreports
     kind: ConfigAuditReport
     listKind: ConfigAuditReportList
-    categories: []
     shortNames:
       - configaudit
 ---
@@ -350,7 +348,6 @@ spec:
     plural: clusterconfigauditreports
     kind: ClusterConfigAuditReport
     listKind: ClusterConfigAuditReportList
-    categories: []
     shortNames:
       - clusterconfigaudit
 ---
@@ -448,7 +445,7 @@ spec:
                         properties:
                           scanner:
                             type: string
-                            pattern: 'config-audit'
+                            pattern: '^config-audit$'
                             description: 'scanner define the name of the scanner which produce data, currently only config-audit is supported'
                           checks:
                             type: array
@@ -487,7 +484,6 @@ spec:
     plural: clustercompliancereports
     kind: ClusterComplianceReport
     listKind: ClusterComplianceReportList
-    categories: [ ]
     shortNames:
       - compliance
 ---
@@ -529,7 +525,6 @@ spec:
     plural: clustercompliancedetailreports
     kind: ClusterComplianceDetailReport
     listKind: ClusterComplianceDetailReportList
-    categories: [ ]
     shortNames:
       - compliancedetail
 ---

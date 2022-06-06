@@ -11,8 +11,6 @@ import (
 )
 
 const (
-	//KubeBench scanner name as appear in specs file
-	KubeBench = "kube-bench"
 	//ConfigAudit scanner name as appear in specs file
 	ConfigAudit = "config-audit"
 )

@@ -68,9 +68,9 @@ func TestMapComplianceScannerToResource(t *testing.T) {
 		want     map[string]map[string]int
 	}{
 		{name: "map compliance spec to resource", specPath: "./testdata/fixture/clusterComplianceSpec.json", kClient: GetClient(t, "./testdata/fixture/cisBenchmarkReportList.json", "./testdata/fixture/configAuditReportList.json"),
-			want: map[string]map[string]int{KubeBench: {"Node": 1, "LimitRange": 0, "NetworkPolicy": 0, "EncryptionConfiguration": 0}, ConfigAudit: {"DaemonSet": 0, "CronJob": 0, "Job": 0, "Pod": 1, "ReplicaSet": 0, "ReplicationController": 0, "StatefulSet": 0}}},
+			want: map[string]map[string]int{"kube-bench": {"Node": 1, "LimitRange": 0, "NetworkPolicy": 0, "EncryptionConfiguration": 0}, ConfigAudit: {"DaemonSet": 0, "CronJob": 0, "Job": 0, "Pod": 1, "ReplicaSet": 0, "ReplicationController": 0, "StatefulSet": 0}}},
 		{name: "map compliance spec to resource no data", specPath: "./testdata/fixture/clusterComplianceSpec.json", kClient: GetClient(t),
-			want: map[string]map[string]int{KubeBench: {"Node": 0, "LimitRange": 0, "NetworkPolicy": 0, "EncryptionConfiguration": 0}, ConfigAudit: {"DaemonSet": 0, "CronJob": 0, "Job": 0, "Pod": 0, "ReplicaSet": 0, "ReplicationController": 0, "StatefulSet": 0}}},
+			want: map[string]map[string]int{"kube-bench": {"Node": 0, "LimitRange": 0, "NetworkPolicy": 0, "EncryptionConfiguration": 0}, ConfigAudit: {"DaemonSet": 0, "CronJob": 0, "Job": 0, "Pod": 0, "ReplicaSet": 0, "ReplicationController": 0, "StatefulSet": 0}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

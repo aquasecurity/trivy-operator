@@ -93,8 +93,8 @@ spec:
                         properties:
                           scanner:
                             type: string
-                            pattern: '^config-audit$|^kube-bench$'
-                            description: 'scanner define the name of the scanner which produce data, currently only config-audit and kube-bench are supported'
+                            pattern: '^config-audit$'
+                            description: 'scanner define the name of the scanner which produce data, currently only config-audit is supported'
                           checks:
                             type: array
                             items:

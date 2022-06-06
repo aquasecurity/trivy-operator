@@ -49,7 +49,7 @@ compile-templates: get-qtc
 
 .PHONY: test
 ## Runs both unit and integration tests
-test: unit-tests itests-trivy-operator itests-trivy-operator
+test: unit-tests itests-trivy-operator
 
 .PHONY: unit-tests
 ## Runs unit tests with code coverage enabled
@@ -67,7 +67,7 @@ itests-trivy-operator: check-kubeconfig get-ginkgo
 	github.com/aquasecurity/trivy-operator/pkg/plugin,\
 	github.com/aquasecurity/trivy-operator/pkg/plugin/trivy,\
 	github.com/aquasecurity/trivy-operator/pkg/configauditreport,\
-	github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport,\
+	github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport \
 	./itest/trivy-operator
 
 .PHONY: check-kubeconfig

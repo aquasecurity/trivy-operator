@@ -31,7 +31,6 @@ nav:
       - Infrastructure Scanners:
           - Overview: configuration-auditing/infrastructure-scanners/index.md
   - Integrations:
-      - Octant Plugin: integrations/octant.md
       - Lens Extension: integrations/lens.md
       - Prometheus Exporter: integrations/prometheus.md
   - Tutorials:

@@ -473,7 +473,7 @@ func TestPlugin_Init(t *testing.T) {
 				ResourceVersion: "1",
 			},
 			Data: map[string]string{
-				"trivy.imageRef":     "docker.io/aquasec/trivy:0.25.2",
+				"trivy.imageRef":     "docker.io/aquasec/trivy:0.28.1",
 				"trivy.severity":     "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
 				"trivy.mode":         "Standalone",
 				"trivy.timeout":      "5m0s",
@@ -500,7 +500,7 @@ func TestPlugin_Init(t *testing.T) {
 					ResourceVersion: "1",
 				},
 				Data: map[string]string{
-					"trivy.imageRef": "docker.io/aquasec/trivy:0.25.2",
+					"trivy.imageRef": "docker.io/aquasec/trivy:0.28.1",
 					"trivy.severity": "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
 					"trivy.mode":     "Standalone",
 				},
@@ -534,7 +534,7 @@ func TestPlugin_Init(t *testing.T) {
 				ResourceVersion: "1",
 			},
 			Data: map[string]string{
-				"trivy.imageRef": "docker.io/aquasec/trivy:0.25.2",
+				"trivy.imageRef": "docker.io/aquasec/trivy:0.28.1",
 				"trivy.severity": "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
 				"trivy.mode":     "Standalone",
 			},
@@ -2862,7 +2862,7 @@ CVE-2019-1543`,
 		{
 			name: "Trivy fs scan command in Standalone mode",
 			config: map[string]string{
-				"trivy.imageRef":                  "docker.io/aquasec/trivy:0.25.2",
+				"trivy.imageRef":                  "docker.io/aquasec/trivy:0.28.1",
 				"trivy.mode":                      string(trivy.Standalone),
 				"trivy.command":                   string(trivy.Filesystem),
 				"trivy.dbRepository":              defaultDBRepository,
@@ -2907,7 +2907,7 @@ CVE-2019-1543`,
 				InitContainers: []corev1.Container{
 					{
 						Name:                     "00000000-0000-0000-0000-000000000001",
-						Image:                    "docker.io/aquasec/trivy:0.25.2",
+						Image:                    "docker.io/aquasec/trivy:0.28.1",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Command: []string{
@@ -2936,7 +2936,7 @@ CVE-2019-1543`,
 					},
 					{
 						Name:                     "00000000-0000-0000-0000-000000000002",
-						Image:                    "docker.io/aquasec/trivy:0.25.2",
+						Image:                    "docker.io/aquasec/trivy:0.28.1",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{

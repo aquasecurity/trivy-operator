@@ -237,7 +237,6 @@ spec:
     plural: vulnerabilityreports
     kind: VulnerabilityReport
     listKind: VulnerabilityReportList
-    categories: []
     shortNames:
       - vuln
       - vulns
@@ -294,7 +293,6 @@ spec:
     plural: configauditreports
     kind: ConfigAuditReport
     listKind: ConfigAuditReportList
-    categories: []
     shortNames:
       - configaudit
 ---
@@ -350,7 +348,6 @@ spec:
     plural: clusterconfigauditreports
     kind: ClusterConfigAuditReport
     listKind: ClusterConfigAuditReportList
-    categories: []
     shortNames:
       - clusterconfigaudit
 ---
@@ -400,7 +397,6 @@ spec:
     plural: ciskubebenchreports
     kind: CISKubeBenchReport
     listKind: CISKubeBenchReportList
-    categories: []
     shortNames:
       - kubebench
 ---
@@ -537,7 +533,6 @@ spec:
     plural: clustercompliancereports
     kind: ClusterComplianceReport
     listKind: ClusterComplianceReportList
-    categories: [ ]
     shortNames:
       - compliance
 ---
@@ -579,7 +574,6 @@ spec:
     plural: clustercompliancedetailreports
     kind: ClusterComplianceDetailReport
     listKind: ClusterComplianceDetailReportList
-    categories: [ ]
     shortNames:
       - compliancedetail
 ---
@@ -820,7 +814,7 @@ metadata:
     app.kubernetes.io/version: "0.0.5"
     app.kubernetes.io/managed-by: kubectl
 data:
-  trivy.imageRef: "docker.io/aquasec/trivy:0.25.2"
+  trivy.imageRef: "docker.io/aquasec/trivy:0.28.1"
   trivy.mode: "Standalone"
   trivy.severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
   trivy.timeout: "5m0s"

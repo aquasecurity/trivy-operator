@@ -8,7 +8,6 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/kubebench"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/plugin"
@@ -61,10 +60,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		// Add support for SingleNamespace set in OPERATOR_NAMESPACE (e.g. `trivy-operator`)
 		// and OPERATOR_TARGET_NAMESPACES (e.g. `default`).
 		cachedNamespaces := append(targetNamespaces, operatorNamespace)
-		if operatorConfig.CISKubernetesBenchmarkEnabled {
-			// Cache cluster-scoped resources such as Nodes
-			cachedNamespaces = append(cachedNamespaces, "")
-		}
 		setupLog.Info("Constructing client cache", "namespaces", cachedNamespaces)
 		options.NewCache = cache.MultiNamespacedCacheBuilder(cachedNamespaces)
 	case etc.MultiNamespace:
@@ -73,10 +68,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		// Note that you may face performance issues when using this mode with a high number of namespaces.
 		// More: https://godoc.org/github.com/kubernetes-sigs/controller-runtime/pkg/cache#MultiNamespacedCacheBuilder
 		cachedNamespaces := append(targetNamespaces, operatorNamespace)
-		if operatorConfig.CISKubernetesBenchmarkEnabled {
-			// Cache cluster-scoped resources such as Nodes
-			cachedNamespaces = append(cachedNamespaces, "")
-		}
 		setupLog.Info("Constructing client cache", "namespaces", cachedNamespaces)
 		options.NewCache = cache.MultiNamespacedCacheBuilder(cachedNamespaces)
 	case etc.AllNamespaces:
@@ -189,21 +180,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			return fmt.Errorf("unable to setup resource controller: %w", err)
 		}
 
-	}
-
-	if operatorConfig.CISKubernetesBenchmarkEnabled {
-		if err = (&controller.CISKubeBenchReportReconciler{
-			Logger:       ctrl.Log.WithName("reconciler").WithName("ciskubebenchreport"),
-			Config:       operatorConfig,
-			ConfigData:   trivyOperatorConfig,
-			Client:       mgr.GetClient(),
-			LogsReader:   logsReader,
-			LimitChecker: limitChecker,
-			ReadWriter:   kubebench.NewReadWriter(mgr.GetClient()),
-			Plugin:       kubebench.NewKubeBenchPlugin(ext.NewSystemClock(), trivyOperatorConfig),
-		}).SetupWithManager(mgr); err != nil {
-			return fmt.Errorf("unable to setup ciskubebenchreport reconciler: %w", err)
-		}
 	}
 
 	if operatorConfig.ClusterComplianceEnabled {

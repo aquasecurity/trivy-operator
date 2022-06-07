@@ -36,12 +36,8 @@ var _ = ginkgo.Describe("cluster compliance report", func() {
 	logger := log.Log.WithName("operator")
 	config := getTrivyOperatorConfig()
 	ginkgo.Context("reconcile compliance spec report with cis-bench anc audit-config data and validate compliance reports data and requeue", func() {
-		var cisBenchList v1alpha1.CISKubeBenchReportList
-		err := loadResource("./testdata/fixture/cisBenchmarkReportList.json", &cisBenchList)
-		Expect(err).ToNot(HaveOccurred())
-
 		var confAuditList v1alpha1.ConfigAuditReportList
-		err = loadResource("./testdata/fixture/configAuditReportList.json", &confAuditList)
+		err := loadResource("./testdata/fixture/configAuditReportList.json", &confAuditList)
 		Expect(err).ToNot(HaveOccurred())
 
 		var clusterComplianceSpec v1alpha1.ClusterComplianceReport
@@ -49,7 +45,6 @@ var _ = ginkgo.Describe("cluster compliance report", func() {
 		Expect(err).ToNot(HaveOccurred())
 		// generate client with cis-bench,audit-config and compliance spec
 		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithLists(
-			&cisBenchList,
 			&confAuditList,
 		).WithObjects(
 			&clusterComplianceSpec,
@@ -74,6 +69,7 @@ var _ = ginkgo.Describe("cluster compliance report", func() {
 				sort.Sort(controlObjectTypeSort(complianceDetailReport.Report.ControlChecks[i].ScannerCheckResult))
 				sort.Sort(controlObjectTypeSort(clusterComplianceDetialReport.Report.ControlChecks[i].ScannerCheckResult))
 			}
+
 			Expect(cmp.Equal(complianceDetailReport.Report, clusterComplianceDetialReport.Report, ignoreTimeStamp())).To(BeTrue())
 		})
 
@@ -85,6 +81,7 @@ var _ = ginkgo.Describe("cluster compliance report", func() {
 			Expect(err).ToNot(HaveOccurred())
 			sort.Sort(controlSort(complianceReport.Status.ControlChecks))
 			sort.Sort(controlSort(clusterComplianceReport.Status.ControlChecks))
+
 			Expect(cmp.Equal(complianceReport.Status, clusterComplianceReport.Status, ignoreTimeStamp())).To(BeTrue())
 		})
 
@@ -97,13 +94,8 @@ var _ = ginkgo.Describe("cluster compliance report", func() {
 
 		ginkgo.It("check compliance compliance report status is updated following to changes occur with cis-bench and config-audit report", func() {
 			// update cis-benchmark report and config-audit with failed tests and compare update compliance report
-			var updatedCisBench v1alpha1.CISKubeBenchReport
-			err = loadResource("./testdata/fixture/cisBenchmarkReportUpdate.json", &updatedCisBench)
-			Expect(err).ToNot(HaveOccurred())
 			var caUpdated v1alpha1.ConfigAuditReport
-			err = loadResource("./testdata/fixture/configAuditReportUpdate.json", &caUpdated)
-			Expect(err).ToNot(HaveOccurred())
-			err = client.Update(context.Background(), &updatedCisBench)
+			err := loadResource("./testdata/fixture/configAuditReportUpdate.json", &caUpdated)
 			Expect(err).ToNot(HaveOccurred())
 			err = client.Update(context.Background(), &caUpdated)
 			Expect(err).ToNot(HaveOccurred())

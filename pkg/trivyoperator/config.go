@@ -57,7 +57,6 @@ const (
 	keyVulnerabilityReportsScanner       = "vulnerabilityReports.scanner"
 	KeyVulnerabilityScansInSameNamespace = "vulnerabilityReports.scanJobsInSameNamespace"
 	keyConfigAuditReportsScanner         = "configAuditReports.scanner"
-	keyKubeBenchImageRef                 = "kube-bench.imageRef"
 	keyScanJobTolerations                = "scanJob.tolerations"
 	keyScanJobAnnotations                = "scanJob.annotations"
 	keyScanJobPodTemplateLabels          = "scanJob.podTemplateLabels"
@@ -81,7 +80,6 @@ func GetDefaultConfig() ConfigData {
 		keyVulnerabilityReportsScanner: "Trivy",
 		keyConfigAuditReportsScanner:   "Trivy",
 
-		"kube-bench.imageRef":         "docker.io/aquasec/kube-bench:v0.6.6",
 		"compliance.failEntriesLimit": "10",
 	}
 }
@@ -159,10 +157,6 @@ func (c ConfigData) GetScanJobPodTemplateLabels() (labels.Set, error) {
 	}
 
 	return scanJobPodTemplateLabelsMap, nil
-}
-
-func (c ConfigData) GetKubeBenchImageRef() (string, error) {
-	return c.GetRequiredData(keyKubeBenchImageRef)
 }
 
 func (c ConfigData) GetRequiredData(key string) (string, error) {

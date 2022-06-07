@@ -456,24 +456,3 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 		})
 	}
 }
-
-// CISKubernetesBenchmarkBehavior returns the container of specs that describe behavior
-// of a CIS Kubernetes Benchmark with the given inputs.
-func CISKubernetesBenchmarkBehavior(inputs *Inputs) func() {
-	return func() {
-
-		Context("When operator is started", func() {
-
-			It("Should create CISKubeBenchReports", func() {
-				var nodeList corev1.NodeList
-				err := inputs.List(context.Background(), &nodeList)
-				Expect(err).ToNot(HaveOccurred())
-				for _, node := range nodeList.Items {
-					Eventually(inputs.HasCISKubeBenchReportOwnedBy(node), inputs.AssertTimeout).Should(BeTrue())
-				}
-			})
-
-		})
-
-	}
-}

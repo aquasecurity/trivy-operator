@@ -34,7 +34,6 @@ metadata:
 data:
   vulnerabilityReports.scanner: "Trivy"
   configAuditReports.scanner: "Trivy"
-  kube-bench.imageRef: "docker.io/aquasec/kube-bench:v0.6.6"
   compliance.failEntriesLimit: "10"
 ---
 apiVersion: v1

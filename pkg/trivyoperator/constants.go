@@ -39,7 +39,6 @@ const (
 
 	LabelConfigAuditReportScanner   = "configAuditReport.scanner"
 	LabelVulnerabilityReportScanner = "vulnerabilityReport.scanner"
-	LabelKubeBenchReportScanner     = "kubeBenchReport.scanner"
 
 	LabelK8SAppManagedBy = "app.kubernetes.io/managed-by"
 	AppTrivyOperator     = "trivy-operator"

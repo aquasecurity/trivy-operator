@@ -21,9 +21,6 @@ data:
   {{- if .Values.operator.configAuditScannerEnabled }}
   configAuditReports.scanner: {{ .Values.trivyOperator.configAuditReportsPlugin | quote }}
   {{- end }}
-  {{- if .Values.operator.kubernetesBenchmarkEnabled }}
-  kube-bench.imageRef: {{ required ".Values.kubeBench.imageRef is required" .Values.kubeBench.imageRef | quote }}
-  {{- end }}
   {{- if .Values.operator.clusterComplianceEnabled }}
   compliance.failEntriesLimit: {{ required ".Values.compliance.failEntriesLimit is required" .Values.compliance.failEntriesLimit | quote }}
   {{- end }}

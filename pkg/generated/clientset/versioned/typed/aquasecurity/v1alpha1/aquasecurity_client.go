@@ -12,7 +12,6 @@ import (
 
 type AquasecurityV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	CISKubeBenchReportsGetter
 	ClusterComplianceDetailReportsGetter
 	ClusterComplianceReportsGetter
 	ClusterConfigAuditReportsGetter
@@ -24,10 +23,6 @@ type AquasecurityV1alpha1Interface interface {
 // AquasecurityV1alpha1Client is used to interact with features provided by the aquasecurity.github.io group.
 type AquasecurityV1alpha1Client struct {
 	restClient rest.Interface
-}
-
-func (c *AquasecurityV1alpha1Client) CISKubeBenchReports() CISKubeBenchReportInterface {
-	return newCISKubeBenchReports(c)
 }
 
 func (c *AquasecurityV1alpha1Client) ClusterComplianceDetailReports(namespace string) ClusterComplianceDetailReportInterface {

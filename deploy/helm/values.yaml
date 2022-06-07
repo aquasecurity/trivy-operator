@@ -188,8 +188,6 @@ trivy:
 compliance:
   # failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report
   failEntriesLimit: 10
-kubeBench:
-  imageRef: docker.io/aquasec/kube-bench:v0.6.6
 
 aqua:
   # imageRef Aqua scanner image reference. The tag determines the version of the scanner binary executable and it must

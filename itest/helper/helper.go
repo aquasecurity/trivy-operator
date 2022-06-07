@@ -8,7 +8,6 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/kubebench"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/caarlos0/env/v6"
 	appsv1 "k8s.io/api/apps/v1"
@@ -329,16 +328,14 @@ func (b *VulnerabilityReportBuilder) Build() *v1alpha1.VulnerabilityReport {
 
 // Helper is a mix of asserts and helpers, but we can fix that later.
 type Helper struct {
-	scheme                *runtime.Scheme
-	kubeClient            client.Client
-	kubeBenchReportReader kubebench.Reader
+	scheme     *runtime.Scheme
+	kubeClient client.Client
 }
 
 func NewHelper(client client.Client) *Helper {
 	return &Helper{
-		scheme:                client.Scheme(),
-		kubeClient:            client,
-		kubeBenchReportReader: kubebench.NewReadWriter(client),
+		scheme:     client.Scheme(),
+		kubeClient: client,
 	}
 }
 
@@ -440,16 +437,6 @@ func (h *Helper) GetActiveReplicaSetForDeployment(namespace, name string) (*apps
 		return replicaSet.DeepCopy(), nil
 	}
 	return nil, nil
-}
-
-func (h *Helper) HasCISKubeBenchReportOwnedBy(node corev1.Node) func() (bool, error) {
-	return func() (bool, error) {
-		report, err := h.kubeBenchReportReader.FindByOwner(context.Background(), kube.ObjectRef{Kind: kube.KindNode, Name: node.Name})
-		if err != nil {
-			return false, err
-		}
-		return report != nil, nil
-	}
 }
 
 func (h *Helper) UpdateDeploymentImage(namespace, name string) error {

@@ -10,14 +10,6 @@ cluster - for example, initiating a vulnerability scan and configuration audit w
   <figcaption>Workload reconcilers discover K8s controllers, manage scan jobs, and create VulnerabilityReport and ConfigAuditReport objects.</figcaption>
 </figure>
 
-Similarly, the operator performs infrastructure checks by watching Kubernetes cluster nodes and executing CIS Kubernetes Benchmark
-for each of them.
-
-<figure>
-  <img src="../images/operator/trivy-operator-infrastructure.png" />
-  <figcaption>Infrastructure reconciler discovers K8s nodes, manages scan jobs, and creates CISKubeBenchReport objects.</figcaption>
-</figure>
-
 In other words, the desired state for the controllers managed by this operator is that for each workload or node there
 are security reports stored in the cluster as custom resources. Each custom resource is owned by a built-in resource
 to inherit its life cycle. Beyond that, we take advantage of Kubernetes [garbage collector][k8s-garbage-collection]
@@ -38,9 +30,8 @@ with new plugin's configuration.
 </figure>
 
 !!! warning
-    Currently, the operator supports [vulnerabilityreports], [configauditreports], and [ciskubebenchreports] security
-    resources. We also plan to implement rescan on configurable schedule, for
-    example every 24 hours.
+    Currently, the operator supports [vulnerabilityreports], [configauditreports] security resources. 
+		We also plan to implement rescan on configurable schedule, for example every 24 hours.
 
 ## What's Next?
 
@@ -48,7 +39,6 @@ with new plugin's configuration.
 
 [vulnerabilityreports]: ./../crds/vulnerability-report.md
 [configauditreports]: ./../crds/configaudit-report.md
-[ciskubebenchreports]: ./../crds/ciskubebench-report.md
 [clustercompliancereports]: ./../crds/clustercompliance-report.md
 [clustercompliancedetailreports]: ./../crds/clustercompliancedetail-report.md
 

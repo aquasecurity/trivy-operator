@@ -1,6 +1,8 @@
 package compliance
 
 import (
+	"fmt"
+
 	"github.com/stretchr/testify/assert"
 
 	//"github.com/stretchr/testify/assert"
@@ -131,7 +133,7 @@ func TestCheckIdsToResults(t *testing.T) {
 		reportList map[string]map[string]client.ObjectList
 		wantResult map[string][]*ScannerCheckResult
 	}{
-		{name: "map check ids to results report", reportList: map[string]map[string]client.ObjectList{ConfigAudit: {"Pod": getConfAudit([]string{"KSV037", "KSV038"}, []bool{true, false}, []string{"aaa", "bbb"})}, KubeBench: {"Node": getCisInstance([]string{"1.1", "2.2"}, []string{"PASS", "FAIL"}, []string{"aaa", "bbb"})}}, wantResult: getWantMapResults("./testdata/fixture/check_data_result.json")},
+		{name: "map check ids to results report", reportList: map[string]map[string]client.ObjectList{ConfigAudit: {"Pod": getConfAudit([]string{"KSV037", "KSV038"}, []bool{true, false}, []string{"aaa", "bbb"})}}, wantResult: getWantMapResults("./testdata/fixture/check_data_result.json")},
 		{name: "map empty data ", reportList: map[string]map[string]client.ObjectList{}, wantResult: map[string][]*ScannerCheckResult{}},
 	}
 	for _, tt := range tests {
@@ -140,6 +142,7 @@ func TestCheckIdsToResults(t *testing.T) {
 			if err != nil {
 				t.Error(err)
 			}
+			fmt.Println(cct)
 			assert.True(t, reflect.DeepEqual(cct, tt.wantResult))
 		})
 	}

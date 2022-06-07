@@ -1245,6 +1245,7 @@ func (p *plugin) ParseVulnerabilityReportData(ctx trivyoperator.PluginContext, i
 		return v1alpha1.VulnerabilityReportData{}, err
 	}
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
+	secrets := make([]v1alpha1.Secret, 0)
 
 	for _, report := range reports.Results {
 		for _, sr := range report.Vulnerabilities {
@@ -1260,6 +1261,16 @@ func (p *plugin) ParseVulnerabilityReportData(ctx trivyoperator.PluginContext, i
 				Score:            GetScoreFromCVSS(sr.Cvss),
 			})
 		}
+		for _, sr := range report.Secrets {
+			secrets = append(secrets, v1alpha1.Secret{
+				RuleID:   sr.RuleID,
+				Category: sr.Category,
+				Severity: sr.Severity,
+				Title:    sr.Title,
+				Match:    sr.Match,
+			})
+		}
+
 	}
 
 	registry, artifact, err := p.parseImageRef(imageRef)
@@ -1288,6 +1299,7 @@ func (p *plugin) ParseVulnerabilityReportData(ctx trivyoperator.PluginContext, i
 		Artifact:        artifact,
 		Summary:         p.toSummary(vulnerabilities),
 		Vulnerabilities: vulnerabilities,
+		Secrets:         secrets,
 	}, nil
 }
 

@@ -3567,6 +3567,109 @@ var (
 			},
 		},
 	}
+
+	secretReportAsString = `{
+		"SchemaVersion": 2,
+		"Results":[{
+		"Target": "library/imagewithsecret:latest",
+		"Type": "alpine",
+		"Vulnerabilities": [
+			{
+				"VulnerabilityID": "CVE-2019-1547",
+				"PkgName": "openssl",
+				"InstalledVersion": "1.1.1c-r0",
+				"FixedVersion": "1.1.1d-r0",
+				"Title": "openssl: side-channel weak encryption vulnerability",
+				"Severity": "LOW",
+				"PrimaryURL": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-1547",
+				"References": [
+					"https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-1547"
+				]
+			}
+		]},
+		{
+      "Target": "/app/config/secret.yaml",
+      "Class": "secret",
+      "Secrets": [
+        {
+          "RuleID": "stripe-access-token",
+          "Category": "Stripe",
+          "Severity": "HIGH",
+          "Title": "Stripe",
+          "StartLine": 3,
+          "EndLine": 3,
+          "Match": "publishable_key: *****"
+        }
+      ]
+    },
+		{
+      "Target": "/app/config/secret2.yaml",
+      "Class": "secret",
+      "Secrets": [
+        {
+          "RuleID": "stripe-access-token",
+          "Category": "Stripe",
+          "Severity": "HIGH",
+          "Title": "Stripe",
+          "StartLine": 4,
+          "EndLine": 4,
+          "Match": "secret_key: *****"
+        }
+      ]
+    }
+	]}`
+
+	secretReport = v1alpha1.VulnerabilityReportData{
+		UpdateTimestamp: metav1.NewTime(fixedTime),
+		Scanner: v1alpha1.Scanner{
+			Name:    "Trivy",
+			Vendor:  "Aqua Security",
+			Version: "0.9.1",
+		},
+		Registry: v1alpha1.Registry{
+			Server: "index.docker.io",
+		},
+		Artifact: v1alpha1.Artifact{
+			Repository: "library/imagewithsecret",
+			Tag:        "latest",
+		},
+		Summary: v1alpha1.VulnerabilitySummary{
+			CriticalCount: 0,
+			HighCount:     2,
+			MediumCount:   0,
+			LowCount:      1,
+			NoneCount:     0,
+			UnknownCount:  0,
+		},
+		Vulnerabilities: []v1alpha1.Vulnerability{
+			{
+				VulnerabilityID:  "CVE-2019-1547",
+				Resource:         "openssl",
+				InstalledVersion: "1.1.1c-r0",
+				FixedVersion:     "1.1.1d-r0",
+				Severity:         v1alpha1.SeverityLow,
+				Title:            "openssl: side-channel weak encryption vulnerability",
+				PrimaryLink:      "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-1547",
+				Links:            []string{},
+			},
+		},
+		Secrets: []v1alpha1.Secret{
+			{
+				RuleID:   "stripe-access-token",
+				Category: "Stripe",
+				Severity: "HIGH",
+				Title:    "Stripe",
+				Match:    "publishable_key: *****",
+			},
+			{
+				RuleID:   "stripe-access-token",
+				Category: "Stripe",
+				Severity: "HIGH",
+				Title:    "Stripe",
+				Match:    "secret_key: *****",
+			},
+		},
+	}
 )
 
 func TestPlugin_ParseVulnerabilityReportData(t *testing.T) {
@@ -3593,6 +3696,13 @@ func TestPlugin_ParseVulnerabilityReportData(t *testing.T) {
 			input:          sampleReportAsString,
 			expectedError:  nil,
 			expectedReport: sampleReport,
+		},
+		{
+			name:           "Should convert secret report in JSON format when input is quiet",
+			imageRef:       "imagewithsecret:latest",
+			input:          secretReportAsString,
+			expectedError:  nil,
+			expectedReport: secretReport,
 		},
 		{
 			name:          "Should convert vulnerability report in JSON format when OS is not detected",

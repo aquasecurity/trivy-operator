@@ -7,6 +7,7 @@ import (
 type ScanResult struct {
 	Target          string          `json:"Target"`
 	Vulnerabilities []Vulnerability `json:"Vulnerabilities"`
+	Secrets         []Secret        `json:"Secrets"`
 }
 
 type ScanReport struct {
@@ -34,4 +35,12 @@ type CVSS struct {
 type Layer struct {
 	Digest string `json:"Digest"`
 	DiffID string `json:"DiffID"`
+}
+
+type Secret struct {
+	RuleID   string `json:ruleID`
+	Category string `json:category`
+	Severity string `json:severity`
+	Title    string `json:title`
+	Match    string `json:match`
 }

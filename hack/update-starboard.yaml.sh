@@ -8,8 +8,6 @@ STATIC_DIR=$SCRIPT_ROOT/deploy/static
 cat $CRD_DIR/vulnerabilityreports.crd.yaml \
   $CRD_DIR/configauditreports.crd.yaml \
   $CRD_DIR/clusterconfigauditreports.crd.yaml \
-  $CRD_DIR/clustercompliancereports.crd.yaml \
-  $CRD_DIR/clustercompliancedetailreports.crd.yaml \
   $STATIC_DIR/01-trivy-operator.ns.yaml \
   $STATIC_DIR/02-trivy-operator.rbac.yaml \
   $STATIC_DIR/03-trivy-operator.config.yaml \

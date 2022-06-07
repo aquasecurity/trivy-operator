@@ -1,5 +1,6 @@
 ---
 name: Bug report
+labels: kind/bug
 about: If something isn't working as expected.
 ---
 

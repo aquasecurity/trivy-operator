@@ -16,6 +16,8 @@ type Interface interface {
 	ClusterConfigAuditReports() ClusterConfigAuditReportInformer
 	// ConfigAuditReports returns a ConfigAuditReportInformer.
 	ConfigAuditReports() ConfigAuditReportInformer
+	// ExposedSecretReports returns a ExposedSecretReportInformer.
+	ExposedSecretReports() ExposedSecretReportInformer
 	// VulnerabilityReports returns a VulnerabilityReportInformer.
 	VulnerabilityReports() VulnerabilityReportInformer
 }
@@ -49,6 +51,11 @@ func (v *version) ClusterConfigAuditReports() ClusterConfigAuditReportInformer {
 // ConfigAuditReports returns a ConfigAuditReportInformer.
 func (v *version) ConfigAuditReports() ConfigAuditReportInformer {
 	return &configAuditReportInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
+// ExposedSecretReports returns a ExposedSecretReportInformer.
+func (v *version) ExposedSecretReports() ExposedSecretReportInformer {
+	return &exposedSecretReportInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // VulnerabilityReports returns a VulnerabilityReportInformer.

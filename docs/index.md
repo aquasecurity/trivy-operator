@@ -17,7 +17,6 @@ Trivy-Operator provides:
 - Automated compliance report - NSA, CISA Kubernetes Hardening Kubernetes Guidance v1.0
 - Penetration test results for a Kubernetes cluster.
 - [Custom Resource Definitions] and a [Go module] to work with and integrate a range of security scanners.
-- The [Octant Plugin] and the [Lens Extension] that make security reports available through familiar Kubernetes interfaces.
 
 <figure>
   <img src="images/trivy-operator-overview.png" />
@@ -45,7 +44,6 @@ Trivy-Operator can be used:
 [Custom Resource Definitions]: ./crds/index.md
 [Kubernetes operator]: operator/index.md
 [Go module]: https://pkg.go.dev/github.com/aquasecurity/trivy-operator@{{ git.tag }}
-[Octant Plugin]: ./integrations/octant.md
 [Lens Extension]: integrations/lens.md
 [kubectl]: https://kubernetes.io/docs/reference/kubectl/
 [Trivy-Operator: The Kubernetes-Native Toolkit for Unifying Security]: https://blog.aquasec.com/starboard-kubernetes-tools

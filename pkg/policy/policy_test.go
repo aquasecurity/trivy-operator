@@ -2,11 +2,7 @@ package policy_test
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"testing"
-
-	"github.com/aquasecurity/defsec/pkg/scan"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
@@ -139,7 +135,7 @@ func TestPolicies_Eval(t *testing.T) {
 		name          string
 		resource      client.Object
 		policies      map[string]string
-		results       Results
+		results       policy.Results
 		expectedError string
 	}{
 		{
@@ -195,10 +191,10 @@ deny[res] {
 }
 `,
 			},
-			results: []Result{
+			results: []policy.Result{
 				{
 					Success: false,
-					Metadata: Metadata{
+					Metadata: policy.Metadata{
 						ID:          "KSV014",
 						Title:       "Root file system is not read-only",
 						Description: "An immutable root file system prevents applications from writing to their local disk",
@@ -265,10 +261,10 @@ deny[res] {
 }
 `,
 			},
-			results: []Result{
+			results: []policy.Result{
 				{
 					Success: true,
-					Metadata: Metadata{
+					Metadata: policy.Metadata{
 						ID:          "KSV014",
 						Severity:    v1alpha1.SeverityLow,
 						Title:       "Root file system is not read-only",
@@ -331,10 +327,10 @@ warn[res] {
 }
 `,
 			},
-			results: []Result{
+			results: []policy.Result{
 				{
 					Success: false,
-					Metadata: Metadata{
+					Metadata: policy.Metadata{
 						ID:          "KSV014",
 						Title:       "Root file system is not read-only",
 						Description: "An immutable root file system prevents applications from writing to their local disk",
@@ -401,10 +397,10 @@ warn[res] {
 }
 `,
 			},
-			results: []Result{
+			results: []policy.Result{
 				{
 					Success: true,
-					Metadata: Metadata{
+					Metadata: policy.Metadata{
 						ID:          "KSV014",
 						Severity:    v1alpha1.SeverityLow,
 						Title:       "Root file system is not read-only",
@@ -437,7 +433,7 @@ warn[res] {
 				"policy.invalid.kinds": "Workload",
 				"policy.invalid.rego":  "$^&!",
 			},
-			expectedError: "failed to load rego policies from reader(s): 1 error occurred: reader_0:1: rego_parse_error: illegal token\n\t$^&!\n\t^",
+			expectedError: "failed parsing Rego policy: policy.invalid.rego: 1 error occurred: policy.invalid.rego:1: rego_parse_error: illegal token\n\t$^&!\n\t^",
 		},
 		{
 			name: "Should return error when library cannot be parsed",
@@ -491,11 +487,105 @@ warn[res] {
 }
 `,
 			},
-			expectedError: "failed to load rego policies from reader(s): 1 error occurred: reader_1:1: rego_parse_error: illegal token\n\t$^&!\n\t^",
+			expectedError: "failed parsing Rego library: library.utils.rego: 1 error occurred: library.utils.rego:1: rego_parse_error: illegal token\n\t$^&!\n\t^",
 		},
 		{
-			name:          "Should eval deny rule with any resource and multiple messages",
-			expectedError: "failed to run policy checks on resources",
+			name: "Should return error when __rego_metadata__ is not defined",
+			resource: &appsv1.Deployment{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Deployment",
+					APIVersion: "appsv1",
+				},
+				Spec: appsv1.DeploymentSpec{
+					Template: corev1.PodTemplateSpec{
+						Spec: corev1.PodSpec{
+							SecurityContext: &corev1.PodSecurityContext{
+								RunAsNonRoot: pointer.BoolPtr(true),
+							},
+							Containers: []corev1.Container{
+								{
+									Name:  "nginx",
+									Image: "nginx:1.16",
+								},
+							},
+						},
+					},
+				},
+			},
+			policies: map[string]string{
+				"policy.policy1.kinds": "Workload",
+				"policy.policy1.rego": `package appshield.kubernetes.KSV014
+
+warn[res] {
+	input.kind == "Deployment"
+	not input.spec.template.spec.securityContext.runAsNonRoot
+
+	msg := "Containers must not run as root"
+
+	res := {
+		"id": "KSV014",
+		"title": "Root file system is not read-only",
+		"severity": "LOW",
+		"type": "Kubernetes Security Check",
+		"msg": msg
+	}
+}
+`,
+			},
+			expectedError: "failed parsing policy metadata: policy.policy1.rego",
+		},
+		{
+			name: "Should return error when __rego_metadata__ cannot be parsed",
+			resource: &appsv1.Deployment{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Deployment",
+					APIVersion: "appsv1",
+				},
+				Spec: appsv1.DeploymentSpec{
+					Template: corev1.PodTemplateSpec{
+						Spec: corev1.PodSpec{
+							Containers: []corev1.Container{
+								{
+									Name:  "nginx",
+									Image: "nginx:1.16",
+								},
+							},
+						},
+					},
+				},
+			},
+			policies: map[string]string{
+				"policy.policy1.kinds": "Workload",
+				"policy.policy1.rego": `package appshield.kubernetes.KSV014
+
+__rego_metadata__ := {
+	"id": "KSV014",
+	"title": "Root file system is not read-only",
+	"description": "An immutable root file system prevents applications from writing to their local disk",
+	"severity": "SEVERE",
+	"type": "Kubernetes Security Check"
+}
+
+deny[res] {
+	input.kind == "Deployment"
+	not input.spec.template.spec.securityContext.runAsNonRoot
+
+	msg := "Containers must not run as root"
+
+	res := {
+		"id": __rego_metadata__.id,
+		"title": __rego_metadata__.title,
+		"severity": __rego_metadata__.severity,
+		"type": __rego_metadata__.type,
+		"msg": msg
+	}
+}
+`,
+			},
+			expectedError: "failed parsing policy metadata: policy.policy1.rego: failed parsing severity: unrecognized name literal: SEVERE",
+		},
+		{
+			name: "Should eval deny rule with any resource and multiple messages",
 			resource: &appsv1.Deployment{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Deployment",
@@ -546,9 +636,9 @@ deny[res] {
 	}
 }`,
 			},
-			results: []Result{
+			results: []policy.Result{
 				{
-					Metadata: Metadata{
+					Metadata: policy.Metadata{
 						ID:          "KSV013",
 						Title:       "Image tag ':latest' used",
 						Description: "It is best to avoid using the ':latest' image tag when deploying containers in production. Doing so makes it hard to track which version of the image is running, and hard to roll back the version.",
@@ -561,8 +651,7 @@ deny[res] {
 			},
 		},
 		{
-			name:          "Should eval warn rule with any resource and multiple messages",
-			expectedError: "failed to run policy checks on resources",
+			name: "Should eval warn rule with any resource and multiple messages",
 			resource: &appsv1.Deployment{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Deployment",
@@ -613,9 +702,9 @@ deny[res] {
 	}
 }`,
 			},
-			results: []Result{
+			results: []policy.Result{
 				{
-					Metadata: Metadata{
+					Metadata: policy.Metadata{
 						ID:          "KSV013",
 						Title:       "Image tag ':latest' used",
 						Description: "It is best to avoid using the ':latest' image tag when deploying containers in production. Doing so makes it hard to track which version of the image is running, and hard to roll back the version.",
@@ -637,7 +726,7 @@ deny[res] {
 				g.Expect(err).To(MatchError(tc.expectedError))
 			} else {
 				g.Expect(err).ToNot(HaveOccurred())
-				g.Expect(getPolicyResults(checks)).To(Equal(tc.results))
+				g.Expect(checks).To(Equal(tc.results))
 			}
 		})
 	}
@@ -647,7 +736,7 @@ func TestNewMetadata(t *testing.T) {
 	testCases := []struct {
 		name             string
 		values           map[string]interface{}
-		expectedMetadata Metadata
+		expectedMetadata policy.Metadata
 		expectedError    string
 	}{
 		{
@@ -822,7 +911,7 @@ func TestNewMetadata(t *testing.T) {
 				"type":        "some type",
 				"description": "some description",
 			},
-			expectedMetadata: Metadata{
+			expectedMetadata: policy.Metadata{
 				ID:          "some id",
 				Title:       "some title",
 				Severity:    "CRITICAL",
@@ -834,7 +923,7 @@ func TestNewMetadata(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
-			metadata, err := NewMetadata(tc.values)
+			metadata, err := policy.NewMetadata(tc.values)
 			if tc.expectedError != "" {
 				g.Expect(err).To(MatchError(tc.expectedError))
 			} else {
@@ -889,7 +978,7 @@ func TestNewMessage(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
-			result, err := NewMessage(tc.values)
+			result, err := policy.NewMessage(tc.values)
 			if tc.expectedError != "" {
 				g.Expect(err).To(MatchError(tc.expectedError))
 			} else {
@@ -898,119 +987,4 @@ func TestNewMessage(t *testing.T) {
 			}
 		})
 	}
-}
-
-const (
-	// varMessage is the name of Rego variable used to bind deny or warn
-	// messages.
-	varMessage = "msg"
-)
-
-// Result describes result of evaluating a Rego policy that defines `deny` or
-// `warn` rules.
-type Result struct {
-	// Metadata describes Rego policy metadata.
-	Metadata Metadata
-
-	// Success represents the status of evaluating Rego policy.
-	Success bool
-
-	// Messages deny or warning messages.
-	Messages []string
-}
-
-// model and function helpers
-
-type Results []Result
-
-func getPolicyResults(results scan.Results) Results {
-	prs := make([]Result, 0)
-	for _, result := range results {
-		var msgs []string
-		if len(result.Description()) > 0 {
-			msgs = []string{result.Description()}
-		} else {
-			msgs = nil
-		}
-		pr := Result{Metadata: Metadata{ID: result.Rule().LegacyID, Title: result.Rule().Summary, Severity: v1alpha1.Severity(result.Severity()), Type: "Kubernetes Security Check", Description: result.Rule().Explanation}, Success: result.Status() == scan.StatusPassed, Messages: msgs}
-		prs = append(prs, pr)
-	}
-	return prs
-}
-
-// NewMetadata constructs new Metadata based on raw values.
-func NewMetadata(values map[string]interface{}) (Metadata, error) {
-	if values == nil {
-		return Metadata{}, errors.New("values must not be nil")
-	}
-	severityString, err := requiredStringValue(values, "severity")
-	if err != nil {
-		return Metadata{}, err
-	}
-	severity, err := v1alpha1.StringToSeverity(severityString)
-	if err != nil {
-		return Metadata{}, fmt.Errorf("failed parsing severity: %w", err)
-	}
-	id, err := requiredStringValue(values, "id")
-	if err != nil {
-		return Metadata{}, err
-	}
-	title, err := requiredStringValue(values, "title")
-	if err != nil {
-		return Metadata{}, err
-	}
-	policyType, err := requiredStringValue(values, "type")
-	if err != nil {
-		return Metadata{}, err
-	}
-	description, err := requiredStringValue(values, "description")
-	if err != nil {
-		return Metadata{}, err
-	}
-
-	return Metadata{
-		Severity:    severity,
-		ID:          id,
-		Title:       title,
-		Type:        policyType,
-		Description: description,
-	}, nil
-}
-
-// Metadata describes policy metadata.
-type Metadata struct {
-	ID          string
-	Title       string
-	Severity    v1alpha1.Severity
-	Type        string
-	Description string
-}
-
-// NewMessage constructs new message string based on raw values.
-func NewMessage(values map[string]interface{}) (string, error) {
-	if values == nil {
-		return "", errors.New("values must not be nil")
-	}
-	message, err := requiredStringValue(values, varMessage)
-	if err != nil {
-		return "", err
-	}
-	return message, nil
-}
-func requiredStringValue(values map[string]interface{}, key string) (string, error) {
-	value, ok := values[key]
-	if !ok {
-		return "", fmt.Errorf("required key not found: %s", key)
-	}
-	if value == nil {
-		return "", fmt.Errorf("required value is nil for key: %s", key)
-	}
-	valueString, ok := value.(string)
-	if !ok {
-		return "", fmt.Errorf("expected string got %T for key: %s", value, key)
-	}
-	if valueString == "" {
-		return "", fmt.Errorf("required value is blank for key: %s", key)
-	}
-	return valueString, nil
 }

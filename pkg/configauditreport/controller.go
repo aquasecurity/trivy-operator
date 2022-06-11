@@ -280,7 +280,7 @@ func (r *ResourceController) policies(ctx context.Context) (*policy.Policies, er
 	if err != nil {
 		return nil, fmt.Errorf("failed getting policies from configmap: %s/%s: %w", r.Config.Namespace, trivyoperator.PoliciesConfigMapName, err)
 	}
-	return policy.NewPolicies(cm.Data), nil
+	return policy.NewPolicies(cm.Data, r.Logger), nil
 }
 
 func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Policies, resource client.Object) (v1alpha1.ConfigAuditReportData, error) {

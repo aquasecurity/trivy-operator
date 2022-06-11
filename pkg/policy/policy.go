@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/go-logr/logr"
 	"io"
 	"strings"
 
@@ -30,11 +31,13 @@ const (
 
 type Policies struct {
 	data map[string]string
+	log  logr.Logger
 }
 
-func NewPolicies(data map[string]string) *Policies {
+func NewPolicies(data map[string]string, log logr.Logger) *Policies {
 	return &Policies{
 		data: data,
+		log:  log,
 	}
 }
 
@@ -148,14 +151,19 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object) (scan.Resul
 	if err != nil {
 		return nil, fmt.Errorf("failed listing policies by kind: %s: %w", resourceKind, err)
 	}
-	// making sure handles for reader not remain open in case of failure with lib scanner
-	defer CloseReaders(policiesReader)
+	// close policy readers
+	defer func() {
+		err := closeReaders(policiesReader)
+		if err != nil {
+			p.log.V(1).Error(err, "failed closing policy readers")
+		}
+	}()
 	scanner := kubernetes.NewScanner(options.ScannerWithEmbeddedPolicies(false), options.OptionWithPolicyReaders(policiesReader...))
-	b, err := json.Marshal(resource)
+	inputResource, err := json.Marshal(resource)
 	if err != nil {
 		return nil, err
 	}
-	scanResult, err := scanner.ScanReader(ctx, "./input.json", strings.NewReader(string(b)))
+	scanResult, err := scanner.ScanReader(ctx, "./input.json", strings.NewReader(string(inputResource)))
 	if err != nil {
 		return nil, err
 	}
@@ -166,15 +174,17 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object) (scan.Resul
 	return scanResult, nil
 }
 
-func CloseReaders(readers []io.Reader) error {
+func closeReaders(readers []io.Reader) error {
 	if len(readers) == 0 {
 		return nil
 	}
 	for _, r := range readers {
-		cr := r.(io.ReadCloser)
-		err := cr.Close()
-		if err != nil {
-			return err
+		cr, ok := r.(io.ReadCloser)
+		if ok {
+			err := cr.Close()
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil

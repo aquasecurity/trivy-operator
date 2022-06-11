@@ -1280,7 +1280,7 @@ func (p *plugin) ParseVulnerabilityReportData(ctx trivyoperator.PluginContext, i
 	return v1alpha1.VulnerabilityReportData{
 		UpdateTimestamp: metav1.NewTime(p.clock.Now()),
 		Scanner: v1alpha1.Scanner{
-			Name:    "Trivy",
+			Name:    v1alpha1.ScannerNameTrivy,
 			Vendor:  "Aqua Security",
 			Version: version,
 		},

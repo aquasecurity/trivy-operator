@@ -36,6 +36,8 @@ func StringToSeverity(name string) (Severity, error) {
 	}
 }
 
+const ScannerNameTrivy = "Trivy"
+
 // Scanner is the spec for a scanner generating a security assessment report.
 type Scanner struct {
 	// Name the name of the scanner.

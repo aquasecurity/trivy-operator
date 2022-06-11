@@ -304,7 +304,7 @@ func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Poli
 
 	return v1alpha1.ConfigAuditReportData{
 		Scanner: v1alpha1.Scanner{
-			Name:    "Trivy-Operator",
+			Name:    v1alpha1.ScannerNameTrivy,
 			Vendor:  "Aqua Security",
 			Version: r.BuildInfo.Version,
 		},

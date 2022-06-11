@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/onsi/gomega"
 	"github.com/stretchr/testify/assert"
@@ -27,7 +28,7 @@ func TestConfigData_GetVulnerabilityReportsScanner(t *testing.T) {
 			configData: trivyoperator.ConfigData{
 				"vulnerabilityReports.scanner": "Trivy",
 			},
-			expectedScanner: "Trivy",
+			expectedScanner: v1alpha1.ScannerNameTrivy,
 		},
 		{
 			name:          "Should return error when value is not set",
@@ -60,7 +61,7 @@ func TestConfigData_GetConfigAuditReportsScanner(t *testing.T) {
 			configData: trivyoperator.ConfigData{
 				"configAuditReports.scanner": "Trivy",
 			},
-			expectedScanner: "Trivy",
+			expectedScanner: v1alpha1.ScannerNameTrivy,
 		},
 		{
 			name:          "Should return error when value is not set",

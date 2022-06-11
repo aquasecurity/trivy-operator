@@ -3526,7 +3526,7 @@ var (
 	sampleReport = v1alpha1.VulnerabilityReportData{
 		UpdateTimestamp: metav1.NewTime(fixedTime),
 		Scanner: v1alpha1.Scanner{
-			Name:    "Trivy",
+			Name:    v1alpha1.ScannerNameTrivy,
 			Vendor:  "Aqua Security",
 			Version: "0.9.1",
 		},
@@ -3602,7 +3602,7 @@ func TestPlugin_ParseVulnerabilityReportData(t *testing.T) {
 			expectedReport: v1alpha1.VulnerabilityReportData{
 				UpdateTimestamp: metav1.NewTime(fixedTime),
 				Scanner: v1alpha1.Scanner{
-					Name:    "Trivy",
+					Name:    v1alpha1.ScannerNameTrivy,
 					Vendor:  "Aqua Security",
 					Version: "0.9.1",
 				},

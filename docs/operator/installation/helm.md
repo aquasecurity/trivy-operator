@@ -69,7 +69,6 @@ You have to manually delete custom resource definitions created by the `helm ins
 
     ```
     kubectl delete crd vulnerabilityreports.aquasecurity.github.io
-    kubectl delete crd clustervulnerabilityreports.aquasecurity.github.io
     kubectl delete crd configauditreports.aquasecurity.github.io
     kubectl delete crd clusterconfigauditreports.aquasecurity.github.io
     kubectl delete crd clustercompliancereports.aquasecurity.github.io

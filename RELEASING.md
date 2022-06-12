@@ -24,15 +24,14 @@
       2. [`deploy/crd/clustercompliancedetailreports.crd.yaml`]
       3. [`deploy/crd/clustercompliancereports.crd.yaml`]
       4. [`deploy/crd/clusterconfigauditreports.crd.yaml`]
-      5. [`deploy/crd/clustervulnerabilityreports.crd.yaml`]
       6. [`deploy/crd/configauditreports.crd.yaml`]
-      8. [`deploy/crd/vulnerabilityreports.crd.yaml`]
-      9. [`deploy/static/05-trivy-operator.deployment.yaml`]
-      10. [`deploy/static/04-trivy-operator.policies.yaml`]
-      11. [`deploy/static/03-trivy-operator.config.yaml`]
-      12. [`deploy/static/02-trivy-operator.rbac.yaml`]
-      13. [`deploy/static/01-trivy-operator.ns.yaml`]
-      14. [`deploy/specs/nsa-1.0.yaml`]
+      5. [`deploy/crd/vulnerabilityreports.crd.yaml`]
+      6. [`deploy/static/05-trivy-operator.deployment.yaml`]
+      7. [`deploy/static/04-trivy-operator.policies.yaml`]
+      8. [`deploy/static/03-trivy-operator.config.yaml`]
+      9. [`deploy/static/02-trivy-operator.rbac.yaml`]
+      10. [`deploy/static/01-trivy-operator.ns.yaml`]
+      11. [`deploy/specs/nsa-1.0.yaml`]
    4. Update [`deploy/static/trivy-operator.yaml`] by running the following script:
       ```
       ./hack/update-trivy-operator.yaml.sh
@@ -67,7 +66,6 @@
 [`deploy/crd/clustercompliancedetailreports.crd.yaml`]: ./deploy/crd/clustercompliancedetailreports.crd.yaml
 [`deploy/crd/clustercompliancereports.crd.yaml`]: ./deploy/crd/clustercompliancereports.crd.yaml
 [`deploy/crd/clusterconfigauditreports.crd.yaml`]: ./deploy/crd/clusterconfigauditreports.crd.yaml
-[`deploy/crd/clustervulnerabilityreports.crd.yaml`]: ./deploy/crd/clustervulnerabilityreports.crd.yaml
 [`deploy/crd/configauditreports.crd.yaml`]: ./deploy/crd/configauditreports.crd.yaml
 [`deploy/crd/vulnerabilityreports.crd.yaml`]: ./deploy/crd/vulnerabilityreports.crd.yaml
 [`deploy/static/05-trivy-operator.deployment.yaml`]: ./deploy/static/05-trivy-operator.deployment.yaml

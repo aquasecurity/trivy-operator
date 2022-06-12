@@ -24,10 +24,6 @@ func (c *FakeAquasecurityV1alpha1) ClusterConfigAuditReports() v1alpha1.ClusterC
 	return &FakeClusterConfigAuditReports{c}
 }
 
-func (c *FakeAquasecurityV1alpha1) ClusterVulnerabilityReports() v1alpha1.ClusterVulnerabilityReportInterface {
-	return &FakeClusterVulnerabilityReports{c}
-}
-
 func (c *FakeAquasecurityV1alpha1) ConfigAuditReports(namespace string) v1alpha1.ConfigAuditReportInterface {
 	return &FakeConfigAuditReports{c, namespace}
 }

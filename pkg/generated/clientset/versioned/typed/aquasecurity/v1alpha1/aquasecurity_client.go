@@ -15,7 +15,6 @@ type AquasecurityV1alpha1Interface interface {
 	ClusterComplianceDetailReportsGetter
 	ClusterComplianceReportsGetter
 	ClusterConfigAuditReportsGetter
-	ClusterVulnerabilityReportsGetter
 	ConfigAuditReportsGetter
 	VulnerabilityReportsGetter
 }
@@ -35,10 +34,6 @@ func (c *AquasecurityV1alpha1Client) ClusterComplianceReports(namespace string) 
 
 func (c *AquasecurityV1alpha1Client) ClusterConfigAuditReports() ClusterConfigAuditReportInterface {
 	return newClusterConfigAuditReports(c)
-}
-
-func (c *AquasecurityV1alpha1Client) ClusterVulnerabilityReports() ClusterVulnerabilityReportInterface {
-	return newClusterVulnerabilityReports(c)
 }
 
 func (c *AquasecurityV1alpha1Client) ConfigAuditReports(namespace string) ConfigAuditReportInterface {

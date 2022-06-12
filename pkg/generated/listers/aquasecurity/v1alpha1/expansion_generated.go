@@ -22,10 +22,6 @@ type ClusterComplianceReportNamespaceListerExpansion interface{}
 // ClusterConfigAuditReportLister.
 type ClusterConfigAuditReportListerExpansion interface{}
 
-// ClusterVulnerabilityReportListerExpansion allows custom methods to be added to
-// ClusterVulnerabilityReportLister.
-type ClusterVulnerabilityReportListerExpansion interface{}
-
 // ConfigAuditReportListerExpansion allows custom methods to be added to
 // ConfigAuditReportLister.
 type ConfigAuditReportListerExpansion interface{}

@@ -6,7 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-logr/logr"
-	"io"
+	"github.com/liamg/memoryfs"
+	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/aquasecurity/defsec/pkg/scan"
@@ -107,16 +109,16 @@ func (p *Policies) ModulesByKind(kind string) (map[string]string, error) {
 	}
 	return modules, nil
 }
-func (p *Policies) ModulesReaderByKind(kind string) ([]io.Reader, error) {
+func (p *Policies) ModulePolicyByKind(kind string) ([]string, error) {
 	modByKind, err := p.ModulesByKind(kind)
 	if err != nil {
 		return nil, err
 	}
-	policyReader := make([]io.Reader, 0)
+	policy := make([]string, 0)
 	for _, mod := range modByKind {
-		policyReader = append(policyReader, io.NopCloser(strings.NewReader(mod)))
+		policy = append(policy, mod)
 	}
-	return policyReader, nil
+	return policy, nil
 }
 
 func (p *Policies) Applicable(resource client.Object) (bool, string, error) {
@@ -135,9 +137,6 @@ func (p *Policies) Applicable(resource client.Object) (bool, string, error) {
 }
 
 // Eval evaluates Rego policies with Kubernetes resource client.Object as input.
-//
-// TODO(danielpacak) Compile and cache prepared queries to make Eval more efficient.
-//                   We can reuse prepared queries so long policies do not change.
 func (p *Policies) Eval(ctx context.Context, resource client.Object) (scan.Results, error) {
 	if resource == nil {
 		return nil, fmt.Errorf("resource must not be nil")
@@ -146,24 +145,31 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object) (scan.Resul
 	if resourceKind == "" {
 		return nil, fmt.Errorf("resource kind must not be blank")
 	}
-
-	policiesReader, err := p.ModulesReaderByKind(resourceKind)
+	const (
+		inputFolder    = "inputs"
+		policiesFolder = "policies"
+	)
+	policies, err := p.ModulePolicyByKind(resourceKind)
 	if err != nil {
 		return nil, fmt.Errorf("failed listing policies by kind: %s: %w", resourceKind, err)
 	}
-	// close policy readers
-	defer func() {
-		err := closeReaders(policiesReader)
-		if err != nil {
-			p.log.V(1).Error(err, "failed closing policy readers")
-		}
-	}()
-	scanner := kubernetes.NewScanner(options.ScannerWithEmbeddedPolicies(false), options.OptionWithPolicyReaders(policiesReader...))
+	memfs := memoryfs.New()
+	// add policies files
+	err = createPolicyInputFS(memfs, policiesFolder, policies, "rego")
+	if err != nil {
+		return nil, err
+	}
 	inputResource, err := json.Marshal(resource)
 	if err != nil {
 		return nil, err
 	}
-	scanResult, err := scanner.ScanReader(ctx, "./input.json", strings.NewReader(string(inputResource)))
+	// add input files
+	err = createPolicyInputFS(memfs, inputFolder, []string{string(inputResource)}, "yaml")
+	if err != nil {
+		return nil, err
+	}
+	scanner := kubernetes.NewScanner(options.ScannerWithEmbeddedPolicies(false), options.ScannerWithPolicyDirs(policiesFolder))
+	scanResult, err := scanner.ScanFS(ctx, memfs, inputFolder)
 	if err != nil {
 		return nil, err
 	}
@@ -174,17 +180,13 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object) (scan.Resul
 	return scanResult, nil
 }
 
-func closeReaders(readers []io.Reader) error {
-	if len(readers) == 0 {
-		return nil
+func createPolicyInputFS(memfs *memoryfs.FS, folderName string, fileData []string, ext string) error {
+	if err := memfs.MkdirAll(filepath.Base(folderName), 0o700); err != nil {
+		return err
 	}
-	for _, r := range readers {
-		cr, ok := r.(io.ReadCloser)
-		if ok {
-			err := cr.Close()
-			if err != nil {
-				return err
-			}
+	for index, file := range fileData {
+		if err := memfs.WriteFile(path.Join(folderName, fmt.Sprintf("%s_%d.%s", "file", index, ext)), []byte(file), 0o644); err != nil {
+			return err
 		}
 	}
 	return nil

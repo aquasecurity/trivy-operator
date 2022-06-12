@@ -439,7 +439,7 @@ warn[res] {
 				"policy.invalid.kinds": "Workload",
 				"policy.invalid.rego":  "$^&!",
 			},
-			expectedError: "failed to load rego policies from reader(s): 1 error occurred: reader_0:1: rego_parse_error: illegal token\n\t$^&!\n\t^",
+			expectedError: "failed to load rego policies from [policies]: 1 error occurred: policies/file_0.rego:1: rego_parse_error: illegal token\n\t$^&!\n\t^",
 		},
 		{
 			name: "Should return error when library cannot be parsed",
@@ -493,7 +493,7 @@ warn[res] {
 }
 `,
 			},
-			expectedError: "failed to load rego policies from reader(s): 1 error occurred: reader_1:1: rego_parse_error: illegal token\n\t$^&!\n\t^",
+			expectedError: "failed to load rego policies from [policies]: 1 error occurred: policies/file_1.rego:1: rego_parse_error: illegal token\n\t$^&!\n\t^",
 		},
 		{
 			name:          "Should eval deny rule with any resource and multiple messages",

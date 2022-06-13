@@ -3,6 +3,7 @@ package configauditreport
 import (
 	"context"
 	"fmt"
+	"github.com/aquasecurity/defsec/pkg/scan"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
@@ -279,7 +280,7 @@ func (r *ResourceController) policies(ctx context.Context) (*policy.Policies, er
 	if err != nil {
 		return nil, fmt.Errorf("failed getting policies from configmap: %s/%s: %w", r.Config.Namespace, trivyoperator.PoliciesConfigMapName, err)
 	}
-	return policy.NewPolicies(cm.Data), nil
+	return policy.NewPolicies(cm.Data, r.Logger), nil
 }
 
 func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Policies, resource client.Object) (v1alpha1.ConfigAuditReportData, error) {
@@ -287,19 +288,18 @@ func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Poli
 	if err != nil {
 		return v1alpha1.ConfigAuditReportData{}, err
 	}
+	checks := make([]v1alpha1.Check, 0)
+	for _, result := range results {
+		checks = append(checks, v1alpha1.Check{
+			ID:          result.Rule().LegacyID,
+			Title:       result.Rule().Summary,
+			Description: result.Rule().Explanation,
+			Severity:    v1alpha1.Severity(result.Rule().Severity),
+			Category:    "Kubernetes Security Check",
 
-	checks := make([]v1alpha1.Check, len(results))
-	for i, result := range results {
-		checks[i] = v1alpha1.Check{
-			ID:          result.Metadata.ID,
-			Title:       result.Metadata.Title,
-			Description: result.Metadata.Description,
-			Severity:    result.Metadata.Severity,
-			Category:    result.Metadata.Type,
-
-			Success:  result.Success,
-			Messages: result.Messages,
-		}
+			Success:  result.Status() == scan.StatusPassed,
+			Messages: []string{result.Description()},
+		})
 	}
 
 	return v1alpha1.ConfigAuditReportData{

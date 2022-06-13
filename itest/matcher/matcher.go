@@ -19,12 +19,12 @@ import (
 
 var (
 	trivyScanner = v1alpha1.Scanner{
-		Name:    "Trivy",
+		Name:    v1alpha1.ScannerNameTrivy,
 		Vendor:  "Aqua Security",
 		Version: "0.28.1",
 	}
 	builtInScanner = v1alpha1.Scanner{
-		Name:    "Trivy-Operator",
+		Name:    v1alpha1.ScannerNameTrivy,
 		Vendor:  "Aqua Security",
 		Version: "dev",
 	}

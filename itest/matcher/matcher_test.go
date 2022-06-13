@@ -55,7 +55,7 @@ func TestVulnerabilityReportMatcher(t *testing.T) {
 			},
 			Report: v1alpha1.VulnerabilityReportData{
 				Scanner: v1alpha1.Scanner{
-					Name:    "Trivy",
+					Name:    v1alpha1.ScannerNameTrivy,
 					Vendor:  "Aqua Security",
 					Version: "0.28.1",
 				},
@@ -107,7 +107,7 @@ func TestConfigAuditReportMatcher(t *testing.T) {
 			},
 			Report: v1alpha1.ConfigAuditReportData{
 				Scanner: v1alpha1.Scanner{
-					Name:    "Trivy-Operator",
+					Name:    v1alpha1.ScannerNameTrivy,
 					Vendor:  "Aqua Security",
 					Version: "dev",
 				},

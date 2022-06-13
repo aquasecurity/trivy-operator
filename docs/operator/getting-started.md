@@ -49,7 +49,7 @@ kubectl get configauditreports -o wide
 
 ```
 NAME                          SCANNER     AGE    CRITICAL  HIGH   MEDIUM   LOW
-replicaset-nginx-78449c65d4   Trivy-Operator   2m7s   0         0      6        7
+replicaset-nginx-78449c65d4   Trivy   2m7s   0         0      6        7
 ```
 </details>
 

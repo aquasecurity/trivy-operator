@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -3757,6 +3758,119 @@ func TestGetMirroredImage(t *testing.T) {
 				require.NoError(t, err)
 				assert.Equal(t, tc.expected, expected)
 			}
+		})
+	}
+}
+
+func TestGetContainers(t *testing.T) {
+	workloadSpec := &appsv1.ReplicaSet{
+		Spec: appsv1.ReplicaSetSpec{
+			Template: corev1.PodTemplateSpec{
+
+				Spec: corev1.PodSpec{
+					InitContainers: []corev1.Container{
+						{Name: "init1", Image: "busybox:1.34.1"},
+						{Name: "init2", Image: "busybox:1.34.1"},
+					},
+					Containers: []corev1.Container{
+						{Name: "container1", Image: "busybox:1.34.1"},
+						{Name: "container2", Image: "busybox:1.34.1"},
+					},
+					EphemeralContainers: []corev1.EphemeralContainer{
+						{
+							EphemeralContainerCommon: corev1.EphemeralContainerCommon{
+								Name: "ephemeral1", Image: "busybox:1.34.1",
+							},
+						},
+						{
+							EphemeralContainerCommon: corev1.EphemeralContainerCommon{
+								Name: "ephemeral2", Image: "busybox:1.34.1",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	testCases := []struct {
+		name       string
+		configData map[string]string
+	}{
+		{
+			name: "Standalone mode with image command",
+			configData: map[string]string{
+				"trivy.dbRepository": defaultDBRepository,
+				"trivy.imageRef":     "docker.io/aquasec/trivy:0.22.0",
+				"trivy.mode":         string(trivy.Standalone),
+				"trivy.command":      string(trivy.Image),
+			},
+		},
+		{
+			name: "ClientServer mode with image command",
+			configData: map[string]string{
+				"trivy.serverURL":    "http://trivy.trivy:4954",
+				"trivy.dbRepository": defaultDBRepository,
+				"trivy.imageRef":     "docker.io/aquasec/trivy:0.22.0",
+				"trivy.mode":         string(trivy.ClientServer),
+				"trivy.command":      string(trivy.Image),
+			},
+		},
+		{
+			name: "Standalone mode with filesystem command",
+			configData: map[string]string{
+				"trivy.serverURL":    "http://trivy.trivy:4954",
+				"trivy.dbRepository": defaultDBRepository,
+				"trivy.imageRef":     "docker.io/aquasec/trivy:0.22.0",
+				"trivy.mode":         string(trivy.Standalone),
+				"trivy.command":      string(trivy.Filesystem),
+			},
+		},
+	}
+
+	expectedContainers := []string{
+		"container1",
+		"container2",
+		"ephemeral1",
+		"ephemeral2",
+		"init1",
+		"init2",
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			fakeclient := fake.NewClientBuilder().WithObjects(
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "trivy-operator-trivy-config",
+						Namespace: "trivyoperator-ns",
+					},
+					Data: tc.configData,
+				},
+			).Build()
+
+			pluginContext := trivyoperator.NewPluginContext().
+				WithName(trivy.Plugin).
+				WithNamespace("trivyoperator-ns").
+				WithServiceAccountName("trivyoperator-sa").
+				WithClient(fakeclient).
+				WithTrivyOperatorConfig(map[string]string{trivyoperator.KeyVulnerabilityScansInSameNamespace: "true"}).
+				Get()
+
+			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), fakeclient)
+
+			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil)
+			assert.NoError(t, err)
+
+			containers := make([]string, 0)
+
+			for _, c := range jobSpec.Containers {
+				containers = append(containers, c.Name)
+			}
+
+			sort.Strings(containers)
+
+			assert.Equal(t, expectedContainers, containers)
 		})
 	}
 }

@@ -481,8 +481,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 		})
 	}
 
-	for _, c := range spec.Containers {
-
+	for _, c := range getContainers(spec) {
 		env := []corev1.EnvVar{
 			{
 				Name: "TRIVY_SEVERITY",
@@ -717,8 +716,7 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 
 	trivyConfigName := trivyoperator.GetPluginConfigMapName(Plugin)
 
-	for _, container := range spec.Containers {
-
+	for _, container := range getContainers(spec) {
 		env := []corev1.EnvVar{
 			{
 				Name: "HTTP_PROXY",
@@ -1116,8 +1114,7 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 		})
 	}
 
-	for _, c := range spec.Containers {
-
+	for _, c := range getContainers(spec) {
 		env := []corev1.EnvVar{
 			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, keyTrivySeverity),
 			constructEnvVarSourceFromConfigMap("TRIVY_SKIP_FILES", trivyConfigName, keyTrivySkipFiles),
@@ -1386,4 +1383,16 @@ func constructEnvVarSourceFromConfigMap(envName, configName, configKey string) (
 		},
 	}
 	return
+}
+
+func getContainers(spec corev1.PodSpec) []corev1.Container {
+	containers := append(spec.Containers, spec.InitContainers...)
+
+	// ephemeral container are not the same type as Containers/InitContainers,
+	// then we add it in a different loop
+	for _, c := range spec.EphemeralContainers {
+		containers = append(containers, corev1.Container(c.EphemeralContainerCommon))
+	}
+
+	return containers
 }

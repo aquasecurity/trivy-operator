@@ -25,12 +25,12 @@ var (
 		"severity",
 	}
 	imageVulnDesc = prometheus.NewDesc(
-		prometheus.BuildFQName("trivy", "vulnerabilityreport", "image_vulnerabilities"),
+		prometheus.BuildFQName("trivy", "image", "vulnerabilities"),
 		"Number of container image vulnerabilities",
 		imageVulnLabels,
 		nil,
 	)
-	severities = map[string]func(vs v1alpha1.VulnerabilitySummary) int{
+	imageVulnSeverities = map[string]func(vs v1alpha1.VulnerabilitySummary) int{
 		"Critical": func(vs v1alpha1.VulnerabilitySummary) int {
 			return vs.CriticalCount
 		},
@@ -47,8 +47,52 @@ var (
 			return vs.UnknownCount
 		},
 	}
+	configAuditLabels = []string{
+		"namespace",
+		"name",
+		"severity",
+	}
+	configAuditDesc = prometheus.NewDesc(
+		prometheus.BuildFQName("trivy", "resource", "configaudits"),
+		"Number of failing resource configuration auditing checks",
+		configAuditLabels,
+		nil,
+	)
+	configAuditSeverities = map[string]func(vs v1alpha1.ConfigAuditSummary) int{
+		"Critical": func(cas v1alpha1.ConfigAuditSummary) int {
+			return cas.CriticalCount
+		},
+		"High": func(cas v1alpha1.ConfigAuditSummary) int {
+			return cas.HighCount
+		},
+		"Medium": func(cas v1alpha1.ConfigAuditSummary) int {
+			return cas.MediumCount
+		},
+		"Low": func(cas v1alpha1.ConfigAuditSummary) int {
+			return cas.LowCount
+		},
+	}
 )
 
+// ResourcesMetricsCollector is a custom Prometheus collector that produces
+// metrics on-demand from the trivy-operator custom resources. Since these
+// resources are already cached by the Kubernetes API client shared with the
+// operator, metrics scrapes should never actually hit the API server.
+// All resource reads are served from cache, reducing API server load without
+// consuming additional cluster resources.
+// An alternative (more traditional) approach would be to maintain metrics
+// in the internal Prometheus registry on resource reconcile. The collector
+// approach was selected in order to avoid potentially stale metrics; i.e.
+// the controller would have to reconcile all resources at least once for the
+// metrics to be up-to-date, which could take some time in large clusters.
+// Also deleting metrics from registry for obsolete/deleted resources is
+// challenging without introducing finalizers, which we want to avoid for
+// operational reasons.
+//
+// For more advanced use-cases, and/or very large clusters, this internal
+// collector can be disabled and replaced by
+// https://github.com/giantswarm/starboard-exporter, which collects trivy
+// metrics from a dedicated workload supporting sharding etc.
 type ResourcesMetricsCollector struct {
 	logr.Logger
 	etc.Config
@@ -67,6 +111,7 @@ func (c ResourcesMetricsCollector) Collect(metrics chan<- prometheus.Metric) {
 		targetNamespaces = append(targetNamespaces, "")
 	}
 	c.collectVulnerabilityReports(ctx, metrics, targetNamespaces)
+	c.collectConfigAuditReports(ctx, metrics, targetNamespaces)
 }
 
 func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
@@ -84,7 +129,7 @@ func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Conte
 			labelValues[3] = vr.Report.Artifact.Repository
 			labelValues[4] = vr.Report.Artifact.Tag
 			labelValues[5] = vr.Report.Artifact.Digest
-			for severity, countFn := range severities {
+			for severity, countFn := range imageVulnSeverities {
 				labelValues[6] = severity
 				count := countFn(vr.Report.Summary)
 				metrics <- prometheus.MustNewConstMetric(imageVulnDesc, prometheus.GaugeValue, float64(count), labelValues...)
@@ -93,8 +138,29 @@ func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Conte
 	}
 }
 
+func (c *ResourcesMetricsCollector) collectConfigAuditReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
+	carList := &v1alpha1.ConfigAuditReportList{}
+	labelValues := make([]string, 3)
+	for _, n := range targetNamespaces {
+		if err := c.List(ctx, carList, client.InNamespace(n)); err != nil {
+			c.Logger.Error(err, "failed to list configauditreports from API", "namespace", n)
+			continue
+		}
+		for _, car := range carList.Items {
+			labelValues[0] = car.Namespace
+			labelValues[1] = car.Name
+			for severity, countFn := range configAuditSeverities {
+				labelValues[2] = severity
+				count := countFn(car.Report.Summary)
+				metrics <- prometheus.MustNewConstMetric(configAuditDesc, prometheus.GaugeValue, float64(count), labelValues...)
+			}
+		}
+	}
+}
+
 func (c ResourcesMetricsCollector) Describe(descs chan<- *prometheus.Desc) {
 	descs <- imageVulnDesc
+	descs <- configAuditDesc
 }
 
 func (c ResourcesMetricsCollector) Start(ctx context.Context) error {

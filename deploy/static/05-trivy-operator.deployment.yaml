@@ -75,6 +75,8 @@ spec:
               value: "10s"
             - name: OPERATOR_METRICS_BIND_ADDRESS
               value: ":8080"
+            - name: OPERATOR_METRICS_FINDINGS_ENABLED
+              value: "true"
             - name: OPERATOR_HEALTH_PROBE_BIND_ADDRESS
               value: ":9090"
             - name: OPERATOR_CIS_KUBERNETES_BENCHMARK_ENABLED

@@ -21,6 +21,7 @@ type Config struct {
 	BatchDeleteLimit                             int            `env:"OPERATOR_BATCH_DELETE_LIMIT" envDefault:"10"`
 	BatchDeleteDelay                             time.Duration  `env:"OPERATOR_BATCH_DELETE_DELAY" envDefault:"10s"`
 	MetricsBindAddress                           string         `env:"OPERATOR_METRICS_BIND_ADDRESS" envDefault:":8080"`
+	MetricsFindingsEnabled                       bool           `env:"OPERATOR_METRICS_FINDINGS_ENABLED" envDefault:"true"`
 	HealthProbeBindAddress                       string         `env:"OPERATOR_HEALTH_PROBE_BIND_ADDRESS" envDefault:":9090"`
 	CISKubernetesBenchmarkEnabled                bool           `env:"OPERATOR_CIS_KUBERNETES_BENCHMARK_ENABLED" envDefault:"false"`
 	VulnerabilityScannerEnabled                  bool           `env:"OPERATOR_VULNERABILITY_SCANNER_ENABLED" envDefault:"true"`

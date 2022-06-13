@@ -114,7 +114,7 @@ func (p *Policies) ModulePolicyByKind(kind string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	policy := make([]string, 0)
+	policy := make([]string, 0, len(modByKind))
 	for _, mod := range modByKind {
 		policy = append(policy, mod)
 	}
@@ -185,7 +185,7 @@ func createPolicyInputFS(memfs *memoryfs.FS, folderName string, fileData []strin
 		return err
 	}
 	for index, file := range fileData {
-		if err := memfs.WriteFile(path.Join(folderName, fmt.Sprintf("%s_%d.%s", "file", index, ext)), []byte(file), 0o644); err != nil {
+		if err := memfs.WriteFile(path.Join(folderName, fmt.Sprintf("file_%d.%s", index, ext)), []byte(file), 0o644); err != nil {
 			return err
 		}
 	}

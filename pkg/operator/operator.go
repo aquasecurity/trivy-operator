@@ -8,6 +8,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/metrics"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/plugin"
@@ -194,6 +195,19 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			return fmt.Errorf("unable to setup clustercompliancereport reconciler: %w", err)
 		}
 	}
+
+	if operatorConfig.MetricsFindingsEnabled {
+		logger := ctrl.Log.WithName("metrics")
+		rmc := &metrics.ResourcesMetricsCollector{
+			Logger: logger,
+			Config: operatorConfig,
+			Client: mgr.GetClient(),
+		}
+		if err := rmc.SetupWithManager(mgr); err != nil {
+			return fmt.Errorf("unable to setup resources metrics collector: %w", err)
+		}
+	}
+
 	setupLog.Info("Starting controllers manager")
 	if err := mgr.Start(ctx); err != nil {
 		return fmt.Errorf("starting controllers manager: %w", err)

@@ -14,6 +14,7 @@ require (
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.19.0
 	github.com/open-policy-agent/opa v0.41.0
+	github.com/prometheus/client_golang v1.12.1
 	github.com/stretchr/testify v1.7.2
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.24.1
@@ -79,7 +80,6 @@ require (
 	github.com/owenrumney/squealer v1.0.1-0.20220510063705-c0be93f0edea // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/prometheus/client_golang v1.12.1 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.32.1 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect

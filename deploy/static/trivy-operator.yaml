@@ -5,7 +5,7 @@ metadata:
   name: vulnerabilityreports.aquasecurity.github.io
   labels:
     app.kubernetes.io/managed-by: trivy-operator
-    app.kubernetes.io/version: "0.0.5"
+    app.kubernetes.io/version: "0.0.6"
 spec:
   group: aquasecurity.github.io
   versions:
@@ -247,7 +247,7 @@ metadata:
   name: configauditreports.aquasecurity.github.io
   labels:
     app.kubernetes.io/managed-by: trivy-operator
-    app.kubernetes.io/version: "0.0.5"
+    app.kubernetes.io/version: "0.0.6"
 spec:
   group: aquasecurity.github.io
   versions:
@@ -303,7 +303,7 @@ metadata:
   name: clusterconfigauditreports.aquasecurity.github.io
   labels:
     app.kubernetes.io/managed-by: trivy-operator
-    app.kubernetes.io/version: "0.0.5"
+    app.kubernetes.io/version: "0.0.6"
 spec:
   group: aquasecurity.github.io
   versions:
@@ -359,7 +359,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.0.5"
+    app.kubernetes.io/version: "0.0.6"
     app.kubernetes.io/managed-by: kubectl
 ---
 apiVersion: v1
@@ -370,7 +370,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.0.5"
+    app.kubernetes.io/version: "0.0.6"
     app.kubernetes.io/managed-by: kubectl
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -380,7 +380,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.0.5"
+    app.kubernetes.io/version: "0.0.6"
     app.kubernetes.io/managed-by: kubectl
 rules:
   - apiGroups:
@@ -528,7 +528,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.0.5"
+    app.kubernetes.io/version: "0.0.6"
     app.kubernetes.io/managed-by: kubectl
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -547,7 +547,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.0.5"
+    app.kubernetes.io/version: "0.0.6"
     app.kubernetes.io/managed-by: kubectl
 ---
 apiVersion: v1
@@ -558,7 +558,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.0.5"
+    app.kubernetes.io/version: "0.0.6"
     app.kubernetes.io/managed-by: kubectl
 ---
 apiVersion: v1
@@ -569,7 +569,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.0.5"
+    app.kubernetes.io/version: "0.0.6"
     app.kubernetes.io/managed-by: kubectl
 data:
   vulnerabilityReports.scanner: "Trivy"
@@ -584,7 +584,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.0.5"
+    app.kubernetes.io/version: "0.0.6"
     app.kubernetes.io/managed-by: kubectl
 data:
   trivy.imageRef: "docker.io/aquasec/trivy:0.28.1"
@@ -605,7 +605,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.0.5"
+    app.kubernetes.io/version: "0.0.6"
     app.kubernetes.io/managed-by: kubectl
 data:
   library.kubernetes.rego: "package lib.kubernetes\n\ndefault is_gatekeeper = false\n\nis_gatekeeper
@@ -1474,7 +1474,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.0.5"
+    app.kubernetes.io/version: "0.0.6"
     app.kubernetes.io/managed-by: kubectl
   annotations:
     prometheus.io/path: /metrics
@@ -1497,7 +1497,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.0.5"
+    app.kubernetes.io/version: "0.0.6"
     app.kubernetes.io/managed-by: kubectl
 spec:
   replicas: 1
@@ -1517,7 +1517,7 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: "trivy-operator"
-          image: "docker.io/aquasec/trivy-operator:0.0.5"
+          image: "docker.io/aquasec/trivy-operator:0.0.6"
           imagePullPolicy: IfNotPresent
           env:
             - name: OPERATOR_NAMESPACE

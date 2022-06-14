@@ -1,4 +1,4 @@
-package starboard.policy.k8s.custom
+package trivy-operator.policy.k8s.custom
 
 __rego_metadata__ := {
 	"id": "recommended_labels",

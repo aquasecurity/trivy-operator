@@ -33,14 +33,6 @@ kubectl create namespace bar
 kubectl create deploy nginx --image nginx:1.16 --namespace bar
 ```
 
-When we scan them Trivy-Operator will create VulnerabilityReports which are named by revision kind (`replicaset`)
-concatenated with revision name (`nginx-7967dc8bfd`) and container name (`nginx`).
-
-```
-starboard scan vulnerabilityreports deploy/nginx --namespace foo
-starboard scan vulnerabilityreports deploy/redis --namespace foo
-starboard scan vulnerabilityreports deploy/nginx --namespace bar
-```
 
 !!! tip
     For workloads with multiple containers we'll have multiple instances of VulnerabilityReports with the same prefix

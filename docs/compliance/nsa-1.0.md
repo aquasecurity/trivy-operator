@@ -1,4 +1,4 @@
-NSA, CISA Kubernetes Hardening Guidance v1.0 cybersecurity technical report is produced by starboard and validate the following control checks :
+NSA, CISA Kubernetes Hardening Guidance v1.0 cybersecurity technical report is produced by trivy-operator and validate the following control checks :
 
 | NAME                                                     | DESCRIPTION                                                                                             | KINDS         |
 |----------------------------------------------------------|---------------------------------------------------------------------------------------------------------|---------------|

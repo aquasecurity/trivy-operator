@@ -34,7 +34,7 @@ Trivy-Operator can be used:
 ## What's Next?
 
 - Install the Trivy-operator Operator with [kubectl](./operator/installation/kubectl.md) and follow the
-  [Getting Started](./operator/getting-started.md) guide to see how vulnerability and configuration audit reports are
+  [Quick Start](./operator/quick-start.md) guide to see how vulnerability and configuration audit reports are
   generated automatically.
 - Read more about the motivations for the project in the [Trivy-operator: The Kubernetes-Native Toolkit for Unifying Security]
   blog.
@@ -46,7 +46,5 @@ Trivy-Operator can be used:
 [Go module]: https://pkg.go.dev/github.com/aquasecurity/trivy-operator@{{ git.tag }}
 [Lens Extension]: integrations/lens.md
 [kubectl]: https://kubernetes.io/docs/reference/kubectl/
-[Trivy-Operator: The Kubernetes-Native Toolkit for Unifying Security]: https://blog.aquasec.com/starboard-kubernetes-tools
 [GitHub Discussions]: https://github.com/aquasecurity/trivy-operator/discussions/
 [Slack]: https://slack.aquasec.com/
-[kubecon-video]: https://www.youtube.com/watch?v=cgcwIY1HVI0

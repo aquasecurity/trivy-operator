@@ -2963,7 +2963,7 @@
       "versionNonce": 1345486502,
       "isDeleted": false,
       "boundElementIds": null,
-      "text": "Starboard - Scan by Image Digest",
+      "text": "Trivy - Scan by Image Digest",
       "fontSize": 36,
       "fontFamily": 1,
       "textAlign": "left",

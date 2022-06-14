@@ -8,83 +8,76 @@ edit_uri: ""
 copyright: Copyright 2019-2022 Aqua Security Software Ltd.
 
 nav:
-  - Introduction: index.md
-  - Trivy Operator:
+  - Home: index.md
+  - Getting Started:
       - Overview: operator/index.md
       - Installation:
           - kubectl: operator/installation/kubectl.md
           - Helm: operator/installation/helm.md
           - Operator Lifecycle Manager: operator/installation/olm.md
           - Upgrade: operator/installation/upgrade.md
-      - Getting Started: operator/getting-started.md
+      - Quick Start: operator/quick-start.md
       - Configuration: operator/configuration.md
       - Troubleshooting: operator/troubleshooting.md
-  - Settings: settings.md
-  - Vulnerability Scanning:
-      - Overview: vulnerability-scanning/index.md
-      - Trivy Scanner: vulnerability-scanning/trivy.md
-      - Private Registries: vulnerability-scanning/private-registries.md
-      - Managed Registries: vulnerability-scanning/managed-registries.md
-  - Configuration Auditing:
-      - Overview: configuration-auditing/index.md
-      - Built-in Configuration Audit Policies: configuration-auditing/built-in-policies.md
-      - Infrastructure Scanners:
-          - Overview: configuration-auditing/infrastructure-scanners/index.md
-  - Integrations:
-      - Lens Extension: integrations/lens.md
-      - Prometheus Exporter: integrations/prometheus.md
-  - Tutorials:
-      - Writing Custom Configuration Audit Policies: tutorials/writing-custom-configuration-audit-policies.md
-      - Manage Access to Security Reports: tutorials/manage_access_to_security_reports.md
-  - Custom Resource Definitions:
-      - Overview: crds/index.md
-      - VulnerabilityReport: crds/vulnerability-report.md
-      - ConfigAuditReport: crds/configaudit-report.md
-      - ClusterConfigAuditReport: crds/clusterconfigaudit-report.md
-      - ClusterComplianceReport: crds/clustercompliance-report.md
-      - ClusterComplianceDetailReport: crds/clustercompliancedetail-report.md
-  - Compliance Reports:
-      - National Security Agency: compliance/nsa-1.0.md
+      - Settings: settings.md
+  - Docs:
+      - Vulnerability Scanning:
+          - Overview: vulnerability-scanning/index.md
+          - Trivy Scanner: vulnerability-scanning/trivy.md
+          - Private Registries: vulnerability-scanning/private-registries.md
+          - Managed Registries: vulnerability-scanning/managed-registries.md
+      - Configuration Auditing:
+          - Overview: configuration-auditing/index.md
+          - Built-in Configuration Audit Policies: configuration-auditing/index.md
+      - Integrations:
+          - Lens Extension: integrations/lens.md
+      - Tutorials:
+          - Writing Custom Configuration Audit Policies: tutorials/writing-custom-configuration-audit-policies.md
+          - Manage Access to Security Reports: tutorials/manage_access_to_security_reports.md
+      - Custom Resource Definitions:
+          - Overview: crds/index.md
+          - VulnerabilityReport: crds/vulnerability-report.md
+          - ConfigAuditReport: crds/configaudit-report.md
   - Frequently Asked Questions: faq.md
-  - Further Reading: further-reading.md
 
 theme:
   name: material
-  custom_dir: overrides
-  language: 'en'
-  logo: images/trivy-operator-icon-white.svg
+  language: "en"
+  logo: images/logo-white.svg
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
 
 markdown_extensions:
   - pymdownx.highlight
   - pymdownx.superfences
   - admonition
-  - toc:
-      permalink: true
+  - footnotes
+  - attr_list
+  - pymdownx.tabbed
+  - def_list
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
 
 # All data defined under extra is automatically exposed as a variable and can
 # be used from the template. For example, {{ var.version }}.
 #
 # Requires pip install mike and pip install git+https://${GH_TOKEN}@github.com/squidfunk/mkdocs-material-insiders.git
+
 extra:
   generator: false
-  social:
-    - icon: fontawesome/brands/github
-      link: https://github.com/aquasecurity
-    - icon: fontawesome/brands/slack
-      link: https://slack.aquasec.com/
-    - icon: fontawesome/brands/youtube
-      link: https://www.youtube.com/channel/UCZd5NF4XJRaU-yfextsY-pw
-    - icon: fontawesome/brands/twitter
-      link: https://twitter.com/AquaSecTeam
-    - icon: fontawesome/brands/linkedin
-      link: https://www.linkedin.com/company/aquasecteam/
   version:
+    method: mike
     provider: mike
   var:
     prev_git_tag: "v0.0.5"
-    chart_version: 0.0.7
+    chart_version: "0.0.7"
 
-# Requires pip install mkdocs-macros-plugin
 plugins:
   - search
   - macros
+
+

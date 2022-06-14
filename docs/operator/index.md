@@ -35,7 +35,7 @@ with new plugin's configuration.
 
 ## What's Next?
 
-- Install the operator and follow the [Getting Started](./getting-started.md) guide.
+- Install the operator and follow the [Getting Started](./quick-start.md) guide.
 
 [vulnerabilityreports]: ./../crds/vulnerability-report.md
 [configauditreports]: ./../crds/configaudit-report.md

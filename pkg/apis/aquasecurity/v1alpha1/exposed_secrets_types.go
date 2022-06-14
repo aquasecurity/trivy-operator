@@ -79,7 +79,7 @@ type ExposedSecretReportData struct {
 	Summary ExposedSecretSummary `json:"summary"`
 
 	// Secrets is a list of passwords, api keys, tokens and others items found in the Artifact.
-	Secrets []ExposedSecret `json:"exposed secrets"`
+	Secrets []ExposedSecret `json:"secrets"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

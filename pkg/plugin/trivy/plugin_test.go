@@ -3574,7 +3574,7 @@ var (
 	}
 )
 
-func TestPlugin_ParseVulnerabilityReportData(t *testing.T) {
+func TestPlugin_ParseReportData(t *testing.T) {
 	config := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "trivy-operator-trivy-config",
@@ -3647,7 +3647,7 @@ func TestPlugin_ParseVulnerabilityReportData(t *testing.T) {
 				WithClient(fakeClient).
 				Get()
 			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), fakeClient)
-			report, err := instance.ParseVulnerabilityReportData(ctx, tc.imageRef, io.NopCloser(strings.NewReader(tc.input)))
+			report, _, err := instance.ParseReportData(ctx, tc.imageRef, io.NopCloser(strings.NewReader(tc.input)))
 			switch {
 			case tc.expectedError == nil:
 				require.NoError(t, err)

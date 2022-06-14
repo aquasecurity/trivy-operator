@@ -24,10 +24,31 @@ func TestGetContainerImagesFromPodSpec(t *testing.T) {
 				Image: "sidecar:1.32.7",
 			},
 		},
+		InitContainers: []corev1.Container{
+			{
+				Name:  "init",
+				Image: "init:1.0.0",
+			},
+			{
+				Name:  "init2",
+				Image: "init:1.0.0",
+			},
+		},
+		EphemeralContainers: []corev1.EphemeralContainer{
+			{
+				EphemeralContainerCommon: corev1.EphemeralContainerCommon{
+					Name:  "debug",
+					Image: "debug:1.0.0",
+				},
+			},
+		},
 	})
 	assert.Equal(t, kube.ContainerImages{
 		"nginx":   "nginx:1.16",
 		"sidecar": "sidecar:1.32.7",
+		"init":    "init:1.0.0",
+		"init2":   "init:1.0.0",
+		"debug":   "debug:1.0.0",
 	}, images)
 }
 

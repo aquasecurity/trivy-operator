@@ -16,9 +16,18 @@ import (
 // to container images from the specified v1.PodSpec.
 func GetContainerImagesFromPodSpec(spec corev1.PodSpec) ContainerImages {
 	images := ContainerImages{}
-	for _, container := range spec.Containers {
+
+	containers := append(spec.Containers, spec.InitContainers...)
+	for _, container := range containers {
 		images[container.Name] = container.Image
 	}
+
+	// ephemeral container are not the same type as Containers/InitContainers,
+	// then we add it in a different loop
+	for _, c := range spec.EphemeralContainers {
+		images[c.Name] = c.Image
+	}
+
 	return images
 }
 

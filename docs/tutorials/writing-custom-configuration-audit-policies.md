@@ -14,7 +14,7 @@ To define such a policy, you must first define its metadata. This includes setti
 `__rego_metadata__` rule, which defines the following composite value:
 
 ```opa
-package starboard.policy.k8s.custom
+package trivyoperator.policy.k8s.custom
 
 __rego_metadata__ := {
 	"id": "recommended_labels",
@@ -27,7 +27,7 @@ __rego_metadata__ := {
 }
 ```
 
-Note that the `recommended_labels` policy in scoped to the `starboard.policy.k8s.custom` package to avoid naming
+Note that the `recommended_labels` policy in scoped to the `trivyoperator.policy.k8s.custom` package to avoid naming
 collision with built-in policies that are pre-installed with trivy-operator.
 
 Once we've got our metadata defined, we need to create the logic of the policy, which is done in the `deny` or `warn`
@@ -107,7 +107,7 @@ metadata:
 data:
   policy.recommended_labels.kinds: "*"
   policy.recommended_labels.rego: |
-    package starboard.policy.k8s.custom
+    package trivyoperator.policy.k8s.custom
 
     __rego_metadata__ := {
     	"id": "recommended_labels",

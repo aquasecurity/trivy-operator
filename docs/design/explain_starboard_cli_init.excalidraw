@@ -928,7 +928,7 @@
       "boundElementIds": [
         "IXUvRum-3E7_QOjUPlb-p"
       ],
-      "text": "ClusterRoleBinding: starboard",
+      "text": "ClusterRoleBinding: trivy-operator",
       "fontSize": 20,
       "fontFamily": 1,
       "textAlign": "left",

@@ -19,8 +19,4 @@ Additionally, application and infrastructure owners can integrate these reports 
 active remediation.
 
 [Built-in Policies]: ./built-in-policies.md
-[Infrastructure Scanner]: ./infrastructure-scanners/index.md
 [ConfigAuditReport]: ./../crds/configaudit-report.md
-[ClusterConfigAuditReport]: ./../crds/clusterconfigaudit-report.md
-[ClusterComplianceReport]: ./../crds/clustercompliance-report.md
-[NSA, CISA Kubernetes Hardening Guidance]: ./../compliance/nsa-1.0.md

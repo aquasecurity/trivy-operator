@@ -15,7 +15,7 @@ Make sure that the latest version of the Trivy Operator is installed. For this, 
 
 For instance, if your are using the Helm deployment, you need to check the Helm Chart version deployed to your cluster. You can check the Helm Chart version with the following command:
 ```
-helm list -n trivy-operator
+helm list -n trivy-system
 ```
 
 ## Operator Pod Not Running
@@ -31,7 +31,7 @@ This is how it will look if it is running okay:
 
 ```
 NAMESPACE            NAME                                         READY   STATUS    RESTARTS      AGE
-trivy-operator     trivy-operator-6c9bd97d58-hsz4g          1/1     Running   5 (19m ago)   30h
+trivy-system     trivy-operator-6c9bd97d58-hsz4g          1/1     Running   5 (19m ago)   30h
 ```
 
 If the pod is in `Failed`, `Pending`, or `Unknown` check the events and the logs of the pod.

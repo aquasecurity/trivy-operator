@@ -100,7 +100,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: scan-vulnerabilityreport-ab3134
-  namespace: trivy-operator-system
+  namespace: trivy-system
 spec:
   backoffLimit: 0
   template:

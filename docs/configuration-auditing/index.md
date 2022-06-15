@@ -10,13 +10,9 @@ trivy-operator configuration audit capabilities are purpose-built for Kubernetes
 Operator continuously checks images, workloads, and Kubernetes infrastructure components against common configurations
 security standards and generates detailed assessment reports, which are then stored in the default Kubernetes database.
 
-Kubernetes applications and other core configuration objects, such as Ingress, NetworkPolicy, ResourceQuota, RBAC
-resources, are evaluated against [Built-in Policies]. The results of all these scans are stored as
-[ConfigAuditReport], and [ClusterConfigAuditReport] resources, which could be further aggregated
-into a [ClusterComplianceReport] such as [NSA, CISA Kubernetes Hardening Guidance].
-
+Kubernetes applications and other core configuration objects, such as Ingress, NetworkPolicy and ResourceQuota resources, are evaluated against [Built-in Policies]. 
 Additionally, application and infrastructure owners can integrate these reports into incident response workflows for
 active remediation.
 
 [Built-in Policies]: ./built-in-policies.md
-[ConfigAuditReport]: ./../crds/configaudit-report.md
+

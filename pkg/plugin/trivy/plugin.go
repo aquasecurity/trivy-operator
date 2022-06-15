@@ -1357,8 +1357,6 @@ func (p *plugin) secretSummary(secrets []v1alpha1.ExposedSecret) v1alpha1.Expose
 			s.MediumCount++
 		case v1alpha1.SeverityLow:
 			s.LowCount++
-		default:
-			s.UnknownCount++
 		}
 	}
 	return s

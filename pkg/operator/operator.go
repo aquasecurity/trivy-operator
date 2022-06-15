@@ -151,7 +151,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			SecretsReader:           secretsReader,
 			Plugin:                  plugin,
 			PluginContext:           pluginContext,
-			ReadWriter:              vulnerabilityreport.NewReadWriter(mgr.GetClient()),
+			VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(mgr.GetClient()),
 			ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(mgr.GetClient()),
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup vulnerabilityreport reconciler: %w", err)

@@ -225,7 +225,7 @@ report:
             - msg: Container 'trivy-operator' of ReplicaSet 'trivy-operator-7cf866c47b'
                 should set 'securityContext.runAsNonRoot' to true
               name: replicaset-trivy-operator-7cf866c47b
-              namespace: trivy-operator-system
+              namespace: trivy-system
               status: FAIL
             - msg: Container 'coredns' of ReplicaSet 'coredns-96cc4f57d' should set 'securityContext.runAsNonRoot'
                 to true
@@ -240,7 +240,7 @@ report:
             - msg: Container 'trivy-operator' of ReplicaSet 'trivy-operator-c94dd56d'
                 should set 'securityContext.runAsNonRoot' to true
               name: replicaset-trivy-operator-c94dd56d
-              namespace: trivy-operator-system
+              namespace: trivy-system
               status: FAIL
             - msg: Container 'local-path-provisioner' of ReplicaSet 'local-path-provisioner-84bb864455'
                 should set 'securityContext.runAsNonRoot' to true

@@ -1,50 +1,8 @@
-# Welcome to {{ config.site_name }}
+Trivy has a native [Kubernetes Operator](operator) which continuously scans your Kubernetes cluster for security issues, and generates security reports as Kubernetes [Custom Resources](crd). It does it by watching Kubernetes for state changes and automatically triggering scans in response to changes, for example initiating a vulnerability scan when a new Pod is created.
 
-There are lots of security tools in the cloud native world, created by Aqua and by others, for identifying and informing
-users about security issues in Kubernetes workloads and infrastructure components. However powerful and useful they
-might be, they tend to sit alongside Kubernetes, with each new product requiring users to learn a separate set of
-commands and installation steps in order to operate them and find critical security information.
-
-Trivy-Operator attempts to integrate heterogeneous security tools by incorporating their outputs into Kubernetes CRDs
-(Custom Resource Definitions) and from there, making security reports accessible through the Kubernetes API. This way
-users can find and view the risks that relate to different resources in what we call a Kubernetes-native way.
-
-Trivy-Operator provides:
-
-- Automated vulnerability scanning for Kubernetes workloads.
-- Automated configuration audits for Kubernetes resources with predefined rules or custom Open Policy Agent (OPA) policies.
-- Automated infrastructures scanning and compliance checks with CIS Benchmarks published by the Center for Internet Security (CIS).
-- Automated compliance report - NSA, CISA Kubernetes Hardening Kubernetes Guidance v1.0
-- Penetration test results for a Kubernetes cluster.
-- [Custom Resource Definitions] and a [Go module] to work with and integrate a range of security scanners.
+> Trivy Operator is based on existing Aqua OSS project - [Starboard], and shares some of the design, principles and code with it. Existing content that relates to Starboard Operator might also be relevant for Trivy Operator. To learn more about the transition from Starboard from Trivy, see the [announcement discussion](starboard-announcement).
 
 <figure>
-  <img src="images/trivy-operator-overview.png" />
-  <figcaption>The high-level design diagram of Trivy-Operator toolkit.</figcaption>
+  <img src="./images/operator/trivy-operator-workloads.png" />
+  <figcaption>Workload reconcilers discover K8s controllers, manage scan jobs, and create VulnerabilityReport and ConfigAuditReport objects.</figcaption>
 </figure>
-
-Trivy-Operator can be used:
-
-- As a [Kubernetes operator] to automatically update security reports in response to workload and other changes on a
-  Kubernetes cluster - for example, initiating a vulnerability scan when a new Pod is started or running CIS Benchmarks
-  when a new Node is added.
-- As a [command][cli], so you can trigger scans and view the risks in a kubectl-compatible way or as part of your CI/CD
-  pipeline.
-
-## What's Next?
-
-- Install the Trivy-operator Operator with [kubectl](./operator/installation/kubectl.md) and follow the
-  [Quick Start](./operator/quick-start.md) guide to see how vulnerability and configuration audit reports are
-  generated automatically.
-- Read more about the motivations for the project in the [Trivy-operator: The Kubernetes-Native Toolkit for Unifying Security]
-  blog.
-- See a detailed introduction to trivy-operator with demos at [KubeCon + CloudNativeCon NA 2020][kubecon-video].
-- Join the community, and talk to us about any matter in [GitHub Discussions] or [Slack].
-
-[Custom Resource Definitions]: ./crds/index.md
-[Kubernetes operator]: operator/index.md
-[Go module]: https://pkg.go.dev/github.com/aquasecurity/trivy-operator@{{ git.tag }}
-[Lens Extension]: integrations/lens.md
-[kubectl]: https://kubernetes.io/docs/reference/kubectl/
-[GitHub Discussions]: https://github.com/aquasecurity/trivy-operator/discussions/
-[Slack]: https://slack.aquasec.com/

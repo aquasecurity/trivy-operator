@@ -3,11 +3,7 @@
 ## Before you Begin
 
 You need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your
-cluster. If you do not already have a cluster, you can create one by installing [minikube] or [kind], or you can use one
-of these Kubernetes playgrounds:
-
-* [Katacoda]
-* [Play with Kubernetes]
+cluster. If you do not already have a cluster, you can create one by installing [minikube], [kind] or [microk8s], or you can use the following [Kubernetes playground].
 
 You also need the Trivy-Operator to be installed in the `trivy-system` namespace, e.g. with
 [kubectl](./installation/kubectl.md) or [Helm](./installation/helm.md). Let's also assume that the operator is
@@ -49,7 +45,7 @@ kubectl get configauditreports -o wide
 
 ```
 NAME                          SCANNER     AGE    CRITICAL  HIGH   MEDIUM   LOW
-replicaset-nginx-78449c65d4   Trivy   2m7s   0         0      6        7
+replicaset-nginx-78449c65d4   Trivy-Operator   2m7s   0         0      6        7
 ```
 </details>
 
@@ -74,7 +70,7 @@ default      └─VulnerabilityReport/replicaset-nginx-78449c65d4-nginx  -     
 </details>
 
 !!! note
-    The [tree] command is a kubectl plugin to browse Kubernetes object hierarchies as a tree.
+The [tree] command is a kubectl plugin to browse Kubernetes object hierarchies as a tree.
 
 Moving forward, let's update the container image of the `nginx` Deployment from `nginx:1.16` to `nginx:1.17`. This will
 trigger a rolling update of the Deployment and eventually create another ReplicaSet.
@@ -112,21 +108,21 @@ previous ReplicaSet named `nginx-78449c65d4` is deleted the VulnerabilityReport 
 as well as the ConfigAuditReport named `replicaset-nginx-78449c65d46` are automatically garbage collected.
 
 !!! tip
-    If you only want the latest ReplicaSet in your Deployment to be scanned for vulnerabilities, you can set the value
-    of the `OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS` environment variable to `true` in the operator's
-    deployment descriptor. This is useful to identify vulnerabilities that impact only the running workloads.
+If you only want the latest ReplicaSet in your Deployment to be scanned for vulnerabilities, you can set the value
+of the `OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS` environment variable to `true` in the operator's
+deployment descriptor. This is useful to identify vulnerabilities that impact only the running workloads.
 
 !!! tip
-    If you only want the latest ReplicaSet in your Deployment to be scanned for config audit, you can set the value
-    of the `OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS` environment variable to `true` in the operator's
-    deployment descriptor. This is useful to identify config issues that impact only the running workloads.
+If you only want the latest ReplicaSet in your Deployment to be scanned for config audit, you can set the value
+of the `OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS` environment variable to `true` in the operator's
+deployment descriptor. This is useful to identify config issues that impact only the running workloads.
 
 !!! tip
-    You can get and describe `vulnerabilityreports` and `configauditreports` as built-in Kubernetes objects:
-    ```
-    kubectl get vulnerabilityreport replicaset-nginx-5fbc65fff-nginx -o json
-    kubectl describe configauditreport replicaset-nginx-5fbc65fff
-    ```
+You can get and describe `vulnerabilityreports` and `configauditreports` as built-in Kubernetes objects:
+```
+kubectl get vulnerabilityreport replicaset-nginx-5fbc65fff-nginx -o json
+kubectl describe configauditreport replicaset-nginx-5fbc65fff
+```
 
 Notice that scaling up the `nginx` Deployment will not schedule new scans because all replica Pods refer to the same Pod
 template defined by the `nginx-5fbc65fff` ReplicaSet.
@@ -177,26 +173,23 @@ No resources found in default namespace.
 </details>
 
 !!! Tip
-    Use `vuln` and `configaudit` as short names for `vulnerabilityreports` and `configauditreports` resources.
+Use `vuln` and `configaudit` as short names for `vulnerabilityreports` and `configauditreports` resources.
 
 !!! Note
-    You can define the validity period for VulnerabilityReports by setting the duration as the value of the
-    `OPERATOR_VULNERABILITY_SCANNER_REPORT_TTL` environment variable. For example, setting the value to `24h`
-    would delete reports after 24 hours. When a VulnerabilityReport gets deleted Trivy-Operator will automatically
-    rescan the underlying workload. Assuming that the vulnerability scanner has updated its vulnerability database,
-    new VulnerabilityReports will contain the latest vulnerabilities.
+You can define the validity period for VulnerabilityReports by setting the duration as the value of the
+`OPERATOR_VULNERABILITY_SCANNER_REPORT_TTL` environment variable. For example, setting the value to `24h`
+would delete reports after 24 hours. When a VulnerabilityReport gets deleted Trivy-Operator will automatically
+
+
 
 ## What's Next?
 
 - Find out how the operator scans workloads that use container images from [Private Registries].
-- By default, the operator uses Trivy as [Vulnerability Scanner] and Trivy as [Configuration Checker], but you can
+- By default, the operator uses Trivy as [Vulnerability Scanner] and Polaris as [Configuration Checker], but you can
   choose other tools that are integrated with Trivy-Operator or even implement you own plugin.
 
 [minikube]: https://minikube.sigs.k8s.io/docs/
 [kind]: https://kind.sigs.k8s.io/docs/
-[Katacoda]: https://www.katacoda.com/courses/kubernetes/playground/
-[Play with Kubernetes]: http://labs.play-with-k8s.com/
+[microk8s]: https://microk8s.io/
+[Kubernetes playground]: http://labs.play-with-k8s.com/
 [tree]: https://github.com/ahmetb/kubectl-tree
-[Private Registries]: ./../vulnerability-scanning/private-registries.md
-[Vulnerability Scanner]: ./../vulnerability-scanning/index.md
-[Configuration Checker]: ./../configuration-auditing/index.md

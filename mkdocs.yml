@@ -14,7 +14,6 @@ nav:
       - Installation:
           - kubectl: operator/installation/kubectl.md
           - Helm: operator/installation/helm.md
-          - Operator Lifecycle Manager: operator/installation/olm.md
           - Upgrade: operator/installation/upgrade.md
       - Quick Start: operator/quick-start.md
       - Configuration: operator/configuration.md
@@ -28,7 +27,7 @@ nav:
           - Managed Registries: vulnerability-scanning/managed-registries.md
       - Configuration Auditing:
           - Overview: configuration-auditing/index.md
-          - Built-in Configuration Audit Policies: configuration-auditing/index.md
+          - Built-in Configuration Audit Policies: configuration-auditing/built-in-policies.md
       - Integrations:
           - Lens Extension: integrations/lens.md
       - Tutorials:

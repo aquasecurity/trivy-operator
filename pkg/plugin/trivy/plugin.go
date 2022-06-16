@@ -1255,6 +1255,7 @@ func (p *plugin) ParseVulnerabilityReportData(ctx trivyoperator.PluginContext, i
 				PrimaryLink:      sr.PrimaryURL,
 				Links:            []string{},
 				Score:            GetScoreFromCVSS(sr.Cvss),
+				Target:           report.Target,
 			})
 		}
 	}

@@ -1275,6 +1275,9 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 				Match:    sr.Match,
 			})
 		}
+
+		vulnerabilities = append(vulnerabilities, getVulnerabilitiesFromScanResult(report)...)
+		secrets = append(secrets, getExposedSecretsFromScanResult(report)...)
 	}
 
 	registry, artifact, err := p.parseImageRef(imageRef)
@@ -1316,6 +1319,43 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 			Secrets:  secrets,
 		}, nil
 
+}
+
+func getVulnerabilitiesFromScanResult(report ScanResult) []v1alpha1.Vulnerability {
+	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
+
+	for _, sr := range report.Vulnerabilities {
+		vulnerabilities = append(vulnerabilities, v1alpha1.Vulnerability{
+			VulnerabilityID:  sr.VulnerabilityID,
+			Resource:         sr.PkgName,
+			InstalledVersion: sr.InstalledVersion,
+			FixedVersion:     sr.FixedVersion,
+			Severity:         sr.Severity,
+			Title:            sr.Title,
+			PrimaryLink:      sr.PrimaryURL,
+			Links:            []string{},
+			Score:            GetScoreFromCVSS(sr.Cvss),
+		})
+	}
+
+	return vulnerabilities
+}
+
+func getExposedSecretsFromScanResult(report ScanResult) []v1alpha1.ExposedSecret {
+	secrets := make([]v1alpha1.ExposedSecret, 0)
+
+	for _, sr := range report.Secrets {
+		secrets = append(secrets, v1alpha1.ExposedSecret{
+			Target:   sr.Target,
+			RuleID:   sr.RuleID,
+			Title:    sr.Title,
+			Severity: sr.Severity,
+			Category: sr.Category,
+			Match:    sr.Match,
+		})
+	}
+
+	return secrets
 }
 
 func (p *plugin) newConfigFrom(ctx trivyoperator.PluginContext) (Config, error) {

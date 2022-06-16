@@ -85,7 +85,6 @@ func (b *ReportBuilder) Get() (v1alpha1.ExposedSecretReport, error) {
 		Report: b.data,
 	}
 
-	// TODO: do we support TTL?
 	if b.reportTTL != nil {
 		report.Annotations = map[string]string{
 			v1alpha1.TTLReportAnnotation: b.reportTTL.String(),

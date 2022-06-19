@@ -1,6 +1,7 @@
 package kube_test
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 
 	. "github.com/onsi/gomega"
@@ -47,13 +48,13 @@ func TestMapDockerRegistryServersToAuths(t *testing.T) {
 	t.Run("should map Docker registry servers to Docker authentication credentials", func(t *testing.T) {
 		g := NewGomegaWithT(t)
 
-		auths, err := kube.MapDockerRegistryServersToAuths([]corev1.Secret{
+		auths, wildcardServers, err := kube.MapDockerRegistryServersToAuths([]corev1.Secret{
 			{
 				Type: corev1.SecretTypeDockerConfigJson,
 				Data: map[string][]byte{
 					corev1.DockerConfigJsonKey: []byte(`{
   "auths": {
-    "http://index.docker.io/v1": {
+        "http://*.docker.io/v1": {
       "auth": "cm9vdDpzM2NyZXQ="
     }
   }
@@ -74,8 +75,9 @@ func TestMapDockerRegistryServersToAuths(t *testing.T) {
 			},
 		})
 		g.Expect(err).ToNot(HaveOccurred())
+		assert.Equal(t, len(wildcardServers), 1)
 		g.Expect(auths).To(MatchAllKeys(Keys{
-			"index.docker.io": Equal(docker.Auth{
+			"*.docker.io": Equal(docker.Auth{
 				Auth:     "cm9vdDpzM2NyZXQ=",
 				Username: "root",
 				Password: "s3cret",
@@ -91,7 +93,7 @@ func TestMapDockerRegistryServersToAuths(t *testing.T) {
 	t.Run(`should skip secret of type "kubernetes.io/dockercfg"`, func(t *testing.T) {
 		g := NewGomegaWithT(t)
 
-		auths, err := kube.MapDockerRegistryServersToAuths([]corev1.Secret{
+		auths, wildcardServers, err := kube.MapDockerRegistryServersToAuths([]corev1.Secret{
 			{
 				Type: corev1.SecretTypeDockercfg,
 				Data: map[string][]byte{},
@@ -111,6 +113,7 @@ func TestMapDockerRegistryServersToAuths(t *testing.T) {
 		})
 
 		g.Expect(err).ToNot(HaveOccurred())
+		assert.Equal(t, len(wildcardServers), 0)
 		g.Expect(auths).To(MatchAllKeys(Keys{
 			"index.docker.io": Equal(docker.Auth{
 				Auth:     "cm9vdDpzM2NyZXQ=",
@@ -171,6 +174,34 @@ func TestMapContainerNamesToDockerAuths(t *testing.T) {
 				Auth:     "dXNlcjpBZG1pbjEyMzQ1",
 				Username: "user",
 				Password: "Admin12345",
+			}),
+		}))
+	})
+	t.Run("should map container images to Docker authentication credentials where server has wildcard prefixed", func(t *testing.T) {
+		g := NewGomegaWithT(t)
+
+		auths, err := kube.MapContainerNamesToDockerAuths(kube.ContainerImages{
+			"container-1": "tes.jfrog.com/my-organization/my-app-backend:0.1.0",
+		}, []corev1.Secret{
+			{
+				Type: corev1.SecretTypeDockerConfigJson,
+				Data: map[string][]byte{
+					corev1.DockerConfigJsonKey: []byte(`{
+  "auths": {
+    "http://*.jfrog.com": {
+      "auth": "cm9vdDpzM2NyZXQ="
+    }
+  }
+}`),
+				},
+			},
+		})
+		g.Expect(err).ToNot(HaveOccurred())
+		g.Expect(auths).To(MatchAllKeys(Keys{
+			"container-1": Equal(docker.Auth{
+				Auth:     "cm9vdDpzM2NyZXQ=",
+				Username: "root",
+				Password: "s3cret",
 			}),
 		}))
 	})

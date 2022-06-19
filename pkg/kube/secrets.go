@@ -3,6 +3,7 @@ package kube
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	corev1 "k8s.io/api/core/v1"
@@ -37,7 +38,7 @@ func NewImagePullSecret(meta metav1.ObjectMeta, server, username, password strin
 // MapContainerNamesToDockerAuths creates the mapping from a container name to the Docker authentication
 // credentials for the specified kube.ContainerImages and image pull Secrets.
 func MapContainerNamesToDockerAuths(images ContainerImages, secrets []corev1.Secret) (map[string]docker.Auth, error) {
-	auths, err := MapDockerRegistryServersToAuths(secrets)
+	auths, wildcardServers, err := MapDockerRegistryServersToAuths(secrets)
 	if err != nil {
 		return nil, err
 	}
@@ -52,15 +53,33 @@ func MapContainerNamesToDockerAuths(images ContainerImages, secrets []corev1.Sec
 		if auth, ok := auths[server]; ok {
 			mapping[containerName] = auth
 		}
+		if len(wildcardServers) > 0 {
+			if wildcardDomain := matchSubDomain(wildcardServers, server); len(wildcardDomain) > 0 {
+				if auth, ok := auths[wildcardDomain]; ok {
+					mapping[containerName] = auth
+				}
+			}
+		}
 	}
 
 	return mapping, nil
 }
 
+func matchSubDomain(wildcardServers []string, subDomain string) string {
+	for _, domain := range wildcardServers {
+		domainWithoutWildcard := strings.Replace(domain, "*", "", 1)
+		if strings.HasSuffix(subDomain, domainWithoutWildcard) {
+			return domain
+		}
+	}
+	return ""
+}
+
 // MapDockerRegistryServersToAuths creates the mapping from a Docker registry server
 // to the Docker authentication credentials for the specified slice of image pull Secrets.
-func MapDockerRegistryServersToAuths(imagePullSecrets []corev1.Secret) (map[string]docker.Auth, error) {
+func MapDockerRegistryServersToAuths(imagePullSecrets []corev1.Secret) (map[string]docker.Auth, []string, error) {
 	auths := make(map[string]docker.Auth)
+	wildcardServers := make([]string, 0)
 	for _, secret := range imagePullSecrets {
 		// Skip a deprecated secret of type "kubernetes.io/dockercfg" which contains a dockercfg file
 		// that follows the same format rules as ~/.dockercfg
@@ -77,17 +96,20 @@ func MapDockerRegistryServersToAuths(imagePullSecrets []corev1.Secret) (map[stri
 		dockerConfig := &docker.Config{}
 		err := dockerConfig.Read(data)
 		if err != nil {
-			return nil, fmt.Errorf("reading %s field of %q secret: %w", corev1.DockerConfigJsonKey, secret.Namespace+"/"+secret.Name, err)
+			return nil, nil, fmt.Errorf("reading %s field of %q secret: %w", corev1.DockerConfigJsonKey, secret.Namespace+"/"+secret.Name, err)
 		}
 		for authKey, auth := range dockerConfig.Auths {
 			server, err := docker.GetServerFromDockerAuthKey(authKey)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			auths[server] = auth
+			if strings.HasPrefix(server, "*.") {
+				wildcardServers = append(wildcardServers, server)
+			}
 		}
 	}
-	return auths, nil
+	return auths, wildcardServers, nil
 }
 
 func AggregateImagePullSecretsData(images ContainerImages, credentials map[string]docker.Auth) map[string][]byte {

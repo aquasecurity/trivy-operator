@@ -3500,6 +3500,7 @@ var (
 		"Vulnerabilities": [
 			{
 				"VulnerabilityID": "CVE-2019-1549",
+				"Target": "alpine:3.10.2 (alpine 3.10.2)",
 				"PkgName": "openssl",
 				"InstalledVersion": "1.1.1c-r0",
 				"FixedVersion": "1.1.1d-r0",
@@ -3513,6 +3514,7 @@ var (
 			},
 			{
 				"VulnerabilityID": "CVE-2019-1547",
+				"Target": "alpine:3.10.2 (alpine 3.10.2)",
 				"PkgName": "openssl",
 				"InstalledVersion": "1.1.1c-r0",
 				"FixedVersion": "1.1.1d-r0",

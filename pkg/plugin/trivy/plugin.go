@@ -1250,32 +1250,6 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	secrets := make([]v1alpha1.ExposedSecret, 0)
 
 	for _, report := range reports.Results {
-		for _, sr := range report.Vulnerabilities {
-			vulnerabilities = append(vulnerabilities, v1alpha1.Vulnerability{
-				VulnerabilityID:  sr.VulnerabilityID,
-				Resource:         sr.PkgName,
-				InstalledVersion: sr.InstalledVersion,
-				FixedVersion:     sr.FixedVersion,
-				Severity:         sr.Severity,
-				Title:            sr.Title,
-				PrimaryLink:      sr.PrimaryURL,
-				Links:            []string{},
-				Score:            GetScoreFromCVSS(sr.Cvss),
-				Target:           report.Target,
-			})
-		}
-
-		for _, sr := range report.Secrets {
-			secrets = append(secrets, v1alpha1.ExposedSecret{
-				Target:   sr.Target,
-				RuleID:   sr.RuleID,
-				Title:    sr.Title,
-				Severity: sr.Severity,
-				Category: sr.Category,
-				Match:    sr.Match,
-			})
-		}
-
 		vulnerabilities = append(vulnerabilities, getVulnerabilitiesFromScanResult(report)...)
 		secrets = append(secrets, getExposedSecretsFromScanResult(report)...)
 	}
@@ -1335,6 +1309,7 @@ func getVulnerabilitiesFromScanResult(report ScanResult) []v1alpha1.Vulnerabilit
 			PrimaryLink:      sr.PrimaryURL,
 			Links:            []string{},
 			Score:            GetScoreFromCVSS(sr.Cvss),
+			Target:           sr.Target,
 		})
 	}
 

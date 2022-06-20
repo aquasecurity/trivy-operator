@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"io"
+	"log"
+	"os"
 	"sort"
 	"strings"
 	"testing"
@@ -3492,43 +3494,7 @@ CVE-2019-1543`,
 }
 
 var (
-	sampleReportAsString = `{
-		"SchemaVersion": 2,
-		"Results":[{
-		"Target": "alpine:3.10.2 (alpine 3.10.2)",
-		"Type": "alpine",
-		"Vulnerabilities": [
-			{
-				"VulnerabilityID": "CVE-2019-1549",
-				"Target": "alpine:3.10.2 (alpine 3.10.2)",
-				"PkgName": "openssl",
-				"InstalledVersion": "1.1.1c-r0",
-				"FixedVersion": "1.1.1d-r0",
-				"Title": "openssl: information disclosure in fork()",
-				"Description": "Usually this long long description of CVE-2019-1549",
-				"Severity": "MEDIUM",
-				"PrimaryURL": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-1549",
-				"References": [
-					"https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-1549"
-				]
-			},
-			{
-				"VulnerabilityID": "CVE-2019-1547",
-				"Target": "alpine:3.10.2 (alpine 3.10.2)",
-				"PkgName": "openssl",
-				"InstalledVersion": "1.1.1c-r0",
-				"FixedVersion": "1.1.1d-r0",
-				"Title": "openssl: side-channel weak encryption vulnerability",
-				"Severity": "LOW",
-				"PrimaryURL": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-1547",
-				"References": [
-					"https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-1547"
-				]
-			}
-		]
-	}]}`
-
-	sampleReport = v1alpha1.VulnerabilityReportData{
+	sampleVulnerabilityReport = v1alpha1.VulnerabilityReportData{
 		UpdateTimestamp: metav1.NewTime(fixedTime),
 		Scanner: v1alpha1.Scanner{
 			Name:    v1alpha1.ScannerNameTrivy,
@@ -3574,6 +3540,94 @@ var (
 			},
 		},
 	}
+
+	sampleExposedSecretReport = v1alpha1.ExposedSecretReportData{
+		UpdateTimestamp: metav1.NewTime(fixedTime),
+		Scanner: v1alpha1.Scanner{
+			Name:    v1alpha1.ScannerNameTrivy,
+			Vendor:  "Aqua Security",
+			Version: "0.9.1",
+		},
+		Registry: v1alpha1.Registry{
+			Server: "index.docker.io",
+		},
+		Artifact: v1alpha1.Artifact{
+			Repository: "library/alpine",
+			Tag:        "3.10.2",
+		},
+		Summary: v1alpha1.ExposedSecretSummary{
+			CriticalCount: 1,
+			HighCount:     1,
+			MediumCount:   0,
+			LowCount:      0,
+			NoneCount:     0,
+		},
+		Secrets: []v1alpha1.ExposedSecret{
+			{
+				RuleID:   "stripe-access-token",
+				Category: "Stripe",
+				Severity: "HIGH",
+				Title:    "Stripe",
+				Match:    "publishable_key: *****",
+			},
+			{
+				RuleID:   "stripe-access-token",
+				Category: "Stripe",
+				Severity: "CRITICAL",
+				Title:    "Stripe",
+				Match:    "secret_key: *****",
+			},
+		},
+	}
+
+	emptyVulnerabilityReport = v1alpha1.VulnerabilityReportData{
+		UpdateTimestamp: metav1.NewTime(fixedTime),
+		Scanner: v1alpha1.Scanner{
+			Name:    v1alpha1.ScannerNameTrivy,
+			Vendor:  "Aqua Security",
+			Version: "0.9.1",
+		},
+		Registry: v1alpha1.Registry{
+			Server: "index.docker.io",
+		},
+		Artifact: v1alpha1.Artifact{
+			Repository: "library/alpine",
+			Tag:        "3.10.2",
+		},
+		Summary: v1alpha1.VulnerabilitySummary{
+			CriticalCount: 0,
+			HighCount:     0,
+			MediumCount:   0,
+			LowCount:      0,
+			NoneCount:     0,
+			UnknownCount:  0,
+		},
+		Vulnerabilities: []v1alpha1.Vulnerability{},
+	}
+
+	emptyExposedSecretReport = v1alpha1.ExposedSecretReportData{
+		UpdateTimestamp: metav1.NewTime(fixedTime),
+		Scanner: v1alpha1.Scanner{
+			Name:    v1alpha1.ScannerNameTrivy,
+			Vendor:  "Aqua Security",
+			Version: "0.9.1",
+		},
+		Registry: v1alpha1.Registry{
+			Server: "index.docker.io",
+		},
+		Artifact: v1alpha1.Artifact{
+			Repository: "library/alpine",
+			Tag:        "3.10.2",
+		},
+		Summary: v1alpha1.ExposedSecretSummary{
+			CriticalCount: 0,
+			HighCount:     0,
+			MediumCount:   0,
+			LowCount:      0,
+			NoneCount:     0,
+		},
+		Secrets: []v1alpha1.ExposedSecret{},
+	}
 )
 
 func TestPlugin_ParseReportData(t *testing.T) {
@@ -3588,48 +3642,44 @@ func TestPlugin_ParseReportData(t *testing.T) {
 	}
 
 	testCases := []struct {
-		name           string
-		imageRef       string
-		input          string
-		expectedError  error
-		expectedReport v1alpha1.VulnerabilityReportData
+		name                        string
+		imageRef                    string
+		input                       string
+		expectedError               error
+		expectedVulnerabilityReport v1alpha1.VulnerabilityReportData
+		expectedExposedSecretReport v1alpha1.ExposedSecretReportData
 	}{
 		{
-			name:           "Should convert vulnerability report in JSON format when input is quiet",
-			imageRef:       "alpine:3.10.2",
-			input:          sampleReportAsString,
-			expectedError:  nil,
-			expectedReport: sampleReport,
+			name:                        "Should convert both vulnerability and exposedsecret report in JSON format when input is quiet",
+			imageRef:                    "alpine:3.10.2",
+			input:                       getReportAsString("full_report.json"),
+			expectedError:               nil,
+			expectedVulnerabilityReport: sampleVulnerabilityReport,
+			expectedExposedSecretReport: sampleExposedSecretReport,
 		},
 		{
-			name:          "Should convert vulnerability report in JSON format when OS is not detected",
-			imageRef:      "core.harbor.domain/library/nginx@sha256:d20aa6d1cae56fd17cd458f4807e0de462caf2336f0b70b5eeb69fcaaf30dd9c",
-			input:         `null`,
-			expectedError: nil,
-			expectedReport: v1alpha1.VulnerabilityReportData{
-				UpdateTimestamp: metav1.NewTime(fixedTime),
-				Scanner: v1alpha1.Scanner{
-					Name:    v1alpha1.ScannerNameTrivy,
-					Vendor:  "Aqua Security",
-					Version: "0.9.1",
-				},
-				Registry: v1alpha1.Registry{
-					Server: "core.harbor.domain",
-				},
-				Artifact: v1alpha1.Artifact{
-					Repository: "library/nginx",
-					Digest:     "sha256:d20aa6d1cae56fd17cd458f4807e0de462caf2336f0b70b5eeb69fcaaf30dd9c",
-				},
-				Summary: v1alpha1.VulnerabilitySummary{
-					CriticalCount: 0,
-					HighCount:     0,
-					MediumCount:   0,
-					LowCount:      0,
-					NoneCount:     0,
-					UnknownCount:  0,
-				},
-				Vulnerabilities: []v1alpha1.Vulnerability{},
-			},
+			name:                        "Should convert vulnerability report in JSON format when OS is not detected",
+			imageRef:                    "alpine:3.10.2",
+			input:                       `null`,
+			expectedError:               nil,
+			expectedVulnerabilityReport: emptyVulnerabilityReport,
+			expectedExposedSecretReport: emptyExposedSecretReport,
+		},
+		{
+			name:                        "Should only parse vulnerability report",
+			imageRef:                    "alpine:3.10.2",
+			input:                       getReportAsString("vulnerability_report.json"),
+			expectedError:               nil,
+			expectedVulnerabilityReport: sampleVulnerabilityReport,
+			expectedExposedSecretReport: emptyExposedSecretReport,
+		},
+		{
+			name:                        "Should only parse exposedsecret report",
+			imageRef:                    "alpine:3.10.2",
+			input:                       getReportAsString("exposedsecret_report.json"),
+			expectedError:               nil,
+			expectedVulnerabilityReport: emptyVulnerabilityReport,
+			expectedExposedSecretReport: sampleExposedSecretReport,
 		},
 		{
 			name:          "Should return error when image reference cannot be parsed",
@@ -3649,11 +3699,12 @@ func TestPlugin_ParseReportData(t *testing.T) {
 				WithClient(fakeClient).
 				Get()
 			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), fakeClient)
-			report, _, err := instance.ParseReportData(ctx, tc.imageRef, io.NopCloser(strings.NewReader(tc.input)))
+			vulnReport, secretReport, err := instance.ParseReportData(ctx, tc.imageRef, io.NopCloser(strings.NewReader(tc.input)))
 			switch {
 			case tc.expectedError == nil:
 				require.NoError(t, err)
-				assert.Equal(t, tc.expectedReport, report)
+				assert.Equal(t, tc.expectedVulnerabilityReport, vulnReport)
+				assert.Equal(t, tc.expectedExposedSecretReport, secretReport)
 			default:
 				assert.EqualError(t, err, tc.expectedError.Error())
 			}
@@ -3879,4 +3930,18 @@ func TestGetContainers(t *testing.T) {
 			assert.Equal(t, expectedContainers, containers)
 		})
 	}
+}
+
+func getReportAsString(fixture string) string {
+	f, err := os.Open("./testdata/fixture/" + fixture)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	b, err := io.ReadAll(f)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return string(b)
 }

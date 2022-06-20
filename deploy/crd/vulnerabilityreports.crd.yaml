@@ -189,6 +189,8 @@ spec:
                         type: array
                         items:
                           type: string
+                      target:
+                        type: string
       additionalPrinterColumns:
         - jsonPath: .report.artifact.repository
           type: string

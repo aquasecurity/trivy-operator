@@ -25,6 +25,7 @@ type Vulnerability struct {
 	PrimaryURL       string            `json:"PrimaryURL"`
 	References       []string          `json:"References"`
 	Cvss             map[string]*CVSS  `json:"CVSS"`
+	Target           string            `json:"Target"`
 }
 
 type CVSS struct {

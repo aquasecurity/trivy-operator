@@ -86,6 +86,7 @@ Join the community, and talk to us about any matter in [GitHub Discussions] or [
 [GitHub Discussions]: https://github.com/aquasecurity/trivy-operator/discussions
 [Slack]: https://slack.aquasec.com/
 [Open Source Work and Portfolio]: https://www.aquasec.com/products/open-source-projects/
+
 [Custom Resource Definitions]: https://aquasecurity.github.io/trivy-operator/latest/crds
 [Go module]: https://pkg.go.dev/github.com/aquasecurity/trivy-operator/pkg
 [Documentation]: https://aquasecurity.github.io/trivy-operator/latest

@@ -3,6 +3,7 @@ package configauditreport
 import (
 	"context"
 	"fmt"
+
 	"github.com/aquasecurity/defsec/pkg/scan"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
@@ -310,9 +311,6 @@ func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Poli
 		},
 		Summary: v1alpha1.ConfigAuditSummaryFromChecks(checks),
 		Checks:  checks,
-
-		PodChecks:       checks,
-		ContainerChecks: map[string][]v1alpha1.Check{},
 	}, nil
 }
 

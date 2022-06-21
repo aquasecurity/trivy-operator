@@ -86,7 +86,7 @@ Join the community, and talk to us about any matter in [GitHub Discussions] or [
 
 [Custom Resource Definitions]: https://github.com/aquasecurity/trivy-operator/tree/main/deploy/crd
 [Go module]: https://pkg.go.dev/github.com/aquasecurity/trivy-operator/pkg
-[Documentation]: https://aquasecurity.github.io/trivy
+[Documentation]: https://aquasecurity.github.io/trivy-operator/latest
 [Static YAML Manifests]: https://aquasecurity.github.io/trivy/latest/docs/kubernetes/operator/installation/kubectl/
 [getting-started-operator]: https://aquasecurity.github.io/trivy/latest/docs/kubernetes/operator/getting-started/
 [Kubernetes operator]: https://aquasecurity.github.io/trivy/latest/docs/kubernetes/operator/

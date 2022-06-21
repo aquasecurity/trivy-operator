@@ -1,0 +1,2297 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Kubernetes-native security toolkit">
+      
+      
+      
+        <link rel="canonical" href="https://aquasecurity.github.io/trivy-operator/v0.0.8/design/design_compliance_report/">
+      
+      
+        
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.6+insiders-4.18.2">
+    
+    
+      
+        <title>Support Compliance Reports - Trivy Operator</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.8ae2a6bc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#support-compliance-reports" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Trivy Operator" class="md-header__button md-logo" aria-label="Trivy Operator" data-md-component="logo">
+      
+  <img src="../../images/logo-white.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Trivy Operator
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Support Compliance Reports
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/aquasecurity/trivy-operator" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      <nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+
+
+
+
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+
+
+
+
+  
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operator/" class="md-tabs__link">
+          
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+
+
+
+
+  
+    
+    
+    
+      
+  
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../vulnerability-scanning/" class="md-tabs__link">
+          
+  
+    
+  
+  Docs
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+
+
+
+
+  
+    <li class="md-tabs__item">
+      <a href="../../faq/" class="md-tabs__link">
+        
+  
+  Frequently Asked Questions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Trivy Operator" class="md-nav__button md-logo" aria-label="Trivy Operator" data-md-component="logo">
+      
+  <img src="../../images/logo-white.svg" alt="logo">
+
+    </a>
+    Trivy Operator
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/aquasecurity/trivy-operator" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+
+
+  
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+        
+        
+          <label class="md-nav__link" for="__nav_2">
+            
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" aria-label="Getting Started" data-md-level="1">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_2" type="checkbox" id="__nav_2_2" >
+        
+        
+          <label class="md-nav__link" for="__nav_2_2">
+            
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" aria-label="Installation" data-md-level="2">
+          <label class="md-nav__title" for="__nav_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            Installation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operator/installation/kubectl/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    kubectl
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operator/installation/helm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Helm
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operator/installation/upgrade/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Upgrade
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operator/quick-start/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Quick Start
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operator/configuration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Configuration
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operator/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../settings/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Settings
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+
+
+  
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+        
+        
+          <label class="md-nav__link" for="__nav_3">
+            
+  
+  <span class="md-ellipsis">
+    Docs
+  </span>
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" aria-label="Docs" data-md-level="1">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Docs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1" type="checkbox" id="__nav_3_1" >
+        
+        
+          <label class="md-nav__link" for="__nav_3_1">
+            
+  
+  <span class="md-ellipsis">
+    Vulnerability Scanning
+  </span>
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" aria-label="Vulnerability Scanning" data-md-level="2">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            Vulnerability Scanning
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vulnerability-scanning/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vulnerability-scanning/trivy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Trivy Scanner
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vulnerability-scanning/private-registries/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Private Registries
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vulnerability-scanning/managed-registries/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Managed Registries
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_2" type="checkbox" id="__nav_3_2" >
+        
+        
+          <label class="md-nav__link" for="__nav_3_2">
+            
+  
+  <span class="md-ellipsis">
+    Configuration Auditing
+  </span>
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" aria-label="Configuration Auditing" data-md-level="2">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Configuration Auditing
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration-auditing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration-auditing/built-in-policies/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Built-in Configuration Audit Policies
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_3" type="checkbox" id="__nav_3_3" >
+        
+        
+          <label class="md-nav__link" for="__nav_3_3">
+            
+  
+  <span class="md-ellipsis">
+    Integrations
+  </span>
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" aria-label="Integrations" data-md-level="2">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            Integrations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/lens/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Lens Extension
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_4" type="checkbox" id="__nav_3_4" >
+        
+        
+          <label class="md-nav__link" for="__nav_3_4">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" aria-label="Tutorials" data-md-level="2">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/writing-custom-configuration-audit-policies/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Writing Custom Configuration Audit Policies
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/manage_access_to_security_reports/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Manage Access to Security Reports
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_5" type="checkbox" id="__nav_3_5" >
+        
+        
+          <label class="md-nav__link" for="__nav_3_5">
+            
+  
+  <span class="md-ellipsis">
+    Custom Resource Definitions
+  </span>
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" aria-label="Custom Resource Definitions" data-md-level="2">
+          <label class="md-nav__title" for="__nav_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            Custom Resource Definitions
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../crds/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../crds/vulnerability-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VulnerabilityReport
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../crds/configaudit-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ConfigAuditReport
+  </span>
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Frequently Asked Questions
+  </span>
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#solution" class="md-nav__link">
+    <span class="md-ellipsis">
+      Solution
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Solution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      TL;DR;
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-spec-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Spec file :
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Spec file :">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-for-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example for spec  :
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compliance-details-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      Compliance details report
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-crds" class="md-nav__link">
+    <span class="md-ellipsis">
+      The CRDs
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The CRDs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#clustercompliancereport-crd" class="md-nav__link">
+    <span class="md-ellipsis">
+      ClusterComplianceReport CRD :
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clustercompliancedetailreport-crd" class="md-nav__link">
+    <span class="md-ellipsis">
+      ClusterComplianceDetailReport CRD :
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#permission-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Permission changes:
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nsa-tool-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      NSA Tool Analysis
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      Open Items
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+
+
+<h1 id="support-compliance-reports">Support Compliance Reports</h1>
+<h2 id="overview">Overview</h2>
+<p>It is required to leverage trivy-operator security tools capabilities by adding the support for building compliance reports
+example : NSA - Kubernetes Hardening Guidance</p>
+<h2 id="solution">Solution</h2>
+<h3 id="tldr">TL;DR;</h3>
+<ul>
+<li>A cluster compliance resource ,nsa-1.0.yaml (example below), with spec definition only will be deployed to kubernetes cluster upon startup</li>
+<li>the spec definition wil include the control check , cron expression for periodical generation, and it's mapping to scanners (kube-bench and audit-config)</li>
+<li>a new cluster compliance reconcile loop wil be introduced to track this cluster compliance resource </li>
+<li>when the cluster spec is reconcile  it check if cron expression match current time , if so it generates a compliance report and update the status section with report data</li>
+<li>if cron expression do not match the event will be requeue until next generation time </li>
+<li>Two new CRDs will be introduced :</li>
+<li><code>ClusterComplianceReport</code> to provide summary of the compliance per control</li>
+<li><code>ClusterComplianceDetailReport</code> to provide more detail compliance report for further investigation</li>
+<li>It is assumed that all scanners (kube-bench / config-audit) are running by default all the time and producing raw data</li>
+</ul>
+<h3 id="the-spec-file">The Spec file :</h3>
+<ul>
+<li>The spec will include the mapping (based on Ids) between the compliance report and tools(kube-bench and config-audit) which generate the raw data</li>
+<li>The spec file will be loaded from the file system</li>
+</ul>
+<h4 id="example-for-spec">Example for spec  :</h4>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span><span class="w"></span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aquasecurity.github.io/v1alpha1</span><span class="w"></span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterComplianceReport</span><span class="w"></span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nsa</span><span class="w"></span>
+<span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nsa</span><span class="w"></span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">National Security Agency - Kubernetes Hardening Guidance</span><span class="w"></span>
+<span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.0&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="nt">cron</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0</span><span class="nv"> </span><span class="s">*/3</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="nt">controls</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Non-root containers</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Check</span><span class="nv"> </span><span class="s">that</span><span class="nv"> </span><span class="s">container</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">not</span><span class="nv"> </span><span class="s">running</span><span class="nv"> </span><span class="s">as</span><span class="nv"> </span><span class="s">root&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.0&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Workload</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config-audit</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KSV012</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;MEDIUM&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Immutable container file systems</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Check</span><span class="nv"> </span><span class="s">that</span><span class="nv"> </span><span class="s">container</span><span class="nv"> </span><span class="s">root</span><span class="nv"> </span><span class="s">file</span><span class="nv"> </span><span class="s">system</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">immutable&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.1&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Workload</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config-audit</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KSV014</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;LOW&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Preventing privileged containers</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Controls</span><span class="nv"> </span><span class="s">whether</span><span class="nv"> </span><span class="s">Pods</span><span class="nv"> </span><span class="s">can</span><span class="nv"> </span><span class="s">run</span><span class="nv"> </span><span class="s">privileged</span><span class="nv"> </span><span class="s">containers&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.2&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Workload</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config-audit</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KSV017</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;HIGH&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Share containers process namespaces</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Controls</span><span class="nv"> </span><span class="s">whether</span><span class="nv"> </span><span class="s">containers</span><span class="nv"> </span><span class="s">can</span><span class="nv"> </span><span class="s">share</span><span class="nv"> </span><span class="s">process</span><span class="nv"> </span><span class="s">namespaces&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.3&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Workload</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config-audit</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KSV008</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;HIGH&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Share host process namespaces.</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Controls</span><span class="nv"> </span><span class="s">whether</span><span class="nv"> </span><span class="s">share</span><span class="nv"> </span><span class="s">host</span><span class="nv"> </span><span class="s">process</span><span class="nv"> </span><span class="s">namespaces&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.4&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Workload</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config-audit</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KSV009</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;HIGH&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">use the host network</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Controls</span><span class="nv"> </span><span class="s">whether</span><span class="nv"> </span><span class="s">containers</span><span class="nv"> </span><span class="s">can</span><span class="nv"> </span><span class="s">use</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">host</span><span class="nv"> </span><span class="s">network&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.5&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Workload</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config-audit</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KSV010</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;HIGH&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">Run with root privileges or with root group membership</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Controls</span><span class="nv"> </span><span class="s">whether</span><span class="nv"> </span><span class="s">container</span><span class="nv"> </span><span class="s">applications</span><span class="nv"> </span><span class="s">can</span><span class="nv"> </span><span class="s">run</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">root</span><span class="nv"> </span><span class="s">privileges</span><span class="nv"> </span><span class="s">or</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">root</span><span class="nv"> </span><span class="s">group</span><span class="nv"> </span><span class="s">membership&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.6&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Workload</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config-audit</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KSV029</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;LOW&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Restricts escalation to root privileges</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">check</span><span class="nv"> </span><span class="s">restrictions</span><span class="nv"> </span><span class="s">escalation</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">root</span><span class="nv"> </span><span class="s">privileges&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.7&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Workload</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config-audit</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KSV001</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;MEDIUM&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Sets the SELinux context of the container</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">checks</span><span class="nv"> </span><span class="s">if</span><span class="nv"> </span><span class="s">pod</span><span class="nv"> </span><span class="s">sets</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">SELinux</span><span class="nv"> </span><span class="s">context</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">container&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.8&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Workload</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config-audit</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KSV002</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;MEDIUM&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Restrict a container&#39;s access to resources with AppArmor</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">checks</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">restriction</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">containers</span><span class="nv"> </span><span class="s">access</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">resources</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">AppArmor&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.9&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Workload</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config-audit</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KSV030</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;MEDIUM&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Sets the seccomp profile used to sandbox containers.</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">checks</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">sets</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">seccomp</span><span class="nv"> </span><span class="s">profile</span><span class="nv"> </span><span class="s">used</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">sandbox</span><span class="nv"> </span><span class="s">containers&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.10&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Workload</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config-audit</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KSV030</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;LOW&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Protecting Pod service account tokens</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">check</span><span class="nv"> </span><span class="s">whether</span><span class="nv"> </span><span class="s">disable</span><span class="nv"> </span><span class="s">secret</span><span class="nv"> </span><span class="s">token</span><span class="nv"> </span><span class="s">been</span><span class="nv"> </span><span class="s">mount</span><span class="nv"> </span><span class="s">,automountServiceAccountToken:</span><span class="nv"> </span><span class="s">false&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.11&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Workload</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config-audit</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KSV036</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;MEDIUM&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Namespace kube-system should not be used by users</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">check</span><span class="nv"> </span><span class="s">whether</span><span class="nv"> </span><span class="s">Namespace</span><span class="nv"> </span><span class="s">kube-system</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">not</span><span class="nv"> </span><span class="s">be</span><span class="nv"> </span><span class="s">used</span><span class="nv"> </span><span class="s">by</span><span class="nv"> </span><span class="s">users&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.12&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NetworkPolicy</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config-audit</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KSV037</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;MEDIUM&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Pod and/or namespace Selectors usage</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">check</span><span class="nv"> </span><span class="s">validate</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">pod</span><span class="nv"> </span><span class="s">and/or</span><span class="nv"> </span><span class="s">namespace</span><span class="nv"> </span><span class="s">Selectors</span><span class="nv"> </span><span class="s">usage&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2.0&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Workload</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config-audit</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KSV038</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;MEDIUM&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Use CNI plugin that supports NetworkPolicy API</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">check</span><span class="nv"> </span><span class="s">whether</span><span class="nv"> </span><span class="s">check</span><span class="nv"> </span><span class="s">cni</span><span class="nv"> </span><span class="s">plugin</span><span class="nv"> </span><span class="s">installed</span><span class="nv">    </span><span class="s">&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.0&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Node</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kube-bench</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5.3.1</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;CRITICAL&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Use ResourceQuota policies to limit resources</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">check</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">use</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">ResourceQuota</span><span class="nv"> </span><span class="s">policies</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">limit</span><span class="nv"> </span><span class="s">resources&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;4.0&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ResourceQuota</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config-audit</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;check</span><span class="nv"> </span><span class="s">need</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">be</span><span class="nv"> </span><span class="s">added&gt;&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;CRITICAL&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Control plan disable insecure port</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">check</span><span class="nv"> </span><span class="s">whether</span><span class="nv"> </span><span class="s">control</span><span class="nv"> </span><span class="s">plan</span><span class="nv"> </span><span class="s">disable</span><span class="nv"> </span><span class="s">insecure</span><span class="nv"> </span><span class="s">port&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;5.0&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Node</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kube-bench</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.2.19</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;CRITICAL&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Encrypt etcd communication</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">check</span><span class="nv"> </span><span class="s">whether</span><span class="nv"> </span><span class="s">etcd</span><span class="nv"> </span><span class="s">communication</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">encrypted&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;5.1&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Node</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kube-bench</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2.1&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;CRITICAL&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ensure kube config file permission</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">check</span><span class="nv"> </span><span class="s">whether</span><span class="nv"> </span><span class="s">kube</span><span class="nv"> </span><span class="s">config</span><span class="nv"> </span><span class="s">file</span><span class="nv"> </span><span class="s">permissions&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;6.0&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Node</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kube-bench</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4.1.3</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4.1.4</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;CRITICAL&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check that encryption resource has been set</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">checks</span><span class="nv"> </span><span class="s">whether</span><span class="nv"> </span><span class="s">encryption</span><span class="nv"> </span><span class="s">resource</span><span class="nv"> </span><span class="s">has</span><span class="nv"> </span><span class="s">been</span><span class="nv"> </span><span class="s">set&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;6.1&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Node</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kube-bench</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.2.31</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.2.32</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;CRITICAL&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check encryption provider</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">checks</span><span class="nv"> </span><span class="s">whether</span><span class="nv"> </span><span class="s">encryption</span><span class="nv"> </span><span class="s">provider</span><span class="nv"> </span><span class="s">has</span><span class="nv"> </span><span class="s">been</span><span class="nv"> </span><span class="s">set&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;6.2&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Node</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kube-bench</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.2.3</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;CRITICAL&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Make sure anonymous-auth is unset</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">checks</span><span class="nv"> </span><span class="s">whether</span><span class="nv"> </span><span class="s">anonymous-auth</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">unset&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;7.0&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Node</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kube-bench</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.2.1</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;CRITICAL&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Make sure -authorization-mode=RBAC</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">check</span><span class="nv"> </span><span class="s">whether</span><span class="nv"> </span><span class="s">RBAC</span><span class="nv"> </span><span class="s">permission</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">use&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;7.1&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Node</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kube-bench</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.2.7</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.2.8</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;CRITICAL&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Audit policy is configure</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">check</span><span class="nv"> </span><span class="s">whether</span><span class="nv"> </span><span class="s">audit</span><span class="nv"> </span><span class="s">policy</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">configure&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;8.0&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Node</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kube-bench</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.2.1</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;HIGH&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Audit log path is configure</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">check</span><span class="nv"> </span><span class="s">whether</span><span class="nv"> </span><span class="s">audit</span><span class="nv"> </span><span class="s">log</span><span class="nv"> </span><span class="s">path</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">configure&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;8.1&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Node</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kube-bench</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.2.22</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;MEDIUM&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Audit log aging</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">check</span><span class="nv"> </span><span class="s">whether</span><span class="nv"> </span><span class="s">audit</span><span class="nv"> </span><span class="s">log</span><span class="nv"> </span><span class="s">aging</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">configure&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;8.2&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Node</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kube-bench</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.2.23</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;MEDIUM&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Service mesh is configure</span><span class="w"></span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Control</span><span class="nv"> </span><span class="s">check</span><span class="nv"> </span><span class="s">whether</span><span class="nv"> </span><span class="s">service</span><span class="nv"> </span><span class="s">mesh</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">used</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">cluster&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;9.0&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Node</span><span class="w"></span>
+<span class="w">      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">scanner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kube-bench</span><span class="w"></span>
+<span class="w">        </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;check</span><span class="nv"> </span><span class="s">need</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">be</span><span class="nv"> </span><span class="s">added&gt;&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;MEDIUM&#39;</span><span class="w"></span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">....</span><span class="w"></span>
+<span class="w w-Error"> </span><span class="err">```</span><span class="w"> </span>
+<span class="c1">### The logic :</span><span class="w"></span>
+<span class="l l-Scalar l-Scalar-Plain">Upon trivy-operator start cluster compliance reconcile loop will track the deployed spec file ,nsa-1.0 spec and evaluation the cron expression in spec file,</span><span class="w"> </span>
+<span class="l l-Scalar l-Scalar-Plain">if  the cron interval matches , trivy-operator will generate the compliance and compliance detail reports</span><span class="w"> </span><span class="p p-Indicator">:</span><span class="w"></span>
+<span class="w"> </span><span class="p p-Indicator">-</span><span class="w">  </span><span class="err">`</span><span class="l l-Scalar l-Scalar-Plain">ClusterComplianceReport` status section will be updated with report data</span><span class="w"> </span>
+<span class="w"> </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="err">`</span><span class="l l-Scalar l-Scalar-Plain">ClusterComplianceDetailReport` will be generated by and saved to etcd</span><span class="w"></span>
+
+<span class="c1">### The mapping</span><span class="w"></span>
+<span class="nt">Once it is determined that a report need to be generated</span><span class="p">:</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">all reports (cis-benchmark and audit config) raw data will be fetched by `tool` and `resource` types</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-operator will iterate all fetched raw data and find a match by `ID`</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">once the data has been mapped and aggregated 2 type of reports will be generated to present summary</span><span class="w"></span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">data and detailed data (in case further investigation need to be made)</span><span class="w"></span>
+
+<span class="c1">### Note: once the report has been generated again to reconcile loop start again the process describe in logic</span><span class="w"></span>
+
+<span class="c1">### The Reports:</span><span class="w"></span>
+
+<span class="c1">#### Example: Compliance spec and status section (report data)</span><span class="w"></span>
+<span class="err">```</span><span class="l l-Scalar l-Scalar-Plain">json</span><span class="w"></span>
+<span class="p p-Indicator">{</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;kind&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;ClusterComplianceReport&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;apiVersion&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;aquasecurity.github.io/v1alpha1&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;metadata&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;name&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;nsa&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;resourceVersion&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;1000&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;creationTimestamp&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">null</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">},</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;spec&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;kind&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;compliance&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;name&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;nsa&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;description&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;National</span><span class="nv"> </span><span class="s">Security</span><span class="nv"> </span><span class="s">Agency</span><span class="nv"> </span><span class="s">-</span><span class="nv"> </span><span class="s">Kubernetes</span><span class="nv"> </span><span class="s">Hardening</span><span class="nv"> </span><span class="s">Guidance&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;cron&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;version&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;1.0&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;controls&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">{</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;id&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;1.0&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;Non-root</span><span class="nv"> </span><span class="s">containers&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;description&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;resources&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"></span>
+<span class="w">          </span><span class="s">&quot;Workload&quot;</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">],</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;mapping&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"></span>
+<span class="w">          </span><span class="s">&quot;tool&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;config-audit&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">          </span><span class="s">&quot;checks&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">{</span><span class="w"></span>
+<span class="w">              </span><span class="s">&quot;id&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;KSV012&quot;</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">}</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">}</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">},</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">{</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;id&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;8.2&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;Audit</span><span class="nv"> </span><span class="s">log</span><span class="nv"> </span><span class="s">aging&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;description&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;resources&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"></span>
+<span class="w">          </span><span class="s">&quot;Node&quot;</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">],</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;mapping&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"></span>
+<span class="w">          </span><span class="s">&quot;tool&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;kube-bench&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">          </span><span class="s">&quot;checks&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">{</span><span class="w"></span>
+<span class="w">              </span><span class="s">&quot;id&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;1.2.23&quot;</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">}</span><span class="w"></span>
+<span class="w">          </span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">}</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">}</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">},</span><span class="w"></span>
+<span class="w">  </span><span class="s">&quot;status&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;updateTimestamp&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;2022-02-26T14:11:39Z&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;summary&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"></span>
+<span class="w">      </span><span class="s">&quot;passCount&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">3</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">      </span><span class="s">&quot;failCount&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">3</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">},</span><span class="w"></span>
+<span class="w">    </span><span class="s">&quot;control_check&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">{</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;id&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;1.1&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;name&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;Immutable</span><span class="nv"> </span><span class="s">container</span><span class="nv"> </span><span class="s">file</span><span class="nv"> </span><span class="s">systems&quot;</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;passTotal&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;failTotal&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="nv">3</span><span class="p p-Indicator">,</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;severity&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">}</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">}</span><span class="w"></span>
+<span class="p p-Indicator">}</span><span class="w"></span>
+</code></pre></div>
+<h4 id="compliance-details-report">Compliance details report</h4>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ClusterComplianceDetailReport&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;apiVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;aquasecurity.github.io/v1alpha1&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nsa-details&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;resourceVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="p">},</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;report&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;updateTimestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2022-02-26T14:05:29Z&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;compliance&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nsa-details&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;national security agency - kubernetes hardening guidance&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;summary&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;passCount&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;failCount&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w"></span>
+<span class="w">    </span><span class="p">},</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;controlCheck&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">      </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.1&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Immutable container file systems&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;checkResults&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">          </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;objectType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Pod&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;KSV014&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;remediation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">              </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pod-rss-site&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;namespace&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;default&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;msg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Container &#39;front-end&#39; of Pod &#39;rss-site&#39; should set &#39;securityContext.readOnlyRootFilesystem&#39; to true&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fail&quot;</span><span class="w"></span>
+<span class="w">              </span><span class="p">},</span><span class="w"></span>
+<span class="w">              </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pod-rss-site&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;namespace&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;default&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;msg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Container &#39;rss-reader&#39; of Pod &#39;rss-site&#39; should set &#39;securityContext.readOnlyRootFilesystem&#39; to true&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fail&quot;</span><span class="w"></span>
+<span class="w">              </span><span class="p">}</span><span class="w"></span>
+<span class="w">            </span><span class="p">]</span><span class="w"></span>
+<span class="w">          </span><span class="p">},</span><span class="w"></span>
+<span class="w">          </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;objectType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ReplicaSet&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;KSV014&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;remediation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">              </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;replicaset-memcached-sample-6c765df685&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;namespace&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;default&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;msg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Container &#39;memcached&#39; of ReplicaSet &#39;memcached-sample-6c765df685&#39; should set &#39;securityContext.readOnlyRootFilesystem&#39; to true&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fail&quot;</span><span class="w"></span>
+<span class="w">              </span><span class="p">}</span><span class="w"></span>
+<span class="w">            </span><span class="p">]</span><span class="w"></span>
+<span class="w">          </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">]</span><span class="w"></span>
+<span class="w">      </span><span class="p">},</span><span class="w"></span>
+<span class="w">      </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;3.0&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Use CNI plugin that supports NetworkPolicy API&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;checkResults&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">          </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;objectType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Node&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;5.3.1&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;remediation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;If the CNI plugin in use does not support network policies, consideration should be given to\nmaking use of a different plugin, or finding an alternate mechanism for restricting traffic\nin the Kubernetes cluster.\n&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">              </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;local-control-plane&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;namespace&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;msg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;warn&quot;</span><span class="w"></span>
+<span class="w">              </span><span class="p">}</span><span class="w"></span>
+<span class="w">            </span><span class="p">]</span><span class="w"></span>
+<span class="w">          </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">]</span><span class="w"></span>
+<span class="w">      </span><span class="p">},</span><span class="w"></span>
+<span class="w">      </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;6.0&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ensure kube config file permission&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;checkResults&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">          </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;objectType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Node&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4.1.3&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;remediation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Run the below command (based on the file location on your system) on the each worker node.\nFor example,\nchmod 644 /etc/kubernetes/proxy.conf\n&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">              </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;local-control-plane&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;namespace&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;msg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pass&quot;</span><span class="w"></span>
+<span class="w">              </span><span class="p">}</span><span class="w"></span>
+<span class="w">            </span><span class="p">]</span><span class="w"></span>
+<span class="w">          </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">]</span><span class="w"></span>
+<span class="w">      </span><span class="p">},</span><span class="w"></span>
+<span class="w">      </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;6.0&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ensure kube config file permission&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;checkResults&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">          </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;objectType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Node&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4.1.4&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;remediation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Run the below command (based on the file location on your system) on the each worker node.\nFor example, chown root:root /etc/kubernetes/proxy.conf\n&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">            </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">              </span><span class="p">{</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;local-control-plane&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;namespace&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;msg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">                </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pass&quot;</span><span class="w"></span>
+<span class="w">              </span><span class="p">}</span><span class="w"></span>
+<span class="w">            </span><span class="p">]</span><span class="w"></span>
+<span class="w">          </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="p">]</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">]</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<h3 id="the-crds">The CRDs</h3>
+<h4 id="clustercompliancereport-crd">ClusterComplianceReport CRD :</h4>
+<ul>
+<li>a new CRD <code>clustercompliancereports.crd.yaml</code> will be added to include compliance check report</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apiextensions.k8s.io/v1</span><span class="w"></span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CustomResourceDefinition</span><span class="w"></span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clustercompliancereports.aquasecurity.github.io</span><span class="w"></span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">app.kubernetes.io/managed-by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-operator</span><span class="w"></span>
+<span class="w">    </span><span class="nt">app.kubernetes.io/version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.14.1&quot;</span><span class="w"></span>
+<span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aquasecurity.github.io</span><span class="w"></span>
+<span class="w">  </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Cluster</span><span class="w"></span>
+<span class="w">  </span><span class="nt">versions</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1alpha1</span><span class="w"></span>
+<span class="w">      </span><span class="nt">served</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">      </span><span class="nt">storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">      </span><span class="nt">additionalPrinterColumns</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">jsonPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.metadata.creationTimestamp</span><span class="w"></span>
+<span class="w">          </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">date</span><span class="w"></span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Age</span><span class="w"></span>
+<span class="w">          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">The age of the report</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">jsonPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.status.summary.failCount</span><span class="w"></span>
+<span class="w">          </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">integer</span><span class="w"></span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Fail</span><span class="w"></span>
+<span class="w">          </span><span class="nt">priority</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">The number of checks that failed with Danger status</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">jsonPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.status.summary.passCount</span><span class="w"></span>
+<span class="w">          </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">integer</span><span class="w"></span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Pass</span><span class="w"></span>
+<span class="w">          </span><span class="nt">priority</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">The number of checks that passed</span><span class="w"></span>
+<span class="w">      </span><span class="nt">schema</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">openAPIV3Schema</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span><span class="w"></span>
+<span class="w">          </span><span class="nt">required</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apiVersion</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kind</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metadata</span><span class="w"></span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spec</span><span class="w"></span>
+<span class="w">          </span><span class="nt">properties</span><span class="p">:</span><span class="w"></span>
+<span class="w">            </span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"></span>
+<span class="w">              </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span><span class="w"></span>
+<span class="w">            </span><span class="nt">kind</span><span class="p">:</span><span class="w"></span>
+<span class="w">              </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span><span class="w"></span>
+<span class="w">            </span><span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">              </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span><span class="w"></span>
+<span class="w">            </span><span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="w">              </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span><span class="w"></span>
+<span class="w">              </span><span class="nt">required</span><span class="p">:</span><span class="w"></span>
+<span class="w">                </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">name</span><span class="w"></span>
+<span class="w">                </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">description</span><span class="w"></span>
+<span class="w">                </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">version</span><span class="w"></span>
+<span class="w">                </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cron</span><span class="w"></span>
+<span class="w">                </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">controls</span><span class="w"></span>
+<span class="w">              </span><span class="nt">properties</span><span class="p">:</span><span class="w"></span>
+<span class="w">                </span><span class="nt">name</span><span class="p">:</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span><span class="w"></span>
+<span class="w">                </span><span class="nt">description</span><span class="p">:</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span><span class="w"></span>
+<span class="w">                </span><span class="nt">version</span><span class="p">:</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span><span class="w"></span>
+<span class="w">                </span><span class="nt">cron</span><span class="p">:</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;^(((([\*]{1}){1})|((\*\/){0,1}(([0-9]{1}){1}|(([1-5]{1}){1}([0-9]{1}){1}){1})))</span><span class="nv"> </span><span class="s">((([\*]{1}){1})|((\*\/){0,1}(([0-9]{1}){1}|(([1]{1}){1}([0-9]{1}){1}){1}|([2]{1}){1}([0-3]{1}){1})))</span><span class="nv"> </span><span class="s">((([\*]{1}){1})|((\*\/){0,1}(([1-9]{1}){1}|(([1-2]{1}){1}([0-9]{1}){1}){1}|([3]{1}){1}([0-1]{1}){1})))</span><span class="nv"> </span><span class="s">((([\*]{1}){1})|((\*\/){0,1}(([1-9]{1}){1}|(([1-2]{1}){1}([0-9]{1}){1}){1}|([3]{1}){1}([0-1]{1}){1}))|(jan|feb|mar|apr|may|jun|jul|aug|sep|okt|nov|dec))</span><span class="nv"> </span><span class="s">((([\*]{1}){1})|((\*\/){0,1}(([0-7]{1}){1}))|(sun|mon|tue|wed|thu|fri|sat)))$&#39;</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;cron</span><span class="nv"> </span><span class="s">define</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">intervals</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">report</span><span class="nv"> </span><span class="s">generation&#39;</span><span class="w"></span>
+<span class="w">                </span><span class="nt">controls</span><span class="p">:</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">array</span><span class="w"></span>
+<span class="w">                  </span><span class="nt">items</span><span class="p">:</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">required</span><span class="p">:</span><span class="w"></span>
+<span class="w">                      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">name</span><span class="w"></span>
+<span class="w">                      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">id</span><span class="w"></span>
+<span class="w">                      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kinds</span><span class="w"></span>
+<span class="w">                      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mapping</span><span class="w"></span>
+<span class="w">                      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">severity</span><span class="w"></span>
+<span class="w">                    </span><span class="nt">properties</span><span class="p">:</span><span class="w"></span>
+<span class="w">                      </span><span class="nt">name</span><span class="p">:</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span><span class="w"></span>
+<span class="w">                      </span><span class="nt">description</span><span class="p">:</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span><span class="w"></span>
+<span class="w">                      </span><span class="nt">id</span><span class="p">:</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;id</span><span class="nv"> </span><span class="s">define</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">control</span><span class="nv"> </span><span class="s">check</span><span class="nv"> </span><span class="s">id&#39;</span><span class="w"></span>
+<span class="w">                      </span><span class="nt">kinds</span><span class="p">:</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">array</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">items</span><span class="p">:</span><span class="w"></span>
+<span class="w">                          </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span><span class="w"></span>
+<span class="w">                          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;kinds</span><span class="nv"> </span><span class="s">define</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">list</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">kinds</span><span class="nv"> </span><span class="s">control</span><span class="nv"> </span><span class="s">check</span><span class="nv"> </span><span class="s">apply</span><span class="nv"> </span><span class="s">on</span><span class="nv"> </span><span class="s">,</span><span class="nv"> </span><span class="s">example:</span><span class="nv"> </span><span class="s">Node,Workload</span><span class="nv"> </span><span class="s">&#39;</span><span class="w"></span>
+<span class="w">                      </span><span class="nt">mapping</span><span class="p">:</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">required</span><span class="p">:</span><span class="w"></span>
+<span class="w">                          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">scanner</span><span class="w"></span>
+<span class="w">                          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">checks</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">properties</span><span class="p">:</span><span class="w"></span>
+<span class="w">                          </span><span class="nt">scanner</span><span class="p">:</span><span class="w"></span>
+<span class="w">                            </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span><span class="w"></span>
+<span class="w">                            </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;^config-audit$|^kube-bench$&#39;</span><span class="w"></span>
+<span class="w">                            </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;scanner</span><span class="nv"> </span><span class="s">define</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">name</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">scanner</span><span class="nv"> </span><span class="s">which</span><span class="nv"> </span><span class="s">produce</span><span class="nv"> </span><span class="s">data,</span><span class="nv"> </span><span class="s">currently</span><span class="nv"> </span><span class="s">only</span><span class="nv"> </span><span class="s">config-audit</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">kube-bench</span><span class="nv"> </span><span class="s">are</span><span class="nv"> </span><span class="s">supported&#39;</span><span class="w"></span>
+<span class="w">                          </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">                            </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">array</span><span class="w"></span>
+<span class="w">                            </span><span class="nt">items</span><span class="p">:</span><span class="w"></span>
+<span class="w">                              </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span><span class="w"></span>
+<span class="w">                              </span><span class="nt">required</span><span class="p">:</span><span class="w"></span>
+<span class="w">                                </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">id</span><span class="w"></span>
+<span class="w">                              </span><span class="nt">properties</span><span class="p">:</span><span class="w"></span>
+<span class="w">                                </span><span class="nt">id</span><span class="p">:</span><span class="w"></span>
+<span class="w">                                  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span><span class="w"></span>
+<span class="w">                                  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;id</span><span class="nv"> </span><span class="s">define</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">check</span><span class="nv"> </span><span class="s">id</span><span class="nv"> </span><span class="s">as</span><span class="nv"> </span><span class="s">produced</span><span class="nv"> </span><span class="s">by</span><span class="nv"> </span><span class="s">scanner&#39;</span><span class="w"></span>
+<span class="w">                      </span><span class="nt">severity</span><span class="p">:</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;define</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">severity</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">control&#39;</span><span class="w"></span>
+<span class="w">                        </span><span class="nt">enum</span><span class="p">:</span><span class="w"></span>
+<span class="w">                          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CRITICAL</span><span class="w"></span>
+<span class="w">                          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HIGH</span><span class="w"></span>
+<span class="w">                          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MEDIUM</span><span class="w"></span>
+<span class="w">                          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LOW</span><span class="w"></span>
+<span class="w">                          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UNKNOWN</span><span class="w"></span>
+<span class="w">            </span><span class="nt">status</span><span class="p">:</span><span class="w"></span>
+<span class="w">              </span><span class="nt">x-kubernetes-preserve-unknown-fields</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">              </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span><span class="w"></span>
+<span class="w">      </span><span class="nt">subresources</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="c1"># status enables the status subresource.</span><span class="w"></span>
+<span class="w">        </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"> </span><span class="p p-Indicator">}</span><span class="w"></span>
+<span class="w">  </span><span class="nt">names</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">singular</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clustercompliancereport</span><span class="w"></span>
+<span class="w">    </span><span class="nt">plural</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clustercompliancereports</span><span class="w"></span>
+<span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterComplianceReport</span><span class="w"></span>
+<span class="w">    </span><span class="nt">listKind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterComplianceReportList</span><span class="w"></span>
+<span class="w">    </span><span class="nt">categories</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">    </span><span class="nt">shortNames</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compliance</span><span class="w"></span>
+</code></pre></div>
+<h4 id="clustercompliancedetailreport-crd">ClusterComplianceDetailReport CRD :</h4>
+<ul>
+<li>a new CRD <code>clustercompliancedetailreports.crd.yaml</code> will be added to include compliance detail check report</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apiextensions.k8s.io/v1</span><span class="w"></span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CustomResourceDefinition</span><span class="w"></span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clustercompliancedetailreports.aquasecurity.github.io</span><span class="w"></span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">app.kubernetes.io/managed-by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-operator</span><span class="w"></span>
+<span class="w">    </span><span class="nt">app.kubernetes.io/version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.14.1&quot;</span><span class="w"></span>
+<span class="nt">spec</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aquasecurity.github.io</span><span class="w"></span>
+<span class="w">  </span><span class="nt">versions</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1alpha1</span><span class="w"></span>
+<span class="w">      </span><span class="nt">served</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">      </span><span class="nt">storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">      </span><span class="nt">additionalPrinterColumns</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">jsonPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.metadata.creationTimestamp</span><span class="w"></span>
+<span class="w">          </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">date</span><span class="w"></span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Age</span><span class="w"></span>
+<span class="w">          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">The age of the report</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">jsonPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.report.summary.failCount</span><span class="w"></span>
+<span class="w">          </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">integer</span><span class="w"></span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Fail</span><span class="w"></span>
+<span class="w">          </span><span class="nt">priority</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">The number of checks that failed with Danger status</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">jsonPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.report.summary.passCount</span><span class="w"></span>
+<span class="w">          </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">integer</span><span class="w"></span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Pass</span><span class="w"></span>
+<span class="w">          </span><span class="nt">priority</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">          </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">The number of checks that passed</span><span class="w"></span>
+<span class="w">      </span><span class="nt">schema</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="nt">openAPIV3Schema</span><span class="p">:</span><span class="w"></span>
+<span class="w">          </span><span class="nt">x-kubernetes-preserve-unknown-fields</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">          </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span><span class="w"></span>
+<span class="w">  </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Cluster</span><span class="w"></span>
+<span class="w">  </span><span class="nt">names</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">singular</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clustercompliancedetailreport</span><span class="w"></span>
+<span class="w">    </span><span class="nt">plural</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clustercompliancedetailreports</span><span class="w"></span>
+<span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterComplianceDetailReport</span><span class="w"></span>
+<span class="w">    </span><span class="nt">listKind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterComplianceDetailReportList</span><span class="w"></span>
+<span class="w">    </span><span class="nt">categories</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span><span class="w"></span>
+<span class="w">    </span><span class="nt">shortNames</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">compliancedetail</span><span class="w"> </span>
+</code></pre></div>
+<h3 id="permission-changes">Permission changes:</h3>
+<p>it is required to update <code>02-trivy-operator.rbac.yaml</code> rules to include new permissions
+to support the following tracked resources kind by NSA plugin with (get,list and watch):</p>
+<p>```yaml
+- apiGroups: ["networking.k8s.io"]
+  resources:
+    - networkpolicies
+  verbs:
+    - get
+    - list
+    - watch
+<div class="highlight"><pre><span></span><code>```yaml
+- apiGroups:
+      - &quot;&quot;
+    resources:
+      - resourcequota
+    verbs:
+      - get
+      - list
+      - watch
+</code></pre></div></p>
+<h3 id="nsa-tool-analysis">NSA Tool Analysis</h3>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Description</th>
+<th>Kind</th>
+<th>Tool</th>
+<th>Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Non-root containers</td>
+<td>Check that container is not running as root</td>
+<td>Pod,ReplicationController,ReplicaSet,<br/>StatefulSet,DaemonSet,Job,CronJob</td>
+<td>Conftest</td>
+<td>appshield : <br/>kubernetes/policies/pss/restricted/3_runs_as_root.rego</td>
+</tr>
+<tr>
+<td>Immutable container file systems</td>
+<td>check that container root <br/>file system is immutable</td>
+<td>Pod,ReplicationController,ReplicaSet,<br/>StatefulSet,DaemonSet,Job,CronJob</td>
+<td>Conftest</td>
+<td>appshield: kubernetes/policies/general/file_system_not_read_only.rego</td>
+</tr>
+<tr>
+<td>Scan container images vulnerabilities</td>
+<td>scan container for vulnerabilities<br/> and misconfiguration</td>
+<td>Pod,ReplicationController,ReplicaSet,<br/>StatefulSet,DaemonSet,Job,CronJob</td>
+<td>Trivy</td>
+<td>Trivy</td>
+</tr>
+<tr>
+<td>Privileged container</td>
+<td>Controls whether Pods can run privileged containers.</td>
+<td>Pod,ReplicationController,ReplicaSet,<br/>StatefulSet,DaemonSet,Job,CronJob</td>
+<td>Conftest</td>
+<td>appshield: kubernetes/policies/pss/baseline/2_privileged.rego</td>
+</tr>
+<tr>
+<td>hostIPC</td>
+<td>Controls whether containers can share<br/> host process namespaces</td>
+<td>Pod,ReplicationController,ReplicaSet,<br/>StatefulSet,DaemonSet,Job,CronJob</td>
+<td>Conftest</td>
+<td>appshield: kubernetes/policies/pss/baseline/1_host_ipc.rego</td>
+</tr>
+<tr>
+<td>hostPID</td>
+<td>Controls whether containers can share host process namespaces.</td>
+<td>Pod,ReplicationController,ReplicaSet,<br/>StatefulSet,DaemonSet,Job,CronJob</td>
+<td>Conftest</td>
+<td>appshield: kubernetes/policies/pss/baseline/1_host_pid.rego</td>
+</tr>
+<tr>
+<td>hostNetwork</td>
+<td>Controls whether containers can use the host network.</td>
+<td>Pod,ReplicationController,ReplicaSet,<br/>StatefulSet,DaemonSet,Job,CronJob</td>
+<td>Conftest</td>
+<td>appshield: kubernetes/policies/pss/baseline/1_host_network.rego</td>
+</tr>
+<tr>
+<td>allowedHostPaths</td>
+<td>Limits containers to specific paths of the host file system.</td>
+<td>Pod,ReplicationController,ReplicaSet,<br/>StatefulSet,DaemonSet,Job,CronJob</td>
+<td>Conftest</td>
+<td>Need to be added to appshield :<br/> https://kubernetes.io/docs/concepts/policy/pod-security-policy/#volumes-and-file-systems</td>
+</tr>
+<tr>
+<td>runAsUser , runAsGroup <br/>and supplementalGroups</td>
+<td>Controls whether container applications can run <br/>with root privileges or with root group membership</td>
+<td>Pod,ReplicationController,ReplicaSet,<br/>StatefulSet,DaemonSet,Job,CronJob</td>
+<td>Conftest</td>
+<td>appshield: kubernetes/policies/pss/restricted/4_runs_with_a_root_gid.rego</td>
+</tr>
+<tr>
+<td>allowPrivilegeEscalation</td>
+<td>Restricts escalation to root privileges.</td>
+<td>Pod,ReplicationController,ReplicaSet,<br/>StatefulSet,DaemonSet,Job,CronJob</td>
+<td>Conftest</td>
+<td>appshield: kubernetes/policies/pss/restricted/2_can_elevate_its_own_privileges.rego</td>
+</tr>
+<tr>
+<td>seLinux</td>
+<td>Sets the SELinux context of the container.</td>
+<td>Pod,ReplicationController,ReplicaSet,<br/>StatefulSet,DaemonSet,Job,CronJob</td>
+<td>Conftest</td>
+<td>appshield: kubernetes/policies/pss/baseline/7_selinux_custom_options_set.rego</td>
+</tr>
+<tr>
+<td>AppArmor annotations</td>
+<td>Sets the seccomp profile used to sandbox containers.</td>
+<td>Pod,ReplicationController,ReplicaSet,<br/>StatefulSet,DaemonSet,Job,CronJob</td>
+<td>Conftest</td>
+<td>appshield: kubernetes/policies/pss/baseline/6_apparmor_policy_disabled.rego</td>
+</tr>
+<tr>
+<td>seccomp annotations</td>
+<td>Sets the seccomp profile used to sandbox containers.</td>
+<td>Pod,ReplicationController,ReplicaSet,<br/>StatefulSet,DaemonSet,Job,CronJob</td>
+<td>Conftest</td>
+<td>appshield: kubernetes/policies/pss/restricted/5_runtime_default_seccomp_profile_not_set.rego</td>
+</tr>
+<tr>
+<td>Protecting Pod service account tokens</td>
+<td>disable secret token been mount ,automountServiceAccountToken: false</td>
+<td>Pod,ReplicationController,ReplicaSet,<br/>StatefulSet,DaemonSet,Job,CronJob</td>
+<td>Conftest</td>
+<td>appshield: kubernetes/policies/advance/protecting_pod_service_account_tokens.rego</td>
+</tr>
+<tr>
+<td>kube-system or kube-public</td>
+<td>namespace kube-system should should not be used by users</td>
+<td>Pod,ReplicationController,ReplicaSet,<br/>StatefulSet,DaemonSet,Job,CronJob</td>
+<td>Conftest</td>
+<td>appshield: kubernetes/policies/advance/protect_core_components_namespace.rego</td>
+</tr>
+<tr>
+<td>Use CNI plugin that supports NetworkPolicy API</td>
+<td>check cni plugin installed</td>
+<td>Node</td>
+<td>Kube-bench</td>
+<td>5.3.1 Ensure that the CNI in use supports Network Policies (need to be fixed)</td>
+</tr>
+<tr>
+<td>Create policies that select <br/>Pods using podSelector and/or the namespaceSelector</td>
+<td>Create policies that select Pods using podSelector<br/> and/or the namespaceSelector</td>
+<td>Pod,ReplicationController,ReplicaSet,<br/>StatefulSet,DaemonSet,Job,CronJob</td>
+<td>Conftest</td>
+<td>appshield: kubernetes/policies/advance/selector_usage_in_network_policies.rego</td>
+</tr>
+<tr>
+<td>use a default policy to deny all ingress and egress traffic</td>
+<td>check that network policy deny all exist</td>
+<td>NetworkPolicy</td>
+<td>Kube-bench</td>
+<td>Add logic to kube-bench <br/>https://kubernetes.io/docs/concepts/services-networking/network-policies/</td>
+</tr>
+<tr>
+<td>Use LimitRange and ResourceQuota<br/> policies to limit resources on a namespace or Pod level</td>
+<td>check the resource quota resource has been define</td>
+<td>ResourceQuota</td>
+<td>Kube-bench</td>
+<td>Add Logic to kube-bench <br/>https://kubernetes.io/docs/concepts/policy/limit-range/</td>
+</tr>
+<tr>
+<td>TLS encryption</td>
+<td>control plan disable insecure port</td>
+<td>Node</td>
+<td>Kube-bench</td>
+<td>1.2.19 Ensure that the --insecure-port argument is set to 0</td>
+</tr>
+<tr>
+<td>Etcd encryption</td>
+<td>encrypt etcd communication</td>
+<td>Node</td>
+<td>Kube-bench</td>
+<td>2.1 Ensure that the --cert-file and --key-file arguments are set as appropriate</td>
+</tr>
+<tr>
+<td>Kubeconfig files</td>
+<td>ensure file permission</td>
+<td>Node</td>
+<td>Kube-bench</td>
+<td>4.1.3, 4.1.4</td>
+</tr>
+<tr>
+<td>Worker node segmentation</td>
+<td>node segmentation</td>
+<td>Node</td>
+<td>Kube-bench</td>
+<td>Note sure can be tested</td>
+</tr>
+<tr>
+<td>Encryption</td>
+<td>check that encryption resource has been set</td>
+<td>EncryptionConfiguration</td>
+<td>Kube-bench</td>
+<td>Add Logic to kube-bench https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/</td>
+</tr>
+<tr>
+<td>Encryption / secrets</td>
+<td>check encryption provider</td>
+<td>Node</td>
+<td>Kube-bench</td>
+<td>1.2.3 Ensure that the --encryption-provider-config argument is set as</td>
+</tr>
+<tr>
+<td>authentication</td>
+<td>make sure anonymous-auth is unset</td>
+<td>Node</td>
+<td>Kube-bench</td>
+<td>1.2.1 Ensure that the --anonymous-auth argument is set to false</td>
+</tr>
+<tr>
+<td>Role-based access control</td>
+<td>make sure -authorization-mode=RBAC</td>
+<td>Node</td>
+<td>Kube-bench</td>
+<td>1.2.7/1.2.8 Ensure that the --authorization-mode argument is not set to AlwaysAllow</td>
+</tr>
+<tr>
+<td>Audit policy file</td>
+<td>check that policy is configure</td>
+<td>Node</td>
+<td>Kube-bench</td>
+<td>3.2.1 Ensure that a minimal audit policy is created</td>
+</tr>
+<tr>
+<td>Audit log path</td>
+<td>check that log path is configure</td>
+<td>Node</td>
+<td>Kube-bench</td>
+<td>1.2.22 Ensure that the --audit-log-path argument is set</td>
+</tr>
+<tr>
+<td>Audit log max age</td>
+<td>check audit log aging</td>
+<td>Node</td>
+<td>Kube-bench</td>
+<td>1.2.23 Ensure that the --audit-log-maxage argument is set to 30 or as appropriate</td>
+</tr>
+<tr>
+<td>service mesh usage</td>
+<td>check service mesh is used in cluster</td>
+<td>Node</td>
+<td>Kube-bench</td>
+<td>Add Logic to kube-bench check service mesh existenace</td>
+</tr>
+</tbody>
+</table>
+<h2 id="open-items">Open Items</h2>
+<ul>
+<li>compliance support for CLI</li>
+</ul>
+
+
+
+
+              
+            </article>
+            
+<script>var input,hash=location.hash.slice(1);hash.startsWith("__tabbed_")&&((input=document.getElementById(hash)).checked=!0)</script>
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright 2019-2022 Aqua Security Software Ltd.
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections"], "search": "../../assets/javascripts/workers/search.720157f5.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"method": "mike", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.2131bdac.min.js"></script>
+      
+    
+  </body>
+</html>

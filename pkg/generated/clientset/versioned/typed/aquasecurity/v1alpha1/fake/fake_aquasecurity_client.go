@@ -28,6 +28,10 @@ func (c *FakeAquasecurityV1alpha1) ConfigAuditReports(namespace string) v1alpha1
 	return &FakeConfigAuditReports{c, namespace}
 }
 
+func (c *FakeAquasecurityV1alpha1) ExposedSecretReports(namespace string) v1alpha1.ExposedSecretReportInterface {
+	return &FakeExposedSecretReports{c, namespace}
+}
+
 func (c *FakeAquasecurityV1alpha1) VulnerabilityReports(namespace string) v1alpha1.VulnerabilityReportInterface {
 	return &FakeVulnerabilityReports{c, namespace}
 }

@@ -10,4 +10,6 @@ type ClusterConfigAuditReportExpansion interface{}
 
 type ConfigAuditReportExpansion interface{}
 
+type ExposedSecretReportExpansion interface{}
+
 type VulnerabilityReportExpansion interface{}

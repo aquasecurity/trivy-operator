@@ -45,6 +45,8 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Aquasecurity().V1alpha1().ClusterConfigAuditReports().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("configauditreports"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Aquasecurity().V1alpha1().ConfigAuditReports().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("exposedsecretreports"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Aquasecurity().V1alpha1().ExposedSecretReports().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("vulnerabilityreports"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Aquasecurity().V1alpha1().VulnerabilityReports().Informer()}, nil
 

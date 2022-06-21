@@ -1,4 +1,4 @@
-package vulnerabilityreport
+package exposedsecretreport
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 // Write creates or updates the given slice of v1alpha1.VulnerabilityReport
 // instances.
 type Writer interface {
-	Write(context.Context, []v1alpha1.VulnerabilityReport) error
+	Write(context.Context, []v1alpha1.ExposedSecretReport) error
 }
 
 // Reader is the interface that wraps methods for finding v1alpha1.VulnerabilityReport objects.
@@ -23,7 +23,7 @@ type Writer interface {
 // FindByOwner returns the slice of v1alpha1.VulnerabilityReport instances
 // owned by the given kube.ObjectRef or an empty slice if the reports are not found.
 type Reader interface {
-	FindByOwner(context.Context, kube.ObjectRef) ([]v1alpha1.VulnerabilityReport, error)
+	FindByOwner(context.Context, kube.ObjectRef) ([]v1alpha1.ExposedSecretReport, error)
 }
 
 type ReadWriter interface {
@@ -44,7 +44,7 @@ func NewReadWriter(client client.Client) ReadWriter {
 	}
 }
 
-func (r *readWriter) Write(ctx context.Context, reports []v1alpha1.VulnerabilityReport) error {
+func (r *readWriter) Write(ctx context.Context, reports []v1alpha1.ExposedSecretReport) error {
 	for _, report := range reports {
 		err := r.createOrUpdate(ctx, report)
 		if err != nil {
@@ -54,8 +54,8 @@ func (r *readWriter) Write(ctx context.Context, reports []v1alpha1.Vulnerability
 	return nil
 }
 
-func (r *readWriter) createOrUpdate(ctx context.Context, report v1alpha1.VulnerabilityReport) error {
-	var existing v1alpha1.VulnerabilityReport
+func (r *readWriter) createOrUpdate(ctx context.Context, report v1alpha1.ExposedSecretReport) error {
+	var existing v1alpha1.ExposedSecretReport
 	err := r.Get(ctx, types.NamespacedName{
 		Name:      report.Name,
 		Namespace: report.Namespace,
@@ -76,8 +76,8 @@ func (r *readWriter) createOrUpdate(ctx context.Context, report v1alpha1.Vulnera
 	return err
 }
 
-func (r *readWriter) FindByOwner(ctx context.Context, owner kube.ObjectRef) ([]v1alpha1.VulnerabilityReport, error) {
-	var list v1alpha1.VulnerabilityReportList
+func (r *readWriter) FindByOwner(ctx context.Context, owner kube.ObjectRef) ([]v1alpha1.ExposedSecretReport, error) {
+	var list v1alpha1.ExposedSecretReportList
 
 	labels := client.MatchingLabels(kube.ObjectRefToLabels(owner))
 

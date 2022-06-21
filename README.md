@@ -1,6 +1,6 @@
 ![Trivy-operator logo](docs/images/trivy-operator-logo.png)
 
-> Kubernetes-native security toolkit. ([Documentation](https://aquasecurity.github.io/trivy/latest/docs/kubernetes/operator/))
+> Kubernetes-native security toolkit. ([Documentation](https://aquasecurity.github.io/trivy-operator/latest))
 
 [![GitHub Release][release-img]][release]
 [![Build Action][action-build-img]][action-build]

@@ -69,8 +69,7 @@ jobs:
             -f deploy/crd/configauditreports.crd.yaml \
             -f deploy/crd/clusterconfigauditreports.crd.yaml \
             -f deploy/compliance/clustercompliancereports.crd.yaml \
-            -f deploy/compliance/clustercompliancedetailreports.crd.yaml \
-            -f deploy/crd/exposedsecretreports.crd.yaml
+            -f deploy/compliance/clustercompliancedetailreports.crd.yaml
           kubectl apply -f deploy/static/01-trivy-operator.ns.yaml \
             -f deploy/static/02-trivy-operator.rbac.yaml
           make itests-trivy-operator

@@ -40,8 +40,6 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&ClusterComplianceReportList{},
 		&ClusterComplianceDetailReport{},
 		&ClusterComplianceDetailReportList{},
-		&ExposedSecretReport{},
-		&ExposedSecretReportList{},
 	)
 	meta.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

@@ -6,7 +6,6 @@ import (
 
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
-	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/metrics"
@@ -141,18 +140,17 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 
 		if err = (&vulnerabilityreport.WorkloadController{
-			Logger:                  ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
-			Config:                  operatorConfig,
-			ConfigData:              trivyOperatorConfig,
-			Client:                  mgr.GetClient(),
-			ObjectResolver:          objectResolver,
-			LimitChecker:            limitChecker,
-			LogsReader:              logsReader,
-			SecretsReader:           secretsReader,
-			Plugin:                  plugin,
-			PluginContext:           pluginContext,
-			VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(mgr.GetClient()),
-			ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(mgr.GetClient()),
+			Logger:         ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
+			Config:         operatorConfig,
+			ConfigData:     trivyOperatorConfig,
+			Client:         mgr.GetClient(),
+			ObjectResolver: objectResolver,
+			LimitChecker:   limitChecker,
+			LogsReader:     logsReader,
+			SecretsReader:  secretsReader,
+			Plugin:         plugin,
+			PluginContext:  pluginContext,
+			ReadWriter:     vulnerabilityreport.NewReadWriter(mgr.GetClient()),
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup vulnerabilityreport reconciler: %w", err)
 		}

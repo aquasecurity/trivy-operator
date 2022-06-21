@@ -30,14 +30,6 @@ type ConfigAuditReportListerExpansion interface{}
 // ConfigAuditReportNamespaceLister.
 type ConfigAuditReportNamespaceListerExpansion interface{}
 
-// ExposedSecretReportListerExpansion allows custom methods to be added to
-// ExposedSecretReportLister.
-type ExposedSecretReportListerExpansion interface{}
-
-// ExposedSecretReportNamespaceListerExpansion allows custom methods to be added to
-// ExposedSecretReportNamespaceLister.
-type ExposedSecretReportNamespaceListerExpansion interface{}
-
 // VulnerabilityReportListerExpansion allows custom methods to be added to
 // VulnerabilityReportLister.
 type VulnerabilityReportListerExpansion interface{}

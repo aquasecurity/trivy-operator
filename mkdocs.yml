@@ -37,7 +37,6 @@ nav:
           - Overview: crds/index.md
           - VulnerabilityReport: crds/vulnerability-report.md
           - ConfigAuditReport: crds/configaudit-report.md
-          - ExposedSecretReport: crds/exposedsecret-report.md
   - Frequently Asked Questions: faq.md
 
 theme:

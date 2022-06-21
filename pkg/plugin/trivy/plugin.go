@@ -1232,105 +1232,62 @@ func (p *plugin) appendTrivyNonSSLEnv(config Config, image string, env []corev1.
 	return env, nil
 }
 
-func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef string, logsReader io.ReadCloser) (v1alpha1.VulnerabilityReportData, v1alpha1.ExposedSecretReportData, error) {
-	var vulnReport v1alpha1.VulnerabilityReportData
-	var secretReport v1alpha1.ExposedSecretReportData
-
+func (p *plugin) ParseVulnerabilityReportData(ctx trivyoperator.PluginContext, imageRef string, logsReader io.ReadCloser) (v1alpha1.VulnerabilityReportData, error) {
 	config, err := p.newConfigFrom(ctx)
 	if err != nil {
-		return vulnReport, secretReport, err
+		return v1alpha1.VulnerabilityReportData{}, err
 	}
 	var reports ScanReport
 	err = json.NewDecoder(logsReader).Decode(&reports)
 	if err != nil {
-		return vulnReport, secretReport, err
+		return v1alpha1.VulnerabilityReportData{}, err
 	}
-
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
-	secrets := make([]v1alpha1.ExposedSecret, 0)
 
 	for _, report := range reports.Results {
-		vulnerabilities = append(vulnerabilities, getVulnerabilitiesFromScanResult(report)...)
-		secrets = append(secrets, getExposedSecretsFromScanResult(report)...)
+		for _, sr := range report.Vulnerabilities {
+			vulnerabilities = append(vulnerabilities, v1alpha1.Vulnerability{
+				VulnerabilityID:  sr.VulnerabilityID,
+				Resource:         sr.PkgName,
+				InstalledVersion: sr.InstalledVersion,
+				FixedVersion:     sr.FixedVersion,
+				Severity:         sr.Severity,
+				Title:            sr.Title,
+				PrimaryLink:      sr.PrimaryURL,
+				Links:            []string{},
+				Score:            GetScoreFromCVSS(sr.Cvss),
+				Target:           report.Target,
+			})
+		}
 	}
 
 	registry, artifact, err := p.parseImageRef(imageRef)
 	if err != nil {
-		return vulnReport, secretReport, err
+		return v1alpha1.VulnerabilityReportData{}, err
 	}
 
 	trivyImageRef, err := config.GetImageRef()
 	if err != nil {
-		return vulnReport, secretReport, err
+		return v1alpha1.VulnerabilityReportData{}, err
 	}
 
 	version, err := trivyoperator.GetVersionFromImageRef(trivyImageRef)
 	if err != nil {
-		return vulnReport, secretReport, err
+		return v1alpha1.VulnerabilityReportData{}, err
 	}
 
 	return v1alpha1.VulnerabilityReportData{
-			UpdateTimestamp: metav1.NewTime(p.clock.Now()),
-			Scanner: v1alpha1.Scanner{
-				Name:    v1alpha1.ScannerNameTrivy,
-				Vendor:  "Aqua Security",
-				Version: version,
-			},
-			Registry:        registry,
-			Artifact:        artifact,
-			Summary:         p.vulnerabilitySummary(vulnerabilities),
-			Vulnerabilities: vulnerabilities,
-		}, v1alpha1.ExposedSecretReportData{
-			UpdateTimestamp: metav1.NewTime(p.clock.Now()),
-			Scanner: v1alpha1.Scanner{
-				Name:    v1alpha1.ScannerNameTrivy,
-				Vendor:  "Aqua Security",
-				Version: version,
-			},
-			Registry: registry,
-			Artifact: artifact,
-			Summary:  p.secretSummary(secrets),
-			Secrets:  secrets,
-		}, nil
-
-}
-
-func getVulnerabilitiesFromScanResult(report ScanResult) []v1alpha1.Vulnerability {
-	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
-
-	for _, sr := range report.Vulnerabilities {
-		vulnerabilities = append(vulnerabilities, v1alpha1.Vulnerability{
-			VulnerabilityID:  sr.VulnerabilityID,
-			Resource:         sr.PkgName,
-			InstalledVersion: sr.InstalledVersion,
-			FixedVersion:     sr.FixedVersion,
-			Severity:         sr.Severity,
-			Title:            sr.Title,
-			PrimaryLink:      sr.PrimaryURL,
-			Links:            []string{},
-			Score:            GetScoreFromCVSS(sr.Cvss),
-			Target:           sr.Target,
-		})
-	}
-
-	return vulnerabilities
-}
-
-func getExposedSecretsFromScanResult(report ScanResult) []v1alpha1.ExposedSecret {
-	secrets := make([]v1alpha1.ExposedSecret, 0)
-
-	for _, sr := range report.Secrets {
-		secrets = append(secrets, v1alpha1.ExposedSecret{
-			Target:   sr.Target,
-			RuleID:   sr.RuleID,
-			Title:    sr.Title,
-			Severity: sr.Severity,
-			Category: sr.Category,
-			Match:    sr.Match,
-		})
-	}
-
-	return secrets
+		UpdateTimestamp: metav1.NewTime(p.clock.Now()),
+		Scanner: v1alpha1.Scanner{
+			Name:    v1alpha1.ScannerNameTrivy,
+			Vendor:  "Aqua Security",
+			Version: version,
+		},
+		Registry:        registry,
+		Artifact:        artifact,
+		Summary:         p.toSummary(vulnerabilities),
+		Vulnerabilities: vulnerabilities,
+	}, nil
 }
 
 func (p *plugin) newConfigFrom(ctx trivyoperator.PluginContext) (Config, error) {
@@ -1341,7 +1298,7 @@ func (p *plugin) newConfigFrom(ctx trivyoperator.PluginContext) (Config, error) 
 	return Config{PluginConfig: pluginConfig}, nil
 }
 
-func (p *plugin) vulnerabilitySummary(vulnerabilities []v1alpha1.Vulnerability) v1alpha1.VulnerabilitySummary {
+func (p *plugin) toSummary(vulnerabilities []v1alpha1.Vulnerability) v1alpha1.VulnerabilitySummary {
 	var vs v1alpha1.VulnerabilitySummary
 	for _, v := range vulnerabilities {
 		switch v.Severity {
@@ -1358,23 +1315,6 @@ func (p *plugin) vulnerabilitySummary(vulnerabilities []v1alpha1.Vulnerability) 
 		}
 	}
 	return vs
-}
-
-func (p *plugin) secretSummary(secrets []v1alpha1.ExposedSecret) v1alpha1.ExposedSecretSummary {
-	var s v1alpha1.ExposedSecretSummary
-	for _, v := range secrets {
-		switch v.Severity {
-		case v1alpha1.SeverityCritical:
-			s.CriticalCount++
-		case v1alpha1.SeverityHigh:
-			s.HighCount++
-		case v1alpha1.SeverityMedium:
-			s.MediumCount++
-		case v1alpha1.SeverityLow:
-			s.LowCount++
-		}
-	}
-	return s
 }
 
 func (p *plugin) parseImageRef(imageRef string) (v1alpha1.Registry, v1alpha1.Artifact, error) {

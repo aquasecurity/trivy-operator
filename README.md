@@ -89,7 +89,7 @@ Join the community, and talk to us about any matter in [GitHub Discussions] or [
 [Documentation]: https://aquasecurity.github.io/trivy-operator/latest
 [Static YAML Manifests]: https://aquasecurity.github.io/trivy-operator/latest/operator/installation/kubectl
 [getting-started-operator]: https://aquasecurity.github.io/trivy-operator/latest/operator
-[Kubernetes operator]: https://aquasecurity.github.io/trivy/latest/docs/kubernetes/operator/
+[Kubernetes operator]: https://aquasecurity.github.io/trivy-operator/latest
 
 [Lens Extension]: https://github.com/aquasecurity/trivy-operator-lens-extension
 [kubectl]: https://kubernetes.io/docs/reference/kubectl

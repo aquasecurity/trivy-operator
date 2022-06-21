@@ -10,6 +10,9 @@
 [![License][license-img]][license]
 [![GitHub All Releases][github-all-releases-img]][release]
 ![Docker Pulls Trivy-operator][docker-pulls-trivy-operator]
+<a href="https://slack.aquasec.com/?_ga=2.51428586.2119512742.1655808394-1739877964.1641199050">
+<img src="https://img.shields.io/static/v1?label=Slack&message=Join+our+Community&color=4a154b&logo=slack">
+</a>
 
 # Introduction
 

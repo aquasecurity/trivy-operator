@@ -64,6 +64,9 @@ data:
   {{- end }}
   trivy.severity: {{ .severity | quote }}
   trivy.dbRepository: {{ .dbRepository | quote }}
+  {{- if .dbRepositoryInsecure }}
+  trivy.dbRepositoryInsecure: {{ .dbRepositoryInsecure | quote }}
+  {{- end }}
   {{- if .ignoreUnfixed }}
   trivy.ignoreUnfixed: {{ .ignoreUnfixed | quote }}
   {{- end }}

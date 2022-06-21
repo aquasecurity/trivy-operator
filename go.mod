@@ -18,10 +18,10 @@ require (
 	github.com/prometheus/client_golang v1.12.2
 	github.com/stretchr/testify v1.7.2
 	gopkg.in/yaml.v3 v3.0.1
-	k8s.io/api v0.24.1
+	k8s.io/api v0.24.2
 	k8s.io/apiextensions-apiserver v0.24.0
 	k8s.io/apimachinery v0.24.2
-	k8s.io/client-go v0.24.1
+	k8s.io/client-go v0.24.2
 	k8s.io/code-generator v0.24.1
 	k8s.io/klog/v2 v2.60.1
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9

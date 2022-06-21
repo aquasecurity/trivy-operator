@@ -24,9 +24,6 @@ type ExposedSecretSummary struct {
 
 	// LowCount is the number of exposed secrets with Low Severity.
 	LowCount int `json:"lowCount"`
-
-	// NoneCount is the number of packages without any exposed secret.
-	NoneCount int `json:"noneCount"`
 }
 
 // ExposedSecret is the spec for a exposed secret record.

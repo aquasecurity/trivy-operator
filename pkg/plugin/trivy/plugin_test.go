@@ -3560,7 +3560,6 @@ var (
 			HighCount:     1,
 			MediumCount:   0,
 			LowCount:      0,
-			NoneCount:     0,
 		},
 		Secrets: []v1alpha1.ExposedSecret{
 			{
@@ -3624,7 +3623,6 @@ var (
 			HighCount:     0,
 			MediumCount:   0,
 			LowCount:      0,
-			NoneCount:     0,
 		},
 		Secrets: []v1alpha1.ExposedSecret{},
 	}

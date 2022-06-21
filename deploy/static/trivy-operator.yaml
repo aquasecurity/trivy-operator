@@ -399,7 +399,7 @@ spec:
                       type: string
                 summary:
                   description: |
-                    Summary is a summary of exposed secrets counts grouped by Severity.
+                    Summary is the exposed secrets counts grouped by Severity.
                   type: object
                   required:
                     - criticalCount
@@ -425,11 +425,6 @@ spec:
                     lowCount:
                       description: |
                         LowCount is the number of exposed secrets with Low Severity.
-                      type: integer
-                      minimum: 0
-                    noneCount:
-                      description: |
-                        NoneCount is the number of packages without any exposed secret.
                       type: integer
                       minimum: 0
                 secrets:

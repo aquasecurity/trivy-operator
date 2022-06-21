@@ -346,30 +346,6 @@ func (in *ConfigAuditReportData) DeepCopyInto(out *ConfigAuditReportData) {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
-	if in.PodChecks != nil {
-		in, out := &in.PodChecks, &out.PodChecks
-		*out = make([]Check, len(*in))
-		for i := range *in {
-			(*in)[i].DeepCopyInto(&(*out)[i])
-		}
-	}
-	if in.ContainerChecks != nil {
-		in, out := &in.ContainerChecks, &out.ContainerChecks
-		*out = make(map[string][]Check, len(*in))
-		for key, val := range *in {
-			var outVal []Check
-			if val == nil {
-				(*out)[key] = nil
-			} else {
-				in, out := &val, &outVal
-				*out = make([]Check, len(*in))
-				for i := range *in {
-					(*in)[i].DeepCopyInto(&(*out)[i])
-				}
-			}
-			(*out)[key] = outVal
-		}
-	}
 	return
 }
 

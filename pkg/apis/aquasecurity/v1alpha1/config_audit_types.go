@@ -79,11 +79,6 @@ type ConfigAuditReportData struct {
 
 	// Checks provides results of conducting audit steps.
 	Checks []Check `json:"checks"`
-
-	// Deprecated in 0.12+ use Checks with CheckScope instead
-	PodChecks []Check `json:"podChecks"`
-	// Deprecated in 0.12+ use Checks with CheckScope instead
-	ContainerChecks map[string][]Check `json:"containerChecks"`
 }
 
 // CheckScope has Type and Value fields to further identify a given Check.

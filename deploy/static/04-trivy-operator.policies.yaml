@@ -1,4 +1,5 @@
 ---
+# Source: trivy-operator/templates/policies.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:

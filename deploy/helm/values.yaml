@@ -137,9 +137,9 @@ trivy:
   severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
 
   # ignoreUnfixed is the flag to show only fixed vulnerabilities in
-  # vulnerabilities reported by Trivy. Set to "true" to enable it.
+  # vulnerabilities reported by Trivy. Set to true to enable it.
   #
-  ignoreUnfixed: "false"
+  ignoreUnfixed: false
 
   # timeout is the duration to wait for scan completion.
   timeout: "5m0s"

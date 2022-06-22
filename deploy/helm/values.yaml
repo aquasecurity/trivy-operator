@@ -55,6 +55,9 @@ operator:
   configAuditScannerScanOnlyCurrentRevisions: false
   # batchDeleteDelay the duration to wait before deleting another batch of config audit reports.
   batchDeleteDelay: 10s
+  
+  # metricsFindingsEnabled the flag to enable metrics for findings
+  metricsFindingsEnabled: true
 image:
   repository: "docker.io/aquasec/trivy-operator"
   # tag is an override of the image tag, which is by default set by the

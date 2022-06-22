@@ -185,6 +185,10 @@ trivy:
 
   dbRepository: "ghcr.io/aquasecurity/trivy-db"
 
+  # The Flag to enable insecure connection for downloading trivy-db via proxy (air-gaped env)
+  #
+  dbRepositoryInsecure: "false"
+
 compliance:
   # failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report
   failEntriesLimit: 10

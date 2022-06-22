@@ -44,6 +44,7 @@ const (
 	keyTrivySkipFiles              = "trivy.skipFiles"
 	keyTrivySkipDirs               = "trivy.skipDirs"
 	keyTrivyDBRepository           = "trivy.dbRepository"
+	keyTrivyDBRepositoryInsecure   = "trivy.dbRepositoryInsecure"
 
 	keyTrivyServerURL           = "trivy.serverURL"
 	keyTrivyServerTokenHeader   = "trivy.serverTokenHeader"
@@ -126,6 +127,11 @@ func (c Config) GetServerURL() (string, error) {
 
 func (c Config) GetServerInsecure() bool {
 	_, ok := c.Data[keyTrivyServerInsecure]
+	return ok
+}
+
+func (c Config) GetDBRepositoryInsecure() bool {
+	_, ok := c.Data[keyTrivyDBRepositoryInsecure]
 	return ok
 }
 
@@ -365,56 +371,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 		Image:                    trivyImageRef,
 		ImagePullPolicy:          corev1.PullIfNotPresent,
 		TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
-		Env: []corev1.EnvVar{
-			{
-				Name: "HTTP_PROXY",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyHTTPProxy,
-						Optional: pointer.BoolPtr(true),
-					},
-				},
-			},
-			{
-				Name: "HTTPS_PROXY",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyHTTPSProxy,
-						Optional: pointer.BoolPtr(true),
-					},
-				},
-			},
-			{
-				Name: "NO_PROXY",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyNoProxy,
-						Optional: pointer.BoolPtr(true),
-					},
-				},
-			},
-			{
-				Name: "GITHUB_TOKEN",
-				ValueFrom: &corev1.EnvVarSource{
-					SecretKeyRef: &corev1.SecretKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyGitHubToken,
-						Optional: pointer.BoolPtr(true),
-					},
-				},
-			},
-		},
+		Env:                      p.initContainerEnvVar(trivyConfigName, config),
 		Command: []string{
 			"trivy",
 		},
@@ -677,6 +634,66 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 		Containers:                   containers,
 		SecurityContext:              &corev1.PodSecurityContext{},
 	}, secrets, nil
+}
+
+func (p *plugin) initContainerEnvVar(trivyConfigName string, config Config) []corev1.EnvVar {
+	envs := []corev1.EnvVar{
+		{
+			Name: "HTTP_PROXY",
+			ValueFrom: &corev1.EnvVarSource{
+				ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: trivyConfigName,
+					},
+					Key:      keyTrivyHTTPProxy,
+					Optional: pointer.BoolPtr(true),
+				},
+			},
+		},
+		{
+			Name: "HTTPS_PROXY",
+			ValueFrom: &corev1.EnvVarSource{
+				ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: trivyConfigName,
+					},
+					Key:      keyTrivyHTTPSProxy,
+					Optional: pointer.BoolPtr(true),
+				},
+			},
+		},
+		{
+			Name: "NO_PROXY",
+			ValueFrom: &corev1.EnvVarSource{
+				ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: trivyConfigName,
+					},
+					Key:      keyTrivyNoProxy,
+					Optional: pointer.BoolPtr(true),
+				},
+			},
+		},
+		{
+			Name: "GITHUB_TOKEN",
+			ValueFrom: &corev1.EnvVarSource{
+				SecretKeyRef: &corev1.SecretKeySelector{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: trivyConfigName,
+					},
+					Key:      keyTrivyGitHubToken,
+					Optional: pointer.BoolPtr(true),
+				},
+			},
+		},
+	}
+	if config.GetDBRepositoryInsecure() {
+		envs = append(envs, corev1.EnvVar{
+			Name:  "TRIVY_INSECURE",
+			Value: "true",
+		})
+	}
+	return envs
 }
 
 // In the ClientServer mode the number of containers of the pod created by the
@@ -1044,23 +1061,7 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 		Image:                    trivyImageRef,
 		ImagePullPolicy:          corev1.PullIfNotPresent,
 		TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
-		Env: []corev1.EnvVar{
-			constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
-			constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
-			constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
-			{
-				Name: "GITHUB_TOKEN",
-				ValueFrom: &corev1.EnvVarSource{
-					SecretKeyRef: &corev1.SecretKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyGitHubToken,
-						Optional: pointer.BoolPtr(true),
-					},
-				},
-			},
-		},
+		Env:                      p.initContainerFSEnvVar(trivyConfigName, config),
 		Command: []string{
 			"trivy",
 		},
@@ -1196,6 +1197,33 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 	}
 
 	return podSpec, secrets, nil
+}
+
+func (p *plugin) initContainerFSEnvVar(trivyConfigName string, config Config) []corev1.EnvVar {
+	envs := []corev1.EnvVar{
+		constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
+		constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
+		constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
+		{
+			Name: "GITHUB_TOKEN",
+			ValueFrom: &corev1.EnvVarSource{
+				SecretKeyRef: &corev1.SecretKeySelector{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: trivyConfigName,
+					},
+					Key:      keyTrivyGitHubToken,
+					Optional: pointer.BoolPtr(true),
+				},
+			},
+		},
+	}
+	if config.GetDBRepositoryInsecure() {
+		envs = append(envs, corev1.EnvVar{
+			Name:  "TRIVY_INSECURE",
+			Value: "true",
+		})
+	}
+	return envs
 }
 
 func (p *plugin) appendTrivyInsecureEnv(config Config, image string, env []corev1.EnvVar) ([]corev1.EnvVar, error) {

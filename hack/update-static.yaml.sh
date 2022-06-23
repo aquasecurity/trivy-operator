@@ -12,12 +12,12 @@ trap "rm -rf $HELM_TMPDIR" EXIT
 helm template trivy-operator $HELM_DIR \
   --namespace trivy-system \
   --set="managedBy=kubectl" \
-  --output-dir=$TMPDIR/trivy-operator-helm-template
+  --output-dir=$HELM_TMPDIR/trivy-operator-helm-template
 
-cp $TMPDIR/trivy-operator-helm-template/trivy-operator/templates/rbac.yaml $STATIC_DIR/02-trivy-operator.rbac.yaml
-cp $TMPDIR/trivy-operator-helm-template/trivy-operator/templates/config.yaml $STATIC_DIR/03-trivy-operator.config.yaml
-cp $TMPDIR/trivy-operator-helm-template/trivy-operator/templates/policies.yaml $STATIC_DIR/04-trivy-operator.policies.yaml
-cp $TMPDIR/trivy-operator-helm-template/trivy-operator/templates/deployment.yaml $STATIC_DIR/05-trivy-operator.deployment.yaml
+cp $HELM_TMPDIR/trivy-operator-helm-template/trivy-operator/templates/rbac.yaml $STATIC_DIR/02-trivy-operator.rbac.yaml
+cp $HELM_TMPDIR/trivy-operator-helm-template/trivy-operator/templates/config.yaml $STATIC_DIR/03-trivy-operator.config.yaml
+cp $HELM_TMPDIR/trivy-operator-helm-template/trivy-operator/templates/policies.yaml $STATIC_DIR/04-trivy-operator.policies.yaml
+cp $HELM_TMPDIR/trivy-operator-helm-template/trivy-operator/templates/deployment.yaml $STATIC_DIR/05-trivy-operator.deployment.yaml
 
 cat $CRD_DIR/vulnerabilityreports.crd.yaml \
   $CRD_DIR/configauditreports.crd.yaml \

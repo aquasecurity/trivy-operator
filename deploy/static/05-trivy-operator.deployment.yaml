@@ -1,4 +1,5 @@
 ---
+# Source: trivy-operator/templates/deployment.yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -22,6 +23,7 @@ spec:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
 ---
+# Source: trivy-operator/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:

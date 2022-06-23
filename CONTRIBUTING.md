@@ -229,23 +229,16 @@ kubectl delete -f deploy/static/trivy-operator.yaml
 
 ## Update Static YAML Manifests
 
-```
-mkdir -p $TMPDIR/trivy-operator-helm-template
-```
+We consider the Helm chart to be the master for deploying trivy-operator.
+Since some prefer to not use Helm, we also provide static resources to
+install the operator.
 
-```
-helm template trivy-operator ./deploy/helm \
-  --namespace trivy-system --create-namespace \
-  --set="targetNamespaces=default" \
-  --set="managedBy=kubectl" \
-  --output-dir=$TMPDIR/trivy-operator-helm-template
-```
+To avoid maintaining resources in multiple places, we have a created a script
+to (re)generate the static resources from the Helm chart.
 
-```
-cp $TMPDIR/trivy-operator-helm-template/trivy-operator/templates/rbac.yaml deploy/static/02-trivy-operator.rbac.yaml
-cp $TMPDIR/trivy-operator-helm-template/trivy-operator/templates/config.yaml deploy/static/03-trivy-operator.config.yaml
-cp $TMPDIR/trivy-operator-helm-template/trivy-operator/templates/deployment.yaml deploy/static/04-starboard-operator.deployment.yaml
-```
+So if modifying the operator resource, please do so by modifying the Helm
+chart, then run `./hack/update-static.yaml.sh` to ensure the static
+resources are up-to-date.
 
 ## Operator Lifecycle Manager (OLM)
 

@@ -1,4 +1,5 @@
 ---
+# Source: trivy-operator/templates/rbac.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -10,6 +11,7 @@ metadata:
     app.kubernetes.io/version: "0.0.8"
     app.kubernetes.io/managed-by: kubectl
 ---
+# Source: trivy-operator/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -144,6 +146,12 @@ rules:
       - update
       - delete
   - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - clustercompliancereports/status
+    verbs:
+      - update
+  - apiGroups:
       - coordination.k8s.io
     resources:
       - leases
@@ -151,13 +159,8 @@ rules:
       - create
       - get
       - update
-  - apiGroups:
-      - aquasecurity.github.io
-    resources:
-      - clustercompliancereports/status
-    verbs:
-      - update
 ---
+# Source: trivy-operator/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:

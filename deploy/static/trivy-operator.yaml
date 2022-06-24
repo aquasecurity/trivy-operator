@@ -738,6 +738,69 @@ rules:
       - update
 ---
 # Source: trivy-operator/templates/rbac.yaml
+# permissions for end users to view configauditreports
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: aggregate-config-audit-reports-view
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-cluster-reader: "true"
+rules:
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - configauditreports
+    verbs:
+      - get
+      - list
+      - watch
+---
+# Source: trivy-operator/templates/rbac.yaml
+# permissions for end users to view exposedsecretreports
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: aggregate-exposed-secret-reports-view
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-cluster-reader: "true"
+rules:
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - exposedsecretreports
+    verbs:
+      - get
+      - list
+      - watch
+---
+# Source: trivy-operator/templates/rbac.yaml
+# permissions for end users to view vulnerabilityreports
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: aggregate-vulnerability-reports-view
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-cluster-reader: "true"
+rules:
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - vulnerabilityreports
+    verbs:
+      - get
+      - list
+      - watch
+---
+# Source: trivy-operator/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:

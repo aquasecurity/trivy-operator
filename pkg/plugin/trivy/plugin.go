@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"regexp"
 	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
@@ -24,6 +25,10 @@ import (
 const (
 	// Plugin the name of this plugin.
 	Plugin = "Trivy"
+)
+
+const (
+	AWSECR_Image_Regex = "^\\d+\\.dkr\\.ecr\\.(\\w+-\\w+-\\d+)\\.amazonaws\\.com\\/"
 )
 
 const (
@@ -542,6 +547,14 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_IGNOREFILE",
 				Value: "/etc/trivy/.trivyignore",
+			})
+		}
+
+		region := CheckAwsEcrPrivateRegistry(c.Image)
+		if region != "" {
+			env = append(env, corev1.EnvVar{
+				Name:  "AWS_REGION",
+				Value: region,
 			})
 		}
 
@@ -1485,4 +1498,11 @@ func getContainers(spec corev1.PodSpec) []corev1.Container {
 	}
 
 	return containers
+}
+
+func CheckAwsEcrPrivateRegistry(ImageUrl string) string {
+	if len(regexp.MustCompile(AWSECR_Image_Regex).FindAllStringSubmatch(ImageUrl, -1)) != 0 {
+		return regexp.MustCompile(AWSECR_Image_Regex).FindAllStringSubmatch(ImageUrl, -1)[0][1]
+	}
+	return ""
 }

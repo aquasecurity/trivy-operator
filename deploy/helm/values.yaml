@@ -192,6 +192,15 @@ trivy:
   #
   dbRepositoryInsecure: "false"
 
+  # The Flag to enable the usage of builtin rego policies by default
+  #
+  useBuiltinRegoPolicies: "true"
+
+  # The Flag is the list of supported kinds separated by comma delimiter to be scanned by the config audit scanner
+  #
+  supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole"
+
+
 compliance:
   # failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report
   failEntriesLimit: 10

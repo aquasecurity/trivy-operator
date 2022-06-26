@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/aquasecurity/defsec/pkg/scan"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
@@ -40,6 +41,8 @@ type ResourceController struct {
 	trivyoperator.ConfigData
 	client.Client
 	kube.ObjectResolver
+	trivyoperator.PluginContext
+	PluginInMemory
 	ReadWriter
 	trivyoperator.BuildInfo
 }
@@ -141,7 +144,6 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile.Func {
 	return func(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 		log := r.Logger.WithValues("kind", resourceKind, "name", req.NamespacedName)
-
 		resourceRef := kube.ObjectRefFromKindAndObjectKey(resourceKind, req.NamespacedName)
 
 		resource, err := r.ObjectFromObjectRef(ctx, resourceRef)
@@ -191,7 +193,11 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		}
 
 		// Skip processing if there are no policies applicable to the resource
-		applicable, reason, err := policies.Applicable(resource)
+		c, err := r.NewConfigForConfigAudit(r.PluginContext)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		applicable, reason, err := policies.Applicable(resource, c.GetSupportedConfigAuditKinds())
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("checking whether plugin is applicable: %w", err)
 		}
@@ -223,8 +229,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			log.V(1).Info("Configuration audit report exists")
 			return ctrl.Result{}, nil
 		}
-
-		reportData, err := r.evaluate(ctx, policies, resource)
+		reportData, err := r.evaluate(ctx, policies, resource, c.GetUseBuiltinRegoPolicies())
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("evaluating resource: %w", err)
 		}
@@ -279,13 +284,15 @@ func (r *ResourceController) policies(ctx context.Context) (*policy.Policies, er
 		Name:      trivyoperator.PoliciesConfigMapName,
 	}, cm)
 	if err != nil {
-		return nil, fmt.Errorf("failed getting policies from configmap: %s/%s: %w", r.Config.Namespace, trivyoperator.PoliciesConfigMapName, err)
+		if !apierrors.IsNotFound(err) {
+			return nil, fmt.Errorf("failed getting policies from configmap: %s/%s: %w", r.Config.Namespace, trivyoperator.PoliciesConfigMapName, err)
+		}
 	}
 	return policy.NewPolicies(cm.Data, r.Logger), nil
 }
 
-func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Policies, resource client.Object) (v1alpha1.ConfigAuditReportData, error) {
-	results, err := policies.Eval(ctx, resource)
+func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Policies, resource client.Object, builtInPolicies bool) (v1alpha1.ConfigAuditReportData, error) {
+	results, err := policies.Eval(ctx, builtInPolicies, resource)
 	if err != nil {
 		return v1alpha1.ConfigAuditReportData{}, err
 	}

@@ -21,4 +21,3 @@ func PoliciesConfigMap() (corev1.ConfigMap, error) {
 	}
 	return cm, nil
 }
-

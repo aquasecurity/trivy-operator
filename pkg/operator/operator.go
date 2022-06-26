@@ -170,6 +170,18 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	}
 
 	if operatorConfig.ConfigAuditScannerEnabled {
+		plugin, pluginContext, err := plugin.NewResolver().WithBuildInfo(buildInfo).
+			WithNamespace(operatorNamespace).
+			WithServiceAccountName(operatorConfig.ServiceAccount).
+			WithConfig(trivyOperatorConfig).
+			WithClient(mgr.GetClient()).GetConfigAuditPluginPlugin()
+		if err != nil {
+			return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
+		}
+		err = plugin.Init(pluginContext)
+		if err != nil {
+			return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
+		}
 		setupLog.Info("Enabling built-in configuration audit scanner")
 		if err = (&configauditreport.ResourceController{
 			Logger:         ctrl.Log.WithName("resourcecontroller"),
@@ -177,6 +189,8 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			ConfigData:     trivyOperatorConfig,
 			Client:         mgr.GetClient(),
 			ObjectResolver: objectResolver,
+			PluginContext:  pluginContext,
+			PluginInMemory: plugin,
 			ReadWriter:     configauditreport.NewReadWriter(mgr.GetClient()),
 			BuildInfo:      buildInfo,
 		}).SetupWithManager(mgr); err != nil {

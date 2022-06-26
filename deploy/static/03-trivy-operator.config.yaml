@@ -56,6 +56,8 @@ data:
   trivy.severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
   trivy.dbRepository: "ghcr.io/aquasecurity/trivy-db"
   trivy.dbRepositoryInsecure: "false"
+  trivy.useBuiltinRegoPolicies: "true"
+  trivy.supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole"
   trivy.timeout: "5m0s"
   trivy.resources.requests.cpu: 100m
   trivy.resources.requests.memory: 100M

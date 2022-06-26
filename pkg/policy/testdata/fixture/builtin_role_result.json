@@ -1,0 +1,180 @@
+[
+  {
+    "Metadata": {
+      "ID": "KSV042",
+      "Title": "Do not allow deletion of pod logs",
+      "Severity": "MEDIUM",
+      "Type": "Kubernetes Security Check",
+      "Description": "Used to cover attacker’s tracks, but most clusters ship logs quickly off-cluster."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV049",
+      "Title": "Do not allow management of configmaps",
+      "Severity": "MEDIUM",
+      "Type": "Kubernetes Security Check",
+      "Description": "Some workloads leverage configmaps to store sensitive data or configuration parameters that affect runtime behavior that can be modified by an attacker or combined with another issue to potentially lead to compromise."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV046",
+      "Title": "No wildcard resource roles",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits specific verb on wildcard resources"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV054",
+      "Title": "Do not allow attaching to shell on pods",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits attaching to shell on pods"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV047",
+      "Title": "Do not allow privilege escalation from node proxy",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits privilege escalation from node proxy"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV056",
+      "Title": "Do not allow management of networking resources",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "The ability to control which pods get service traffic directed to them allows for interception attacks. Controlling network policy allows for bypassing lateral movement restrictions."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV052",
+      "Title": "Do not allow role to create ClusterRoleBindings and association with privileged role",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits creating role ClusterRoleBindings and association with privileged cluster role"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV041",
+      "Title": "Do not allow management of secrets",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits managing secrets"
+    },
+    "Success": false,
+    "Messages": [
+      "Role permits management of secret(s)"
+    ]
+  },
+  {
+    "Metadata": {
+      "ID": "KSV050",
+      "Title": "Do not allow management of RBAC resources",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "An effective level of access equivalent to cluster-admin should not be provided."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV051",
+      "Title": "Do not allow role binding creation and association with privileged role/clusterrole",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits creating role bindings and associating to privileged role/clusterrole"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV053",
+      "Title": "Do not allow getting shell on pods",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits getting shell on pods"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV048",
+      "Title": "Do not allow update/create of a malicious pod",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits update/create of a malicious pod"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV055",
+      "Title": "Do not allow users in a rolebinding to add other users to their rolebindings",
+      "Severity": "LOW",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits allowing users in a rolebinding to add other users to their rolebindings"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV044",
+      "Title": "No wildcard verb and resource roles",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits wildcard verb on wildcard resource"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV043",
+      "Title": "Do not allow impersonation of privileged groups",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits impersonating privileged groups"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV045",
+      "Title": "No wildcard verb roles",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits wildcard verb on specific resources"
+    },
+    "Success": true,
+    "Messages": null
+  }
+]

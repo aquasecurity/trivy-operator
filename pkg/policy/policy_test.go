@@ -2,17 +2,22 @@ package policy_test
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
+	"io/ioutil"
+	"sort"
+	"strings"
 	"testing"
 
 	"github.com/aquasecurity/defsec/pkg/scan"
-
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	. "github.com/onsi/gomega"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/pointer"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -86,7 +91,7 @@ func TestPolicies_Applicable(t *testing.T) {
 		expected bool
 	}{
 		{
-			name: "Should return false if there are no policies",
+			name: "Should return true for workload policies",
 			data: map[string]string{},
 			resource: &corev1.Pod{
 				TypeMeta: metav1.TypeMeta{
@@ -94,26 +99,10 @@ func TestPolicies_Applicable(t *testing.T) {
 					APIVersion: "v1",
 				},
 			},
-			expected: false,
+			expected: true,
 		},
 		{
 			name: "Should return true if there is at least one policy",
-			data: map[string]string{
-				"policy.kubernetes.kinds": "Pod",
-				"policy.kubernetes.rego": `package main
-
-deny[res] {
-  input.kind == "Deployment"
-  not input.spec.template.spec.securityContext.runAsNonRoot
-
-  msg := "Containers must not run as root"
-
-  res := {
-    "msg": msg,
-    "title": "Runs as root user"
-  }
-}
-`},
 			resource: &corev1.Pod{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Pod",
@@ -128,7 +117,8 @@ deny[res] {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			ready, _, err := policy.NewPolicies(tc.data, log).Applicable(tc.resource)
+			kinds := utils.MapKinds(strings.Split("Workload,Role,ClusterRole", ","))
+			ready, _, err := policy.NewPolicies(tc.data, log).Applicable(tc.resource, kinds)
 			g.Expect(err).ToNot(HaveOccurred())
 			g.Expect(ready).To(Equal(tc.expected))
 		})
@@ -138,11 +128,12 @@ deny[res] {
 
 func TestPolicies_Eval(t *testing.T) {
 	testCases := []struct {
-		name          string
-		resource      client.Object
-		policies      map[string]string
-		results       Results
-		expectedError string
+		name               string
+		resource           client.Object
+		policies           map[string]string
+		results            Results
+		useBuiltInPolicies bool
+		expectedError      string
 	}{
 		{
 			name: "Should eval deny rule with invalid resource as failed check",
@@ -164,6 +155,7 @@ func TestPolicies_Eval(t *testing.T) {
 					},
 				},
 			},
+			useBuiltInPolicies: false,
 			policies: map[string]string{
 				"library.utils.rego": `package lib.utils
 
@@ -234,6 +226,7 @@ deny[res] {
 					},
 				},
 			},
+			useBuiltInPolicies: false,
 			policies: map[string]string{
 				"library.utils.rego": `package lib.utils
 
@@ -300,6 +293,7 @@ deny[res] {
 					},
 				},
 			},
+			useBuiltInPolicies: false,
 			policies: map[string]string{
 				"library.utils.rego": `package lib.utils
 
@@ -370,6 +364,7 @@ warn[res] {
 					},
 				},
 			},
+			useBuiltInPolicies: false,
 			policies: map[string]string{
 				"library.utils.rego": `package lib.utils
 
@@ -435,11 +430,12 @@ warn[res] {
 					APIVersion: "appsv1",
 				},
 			},
+			useBuiltInPolicies: false,
 			policies: map[string]string{
 				"policy.invalid.kinds": "Workload",
 				"policy.invalid.rego":  "$^&!",
 			},
-			expectedError: "failed to load rego policies from [policies]: 1 error occurred: policies/file_0.rego:1: rego_parse_error: illegal token\n\t$^&!\n\t^",
+			expectedError: "failed to load rego policies from [externalPolicies]: 1 error occurred: externalPolicies/file_0.rego:1: rego_parse_error: illegal token\n\t$^&!\n\t^",
 		},
 		{
 			name: "Should return error when library cannot be parsed",
@@ -464,6 +460,7 @@ warn[res] {
 					},
 				},
 			},
+			useBuiltInPolicies: false,
 			policies: map[string]string{
 				"library.utils.rego":   "$^&!",
 				"policy.policy1.kinds": "Workload",
@@ -493,7 +490,34 @@ warn[res] {
 }
 `,
 			},
-			expectedError: "failed to load rego policies from [policies]: 1 error occurred: policies/file_1.rego:1: rego_parse_error: illegal token\n\t$^&!\n\t^",
+			expectedError: "failed to load rego policies from [externalPolicies]: 1 error occurred: externalPolicies/file_1.rego:1: rego_parse_error: illegal token\n\t$^&!\n\t^",
+		},
+		{
+			name:    "Should return error when library cannot be parsed",
+			results: getBuildInResults(t, "./testdata/fixture/buitin_result.json"),
+			resource: &appsv1.Deployment{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Deployment",
+					APIVersion: "appsv1",
+				},
+				Spec: appsv1.DeploymentSpec{
+					Template: corev1.PodTemplateSpec{
+						Spec: corev1.PodSpec{
+							SecurityContext: &corev1.PodSecurityContext{
+								RunAsNonRoot: pointer.BoolPtr(true),
+							},
+							Containers: []corev1.Container{
+								{
+									Name:  "nginx",
+									Image: "nginx:1.16",
+								},
+							},
+						},
+					},
+				},
+			},
+			useBuiltInPolicies: true,
+			policies:           map[string]string{},
 		},
 		{
 			name:          "Should eval deny rule with any resource and multiple messages",
@@ -516,6 +540,7 @@ warn[res] {
 					},
 				},
 			},
+			useBuiltInPolicies: false,
 			policies: map[string]string{
 				"policy.uses_image_tag_latest.kinds": "Workload",
 				"policy.uses_image_tag_latest.rego": `package test
@@ -583,6 +608,7 @@ deny[res] {
 					},
 				},
 			},
+			useBuiltInPolicies: false,
 			policies: map[string]string{
 				"policy.uses_image_tag_latest.kinds": "Workload",
 				"policy.uses_image_tag_latest.rego": `package test
@@ -629,13 +655,31 @@ deny[res] {
 				},
 			},
 		},
+		{
+			name: "Should eval warn role rule with built in policies",
+			resource: &rbacv1.Role{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Role",
+					APIVersion: "rbacv1",
+				},
+				Rules: []rbacv1.PolicyRule{
+					{
+						APIGroups: []string{"*"},
+						Verbs:     []string{"get"},
+						Resources: []string{"secrets"}},
+				},
+			},
+			useBuiltInPolicies: true,
+			policies:           map[string]string{},
+			results:            getBuildInResults(t, "./testdata/fixture/builtin_role_result.json"),
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			checks, err := policy.NewPolicies(tc.policies, log).Eval(context.TODO(), tc.resource)
+			checks, err := policy.NewPolicies(tc.policies, log).Eval(context.TODO(), tc.useBuiltInPolicies, tc.resource)
 			if tc.expectedError != "" {
 				g.Expect(err).To(MatchError(tc.expectedError))
 			} else {
@@ -927,7 +971,7 @@ type Result struct {
 type Results []Result
 
 func getPolicyResults(results scan.Results) Results {
-	prs := make([]Result, 0)
+	prs := make(Results, 0)
 	for _, result := range results {
 		var msgs []string
 		if len(result.Description()) > 0 {
@@ -938,6 +982,23 @@ func getPolicyResults(results scan.Results) Results {
 		pr := Result{Metadata: Metadata{ID: result.Rule().LegacyID, Title: result.Rule().Summary, Severity: v1alpha1.Severity(result.Severity()), Type: "Kubernetes Security Check", Description: result.Rule().Explanation}, Success: result.Status() == scan.StatusPassed, Messages: msgs}
 		prs = append(prs, pr)
 	}
+	b, _ := json.Marshal(&prs)
+	fmt.Println(string(b))
+	sort.Sort(resultSort(prs))
+	return prs
+}
+
+func getBuildInResults(t *testing.T, filePath string) Results {
+	var prs Results
+	b, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		t.Error(err)
+	}
+	err = json.Unmarshal(b, &prs)
+	if err != nil {
+		t.Error(err)
+	}
+	sort.Sort(resultSort(prs))
 	return prs
 }
 
@@ -1017,3 +1078,9 @@ func requiredStringValue(values map[string]interface{}, key string) (string, err
 	}
 	return valueString, nil
 }
+
+type resultSort Results
+
+func (a resultSort) Len() int           { return len(a) }
+func (a resultSort) Less(i, j int) bool { return a[i].Metadata.ID < a[j].Metadata.ID }
+func (a resultSort) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }

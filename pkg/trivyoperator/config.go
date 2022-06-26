@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	embedded "github.com/aquasecurity/trivy-operator"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/google/go-containerregistry/pkg/name"
 	appsv1 "k8s.io/api/apps/v1"
@@ -241,15 +240,6 @@ func (c *configManager) EnsureDefault(ctx context.Context) error {
 	if err != nil {
 		if !apierrors.IsNotFound(err) {
 			return fmt.Errorf("failed getting configmap: %s: %w", PoliciesConfigMapName, err)
-		}
-		policyCM, err := embedded.PoliciesConfigMap()
-		if err != nil {
-			return fmt.Errorf("failed getting embedded policies: %w", err)
-		}
-		policyCM.Namespace = c.namespace
-		_, err = c.client.CoreV1().ConfigMaps(c.namespace).Create(ctx, &policyCM, metav1.CreateOptions{})
-		if err != nil {
-			return fmt.Errorf("failed creating configmap: %s: %w", PoliciesConfigMapName, err)
 		}
 	}
 

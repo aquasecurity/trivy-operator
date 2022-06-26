@@ -3,6 +3,7 @@ package compliance
 import (
 	"context"
 	"fmt"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -299,7 +300,7 @@ func (w *cm) populateSpecDataToMaps(spec v1alpha1.ReportSpec) *specDataMapping {
 	//controlOID to resources
 	controlIdResources := make(map[string][]string)
 	for _, control := range spec.Controls {
-		control.Kinds = mapKinds(control)
+		control.Kinds = utils.MapKinds(control.Kinds)
 		if _, ok := scannerResourceListName[control.Mapping.Scanner]; !ok {
 			scannerResourceListName[control.Mapping.Scanner] = hashset.New()
 		}

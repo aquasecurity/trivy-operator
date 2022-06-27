@@ -711,6 +711,7 @@ rules:
       - aquasecurity.github.io
     resources:
       - vulnerabilityreports
+      - exposedsecretreports
       - configauditreports
       - clusterconfigauditreports
       - clustercompliancereports

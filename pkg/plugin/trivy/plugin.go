@@ -714,7 +714,7 @@ func (p *plugin) initContainerEnvVar(trivyConfigName string, config Config) []co
 // Each container runs Trivy image scan command and refers to Trivy server URL
 // returned by Config.GetServerURL:
 //
-//     trivy client --remote <server URL> \
+//     trivy image --server <server URL> \
 //       --format json <container image>
 func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth) (corev1.PodSpec, []*corev1.Secret, error) {
 	var secret *corev1.Secret
@@ -981,10 +981,10 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			},
 			Args: []string{
 				"--quiet",
-				"client",
+				"image",
 				"--format",
 				"json",
-				"--remote",
+				"--server",
 				trivyServerURL,
 				optionalMirroredImage,
 			},

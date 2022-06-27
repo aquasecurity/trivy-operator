@@ -1,29 +1,5 @@
 ---
 # Source: trivy-operator/templates/deployment.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: trivy-operator
-  namespace: trivy-system
-  labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.1.0"
-    app.kubernetes.io/managed-by: kubectl
-  annotations:
-    prometheus.io/path: /metrics
-    prometheus.io/scrape: "true"
-spec:
-  type: ClusterIP
-  ports:
-    - port: 80
-      targetPort: metrics
-      name: metrics
-  selector:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
----
-# Source: trivy-operator/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:

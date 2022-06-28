@@ -29,6 +29,7 @@ nav:
           - Overview: configuration-auditing/index.md
           - Built-in Configuration Audit Policies: configuration-auditing/built-in-policies.md
       - Integrations:
+          - Metrics: integrations/metrics.md
           - Lens Extension: integrations/lens.md
       - Tutorials:
           - Writing Custom Configuration Audit Policies: tutorials/writing-custom-configuration-audit-policies.md

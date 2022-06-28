@@ -40,8 +40,7 @@ type ExposedSecret struct {
 	Match    string   `json:"match"`
 }
 
-// +genclient
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+//+kubebuilder:object:root=true
 
 // ExposedSecretReport is a specification for the ExposedSecretReport resource.
 type ExposedSecretReport struct {
@@ -76,7 +75,7 @@ type ExposedSecretReportData struct {
 	Secrets []ExposedSecret `json:"secrets"`
 }
 
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+//+kubebuilder:object:root=true
 
 // ExposedSecretReportList is a list of ExposedSecretReport resources.
 type ExposedSecretReportList struct {

@@ -29,8 +29,7 @@ type ConfigAuditSummary struct {
 	LowCount int `json:"lowCount"`
 }
 
-// +genclient
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+//+kubebuilder:object:root=true
 
 // ConfigAuditReport is a specification for the ConfigAuditReport resource.
 type ConfigAuditReport struct {
@@ -40,7 +39,7 @@ type ConfigAuditReport struct {
 	Report ConfigAuditReportData `json:"report"`
 }
 
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+//+kubebuilder:object:root=true
 
 // ConfigAuditReportList is a list of AuditConfig resources.
 type ConfigAuditReportList struct {
@@ -50,9 +49,7 @@ type ConfigAuditReportList struct {
 	Items []ConfigAuditReport `json:"items"`
 }
 
-// +genclient
-// +genclient:nonNamespaced
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+//+kubebuilder:object:root=true
 
 // ClusterConfigAuditReport is a specification for the ClusterConfigAuditReport resource.
 type ClusterConfigAuditReport struct {
@@ -62,7 +59,7 @@ type ClusterConfigAuditReport struct {
 	Report ConfigAuditReportData `json:"report"`
 }
 
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+//+kubebuilder:object:root=true
 
 // ClusterConfigAuditReportList is a list of ClusterConfigAuditReport resources.
 type ClusterConfigAuditReportList struct {

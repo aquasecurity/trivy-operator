@@ -8,8 +8,7 @@ const (
 	ClusterComplianceDetailReportCRName = "clustercompliancedetailreports.aquasecurity.github.io"
 )
 
-// +genclient
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+//+kubebuilder:object:root=true
 
 // ClusterComplianceDetailReport is a specification for the ClusterComplianceDetailReport resource.
 type ClusterComplianceDetailReport struct {
@@ -18,7 +17,7 @@ type ClusterComplianceDetailReport struct {
 	Report            ClusterComplianceDetailReportData `json:"report"`
 }
 
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+//+kubebuilder:object:root=true
 
 // ClusterComplianceDetailReportList is a list of compliance kinds.
 type ClusterComplianceDetailReportList struct {

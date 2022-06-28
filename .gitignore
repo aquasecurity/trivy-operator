@@ -19,3 +19,5 @@ output/*
 .cr-release-packages/*
 ## idea files
 *.iml
+## yamllint logfile
+yamllint-*

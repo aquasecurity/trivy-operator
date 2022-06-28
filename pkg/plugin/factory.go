@@ -69,8 +69,8 @@ func (r *Resolver) GetVulnerabilityPlugin() (vulnerabilityreport.Plugin, trivyop
 	return trivy.NewPlugin(ext.NewSystemClock(), ext.NewGoogleUUIDGenerator(), r.client), pluginContext, nil
 }
 
-// GetConfigAuditPluginPlugin is a factory method that instantiates the configauditreport.Plugin.
-func (r *Resolver) GetConfigAuditPluginPlugin() (configauditreport.PluginInMemory, trivyoperator.PluginContext, error) {
+// GetConfigAuditPlugin is a factory method that instantiates the configauditreport.Plugin.
+func (r *Resolver) GetConfigAuditPlugin() (configauditreport.PluginInMemory, trivyoperator.PluginContext, error) {
 	scanner, err := r.config.GetConfigAuditReportsScanner()
 	if err != nil {
 		return nil, nil, err

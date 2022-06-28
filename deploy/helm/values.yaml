@@ -198,7 +198,7 @@ trivy:
 
   # The Flag is the list of supported kinds separated by comma delimiter to be scanned by the config audit scanner
   #
-  supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole"
+  supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
 
 
 compliance:

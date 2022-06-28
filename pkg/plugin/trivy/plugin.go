@@ -34,7 +34,7 @@ const (
 
 const (
 	AWSECR_Image_Regex        = "^\\d+\\.dkr\\.ecr\\.(\\w+-\\w+-\\d+)\\.amazonaws\\.com\\/"
-	SupportedConfigAuditKinds = "Workload,Service,Role,ClusterRole"
+	SupportedConfigAuditKinds = "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
 )
 
 const (

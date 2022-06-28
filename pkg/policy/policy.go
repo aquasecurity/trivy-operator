@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+
 	"github.com/aquasecurity/defsec/pkg/scanners"
 	"github.com/aquasecurity/defsec/pkg/scanners/rbac"
 	"github.com/go-logr/logr"
@@ -41,12 +43,14 @@ const (
 type Policies struct {
 	data map[string]string
 	log  logr.Logger
+	cac  configauditreport.ConfigAuditConfig
 }
 
-func NewPolicies(data map[string]string, log logr.Logger) *Policies {
+func NewPolicies(data map[string]string, cac configauditreport.ConfigAuditConfig, log logr.Logger) *Policies {
 	return &Policies{
 		data: data,
 		log:  log,
+		cac:  cac,
 	}
 }
 
@@ -128,12 +132,12 @@ func (p *Policies) ModulePolicyByKind(kind string) ([]string, error) {
 	return policy, nil
 }
 
-func (p *Policies) Applicable(resource client.Object, supportedKinds []string) (bool, string, error) {
+func (p *Policies) Applicable(resource client.Object) (bool, string, error) {
 	resourceKind := resource.GetObjectKind().GroupVersionKind().Kind
 	if resourceKind == "" {
 		return false, "", errors.New("resource kind must not be blank")
 	}
-	for _, kind := range supportedKinds {
+	for _, kind := range p.cac.GetSupportedConfigAuditKinds() {
 		if kind == resourceKind {
 			return true, "", nil
 		}
@@ -142,7 +146,7 @@ func (p *Policies) Applicable(resource client.Object, supportedKinds []string) (
 }
 
 // Eval evaluates Rego policies with Kubernetes resource client.Object as input.
-func (p *Policies) Eval(ctx context.Context, useBuiltInPolicies bool, resource client.Object) (scan.Results, error) {
+func (p *Policies) Eval(ctx context.Context, resource client.Object) (scan.Results, error) {
 	if resource == nil {
 		return nil, fmt.Errorf("resource must not be nil")
 	}
@@ -172,7 +176,7 @@ func (p *Policies) Eval(ctx context.Context, useBuiltInPolicies bool, resource c
 	if err != nil {
 		return nil, err
 	}
-	scanner := scannerByType(resourceKind, getScannerOptions(hasExternalPolicies, useBuiltInPolicies, policiesFolder))
+	scanner := scannerByType(resourceKind, getScannerOptions(hasExternalPolicies, p.cac.GetUseBuiltinRegoPolicies(), policiesFolder))
 	scanResult, err := scanner.ScanFS(ctx, memfs, inputFolder)
 	if err != nil {
 		return nil, err

@@ -1,8 +1,10 @@
-package configauditreport
+package controller
 
 import (
 	"context"
 	"fmt"
+
+	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 
 	"github.com/aquasecurity/defsec/pkg/scan"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -42,8 +44,8 @@ type ResourceController struct {
 	client.Client
 	kube.ObjectResolver
 	trivyoperator.PluginContext
-	PluginInMemory
-	ReadWriter
+	configauditreport.PluginInMemory
+	configauditreport.ReadWriter
 	trivyoperator.BuildInfo
 }
 
@@ -186,18 +188,18 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 				return ctrl.Result{}, nil
 			}
 		}
-
-		policies, err := r.policies(ctx)
+		cac, err := r.NewConfigForConfigAudit(r.PluginContext)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		policies, err := r.policies(ctx, cac)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
 		}
 
 		// Skip processing if there are no policies applicable to the resource
-		c, err := r.NewConfigForConfigAudit(r.PluginContext)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		applicable, reason, err := policies.Applicable(resource, c.GetSupportedConfigAuditKinds())
+
+		applicable, reason, err := policies.Applicable(resource)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("checking whether plugin is applicable: %w", err)
 		}
@@ -229,12 +231,12 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			log.V(1).Info("Configuration audit report exists")
 			return ctrl.Result{}, nil
 		}
-		reportData, err := r.evaluate(ctx, policies, resource, c.GetUseBuiltinRegoPolicies())
+		reportData, err := r.evaluate(ctx, policies, resource)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("evaluating resource: %w", err)
 		}
 
-		reportBuilder := NewReportBuilder(r.Client.Scheme()).
+		reportBuilder := configauditreport.NewReportBuilder(r.Client.Scheme()).
 			Controller(resource).
 			ResourceSpecHash(resourceHash).
 			PluginConfigHash(policiesHash).
@@ -276,7 +278,7 @@ func (r *ResourceController) hasClusterReport(ctx context.Context, owner kube.Ob
 	return false, nil
 }
 
-func (r *ResourceController) policies(ctx context.Context) (*policy.Policies, error) {
+func (r *ResourceController) policies(ctx context.Context, cac configauditreport.ConfigAuditConfig) (*policy.Policies, error) {
 	cm := &corev1.ConfigMap{}
 
 	err := r.Client.Get(ctx, client.ObjectKey{
@@ -288,11 +290,11 @@ func (r *ResourceController) policies(ctx context.Context) (*policy.Policies, er
 			return nil, fmt.Errorf("failed getting policies from configmap: %s/%s: %w", r.Config.Namespace, trivyoperator.PoliciesConfigMapName, err)
 		}
 	}
-	return policy.NewPolicies(cm.Data, r.Logger), nil
+	return policy.NewPolicies(cm.Data, cac, r.Logger), nil
 }
 
-func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Policies, resource client.Object, builtInPolicies bool) (v1alpha1.ConfigAuditReportData, error) {
-	results, err := policies.Eval(ctx, builtInPolicies, resource)
+func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Policies, resource client.Object) (v1alpha1.ConfigAuditReportData, error) {
+	results, err := policies.Eval(ctx, resource)
 	if err != nil {
 		return v1alpha1.ConfigAuditReportData{}, err
 	}
@@ -335,8 +337,11 @@ func (r *ResourceController) reconcileConfig(kind kube.Kind) reconcile.Func {
 			}
 			return ctrl.Result{}, fmt.Errorf("getting ConfigMap from cache: %w", err)
 		}
-
-		policies, err := r.policies(ctx)
+		cac, err := r.NewConfigForConfigAudit(r.PluginContext)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		policies, err := r.policies(ctx, cac)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
 		}
@@ -400,8 +405,11 @@ func (r *ResourceController) reconcileClusterConfig(kind kube.Kind) reconcile.Fu
 			}
 			return ctrl.Result{}, fmt.Errorf("getting ConfigMap from cache: %w", err)
 		}
-
-		policies, err := r.policies(ctx)
+		cac, err := r.NewConfigForConfigAudit(r.PluginContext)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		policies, err := r.policies(ctx, cac)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
 		}

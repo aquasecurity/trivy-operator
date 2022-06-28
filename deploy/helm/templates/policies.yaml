@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: trivy-operator-policies-config
-  namespace: trivy-system
+  namespace: {{ .Release.Namespace }}
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator

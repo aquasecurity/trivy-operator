@@ -3,6 +3,7 @@ package operator
 import (
 	"context"
 	"fmt"
+	controller2 "github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
 
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
@@ -174,7 +175,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			WithNamespace(operatorNamespace).
 			WithServiceAccountName(operatorConfig.ServiceAccount).
 			WithConfig(trivyOperatorConfig).
-			WithClient(mgr.GetClient()).GetConfigAuditPluginPlugin()
+			WithClient(mgr.GetClient()).GetConfigAuditPlugin()
 		if err != nil {
 			return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
 		}
@@ -183,7 +184,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
 		}
 		setupLog.Info("Enabling built-in configuration audit scanner")
-		if err = (&configauditreport.ResourceController{
+		if err = (&controller2.ResourceController{
 			Logger:         ctrl.Log.WithName("resourcecontroller"),
 			Config:         operatorConfig,
 			ConfigData:     trivyOperatorConfig,

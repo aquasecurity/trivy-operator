@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	"io/ioutil"
 	"sort"
 	"strings"
 	"testing"
+
+	"github.com/aquasecurity/trivy-operator/pkg/plugin/trivy"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
 
 	"github.com/aquasecurity/defsec/pkg/scan"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
@@ -25,14 +27,13 @@ import (
 )
 
 func TestPolicies_PoliciesByKind(t *testing.T) {
-
 	t.Run("Should return error when kinds are not defined for policy", func(t *testing.T) {
 		g := NewGomegaWithT(t)
 		config := policy.NewPolicies(map[string]string{
 			"library.kubernetes.rego":        "<REGO_A>",
 			"library.utils.rego":             "<REGO_B>",
 			"policy.access_to_host_pid.rego": "<REGO_C>",
-		}, ctrl.Log.WithName("policy logger"))
+		}, testConfig{}, ctrl.Log.WithName("policy logger"))
 		_, err := config.PoliciesByKind("Pod")
 		g.Expect(err).To(MatchError("kinds not defined for policy: policy.access_to_host_pid.rego"))
 	})
@@ -41,7 +42,7 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 		g := NewGomegaWithT(t)
 		config := policy.NewPolicies(map[string]string{
 			"policy.access_to_host_pid.kinds": "Workload",
-		}, ctrl.Log.WithName("policy logger"))
+		}, testConfig{}, ctrl.Log.WithName("policy logger"))
 		_, err := config.PoliciesByKind("Pod")
 		g.Expect(err).To(MatchError("expected policy not found: policy.access_to_host_pid.rego"))
 	})
@@ -68,7 +69,7 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 			"policy.privileged": "<REGO_E>",
 			// This one should be skipped (no policy. prefix)
 			"foo": "bar",
-		}, ctrl.Log.WithName("policy logger"))
+		}, testConfig{}, ctrl.Log.WithName("policy logger"))
 		g.Expect(config.PoliciesByKind("Pod")).To(Equal(map[string]string{
 			"policy.access_to_host_pid.rego":                "<REGO_C>",
 			"policy.cpu_not_limited.rego":                   "<REGO_D>",
@@ -117,8 +118,7 @@ func TestPolicies_Applicable(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			kinds := utils.MapKinds(strings.Split("Workload,Role,ClusterRole", ","))
-			ready, _, err := policy.NewPolicies(tc.data, log).Applicable(tc.resource, kinds)
+			ready, _, err := policy.NewPolicies(tc.data, testConfig{}, log).Applicable(tc.resource)
 			g.Expect(err).ToNot(HaveOccurred())
 			g.Expect(ready).To(Equal(tc.expected))
 		})
@@ -516,7 +516,7 @@ warn[res] {
 					},
 				},
 			},
-			useBuiltInPolicies: true,
+			useBuiltInPolicies: !testConfig{}.GetUseBuiltinRegoPolicies(),
 			policies:           map[string]string{},
 		},
 		{
@@ -679,7 +679,7 @@ deny[res] {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			checks, err := policy.NewPolicies(tc.policies, log).Eval(context.TODO(), tc.useBuiltInPolicies, tc.resource)
+			checks, err := policy.NewPolicies(tc.policies, newTestConfig(tc.useBuiltInPolicies), log).Eval(context.TODO(), tc.resource)
 			if tc.expectedError != "" {
 				g.Expect(err).To(MatchError(tc.expectedError))
 			} else {
@@ -1084,3 +1084,21 @@ type resultSort Results
 func (a resultSort) Len() int           { return len(a) }
 func (a resultSort) Less(i, j int) bool { return a[i].Metadata.ID < a[j].Metadata.ID }
 func (a resultSort) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+
+type testConfig struct {
+	builtInPolicies bool
+}
+
+func newTestConfig(builtInPolicies bool) testConfig {
+	return testConfig{builtInPolicies: builtInPolicies}
+}
+
+// GetUseBuiltinRegoPolicies return trivy config which associated to configauditreport plugin
+func (tc testConfig) GetUseBuiltinRegoPolicies() bool {
+	return tc.builtInPolicies
+}
+
+// GetSupportedConfigAuditKinds list of supported kinds to be scanned by the config audit scanner
+func (tc testConfig) GetSupportedConfigAuditKinds() []string {
+	return utils.MapKinds(strings.Split(trivy.SupportedConfigAuditKinds, ","))
+}

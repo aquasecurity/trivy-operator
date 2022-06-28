@@ -1,10 +1,4 @@
-# Set the default goal
-.DEFAULT_GOAL := build
-MAKEFLAGS += --no-print-directory
-
-DOCKER ?= docker
-KIND ?= kind
-
+# Set the default goal .DEFAULT_GOAL := build MAKEFLAGS += --no-print-directory DOCKER ?= docker KIND ?= kind
 export KUBECONFIG ?= ${HOME}/.kube/config
 
 # Active module mode, as we use Go modules to manage dependencies
@@ -114,6 +108,15 @@ $(GOBIN)/labeler:
 .PHONY: label
 label: $(GOBIN)/labeler
 	labeler apply misc/triage/labels.yaml -r aquasecurity/trivy-operator -l 5
+
+.PHONY: controller-gen
+controller-gen:
+	go install sigs.k8s.io/controller-tools/cmd/controller-gen@v0.9.0
+
+.PHONY: generate
+generate: controller-gen
+	go generate ./...
+	controller-gen object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
 .PHONY: \
 	clean \

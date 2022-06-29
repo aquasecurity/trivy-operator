@@ -51,6 +51,8 @@ type BuildInfo struct {
 type Scanner string
 
 const (
+	KeyVulnerabilityScannerEnabled       = "vulnerabilityScannerEnabled"
+	KeyExposedSecretsScannerEnabled      = "exposedSecretsScannerEnabled"
 	keyVulnerabilityReportsScanner       = "vulnerabilityReports.scanner"
 	KeyVulnerabilityScansInSameNamespace = "vulnerabilityReports.scanJobsInSameNamespace"
 	keyConfigAuditReportsScanner         = "configAuditReports.scanner"
@@ -82,6 +84,30 @@ func GetDefaultConfig() ConfigData {
 	}
 }
 
+// Set sets a key on config data
+func (c ConfigData) Set(key, value string) {
+	c[key] = value
+}
+
+// VulnerabilityScannerEnabled returns if the vulnerability scanners is enabled/disablsed
+func (c ConfigData) VulnerabilityScannerEnabled() bool {
+	return c.getBoolKey(KeyVulnerabilityScannerEnabled)
+}
+
+// ExposedSecretsScannerEnabled returns if the vulnerability scanners is enabled/disablsed
+func (c ConfigData) ExposedSecretsScannerEnabled() bool {
+	return c.getBoolKey(KeyExposedSecretsScannerEnabled)
+}
+
+func (c ConfigData) getBoolKey(key string) bool {
+	var ok bool
+	var value string
+	if value, ok = c[key]; !ok {
+		return false
+	}
+	return value == "true"
+}
+
 func (c ConfigData) GetVulnerabilityReportsScanner() (Scanner, error) {
 	var ok bool
 	var value string
@@ -92,12 +118,7 @@ func (c ConfigData) GetVulnerabilityReportsScanner() (Scanner, error) {
 }
 
 func (c ConfigData) VulnerabilityScanJobsInSameNamespace() bool {
-	var ok bool
-	var value string
-	if value, ok = c[KeyVulnerabilityScansInSameNamespace]; !ok {
-		return false
-	}
-	return value == "true"
+	return c.getBoolKey(KeyVulnerabilityScansInSameNamespace)
 }
 
 func (c ConfigData) GetConfigAuditReportsScanner() (Scanner, error) {

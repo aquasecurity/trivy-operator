@@ -33,6 +33,7 @@ type Config struct {
 	ConfigAuditScannerScanOnlyCurrentRevisions   bool           `env:"OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS" envDefault:"true"`
 	LeaderElectionEnabled                        bool           `env:"OPERATOR_LEADER_ELECTION_ENABLED" envDefault:"false"`
 	LeaderElectionID                             string         `env:"OPERATOR_LEADER_ELECTION_ID" envDefault:"trivyoperator-lock"`
+	ExposedSecretScannerEnabled                  bool           `env:"OPERATOR_EXPOSED_SECRET_SCANNER_ENABLED" envDefault:"true"`
 }
 
 // GetOperatorConfig loads Config from environment variables.

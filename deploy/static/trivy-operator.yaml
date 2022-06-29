@@ -1286,6 +1286,8 @@ spec:
               value: "true"
             - name: OPERATOR_CLUSTER_COMPLIANCE_ENABLED
               value: "false"
+            - name: OPERATOR_EXPOSED_SECRET_SCANNER_ENABLED
+              value: "true"
           ports:
             - name: metrics
               containerPort: 8080

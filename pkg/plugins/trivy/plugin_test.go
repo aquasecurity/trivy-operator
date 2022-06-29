@@ -6,6 +6,14 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"io"
+	"log"
+	"os"
+	"sort"
+	"strings"
+	"testing"
+	"time"
+
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
@@ -14,7 +22,6 @@ import (
 	bz "github.com/dsnet/compress/bzip2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"io"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/batch/v1"
 	"k8s.io/api/batch/v1beta1"
@@ -23,14 +30,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/pointer"
-	"log"
-	"os"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
-	"sort"
-	"strings"
-	"testing"
-	"time"
 )
 
 var (
@@ -634,14 +635,19 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 	testCases := []struct {
 		name string
 
-		config       map[string]string
-		workloadSpec client.Object
+		config              map[string]string
+		trivyOperatorConfig map[string]string
+		workloadSpec        client.Object
 
 		expectedSecrets []corev1.Secret
 		expectedJobSpec corev1.PodSpec
 	}{
 		{
 			name: "Standalone mode without insecure registry",
+			trivyOperatorConfig: map[string]string{
+				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
+				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+			},
 			config: map[string]string{
 				"trivy.imageRef":                  "docker.io/aquasec/trivy:0.14.0",
 				"trivy.mode":                      string(trivy.Standalone),
@@ -860,7 +866,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'nginx:1.16' --cache-dir /tmp/trivy/.cache --quiet  --skip-update --format json > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
+							"trivy image 'nginx:1.16' --security-checks vuln,secrets --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -890,6 +896,10 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 		},
 		{
 			name: "Standalone mode with insecure registry",
+			trivyOperatorConfig: map[string]string{
+				trivyoperator.KeyVulnerabilityScannerEnabled:  "false",
+				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+			},
 			config: map[string]string{
 				"trivy.imageRef":                     "docker.io/aquasec/trivy:0.14.0",
 				"trivy.mode":                         string(trivy.Standalone),
@@ -1108,7 +1118,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'poc.myregistry.harbor.com.pl/nginx:1.16' --cache-dir /tmp/trivy/.cache --quiet  --skip-update --format json > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
+							"trivy image 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks secrets --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1138,6 +1148,10 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 		},
 		{
 			name: "Standalone mode with non-SSL registry",
+			trivyOperatorConfig: map[string]string{
+				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
+				trivyoperator.KeyExposedSecretsScannerEnabled: "false",
+			},
 			config: map[string]string{
 				"trivy.imageRef":                   "docker.io/aquasec/trivy:0.14.0",
 				"trivy.mode":                       string(trivy.Standalone),
@@ -1356,7 +1370,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'poc.myregistry.harbor.com.pl/nginx:1.16' --cache-dir /tmp/trivy/.cache --quiet  --skip-update --format json > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
+							"trivy image 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1386,6 +1400,10 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 		},
 		{
 			name: "Standalone mode with trivyignore file",
+			trivyOperatorConfig: map[string]string{
+				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
+				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+			},
 			config: map[string]string{
 				"trivy.imageRef": "docker.io/aquasec/trivy:0.14.0",
 				"trivy.mode":     string(trivy.Standalone),
@@ -1624,7 +1642,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'nginx:1.16' --cache-dir /tmp/trivy/.cache --quiet  --skip-update --format json > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
+							"trivy image 'nginx:1.16' --security-checks vuln,secrets --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1659,6 +1677,10 @@ CVE-2019-1543`,
 		},
 		{
 			name: "Standalone mode with mirror",
+			trivyOperatorConfig: map[string]string{
+				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
+				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+			},
 			config: map[string]string{
 				"trivy.imageRef": "docker.io/aquasec/trivy:0.14.0",
 				"trivy.mode":     string(trivy.Standalone),
@@ -1876,7 +1898,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'mirror.io/library/nginx:1.16' --cache-dir /tmp/trivy/.cache --quiet  --skip-update --format json > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
+							"trivy image 'mirror.io/library/nginx:1.16' --security-checks vuln,secrets --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1906,6 +1928,10 @@ CVE-2019-1543`,
 		},
 		{
 			name: "ClientServer mode without insecure registry",
+			trivyOperatorConfig: map[string]string{
+				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
+				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+			},
 			config: map[string]string{
 				"trivy.imageRef":                  "docker.io/aquasec/trivy:0.14.0",
 				"trivy.mode":                      string(trivy.ClientServer),
@@ -2076,7 +2102,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'nginx:1.16' --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
+							"trivy image 'nginx:1.16' --security-checks vuln,secrets --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2095,6 +2121,10 @@ CVE-2019-1543`,
 		},
 		{
 			name: "ClientServer mode without insecure registry",
+			trivyOperatorConfig: map[string]string{
+				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
+				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+			},
 			config: map[string]string{
 				"trivy.imageRef":                  "docker.io/aquasec/trivy:0.14.0",
 				"trivy.mode":                      string(trivy.ClientServer),
@@ -2265,7 +2295,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'nginx:1.16' --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
+							"trivy image 'nginx:1.16' --security-checks vuln,secrets --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2284,6 +2314,10 @@ CVE-2019-1543`,
 		},
 		{
 			name: "ClientServer mode with insecure server",
+			trivyOperatorConfig: map[string]string{
+				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
+				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+			},
 			config: map[string]string{
 				"trivy.imageRef":                  "docker.io/aquasec/trivy:0.14.0",
 				"trivy.mode":                      string(trivy.ClientServer),
@@ -2459,7 +2493,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'poc.myregistry.harbor.com.pl/nginx:1.16' --quiet --format json --server 'https://trivy.trivy:4954' > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
+							"trivy image 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln,secrets --quiet --format json --server 'https://trivy.trivy:4954' > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2478,6 +2512,10 @@ CVE-2019-1543`,
 		},
 		{
 			name: "ClientServer mode with non-SSL registry",
+			trivyOperatorConfig: map[string]string{
+				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
+				trivyoperator.KeyExposedSecretsScannerEnabled: "false",
+			},
 			config: map[string]string{
 				"trivy.imageRef":                   "docker.io/aquasec/trivy:0.14.0",
 				"trivy.mode":                       string(trivy.ClientServer),
@@ -2653,7 +2691,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'poc.myregistry.harbor.com.pl/nginx:1.16' --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
+							"trivy image 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2672,6 +2710,10 @@ CVE-2019-1543`,
 		},
 		{
 			name: "ClientServer mode with trivyignore file",
+			trivyOperatorConfig: map[string]string{
+				trivyoperator.KeyVulnerabilityScannerEnabled:  "false",
+				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+			},
 			config: map[string]string{
 				"trivy.imageRef":  "docker.io/aquasec/trivy:0.14.0",
 				"trivy.mode":      string(trivy.ClientServer),
@@ -2867,7 +2909,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'nginx:1.16' --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
+							"trivy image 'nginx:1.16' --security-checks secrets --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2892,6 +2934,10 @@ CVE-2019-1543`,
 		},
 		{
 			name: "Trivy fs scan command in Standalone mode",
+			trivyOperatorConfig: map[string]string{
+				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
+				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+			},
 			config: map[string]string{
 				"trivy.imageRef":                  "docker.io/aquasec/trivy:0.30.0",
 				"trivy.mode":                      string(trivy.Standalone),
@@ -3136,7 +3182,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"/var/trivyoperator/trivy fs --cache-dir /var/trivyoperator/trivy-db --quiet --skip-update --format json / > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
+							"/var/trivyoperator/trivy fs --security-checks vuln,secrets --cache-dir /var/trivyoperator/trivy-db --quiet --skip-update --format json / > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3187,6 +3233,7 @@ CVE-2019-1543`,
 				WithName(trivy.Plugin).
 				WithNamespace("trivyoperator-ns").
 				WithServiceAccountName("trivyoperator-sa").
+				WithTrivyOperatorConfig(tc.trivyOperatorConfig).
 				WithClient(fakeclient).
 				Get()
 			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
@@ -3199,13 +3246,19 @@ CVE-2019-1543`,
 	}
 
 	testCases = []struct {
-		name            string
-		config          map[string]string
-		workloadSpec    client.Object
-		expectedSecrets []corev1.Secret
-		expectedJobSpec corev1.PodSpec
+		name                string
+		config              map[string]string
+		trivyOperatorConfig map[string]string
+		workloadSpec        client.Object
+		expectedSecrets     []corev1.Secret
+		expectedJobSpec     corev1.PodSpec
 	}{{
 		name: "Trivy fs scan command in Standalone mode",
+		trivyOperatorConfig: map[string]string{
+			trivyoperator.KeyVulnerabilityScannerEnabled:       "true",
+			trivyoperator.KeyExposedSecretsScannerEnabled:      "true",
+			trivyoperator.KeyVulnerabilityScansInSameNamespace: "true",
+		},
 		config: map[string]string{
 			"trivy.imageRef":                  "docker.io/aquasec/trivy:0.22.0",
 			"trivy.mode":                      string(trivy.Standalone),
@@ -3323,7 +3376,6 @@ CVE-2019-1543`,
 								},
 							},
 						},
-
 						{
 							Name: "GITHUB_TOKEN",
 							ValueFrom: &corev1.EnvVarSource{
@@ -3451,7 +3503,7 @@ CVE-2019-1543`,
 					},
 					Args: []string{
 						"-c",
-						"/var/trivyoperator/trivy fs --cache-dir /var/trivyoperator/trivy-db --quiet --skip-update --format json / > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
+						"/var/trivyoperator/trivy fs --security-checks vuln,secrets --cache-dir /var/trivyoperator/trivy-db --quiet --skip-update --format json / > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 					},
 					Resources: corev1.ResourceRequirements{
 						Requests: corev1.ResourceList{
@@ -3501,7 +3553,7 @@ CVE-2019-1543`,
 				WithNamespace("trivyoperator-ns").
 				WithServiceAccountName("trivyoperator-sa").
 				WithClient(fakeclient).
-				WithTrivyOperatorConfig(map[string]string{trivyoperator.KeyVulnerabilityScansInSameNamespace: "true"}).
+				WithTrivyOperatorConfig(tc.trivyOperatorConfig).
 				Get()
 			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
 			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)

@@ -874,11 +874,11 @@ metadata:
 data:
   trivy.imageRef: "docker.io/aquasec/trivy:0.29.1"
   trivy.mode: "Standalone"
-  trivy.useBuiltinRegoPolicies: "true"
-  trivy.supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
   trivy.severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
   trivy.dbRepository: "ghcr.io/aquasecurity/trivy-db"
   trivy.dbRepositoryInsecure: "false"
+  trivy.useBuiltinRegoPolicies: "true"
+  trivy.supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
   trivy.timeout: "5m0s"
   trivy.resources.requests.cpu: 100m
   trivy.resources.requests.memory: 100M
@@ -897,7 +897,43 @@ metadata:
     app.kubernetes.io/version: "0.0.8"
     app.kubernetes.io/managed-by: kubectl
 data:
-
+# example
+# policy.my_policy.kinds: Workload
+# policy.my_policy.rego: "package builtin.kubernetes.KSV008
+#
+# import data.lib.kubernetes
+# import data.lib.result
+#
+# default failHostIPC = false
+#
+# __rego_metadata__ := {
+#	 "id": "KSV008",
+#	 "avd_id": "AVD-KSV-0008",
+#	 "title": "Access to host IPC namespace",
+#	 "short_code": "no-shared-ipc-namespace",
+#	 "version": "v1.0.0",
+#	 "severity": "HIGH",
+#	 "type": "Kubernetes Security Check",
+#	 "description": "Sharing the host’s IPC namespace allows container processes to communicate with processes on the host.",
+#	 "recommended_actions": "Do not set 'spec.template.spec.hostIPC' to true.",
+#	 "url": "https://kubernetes.io/docs/concepts/security/pod-security-standards/#baseline",
+#}
+#
+# __rego_input__ := {
+#	 "combine": false,
+#	 "selector": [{"type": "kubernetes"}],
+# }
+#
+## failHostIPC is true if spec.hostIPC is set to true (on all resources)
+# failHostIPC {
+#	 kubernetes.host_ipcs[_] == true
+# }
+#
+#deny[res] {
+#	failHostIPC
+#	msg := kubernetes.format(sprintf("%s '%s' should not set 'spec.template.spec.hostIPC' to true", [kubernetes.kind, kubernetes.name]))
+#	res := result.new(msg, input.spec)
+#}"
 ---
 # Source: trivy-operator/templates/deployment.yaml
 apiVersion: v1

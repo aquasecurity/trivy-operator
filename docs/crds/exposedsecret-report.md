@@ -9,55 +9,55 @@ The following listing shows a sample ExposedSecretReport associated with the Rep
 `default` namespace that has the `app` container.
 
 ```yaml
-Name:         replicaset-app-574ddcb559-app
-Namespace:    default
-Labels:       resource-spec-hash=8495697ff5
-              trivy-operator.container.name=app
-              trivy-operator.resource.kind=ReplicaSet
-              trivy-operator.resource.name=app-574ddcb559
-              trivy-operator.resource.namespace=default
-Annotations:  <none>
-API Version:  aquasecurity.github.io/v1alpha1
-Kind:         ExposedSecretReport
-Metadata:
-  Creation Timestamp:  2022-06-20T23:32:30Z
-  Generation:          1
-  Owner References:
-    API Version:           apps/v1
-    Block Owner Deletion:  false
-    Controller:            true
-    Kind:                  ReplicaSet
-    Name:                  app-574ddcb559
-    UID:                   5782a883-c4d2-4051-be09-f7c1650d36d0
-  Resource Version:        7450
-  UID:                     220a3e87-f64b-42d4-a7cb-cf592a5514b2
-Report:
-  Artifact:
-    Repository:  myimagewithsecret
-    Tag:         v0.1.0
-  Registry:
-    Server:  index.docker.io
-  Scanner:
-    Name:     Trivy
-    Vendor:   Aqua Security
-    Version:  0.28.1
-  Secrets:
-    Category:  Stripe
-    Match:     publishable_key: *****
-    Rule ID:   stripe-access-token
-    Severity:  HIGH
-    Target:
-    Title:     Stripe
-    Category:  Stripe
-    Match:     secret_key: *****
-    Rule ID:   stripe-access-token
-    Severity:  HIGH
-    Target:
-    Title:     Stripe
-  Summary:
-    Critical Count:  0
-    High Count:      2
-    Low Count:       0
-    Medium Count:    0
-    None Count:      0
+apiVersion: aquasecurity.github.io/v1alpha1
+kind: ExposedSecretReport
+metadata:
+  creationTimestamp: "2022-06-29T14:25:54Z"
+  generation: 2
+  labels:
+    resource-spec-hash: 8495697ff5
+    trivy-operator.container.name: app
+    trivy-operator.resource.kind: ReplicaSet
+    trivy-operator.resource.name: app-67b77f5965
+    trivy-operator.resource.namespace: default
+  name: replicaset-app-67b77f5965-app
+  namespace: default
+  ownerReferences:
+  - apiVersion: apps/v1
+    blockOwnerDeletion: false
+    controller: true
+    kind: ReplicaSet
+    name: app-67b77f5965
+    uid: 04a744fe-1126-42d5-bb8b-0917bdb51a28
+  resourceVersion: "1420"
+  uid: 2b2697bb-d528-4d4d-8312-a74dcab6ac65
+report:
+  artifact:
+    repository: myimagewithsecret
+    tag: v0.1.0
+  registry:
+    server: index.docker.io
+  scanner:
+    name: Trivy
+    vendor: Aqua Security
+    version: 0.29.1
+  secrets:
+  - category: Stripe
+    match: 'publishable_key: *****'
+    ruleID: stripe-access-token
+    severity: HIGH
+    target: ""
+    title: Stripe
+  - category: Stripe
+    match: 'secret_key: *****'
+    ruleID: stripe-access-token
+    severity: HIGH
+    target: ""
+    title: Stripe
+  summary:
+    criticalCount: 0
+    highCount: 2
+    lowCount: 0
+    mediumCount: 0
+  updateTimestamp: "2022-06-29T14:29:37Z"
 ```

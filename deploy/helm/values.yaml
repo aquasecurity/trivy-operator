@@ -58,6 +58,9 @@ operator:
 
   # metricsFindingsEnabled the flag to enable metrics for findings
   metricsFindingsEnabled: true
+
+  # exposedSecretScannerEnabled the flag to enable exposed secret scanner
+  exposedSecretScannerEnabled: true
 image:
   repository: "docker.io/aquasec/trivy-operator"
   # tag is an override of the image tag, which is by default set by the

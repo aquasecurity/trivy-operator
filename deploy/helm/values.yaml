@@ -43,8 +43,6 @@ operator:
   vulnerabilityScannerReportTTL: ""
   # configAuditScannerEnabled the flag to enable configuration audit scanner
   configAuditScannerEnabled: true
-  # kubernetesBenchmarkEnabled the flag to enable CIS Kubernetes Benchmark scanner
-  kubernetesBenchmarkEnabled: false
   # clusterComplianceEnabled the flag to enable cluster compliance report generation
   clusterComplianceEnabled: false
   # batchDeleteLimit the maximum number of config audit reports deleted by the operator when the plugin's config has changed.

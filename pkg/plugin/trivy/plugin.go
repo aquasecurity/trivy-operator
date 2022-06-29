@@ -6,7 +6,12 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strconv"
 	"strings"
+
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
+
+	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
@@ -28,7 +33,8 @@ const (
 )
 
 const (
-	AWSECR_Image_Regex = "^\\d+\\.dkr\\.ecr\\.(\\w+-\\w+-\\d+)\\.amazonaws\\.com\\/"
+	AWSECR_Image_Regex        = "^\\d+\\.dkr\\.ecr\\.(\\w+-\\w+-\\d+)\\.amazonaws\\.com\\/"
+	SupportedConfigAuditKinds = "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
 )
 
 const (
@@ -50,6 +56,9 @@ const (
 	keyTrivySkipDirs               = "trivy.skipDirs"
 	keyTrivyDBRepository           = "trivy.dbRepository"
 	keyTrivyDBRepositoryInsecure   = "trivy.dbRepositoryInsecure"
+
+	keyTrivyUseBuiltinRegoPolicies    = "trivy.useBuiltinRegoPolicies"
+	keyTrivySupportedConfigAuditKinds = "trivy.supportedConfigAuditKinds"
 
 	keyTrivyServerURL           = "trivy.serverURL"
 	keyTrivyServerTokenHeader   = "trivy.serverTokenHeader"
@@ -138,6 +147,25 @@ func (c Config) GetServerInsecure() bool {
 func (c Config) GetDBRepositoryInsecure() bool {
 	_, ok := c.Data[keyTrivyDBRepositoryInsecure]
 	return ok
+}
+func (c Config) GetUseBuiltinRegoPolicies() bool {
+	val, ok := c.Data[keyTrivyUseBuiltinRegoPolicies]
+	if !ok {
+		return true
+	}
+	boolVal, err := strconv.ParseBool(val)
+	if err != nil {
+		return true
+	}
+	return boolVal
+}
+
+func (c Config) GetSupportedConfigAuditKinds() []string {
+	val, ok := c.Data[keyTrivySupportedConfigAuditKinds]
+	if !ok {
+		return utils.MapKinds(strings.Split(SupportedConfigAuditKinds, ","))
+	}
+	return utils.MapKinds(strings.Split(val, ","))
 }
 
 func (c Config) IgnoreFileExists() bool {
@@ -254,20 +282,31 @@ func NewPlugin(clock ext.Clock, idGenerator ext.IDGenerator, client client.Clien
 	}
 }
 
+// NewTrivyConfigAuditPlugin constructs a new configAudit.Plugin, which is using an
+// upstream Trivy config audit scanner lib.
+func NewTrivyConfigAuditPlugin(clock ext.Clock, idGenerator ext.IDGenerator, client client.Client) configauditreport.PluginInMemory {
+	return &plugin{
+		clock:          clock,
+		idGenerator:    idGenerator,
+		objectResolver: &kube.ObjectResolver{Client: client},
+	}
+}
+
 // Init ensures the default Config required by this plugin.
 func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 	return ctx.EnsureConfig(trivyoperator.PluginConfig{
 		Data: map[string]string{
-			keyTrivyImageRef:     "docker.io/aquasec/trivy:0.29.1",
-			keyTrivySeverity:     "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
-			keyTrivyMode:         string(Standalone),
-			keyTrivyTimeout:      "5m0s",
-			keyTrivyDBRepository: defaultDBRepository,
-
-			keyResourcesRequestsCPU:    "100m",
-			keyResourcesRequestsMemory: "100M",
-			keyResourcesLimitsCPU:      "500m",
-			keyResourcesLimitsMemory:   "500M",
+			keyTrivyImageRef:                  "docker.io/aquasec/trivy:0.29.1",
+			keyTrivySeverity:                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
+			keyTrivyMode:                      string(Standalone),
+			keyTrivyTimeout:                   "5m0s",
+			keyTrivyDBRepository:              defaultDBRepository,
+			keyTrivyUseBuiltinRegoPolicies:    "true",
+			keyTrivySupportedConfigAuditKinds: SupportedConfigAuditKinds,
+			keyResourcesRequestsCPU:           "100m",
+			keyResourcesRequestsMemory:        "100M",
+			keyResourcesLimitsCPU:             "500m",
+			keyResourcesLimitsMemory:          "500M",
 		},
 	})
 }
@@ -1375,11 +1414,20 @@ func getExposedSecretsFromScanResult(report ScanResult) []v1alpha1.ExposedSecret
 }
 
 func (p *plugin) newConfigFrom(ctx trivyoperator.PluginContext) (Config, error) {
+	return p.getConfig(ctx)
+}
+
+func (p *plugin) getConfig(ctx trivyoperator.PluginContext) (Config, error) {
 	pluginConfig, err := ctx.GetConfig()
 	if err != nil {
 		return Config{}, err
 	}
 	return Config{PluginConfig: pluginConfig}, nil
+}
+
+// NewConfigForConfigAudit and interface which expose related configaudit report configuration
+func (p *plugin) NewConfigForConfigAudit(ctx trivyoperator.PluginContext) (configauditreport.ConfigAuditConfig, error) {
+	return p.getConfig(ctx)
 }
 
 func (p *plugin) vulnerabilitySummary(vulnerabilities []v1alpha1.Vulnerability) v1alpha1.VulnerabilitySummary {

@@ -5,11 +5,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/go-logr/logr"
-	"github.com/liamg/memoryfs"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+
+	"github.com/aquasecurity/defsec/pkg/scanners"
+	"github.com/aquasecurity/defsec/pkg/scanners/rbac"
+	"github.com/go-logr/logr"
+	"github.com/liamg/memoryfs"
 
 	"github.com/aquasecurity/defsec/pkg/scan"
 	"github.com/aquasecurity/defsec/pkg/scanners/kubernetes"
@@ -27,19 +32,25 @@ const (
 )
 
 const (
-	kindAny      = "*"
-	kindWorkload = "Workload"
+	kindAny        = "*"
+	kindWorkload   = "Workload"
+	inputFolder    = "inputs"
+	policiesFolder = "externalPolicies"
+	regoExt        = "rego"
+	yamlExt        = "yaml"
 )
 
 type Policies struct {
 	data map[string]string
 	log  logr.Logger
+	cac  configauditreport.ConfigAuditConfig
 }
 
-func NewPolicies(data map[string]string, log logr.Logger) *Policies {
+func NewPolicies(data map[string]string, cac configauditreport.ConfigAuditConfig, log logr.Logger) *Policies {
 	return &Policies{
 		data: data,
 		log:  log,
+		cac:  cac,
 	}
 }
 
@@ -126,14 +137,12 @@ func (p *Policies) Applicable(resource client.Object) (bool, string, error) {
 	if resourceKind == "" {
 		return false, "", errors.New("resource kind must not be blank")
 	}
-	policies, err := p.PoliciesByKind(resourceKind)
-	if err != nil {
-		return false, "", err
+	for _, kind := range p.cac.GetSupportedConfigAuditKinds() {
+		if kind == resourceKind {
+			return true, "", nil
+		}
 	}
-	if len(policies) == 0 {
-		return false, fmt.Sprintf("no policies found for kind %s", resource.GetObjectKind().GroupVersionKind().Kind), nil
-	}
-	return true, "", nil
+	return false, "", nil
 }
 
 // Eval evaluates Rego policies with Kubernetes resource client.Object as input.
@@ -145,30 +154,29 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object) (scan.Resul
 	if resourceKind == "" {
 		return nil, fmt.Errorf("resource kind must not be blank")
 	}
-	const (
-		inputFolder    = "inputs"
-		policiesFolder = "policies"
-	)
-	policies, err := p.ModulePolicyByKind(resourceKind)
+	externalPolicies, err := p.ModulePolicyByKind(resourceKind)
 	if err != nil {
-		return nil, fmt.Errorf("failed listing policies by kind: %s: %w", resourceKind, err)
+		return nil, fmt.Errorf("failed listing externalPolicies by kind: %s: %w", resourceKind, err)
 	}
 	memfs := memoryfs.New()
-	// add policies files
-	err = createPolicyInputFS(memfs, policiesFolder, policies, "rego")
-	if err != nil {
-		return nil, err
+	hasExternalPolicies := len(externalPolicies) > 0
+	if hasExternalPolicies {
+		// add externalPolicies files
+		err = createPolicyInputFS(memfs, policiesFolder, externalPolicies, regoExt)
+		if err != nil {
+			return nil, err
+		}
 	}
 	inputResource, err := json.Marshal(resource)
 	if err != nil {
 		return nil, err
 	}
 	// add input files
-	err = createPolicyInputFS(memfs, inputFolder, []string{string(inputResource)}, "yaml")
+	err = createPolicyInputFS(memfs, inputFolder, []string{string(inputResource)}, yamlExt)
 	if err != nil {
 		return nil, err
 	}
-	scanner := kubernetes.NewScanner(options.ScannerWithEmbeddedPolicies(false), options.ScannerWithPolicyDirs(policiesFolder))
+	scanner := scannerByType(resourceKind, getScannerOptions(hasExternalPolicies, p.cac.GetUseBuiltinRegoPolicies(), policiesFolder))
 	scanResult, err := scanner.ScanFS(ctx, memfs, inputFolder)
 	if err != nil {
 		return nil, err
@@ -180,7 +188,25 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object) (scan.Resul
 	return scanResult, nil
 }
 
+func scannerByType(resourceKind string, scannerOptions []options.ScannerOption) scanners.Scanner {
+	if strings.Contains(resourceKind, "Role") {
+		return rbac.NewScanner(scannerOptions...)
+	}
+	return kubernetes.NewScanner(scannerOptions...)
+}
+
+func getScannerOptions(hasExternalPolicies bool, useDefaultPolicies bool, policiesFolder string) []options.ScannerOption {
+	optionsArray := []options.ScannerOption{options.ScannerWithEmbeddedPolicies(useDefaultPolicies)}
+	if hasExternalPolicies {
+		optionsArray = append(optionsArray, options.ScannerWithPolicyDirs(policiesFolder))
+	}
+	return optionsArray
+}
+
 func createPolicyInputFS(memfs *memoryfs.FS, folderName string, fileData []string, ext string) error {
+	if len(fileData) == 0 {
+		return nil
+	}
 	if err := memfs.MkdirAll(filepath.Base(folderName), 0o700); err != nil {
 		return err
 	}

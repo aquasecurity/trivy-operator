@@ -1,5 +1,15 @@
 # Configuration Auditing
 
+
+## Setting
+the following flags can be set with the `trivy-operator-trivy-cofnig` configmap in order to impact scanning
+
+| CONFIGMAP KEY                     | DEFAULT                                                                               | DESCRIPTION                                                                                                     |
+|-----------------------------------|---------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| `trivy.useBuiltinRegoPolicies`    | `true`                                                                                | The Flag to enable the usage of builtin rego policies by default                                                |
+| `trivy.supportedConfigAuditKinds` | `Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota`    | The Flag is the list of supported kinds separated by comma delimiter to be scanned by the config audit scanner  |
+
+
 As your organization deploys containerized workloads in Kubernetes environments, you will be faced with many
 configuration choices related to images, containers, control plane, and data plane. Setting these configurations
 improperly creates a high-impact security and compliance risk. DevOps, and platform owners need the ability to

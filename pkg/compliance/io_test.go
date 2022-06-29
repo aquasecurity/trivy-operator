@@ -28,12 +28,12 @@ func TestPopulateSpecDataToMaps(t *testing.T) {
 		wantMappedData *specDataMapping
 	}{
 		{name: "spec file with good format", ids: []string{"1.0", "8.1"}, scanners: []string{"config-audit", "kube-bench"}, specPath: "./testdata/fixture/nsa-1.0.yaml", wantMappedData: &specDataMapping{
-			scannerResourceListNames: map[string]*hashset.Set{"config-audit": hashset.New("Job", "Pod", "ReplicationController", "ReplicaSet", "StatefulSet", "DaemonSet", "CronJob"),
+			scannerResourceListNames: map[string]*hashset.Set{"config-audit": hashset.New("Job", "Pod", "ReplicationController", "ReplicaSet", "StatefulSet", "DaemonSet", "CronJob", "Deployment"),
 				"kube-bench": hashset.New("Node")},
 			controlIDControlObject: map[string]v1alpha1.Control{"1.0": {ID: "1.0", Name: "Non-root containers",
-				Kinds: []string{"Job", "Pod", "ReplicationController", "ReplicaSet", "StatefulSet", "DaemonSet", "CronJob"}, Severity: "MEDIUM",
+				Kinds: sortString([]string{"DaemonSet", "CronJob", "Job", "Deployment", "Pod", "ReplicationController", "ReplicaSet", "StatefulSet"}), Severity: "MEDIUM",
 				Mapping: v1alpha1.Mapping{Scanner: "config-audit", Checks: []v1alpha1.SpecCheck{{ID: "KSV012"}}}}, "8.1": {ID: "8.1", Name: "Audit log path is configure",
-				Kinds:   []string{"Node"},
+				Kinds:   []string{},
 				Mapping: v1alpha1.Mapping{Scanner: "kube-bench", Checks: []v1alpha1.SpecCheck{{ID: "1.2.22"}}}, Severity: "MEDIUM"}},
 			controlCheckIds: map[string][]string{"1.0": {"KSV012"}, "8.1": {"1.2.22"}}}},
 		{name: "spec file with no controls", specPath: "./testdata/fixture/nsa-1.0_no_controls.yaml"}}
@@ -53,6 +53,9 @@ func TestPopulateSpecDataToMaps(t *testing.T) {
 			if len(pd.scannerResourceListNames) > 0 && len(pd.controlCheckIds) > 0 {
 				if !cmp.Equal(pd.controlCheckIds, tt.wantMappedData.controlCheckIds, option()) {
 					t.Errorf("TestPopulateSpecDataToMaps want %v got %v", tt.wantMappedData.controlCheckIds, pd.controlCheckIds)
+				}
+				for _, ar := range pd.controlIDControlObject {
+					ar.Kinds = sortString(ar.Kinds)
 				}
 				if !cmp.Equal(pd.controlIDControlObject, tt.wantMappedData.controlIDControlObject, option()) {
 					t.Errorf("TestPopulateSpecDataToMaps want %v got %v", tt.wantMappedData.controlIDControlObject, pd.controlIDControlObject)
@@ -146,4 +149,9 @@ func TestCheckIdsToResults(t *testing.T) {
 			assert.True(t, reflect.DeepEqual(cct, tt.wantResult))
 		})
 	}
+}
+
+func sortString(values []string) []string {
+	sort.Strings(values)
+	return values
 }

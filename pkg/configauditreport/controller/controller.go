@@ -1,10 +1,13 @@
-package configauditreport
+package controller
 
 import (
 	"context"
 	"fmt"
 
+	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+
 	"github.com/aquasecurity/defsec/pkg/scan"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
@@ -40,7 +43,9 @@ type ResourceController struct {
 	trivyoperator.ConfigData
 	client.Client
 	kube.ObjectResolver
-	ReadWriter
+	trivyoperator.PluginContext
+	configauditreport.PluginInMemory
+	configauditreport.ReadWriter
 	trivyoperator.BuildInfo
 }
 
@@ -141,7 +146,6 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile.Func {
 	return func(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 		log := r.Logger.WithValues("kind", resourceKind, "name", req.NamespacedName)
-
 		resourceRef := kube.ObjectRefFromKindAndObjectKey(resourceKind, req.NamespacedName)
 
 		resource, err := r.ObjectFromObjectRef(ctx, resourceRef)
@@ -184,13 +188,17 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 				return ctrl.Result{}, nil
 			}
 		}
-
-		policies, err := r.policies(ctx)
+		cac, err := r.NewConfigForConfigAudit(r.PluginContext)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		policies, err := r.policies(ctx, cac)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
 		}
 
 		// Skip processing if there are no policies applicable to the resource
+
 		applicable, reason, err := policies.Applicable(resource)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("checking whether plugin is applicable: %w", err)
@@ -223,13 +231,12 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			log.V(1).Info("Configuration audit report exists")
 			return ctrl.Result{}, nil
 		}
-
 		reportData, err := r.evaluate(ctx, policies, resource)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("evaluating resource: %w", err)
 		}
 
-		reportBuilder := NewReportBuilder(r.Client.Scheme()).
+		reportBuilder := configauditreport.NewReportBuilder(r.Client.Scheme()).
 			Controller(resource).
 			ResourceSpecHash(resourceHash).
 			PluginConfigHash(policiesHash).
@@ -271,7 +278,7 @@ func (r *ResourceController) hasClusterReport(ctx context.Context, owner kube.Ob
 	return false, nil
 }
 
-func (r *ResourceController) policies(ctx context.Context) (*policy.Policies, error) {
+func (r *ResourceController) policies(ctx context.Context, cac configauditreport.ConfigAuditConfig) (*policy.Policies, error) {
 	cm := &corev1.ConfigMap{}
 
 	err := r.Client.Get(ctx, client.ObjectKey{
@@ -279,9 +286,11 @@ func (r *ResourceController) policies(ctx context.Context) (*policy.Policies, er
 		Name:      trivyoperator.PoliciesConfigMapName,
 	}, cm)
 	if err != nil {
-		return nil, fmt.Errorf("failed getting policies from configmap: %s/%s: %w", r.Config.Namespace, trivyoperator.PoliciesConfigMapName, err)
+		if !apierrors.IsNotFound(err) {
+			return nil, fmt.Errorf("failed getting policies from configmap: %s/%s: %w", r.Config.Namespace, trivyoperator.PoliciesConfigMapName, err)
+		}
 	}
-	return policy.NewPolicies(cm.Data, r.Logger), nil
+	return policy.NewPolicies(cm.Data, cac, r.Logger), nil
 }
 
 func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Policies, resource client.Object) (v1alpha1.ConfigAuditReportData, error) {
@@ -328,8 +337,11 @@ func (r *ResourceController) reconcileConfig(kind kube.Kind) reconcile.Func {
 			}
 			return ctrl.Result{}, fmt.Errorf("getting ConfigMap from cache: %w", err)
 		}
-
-		policies, err := r.policies(ctx)
+		cac, err := r.NewConfigForConfigAudit(r.PluginContext)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		policies, err := r.policies(ctx, cac)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
 		}
@@ -393,8 +405,11 @@ func (r *ResourceController) reconcileClusterConfig(kind kube.Kind) reconcile.Fu
 			}
 			return ctrl.Result{}, fmt.Errorf("getting ConfigMap from cache: %w", err)
 		}
-
-		policies, err := r.policies(ctx)
+		cac, err := r.NewConfigForConfigAudit(r.PluginContext)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		policies, err := r.policies(ctx, cac)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
 		}

@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/plugin/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -66,4 +67,22 @@ func (r *Resolver) GetVulnerabilityPlugin() (vulnerabilityreport.Plugin, trivyop
 		Get()
 
 	return trivy.NewPlugin(ext.NewSystemClock(), ext.NewGoogleUUIDGenerator(), r.client), pluginContext, nil
+}
+
+// GetConfigAuditPlugin is a factory method that instantiates the configauditreport.Plugin.
+func (r *Resolver) GetConfigAuditPlugin() (configauditreport.PluginInMemory, trivyoperator.PluginContext, error) {
+	scanner, err := r.config.GetConfigAuditReportsScanner()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	pluginContext := trivyoperator.NewPluginContext().
+		WithName(string(scanner)).
+		WithNamespace(r.namespace).
+		WithServiceAccountName(r.serviceAccountName).
+		WithClient(r.client).
+		WithTrivyOperatorConfig(r.config).
+		Get()
+
+	return trivy.NewTrivyConfigAuditPlugin(ext.NewSystemClock(), ext.NewGoogleUUIDGenerator(), r.client), pluginContext, nil
 }

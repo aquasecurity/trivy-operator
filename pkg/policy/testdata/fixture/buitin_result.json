@@ -1,0 +1,380 @@
+[
+  {
+    "Metadata": {
+      "ID": "KSV018",
+      "Title": "Memory not limited",
+      "Severity": "LOW",
+      "Type": "Kubernetes Security Check",
+      "Description": "Enforcing memory limits prevents DoS via resource exhaustion."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV010",
+      "Title": "Access to host PID",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Sharing the host’s PID namespace allows visibility on host processes, potentially leaking information such as environment variables and configuration."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV022",
+      "Title": "Non-default capabilities added",
+      "Severity": "MEDIUM",
+      "Type": "Kubernetes Security Check",
+      "Description": "Adding NET_RAW or capabilities beyond the default set must be disallowed."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV013",
+      "Title": "Image tag ':latest' used",
+      "Severity": "MEDIUM",
+      "Type": "Kubernetes Security Check",
+      "Description": "It is best to avoid using the ':latest' image tag when deploying containers in production. Doing so makes it hard to track which version of the image is running, and hard to roll back the version."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV016",
+      "Title": "Memory requests not specified",
+      "Severity": "LOW",
+      "Type": "Kubernetes Security Check",
+      "Description": "When containers have memory requests specified, the scheduler can make better decisions about which nodes to place pods on, and how to deal with resource contention."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV105",
+      "Title": "Containers must not set runAsUser to 0",
+      "Severity": "LOW",
+      "Type": "Kubernetes Security Check",
+      "Description": "Containers should be forbidden from running with a root UID."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV027",
+      "Title": "Non-default /proc masks set",
+      "Severity": "MEDIUM",
+      "Type": "Kubernetes Security Check",
+      "Description": "The default /proc masks are set up to reduce attack surface, and should be required."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV015",
+      "Title": "CPU requests not specified",
+      "Severity": "LOW",
+      "Type": "Kubernetes Security Check",
+      "Description": "When containers have resource requests specified, the scheduler can make better decisions about which nodes to place pods on, and how to deal with resource contention."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV009",
+      "Title": "Access to host network",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Sharing the host’s network namespace permits processes in the pod to communicate with processes bound to the host’s loopback adapter."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV012",
+      "Title": "Runs as root user",
+      "Severity": "MEDIUM",
+      "Type": "Kubernetes Security Check",
+      "Description": "'runAsNonRoot' forces the running image to run as a non-root user to ensure least privileges."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV003",
+      "Title": "Default capabilities not dropped",
+      "Severity": "LOW",
+      "Type": "Kubernetes Security Check",
+      "Description": "The container should drop all default capabilities and add only those that are needed for its execution."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV011",
+      "Title": "CPU not limited",
+      "Severity": "LOW",
+      "Type": "Kubernetes Security Check",
+      "Description": "Enforcing CPU limits prevents DoS via resource exhaustion."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV006",
+      "Title": "hostPath volume mounted with docker.sock",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Mounting docker.sock from the host can give the container full root access to the host."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV014",
+      "Title": "Root file system is not read-only",
+      "Severity": "LOW",
+      "Type": "Kubernetes Security Check",
+      "Description": "An immutable root file system prevents applications from writing to their local disk. This can limit intrusions, as attackers will not be able to tamper with the file system or write foreign executables to disk."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV023",
+      "Title": "hostPath volumes mounted",
+      "Severity": "MEDIUM",
+      "Type": "Kubernetes Security Check",
+      "Description": "HostPath volumes must be forbidden."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV020",
+      "Title": "Runs with low user ID",
+      "Severity": "LOW",
+      "Type": "Kubernetes Security Check",
+      "Description": "Force the container to run with user ID > 10000 to avoid conflicts with the host’s user table."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV008",
+      "Title": "Access to host IPC namespace",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Sharing the host’s IPC namespace allows container processes to communicate with processes on the host."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV103",
+      "Title": "HostProcess container defined",
+      "Severity": "MEDIUM",
+      "Type": "Kubernetes Security Check",
+      "Description": "Windows pods offer the ability to run HostProcess containers which enable privileged access to the Windows node."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV005",
+      "Title": "SYS_ADMIN capability added",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "SYS_ADMIN gives the processes running inside the container privileges that are equivalent to root."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV028",
+      "Title": "Non-ephemeral volume types used",
+      "Severity": "LOW",
+      "Type": "Kubernetes Security Check",
+      "Description": "In addition to restricting HostPath volumes, usage of non-ephemeral volume types should be limited to those defined through PersistentVolumes."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV106",
+      "Title": "Container capabilities must only include NET_BIND_SERVICE",
+      "Severity": "LOW",
+      "Type": "Kubernetes Security Check",
+      "Description": "Containers must drop ALL capabilities, and are only permitted to add back the NET_BIND_SERVICE capability."
+    },
+    "Success": false,
+    "Messages": [
+      "container should drop all"
+    ]
+  },
+  {
+    "Metadata": {
+      "ID": "KSV038",
+      "Title": "Selector usage in network policies",
+      "Severity": "MEDIUM",
+      "Type": "Kubernetes Security Check",
+      "Description": "ensure that network policies selectors are applied to pods or namespaces to restricted ingress and egress traffic within the pod network"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV030",
+      "Title": "Default Seccomp profile not set",
+      "Severity": "LOW",
+      "Type": "Kubernetes Security Check",
+      "Description": "The RuntimeDefault/Localhost seccomp profile must be required, or allow specific additional profiles."
+    },
+    "Success": false,
+    "Messages": [
+      "Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'"
+    ]
+  },
+  {
+    "Metadata": {
+      "ID": "KSV026",
+      "Title": "Unsafe sysctl options set",
+      "Severity": "MEDIUM",
+      "Type": "Kubernetes Security Check",
+      "Description": "Sysctls can disable security mechanisms or affect all containers on a host, and should be disallowed except for an allowed 'safe' subset. A sysctl is considered safe if it is namespaced in the container or the Pod, and it is isolated from other Pods or processes on the same Node."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV037",
+      "Title": "User Pods should not be placed in kube-system namespace",
+      "Severity": "MEDIUM",
+      "Type": "Kubernetes Security Check",
+      "Description": "ensure that User pods are not placed in kube-system namespace"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV017",
+      "Title": "Privileged container",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Privileged containers share namespaces with the host system and do not offer any security. They should be used exclusively for system containers that require high privileges."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV104",
+      "Title": "Seccomp profile unconfined",
+      "Severity": "MEDIUM",
+      "Type": "Kubernetes Security Check",
+      "Description": "Seccomp profile must not be explicitly set to 'Unconfined'."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV002",
+      "Title": "Default AppArmor profile not set",
+      "Severity": "MEDIUM",
+      "Type": "Kubernetes Security Check",
+      "Description": "A program inside the container can bypass AppArmor protection policies."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV001",
+      "Title": "Process can elevate its own privileges",
+      "Severity": "MEDIUM",
+      "Type": "Kubernetes Security Check",
+      "Description": "A program inside the container can elevate its own privileges and run as root, which might give the program control over the container and node."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV025",
+      "Title": "SELinux custom options set",
+      "Severity": "MEDIUM",
+      "Type": "Kubernetes Security Check",
+      "Description": "Setting a custom SELinux user or role option should be forbidden."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV102",
+      "Title": "Tiller Is Deployed",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check if Helm Tiller component is deployed."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV036",
+      "Title": "Protecting Pod service account tokens",
+      "Severity": "MEDIUM",
+      "Type": "Kubernetes Security Check",
+      "Description": "ensure that Pod specifications disable the secret token being mounted by setting automountServiceAccountToken: false"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV021",
+      "Title": "Runs with low group ID",
+      "Severity": "LOW",
+      "Type": "Kubernetes Security Check",
+      "Description": "Force the container to run with group ID > 10000 to avoid conflicts with the host’s user table."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV024",
+      "Title": "Access to host ports",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "HostPorts should be disallowed, or at minimum restricted to a known list."
+    },
+    "Success": true,
+    "Messages": null
+  }
+]

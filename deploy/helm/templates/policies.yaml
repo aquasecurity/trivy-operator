@@ -5,10 +5,7 @@ metadata:
   name: trivy-operator-policies-config
   namespace: {{ .Release.Namespace }}
   labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.0.8"
-    app.kubernetes.io/managed-by: kubectl
+    {{- include "trivy-operator.labels" . | nindent 4 }}
 data:
 # example
 # policy.my_policy.kinds: Workload

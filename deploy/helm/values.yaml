@@ -55,7 +55,7 @@ operator:
   configAuditScannerScanOnlyCurrentRevisions: false
   # batchDeleteDelay the duration to wait before deleting another batch of config audit reports.
   batchDeleteDelay: 10s
-  
+
   # metricsFindingsEnabled the flag to enable metrics for findings
   metricsFindingsEnabled: true
 image:

@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"context"
+
 	"github.com/go-logr/logr"
 	ctrl "sigs.k8s.io/controller-runtime"
 
@@ -45,6 +46,35 @@ var (
 		},
 		"Unknown": func(vs v1alpha1.VulnerabilitySummary) int {
 			return vs.UnknownCount
+		},
+	}
+	exposedSecretLabels = []string{
+		"namespace",
+		"name",
+		"image_registry",
+		"image_repository",
+		"image_tag",
+		"image_digest",
+		"severity",
+	}
+	exposedSecretDesc = prometheus.NewDesc(
+		prometheus.BuildFQName("trivy", "image", "exposedsecrets"),
+		"Number of image exposed secrets",
+		exposedSecretLabels,
+		nil,
+	)
+	exposedSecretSeverities = map[string]func(vs v1alpha1.ExposedSecretSummary) int{
+		"Critical": func(vs v1alpha1.ExposedSecretSummary) int {
+			return vs.CriticalCount
+		},
+		"High": func(vs v1alpha1.ExposedSecretSummary) int {
+			return vs.HighCount
+		},
+		"Medium": func(vs v1alpha1.ExposedSecretSummary) int {
+			return vs.MediumCount
+		},
+		"Low": func(vs v1alpha1.ExposedSecretSummary) int {
+			return vs.LowCount
 		},
 	}
 	configAuditLabels = []string{
@@ -111,47 +141,72 @@ func (c ResourcesMetricsCollector) Collect(metrics chan<- prometheus.Metric) {
 		targetNamespaces = append(targetNamespaces, "")
 	}
 	c.collectVulnerabilityReports(ctx, metrics, targetNamespaces)
+	c.collectExposedSecretsReports(ctx, metrics, targetNamespaces)
 	c.collectConfigAuditReports(ctx, metrics, targetNamespaces)
 }
 
 func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
-	vrList := &v1alpha1.VulnerabilityReportList{}
+	reports := &v1alpha1.VulnerabilityReportList{}
 	labelValues := make([]string, 7)
 	for _, n := range targetNamespaces {
-		if err := c.List(ctx, vrList, client.InNamespace(n)); err != nil {
+		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
 			c.Logger.Error(err, "failed to list vulnerabilityreports from API", "namespace", n)
 			continue
 		}
-		for _, vr := range vrList.Items {
-			labelValues[0] = vr.Namespace
-			labelValues[1] = vr.Name
-			labelValues[2] = vr.Report.Registry.Server
-			labelValues[3] = vr.Report.Artifact.Repository
-			labelValues[4] = vr.Report.Artifact.Tag
-			labelValues[5] = vr.Report.Artifact.Digest
+		for _, r := range reports.Items {
+			labelValues[0] = r.Namespace
+			labelValues[1] = r.Name
+			labelValues[2] = r.Report.Registry.Server
+			labelValues[3] = r.Report.Artifact.Repository
+			labelValues[4] = r.Report.Artifact.Tag
+			labelValues[5] = r.Report.Artifact.Digest
 			for severity, countFn := range imageVulnSeverities {
 				labelValues[6] = severity
-				count := countFn(vr.Report.Summary)
+				count := countFn(r.Report.Summary)
 				metrics <- prometheus.MustNewConstMetric(imageVulnDesc, prometheus.GaugeValue, float64(count), labelValues...)
 			}
 		}
 	}
 }
 
+func (c ResourcesMetricsCollector) collectExposedSecretsReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
+	reports := &v1alpha1.ExposedSecretReportList{}
+	labelValues := make([]string, 7)
+	for _, n := range targetNamespaces {
+		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
+			c.Logger.Error(err, "failed to list exposedsecretreports from API", "namespace", n)
+			continue
+		}
+		for _, r := range reports.Items {
+			labelValues[0] = r.Namespace
+			labelValues[1] = r.Name
+			labelValues[2] = r.Report.Registry.Server
+			labelValues[3] = r.Report.Artifact.Repository
+			labelValues[4] = r.Report.Artifact.Tag
+			labelValues[5] = r.Report.Artifact.Digest
+			for severity, countFn := range exposedSecretSeverities {
+				labelValues[6] = severity
+				count := countFn(r.Report.Summary)
+				metrics <- prometheus.MustNewConstMetric(exposedSecretDesc, prometheus.GaugeValue, float64(count), labelValues...)
+			}
+		}
+	}
+}
+
 func (c *ResourcesMetricsCollector) collectConfigAuditReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
-	carList := &v1alpha1.ConfigAuditReportList{}
+	reports := &v1alpha1.ConfigAuditReportList{}
 	labelValues := make([]string, 3)
 	for _, n := range targetNamespaces {
-		if err := c.List(ctx, carList, client.InNamespace(n)); err != nil {
+		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
 			c.Logger.Error(err, "failed to list configauditreports from API", "namespace", n)
 			continue
 		}
-		for _, car := range carList.Items {
-			labelValues[0] = car.Namespace
-			labelValues[1] = car.Name
+		for _, r := range reports.Items {
+			labelValues[0] = r.Namespace
+			labelValues[1] = r.Name
 			for severity, countFn := range configAuditSeverities {
 				labelValues[2] = severity
-				count := countFn(car.Report.Summary)
+				count := countFn(r.Report.Summary)
 				metrics <- prometheus.MustNewConstMetric(configAuditDesc, prometheus.GaugeValue, float64(count), labelValues...)
 			}
 		}
@@ -161,6 +216,7 @@ func (c *ResourcesMetricsCollector) collectConfigAuditReports(ctx context.Contex
 func (c ResourcesMetricsCollector) Describe(descs chan<- *prometheus.Desc) {
 	descs <- imageVulnDesc
 	descs <- configAuditDesc
+	descs <- exposedSecretDesc
 }
 
 func (c ResourcesMetricsCollector) Start(ctx context.Context) error {

@@ -462,35 +462,9 @@ warn[res] {
 			},
 			useBuiltInPolicies: false,
 			policies: map[string]string{
-				"library.utils.rego":   "$^&!",
-				"policy.policy1.kinds": "Workload",
-				"policy.policy1.rego": `package appshield.kubernetes.KSV014
-
-__rego_metadata__ := {
-	"id": "KSV014",
-	"title": "Root file system is not read-only",
-	"description": "An immutable root file system prevents applications from writing to their local disk",
-	"severity": "LOW",
-	"type": "Kubernetes Security Check"
-}
-
-warn[res] {
-	input.kind == "Deployment"
-	not input.spec.template.spec.securityContext.runAsNonRoot
-
-	msg := "Containers must not run as root"
-
-	res := {
-		"id": __rego_metadata__.id,
-		"title": __rego_metadata__.title,
-		"severity": __rego_metadata__.severity,
-		"type": __rego_metadata__.type,
-		"msg": msg
-	}
-}
-`,
+				"library.utils.rego": "$^&!",
 			},
-			expectedError: "failed to load rego policies from [externalPolicies]: 1 error occurred: externalPolicies/file_1.rego:1: rego_parse_error: illegal token\n\t$^&!\n\t^",
+			expectedError: "failed to load rego policies from [externalPolicies]: 1 error occurred: externalPolicies/file_0.rego:1: rego_parse_error: illegal token\n\t$^&!\n\t^",
 		},
 		{
 			name:    "Should return error when library cannot be parsed",

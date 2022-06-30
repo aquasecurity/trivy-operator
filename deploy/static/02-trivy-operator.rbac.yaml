@@ -8,7 +8,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.1.0-rc-2"
+    app.kubernetes.io/version: "0.1.0"
     app.kubernetes.io/managed-by: kubectl
 ---
 # Source: trivy-operator/templates/rbac.yaml
@@ -19,7 +19,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.1.0-rc-2"
+    app.kubernetes.io/version: "0.1.0"
     app.kubernetes.io/managed-by: kubectl
 rules:
   - apiGroups:
@@ -232,7 +232,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.1.0-rc-2"
+    app.kubernetes.io/version: "0.1.0"
     app.kubernetes.io/managed-by: kubectl
 roleRef:
   apiGroup: rbac.authorization.k8s.io

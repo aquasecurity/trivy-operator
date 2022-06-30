@@ -18,25 +18,20 @@
    1. In [`deploy/helm/Chart.yaml`]
       1. Update the `version` property
       2. Update the `appVersion` property
-   2. Update container image tag in [`deploy/static/05-trivy-operator.deployment.yaml`]
-   3. Update the `app.kubernetes.io/version` labels in the following files:
-      1. [`deploy/crd/ciskubebenchreports.crd.yaml`]
-      2. [`deploy/crd/clustercompliancedetailreports.crd.yaml`]
-      3. [`deploy/crd/clustercompliancereports.crd.yaml`]
-      4. [`deploy/crd/clusterconfigauditreports.crd.yaml`]
-      6. [`deploy/crd/configauditreports.crd.yaml`]
+   2. Update the `app.kubernetes.io/version` labels in the following files:
+      1. [`deploy/compliance/clustercompliancedetailreports.crd.yaml`]
+      2. [`deploy/compliance/clustercompliancereports.crd.yaml`]
+      3. [`deploy/crd/clusterconfigauditreports.crd.yaml`]
+      4. [`deploy/crd/configauditreports.crd.yaml`]
       5. [`deploy/crd/vulnerabilityreports.crd.yaml`]
-      6. [`deploy/static/05-trivy-operator.deployment.yaml`]
-      7. [`deploy/static/04-trivy-operator.policies.yaml`]
-      8. [`deploy/static/03-trivy-operator.config.yaml`]
-      9. [`deploy/static/02-trivy-operator.rbac.yaml`]
-      10. [`deploy/static/01-trivy-operator.ns.yaml`]
-      11. [`deploy/specs/nsa-1.0.yaml`]
-   4. Update [`deploy/static/trivy-operator.yaml`] by running the following script:
+      6. [`deploy/crd/exposedsecretreports.crd.yaml`]
+      7. [`deploy/static/01-trivy-operator.ns.yaml`]
+      8. [`deploy/specs/nsa-1.0.yaml`]
+   3. Update [`deploy/static/trivy-operator.yaml`] by running the following script:
       ```
-      ./hack/update-trivy-operator.yaml.sh
+      ./hack/update-static.yaml.sh
       ```
-   5. In [`mkdocs.yml`]
+   4. In [`mkdocs.yml`]
       1. Update the `extra.var.prev_git_tag` property
       2. Update the `extra.var.chart_version` property
 3. Review and merge the PR (make sure all tests are passing)
@@ -62,16 +57,12 @@
 9. Submit trivy-operator Operator to OperatorHub and ArtifactHUB by opening the PR to the https://github.com/k8s-operatorhub/community-operators repository.
 
 [`deploy/helm/Chart.yaml`]: ./deploy/helm/Chart.yaml
-[`deploy/crd/ciskubebenchreports.crd.yaml`]: ./deploy/crd/ciskubebenchreports.crd.yaml
-[`deploy/crd/clustercompliancedetailreports.crd.yaml`]: ./deploy/crd/clustercompliancedetailreports.crd.yaml
-[`deploy/crd/clustercompliancereports.crd.yaml`]: ./deploy/crd/clustercompliancereports.crd.yaml
+[`deploy/compliance/clustercompliancedetailreports.crd.yaml`]: ./deploy/compliance/clustercompliancedetailreports.crd.yaml
+[`deploy/compliance/clustercompliancereports.crd.yaml`]: ./deploy/compliance/clustercompliancereports.crd.yaml
 [`deploy/crd/clusterconfigauditreports.crd.yaml`]: ./deploy/crd/clusterconfigauditreports.crd.yaml
 [`deploy/crd/configauditreports.crd.yaml`]: ./deploy/crd/configauditreports.crd.yaml
 [`deploy/crd/vulnerabilityreports.crd.yaml`]: ./deploy/crd/vulnerabilityreports.crd.yaml
-[`deploy/static/05-trivy-operator.deployment.yaml`]: ./deploy/static/05-trivy-operator.deployment.yaml
-[`deploy/static/04-trivy-operator.policies.yaml`]: ./deploy/static/04-trivy-operator.policies.yaml
-[`deploy/static/03-trivy-operator.config.yaml`]: ./deploy/static/03-trivy-operator.config.yaml
-[`deploy/static/02-trivy-operator.rbac.yaml`]: ./deploy/static/02-trivy-operator.rbac.yaml
+[`deploy/crd/exposedsecretreports.crd.yaml`]: ./deploy/crd/exposedsecretreports.crd.yaml
 [`deploy/static/01-trivy-operator.ns.yaml`]: ./deploy/static/01-trivy-operator.ns.yaml
 [`deploy/specs/nsa-1.0.yaml`]: ./deploy/specs/nsa-1.0.yaml
 [`deploy/static/trivy-operator.yaml`]: ./deploy/static/trivy-operator.yaml

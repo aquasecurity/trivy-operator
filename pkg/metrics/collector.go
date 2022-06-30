@@ -15,15 +15,25 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 )
 
+const (
+	namespace        = "namespace"
+	name             = "name"
+	image_registry   = "image_registry"
+	image_repository = "image_repository"
+	image_tag        = "image_tag"
+	image_digest     = "image_digest"
+	severity         = "severity"
+)
+
 var (
 	imageVulnLabels = []string{
-		"namespace",
-		"name",
-		"image_registry",
-		"image_repository",
-		"image_tag",
-		"image_digest",
-		"severity",
+		namespace,
+		name,
+		image_registry,
+		image_repository,
+		image_tag,
+		image_digest,
+		severity,
 	}
 	imageVulnDesc = prometheus.NewDesc(
 		prometheus.BuildFQName("trivy", "image", "vulnerabilities"),
@@ -49,13 +59,13 @@ var (
 		},
 	}
 	exposedSecretLabels = []string{
-		"namespace",
-		"name",
-		"image_registry",
-		"image_repository",
-		"image_tag",
-		"image_digest",
-		"severity",
+		namespace,
+		name,
+		image_registry,
+		image_repository,
+		image_tag,
+		image_digest,
+		severity,
 	}
 	exposedSecretDesc = prometheus.NewDesc(
 		prometheus.BuildFQName("trivy", "image", "exposedsecrets"),
@@ -78,9 +88,9 @@ var (
 		},
 	}
 	configAuditLabels = []string{
-		"namespace",
-		"name",
-		"severity",
+		namespace,
+		name,
+		severity,
 	}
 	configAuditDesc = prometheus.NewDesc(
 		prometheus.BuildFQName("trivy", "resource", "configaudits"),

@@ -69,11 +69,16 @@ image:
 # service only expose a metrics endpoint for prometheus to scrape,
 # trivy-operator does not have a user interface.
 service:
-  type: ClusterIP
   metricsPort: 80
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/path: /metrics
+
+# Prometheus ServiceMonitor configuration
+serviceMonitor:
+  # enabled determines whether a serviceMonitor should be deployed
+  enabled: false
+  # The namespace where Prometheus expects to find service monitors
+  # namespace: ""
+  interval: ""
+  # honorLabels: true
 
 trivyOperator:
   # vulnerabilityReportsPlugin the name of the plugin that generates vulnerability reports `Trivy`

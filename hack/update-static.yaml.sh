@@ -18,6 +18,7 @@ cp $HELM_TMPDIR/trivy-operator-helm-template/trivy-operator/templates/rbac.yaml 
 cp $HELM_TMPDIR/trivy-operator-helm-template/trivy-operator/templates/config.yaml $STATIC_DIR/03-trivy-operator.config.yaml
 cp $HELM_TMPDIR/trivy-operator-helm-template/trivy-operator/templates/policies.yaml $STATIC_DIR/04-trivy-operator.policies.yaml
 cp $HELM_TMPDIR/trivy-operator-helm-template/trivy-operator/templates/deployment.yaml $STATIC_DIR/05-trivy-operator.deployment.yaml
+cp $HELM_TMPDIR/trivy-operator-helm-template/trivy-operator/templates/service.yaml $STATIC_DIR/06-trivy-operator.service.yaml
 
 cat $CRD_DIR/vulnerabilityreports.crd.yaml \
   $CRD_DIR/configauditreports.crd.yaml \
@@ -27,4 +28,5 @@ cat $CRD_DIR/vulnerabilityreports.crd.yaml \
   $STATIC_DIR/02-trivy-operator.rbac.yaml \
   $STATIC_DIR/03-trivy-operator.config.yaml \
   $STATIC_DIR/04-trivy-operator.policies.yaml \
-  $STATIC_DIR/05-trivy-operator.deployment.yaml > $STATIC_DIR/trivy-operator.yaml
+  $STATIC_DIR/05-trivy-operator.deployment.yaml \
+  $STATIC_DIR/06-trivy-operator.service.yaml > $STATIC_DIR/trivy-operator.yaml

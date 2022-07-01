@@ -14,7 +14,8 @@ helm template trivy-operator $HELM_DIR \
   --set="managedBy=kubectl" \
   --output-dir=$HELM_TMPDIR/trivy-operator-helm-template
 
-cp $HELM_TMPDIR/trivy-operator-helm-template/trivy-operator/templates/rbac.yaml $STATIC_DIR/02-trivy-operator.rbac.yaml
+cat $HELM_TMPDIR/trivy-operator-helm-template/trivy-operator/templates/rbac.yaml \
+    $HELM_TMPDIR/trivy-operator-helm-template/trivy-operator/templates/leader_election.yaml > $STATIC_DIR/02-trivy-operator.rbac.yaml
 cp $HELM_TMPDIR/trivy-operator-helm-template/trivy-operator/templates/config.yaml $STATIC_DIR/03-trivy-operator.config.yaml
 cp $HELM_TMPDIR/trivy-operator-helm-template/trivy-operator/templates/policies.yaml $STATIC_DIR/04-trivy-operator.policies.yaml
 cp $HELM_TMPDIR/trivy-operator-helm-template/trivy-operator/templates/deployment.yaml $STATIC_DIR/05-trivy-operator.deployment.yaml

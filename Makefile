@@ -137,6 +137,12 @@ verify-generated: generate
 generate: controller-gen
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./pkg/apis/..."
 
+.PHONY: manifest
+manifest: controller-gen
+	$(CONTROLLER_GEN) crd:allowDangerousTypes=true paths="./pkg/apis/..." output:crd:artifacts:config=deploy/crd
+	mv deploy/crd/aquasecurity.github.io_clustercompliancedetailreports.yaml deploy/compliance
+	mv deploy/crd/aquasecurity.github.io_clustercompliancereports.yaml deploy/compliance
+
 .PHONY: \
 	clean \
 	docker-build \

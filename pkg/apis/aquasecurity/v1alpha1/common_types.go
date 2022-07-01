@@ -41,11 +41,14 @@ const ScannerNameTrivy = "Trivy"
 // Scanner is the spec for a scanner generating a security assessment report.
 type Scanner struct {
 	// Name the name of the scanner.
+	//+kubebuilder:validation:Required
 	Name string `json:"name"`
 
 	// Vendor the name of the vendor providing the scanner.
+	//+kubebuilder:validation:Required
 	Vendor string `json:"vendor"`
 
 	// Version the version of the scanner.
+	//+kubebuilder:validation:Required
 	Version string `json:"version"`
 }

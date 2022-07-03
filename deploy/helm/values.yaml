@@ -43,6 +43,8 @@ operator:
   vulnerabilityScannerReportTTL: ""
   # configAuditScannerEnabled the flag to enable configuration audit scanner
   configAuditScannerEnabled: true
+  # rbacAssessmentScannerEnabled the flag to enable rbac assessment scanner
+  rbacAssessmentScannerEnabled: true
   # kubernetesBenchmarkEnabled the flag to enable CIS Kubernetes Benchmark scanner
   kubernetesBenchmarkEnabled: false
   # clusterComplianceEnabled the flag to enable cluster compliance report generation

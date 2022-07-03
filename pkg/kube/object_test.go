@@ -1195,3 +1195,106 @@ func TestObjectResolver_IsActiveReplicaSet(t *testing.T) {
 		})
 	}
 }
+
+func TestIsRoleTypes(t *testing.T) {
+	testCases := []struct {
+		kind string
+		want bool
+	}{
+		{
+			kind: "Role",
+			want: true,
+		},
+		{
+			kind: "ClusterRole",
+			want: true,
+		},
+		{
+			kind: "Pod",
+			want: false,
+		},
+	}
+	for _, tt := range testCases {
+		t.Run(fmt.Sprintf("Should return %t when  kind is %s", tt.want, tt.kind), func(t *testing.T) {
+			assert.Equal(t, tt.want, kube.IsRoleTypes(kube.Kind(tt.kind)))
+		})
+	}
+}
+
+func TestIsValidK8sKinds(t *testing.T) {
+	testCases := []struct {
+		kind string
+		want bool
+	}{
+		{
+			kind: "Pod",
+			want: true,
+		},
+		{
+			kind: "ClusterRole",
+			want: true,
+		},
+		{
+			kind: "Deployment",
+			want: true,
+		},
+		{
+			kind: "ReplicationController",
+			want: true,
+		},
+		{
+			kind: "StatefulSet",
+			want: true,
+		},
+		{
+			kind: "Job",
+			want: true,
+		},
+		{
+			kind: "Deployment",
+			want: true,
+		},
+		{
+			kind: "CronJob",
+			want: true,
+		},
+		{
+			kind: "CustomResourceDefinition",
+			want: true,
+		},
+		{
+			kind: "Test",
+			want: false,
+		},
+	}
+	for _, tt := range testCases {
+		t.Run(fmt.Sprintf("Should return %t when kind is %s", tt.want, tt.kind), func(t *testing.T) {
+			assert.Equal(t, tt.want, kube.IsValidK8sKind(tt.kind))
+		})
+	}
+}
+
+func TestIsRoleRelatedNamespaceScope(t *testing.T) {
+	testCases := []struct {
+		kind string
+		want bool
+	}{
+		{
+			kind: "Role",
+			want: true,
+		},
+		{
+			kind: "ClusterRole",
+			want: false,
+		},
+		{
+			kind: "RoleBinding",
+			want: true,
+		},
+	}
+	for _, tt := range testCases {
+		t.Run(fmt.Sprintf("Should return %t when  kind is %s", tt.want, tt.kind), func(t *testing.T) {
+			assert.Equal(t, tt.want, kube.IsRoleRelatedNamespaceScope(kube.Kind(tt.kind)))
+		})
+	}
+}

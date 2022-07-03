@@ -1,4 +1,4 @@
-package configauditreport
+package rbacassessment
 
 import (
 	"context"
@@ -14,14 +14,15 @@ import (
 type Writer interface {
 
 	// WriteReport creates or updates the given v1alpha1.ConfigAuditReport instance.
-	WriteReport(ctx context.Context, report v1alpha1.ConfigAuditReport) error
+	WriteReport(ctx context.Context, report v1alpha1.RbacAssessmentReport) error
 
 	// WriteClusterReport creates or updates the given v1alpha1.ClusterConfigAuditReport instance.
-	WriteClusterReport(ctx context.Context, report v1alpha1.ClusterConfigAuditReport) error
+	WriteClusterReport(ctx context.Context, report v1alpha1.ClusterRbacAssessmentReport) error
 }
 
 // Reader is the interface that wraps methods for finding v1alpha1.ConfigAuditReport
 // and v1alpha1.ClusterConfigAuditReport objects.
+// TODO(danielpacak): Consider returning trivyoperator.ResourceNotFound error instead of returning nil.
 type Reader interface {
 
 	// FindReportByOwner returns a v1alpha1.ConfigAuditReport owned by the given
@@ -51,8 +52,8 @@ func NewReadWriter(client client.Client) ReadWriter {
 	}
 }
 
-func (r *readWriter) WriteReport(ctx context.Context, report v1alpha1.ConfigAuditReport) error {
-	var existing v1alpha1.ConfigAuditReport
+func (r *readWriter) WriteReport(ctx context.Context, report v1alpha1.RbacAssessmentReport) error {
+	var existing v1alpha1.RbacAssessmentReport
 	err := r.Get(ctx, types.NamespacedName{
 		Name:      report.Name,
 		Namespace: report.Namespace,
@@ -73,8 +74,8 @@ func (r *readWriter) WriteReport(ctx context.Context, report v1alpha1.ConfigAudi
 	return err
 }
 
-func (r *readWriter) WriteClusterReport(ctx context.Context, report v1alpha1.ClusterConfigAuditReport) error {
-	var existing v1alpha1.ClusterConfigAuditReport
+func (r *readWriter) WriteClusterReport(ctx context.Context, report v1alpha1.ClusterRbacAssessmentReport) error {
+	var existing v1alpha1.ClusterRbacAssessmentReport
 	err := r.Get(ctx, types.NamespacedName{
 		Name: report.Name,
 	}, &existing)
@@ -95,7 +96,7 @@ func (r *readWriter) WriteClusterReport(ctx context.Context, report v1alpha1.Clu
 }
 
 func (r *readWriter) FindReportByOwner(ctx context.Context, owner kube.ObjectRef) (interface{}, error) {
-	var list v1alpha1.ConfigAuditReportList
+	var list v1alpha1.RbacAssessmentReportList
 
 	labels := client.MatchingLabels(kube.ObjectRefToLabels(owner))
 
@@ -112,11 +113,11 @@ func (r *readWriter) FindReportByOwner(ctx context.Context, owner kube.ObjectRef
 }
 
 func (r *readWriter) FindClusterReportByOwner(ctx context.Context, owner kube.ObjectRef) (interface{}, error) {
-	var list v1alpha1.ClusterConfigAuditReportList
+	var list v1alpha1.ClusterRbacAssessmentReportList
 
 	labels := client.MatchingLabels(kube.ObjectRefToLabels(owner))
 
-	err := r.List(ctx, &list, labels)
+	err := r.List(ctx, &list, labels, client.InNamespace(owner.Namespace))
 	if err != nil {
 		return nil, err
 	}

@@ -13,8 +13,7 @@ type ClusterComplianceSummary struct {
 	FailCount int `json:"failCount"`
 }
 
-// +genclient
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+//+kubebuilder:object:root=true
 
 // ClusterComplianceReport is a specification for the ClusterComplianceReport resource.
 type ClusterComplianceReport struct {
@@ -55,7 +54,7 @@ type Mapping struct {
 	Checks  []SpecCheck `json:"checks"`
 }
 
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+//+kubebuilder:object:root=true
 
 // ClusterComplianceReportList is a list of compliance kinds.
 type ClusterComplianceReportList struct {

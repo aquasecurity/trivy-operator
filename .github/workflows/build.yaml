@@ -67,8 +67,8 @@ jobs:
         uses: ibiqlik/action-yamllint@v3
       - name: Vendor Go modules
         run: go mod vendor
-      - name: Verify generated Go code
-        run: GOPATH="$(go env GOPATH)" ./hack/verify-codegen.sh
+      - name: Verify generated code
+        run: make verify-generated
   unit-tests:
     name: Run unit tests
     runs-on: ubuntu-20.04

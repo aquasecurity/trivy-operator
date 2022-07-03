@@ -608,6 +608,7 @@ rules:
       - services
       - resourcequotas
       - limitranges
+      - configmaps
     verbs:
       - get
       - list
@@ -623,7 +624,6 @@ rules:
   - apiGroups:
       - ""
     resources:
-      - configmaps
       - secrets
       - serviceaccounts
     verbs:
@@ -638,12 +638,6 @@ rules:
       - secrets
     verbs:
       - delete
-  - apiGroups:
-      - ""
-    resources:
-      - events
-    verbs:
-      - create
   - apiGroups:
       - apps
     resources:
@@ -729,14 +723,6 @@ rules:
       - clustercompliancereports/status
     verbs:
       - update
-  - apiGroups:
-      - coordination.k8s.io
-    resources:
-      - leases
-    verbs:
-      - create
-      - get
-      - update
 ---
 # Source: trivy-operator/templates/rbac.yaml
 # permissions for end users to view configauditreports
@@ -815,6 +801,64 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: trivy-operator
+subjects:
+  - kind: ServiceAccount
+    name: trivy-operator
+    namespace: trivy-system
+---
+# Source: trivy-operator/templates/leader_election.yaml
+# permissions to do leader election.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: trivy-operator-leader-election
+  namespace: trivy-system
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: kubectl
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - list
+      - watch
+      - get
+      - create
+      - update
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - create
+      - get
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+---
+# Source: trivy-operator/templates/leader_election.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: trivy-operator-leader-election
+  namespace: trivy-system
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: kubectl
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: trivy-operator-leader-election
 subjects:
   - kind: ServiceAccount
     name: trivy-operator

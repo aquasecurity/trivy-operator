@@ -3,6 +3,7 @@ package operator
 import (
 	"context"
 	"fmt"
+
 	controller2 "github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
 
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
@@ -124,7 +125,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	logsReader := kube.NewLogsReader(kubeClientset)
 	secretsReader := kube.NewSecretsReader(mgr.GetClient())
 
-	if operatorConfig.VulnerabilityScannerEnabled {
+	if operatorConfig.VulnerabilityScannerEnabled || operatorConfig.ExposedSecretScannerEnabled {
 		plugin, pluginContext, err := plugin.NewResolver().
 			WithBuildInfo(buildInfo).
 			WithNamespace(operatorNamespace).
@@ -152,6 +153,8 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			SecretsReader:           secretsReader,
 			Plugin:                  plugin,
 			PluginContext:           pluginContext,
+			ScanVulnerability:       operatorConfig.VulnerabilityScannerEnabled,
+			ScanExposedSecret:       operatorConfig.ExposedSecretScannerEnabled,
 			VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(mgr.GetClient()),
 			ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(mgr.GetClient()),
 		}).SetupWithManager(mgr); err != nil {

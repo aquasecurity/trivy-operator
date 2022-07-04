@@ -19,12 +19,12 @@
       1. Update the `version` property
       2. Update the `appVersion` property
    2. Update the `app.kubernetes.io/version` labels in the following files:
-      1. [`deploy/compliance/clustercompliancedetailreports.crd.yaml`]
-      2. [`deploy/compliance/clustercompliancereports.crd.yaml`]
-      3. [`deploy/crd/clusterconfigauditreports.crd.yaml`]
-      4. [`deploy/crd/configauditreports.crd.yaml`]
-      5. [`deploy/crd/vulnerabilityreports.crd.yaml`]
-      6. [`deploy/crd/exposedsecretreports.crd.yaml`]
+      1. [`deploy/compliance/aquasecurity.github.io_clustercompliancedetailreports.yaml`]
+      2. [`deploy/compliance/aquasecurity.github.io_clustercompliancereports.yaml`]
+      3. [`deploy/crd/aquasecurity.github.io_clusterconfigauditreports.yaml`]
+      4. [`deploy/crd/aquasecurity.github.io_configauditreports.yaml`]
+      5. [`deploy/crd/aquasecurity.github.io_vulnerabilityreports.yaml`]
+      6. [`deploy/crd/aquasecurity.github.io_exposedsecretreports.yaml`]
       7. [`deploy/static/01-trivy-operator.ns.yaml`]
       8. [`deploy/specs/nsa-1.0.yaml`]
    3. Update [`deploy/static/trivy-operator.yaml`] by running the following script:

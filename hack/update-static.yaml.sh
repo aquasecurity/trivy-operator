@@ -21,10 +21,10 @@ cp $HELM_TMPDIR/trivy-operator-helm-template/trivy-operator/templates/policies.y
 cp $HELM_TMPDIR/trivy-operator-helm-template/trivy-operator/templates/deployment.yaml $STATIC_DIR/05-trivy-operator.deployment.yaml
 cp $HELM_TMPDIR/trivy-operator-helm-template/trivy-operator/templates/service.yaml $STATIC_DIR/06-trivy-operator.service.yaml
 
-cat $CRD_DIR/vulnerabilityreports.crd.yaml \
-  $CRD_DIR/configauditreports.crd.yaml \
-  $CRD_DIR/exposedsecretreports.crd.yaml \
-  $CRD_DIR/clusterconfigauditreports.crd.yaml \
+cat $CRD_DIR/aquasecurity.github.io_vulnerabilityreports.yaml \
+  $CRD_DIR/aquasecurity.github.io_configauditreports.yaml \
+  $CRD_DIR/aquasecurity.github.io_exposedsecretreports.yaml \
+  $CRD_DIR/aquasecurity.github.io_clusterconfigauditreports.yaml \
   $STATIC_DIR/01-trivy-operator.ns.yaml \
   $STATIC_DIR/02-trivy-operator.rbac.yaml \
   $STATIC_DIR/03-trivy-operator.config.yaml \

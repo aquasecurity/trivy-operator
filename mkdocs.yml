@@ -14,6 +14,7 @@ nav:
       - Installation:
           - kubectl: operator/installation/kubectl.md
           - Helm: operator/installation/helm.md
+          - Operator Lifecycle Manager: operator/installation/olm.md
           - Upgrade: operator/installation/upgrade.md
       - Quick Start: operator/quick-start.md
       - Configuration: operator/configuration.md

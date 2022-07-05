@@ -149,10 +149,7 @@ func (c Config) GetDBRepositoryInsecure() bool {
 	if !ok {
 		return false
 	}
-	boolVal, err := strconv.ParseBool(val)
-	if err != nil {
-		return false
-	}
+	boolVal, _ := strconv.ParseBool(val)
 	return boolVal
 }
 func (c Config) GetUseBuiltinRegoPolicies() bool {

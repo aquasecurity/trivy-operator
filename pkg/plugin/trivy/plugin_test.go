@@ -329,6 +329,55 @@ func TestConfig_IgnoreUnfixed(t *testing.T) {
 	}
 }
 
+func TestConfig_dbRepositoryInsecure(t *testing.T) {
+	testCases := []struct {
+		name           string
+		configData     trivy.Config
+		expectedOutput bool
+	}{
+		{
+			name: "good value Should return false",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.dbRepositoryInsecure": "false",
+				},
+			}},
+			expectedOutput: false,
+		},
+		{
+			name: "good value Should return true",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.dbRepositoryInsecure": "true",
+				},
+			}},
+			expectedOutput: true,
+		},
+		{
+			name: "bad value Should return false",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.dbRepositoryInsecure": "true1",
+				},
+			}},
+			expectedOutput: false,
+		},
+		{
+			name: "no value Should return false",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{},
+			}},
+			expectedOutput: false,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			exists := tc.configData.GetDBRepositoryInsecure()
+			assert.Equal(t, tc.expectedOutput, exists)
+		})
+	}
+}
+
 func TestConfig_GetInsecureRegistries(t *testing.T) {
 	testCases := []struct {
 		name           string

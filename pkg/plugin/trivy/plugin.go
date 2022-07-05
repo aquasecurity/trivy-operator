@@ -145,8 +145,12 @@ func (c Config) GetServerInsecure() bool {
 }
 
 func (c Config) GetDBRepositoryInsecure() bool {
-	_, ok := c.Data[keyTrivyDBRepositoryInsecure]
-	return ok
+	val, ok := c.Data[keyTrivyDBRepositoryInsecure]
+	if !ok {
+		return false
+	}
+	boolVal, _ := strconv.ParseBool(val)
+	return boolVal
 }
 func (c Config) GetUseBuiltinRegoPolicies() bool {
 	val, ok := c.Data[keyTrivyUseBuiltinRegoPolicies]

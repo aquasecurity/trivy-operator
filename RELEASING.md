@@ -57,12 +57,12 @@
 9. Submit trivy-operator Operator to OperatorHub and ArtifactHUB by opening the PR to the https://github.com/k8s-operatorhub/community-operators repository.
 
 [`deploy/helm/Chart.yaml`]: ./deploy/helm/Chart.yaml
-[`deploy/compliance/clustercompliancedetailreports.crd.yaml`]: ./deploy/compliance/clustercompliancedetailreports.crd.yaml
-[`deploy/compliance/clustercompliancereports.crd.yaml`]: ./deploy/compliance/clustercompliancereports.crd.yaml
-[`deploy/crd/clusterconfigauditreports.crd.yaml`]: ./deploy/crd/clusterconfigauditreports.crd.yaml
-[`deploy/crd/configauditreports.crd.yaml`]: ./deploy/crd/configauditreports.crd.yaml
-[`deploy/crd/vulnerabilityreports.crd.yaml`]: ./deploy/crd/vulnerabilityreports.crd.yaml
-[`deploy/crd/exposedsecretreports.crd.yaml`]: ./deploy/crd/exposedsecretreports.crd.yaml
+[`deploy/compliance/aquasecurity.github.io_clustercompliancedetailreports.yaml`]: ./deploy/compliance/clustercompliancedetailreports.crd.yaml
+[`deploy/compliance/aquasecurity.github.io_clustercompliancereports.yaml`]: ./deploy/compliance/clustercompliancereports.crd.yaml
+[`deploy/crd/aquasecurity.github.io_clusterconfigauditreports.yaml`]: ./deploy/crd/clusterconfigauditreports.crd.yaml
+[`deploy/crd/aquasecurity.github.io_configauditreports.yaml`]: ./deploy/crd/configauditreports.crd.yaml
+[`deploy/crd/aquasecurity.github.io_vulnerabilityreports.yaml`]: ./deploy/crd/vulnerabilityreports.crd.yaml
+[`deploy/crd/aquasecurity.github.io_exposedsecretreports.yaml`]: ./deploy/crd/exposedsecretreports.crd.yaml
 [`deploy/static/01-trivy-operator.ns.yaml`]: ./deploy/static/01-trivy-operator.ns.yaml
 [`deploy/specs/nsa-1.0.yaml`]: ./deploy/specs/nsa-1.0.yaml
 [`deploy/static/trivy-operator.yaml`]: ./deploy/static/trivy-operator.yaml

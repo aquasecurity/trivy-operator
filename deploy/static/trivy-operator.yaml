@@ -806,6 +806,48 @@ subjects:
     name: trivy-operator
     namespace: trivy-system
 ---
+# Source: trivy-operator/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: trivy-operator
+  namespace: trivy-system
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: kubectl
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+---
+# Source: trivy-operator/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: trivy-operator
+  namespace: trivy-system
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: kubectl
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: trivy-operator
+subjects:
+  - kind: ServiceAccount
+    name: trivy-operator
+    namespace: trivy-system
+---
 # Source: trivy-operator/templates/leader_election.yaml
 # permissions to do leader election.
 apiVersion: rbac.authorization.k8s.io/v1
@@ -819,16 +861,6 @@ metadata:
     app.kubernetes.io/version: "0.1.0"
     app.kubernetes.io/managed-by: kubectl
 rules:
-  - apiGroups:
-      - ""
-    resources:
-      - configmaps
-    verbs:
-      - list
-      - watch
-      - get
-      - create
-      - update
   - apiGroups:
       - coordination.k8s.io
     resources:

@@ -731,6 +731,10 @@ kind: ClusterRole
 metadata:
   name: aggregate-config-audit-reports-view
   labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: kubectl
     rbac.authorization.k8s.io/aggregate-to-view: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
     rbac.authorization.k8s.io/aggregate-to-admin: "true"
@@ -752,6 +756,10 @@ kind: ClusterRole
 metadata:
   name: aggregate-exposed-secret-reports-view
   labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: kubectl
     rbac.authorization.k8s.io/aggregate-to-view: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
     rbac.authorization.k8s.io/aggregate-to-admin: "true"
@@ -773,6 +781,10 @@ kind: ClusterRole
 metadata:
   name: aggregate-vulnerability-reports-view
   labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/managed-by: kubectl
     rbac.authorization.k8s.io/aggregate-to-view: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
     rbac.authorization.k8s.io/aggregate-to-admin: "true"

@@ -2,55 +2,55 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: rbacassessmentreports.aquasecurity.github.io
   labels:
     app.kubernetes.io/managed-by: trivy-operator
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: 0.1.0
+  name: rbacassessmentreports.aquasecurity.github.io
 spec:
   group: aquasecurity.github.io
-  versions:
-    - name: v1alpha1
-      served: true
-      storage: true
-      additionalPrinterColumns:
-        - jsonPath: .report.scanner.name
-          type: string
-          name: Scanner
-          description: The name of the rbac assessment scanner
-        - jsonPath: .metadata.creationTimestamp
-          type: date
-          name: Age
-          description: The age of the report
-        - jsonPath: .report.summary.criticalCount
-          type: integer
-          name: Critical
-          priority: 1
-          description: The number of failed checks with critical severity
-        - jsonPath: .report.summary.highCount
-          type: integer
-          name: High
-          priority: 1
-          description: The number of failed checks with high severity
-        - jsonPath: .report.summary.mediumCount
-          type: integer
-          name: Medium
-          priority: 1
-          description: The number of failed checks with medium severity
-        - jsonPath: .report.summary.lowCount
-          type: integer
-          name: Low
-          priority: 1
-          description: The number of failed checks with low severity
-      schema:
-        openAPIV3Schema:
-          x-kubernetes-preserve-unknown-fields: true
-          type: object
-  scope: Namespaced
   names:
-    singular: rbacassessmentreport
-    plural: rbacassessmentreports
     kind: RbacAssessmentReport
     listKind: RbacAssessmentReportList
+    plural: rbacassessmentreports
     shortNames:
       - rbacassessment
       - rbacassessments
+    singular: rbacassessmentreport
+  scope: Namespaced
+  versions:
+    - additionalPrinterColumns:
+        - description: The name of the rbac assessment scanner
+          jsonPath: .report.scanner.name
+          name: Scanner
+          type: string
+        - description: The age of the report
+          jsonPath: .metadata.creationTimestamp
+          name: Age
+          type: date
+        - description: The number of failed checks with critical severity
+          jsonPath: .report.summary.criticalCount
+          name: Critical
+          priority: 1
+          type: integer
+        - description: The number of failed checks with high severity
+          jsonPath: .report.summary.highCount
+          name: High
+          priority: 1
+          type: integer
+        - description: The number of failed checks with medium severity
+          jsonPath: .report.summary.mediumCount
+          name: Medium
+          priority: 1
+          type: integer
+        - description: The number of failed checks with low severity
+          jsonPath: .report.summary.lowCount
+          name: Low
+          priority: 1
+          type: integer
+      name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          type: object
+          x-kubernetes-preserve-unknown-fields: true
+      served: true
+      storage: true

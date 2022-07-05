@@ -820,16 +820,6 @@ metadata:
     app.kubernetes.io/managed-by: kubectl
 rules:
   - apiGroups:
-      - ""
-    resources:
-      - configmaps
-    verbs:
-      - list
-      - watch
-      - get
-      - create
-      - update
-  - apiGroups:
       - coordination.k8s.io
     resources:
       - leases
@@ -837,6 +827,10 @@ rules:
       - create
       - get
       - update
+      - list
+      - watch
+      - patch
+      - delete
   - apiGroups:
       - ""
     resources:

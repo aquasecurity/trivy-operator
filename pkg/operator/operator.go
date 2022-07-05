@@ -22,6 +22,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
+	"k8s.io/client-go/tools/leaderelection/resourcelock"
 )
 
 var (
@@ -51,6 +52,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		options.LeaderElection = operatorConfig.LeaderElectionEnabled
 		options.LeaderElectionID = operatorConfig.LeaderElectionID
 		options.LeaderElectionNamespace = operatorNamespace
+		options.LeaderElectionResourceLock = resourcelock.LeasesResourceLock
 	}
 
 	switch installMode {

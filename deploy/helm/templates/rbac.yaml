@@ -170,6 +170,7 @@ kind: ClusterRole
 metadata:
   name: aggregate-config-audit-reports-view
   labels:
+    {{- include "trivy-operator.labels" . | nindent 4 }}
     rbac.authorization.k8s.io/aggregate-to-view: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
     rbac.authorization.k8s.io/aggregate-to-admin: "true"
@@ -190,6 +191,7 @@ kind: ClusterRole
 metadata:
   name: aggregate-exposed-secret-reports-view
   labels:
+    {{- include "trivy-operator.labels" . | nindent 4 }}
     rbac.authorization.k8s.io/aggregate-to-view: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
     rbac.authorization.k8s.io/aggregate-to-admin: "true"
@@ -210,6 +212,7 @@ kind: ClusterRole
 metadata:
   name: aggregate-vulnerability-reports-view
   labels:
+    {{- include "trivy-operator.labels" . | nindent 4 }}
     rbac.authorization.k8s.io/aggregate-to-view: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
     rbac.authorization.k8s.io/aggregate-to-admin: "true"

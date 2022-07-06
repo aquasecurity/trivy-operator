@@ -13,125 +13,125 @@ spec:
     listKind: ClusterComplianceReportList
     plural: clustercompliancereports
     shortNames:
-      - compliance
+    - compliance
     singular: clustercompliancereport
   scope: Cluster
   versions:
-    - additionalPrinterColumns:
-        - description: The age of the report
-          jsonPath: .metadata.creationTimestamp
-          name: Age
-          type: date
-        - description: The number of checks that failed with Danger status
-          jsonPath: .status.summary.failCount
-          name: Fail
-          priority: 1
-          type: integer
-        - description: The number of checks that passed
-          jsonPath: .status.summary.passCount
-          name: Pass
-          priority: 1
-          type: integer
-      name: v1alpha1
-      schema:
-        openAPIV3Schema:
-          properties:
-            apiVersion:
-              type: string
-            kind:
-              type: string
-            metadata:
-              type: object
-            spec:
-              properties:
-                controls:
-                  items:
-                    properties:
-                      defaultStatus:
-                        description: define the default value for check status in case resource not found
-                        enum:
-                          - PASS
-                          - WARN
-                          - FAIL
+  - additionalPrinterColumns:
+    - description: The age of the report
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - description: The number of checks that failed with Danger status
+      jsonPath: .status.summary.failCount
+      name: Fail
+      priority: 1
+      type: integer
+    - description: The number of checks that passed
+      jsonPath: .status.summary.passCount
+      name: Pass
+      priority: 1
+      type: integer
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            type: string
+          kind:
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              controls:
+                items:
+                  properties:
+                    defaultStatus:
+                      description: define the default value for check status in case resource not found
+                      enum:
+                      - PASS
+                      - WARN
+                      - FAIL
+                      type: string
+                    description:
+                      type: string
+                    id:
+                      description: id define the control check id
+                      type: string
+                    kinds:
+                      items:
+                        description: 'kinds define the list of kinds control check apply on , example: Node,Workload '
                         type: string
-                      description:
-                        type: string
-                      id:
-                        description: id define the control check id
-                        type: string
-                      kinds:
-                        items:
-                          description: 'kinds define the list of kinds control check apply on , example: Node,Workload '
+                      type: array
+                    mapping:
+                      properties:
+                        checks:
+                          items:
+                            properties:
+                              id:
+                                description: id define the check id as produced by scanner
+                                type: string
+                            required:
+                            - id
+                            type: object
+                          type: array
+                        scanner:
+                          description: scanner define the name of the scanner which produce data, currently only config-audit is supported
+                          pattern: ^config-audit$
                           type: string
-                        type: array
-                      mapping:
-                        properties:
-                          checks:
-                            items:
-                              properties:
-                                id:
-                                  description: id define the check id as produced by scanner
-                                  type: string
-                              required:
-                                - id
-                              type: object
-                            type: array
-                          scanner:
-                            description: scanner define the name of the scanner which produce data, currently only config-audit is supported
-                            pattern: ^config-audit$
-                            type: string
-                        required:
-                          - scanner
-                          - checks
-                        type: object
-                      name:
-                        type: string
-                      severity:
-                        description: define the severity of the control
-                        enum:
-                          - CRITICAL
-                          - HIGH
-                          - MEDIUM
-                          - LOW
-                          - UNKNOWN
-                        type: string
-                    required:
-                      - name
-                      - id
-                      - kinds
-                      - mapping
-                      - severity
-                    type: object
-                  type: array
-                cron:
-                  description: cron define the intervals for report generation
-                  pattern: >-
-                    ^(((([\*]{1}){1})|((\*\/){0,1}(([0-9]{1}){1}|(([1-5]{1}){1}([0-9]{1}){1}){1}))) ((([\*]{1}){1})|((\*\/){0,1}(([0-9]{1}){1}|(([1]{1}){1}([0-9]{1}){1}){1}|([2]{1}){1}([0-3]{1}){1}))) ((([\*]{1}){1})|((\*\/){0,1}(([1-9]{1}){1}|(([1-2]{1}){1}([0-9]{1}){1}){1}|([3]{1}){1}([0-1]{1}){1}))) ((([\*]{1}){1})|((\*\/){0,1}(([1-9]{1}){1}|(([1-2]{1}){1}([0-9]{1}){1}){1}|([3]{1}){1}([0-1]{1}){1}))|(jan|feb|mar|apr|may|jun|jul|aug|sep|okt|nov|dec))
-                    ((([\*]{1}){1})|((\*\/){0,1}(([0-7]{1}){1}))|(sun|mon|tue|wed|thu|fri|sat)))$
-                  type: string
-                description:
-                  type: string
-                name:
-                  type: string
-                version:
-                  type: string
-              required:
-                - name
-                - description
-                - version
-                - cron
-                - controls
-              type: object
-            status:
-              type: object
-              x-kubernetes-preserve-unknown-fields: true
-          required:
-            - apiVersion
-            - kind
-            - metadata
-            - spec
-          type: object
-      served: true
-      storage: true
-      subresources:
-        status: {}
+                      required:
+                      - scanner
+                      - checks
+                      type: object
+                    name:
+                      type: string
+                    severity:
+                      description: define the severity of the control
+                      enum:
+                      - CRITICAL
+                      - HIGH
+                      - MEDIUM
+                      - LOW
+                      - UNKNOWN
+                      type: string
+                  required:
+                  - name
+                  - id
+                  - kinds
+                  - mapping
+                  - severity
+                  type: object
+                type: array
+              cron:
+                description: cron define the intervals for report generation
+                pattern: >-
+                  ^(((([\*]{1}){1})|((\*\/){0,1}(([0-9]{1}){1}|(([1-5]{1}){1}([0-9]{1}){1}){1}))) ((([\*]{1}){1})|((\*\/){0,1}(([0-9]{1}){1}|(([1]{1}){1}([0-9]{1}){1}){1}|([2]{1}){1}([0-3]{1}){1}))) ((([\*]{1}){1})|((\*\/){0,1}(([1-9]{1}){1}|(([1-2]{1}){1}([0-9]{1}){1}){1}|([3]{1}){1}([0-1]{1}){1}))) ((([\*]{1}){1})|((\*\/){0,1}(([1-9]{1}){1}|(([1-2]{1}){1}([0-9]{1}){1}){1}|([3]{1}){1}([0-1]{1}){1}))|(jan|feb|mar|apr|may|jun|jul|aug|sep|okt|nov|dec))
+                  ((([\*]{1}){1})|((\*\/){0,1}(([0-7]{1}){1}))|(sun|mon|tue|wed|thu|fri|sat)))$
+                type: string
+              description:
+                type: string
+              name:
+                type: string
+              version:
+                type: string
+            required:
+            - name
+            - description
+            - version
+            - cron
+            - controls
+            type: object
+          status:
+            type: object
+            x-kubernetes-preserve-unknown-fields: true
+        required:
+        - apiVersion
+        - kind
+        - metadata
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

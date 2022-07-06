@@ -1,2 +1,2 @@
-// Package configauditreport provides primitives for working with Kubernetes workload configuration checkers.
+// Package rbacassessment provides primitives for working with Kubernetes workload rbac assessment checkers.
 package rbacassessment

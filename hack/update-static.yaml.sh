@@ -25,6 +25,8 @@ cat $CRD_DIR/aquasecurity.github.io_vulnerabilityreports.yaml \
   $CRD_DIR/aquasecurity.github.io_configauditreports.yaml \
   $CRD_DIR/aquasecurity.github.io_exposedsecretreports.yaml \
   $CRD_DIR/aquasecurity.github.io_clusterconfigauditreports.yaml \
+  $CRD_DIR/aquasecurity.github.io_clusterrbacassessmentreports.yaml \
+  $CRD_DIR/aquasecurity.github.io_rbacassessmentreports.yaml \
   $STATIC_DIR/01-trivy-operator.ns.yaml \
   $STATIC_DIR/02-trivy-operator.rbac.yaml \
   $STATIC_DIR/03-trivy-operator.config.yaml \

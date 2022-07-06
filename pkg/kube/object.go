@@ -640,14 +640,21 @@ func (o *ObjectResolver) getActivePodsByLabelSelector(ctx context.Context, names
 }
 
 func IsValidK8sKind(kind string) bool {
-	if IsWorkload(kind) || IsClusterScopedKind(kind) || isValidRoleRelatedKinds(Kind(kind)) || isValidNamespaceResource(Kind(kind)) || kind == "Workload" {
+	if IsWorkload(kind) || IsClusterScopedKind(kind) || IsRoleRelatedNamespaceScope(Kind(kind)) || isValidNamespaceResource(Kind(kind)) || kind == "Workload" {
 		return true
 	}
 	return false
 }
 
-func isValidRoleRelatedKinds(kind Kind) bool {
+func IsRoleRelatedNamespaceScope(kind Kind) bool {
 	if kind == KindRole || kind == KindRoleBinding {
+		return true
+	}
+	return false
+}
+
+func IsRoleTypes(kind Kind) bool {
+	if kind == KindRole || kind == KindClusterRole {
 		return true
 	}
 	return false

@@ -29,6 +29,8 @@ const (
 	keyPrefixLibrary = "library."
 	keySuffixKinds   = ".kinds"
 	keySuffixRego    = ".rego"
+
+	PoliciesNotFoundError = "no policies found"
 )
 
 const (
@@ -132,17 +134,24 @@ func (p *Policies) ModulePolicyByKind(kind string) ([]string, error) {
 	return policy, nil
 }
 
-func (p *Policies) Applicable(resource client.Object) (bool, string, error) {
+func (p *Policies) Applicable(resource client.Object, rbacDEnable bool) (bool, string, error) {
 	resourceKind := resource.GetObjectKind().GroupVersionKind().Kind
 	if resourceKind == "" {
 		return false, "", errors.New("resource kind must not be blank")
 	}
 	for _, kind := range p.cac.GetSupportedConfigAuditKinds() {
-		if kind == resourceKind {
+		if kind == resourceKind && !p.rbacDisabled(rbacDEnable, kind) {
 			return true, "", nil
 		}
 	}
 	return false, "", nil
+}
+
+func (p *Policies) rbacDisabled(rbacEnable bool, kind string) bool {
+	if !rbacEnable && kube.IsRoleTypes(kube.Kind(kind)) {
+		return true
+	}
+	return false
 }
 
 // Eval evaluates Rego policies with Kubernetes resource client.Object as input.
@@ -160,6 +169,9 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object) (scan.Resul
 	}
 	memfs := memoryfs.New()
 	hasExternalPolicies := len(externalPolicies) > 0
+	if !hasExternalPolicies && !p.cac.GetUseBuiltinRegoPolicies() {
+		return scan.Results{}, fmt.Errorf(PoliciesNotFoundError)
+	}
 	if hasExternalPolicies {
 		// add externalPolicies files
 		err = createPolicyInputFS(memfs, policiesFolder, externalPolicies, regoExt)

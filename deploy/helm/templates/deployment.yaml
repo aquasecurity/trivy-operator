@@ -66,6 +66,8 @@ spec:
               value: {{ .Values.operator.vulnerabilityScannerReportTTL | quote }}
             - name: OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED
               value: {{ .Values.operator.configAuditScannerEnabled | quote }}
+            - name: OPERATOR_RBAC_ASSESSMENT_SCANNER_ENABLED
+              value: {{ .Values.operator.rbacAssessmentScannerEnabled | quote }}
             - name: OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS
               value: {{ .Values.operator.configAuditScannerScanOnlyCurrentRevisions | quote }}
             - name: OPERATOR_CLUSTER_COMPLIANCE_ENABLED

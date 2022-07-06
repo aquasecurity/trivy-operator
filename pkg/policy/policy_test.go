@@ -86,10 +86,11 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 func TestPolicies_Applicable(t *testing.T) {
 
 	testCases := []struct {
-		name     string
-		data     map[string]string
-		resource client.Object
-		expected bool
+		name       string
+		data       map[string]string
+		resource   client.Object
+		rbacEnable bool
+		expected   bool
 	}{
 		{
 			name: "Should return true for workload policies",
@@ -100,7 +101,8 @@ func TestPolicies_Applicable(t *testing.T) {
 					APIVersion: "v1",
 				},
 			},
-			expected: true,
+			rbacEnable: true,
+			expected:   true,
 		},
 		{
 			name: "Should return true if there is at least one policy",
@@ -110,7 +112,30 @@ func TestPolicies_Applicable(t *testing.T) {
 					APIVersion: "v1",
 				},
 			},
-			expected: true,
+			rbacEnable: true,
+			expected:   true,
+		},
+		{
+			name: "Should return false if Role kind and rbac disable",
+			resource: &corev1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Role",
+					APIVersion: "v1",
+				},
+			},
+			rbacEnable: false,
+			expected:   false,
+		},
+		{
+			name: "Should return true if Pod kind and rbac disable",
+			resource: &corev1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Pod",
+					APIVersion: "v1",
+				},
+			},
+			rbacEnable: false,
+			expected:   true,
 		},
 	}
 
@@ -118,7 +143,7 @@ func TestPolicies_Applicable(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			ready, _, err := policy.NewPolicies(tc.data, testConfig{}, log).Applicable(tc.resource)
+			ready, _, err := policy.NewPolicies(tc.data, testConfig{}, log).Applicable(tc.resource, tc.rbacEnable)
 			g.Expect(err).ToNot(HaveOccurred())
 			g.Expect(ready).To(Equal(tc.expected))
 		})
@@ -646,6 +671,24 @@ deny[res] {
 			useBuiltInPolicies: true,
 			policies:           map[string]string{},
 			results:            getBuildInResults(t, "./testdata/fixture/builtin_role_result.json"),
+		},
+		{
+			name: "Should eval return error no policies found",
+			resource: &rbacv1.Role{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Role",
+					APIVersion: "rbacv1",
+				},
+				Rules: []rbacv1.PolicyRule{
+					{
+						APIGroups: []string{"*"},
+						Verbs:     []string{"get"},
+						Resources: []string{"secrets"}},
+				},
+			},
+			useBuiltInPolicies: false,
+			policies:           map[string]string{},
+			expectedError:      policy.PoliciesNotFoundError,
 		},
 	}
 

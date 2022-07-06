@@ -314,8 +314,8 @@ func (r *ConfigAuditReportReconciler) hasReport(ctx context.Context, owner kube.
 		return false, err
 	}
 	if report != nil {
-		return report.Labels[trivyoperator.LabelResourceSpecHash] == podSpecHash &&
-			report.Labels[trivyoperator.LabelPluginConfigHash] == pluginConfigHash, nil
+		return report.(v1alpha1.ClusterConfigAuditReport).Labels[trivyoperator.LabelResourceSpecHash] == podSpecHash &&
+			report.(v1alpha1.ClusterConfigAuditReport).Labels[trivyoperator.LabelPluginConfigHash] == pluginConfigHash, nil
 	}
 	return false, nil
 }
@@ -326,8 +326,8 @@ func (r *ConfigAuditReportReconciler) hasClusterReport(ctx context.Context, owne
 		return false, err
 	}
 	if report != nil {
-		return report.Labels[trivyoperator.LabelResourceSpecHash] == podSpecHash &&
-			report.Labels[trivyoperator.LabelPluginConfigHash] == pluginConfigHash, nil
+		return report.(v1alpha1.ClusterRbacAssessmentReport).Labels[trivyoperator.LabelResourceSpecHash] == podSpecHash &&
+			report.(v1alpha1.ClusterRbacAssessmentReport).Labels[trivyoperator.LabelPluginConfigHash] == pluginConfigHash, nil
 	}
 	return false, nil
 }

@@ -3,7 +3,9 @@ package operator
 import (
 	"context"
 	"fmt"
+
 	controller2 "github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
+	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
@@ -193,6 +195,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			PluginContext:  pluginContext,
 			PluginInMemory: plugin,
 			ReadWriter:     configauditreport.NewReadWriter(mgr.GetClient()),
+			RbacReadWriter: rbacassessment.NewReadWriter(mgr.GetClient()),
 			BuildInfo:      buildInfo,
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup resource controller: %w", err)

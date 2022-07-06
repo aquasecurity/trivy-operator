@@ -246,4 +246,109 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 				To(Succeed())
 		})
 	})
+	Context("RbacAssessment", func() {
+		BeforeEach(func() {
+			car1 := &v1alpha1.RbacAssessmentReport{}
+			car1.Namespace = "default"
+			car1.Name = "role-admin-6d4cf56db6"
+			car1.Report.Summary.CriticalCount = 2
+			car1.Report.Summary.LowCount = 9
+
+			car2 := &v1alpha1.RbacAssessmentReport{}
+			car2.Namespace = "some-ns"
+			car2.Name = "role-write-test"
+			car2.Report.Summary.LowCount = 1
+
+			car3 := &v1alpha1.RbacAssessmentReport{}
+			car3.Namespace = "vault-system"
+			car3.Name = "role-read-65fd65bfb8"
+			car3.Report.Summary.MediumCount = 4
+			car3.Report.Summary.LowCount = 7
+
+			client.WithRuntimeObjects(car1, car2, car3)
+		})
+
+		AssertNoLintIssues()
+
+		It("should produce correct rbac assessment metrics with cluster scope", func() {
+			const expected = `
+      # HELP trivy_role_rbacassessments Number of rbac risky role assessment checks
+      # TYPE trivy_role_rbacassessments gauge
+      trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",severity="Critical"} 2
+      trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",severity="High"} 0
+      trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",severity="Low"} 9
+      trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",severity="Medium"} 0
+      trivy_role_rbacassessments{name="role-read-65fd65bfb8",namespace="vault-system",severity="Critical"} 0
+      trivy_role_rbacassessments{name="role-read-65fd65bfb8",namespace="vault-system",severity="High"} 0
+      trivy_role_rbacassessments{name="role-read-65fd65bfb8",namespace="vault-system",severity="Low"} 7
+      trivy_role_rbacassessments{name="role-read-65fd65bfb8",namespace="vault-system",severity="Medium"} 4
+      trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",severity="Critical"} 0
+      trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",severity="High"} 0
+      trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",severity="Low"} 1
+      trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",severity="Medium"} 0
+		`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_role_rbacassessments")).
+				To(Succeed())
+		})
+
+		It("should produce correct rbac assessment metrics from target namespaces", func() {
+			collector.TargetNamespaces = "default,some-ns"
+			const expected = `
+      # HELP trivy_role_rbacassessments Number of rbac risky role assessment checks
+      # TYPE trivy_role_rbacassessments gauge
+      trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",severity="Critical"} 2
+      trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",severity="High"} 0
+      trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",severity="Low"} 9
+      trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",severity="Medium"} 0
+      trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",severity="Critical"} 0
+      trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",severity="High"} 0
+      trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",severity="Low"} 1
+      trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",severity="Medium"} 0
+		`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_role_rbacassessments")).
+				To(Succeed())
+		})
+	})
+	Context("RbacAssessment", func() {
+		BeforeEach(func() {
+			car1 := &v1alpha1.ClusterRbacAssessmentReport{}
+			car1.Name = "cluster_role-admin-6d4cf56db6"
+			car1.Report.Summary.CriticalCount = 2
+			car1.Report.Summary.LowCount = 9
+
+			car2 := &v1alpha1.ClusterRbacAssessmentReport{}
+			car2.Name = "cluster_role-write-test"
+			car2.Report.Summary.LowCount = 1
+
+			car3 := &v1alpha1.ClusterRbacAssessmentReport{}
+			car3.Name = "cluster_role-read-65fd65bfb8"
+			car3.Report.Summary.MediumCount = 4
+			car3.Report.Summary.LowCount = 7
+
+			client.WithRuntimeObjects(car1, car2, car3)
+		})
+
+		AssertNoLintIssues()
+
+		It("should produce correct cluster rbac assessment metrics", func() {
+			const expected = `
+      # HELP trivy_clusterrole_clusterrbacassessments Number of rbac risky cluster role assessment checks
+      # TYPE trivy_clusterrole_clusterrbacassessments gauge
+      trivy_clusterrole_clusterrbacassessments{name="cluster_role-admin-6d4cf56db6",severity="Critical"} 2
+      trivy_clusterrole_clusterrbacassessments{name="cluster_role-admin-6d4cf56db6",severity="High"} 0
+      trivy_clusterrole_clusterrbacassessments{name="cluster_role-admin-6d4cf56db6",severity="Low"} 9
+      trivy_clusterrole_clusterrbacassessments{name="cluster_role-admin-6d4cf56db6",severity="Medium"} 0
+      trivy_clusterrole_clusterrbacassessments{name="cluster_role-read-65fd65bfb8",severity="Critical"} 0
+      trivy_clusterrole_clusterrbacassessments{name="cluster_role-read-65fd65bfb8",severity="High"} 0
+      trivy_clusterrole_clusterrbacassessments{name="cluster_role-read-65fd65bfb8",severity="Low"} 7
+      trivy_clusterrole_clusterrbacassessments{name="cluster_role-read-65fd65bfb8",severity="Medium"} 4
+      trivy_clusterrole_clusterrbacassessments{name="cluster_role-write-test",severity="Critical"} 0
+      trivy_clusterrole_clusterrbacassessments{name="cluster_role-write-test",severity="High"} 0
+      trivy_clusterrole_clusterrbacassessments{name="cluster_role-write-test",severity="Low"} 1
+      trivy_clusterrole_clusterrbacassessments{name="cluster_role-write-test",severity="Medium"} 0
+		`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_clusterrole_clusterrbacassessments")).
+				To(Succeed())
+		})
+	})
 })

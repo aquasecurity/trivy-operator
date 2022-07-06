@@ -3,7 +3,7 @@ package predicate_test
 import (
 	"time"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"

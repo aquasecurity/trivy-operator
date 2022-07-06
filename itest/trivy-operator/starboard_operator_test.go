@@ -2,7 +2,7 @@ package trivy_operator
 
 import (
 	. "github.com/aquasecurity/trivy-operator/itest/trivy-operator/behavior"
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 )
 
 var _ = Describe("Starboard Operator", func() {

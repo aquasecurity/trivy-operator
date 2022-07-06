@@ -2,40 +2,40 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: clustercompliancedetailreports.aquasecurity.github.io
   labels:
     app.kubernetes.io/managed-by: trivy-operator
-    app.kubernetes.io/version: "0.1.0"
+    app.kubernetes.io/version: 0.1.0
+  name: clustercompliancedetailreports.aquasecurity.github.io
 spec:
   group: aquasecurity.github.io
-  versions:
-    - name: v1alpha1
-      served: true
-      storage: true
-      additionalPrinterColumns:
-        - jsonPath: .metadata.creationTimestamp
-          type: date
-          name: Age
-          description: The age of the report
-        - jsonPath: .report.summary.failCount
-          type: integer
-          name: Fail
-          priority: 1
-          description: The number of checks that failed with Danger status
-        - jsonPath: .report.summary.passCount
-          type: integer
-          name: Pass
-          priority: 1
-          description: The number of checks that passed
-      schema:
-        openAPIV3Schema:
-          x-kubernetes-preserve-unknown-fields: true
-          type: object
-  scope: Cluster
   names:
-    singular: clustercompliancedetailreport
-    plural: clustercompliancedetailreports
     kind: ClusterComplianceDetailReport
     listKind: ClusterComplianceDetailReportList
+    plural: clustercompliancedetailreports
     shortNames:
       - compliancedetail
+    singular: clustercompliancedetailreport
+  scope: Cluster
+  versions:
+    - additionalPrinterColumns:
+        - description: The age of the report
+          jsonPath: .metadata.creationTimestamp
+          name: Age
+          type: date
+        - description: The number of checks that failed with Danger status
+          jsonPath: .report.summary.failCount
+          name: Fail
+          priority: 1
+          type: integer
+        - description: The number of checks that passed
+          jsonPath: .report.summary.passCount
+          name: Pass
+          priority: 1
+          type: integer
+      name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          type: object
+          x-kubernetes-preserve-unknown-fields: true
+      served: true
+      storage: true

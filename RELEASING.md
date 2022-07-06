@@ -25,8 +25,10 @@
       4. [`deploy/crd/aquasecurity.github.io_configauditreports.yaml`]
       5. [`deploy/crd/aquasecurity.github.io_vulnerabilityreports.yaml`]
       6. [`deploy/crd/aquasecurity.github.io_exposedsecretreports.yaml`]
-      7. [`deploy/static/01-trivy-operator.ns.yaml`]
-      8. [`deploy/specs/nsa-1.0.yaml`]
+      7. [`deploy/crd/aquasecurity.github.io_rbacassessmentreports.yaml`]
+      8. [`deploy/crd/aquasecurity.github.io_clusterrbacassessmentreports.yaml`]
+      9. [`deploy/static/01-trivy-operator.ns.yaml`]
+      10. [`deploy/specs/nsa-1.0.yaml`]
    3. Update [`deploy/static/trivy-operator.yaml`] by running the following script:
       ```
       ./hack/update-static.yaml.sh
@@ -63,6 +65,8 @@
 [`deploy/crd/aquasecurity.github.io_configauditreports.yaml`]: ./deploy/crd/configauditreports.crd.yaml
 [`deploy/crd/aquasecurity.github.io_vulnerabilityreports.yaml`]: ./deploy/crd/vulnerabilityreports.crd.yaml
 [`deploy/crd/aquasecurity.github.io_exposedsecretreports.yaml`]: ./deploy/crd/exposedsecretreports.crd.yaml
+[`deploy/crd/aquasecurity.github.io_rbacassessmentreports.yaml`]: ./deploy/crd/rbacassessmentreports.crd.yaml
+[`deploy/crd/aquasecurity.github.io_clusterrbacassessmentreports.yaml`]: ./deploy/crd/clusterrbacassessmentreports.crd.yaml
 [`deploy/static/01-trivy-operator.ns.yaml`]: ./deploy/static/01-trivy-operator.ns.yaml
 [`deploy/specs/nsa-1.0.yaml`]: ./deploy/specs/nsa-1.0.yaml
 [`deploy/static/trivy-operator.yaml`]: ./deploy/static/trivy-operator.yaml

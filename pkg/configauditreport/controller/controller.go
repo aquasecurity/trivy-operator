@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 
 	"github.com/aquasecurity/defsec/pkg/scan"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -46,6 +47,7 @@ type ResourceController struct {
 	trivyoperator.PluginContext
 	configauditreport.PluginInMemory
 	configauditreport.ReadWriter
+	RbacReadWriter rbacassessment.ReadWriter
 	trivyoperator.BuildInfo
 }
 
@@ -69,8 +71,8 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		{kind: kube.KindJob, forObject: &batchv1.Job{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
 		{kind: kube.KindService, forObject: &corev1.Service{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
 		{kind: kube.KindConfigMap, forObject: &corev1.ConfigMap{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindRole, forObject: &rbacv1.Role{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindRoleBinding, forObject: &rbacv1.RoleBinding{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
+		{kind: kube.KindRole, forObject: &rbacv1.Role{}, ownsObject: &v1alpha1.RbacAssessmentReport{}},
+		{kind: kube.KindRoleBinding, forObject: &rbacv1.RoleBinding{}, ownsObject: &v1alpha1.RbacAssessmentReport{}},
 		{kind: kube.KindNetworkPolicy, forObject: &networkingv1.NetworkPolicy{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
 		{kind: kube.KindIngress, forObject: &networkingv1.Ingress{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
 		{kind: kube.KindResourceQuota, forObject: &corev1.ResourceQuota{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
@@ -82,8 +84,8 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		forObject  client.Object
 		ownsObject client.Object
 	}{
-		{kind: kube.KindClusterRole, forObject: &rbacv1.ClusterRole{}, ownsObject: &v1alpha1.ClusterConfigAuditReport{}},
-		{kind: kube.KindClusterRoleBindings, forObject: &rbacv1.ClusterRoleBinding{}, ownsObject: &v1alpha1.ClusterConfigAuditReport{}},
+		{kind: kube.KindClusterRole, forObject: &rbacv1.ClusterRole{}, ownsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
+		{kind: kube.KindClusterRoleBindings, forObject: &rbacv1.ClusterRoleBinding{}, ownsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
 		{kind: kube.KindCustomResourceDefinition, forObject: &apiextensionsv1.CustomResourceDefinition{}, ownsObject: &v1alpha1.ClusterConfigAuditReport{}},
 		{kind: kube.KindPodSecurityPolicy, forObject: &policyv1beta1.PodSecurityPolicy{}, ownsObject: &v1alpha1.ClusterConfigAuditReport{}},
 	}
@@ -199,7 +201,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 
 		// Skip processing if there are no policies applicable to the resource
 
-		applicable, reason, err := policies.Applicable(resource)
+		applicable, reason, err := policies.Applicable(resource, r.RbacAssessmentScannerEnabled)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("checking whether plugin is applicable: %w", err)
 		}
@@ -233,47 +235,85 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		}
 		reportData, err := r.evaluate(ctx, policies, resource)
 		if err != nil {
+			if err.Error() == policy.PoliciesNotFoundError {
+				return ctrl.Result{}, nil
+			}
 			return ctrl.Result{}, fmt.Errorf("evaluating resource: %w", err)
 		}
-
-		reportBuilder := configauditreport.NewReportBuilder(r.Client.Scheme()).
-			Controller(resource).
-			ResourceSpecHash(resourceHash).
-			PluginConfigHash(policiesHash).
-			Data(reportData)
-		err = reportBuilder.Write(ctx, r.ReadWriter)
-		if err != nil {
-			return ctrl.Result{}, err
+		switch reportData.(type) {
+		case v1alpha1.ConfigAuditReportData:
+			reportBuilder := configauditreport.NewReportBuilder(r.Client.Scheme()).
+				Controller(resource).
+				ResourceSpecHash(resourceHash).
+				PluginConfigHash(policiesHash).
+				Data(reportData.(v1alpha1.ConfigAuditReportData))
+			if err := reportBuilder.Write(ctx, r.ReadWriter); err != nil {
+				return ctrl.Result{}, err
+			}
+		case v1alpha1.RbacAssessmentReportData:
+			rbacReportBuilder := rbacassessment.NewReportBuilder(r.Client.Scheme()).
+				Controller(resource).
+				ResourceSpecHash(resourceHash).
+				PluginConfigHash(policiesHash).
+				Data(reportData.(v1alpha1.RbacAssessmentReportData))
+			if err := rbacReportBuilder.Write(ctx, r.RbacReadWriter); err != nil {
+				return ctrl.Result{}, err
+			}
 		}
-
 		return ctrl.Result{}, nil
 	}
 }
 
 func (r *ResourceController) hasReport(ctx context.Context, owner kube.ObjectRef, podSpecHash string, pluginConfigHash string) (bool, error) {
-	if kube.IsClusterScopedKind(string(owner.Kind)) {
-		return r.hasClusterReport(ctx, owner, podSpecHash, pluginConfigHash)
+	var io rbacassessment.Reader = r.ReadWriter
+	if kube.IsRoleTypes(owner.Kind) {
+		io = r.RbacReadWriter
 	}
-	// TODO FindByOwner should accept optional label selector to further narrow down search results
-	report, err := r.ReadWriter.FindReportByOwner(ctx, owner)
+	if kube.IsClusterScopedKind(string(owner.Kind)) {
+		hasClusterReport, err := r.hasClusterReport(ctx, owner, podSpecHash, pluginConfigHash, io)
+		if err != nil {
+			return false, err
+		}
+		return hasClusterReport, nil
+	}
+	return r.findReportOwner(ctx, owner, podSpecHash, pluginConfigHash, io)
+}
+
+func (r *ResourceController) hasClusterReport(ctx context.Context, owner kube.ObjectRef, podSpecHash string, pluginConfigHash string, io rbacassessment.Reader) (bool, error) {
+	report, err := io.FindClusterReportByOwner(ctx, owner)
 	if err != nil {
 		return false, err
 	}
 	if report != nil {
-		return report.Labels[trivyoperator.LabelResourceSpecHash] == podSpecHash &&
-			report.Labels[trivyoperator.LabelPluginConfigHash] == pluginConfigHash, nil
+		switch report.(type) {
+		case v1alpha1.ClusterConfigAuditReport:
+			configReport := report.(*v1alpha1.ClusterConfigAuditReport)
+			return configReport.Labels[trivyoperator.LabelResourceSpecHash] == podSpecHash &&
+				configReport.Labels[trivyoperator.LabelPluginConfigHash] == pluginConfigHash, nil
+		case v1alpha1.ClusterRbacAssessmentReport:
+			rbacReport := report.(*v1alpha1.ClusterRbacAssessmentReport)
+			return rbacReport.Labels[trivyoperator.LabelResourceSpecHash] == podSpecHash &&
+				rbacReport.Labels[trivyoperator.LabelPluginConfigHash] == pluginConfigHash, nil
+		}
 	}
 	return false, nil
 }
-
-func (r *ResourceController) hasClusterReport(ctx context.Context, owner kube.ObjectRef, podSpecHash string, pluginConfigHash string) (bool, error) {
-	report, err := r.ReadWriter.FindClusterReportByOwner(ctx, owner)
+func (r *ResourceController) findReportOwner(ctx context.Context, owner kube.ObjectRef, podSpecHash string, pluginConfigHash string, io rbacassessment.Reader) (bool, error) {
+	report, err := io.FindReportByOwner(ctx, owner)
 	if err != nil {
 		return false, err
 	}
 	if report != nil {
-		return report.Labels[trivyoperator.LabelResourceSpecHash] == podSpecHash &&
-			report.Labels[trivyoperator.LabelPluginConfigHash] == pluginConfigHash, nil
+		switch report.(type) {
+		case v1alpha1.ConfigAuditReport:
+			configReport := report.(*v1alpha1.ConfigAuditReport)
+			return configReport.Labels[trivyoperator.LabelResourceSpecHash] == podSpecHash &&
+				configReport.Labels[trivyoperator.LabelPluginConfigHash] == pluginConfigHash, nil
+		case v1alpha1.RbacAssessmentReport:
+			rbacReport := report.(*v1alpha1.RbacAssessmentReport)
+			return rbacReport.Labels[trivyoperator.LabelResourceSpecHash] == podSpecHash &&
+				rbacReport.Labels[trivyoperator.LabelPluginConfigHash] == pluginConfigHash, nil
+		}
 	}
 	return false, nil
 }
@@ -293,10 +333,10 @@ func (r *ResourceController) policies(ctx context.Context, cac configauditreport
 	return policy.NewPolicies(cm.Data, cac, r.Logger), nil
 }
 
-func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Policies, resource client.Object) (v1alpha1.ConfigAuditReportData, error) {
+func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Policies, resource client.Object) (interface{}, error) {
 	results, err := policies.Eval(ctx, resource)
 	if err != nil {
-		return v1alpha1.ConfigAuditReportData{}, err
+		return nil, err
 	}
 	checks := make([]v1alpha1.Check, 0)
 	for _, result := range results {
@@ -311,16 +351,27 @@ func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Poli
 			Messages: []string{result.Description()},
 		})
 	}
-
+	kind := resource.GetObjectKind().GroupVersionKind().Kind
+	if kube.IsRoleTypes(kube.Kind(kind)) {
+		return v1alpha1.RbacAssessmentReportData{
+			Scanner: r.scanner(),
+			Summary: v1alpha1.RbacAssessmentSummaryFromChecks(checks),
+			Checks:  checks,
+		}, nil
+	}
 	return v1alpha1.ConfigAuditReportData{
-		Scanner: v1alpha1.Scanner{
-			Name:    v1alpha1.ScannerNameTrivy,
-			Vendor:  "Aqua Security",
-			Version: r.BuildInfo.Version,
-		},
+		Scanner: r.scanner(),
 		Summary: v1alpha1.ConfigAuditSummaryFromChecks(checks),
 		Checks:  checks,
 	}, nil
+}
+
+func (r *ResourceController) scanner() v1alpha1.Scanner {
+	return v1alpha1.Scanner{
+		Name:    v1alpha1.ScannerNameTrivy,
+		Vendor:  "Aqua Security",
+		Version: r.BuildInfo.Version,
+	}
 }
 
 func (r *ResourceController) reconcileConfig(kind kube.Kind) reconcile.Func {
@@ -357,38 +408,95 @@ func (r *ResourceController) reconcileConfig(kind kube.Kind) reconcile.Func {
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("parsing label selector: %w", err)
 		}
-
-		var reportList v1alpha1.ConfigAuditReportList
-		err = r.Client.List(ctx, &reportList,
-			client.Limit(r.Config.BatchDeleteLimit+1),
-			client.MatchingLabelsSelector{Selector: labelSelector})
+		configRequeueAfter, err := r.deleteReports(ctx, labelSelector, &v1alpha1.ConfigAuditReportList{})
 		if err != nil {
-			return ctrl.Result{}, fmt.Errorf("listing reports: %w", err)
+			return ctrl.Result{}, err
 		}
-
-		log.V(1).Info("Listing ConfigAuditReports",
-			"reportsCount", len(reportList.Items),
-			"batchDeleteLimit", r.Config.BatchDeleteLimit,
-			"labelSelector", labelSelector.String())
-
-		for i := 0; i < ext.MinInt(r.Config.BatchDeleteLimit, len(reportList.Items)); i++ {
-			report := reportList.Items[i]
-			log.V(1).Info("Deleting ConfigAuditReport", "report", report.Namespace+"/"+report.Name)
-			err := r.Client.Delete(ctx, &report)
+		var rbacRequeueAfter bool
+		if r.RbacAssessmentScannerEnabled {
+			rbacRequeueAfter, err = r.deleteReports(ctx, labelSelector, &v1alpha1.RbacAssessmentReportList{})
 			if err != nil {
-				if !errors.IsNotFound(err) {
-					return ctrl.Result{}, fmt.Errorf("deleting ConfigAuditReport: %w", err)
-				}
+				return ctrl.Result{}, err
 			}
 		}
-		if len(reportList.Items)-r.Config.BatchDeleteLimit > 0 {
-			log.V(1).Info("Requeuing reconciliation key", "requeueAfter", r.Config.BatchDeleteDelay)
+		if configRequeueAfter || rbacRequeueAfter {
 			return ctrl.Result{RequeueAfter: r.Config.BatchDeleteDelay}, nil
 		}
-
-		log.V(1).Info("Finished reconciling key", "labelSelector", labelSelector)
 		return ctrl.Result{}, nil
 	}
+}
+
+func (r *ResourceController) deleteReports(ctx context.Context, labelSelector labels.Selector, reportList client.ObjectList) (bool, error) {
+	log := r.Logger.WithValues("delete ", "config audit / rbac assessment ")
+	err := r.Client.List(ctx, reportList,
+		client.Limit(r.Config.BatchDeleteLimit+1),
+		client.MatchingLabelsSelector{Selector: labelSelector})
+	if err != nil {
+		return false, fmt.Errorf("listing reports: %w", err)
+	}
+	var reportSize int
+	switch reportList.(type) {
+	case *v1alpha1.ClusterRbacAssessmentReportList:
+		report := reportList.(*v1alpha1.ClusterRbacAssessmentReportList)
+		reportSize = len(report.Items)
+		for i := 0; i < ext.MinInt(r.Config.BatchDeleteLimit, len(report.Items)); i++ {
+			reportItem := report.Items[i]
+			log.V(1).Info("Deleting ClusterRbacAssessmentReport", "report", reportItem.Namespace+"/"+reportItem.Name)
+			b, err := r.deleteReport(ctx, &reportItem)
+			if err != nil {
+				return b, err
+			}
+		}
+	case *v1alpha1.RbacAssessmentReportList:
+		report := reportList.(*v1alpha1.RbacAssessmentReportList)
+		reportSize = len(report.Items)
+		for i := 0; i < ext.MinInt(r.Config.BatchDeleteLimit, len(report.Items)); i++ {
+			reportItem := report.Items[i]
+			log.V(1).Info("Deleting RbacAssessmentReportList", "report", reportItem.Namespace+"/"+reportItem.Name)
+			b, err := r.deleteReport(ctx, &reportItem)
+			if err != nil {
+				return b, err
+			}
+		}
+	case *v1alpha1.ClusterConfigAuditReportList:
+		report := reportList.(*v1alpha1.ClusterConfigAuditReportList)
+		reportSize = len(report.Items)
+		for i := 0; i < ext.MinInt(r.Config.BatchDeleteLimit, len(report.Items)); i++ {
+			reportItem := report.Items[i]
+			log.V(1).Info("Deleting ClusterConfigAuditReportList", "report", reportItem.Namespace+"/"+reportItem.Name)
+			b, err := r.deleteReport(ctx, &reportItem)
+			if err != nil {
+				return b, err
+			}
+		}
+	case *v1alpha1.ConfigAuditReportList:
+		report := reportList.(*v1alpha1.ConfigAuditReportList)
+		reportSize = len(report.Items)
+		for i := 0; i < ext.MinInt(r.Config.BatchDeleteLimit, len(report.Items)); i++ {
+			reportItem := report.Items[i]
+			log.V(1).Info("Deleting ConfigAuditReportList", "report", reportItem.Namespace+"/"+reportItem.Name)
+			b, err := r.deleteReport(ctx, &reportItem)
+			if err != nil {
+				return b, err
+			}
+		}
+	}
+	r.Logger.V(1).Info(fmt.Sprintf("Listing %s", reportList.GetObjectKind().GroupVersionKind().Kind),
+		"reportsCount", reportSize,
+		"batchDeleteLimit", r.Config.BatchDeleteLimit,
+		"labelSelector", labelSelector.String())
+
+	return reportSize-r.Config.BatchDeleteLimit > 0, nil
+}
+
+func (r *ResourceController) deleteReport(ctx context.Context, report client.Object) (bool, error) {
+	err := r.Client.Delete(ctx, report)
+	if err != nil {
+		if !errors.IsNotFound(err) {
+			return false, fmt.Errorf("deleting ConfigAuditReport: %w", err)
+		}
+	}
+	return false, nil
 }
 
 func (r *ResourceController) reconcileClusterConfig(kind kube.Kind) reconcile.Func {
@@ -426,35 +534,20 @@ func (r *ResourceController) reconcileClusterConfig(kind kube.Kind) reconcile.Fu
 			return ctrl.Result{}, fmt.Errorf("parsing label selector: %w", err)
 		}
 
-		var clusterReportList v1alpha1.ClusterConfigAuditReportList
-		err = r.Client.List(ctx, &clusterReportList,
-			client.Limit(r.Config.BatchDeleteLimit+1),
-			client.MatchingLabelsSelector{Selector: labelSelector})
+		configRequeueAfter, err := r.deleteReports(ctx, labelSelector, &v1alpha1.ClusterConfigAuditReportList{})
 		if err != nil {
-			return ctrl.Result{}, fmt.Errorf("listing reports: %w", err)
+			return ctrl.Result{}, err
 		}
-
-		log.V(1).Info("Listing ClusterConfigAuditReports",
-			"reportsCount", len(clusterReportList.Items),
-			"batchDeleteLimit", r.Config.BatchDeleteLimit,
-			"labelSelector", labelSelector)
-
-		for i := 0; i < ext.MinInt(r.Config.BatchDeleteLimit, len(clusterReportList.Items)); i++ {
-			report := clusterReportList.Items[i]
-			log.V(1).Info("Deleting ClusterConfigAuditReport", "report", report.Name)
-			err := r.Client.Delete(ctx, &report)
+		var rbacRequeueAfter bool
+		if r.RbacAssessmentScannerEnabled {
+			rbacRequeueAfter, err = r.deleteReports(ctx, labelSelector, &v1alpha1.ClusterRbacAssessmentReportList{})
 			if err != nil {
-				if !errors.IsNotFound(err) {
-					return ctrl.Result{}, fmt.Errorf("deleting ClusterConfigAuditReport: %w", err)
-				}
+				return ctrl.Result{}, err
 			}
 		}
-		if len(clusterReportList.Items)-r.Config.BatchDeleteLimit > 0 {
-			log.V(1).Info("Requeuing reconciliation key", "requeueAfter", r.Config.BatchDeleteDelay)
+		if configRequeueAfter || rbacRequeueAfter {
 			return ctrl.Result{RequeueAfter: r.Config.BatchDeleteDelay}, nil
 		}
-
-		log.V(1).Info("Finished reconciling key", "labelSelector", labelSelector)
 		return ctrl.Result{}, nil
 	}
 }

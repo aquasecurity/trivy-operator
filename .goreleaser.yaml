@@ -220,3 +220,25 @@ docker_manifests:
       - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi8-arm64"
       - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi8-s390x"
       - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi8-ppc64le"
+
+signs:
+  - cmd: cosign
+    signature: "${artifact}.sig"
+    certificate: "${artifact}.pem"
+    args:
+      - "sign-blob"
+      - "--oidc-issuer=https://token.actions.githubusercontent.com"
+      - "--output-certificate=${certificate}"
+      - "--output-signature=${signature}"
+      - "${artifact}"
+    artifacts: all
+    output: true
+
+docker_signs:
+  - cmd: cosign
+    args:
+      - "sign"
+      - "--oidc-issuer=https://token.actions.githubusercontent.com"
+      - "${artifact}"
+    artifacts: all
+    output: true

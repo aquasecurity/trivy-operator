@@ -4,13 +4,10 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	batchv1 "k8s.io/api/batch/v1"
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -19,140 +16,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
-
-type ScanJobBuilder struct {
-	plugin            Plugin
-	pluginContext     trivyoperator.PluginContext
-	timeout           time.Duration
-	object            client.Object
-	tolerations       []corev1.Toleration
-	annotations       map[string]string
-	podTemplateLabels labels.Set
-}
-
-func NewScanJobBuilder() *ScanJobBuilder {
-	return &ScanJobBuilder{}
-}
-
-func (s *ScanJobBuilder) WithPlugin(plugin Plugin) *ScanJobBuilder {
-	s.plugin = plugin
-	return s
-}
-
-func (s *ScanJobBuilder) WithPluginContext(pluginContext trivyoperator.PluginContext) *ScanJobBuilder {
-	s.pluginContext = pluginContext
-	return s
-}
-
-func (s *ScanJobBuilder) WithTimeout(timeout time.Duration) *ScanJobBuilder {
-	s.timeout = timeout
-	return s
-}
-
-func (s *ScanJobBuilder) WithObject(object client.Object) *ScanJobBuilder {
-	s.object = object
-	return s
-}
-
-func (s *ScanJobBuilder) WithTolerations(tolerations []corev1.Toleration) *ScanJobBuilder {
-	s.tolerations = tolerations
-	return s
-}
-
-func (s *ScanJobBuilder) WithAnnotations(annotations map[string]string) *ScanJobBuilder {
-	s.annotations = annotations
-	return s
-}
-
-func (s *ScanJobBuilder) WithPodTemplateLabels(podTemplateLabels labels.Set) *ScanJobBuilder {
-	s.podTemplateLabels = podTemplateLabels
-	return s
-}
-
-func (s *ScanJobBuilder) Get() (*batchv1.Job, []*corev1.Secret, error) {
-	jobSpec, secrets, err := s.plugin.GetScanJobSpec(s.pluginContext, s.object)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	resourceSpecHash, err := kube.ComputeSpecHash(s.object)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	jobSpec.Tolerations = append(jobSpec.Tolerations, s.tolerations...)
-
-	pluginConfigHash, err := s.plugin.ConfigHash(s.pluginContext, kube.Kind(s.object.GetObjectKind().GroupVersionKind().Kind))
-	if err != nil {
-		return nil, nil, err
-	}
-
-	labelsSet := labels.Set{
-		trivyoperator.LabelResourceSpecHash:         resourceSpecHash,
-		trivyoperator.LabelPluginConfigHash:         pluginConfigHash,
-		trivyoperator.LabelConfigAuditReportScanner: s.pluginContext.GetName(),
-		trivyoperator.LabelK8SAppManagedBy:          trivyoperator.AppTrivyOperator,
-	}
-
-	podTemplateLabelsSet := make(labels.Set)
-	for index, element := range labelsSet {
-		podTemplateLabelsSet[index] = element
-	}
-	for index, element := range s.podTemplateLabels {
-		podTemplateLabelsSet[index] = element
-	}
-
-	job := &batchv1.Job{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:        GetScanJobName(s.object),
-			Namespace:   s.pluginContext.GetNamespace(),
-			Labels:      labelsSet,
-			Annotations: s.annotations,
-		},
-		Spec: batchv1.JobSpec{
-			BackoffLimit:          pointer.Int32Ptr(0),
-			Completions:           pointer.Int32Ptr(1),
-			ActiveDeadlineSeconds: kube.GetActiveDeadlineSeconds(s.timeout),
-			Template: corev1.PodTemplateSpec{
-				ObjectMeta: metav1.ObjectMeta{
-					Labels:      podTemplateLabelsSet,
-					Annotations: s.annotations,
-				},
-				Spec: jobSpec,
-			},
-		},
-	}
-
-	err = kube.ObjectToObjectMeta(s.object, &job.ObjectMeta)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	err = kube.ObjectToObjectMeta(s.object, &job.Spec.Template.ObjectMeta)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	for _, secret := range secrets {
-		if secret.Labels == nil {
-			secret.Labels = make(map[string]string)
-		}
-		for k, v := range labelsSet {
-			secret.Labels[k] = v
-		}
-		err = kube.ObjectToObjectMeta(s.object, &secret.ObjectMeta)
-	}
-
-	return job, secrets, nil
-}
-
-func GetScanJobName(obj client.Object) string {
-	return fmt.Sprintf("scan-configauditreport-%s", kube.ComputeHash(kube.ObjectRef{
-		Kind:      kube.Kind(obj.GetObjectKind().GroupVersionKind().Kind),
-		Namespace: obj.GetNamespace(),
-		Name:      obj.GetName(),
-	}))
-}
 
 type ReportBuilder struct {
 	scheme           *runtime.Scheme

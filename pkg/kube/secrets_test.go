@@ -1,8 +1,15 @@
 package kube_test
 
 import (
-	"github.com/stretchr/testify/assert"
+	"context"
+	"encoding/json"
+	"io/ioutil"
 	"testing"
+
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gstruct"
@@ -205,4 +212,87 @@ func TestMapContainerNamesToDockerAuths(t *testing.T) {
 			}),
 		}))
 	})
+}
+
+func TestListImagePullSecretsByPodSpec(t *testing.T) {
+	t.Run("Test with no service account but with one secrets should return one pull image secret from corev1.Secret", func(t *testing.T) {
+		var secret corev1.Secret
+		err := loadResource("./testdata/fixture/secret.json", &secret)
+		require.NoError(t, err)
+		var sa corev1.ServiceAccount
+		err = loadResource("./testdata/fixture/sa_without_image_pull_secret.json", &sa)
+		require.NoError(t, err)
+		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(&secret).WithObjects(&sa).Build()
+		sr := kube.NewSecretsReader(client)
+		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
+		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
+		require.NoError(t, err)
+		assert.True(t, len(foundsecret) == 1)
+	})
+
+	t.Run("Test with service account and no secret should return one pull image secret from corev1.ServiceAccount", func(t *testing.T) {
+		var secret corev1.Secret
+		err := loadResource("./testdata/fixture/sa_secret.json", &secret)
+		require.NoError(t, err)
+		var sa corev1.ServiceAccount
+		err = loadResource("./testdata/fixture/sa_with_image_pull_secret.json", &sa)
+		require.NoError(t, err)
+		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(&secret).WithObjects(&sa).Build()
+		sr := kube.NewSecretsReader(client)
+		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
+		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
+		require.NoError(t, err)
+		assert.True(t, len(foundsecret) == 1)
+	})
+
+	t.Run("Test with service account and secret should return one pull image secret from corev1.ServiceAccount and corev1.Secret ", func(t *testing.T) {
+		var saSecret corev1.Secret
+		err := loadResource("./testdata/fixture/sa_secret.json", &saSecret)
+		require.NoError(t, err)
+		var secret corev1.Secret
+		err = loadResource("./testdata/fixture/secret.json", &secret)
+		require.NoError(t, err)
+		var sa corev1.ServiceAccount
+		err = loadResource("./testdata/fixture/sa_with_image_pull_secret.json", &sa)
+		require.NoError(t, err)
+		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(&saSecret).WithObjects(&secret).WithObjects(&sa).Build()
+		sr := kube.NewSecretsReader(client)
+		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
+		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
+		require.NoError(t, err)
+		assert.True(t, len(foundsecret) == 2)
+	})
+
+	t.Run("Test with no service account and no secrets should return error no secret found", func(t *testing.T) {
+		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).Build()
+		sr := kube.NewSecretsReader(client)
+		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
+		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
+		require.Error(t, err)
+		assert.Nil(t, foundsecret)
+	})
+
+	t.Run("Test with service account with bad image pull secret and no secrets should return error no secret found", func(t *testing.T) {
+		var sa corev1.ServiceAccount
+		err := loadResource("./testdata/fixture/sa_with_image_pull_secret.json", &sa)
+		require.NoError(t, err)
+		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(&sa).Build()
+		sr := kube.NewSecretsReader(client)
+		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
+		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
+		require.Error(t, err)
+		assert.Nil(t, foundsecret)
+	})
+}
+
+func loadResource(filePath string, resource interface{}) error {
+	data, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return nil
+	}
+	err = json.Unmarshal(data, &resource)
+	if err != nil {
+		return nil
+	}
+	return err
 }

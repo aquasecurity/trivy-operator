@@ -29,9 +29,9 @@
       8. [`deploy/crd/aquasecurity.github.io_clusterrbacassessmentreports.yaml`]
       9. [`deploy/static/01-trivy-operator.ns.yaml`]
       10. [`deploy/specs/nsa-1.0.yaml`]
-   3. Update [`deploy/static/trivy-operator.yaml`] by running the following script:
+   3. Update static resources from Helm chart by running the make target:
       ```
-      ./hack/update-static.yaml.sh
+      make manifests
       ```
    4. In [`mkdocs.yml`]
       1. Update the `extra.var.prev_git_tag` property

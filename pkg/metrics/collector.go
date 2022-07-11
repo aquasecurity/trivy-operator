@@ -112,6 +112,37 @@ var (
 			return cas.LowCount
 		},
 	}
+	rbacAssessmentLabels = []string{
+		namespace,
+		name,
+		severity,
+	}
+	rbacAssessmentDesc = prometheus.NewDesc(
+		prometheus.BuildFQName("trivy", "role", "rbacassessments"),
+		"Number of rbac risky role assessment checks",
+		rbacAssessmentLabels,
+		nil,
+	)
+	clusterRbacAssessmentDesc = prometheus.NewDesc(
+		prometheus.BuildFQName("trivy", "clusterrole", "clusterrbacassessments"),
+		"Number of rbac risky cluster role assessment checks",
+		rbacAssessmentLabels[1:],
+		nil,
+	)
+	rbacAssessmentSeverities = map[string]func(vs v1alpha1.RbacAssessmentSummary) int{
+		"Critical": func(cas v1alpha1.RbacAssessmentSummary) int {
+			return cas.CriticalCount
+		},
+		"High": func(cas v1alpha1.RbacAssessmentSummary) int {
+			return cas.HighCount
+		},
+		"Medium": func(cas v1alpha1.RbacAssessmentSummary) int {
+			return cas.MediumCount
+		},
+		"Low": func(cas v1alpha1.RbacAssessmentSummary) int {
+			return cas.LowCount
+		},
+	}
 )
 
 // ResourcesMetricsCollector is a custom Prometheus collector that produces
@@ -153,11 +184,13 @@ func (c ResourcesMetricsCollector) Collect(metrics chan<- prometheus.Metric) {
 	c.collectVulnerabilityReports(ctx, metrics, targetNamespaces)
 	c.collectExposedSecretsReports(ctx, metrics, targetNamespaces)
 	c.collectConfigAuditReports(ctx, metrics, targetNamespaces)
+	c.collectRbacAssessmentReports(ctx, metrics, targetNamespaces)
+	c.collectClusterRbacAssessmentReports(ctx, metrics)
 }
 
 func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
 	reports := &v1alpha1.VulnerabilityReportList{}
-	labelValues := make([]string, 7)
+	labelValues := make([]string, len(imageVulnLabels))
 	for _, n := range targetNamespaces {
 		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
 			c.Logger.Error(err, "failed to list vulnerabilityreports from API", "namespace", n)
@@ -181,7 +214,7 @@ func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Conte
 
 func (c ResourcesMetricsCollector) collectExposedSecretsReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
 	reports := &v1alpha1.ExposedSecretReportList{}
-	labelValues := make([]string, 7)
+	labelValues := make([]string, len(exposedSecretLabels))
 	for _, n := range targetNamespaces {
 		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
 			c.Logger.Error(err, "failed to list exposedsecretreports from API", "namespace", n)
@@ -205,7 +238,7 @@ func (c ResourcesMetricsCollector) collectExposedSecretsReports(ctx context.Cont
 
 func (c *ResourcesMetricsCollector) collectConfigAuditReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
 	reports := &v1alpha1.ConfigAuditReportList{}
-	labelValues := make([]string, 3)
+	labelValues := make([]string, len(configAuditLabels))
 	for _, n := range targetNamespaces {
 		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
 			c.Logger.Error(err, "failed to list configauditreports from API", "namespace", n)
@@ -223,10 +256,49 @@ func (c *ResourcesMetricsCollector) collectConfigAuditReports(ctx context.Contex
 	}
 }
 
+func (c *ResourcesMetricsCollector) collectRbacAssessmentReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
+	reports := &v1alpha1.RbacAssessmentReportList{}
+	labelValues := make([]string, len(rbacAssessmentLabels))
+	for _, n := range targetNamespaces {
+		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
+			c.Logger.Error(err, "failed to list rbacAssessment from API", "namespace", n)
+			continue
+		}
+		for _, r := range reports.Items {
+			labelValues[0] = r.Namespace
+			labelValues[1] = r.Name
+			c.populateRbacAssessmentValues(labelValues, rbacAssessmentDesc, r.Report.Summary, metrics, 2)
+		}
+	}
+}
+
+func (c *ResourcesMetricsCollector) collectClusterRbacAssessmentReports(ctx context.Context, metrics chan<- prometheus.Metric) {
+	reports := &v1alpha1.ClusterRbacAssessmentReportList{}
+	labelValues := make([]string, len(rbacAssessmentLabels[1:]))
+	if err := c.List(ctx, reports); err != nil {
+		c.Logger.Error(err, "failed to list cluster rbacAssessment from API")
+		return
+	}
+	for _, r := range reports.Items {
+		labelValues[0] = r.Name
+		c.populateRbacAssessmentValues(labelValues, clusterRbacAssessmentDesc, r.Report.Summary, metrics, 1)
+	}
+}
+
+func (c *ResourcesMetricsCollector) populateRbacAssessmentValues(labelValues []string, desc *prometheus.Desc, summary v1alpha1.RbacAssessmentSummary, metrics chan<- prometheus.Metric, index int) {
+	for severity, countFn := range rbacAssessmentSeverities {
+		labelValues[index] = severity
+		count := countFn(summary)
+		metrics <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, float64(count), labelValues...)
+	}
+}
+
 func (c ResourcesMetricsCollector) Describe(descs chan<- *prometheus.Desc) {
 	descs <- imageVulnDesc
 	descs <- configAuditDesc
 	descs <- exposedSecretDesc
+	descs <- rbacAssessmentDesc
+	descs <- clusterRbacAssessmentDesc
 }
 
 func (c ResourcesMetricsCollector) Start(ctx context.Context) error {

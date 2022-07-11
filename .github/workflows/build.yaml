@@ -67,7 +67,7 @@ jobs:
         uses: ibiqlik/action-yamllint@v3
       - name: Vendor Go modules
         run: go mod vendor
-      - name: Verify generated code
+      - name: Verify all generated
         run: make verify-generated
   unit-tests:
     name: Run unit tests

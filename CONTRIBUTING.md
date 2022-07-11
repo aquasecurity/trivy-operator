@@ -225,8 +225,8 @@ install the operator.
 To avoid maintaining resources in multiple places, we have a created a script
 to (re)generate the static resources from the Helm chart.
 
-So if modifying the operator resource, please do so by modifying the Helm
-chart, then run `./hack/update-static.yaml.sh` to ensure the static
+So if modifying the operator resources, please do so by modifying the Helm
+chart, then run `make manifests` to ensure the static
 resources are up-to-date.
 
 ## Operator Lifecycle Manager (OLM)

@@ -8,7 +8,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.1.1"
+    app.kubernetes.io/version: "0.1.2"
     app.kubernetes.io/managed-by: kubectl
 spec:
   replicas: 1
@@ -28,7 +28,7 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: "trivy-operator"
-          image: "docker.io/aquasec/trivy-operator:0.1.1"
+          image: "docker.io/aquasec/trivy-operator:0.1.2"
           imagePullPolicy: IfNotPresent
           env:
             - name: OPERATOR_NAMESPACE

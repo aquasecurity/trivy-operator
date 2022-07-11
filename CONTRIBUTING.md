@@ -53,7 +53,7 @@ Each commit message doesn't have to follow conventions as long as it is clear an
 
 1. Install Go
 
-   The project requires [Go 1.17][go-download] or later. We also assume that you're familiar with
+   The project requires [Go 1.18][go-download] or later. We also assume that you're familiar with
    Go's [GOPATH workspace][go-code] convention, and have the appropriate environment variables set.
 2. Get the source code:
 

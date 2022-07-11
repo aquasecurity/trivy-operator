@@ -4,15 +4,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-const (
-	ConfigAuditReportCRName    = "configauditreports.aquasecurity.github.io"
-	ConfigAuditReportCRVersion = "v1alpha1"
-	ConfigAuditReportKind      = "ConfigAuditReport"
-	ConfigAuditReportListKind  = "ConfigAuditReportList"
-
-	ClusterConfigAuditReportCRName = "clusterconfigauditreports.aquasecurity.github.io"
-)
-
 // ConfigAuditSummary counts failed checks by severity.
 type ConfigAuditSummary struct {
 

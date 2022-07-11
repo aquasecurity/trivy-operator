@@ -4,13 +4,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-const (
-	ExposedSecretReportsCRName    = "exposedsecretreports.aquasecurity.github.io"
-	ExposedSecretReportsCRVersion = "v1alpha1"
-	ExposedSecretReportKind       = "ExposedSecretReport"
-	ExposedSecretReportListKind   = "ExposedSecretReportList"
-)
-
 // ExposedSecretSummary is a summary of ExposedSecret counts grouped by Severity.
 type ExposedSecretSummary struct {
 	// CriticalCount is the number of exposed secrets with Critical Severity.

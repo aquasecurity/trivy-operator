@@ -4,10 +4,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-const (
-	ClusterComplianceReportCRName = "clustercompliancereports.aquasecurity.github.io"
-)
-
 type ClusterComplianceSummary struct {
 	PassCount int `json:"passCount"`
 	FailCount int `json:"failCount"`

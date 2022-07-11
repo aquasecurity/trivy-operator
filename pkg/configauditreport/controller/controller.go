@@ -408,13 +408,13 @@ func (r *ResourceController) reconcileConfig(kind kube.Kind) reconcile.Func {
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("parsing label selector: %w", err)
 		}
-		configRequeueAfter, err := r.deleteReports(ctx, labelSelector, &v1alpha1.ConfigAuditReportList{})
+		configRequeueAfter, err := r.deleteReports(ctx, labelSelector, auditConfigReportItems(v1alpha1.ConfigAuditReportList{}))
 		if err != nil {
 			return ctrl.Result{}, err
 		}
 		var rbacRequeueAfter bool
 		if r.RbacAssessmentScannerEnabled {
-			rbacRequeueAfter, err = r.deleteReports(ctx, labelSelector, &v1alpha1.RbacAssessmentReportList{})
+			rbacRequeueAfter, err = r.deleteReports(ctx, labelSelector, rbacReportItems(v1alpha1.RbacAssessmentReportList{}))
 			if err != nil {
 				return ctrl.Result{}, err
 			}
@@ -426,66 +426,22 @@ func (r *ResourceController) reconcileConfig(kind kube.Kind) reconcile.Func {
 	}
 }
 
-func (r *ResourceController) deleteReports(ctx context.Context, labelSelector labels.Selector, reportList client.ObjectList) (bool, error) {
-	log := r.Logger.WithValues("delete ", "config audit / rbac assessment ")
+func (r *ResourceController) deleteReports(ctx context.Context, labelSelector labels.Selector, reportItems func() (client.ObjectList, []client.Object)) (bool, error) {
+	reportList, items := reportItems()
 	err := r.Client.List(ctx, reportList,
 		client.Limit(r.Config.BatchDeleteLimit+1),
 		client.MatchingLabelsSelector{Selector: labelSelector})
 	if err != nil {
 		return false, fmt.Errorf("listing reports: %w", err)
 	}
-	var reportSize int
-	switch reportList.(type) {
-	case *v1alpha1.ClusterRbacAssessmentReportList:
-		report := reportList.(*v1alpha1.ClusterRbacAssessmentReportList)
-		reportSize = len(report.Items)
-		for i := 0; i < ext.MinInt(r.Config.BatchDeleteLimit, len(report.Items)); i++ {
-			reportItem := report.Items[i]
-			log.V(1).Info("Deleting ClusterRbacAssessmentReport", "report", reportItem.Namespace+"/"+reportItem.Name)
-			b, err := r.deleteReport(ctx, &reportItem)
-			if err != nil {
-				return b, err
-			}
-		}
-	case *v1alpha1.RbacAssessmentReportList:
-		report := reportList.(*v1alpha1.RbacAssessmentReportList)
-		reportSize = len(report.Items)
-		for i := 0; i < ext.MinInt(r.Config.BatchDeleteLimit, len(report.Items)); i++ {
-			reportItem := report.Items[i]
-			log.V(1).Info("Deleting RbacAssessmentReportList", "report", reportItem.Namespace+"/"+reportItem.Name)
-			b, err := r.deleteReport(ctx, &reportItem)
-			if err != nil {
-				return b, err
-			}
-		}
-	case *v1alpha1.ClusterConfigAuditReportList:
-		report := reportList.(*v1alpha1.ClusterConfigAuditReportList)
-		reportSize = len(report.Items)
-		for i := 0; i < ext.MinInt(r.Config.BatchDeleteLimit, len(report.Items)); i++ {
-			reportItem := report.Items[i]
-			log.V(1).Info("Deleting ClusterConfigAuditReportList", "report", reportItem.Namespace+"/"+reportItem.Name)
-			b, err := r.deleteReport(ctx, &reportItem)
-			if err != nil {
-				return b, err
-			}
-		}
-	case *v1alpha1.ConfigAuditReportList:
-		report := reportList.(*v1alpha1.ConfigAuditReportList)
-		reportSize = len(report.Items)
-		for i := 0; i < ext.MinInt(r.Config.BatchDeleteLimit, len(report.Items)); i++ {
-			reportItem := report.Items[i]
-			log.V(1).Info("Deleting ConfigAuditReportList", "report", reportItem.Namespace+"/"+reportItem.Name)
-			b, err := r.deleteReport(ctx, &reportItem)
-			if err != nil {
-				return b, err
-			}
+	reportSize := len(items)
+	for i := 0; i < ext.MinInt(r.Config.BatchDeleteLimit, reportSize); i++ {
+		reportItem := items[i]
+		b, err := r.deleteReport(ctx, reportItem)
+		if err != nil {
+			return b, err
 		}
 	}
-	r.Logger.V(1).Info(fmt.Sprintf("Listing %s", reportList.GetObjectKind().GroupVersionKind().Kind),
-		"reportsCount", reportSize,
-		"batchDeleteLimit", r.Config.BatchDeleteLimit,
-		"labelSelector", labelSelector.String())
-
 	return reportSize-r.Config.BatchDeleteLimit > 0, nil
 }
 
@@ -534,13 +490,13 @@ func (r *ResourceController) reconcileClusterConfig(kind kube.Kind) reconcile.Fu
 			return ctrl.Result{}, fmt.Errorf("parsing label selector: %w", err)
 		}
 
-		configRequeueAfter, err := r.deleteReports(ctx, labelSelector, &v1alpha1.ClusterConfigAuditReportList{})
+		configRequeueAfter, err := r.deleteReports(ctx, labelSelector, clusterAuditConfigReportItems(v1alpha1.ClusterConfigAuditReportList{}))
 		if err != nil {
 			return ctrl.Result{}, err
 		}
 		var rbacRequeueAfter bool
 		if r.RbacAssessmentScannerEnabled {
-			rbacRequeueAfter, err = r.deleteReports(ctx, labelSelector, &v1alpha1.ClusterRbacAssessmentReportList{})
+			rbacRequeueAfter, err = r.deleteReports(ctx, labelSelector, clusterRbacReportItems(v1alpha1.ClusterRbacAssessmentReportList{}))
 			if err != nil {
 				return ctrl.Result{}, err
 			}
@@ -549,5 +505,44 @@ func (r *ResourceController) reconcileClusterConfig(kind kube.Kind) reconcile.Fu
 			return ctrl.Result{RequeueAfter: r.Config.BatchDeleteDelay}, nil
 		}
 		return ctrl.Result{}, nil
+	}
+}
+
+func clusterRbacReportItems(crar v1alpha1.ClusterRbacAssessmentReportList) func() (client.ObjectList, []client.Object) {
+	return func() (client.ObjectList, []client.Object) {
+		objlist := make([]client.Object, 0)
+		for _, item := range crar.Items {
+			objlist = append(objlist, &item)
+		}
+		return &crar, objlist
+	}
+}
+
+func rbacReportItems(rar v1alpha1.RbacAssessmentReportList) func() (client.ObjectList, []client.Object) {
+	return func() (client.ObjectList, []client.Object) {
+		objlist := make([]client.Object, 0)
+		for _, item := range rar.Items {
+			objlist = append(objlist, &item)
+		}
+		return &rar, objlist
+	}
+}
+
+func clusterAuditConfigReportItems(ccar v1alpha1.ClusterConfigAuditReportList) func() (client.ObjectList, []client.Object) {
+	return func() (client.ObjectList, []client.Object) {
+		objlist := make([]client.Object, 0)
+		for _, item := range ccar.Items {
+			objlist = append(objlist, &item)
+		}
+		return &ccar, objlist
+	}
+}
+func auditConfigReportItems(car v1alpha1.ConfigAuditReportList) func() (client.ObjectList, []client.Object) {
+	return func() (client.ObjectList, []client.Object) {
+		objlist := make([]client.Object, 0)
+		for _, item := range car.Items {
+			objlist = append(objlist, &item)
+		}
+		return &car, objlist
 	}
 }

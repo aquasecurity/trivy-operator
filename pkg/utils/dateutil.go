@@ -3,6 +3,7 @@ package utils
 import (
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/gorhill/cronexpr"
+	"k8s.io/utils/pointer"
 	"time"
 )
 
@@ -31,4 +32,11 @@ func timeToExpiration(expiresAt time.Time, clock ext.Clock) time.Duration {
 func IsTTLExpired(ttl time.Duration, creationTime time.Time, clock ext.Clock) (bool, time.Duration) {
 	durationToTTLExpiration := timeToExpiration(creationTime.Add(ttl), clock)
 	return DurationExceeded(durationToTTLExpiration), durationToTTLExpiration
+}
+
+func DurationSecondsPtr(d time.Duration) *int64 {
+	if d > 0 {
+		return pointer.Int64Ptr(int64(d.Seconds()))
+	}
+	return nil
 }

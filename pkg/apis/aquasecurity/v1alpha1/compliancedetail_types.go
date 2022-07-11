@@ -9,6 +9,10 @@ const (
 )
 
 //+kubebuilder:object:root=true
+//+kubebuilder:resource:scope=Cluster,shortName={compliancedetail}
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"
+//+kubebuilder:printcolumn:name="Fail",type=integer,JSONPath=`.report.summary.failCount`,priority=1,description="The number of checks that failed with Danger status"
+//+kubebuilder:printcolumn:name="Pass",type=integer,JSONPath=`.report.summary.passCount`,priority=1,description="The number of checks that passed"
 
 // ClusterComplianceDetailReport is a specification for the ClusterComplianceDetailReport resource.
 type ClusterComplianceDetailReport struct {
@@ -27,6 +31,8 @@ type ClusterComplianceDetailReportList struct {
 }
 
 type ClusterComplianceDetailReportData struct {
+	// +kubebuilder:validation:Type=string
+	// +kubebuilder:validation:Format=date-time
 	UpdateTimestamp metav1.Time              `json:"updateTimestamp"`
 	Type            Compliance               `json:"type"`
 	Summary         ClusterComplianceSummary `json:"summary"`
@@ -35,9 +41,10 @@ type ClusterComplianceDetailReportData struct {
 
 // ControlCheckDetails provides the result of conducting a single audit step.
 type ControlCheckDetails struct {
-	ID                 string               `json:"id"`
-	Name               string               `json:"name"`
-	Description        string               `json:"description,omitempty"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	//+kubebuilder:validation:Enum={CRITICAL,HIGH,MEDIUM,LOW}
 	Severity           Severity             `json:"severity"`
 	ScannerCheckResult []ScannerCheckResult `json:"checkResults"`
 }

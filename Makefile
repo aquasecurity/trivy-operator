@@ -130,12 +130,19 @@ $(CONTROLLER_GEN): $(LOCALBIN)
 	GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-tools/cmd/controller-gen@$(CONTROLLER_TOOLS_VERSION)
 
 .PHONY: verify-generated
-verify-generated: generate
+verify-generated: generate-all
 	./hack/verify-generated.sh
 
 .PHONY: generate
 generate: controller-gen
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./pkg/apis/..."
+
+.PHONY: manifests
+manifests:
+	./hack/update-static.yaml.sh
+
+.PHONY: generate-all
+generate-all: generate manifests
 
 .PHONY: \
 	clean \

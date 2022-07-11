@@ -3,7 +3,7 @@ module github.com/aquasecurity/trivy-operator
 go 1.17
 
 require (
-	github.com/aquasecurity/defsec v0.68.6
+	github.com/aquasecurity/defsec v0.68.9
 	github.com/caarlos0/env/v6 v6.9.3
 	github.com/davecgh/go-spew v1.1.1
 	github.com/emirpasic/gods v1.18.1
@@ -65,7 +65,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kevinburke/ssh_config v0.0.0-20201106050909-4977a11b4351 // indirect
-	github.com/liamg/iamgo v0.0.6 // indirect
+	github.com/liamg/iamgo v0.0.9 // indirect
 	github.com/liamg/jfather v0.0.7 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/matryer/is v1.4.0 // indirect

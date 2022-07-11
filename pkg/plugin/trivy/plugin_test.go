@@ -525,7 +525,7 @@ func TestPlugin_Init(t *testing.T) {
 				ResourceVersion: "1",
 			},
 			Data: map[string]string{
-				"trivy.imageRef":                  "docker.io/aquasec/trivy:0.29.1",
+				"trivy.imageRef":                  "ghcr.io/aquasecurity/trivy:0.29.1",
 				"trivy.severity":                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
 				"trivy.mode":                      "Standalone",
 				"trivy.timeout":                   "5m0s",
@@ -553,7 +553,7 @@ func TestPlugin_Init(t *testing.T) {
 					ResourceVersion: "1",
 				},
 				Data: map[string]string{
-					"trivy.imageRef": "docker.io/aquasec/trivy:0.29.1",
+					"trivy.imageRef": "ghcr.io/aquasecurity/trivy:0.29.1",
 					"trivy.severity": "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
 					"trivy.mode":     "Standalone",
 				},
@@ -587,7 +587,7 @@ func TestPlugin_Init(t *testing.T) {
 				ResourceVersion: "1",
 			},
 			Data: map[string]string{
-				"trivy.imageRef": "docker.io/aquasec/trivy:0.29.1",
+				"trivy.imageRef": "ghcr.io/aquasecurity/trivy:0.29.1",
 				"trivy.severity": "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
 				"trivy.mode":     "Standalone",
 			},

@@ -300,7 +300,7 @@ func NewTrivyConfigAuditPlugin(clock ext.Clock, idGenerator ext.IDGenerator, cli
 func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 	return ctx.EnsureConfig(trivyoperator.PluginConfig{
 		Data: map[string]string{
-			keyTrivyImageRef:                  "docker.io/aquasec/trivy:0.29.1",
+			keyTrivyImageRef:                  "ghcr.io/aquasecurity/trivy:0.29.1",
 			keyTrivySeverity:                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
 			keyTrivyMode:                      string(Standalone),
 			keyTrivyTimeout:                   "5m0s",

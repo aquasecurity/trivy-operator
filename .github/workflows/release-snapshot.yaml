@@ -17,6 +17,11 @@ jobs:
   release-snapshot:
     name: Release unversioned snapshot
     runs-on: ubuntu-20.04
+    permissions:
+      contents: read
+      packages: write
+      deployments: write
+      id-token: write
     env:
       DOCKER_CLI_EXPERIMENTAL: "enabled"
     steps:

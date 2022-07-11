@@ -41,6 +41,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/dlclark/regexp2 v1.4.0 // indirect
 	github.com/emicklei/go-restful v2.9.5+incompatible // indirect
+	github.com/emicklei/go-restful/v3 v3.0.0-00010101000000-000000000000 // indirect
 	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
@@ -117,3 +118,7 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
+
+replace github.com/emicklei/go-restful => github.com/emicklei/go-restful/v3 v3.8.0
+
+replace github.com/emicklei/go-restful/v3 => github.com/emicklei/go-restful/v3 v3.0.0

@@ -19,7 +19,6 @@ const (
 	SeverityMedium   Severity = "MEDIUM"
 	SeverityLow      Severity = "LOW"
 
-	SeverityNone    Severity = "NONE"
 	SeverityUnknown Severity = "UNKNOWN"
 )
 

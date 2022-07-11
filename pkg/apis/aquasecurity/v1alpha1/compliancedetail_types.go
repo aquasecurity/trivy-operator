@@ -4,10 +4,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-const (
-	ClusterComplianceDetailReportCRName = "clustercompliancedetailreports.aquasecurity.github.io"
-)
-
 //+kubebuilder:object:root=true
 
 // ClusterComplianceDetailReport is a specification for the ClusterComplianceDetailReport resource.

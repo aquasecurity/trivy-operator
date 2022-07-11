@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	appsv1 "k8s.io/api/apps/v1"
@@ -16,11 +15,8 @@ import (
 	policyv1beta1 "k8s.io/api/policy/v1beta1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
-	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/validation"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
@@ -39,11 +35,6 @@ type ObjectRef struct {
 type Kind string
 
 const (
-	KindUnknown Kind = "Unknown"
-
-	KindNode      Kind = "Node"
-	KindNamespace Kind = "Namespace"
-
 	KindPod                   Kind = "Pod"
 	KindReplicaSet            Kind = "ReplicaSet"
 	KindReplicationController Kind = "ReplicationController"
@@ -168,24 +159,6 @@ func ObjectRefFromObjectMeta(objectMeta metav1.ObjectMeta) (ObjectRef, error) {
 	}, nil
 }
 
-func GVRForResource(mapper meta.RESTMapper, resource string) (gvr schema.GroupVersionResource, gvk schema.GroupVersionKind, err error) {
-	fullySpecifiedGVR, groupResource := schema.ParseResourceArg(strings.ToLower(resource))
-	if fullySpecifiedGVR != nil {
-		gvr, err = mapper.ResourceFor(*fullySpecifiedGVR)
-		if err != nil {
-			return
-		}
-	}
-	if gvr.Empty() {
-		gvr, err = mapper.ResourceFor(groupResource.WithVersion(""))
-		if err != nil {
-			return
-		}
-	}
-	gvk, err = mapper.KindFor(gvr)
-	return
-}
-
 // ContainerImages is a simple structure to hold the mapping between container
 // names and container image references.
 type ContainerImages map[string]string
@@ -200,18 +173,6 @@ func (ci ContainerImages) AsJSON() (string, error) {
 
 func (ci ContainerImages) FromJSON(value string) error {
 	return json.Unmarshal([]byte(value), &ci)
-}
-
-func KindForObject(object metav1.Object, scheme *runtime.Scheme) (string, error) {
-	ro, ok := object.(runtime.Object)
-	if !ok {
-		return "", fmt.Errorf("%T is not a runtime.Object", object)
-	}
-	gvk, err := apiutil.GVKForObject(ro, scheme)
-	if err != nil {
-		return "", err
-	}
-	return gvk.Kind, nil
 }
 
 func ObjectRefFromKindAndObjectKey(kind Kind, name client.ObjectKey) ObjectRef {

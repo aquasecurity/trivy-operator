@@ -187,13 +187,13 @@ func (r *secretsReader) ListImagePullSecretsByPodSpec(ctx context.Context, spec 
 		return nil, err
 	}
 	// if image pull secret define in either service account or pod spec and no secrets found
-	if r.impactPullSecretDefineAndNoSecretsFound(sa.ImagePullSecrets, serviceAccountSecrets, spec.ImagePullSecrets, secrets) {
+	if r.imagePullSecretDefineAndNoSecretsFound(sa.ImagePullSecrets, serviceAccountSecrets, spec.ImagePullSecrets, secrets) {
 		return nil, fmt.Errorf("failed to list secrets by imagePullSecrets ref %v and service account %s", spec.ImagePullSecrets, serviceAccountName)
 	}
 	return append(secrets, serviceAccountSecrets...), nil
 }
 
-func (r *secretsReader) impactPullSecretDefineAndNoSecretsFound(saImagePullSecretRef []corev1.LocalObjectReference, serviceAccountSecrets []corev1.Secret, imagePullSecretRef []corev1.LocalObjectReference, secrets []corev1.Secret) bool {
+func (r *secretsReader) imagePullSecretDefineAndNoSecretsFound(saImagePullSecretRef []corev1.LocalObjectReference, serviceAccountSecrets []corev1.Secret, imagePullSecretRef []corev1.LocalObjectReference, secrets []corev1.Secret) bool {
 	return len(saImagePullSecretRef) > 0 && len(serviceAccountSecrets) == 0 && len(imagePullSecretRef) > 0 && len(secrets) == 0
 }
 

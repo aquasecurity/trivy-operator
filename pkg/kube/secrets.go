@@ -7,6 +7,7 @@ import (
 
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	corev1 "k8s.io/api/core/v1"
+	k8sapierror "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -132,7 +133,6 @@ const (
 // SecretsReader defines methods for reading Secrets.
 type SecretsReader interface {
 	ListByLocalObjectReferences(ctx context.Context, refs []corev1.LocalObjectReference, ns string) ([]corev1.Secret, error)
-	ListByServiceAccount(ctx context.Context, name string, ns string) ([]corev1.Secret, error)
 	ListImagePullSecretsByPodSpec(ctx context.Context, spec corev1.PodSpec, ns string) ([]corev1.Secret, error)
 	CredentialsByWorkload(ctx context.Context, workload client.Object) (map[string]docker.Auth, error)
 }
@@ -155,26 +155,18 @@ func (r *secretsReader) ListByLocalObjectReferences(ctx context.Context, refs []
 		var secret corev1.Secret
 		err := r.client.Get(ctx, client.ObjectKey{Name: secretRef.Name, Namespace: ns}, &secret)
 		if err != nil {
+			if k8sapierror.IsNotFound(err) {
+				continue
+			}
 			return nil, fmt.Errorf("getting secret by name: %s/%s: %w", ns, secretRef.Name, err)
 		}
 		secrets = append(secrets, secret)
 	}
-
 	return secrets, nil
 }
 
-func (r *secretsReader) ListByServiceAccount(ctx context.Context, name string, ns string) ([]corev1.Secret, error) {
-	var sa corev1.ServiceAccount
-
-	err := r.client.Get(ctx, client.ObjectKey{Name: name, Namespace: ns}, &sa)
-	if err != nil {
-		return nil, fmt.Errorf("getting service account by name: %s/%s: %w", ns, name, err)
-	}
-
-	return r.ListByLocalObjectReferences(ctx, sa.ImagePullSecrets, ns)
-}
-
 func (r *secretsReader) ListImagePullSecretsByPodSpec(ctx context.Context, spec corev1.PodSpec, ns string) ([]corev1.Secret, error) {
+	// try to fetch image pull secret from pod spec
 	secrets, err := r.ListByLocalObjectReferences(ctx, spec.ImagePullSecrets, ns)
 	if err != nil {
 		return nil, err
@@ -184,13 +176,25 @@ func (r *secretsReader) ListImagePullSecretsByPodSpec(ctx context.Context, spec 
 	if serviceAccountName == "" {
 		serviceAccountName = serviceAccountDefault
 	}
-
-	serviceAccountSecrets, err := r.ListByServiceAccount(ctx, serviceAccountName, ns)
+	// try to fetch image pull secret from service account
+	var sa corev1.ServiceAccount
+	err = r.client.Get(ctx, client.ObjectKey{Name: serviceAccountName, Namespace: ns}, &sa)
+	if err != nil {
+		return nil, fmt.Errorf("getting service account by name: %s/%s: %w", ns, serviceAccountName, err)
+	}
+	serviceAccountSecrets, err := r.ListByLocalObjectReferences(ctx, sa.ImagePullSecrets, ns)
 	if err != nil {
 		return nil, err
 	}
-
+	// if image pull secret define in either service account or pod spec and no secrets found
+	if r.imagePullSecretDefineAndNoSecretsFound(sa.ImagePullSecrets, serviceAccountSecrets, spec.ImagePullSecrets, secrets) {
+		return nil, fmt.Errorf("failed to list secrets by imagePullSecrets ref %v and service account %s", spec.ImagePullSecrets, serviceAccountName)
+	}
 	return append(secrets, serviceAccountSecrets...), nil
+}
+
+func (r *secretsReader) imagePullSecretDefineAndNoSecretsFound(saImagePullSecretRef []corev1.LocalObjectReference, serviceAccountSecrets []corev1.Secret, imagePullSecretRef []corev1.LocalObjectReference, secrets []corev1.Secret) bool {
+	return len(saImagePullSecretRef) > 0 && len(serviceAccountSecrets) == 0 && len(imagePullSecretRef) > 0 && len(secrets) == 0
 }
 
 func (r *secretsReader) CredentialsByWorkload(ctx context.Context, workload client.Object) (map[string]docker.Auth, error) {

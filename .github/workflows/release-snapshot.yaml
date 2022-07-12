@@ -19,6 +19,8 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       DOCKER_CLI_EXPERIMENTAL: "enabled"
+    permissions:
+      id-token: write
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -47,6 +49,7 @@ jobs:
           version: v1.7.0
           args: release --snapshot --skip-publish --rm-dist
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COSIGN_EXPERIMENTAL: 1
       - name: Scan Trivy Operator image for vulnerabilities
         uses: aquasecurity/trivy-action@master

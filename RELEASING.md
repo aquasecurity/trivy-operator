@@ -19,16 +19,8 @@
       1. Update the `version` property
       2. Update the `appVersion` property
    2. Update the `app.kubernetes.io/version` labels in the following files:
-      1. [`deploy/compliance/aquasecurity.github.io_clustercompliancedetailreports.yaml`]
-      2. [`deploy/compliance/aquasecurity.github.io_clustercompliancereports.yaml`]
-      3. [`deploy/crd/aquasecurity.github.io_clusterconfigauditreports.yaml`]
-      4. [`deploy/crd/aquasecurity.github.io_configauditreports.yaml`]
-      5. [`deploy/crd/aquasecurity.github.io_vulnerabilityreports.yaml`]
-      6. [`deploy/crd/aquasecurity.github.io_exposedsecretreports.yaml`]
-      7. [`deploy/crd/aquasecurity.github.io_rbacassessmentreports.yaml`]
-      8. [`deploy/crd/aquasecurity.github.io_clusterrbacassessmentreports.yaml`]
-      9. [`deploy/static/01-trivy-operator.ns.yaml`]
-      10. [`deploy/specs/nsa-1.0.yaml`]
+      1. [`deploy/static/01-trivy-operator.ns.yaml`]
+      2. [`deploy/specs/nsa-1.0.yaml`]
    3. Update static resources from Helm chart by running the make target:
       ```
       make manifests

@@ -21,6 +21,13 @@ type RbacAssessmentSummary struct {
 }
 
 //+kubebuilder:object:root=true
+//+kubebuilder:resource:shortName={rbacassessment,rbacassessments}
+//+kubebuilder:printcolumn:name="Scanner",type=string,JSONPath=`.report.scanner.name`,description="The name of the rbac assessment scanner"
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"
+//+kubebuilder:printcolumn:name="Critical",type=integer,JSONPath=`.report.summary.criticalCount`,priority=1,description="The number of failed checks with critical severity"
+//+kubebuilder:printcolumn:name="High",type=integer,JSONPath=`.report.summary.highCount`,priority=1,description="The number of failed checks with high severity"
+//+kubebuilder:printcolumn:name="Medium",type=integer,JSONPath=`.report.summary.mediumCount`,priority=1,description="The number of failed checks with medium severity"
+//+kubebuilder:printcolumn:name="Low",type=integer,JSONPath=`.report.summary.lowCount`,priority=1,description="The number of failed checks with low severity"
 
 // RbacAssessmentReport is a specification for the RbacAssessmentReport resource.
 type RbacAssessmentReport struct {
@@ -41,6 +48,13 @@ type RbacAssessmentReportList struct {
 }
 
 //+kubebuilder:object:root=true
+//+kubebuilder:resource:scope=Cluster,shortName={clusterrbacassessmentreport}
+//+kubebuilder:printcolumn:name="Scanner",type=string,JSONPath=`.report.scanner.name`,description="The name of the rbac assessment scanner"
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"
+//+kubebuilder:printcolumn:name="Critical",type=integer,JSONPath=`.report.summary.criticalCount`,priority=1,description="The number of failed checks with critical severity"
+//+kubebuilder:printcolumn:name="High",type=integer,JSONPath=`.report.summary.highCount`,priority=1,description="The number of failed checks with high severity"
+//+kubebuilder:printcolumn:name="Medium",type=integer,JSONPath=`.report.summary.mediumCount`,priority=1,description="The number of failed checks with medium severity"
+//+kubebuilder:printcolumn:name="Low",type=integer,JSONPath=`.report.summary.lowCount`,priority=1,description="The number of failed checks with low severity"
 
 // ClusterRbacAssessmentReport is a specification for the ClusterRbacAssessmentReport resource.
 type ClusterRbacAssessmentReport struct {

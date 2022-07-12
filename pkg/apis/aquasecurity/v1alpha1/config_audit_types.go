@@ -21,6 +21,13 @@ type ConfigAuditSummary struct {
 }
 
 //+kubebuilder:object:root=true
+//+kubebuilder:resource:shortName={configaudit,configaudits}
+//+kubebuilder:printcolumn:name="Scanner",type=string,JSONPath=`.report.scanner.name`,description="The name of the config audit scanner"
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"
+//+kubebuilder:printcolumn:name="Critical",type=integer,JSONPath=`.report.summary.criticalCount`,priority=1,description="The number of failed checks with critical severity"
+//+kubebuilder:printcolumn:name="High",type=integer,JSONPath=`.report.summary.highCount`,priority=1,description="The number of failed checks with high severity"
+//+kubebuilder:printcolumn:name="Medium",type=integer,JSONPath=`.report.summary.mediumCount`,priority=1,description="The number of failed checks with medium severity"
+//+kubebuilder:printcolumn:name="Low",type=integer,JSONPath=`.report.summary.lowCount`,priority=1,description="The number of failed checks with low severity"
 
 // ConfigAuditReport is a specification for the ConfigAuditReport resource.
 type ConfigAuditReport struct {
@@ -41,6 +48,13 @@ type ConfigAuditReportList struct {
 }
 
 //+kubebuilder:object:root=true
+//+kubebuilder:resource:scope=Cluster,shortName={clusterconfigaudit}
+//+kubebuilder:printcolumn:name="Scanner",type=string,JSONPath=`.report.scanner.name`,description="The name of the config audit scanner"
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"
+//+kubebuilder:printcolumn:name="Critical",type=integer,JSONPath=`.report.summary.criticalCount`,priority=1,description="The number of failed checks with critical severity"
+//+kubebuilder:printcolumn:name="High",type=integer,JSONPath=`.report.summary.highCount`,priority=1,description="The number of failed checks with high severity"
+//+kubebuilder:printcolumn:name="Medium",type=integer,JSONPath=`.report.summary.mediumCount`,priority=1,description="The number of failed checks with medium severity"
+//+kubebuilder:printcolumn:name="Low",type=integer,JSONPath=`.report.summary.lowCount`,priority=1,description="The number of failed checks with low severity"
 
 // ClusterConfigAuditReport is a specification for the ClusterConfigAuditReport resource.
 type ClusterConfigAuditReport struct {
@@ -61,9 +75,12 @@ type ClusterConfigAuditReportList struct {
 }
 
 type ConfigAuditReportData struct {
-	UpdateTimestamp metav1.Time        `json:"updateTimestamp"`
-	Scanner         Scanner            `json:"scanner"`
-	Summary         ConfigAuditSummary `json:"summary"`
+	// +optional
+	UpdateTimestamp metav1.Time `json:"updateTimestamp"`
+	// +optional
+	Scanner Scanner `json:"scanner"`
+	// +optional
+	Summary ConfigAuditSummary `json:"summary"`
 
 	// Checks provides results of conducting audit steps.
 	Checks []Check `json:"checks"`

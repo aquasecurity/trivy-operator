@@ -4,18 +4,17 @@ import (
 	"context"
 	"fmt"
 
-	controller2 "github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
-	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
-
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+	"github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/metrics"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
 	"github.com/aquasecurity/trivy-operator/pkg/plugin"
+	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 	"k8s.io/client-go/kubernetes"
@@ -122,7 +121,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	}
 
 	objectResolver := kube.ObjectResolver{Client: mgr.GetClient()}
-	limitChecker := controller.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
+	limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
 	logsReader := kube.NewLogsReader(kubeClientset)
 	secretsReader := kube.NewSecretsReader(mgr.GetClient())
 
@@ -161,7 +160,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 
 		if operatorConfig.VulnerabilityScannerReportTTL != nil {
-			if err = (&controller.TTLReportReconciler{
+			if err = (&vulnerabilityreport.TTLReportReconciler{
 				Logger: ctrl.Log.WithName("reconciler").WithName("ttlreport"),
 				Config: operatorConfig,
 				Client: mgr.GetClient(),
@@ -186,7 +185,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
 		}
 		setupLog.Info("Enabling built-in configuration audit scanner")
-		if err = (&controller2.ResourceController{
+		if err = (&controller.ResourceController{
 			Logger:         ctrl.Log.WithName("resourcecontroller"),
 			Config:         operatorConfig,
 			ConfigData:     trivyOperatorConfig,

@@ -8,7 +8,6 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	batchv1 "k8s.io/api/batch/v1"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/tools/leaderelection/resourcelock"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -106,20 +105,6 @@ var JobHasAnyCondition = predicate.NewPredicateFuncs(func(obj client.Object) boo
 
 var IsVulnerabilityReportScan = predicate.NewPredicateFuncs(func(obj client.Object) bool {
 	if _, ok := obj.GetLabels()[trivyoperator.LabelVulnerabilityReportScanner]; ok {
-		return true
-	}
-	return false
-})
-
-var IsConfigAuditReportScan = predicate.NewPredicateFuncs(func(obj client.Object) bool {
-	if _, ok := obj.GetLabels()[trivyoperator.LabelConfigAuditReportScanner]; ok {
-		return true
-	}
-	return false
-})
-
-var IsLinuxNode = predicate.NewPredicateFuncs(func(obj client.Object) bool {
-	if os, exists := obj.GetLabels()[corev1.LabelOSStable]; exists && os == "linux" {
 		return true
 	}
 	return false

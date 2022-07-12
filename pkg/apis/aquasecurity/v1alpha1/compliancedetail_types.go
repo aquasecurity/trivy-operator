@@ -4,10 +4,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-const (
-	ClusterComplianceDetailReportCRName = "clustercompliancedetailreports.aquasecurity.github.io"
-)
-
 //+kubebuilder:object:root=true
 //+kubebuilder:resource:scope=Cluster,shortName={compliancedetail}
 //+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"

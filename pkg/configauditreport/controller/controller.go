@@ -511,8 +511,8 @@ func (r *ResourceController) reconcileClusterConfig(kind kube.Kind) reconcile.Fu
 func clusterRbacReportItems(crar v1alpha1.ClusterRbacAssessmentReportList) func() (client.ObjectList, []client.Object) {
 	return func() (client.ObjectList, []client.Object) {
 		objlist := make([]client.Object, 0)
-		for _, item := range crar.Items {
-			objlist = append(objlist, &item)
+		for idx := range crar.Items {
+			objlist = append(objlist, &crar.Items[idx])
 		}
 		return &crar, objlist
 	}
@@ -521,8 +521,8 @@ func clusterRbacReportItems(crar v1alpha1.ClusterRbacAssessmentReportList) func(
 func rbacReportItems(rar v1alpha1.RbacAssessmentReportList) func() (client.ObjectList, []client.Object) {
 	return func() (client.ObjectList, []client.Object) {
 		objlist := make([]client.Object, 0)
-		for _, item := range rar.Items {
-			objlist = append(objlist, &item)
+		for idx := range rar.Items {
+			objlist = append(objlist, &rar.Items[idx])
 		}
 		return &rar, objlist
 	}
@@ -531,8 +531,8 @@ func rbacReportItems(rar v1alpha1.RbacAssessmentReportList) func() (client.Objec
 func clusterAuditConfigReportItems(ccar v1alpha1.ClusterConfigAuditReportList) func() (client.ObjectList, []client.Object) {
 	return func() (client.ObjectList, []client.Object) {
 		objlist := make([]client.Object, 0)
-		for _, item := range ccar.Items {
-			objlist = append(objlist, &item)
+		for idx := range ccar.Items {
+			objlist = append(objlist, &ccar.Items[idx])
 		}
 		return &ccar, objlist
 	}
@@ -540,8 +540,8 @@ func clusterAuditConfigReportItems(ccar v1alpha1.ClusterConfigAuditReportList) f
 func auditConfigReportItems(car v1alpha1.ConfigAuditReportList) func() (client.ObjectList, []client.Object) {
 	return func() (client.ObjectList, []client.Object) {
 		objlist := make([]client.Object, 0)
-		for _, item := range car.Items {
-			objlist = append(objlist, &item)
+		for idx := range car.Items {
+			objlist = append(objlist, &car.Items[idx])
 		}
 		return &car, objlist
 	}

@@ -4,7 +4,7 @@ kind: CustomResourceDefinition
 metadata:
   labels:
     app.kubernetes.io/managed-by: trivy-operator
-    app.kubernetes.io/version: 0.1.3-rc.2
+    app.kubernetes.io/version: 0.1.3
   name: clustercompliancedetailreports.aquasecurity.github.io
 spec:
   group: aquasecurity.github.io

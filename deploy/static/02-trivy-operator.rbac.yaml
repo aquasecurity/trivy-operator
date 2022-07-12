@@ -131,6 +131,8 @@ rules:
       - exposedsecretreports
       - configauditreports
       - clusterconfigauditreports
+      - clusterrbacassessmentreports
+      - rbacassessmentreports
       - clustercompliancereports
       - clustercompliancedetailreports
     verbs:

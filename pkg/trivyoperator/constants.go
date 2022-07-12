@@ -1,19 +1,9 @@
 package trivyoperator
 
 const (
-	Banner = `Trivy-Operator is an Aqua Security open source project.
-Learn about our open source work and portfolio on https://www.aquasec.com/products/open-source-projects/.
-`
-)
-
-const (
 	// NamespaceName the name of the namespace in which Trivy-operator stores its
 	// configuration and where it runs scan jobs.
 	NamespaceName = "trivy-operator"
-
-	// ServiceAccountName the name of the service account used to provide
-	// identity for scan jobs run by Trivy-operator.
-	ServiceAccountName = "trivy-operator"
 
 	// ConfigMapName the name of the ConfigMap where Trivy-operator stores its
 	// configuration.
@@ -37,7 +27,6 @@ const (
 	LabelResourceSpecHash  = "resource-spec-hash"
 	LabelPluginConfigHash  = "plugin-config-hash"
 
-	LabelConfigAuditReportScanner   = "configAuditReport.scanner"
 	LabelVulnerabilityReportScanner = "vulnerabilityReport.scanner"
 
 	LabelK8SAppManagedBy = "app.kubernetes.io/managed-by"

@@ -99,12 +99,6 @@ type ServiceAccountBuilder struct {
 	target *corev1.ServiceAccount
 }
 
-func NewServiceAccount() *ServiceAccountBuilder {
-	return &ServiceAccountBuilder{
-		target: &corev1.ServiceAccount{},
-	}
-}
-
 func (b *ServiceAccountBuilder) WithRandomName(prefix string) *ServiceAccountBuilder {
 	b.target.Name = prefix + "-" + rand.String(5)
 	return b
@@ -130,12 +124,6 @@ type SecretBuilder struct {
 	registryServer   string
 	registryUsername string
 	registryPassword string
-}
-
-func NewDockerRegistrySecret() *SecretBuilder {
-	return &SecretBuilder{
-		target: &corev1.Secret{},
-	}
 }
 
 func (b *SecretBuilder) WithRandomName(name string) *SecretBuilder {
@@ -257,10 +245,6 @@ type VulnerabilityReportBuilder struct {
 	namespace string
 	ownerKind kube.Kind
 	ownerName string
-}
-
-func NewVulnerabilityReport() *VulnerabilityReportBuilder {
-	return &VulnerabilityReportBuilder{}
 }
 
 func (b *VulnerabilityReportBuilder) WithName(name string) *VulnerabilityReportBuilder {

@@ -1199,23 +1199,21 @@ rules:
       - get
       - list
       - watch
+  # Permissions required to read workload image pull secrets and create scan job image pull secrets
   - apiGroups:
       - ""
     resources:
       - secrets
+    verbs:
+      - create
+      - get
+  # Permissions required to read image pull secrets references from serviceaccounts
+  - apiGroups:
+      - ""
+    resources:
       - serviceaccounts
     verbs:
-      - list
-      - watch
       - get
-      - create
-      - update
-  - apiGroups:
-      - ""
-    resources:
-      - secrets
-    verbs:
-      - delete
   - apiGroups:
       - apps
     resources:

@@ -8,11 +8,53 @@ rules:
       - ""
     resources:
       - pods
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
       - pods/log
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
       - replicationcontrollers
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
       - services
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
       - resourcequotas
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
       - limitranges
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
       - configmaps
     verbs:
       - get
@@ -37,8 +79,29 @@ rules:
       - apps
     resources:
       - replicasets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - apps
+    resources:
       - statefulsets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - apps
+    resources:
       - daemonsets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - apps
+    resources:
       - deployments
     verbs:
       - get
@@ -48,6 +111,15 @@ rules:
       - batch
     resources:
       - jobs
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - delete
+  - apiGroups:
+      - batch
+    resources:
       - cronjobs
     verbs:
       - get
@@ -57,8 +129,29 @@ rules:
       - rbac.authorization.k8s.io
     resources:
       - roles
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
       - rolebindings
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
       - clusterroles
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
       - clusterrolebindings
     verbs:
       - get
@@ -73,16 +166,16 @@ rules:
       - list
       - watch
   - apiGroups:
-      - batch
-    resources:
-      - jobs
-    verbs:
-      - create
-      - delete
-  - apiGroups:
       - networking.k8s.io
     resources:
       - networkpolicies
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - networking.k8s.io
+    resources:
       - ingresses
     verbs:
       - get
@@ -100,12 +193,82 @@ rules:
       - aquasecurity.github.io
     resources:
       - vulnerabilityreports
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
       - exposedsecretreports
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
       - configauditreports
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
       - clusterconfigauditreports
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
       - clusterrbacassessmentreports
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
       - rbacassessmentreports
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
       - clustercompliancereports
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
       - clustercompliancedetailreports
     verbs:
       - get

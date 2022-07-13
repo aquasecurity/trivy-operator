@@ -17,39 +17,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
-
-func TestNewImagePullSecret(t *testing.T) {
-	t.Run("should construct a new image secret with encoded data", func(t *testing.T) {
-		g := NewGomegaWithT(t)
-
-		secret, err := kube.NewImagePullSecret(metav1.ObjectMeta{
-			Name:      "my-secret",
-			Namespace: "my-namespace",
-		}, "http://index.docker.io/v1", "root", "s3cret")
-
-		g.Expect(err).ToNot(HaveOccurred())
-		g.Expect(*secret).To(MatchFields(IgnoreExtras, Fields{
-			"ObjectMeta": MatchFields(IgnoreExtras, Fields{
-				"Name":      Equal("my-secret"),
-				"Namespace": Equal("my-namespace"),
-			}),
-			"Type": Equal(corev1.SecretTypeDockerConfigJson),
-			"Data": MatchAllKeys(Keys{
-				".dockerconfigjson": MatchJSON(`{
-  "auths": {
-    "http://index.docker.io/v1": {
-      "auth": "cm9vdDpzM2NyZXQ=",
-      "username": "root",
-      "password": "s3cret"
-    }
-  }
-}`),
-			}),
-		}))
-	})
-}
 
 func TestMapDockerRegistryServersToAuths(t *testing.T) {
 	t.Run("should map Docker registry servers to Docker authentication credentials", func(t *testing.T) {

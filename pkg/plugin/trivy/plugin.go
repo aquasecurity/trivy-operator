@@ -51,18 +51,21 @@ const (
 	keyTrivyHTTPProxy              = "trivy.httpProxy"
 	keyTrivyHTTPSProxy             = "trivy.httpsProxy"
 	keyTrivyNoProxy                = "trivy.noProxy"
-	keyTrivyGitHubToken            = "trivy.githubToken"
-	keyTrivySkipFiles              = "trivy.skipFiles"
-	keyTrivySkipDirs               = "trivy.skipDirs"
-	keyTrivyDBRepository           = "trivy.dbRepository"
-	keyTrivyDBRepositoryInsecure   = "trivy.dbRepositoryInsecure"
+	// nolint:gosec // This is not a secret, but a configuration value.
+	keyTrivyGitHubToken          = "trivy.githubToken"
+	keyTrivySkipFiles            = "trivy.skipFiles"
+	keyTrivySkipDirs             = "trivy.skipDirs"
+	keyTrivyDBRepository         = "trivy.dbRepository"
+	keyTrivyDBRepositoryInsecure = "trivy.dbRepositoryInsecure"
 
 	keyTrivyUseBuiltinRegoPolicies    = "trivy.useBuiltinRegoPolicies"
 	keyTrivySupportedConfigAuditKinds = "trivy.supportedConfigAuditKinds"
 
-	keyTrivyServerURL           = "trivy.serverURL"
-	keyTrivyServerTokenHeader   = "trivy.serverTokenHeader"
-	keyTrivyServerInsecure      = "trivy.serverInsecure"
+	keyTrivyServerURL = "trivy.serverURL"
+	// nolint:gosec // This is not a secret, but a configuration value.
+	keyTrivyServerTokenHeader = "trivy.serverTokenHeader"
+	keyTrivyServerInsecure    = "trivy.serverInsecure"
+	// nolint:gosec // This is not a secret, but a configuration value.
 	keyTrivyServerToken         = "trivy.serverToken"
 	keyTrivyServerCustomHeaders = "trivy.serverCustomHeaders"
 

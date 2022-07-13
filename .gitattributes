@@ -1,0 +1,8 @@
+# Make GitHub keep certain files from displaying in diffs by default
+
+deploy/static/02-trivy-operator.rbac.yaml linguist-generated=true
+deploy/static/03-trivy-operator.config.yaml linguist-generated=true
+deploy/static/04-trivy-operator.policies.yaml linguist-generated=true
+deploy/static/05-trivy-operator.deployment.yaml linguist-generated=true
+deploy/static/06-trivy-operator.service.yaml linguist-generated=true
+deploy/static/trivy-operator.yaml linguist-generated=true

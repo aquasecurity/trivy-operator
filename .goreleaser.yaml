@@ -67,6 +67,7 @@ dockers:
   - image_templates:
       - "docker.io/aquasec/trivy-operator:{{ .Version }}-ubi8-amd64"
       - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi8-amd64"
+      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ubi8-amd64"
     use: buildx
     goos: linux
     dockerfile: build/trivy-operator/Dockerfile.ubi8

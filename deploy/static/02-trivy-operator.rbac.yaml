@@ -36,14 +36,6 @@ rules:
       - get
       - list
       - watch
-  - apiGroups:
-      - ""
-    resources:
-      - nodes
-    verbs:
-      - get
-      - list
-      - watch
   # Permissions required to read workload image pull secrets and create scan job image pull secrets
   - apiGroups:
       - ""

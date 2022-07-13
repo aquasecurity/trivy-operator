@@ -165,36 +165,39 @@ func (r *secretsReader) ListByLocalObjectReferences(ctx context.Context, refs []
 	return secrets, nil
 }
 
-func (r *secretsReader) ListImagePullSecretsByPodSpec(ctx context.Context, spec corev1.PodSpec, ns string) ([]corev1.Secret, error) {
-	// try to fetch image pull secret from pod spec
-	secrets, err := r.ListByLocalObjectReferences(ctx, spec.ImagePullSecrets, ns)
-	if err != nil {
-		return nil, err
-	}
-
+func (r *secretsReader) getServiceAccountByPodSpec(ctx context.Context, spec corev1.PodSpec, ns string) (*corev1.ServiceAccount, error) {
 	serviceAccountName := spec.ServiceAccountName
 	if serviceAccountName == "" {
 		serviceAccountName = serviceAccountDefault
 	}
-	// try to fetch image pull secret from service account
-	var sa corev1.ServiceAccount
-	err = r.client.Get(ctx, client.ObjectKey{Name: serviceAccountName, Namespace: ns}, &sa)
+
+	sa := &corev1.ServiceAccount{}
+	err := r.client.Get(ctx, client.ObjectKey{Name: serviceAccountName, Namespace: ns}, sa)
 	if err != nil {
 		return nil, fmt.Errorf("getting service account by name: %s/%s: %w", ns, serviceAccountName, err)
 	}
-	serviceAccountSecrets, err := r.ListByLocalObjectReferences(ctx, sa.ImagePullSecrets, ns)
+	return sa, nil
+}
+
+func (r *secretsReader) ListImagePullSecretsByPodSpec(ctx context.Context, spec corev1.PodSpec, ns string) ([]corev1.Secret, error) {
+	imagePullSecrets := spec.ImagePullSecrets
+
+	sa, err := r.getServiceAccountByPodSpec(ctx, spec, ns)
 	if err != nil {
 		return nil, err
 	}
-	// if image pull secret define in either service account or pod spec and no secrets found
-	if r.imagePullSecretDefineAndNoSecretsFound(sa.ImagePullSecrets, serviceAccountSecrets, spec.ImagePullSecrets, secrets) {
-		return nil, fmt.Errorf("failed to list secrets by imagePullSecrets ref %v and service account %s", spec.ImagePullSecrets, serviceAccountName)
-	}
-	return append(secrets, serviceAccountSecrets...), nil
-}
+	imagePullSecrets = append(imagePullSecrets, sa.ImagePullSecrets...)
 
-func (r *secretsReader) imagePullSecretDefineAndNoSecretsFound(saImagePullSecretRef []corev1.LocalObjectReference, serviceAccountSecrets []corev1.Secret, imagePullSecretRef []corev1.LocalObjectReference, secrets []corev1.Secret) bool {
-	return len(saImagePullSecretRef) > 0 && len(serviceAccountSecrets) == 0 && len(imagePullSecretRef) > 0 && len(secrets) == 0
+	secrets, err := r.ListByLocalObjectReferences(ctx, imagePullSecrets, ns)
+	if err != nil {
+		return nil, err
+	}
+
+	// if image pull secret define in either service account or pod spec and no secrets found
+	if len(imagePullSecrets) > 0 && len(secrets) == 0 {
+		return nil, fmt.Errorf("failed to list secrets by imagePullSecrets ref %v and service account %s", spec.ImagePullSecrets, sa.Name)
+	}
+	return secrets, nil
 }
 
 func (r *secretsReader) CredentialsByWorkload(ctx context.Context, workload client.Object) (map[string]docker.Auth, error) {

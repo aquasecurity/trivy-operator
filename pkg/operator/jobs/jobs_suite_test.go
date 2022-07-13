@@ -1,4 +1,4 @@
-package controller
+package jobs
 
 import (
 	"testing"
@@ -9,6 +9,6 @@ import (
 
 func TestPredicate(t *testing.T) {
 	RegisterFailHandler(Fail)
-	suiteName := "Controller Suite"
+	suiteName := "Jobs Suite"
 	RunSpecs(t, suiteName)
 }

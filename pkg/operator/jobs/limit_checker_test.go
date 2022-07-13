@@ -1,4 +1,4 @@
-package controller_test
+package jobs_test
 
 import (
 	. "github.com/onsi/ginkgo/v2"
@@ -6,8 +6,8 @@ import (
 
 	"context"
 
-	"github.com/aquasecurity/trivy-operator/pkg/operator/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -54,7 +54,7 @@ var _ = Describe("LimitChecker", func() {
 				}},
 			).Build()
 
-			instance := controller.NewLimitChecker(config, client, defaultTrivyOperatorConfig)
+			instance := jobs.NewLimitChecker(config, client, defaultTrivyOperatorConfig)
 			limitExceeded, jobsCount, err := instance.Check(context.TODO())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(limitExceeded).To(BeTrue())
@@ -80,7 +80,7 @@ var _ = Describe("LimitChecker", func() {
 				}},
 			).Build()
 
-			instance := controller.NewLimitChecker(config, client, defaultTrivyOperatorConfig)
+			instance := jobs.NewLimitChecker(config, client, defaultTrivyOperatorConfig)
 			limitExceeded, jobsCount, err := instance.Check(context.TODO())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(limitExceeded).To(BeFalse())
@@ -121,7 +121,7 @@ var _ = Describe("LimitChecker", func() {
 			).Build()
 			trivyOperatorConfig := defaultTrivyOperatorConfig
 			trivyOperatorConfig[trivyoperator.KeyVulnerabilityScansInSameNamespace] = "true"
-			instance := controller.NewLimitChecker(config, client, trivyOperatorConfig)
+			instance := jobs.NewLimitChecker(config, client, trivyOperatorConfig)
 			limitExceeded, jobsCount, err := instance.Check(context.TODO())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(limitExceeded).To(BeTrue())

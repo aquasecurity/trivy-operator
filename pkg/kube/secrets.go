@@ -119,6 +119,9 @@ func NewSecretsReader(client client.Client) SecretsReader {
 	return &secretsReader{client: client}
 }
 
+//+kubebuilder:rbac:groups="",resources=secrets,verbs=get
+//+kubebuilder:rbac:groups="",resources=serviceaccounts,verbs=get
+
 type secretsReader struct {
 	client client.Client
 }

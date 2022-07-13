@@ -19,6 +19,8 @@ type LogsReader interface {
 	GetTerminatedContainersStatusesByJob(ctx context.Context, job *batchv1.Job) (map[string]*corev1.ContainerStateTerminated, error)
 }
 
+//+kubebuilder:rbac:groups="",resources=pods/log,verbs=get;list
+
 type logsReader struct {
 	clientset kubernetes.Interface
 }

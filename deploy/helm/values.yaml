@@ -80,6 +80,8 @@ serviceMonitor:
   # The namespace where Prometheus expects to find service monitors
   # namespace: ""
   interval: ""
+  # Additional labels for the serviceMonitor
+  labels: {}
   # honorLabels: true
 
 trivyOperator:

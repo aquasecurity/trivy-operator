@@ -6,6 +6,9 @@ metadata:
   namespace: {{ .Values.serviceMonitor.namespace | default .Release.Namespace }}
   labels:
     {{- include "trivy-operator.labels" . | nindent 4 }}
+    {{- if .Values.serviceMonitor.labels }}
+    {{- toYaml .Values.serviceMonitor.labels | nindent 4 }}
+    {{- end }}
 spec:
   {{- if .Values.serviceMonitor.namespace }}
   namespaceSelector:

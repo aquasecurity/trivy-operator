@@ -20,6 +20,22 @@ rules:
   - apiGroups:
       - ""
     resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - limitranges
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
       - pods
     verbs:
       - get
@@ -44,31 +60,7 @@ rules:
   - apiGroups:
       - ""
     resources:
-      - services
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - ""
-    resources:
       - resourcequotas
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - limitranges
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - configmaps
     verbs:
       - get
       - list
@@ -89,17 +81,17 @@ rules:
     verbs:
       - get
   - apiGroups:
-      - apps
+      - ""
     resources:
-      - replicasets
+      - services
     verbs:
       - get
       - list
       - watch
   - apiGroups:
-      - apps
+      - apiextensions.k8s.io
     resources:
-      - statefulsets
+      - customresourcedefinitions
     verbs:
       - get
       - list
@@ -121,83 +113,17 @@ rules:
       - list
       - watch
   - apiGroups:
-      - batch
+      - apps
     resources:
-      - jobs
-    verbs:
-      - get
-      - list
-      - watch
-      - create
-      - delete
-  - apiGroups:
-      - batch
-    resources:
-      - cronjobs
+      - replicasets
     verbs:
       - get
       - list
       - watch
   - apiGroups:
-      - rbac.authorization.k8s.io
+      - apps
     resources:
-      - roles
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - rbac.authorization.k8s.io
-    resources:
-      - rolebindings
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - rbac.authorization.k8s.io
-    resources:
-      - clusterroles
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - rbac.authorization.k8s.io
-    resources:
-      - clusterrolebindings
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - apiextensions.k8s.io
-    resources:
-      - customresourcedefinitions
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - networking.k8s.io
-    resources:
-      - networkpolicies
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - networking.k8s.io
-    resources:
-      - ingresses
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - policy
-    resources:
-      - podsecuritypolicies
+      - statefulsets
     verbs:
       - get
       - list
@@ -205,7 +131,7 @@ rules:
   - apiGroups:
       - aquasecurity.github.io
     resources:
-      - vulnerabilityreports
+      - clustercompliancedetailreports
     verbs:
       - get
       - list
@@ -216,7 +142,7 @@ rules:
   - apiGroups:
       - aquasecurity.github.io
     resources:
-      - exposedsecretreports
+      - clustercompliancereports
     verbs:
       - get
       - list
@@ -227,14 +153,9 @@ rules:
   - apiGroups:
       - aquasecurity.github.io
     resources:
-      - configauditreports
+      - clustercompliancereports/status
     verbs:
-      - get
-      - list
-      - watch
-      - create
       - update
-      - delete
   - apiGroups:
       - aquasecurity.github.io
     resources:
@@ -260,6 +181,28 @@ rules:
   - apiGroups:
       - aquasecurity.github.io
     resources:
+      - configauditreports
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - exposedsecretreports
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
       - rbacassessmentreports
     verbs:
       - get
@@ -271,7 +214,7 @@ rules:
   - apiGroups:
       - aquasecurity.github.io
     resources:
-      - clustercompliancereports
+      - vulnerabilityreports
     verbs:
       - get
       - list
@@ -280,22 +223,79 @@ rules:
       - update
       - delete
   - apiGroups:
-      - aquasecurity.github.io
+      - batch
     resources:
-      - clustercompliancedetailreports
+      - cronjobs
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - batch
+    resources:
+      - jobs
     verbs:
       - get
       - list
       - watch
       - create
-      - update
       - delete
   - apiGroups:
-      - aquasecurity.github.io
+      - networking.k8s.io
     resources:
-      - clustercompliancereports/status
+      - ingresses
     verbs:
-      - update
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - networkpolicies
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - policy
+    resources:
+      - podsecuritypolicies
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - clusterrolebindings
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - clusterroles
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - rolebindings
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - roles
+    verbs:
+      - get
+      - list
+      - watch
 ---
 # Source: trivy-operator/templates/rbac.yaml
 # permissions for end users to view configauditreports

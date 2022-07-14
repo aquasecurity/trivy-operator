@@ -316,10 +316,10 @@ type Helper struct {
 	kubeClient client.Client
 }
 
-func NewHelper(client client.Client) *Helper {
+func NewHelper(c client.Client) *Helper {
 	return &Helper{
-		scheme:     client.Scheme(),
-		kubeClient: client,
+		scheme:     c.Scheme(),
+		kubeClient: c,
 	}
 }
 

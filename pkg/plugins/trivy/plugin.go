@@ -19,7 +19,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
-	"github.com/google/go-containerregistry/pkg/name"
+	containerimage "github.com/google/go-containerregistry/pkg/name"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -1286,7 +1286,7 @@ func (p *plugin) initContainerFSEnvVar(trivyConfigName string, config Config) []
 }
 
 func (p *plugin) appendTrivyInsecureEnv(config Config, image string, env []corev1.EnvVar) ([]corev1.EnvVar, error) {
-	ref, err := name.ParseReference(image)
+	ref, err := containerimage.ParseReference(image)
 	if err != nil {
 		return nil, err
 	}
@@ -1303,7 +1303,7 @@ func (p *plugin) appendTrivyInsecureEnv(config Config, image string, env []corev
 }
 
 func (p *plugin) appendTrivyNonSSLEnv(config Config, image string, env []corev1.EnvVar) ([]corev1.EnvVar, error) {
-	ref, err := name.ParseReference(image)
+	ref, err := containerimage.ParseReference(image)
 	if err != nil {
 		return nil, err
 	}
@@ -1474,7 +1474,7 @@ func (p *plugin) secretSummary(secrets []v1alpha1.ExposedSecret) v1alpha1.Expose
 }
 
 func (p *plugin) parseImageRef(imageRef string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
-	ref, err := name.ParseReference(imageRef)
+	ref, err := containerimage.ParseReference(imageRef)
 	if err != nil {
 		return v1alpha1.Registry{}, v1alpha1.Artifact{}, err
 	}
@@ -1485,9 +1485,9 @@ func (p *plugin) parseImageRef(imageRef string) (v1alpha1.Registry, v1alpha1.Art
 		Repository: ref.Context().RepositoryStr(),
 	}
 	switch t := ref.(type) {
-	case name.Tag:
+	case containerimage.Tag:
 		artifact.Tag = t.TagStr()
-	case name.Digest:
+	case containerimage.Digest:
 		artifact.Digest = t.DigestStr()
 	}
 	return registry, artifact, nil
@@ -1512,7 +1512,7 @@ func GetScoreFromCVSS(CVSSs map[string]*CVSS) *float64 {
 }
 
 func GetMirroredImage(image string, mirrors map[string]string) (string, error) {
-	ref, err := name.ParseReference(image)
+	ref, err := containerimage.ParseReference(image)
 	if err != nil {
 		return "", err
 	}

@@ -12,7 +12,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/metrics"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
-	"github.com/aquasecurity/trivy-operator/pkg/plugin"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
@@ -137,7 +137,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	secretsReader := kube.NewSecretsReader(mgr.GetClient())
 
 	if operatorConfig.VulnerabilityScannerEnabled {
-		plugin, pluginContext, err := plugin.NewResolver().
+		plugin, pluginContext, err := plugins.NewResolver().
 			WithBuildInfo(buildInfo).
 			WithNamespace(operatorNamespace).
 			WithServiceAccountName(operatorConfig.ServiceAccount).
@@ -184,7 +184,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	}
 
 	if operatorConfig.ConfigAuditScannerEnabled {
-		plugin, pluginContext, err := plugin.NewResolver().WithBuildInfo(buildInfo).
+		plugin, pluginContext, err := plugins.NewResolver().WithBuildInfo(buildInfo).
 			WithNamespace(operatorNamespace).
 			WithServiceAccountName(operatorConfig.ServiceAccount).
 			WithConfig(trivyOperatorConfig).

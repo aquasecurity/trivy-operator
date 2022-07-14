@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/plugin/trivy"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
 
 	"github.com/aquasecurity/defsec/pkg/scan"

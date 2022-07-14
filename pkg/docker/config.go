@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/google/go-containerregistry/pkg/name"
+	containerimage "github.com/google/go-containerregistry/pkg/name"
 )
 
 type BasicAuth string
@@ -104,7 +104,7 @@ func (c Config) Write() ([]byte, error) {
 
 // GetServerFromImageRef returns registry server from the specified imageRef.
 func GetServerFromImageRef(imageRef string) (string, error) {
-	ref, err := name.ParseReference(imageRef)
+	ref, err := containerimage.ParseReference(imageRef)
 	if err != nil {
 		return "", err
 	}

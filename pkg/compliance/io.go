@@ -26,9 +26,9 @@ type Mgr interface {
 	GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportSpec) error
 }
 
-func NewMgr(client client.Client, log logr.Logger, config trivyoperator.ConfigData) Mgr {
+func NewMgr(c client.Client, log logr.Logger, config trivyoperator.ConfigData) Mgr {
 	return &cm{
-		client: client,
+		client: c,
 		log:    log,
 		config: config,
 	}

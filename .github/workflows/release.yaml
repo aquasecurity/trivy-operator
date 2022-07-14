@@ -65,16 +65,7 @@ jobs:
           kubectl describe node
       - name: Run integration tests
         run: |
-          kubectl apply -f deploy/crd/aquasecurity.github.io_vulnerabilityreports.yaml \
-            -f deploy/crd/aquasecurity.github.io_configauditreports.yaml \
-            -f deploy/crd/aquasecurity.github.io_clusterconfigauditreports.yaml \
-            -f deploy/compliance/aquasecurity.github.io_clustercompliancereports.yaml \
-            -f deploy/compliance/aquasecurity.github.io_clustercompliancedetailreports.yaml \
-            -f deploy/crd/aquasecurity.github.io_rbacassessmentreports.yaml \
-            -f deploy/crd/aquasecurity.github.io_clusterrbacassessmentreports.yaml \
-            -f deploy/crd/aquasecurity.github.io_exposedsecretreports.yaml
-          kubectl apply -f deploy/static/01-trivy-operator.ns.yaml \
-            -f deploy/static/02-trivy-operator.rbac.yaml
+          kubectl create -k deploy/static
           make itests-trivy-operator
         env:
           KUBECONFIG: /home/runner/.kube/config

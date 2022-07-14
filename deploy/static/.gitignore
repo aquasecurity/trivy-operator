@@ -1,0 +1,4 @@
+*
+!kustomization.yaml
+!namespace.yaml
+!trivy-operator.yaml

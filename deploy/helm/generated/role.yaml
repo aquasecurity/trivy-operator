@@ -120,23 +120,23 @@ rules:
     resources:
       - clustercompliancedetailreports
     verbs:
+      - create
+      - delete
       - get
       - list
-      - watch
-      - create
       - update
-      - delete
+      - watch
   - apiGroups:
       - aquasecurity.github.io
     resources:
       - clustercompliancereports
     verbs:
+      - create
+      - delete
       - get
       - list
-      - watch
-      - create
       - update
-      - delete
+      - watch
   - apiGroups:
       - aquasecurity.github.io
     resources:
@@ -148,67 +148,67 @@ rules:
     resources:
       - clusterconfigauditreports
     verbs:
+      - create
+      - delete
       - get
       - list
-      - watch
-      - create
       - update
-      - delete
+      - watch
   - apiGroups:
       - aquasecurity.github.io
     resources:
       - clusterrbacassessmentreports
     verbs:
+      - create
+      - delete
       - get
       - list
-      - watch
-      - create
       - update
-      - delete
+      - watch
   - apiGroups:
       - aquasecurity.github.io
     resources:
       - configauditreports
     verbs:
+      - create
+      - delete
       - get
       - list
-      - watch
-      - create
       - update
-      - delete
+      - watch
   - apiGroups:
       - aquasecurity.github.io
     resources:
       - exposedsecretreports
     verbs:
+      - create
+      - delete
       - get
       - list
-      - watch
-      - create
       - update
-      - delete
+      - watch
   - apiGroups:
       - aquasecurity.github.io
     resources:
       - rbacassessmentreports
     verbs:
+      - create
+      - delete
       - get
       - list
-      - watch
-      - create
       - update
-      - delete
+      - watch
   - apiGroups:
       - aquasecurity.github.io
     resources:
       - vulnerabilityreports
     verbs:
+      - create
+      - delete
       - get
       - list
-      - watch
-      - create
       - update
-      - delete
+      - watch
   - apiGroups:
       - batch
     resources:
@@ -222,11 +222,11 @@ rules:
     resources:
       - jobs
     verbs:
+      - create
+      - delete
       - get
       - list
       - watch
-      - create
-      - delete
   - apiGroups:
       - networking.k8s.io
     resources:

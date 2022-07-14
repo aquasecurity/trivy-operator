@@ -3,7 +3,6 @@ package controller
 import (
 	"context"
 	"fmt"
-
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 
@@ -20,10 +19,8 @@ import (
 	"github.com/go-logr/logr"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
-	batchv1beta1 "k8s.io/api/batch/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
-	policyv1beta1 "k8s.io/api/policy/v1beta1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -95,7 +92,7 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		{kind: kube.KindReplicationController, forObject: &corev1.ReplicationController{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
 		{kind: kube.KindStatefulSet, forObject: &appsv1.StatefulSet{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
 		{kind: kube.KindDaemonSet, forObject: &appsv1.DaemonSet{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindCronJob, forObject: &batchv1beta1.CronJob{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
+		{kind: kube.KindCronJob, forObject: r.ObjectResolver.CompatibleMgr.GetSupportedObjectByKind(kube.KindCronJob), ownsObject: &v1alpha1.ConfigAuditReport{}},
 		{kind: kube.KindJob, forObject: &batchv1.Job{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
 		{kind: kube.KindService, forObject: &corev1.Service{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
 		{kind: kube.KindConfigMap, forObject: &corev1.ConfigMap{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
@@ -115,7 +112,6 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		{kind: kube.KindClusterRole, forObject: &rbacv1.ClusterRole{}, ownsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
 		{kind: kube.KindClusterRoleBindings, forObject: &rbacv1.ClusterRoleBinding{}, ownsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
 		{kind: kube.KindCustomResourceDefinition, forObject: &apiextensionsv1.CustomResourceDefinition{}, ownsObject: &v1alpha1.ClusterConfigAuditReport{}},
-		{kind: kube.KindPodSecurityPolicy, forObject: &policyv1beta1.PodSecurityPolicy{}, ownsObject: &v1alpha1.ClusterConfigAuditReport{}},
 	}
 
 	for _, resource := range resources {
@@ -177,7 +173,6 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 	return func(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 		log := r.Logger.WithValues("kind", resourceKind, "name", req.NamespacedName)
 		resourceRef := kube.ObjectRefFromKindAndObjectKey(resourceKind, req.NamespacedName)
-
 		resource, err := r.ObjectFromObjectRef(ctx, resourceRef)
 		if err != nil {
 			if errors.IsNotFound(err) {

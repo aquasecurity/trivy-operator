@@ -136,10 +136,6 @@ func TestIsClusterScopedKind(t *testing.T) {
 			want: true,
 		},
 		{
-			kind: "PodSecurityPolicy",
-			want: true,
-		},
-		{
 			kind: "Pod",
 			want: false,
 		},
@@ -494,6 +490,35 @@ func TestGetPodSpec(t *testing.T) {
 			},
 		},
 		{
+			name: "Should return PodSpec for CronJob",
+			object: &batchv1.CronJob{
+				Spec: batchv1.CronJobSpec{
+					JobTemplate: batchv1.JobTemplateSpec{
+						Spec: batchv1.JobSpec{
+							Template: corev1.PodTemplateSpec{
+								Spec: corev1.PodSpec{
+									Containers: []corev1.Container{
+										{
+											Name:  "cronjob",
+											Image: "cronjob:5",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedPodSpec: corev1.PodSpec{
+				Containers: []corev1.Container{
+					{
+						Name:  "cronjob",
+						Image: "cronjob:5",
+					},
+				},
+			},
+		},
+		{
 			name: "Should return PodSpec for Job",
 			object: &batchv1.Job{
 				Spec: batchv1.JobSpec{
@@ -540,8 +565,7 @@ func TestGetPodSpec(t *testing.T) {
 }
 
 func TestObjectResolver_RelatedReplicaSetName(t *testing.T) {
-
-	instance := &kube.ObjectResolver{Client: fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(
+	kubClient := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(
 		&appsv1.Deployment{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "nginx",
@@ -622,7 +646,8 @@ func TestObjectResolver_RelatedReplicaSetName(t *testing.T) {
 				},
 			},
 		},
-	).Build()}
+	).Build()
+	instance := kube.NewObjectResolver(kubClient, &kube.CompatibleObjectMapper{})
 
 	t.Run("Should return error for unsupported kind", func(t *testing.T) {
 		_, err := instance.RelatedReplicaSetName(context.Background(), kube.ObjectRef{
@@ -1007,7 +1032,7 @@ func TestObjectResolver_ReportOwner(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			or := kube.ObjectResolver{Client: testClient}
+			or := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 			owner, err := or.ReportOwner(context.TODO(), tc.resource)
 			require.NoError(t, err)
 			assert.Equal(t, tc.owner, owner)
@@ -1187,7 +1212,7 @@ func TestObjectResolver_IsActiveReplicaSet(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			or := kube.ObjectResolver{Client: testClient}
+			or := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 			controller := metav1.GetControllerOf(tc.resource)
 			isActive, err := or.IsActiveReplicaSet(context.TODO(), tc.resource, controller)
 			require.NoError(t, err)

@@ -148,18 +148,18 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 		Context("When CronJob is created", func() {
 
 			var ctx context.Context
-			var cronJob *batchv1beta1.CronJob
+			var cronJob *batchv1.CronJob
 
 			BeforeEach(func() {
 				ctx = context.Background()
-				cronJob = &batchv1beta1.CronJob{
+				cronJob = &batchv1.CronJob{
 					ObjectMeta: metav1.ObjectMeta{
 						Namespace: inputs.PrimaryNamespace,
 						Name:      "hello-" + rand.String(5),
 					},
-					Spec: batchv1beta1.CronJobSpec{
+					Spec: batchv1.CronJobSpec{
 						Schedule: "*/1 * * * *",
-						JobTemplate: batchv1beta1.JobTemplateSpec{
+						JobTemplate: batchv1.JobTemplateSpec{
 							Spec: batchv1.JobSpec{
 								Template: corev1.PodTemplateSpec{
 									Spec: corev1.PodSpec{

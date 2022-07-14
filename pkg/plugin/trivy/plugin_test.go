@@ -11,6 +11,11 @@ import (
 	"testing"
 	"time"
 
+	v1 "k8s.io/api/batch/v1"
+
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"k8s.io/api/batch/v1beta1"
+
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/plugin/trivy"
@@ -492,21 +497,21 @@ func TestConfig_GetMirrors(t *testing.T) {
 func TestPlugin_Init(t *testing.T) {
 
 	t.Run("Should create the default config", func(t *testing.T) {
-		client := fake.NewClientBuilder().WithObjects().Build()
-
-		instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), client)
+		testClient := fake.NewClientBuilder().WithObjects().Build()
+		or := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
+		instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &or)
 
 		pluginContext := trivyoperator.NewPluginContext().
 			WithName(trivy.Plugin).
 			WithNamespace("trivyoperator-ns").
 			WithServiceAccountName("trivyoperator-sa").
-			WithClient(client).
+			WithClient(testClient).
 			Get()
 		err := instance.Init(pluginContext)
 		require.NoError(t, err)
 
 		var cm corev1.ConfigMap
-		err = client.Get(context.Background(), types.NamespacedName{
+		err = testClient.Get(context.Background(), types.NamespacedName{
 			Namespace: "trivyoperator-ns",
 			Name:      "trivy-operator-trivy-config",
 		}, &cm)
@@ -541,7 +546,7 @@ func TestPlugin_Init(t *testing.T) {
 	})
 
 	t.Run("Should not overwrite existing config", func(t *testing.T) {
-		client := fake.NewClientBuilder().WithObjects(
+		testClient := fake.NewClientBuilder().WithObjects(
 			&corev1.ConfigMap{
 				TypeMeta: metav1.TypeMeta{
 					APIVersion: "v1",
@@ -558,20 +563,20 @@ func TestPlugin_Init(t *testing.T) {
 					"trivy.mode":     "Standalone",
 				},
 			}).Build()
-
-		instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), client)
+		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
+		instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
 
 		pluginContext := trivyoperator.NewPluginContext().
 			WithName(trivy.Plugin).
 			WithNamespace("trivyoperator-ns").
 			WithServiceAccountName("trivyoperator-sa").
-			WithClient(client).
+			WithClient(testClient).
 			Get()
 		err := instance.Init(pluginContext)
 		require.NoError(t, err)
 
 		var cm corev1.ConfigMap
-		err = client.Get(context.Background(), types.NamespacedName{
+		err = testClient.Get(context.Background(), types.NamespacedName{
 			Namespace: "trivyoperator-ns",
 			Name:      "trivy-operator-trivy-config",
 		}, &cm)
@@ -3208,15 +3213,15 @@ CVE-2019-1543`,
 						Namespace: "trivyoperator-ns",
 					},
 					Data: tc.config,
-				},
-			).Build()
+				}, &v1.CronJob{}).Build()
 			pluginContext := trivyoperator.NewPluginContext().
 				WithName(trivy.Plugin).
 				WithNamespace("trivyoperator-ns").
 				WithServiceAccountName("trivyoperator-sa").
 				WithClient(fakeclient).
 				Get()
-			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), fakeclient)
+			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
+			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
 			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, nil)
 			require.NoError(t, err)
 			assert.Empty(t, secrets)
@@ -3525,8 +3530,7 @@ CVE-2019-1543`,
 						Namespace: "trivyoperator-ns",
 					},
 					Data: tc.config,
-				},
-			).Build()
+				}, &v1beta1.CronJob{}).Build()
 			pluginContext := trivyoperator.NewPluginContext().
 				WithName(trivy.Plugin).
 				WithNamespace("trivyoperator-ns").
@@ -3534,7 +3538,8 @@ CVE-2019-1543`,
 				WithClient(fakeclient).
 				WithTrivyOperatorConfig(map[string]string{trivyoperator.KeyVulnerabilityScansInSameNamespace: "true"}).
 				Get()
-			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), fakeclient)
+			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
+			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
 			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, nil)
 			require.NoError(t, err)
 			assert.Empty(t, secrets)
@@ -3746,7 +3751,8 @@ func TestPlugin_ParseReportData(t *testing.T) {
 				WithServiceAccountName("trivyoperator-sa").
 				WithClient(fakeClient).
 				Get()
-			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), fakeClient)
+			resolver := kube.NewObjectResolver(fakeClient, &kube.CompatibleObjectMapper{})
+			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
 			vulnReport, secretReport, err := instance.ParseReportData(ctx, tc.imageRef, io.NopCloser(strings.NewReader(tc.input)))
 			switch {
 			case tc.expectedError == nil:
@@ -3961,8 +3967,8 @@ func TestGetContainers(t *testing.T) {
 				WithClient(fakeclient).
 				WithTrivyOperatorConfig(map[string]string{trivyoperator.KeyVulnerabilityScansInSameNamespace: "true"}).
 				Get()
-
-			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), fakeclient)
+			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
+			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
 
 			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil)
 			assert.NoError(t, err)

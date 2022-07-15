@@ -279,23 +279,22 @@ func NewObjectResolver(c client.Client, cm CompatibleMgr) ObjectResolver {
 // it dynamically fetches the compatible k8s objects (group/api/kind) by resource from the cluster and store it in kind vs k8s object mapping
 // It will enable the operator to support old and new API resources based on cluster version support
 func InitCompatibleMgr(restMapper meta.RESTMapper) (CompatibleMgr, error) {
+	kindObjectMap := make(map[string]client.Object)
 	for _, resource := range getCompatibleResources() {
 		gvk, err := restMapper.KindFor(schema.GroupVersionResource{Resource: resource})
 		if err != nil {
 			return nil, err
 		}
-		sok, err := supportedObjectsByK8sKind(gvk.String())
+		err = supportedObjectsByK8sKind(gvk.String(), gvk.Kind, kindObjectMap)
 		if err != nil {
 			return nil, err
 		}
-		return &CompatibleObjectMapper{kindObjectMap: sok}, nil
 	}
-	return nil, fmt.Errorf("compatible Mgr could not be initilized")
+	return &CompatibleObjectMapper{kindObjectMap: kindObjectMap}, nil
 }
 
 // return a map of supported object api per k8s version
-func supportedObjectsByK8sKind(api string) (map[string]client.Object, error) {
-	kindObjectMap := make(map[string]client.Object)
+func supportedObjectsByK8sKind(api string, kind string, kindObjectMap map[string]client.Object) error {
 	var resource client.Object
 	switch api {
 	case apiBatchV1beta1CronJob:
@@ -303,10 +302,10 @@ func supportedObjectsByK8sKind(api string) (map[string]client.Object, error) {
 	case apiBatchV1CronJob:
 		resource = &batchv1.CronJob{}
 	default:
-		return nil, fmt.Errorf("api %s is not suooprted compatibale resource", api)
+		return fmt.Errorf("api %s is not suooprted compatibale resource", api)
 	}
-	kindObjectMap[string(KindCronJob)] = resource
-	return kindObjectMap, nil
+	kindObjectMap[kind] = resource
+	return nil
 }
 
 func getCompatibleResources() []string {

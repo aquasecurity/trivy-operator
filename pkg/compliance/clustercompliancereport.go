@@ -24,6 +24,10 @@ type ClusterComplianceReportReconciler struct {
 	ext.Clock
 }
 
+//+kubebuilder:rbac:groups=aquasecurity.github.io,resources=clustercompliancereports,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=aquasecurity.github.io,resources=clustercompliancereports/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=aquasecurity.github.io,resources=clustercompliancedetailreports,verbs=get;list;watch;create;update;patch;delete
+
 func (r *ClusterComplianceReportReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	if err := ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.ClusterComplianceReport{}).

@@ -17,11 +17,9 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -48,12 +46,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		Scheme:                 trivyoperator.NewScheme(),
 		MetricsBindAddress:     operatorConfig.MetricsBindAddress,
 		HealthProbeBindAddress: operatorConfig.HealthProbeBindAddress,
-		// Disable cache for resources used to look up image pull secrets to avoid
-		// spinning up informers and to tighten operator RBAC permissions
-		ClientDisableCacheFor: []client.Object{
-			&corev1.Secret{},
-			&corev1.ServiceAccount{},
-		},
 	}
 
 	if operatorConfig.LeaderElectionEnabled {

@@ -19,7 +19,7 @@
       1. Update the `version` property
       2. Update the `appVersion` property
    2. Update the `app.kubernetes.io/version` labels in the following files:
-      1. [`deploy/static/01-trivy-operator.ns.yaml`]
+      1. [`deploy/static/namespace.yaml`]
       2. [`deploy/specs/nsa-1.0.yaml`]
    3. Update static resources from Helm chart by running the make target:
       ```
@@ -61,7 +61,7 @@
 [`deploy/crd/aquasecurity.github.io_exposedsecretreports.yaml`]: ./deploy/crd/exposedsecretreports.crd.yaml
 [`deploy/crd/aquasecurity.github.io_rbacassessmentreports.yaml`]: ./deploy/crd/rbacassessmentreports.crd.yaml
 [`deploy/crd/aquasecurity.github.io_clusterrbacassessmentreports.yaml`]: ./deploy/crd/clusterrbacassessmentreports.crd.yaml
-[`deploy/static/01-trivy-operator.ns.yaml`]: ./deploy/static/01-trivy-operator.ns.yaml
+[`deploy/static/namespace.yaml`]: ./deploy/static/namespace.yaml
 [`deploy/specs/nsa-1.0.yaml`]: ./deploy/specs/nsa-1.0.yaml
 [`deploy/static/trivy-operator.yaml`]: ./deploy/static/trivy-operator.yaml
 [`mkdocs.yml`]: ./mkdocs.yml

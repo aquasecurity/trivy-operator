@@ -75,9 +75,8 @@ type ClusterRbacAssessmentReportList struct {
 }
 
 type RbacAssessmentReportData struct {
-	UpdateTimestamp metav1.Time           `json:"updateTimestamp"`
-	Scanner         Scanner               `json:"scanner"`
-	Summary         RbacAssessmentSummary `json:"summary"`
+	Scanner Scanner               `json:"scanner"`
+	Summary RbacAssessmentSummary `json:"summary"`
 
 	// Checks provides results of conducting audit steps.
 	Checks []Check `json:"checks"`

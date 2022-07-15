@@ -159,14 +159,10 @@ spec:
                 - lowCount
                 - mediumCount
                 type: object
-              updateTimestamp:
-                format: date-time
-                type: string
             required:
             - checks
             - scanner
             - summary
-            - updateTimestamp
             type: object
         required:
         - report

@@ -14,7 +14,7 @@ These guidelines will help you get started with the Trivy-operator project.
   - [Run Integration Tests](#run-integration-tests)
   - [Cove Coverage](#code-coverage)
 - [Custom Resource Definitions](#custom-resource-definitions)
-  - [Generate Code](#generate-code)
+  - [Generating code and manifests](#generating-code-and-manifests)
 - [Test Trivy Operator](#test-trivy-operator)
   - [In Cluster](#in-cluster)
   - [Out of Cluster](#out-of-cluster)
@@ -130,7 +130,7 @@ go tool cover -html=itest/trivy-operator/coverage.txt
 ```
 
 To run the integration tests for Trivy-operator Operator and view the coverage report, first do the
-[prerequisite steps](#prerequisites), and then run:
+[prerequisite steps](#set-up-your-development-environment), and then run:
 
 ```
 OPERATOR_NAMESPACE=trivy-system \
@@ -148,11 +148,36 @@ merge the reports automatically while maintaining the original upload context as
 
 ## Custom Resource Definitions
 
-### Generate Code
+### Generating code and manifests
 
-Controller-gen binary is used for generating deepcopy functions, CRDs and ClusterRoles from markers in Go code.
-After making changes to the Go api types (pkg/api), run `make generate` to generate the code. Another target
-`make verify-generated` is invoked in the CI workflow to ensure all the generated files are up-to-date.
+This project uses [`controller-gen`](https://book.kubebuilder.io/reference/controller-gen.html)
+to generate code and Kubernetes manifests from source-code and code markers.
+We currently generate:
+
+- Custom Resource Definitions (CRD) for CRDs defined in trivy-operator
+- ClusterRole that must be bound to the trivy-operator serviceaccount to allow it to function
+- Mandatory DeepCopy functions for a Go struct representing a CRD
+
+This means that you should not try to modify any of these files directly, but instead change
+the code and code markers. Our Makefile contains a target to ensure that all generated files
+are up-to-date: So after doing modifications in code, affecting CRDs/ClusterRole, you should
+run `make generate-all` to regenerate everything.
+
+Our CI will verify that all generated is up-to-date by running `make verify-generated`.
+
+Any change to the CRD structs, including nested structs, will probably modify the CRD.
+This is also true for Go docs, as field/type doc becomes descriptions in CRDs.
+
+When it comes to code markers added to the code, run `controller-gen -h` for detailed
+reference (add more `h`'s to the command to get more details)
+or the [markers documentation](https://book.kubebuilder.io/reference/markers.html) for
+an overview.
+
+We are trying to place the [RBAC markers](https://book.kubebuilder.io/reference/markers/rbac.html)
+close to the code that drives the requirement for permissions. This could lead to the same,
+or similar, RBAC markers multiple places in the code. This how we want it to be, since it will
+allow us to track RBAC changes to code changes. Any permission granted multiple times by markers
+will be deduplicated by controller-gen.
 
 ## Test Trivy Operator
 

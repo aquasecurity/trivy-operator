@@ -7,4 +7,6 @@ rules:
   document-start: disable
 
 ignore: |
+  /config/crd/aquasecurity.github.io_*
+  /config/rbac/role.yaml
   /deploy/

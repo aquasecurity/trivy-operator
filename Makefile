@@ -122,9 +122,11 @@ $(LOCALBIN):
 ## Tool Binaries
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
 ENVTEST ?= $(LOCALBIN)/setup-envtest
+KUSTOMIZE ?= $(LOCALBIN)/kustomize
 
 ## Tool Versions
 CONTROLLER_TOOLS_VERSION ?= v0.9.2
+KUSTOMIZE_VERSION ?= v4.5.5
 
 .PHONY: controller-gen
 controller-gen: $(CONTROLLER_GEN) ## Download controller-gen locally if necessary.
@@ -136,20 +138,24 @@ envtest: $(ENVTEST) ## Download envtest-setup locally if necessary.
 $(ENVTEST): $(LOCALBIN)
 	GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
 
+.PHONY: kustomize
+kustomize: $(KUSTOMIZE) ## Download kustomize locally if necessary.
+$(KUSTOMIZE): $(LOCALBIN)
+	GOBIN=$(LOCALBIN) go install sigs.k8s.io/kustomize/kustomize/v4@$(KUSTOMIZE_VERSION)
+
 .PHONY: verify-generated
 verify-generated: generate-all
 	./hack/verify-generated.sh
 
 .PHONY: generate
 generate: controller-gen
-	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./pkg/..." +rbac:roleName=trivy-operator output:rbac:artifacts:config=deploy/helm/generated
+	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./pkg/..."
 
 .PHONY: manifests
-manifests: controller-gen
+manifests: controller-gen kustomize
 # We must "allow dangerous types" because the API currently includes fields using floating point data types
-	$(CONTROLLER_GEN) crd:allowDangerousTypes=true paths="./pkg/apis/..." output:crd:artifacts:config=deploy/crd
-	mv deploy/crd/aquasecurity.github.io_clustercompliancedetailreports.yaml deploy/compliance
-	mv deploy/crd/aquasecurity.github.io_clustercompliancereports.yaml deploy/compliance
+	$(CONTROLLER_GEN) crd:allowDangerousTypes=true rbac:roleName=trivy-operator paths="./pkg/..."
+	$(KUSTOMIZE) build config/default/ --output deploy/static/
 	./hack/update-static.yaml.sh
 
 .PHONY: generate-all

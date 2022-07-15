@@ -1,10 +1,15 @@
 ---
+# Source: trivy-operator/crds/apiextensions.k8s.io_v1_customresourcedefinition_clusterconfigauditreports.aquasecurity.github.io.yaml
+---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
+  labels:
+    app.kubernetes.io/managed-by: trivy-operator
+    app.kubernetes.io/version: 0.1.3
   name: clusterconfigauditreports.aquasecurity.github.io
 spec:
   group: aquasecurity.github.io
@@ -171,6 +176,9 @@ spec:
     served: true
     storage: true
     subresources: {}
+
+---
+# Source: trivy-operator/crds/apiextensions.k8s.io_v1_customresourcedefinition_clusterrbacassessmentreports.aquasecurity.github.io.yaml
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -178,6 +186,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
+  labels:
+    app.kubernetes.io/managed-by: trivy-operator
+    app.kubernetes.io/version: 0.1.3
   name: clusterrbacassessmentreports.aquasecurity.github.io
 spec:
   group: aquasecurity.github.io
@@ -343,6 +354,9 @@ spec:
     served: true
     storage: true
     subresources: {}
+
+---
+# Source: trivy-operator/crds/apiextensions.k8s.io_v1_customresourcedefinition_configauditreports.aquasecurity.github.io.yaml
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -350,6 +364,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
+  labels:
+    app.kubernetes.io/managed-by: trivy-operator
+    app.kubernetes.io/version: 0.1.3
   name: configauditreports.aquasecurity.github.io
 spec:
   group: aquasecurity.github.io
@@ -517,6 +534,9 @@ spec:
     served: true
     storage: true
     subresources: {}
+
+---
+# Source: trivy-operator/crds/apiextensions.k8s.io_v1_customresourcedefinition_exposedsecretreports.aquasecurity.github.io.yaml
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -524,6 +544,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
+  labels:
+    app.kubernetes.io/managed-by: trivy-operator
+    app.kubernetes.io/version: 0.1.3
   name: exposedsecretreports.aquasecurity.github.io
 spec:
   group: aquasecurity.github.io
@@ -723,6 +746,9 @@ spec:
     served: true
     storage: true
     subresources: {}
+
+---
+# Source: trivy-operator/crds/apiextensions.k8s.io_v1_customresourcedefinition_rbacassessmentreports.aquasecurity.github.io.yaml
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -730,6 +756,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
+  labels:
+    app.kubernetes.io/managed-by: trivy-operator
+    app.kubernetes.io/version: 0.1.3
   name: rbacassessmentreports.aquasecurity.github.io
 spec:
   group: aquasecurity.github.io
@@ -896,6 +925,9 @@ spec:
     served: true
     storage: true
     subresources: {}
+
+---
+# Source: trivy-operator/crds/apiextensions.k8s.io_v1_customresourcedefinition_vulnerabilityreports.aquasecurity.github.io.yaml
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -903,6 +935,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.9.2
   creationTimestamp: null
+  labels:
+    app.kubernetes.io/managed-by: trivy-operator
+    app.kubernetes.io/version: 0.1.3
   name: vulnerabilityreports.aquasecurity.github.io
 spec:
   group: aquasecurity.github.io
@@ -1135,16 +1170,15 @@ spec:
     served: true
     storage: true
     subresources: {}
+
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: trivy-system
   labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.1.5"
-    app.kubernetes.io/managed-by: kubectl
+    app.kubernetes.io/managed-by: trivy-operator
+    app.kubernetes.io/version: 0.1.3
+  name: trivy-system
 ---
 # Source: trivy-operator/templates/config.yaml
 apiVersion: v1
@@ -1433,6 +1467,9 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   creationTimestamp: null
+  labels:
+    app.kubernetes.io/managed-by: trivy-operator
+    app.kubernetes.io/version: 0.1.3
   name: trivy-operator
 rules:
 - apiGroups:

@@ -2,9 +2,12 @@
 
 SCRIPT_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
 
-CRD_DIR=$SCRIPT_ROOT/deploy/crd
 HELM_DIR=$SCRIPT_ROOT/deploy/helm
 STATIC_DIR=$SCRIPT_ROOT/deploy/static
+
+cp $STATIC_DIR/apiextensions.k8s.io_v1_customresourcedefinition_* $HELM_DIR/crds/
+cp $STATIC_DIR/rbac.authorization.k8s.io_v1_clusterrole_trivy-operator.yaml $HELM_DIR/generated/
+sed -si '1s/^/---\n/' $HELM_DIR/crds/* $HELM_DIR/generated/* $STATIC_DIR/v1_namespace_trivy-system.yaml
 
 HELM_TMPDIR=$(mktemp -d)
 trap "rm -rf $HELM_TMPDIR" EXIT
@@ -12,9 +15,10 @@ trap "rm -rf $HELM_TMPDIR" EXIT
 helm template trivy-operator $HELM_DIR \
   --namespace trivy-system \
   --set="managedBy=kubectl" \
+  --include-crds=true \
   --output-dir=$HELM_TMPDIR
 
-cat $CRD_DIR/* $STATIC_DIR/namespace.yaml $HELM_TMPDIR/trivy-operator/templates/* > $STATIC_DIR/trivy-operator.yaml
+cat $HELM_TMPDIR/trivy-operator/crds/* $STATIC_DIR/v1_namespace_trivy-system.yaml $HELM_TMPDIR/trivy-operator/templates/* > $STATIC_DIR/trivy-operator.yaml
 
 # Copy all manifests rendered by the Helm chart to the static resources directory,
 # where they should be ignored by Git.

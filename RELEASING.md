@@ -19,9 +19,9 @@
       1. Update the `version` property
       2. Update the `appVersion` property
    2. Update the `app.kubernetes.io/version` labels in the following files:
-      1. [`deploy/static/namespace.yaml`]
+      1. [`config/default/kustomization.yaml`]
       2. [`deploy/specs/nsa-1.0.yaml`]
-   3. Update static resources from Helm chart by running the make target:
+   3. Ensure all generated manifests are up-to-date by running the make target:
       ```
       make manifests
       ```
@@ -53,17 +53,8 @@
 9. Submit trivy-operator Operator to OperatorHub and ArtifactHUB by opening the PR to the https://github.com/k8s-operatorhub/community-operators repository.
 
 [`deploy/helm/Chart.yaml`]: ./deploy/helm/Chart.yaml
-[`deploy/compliance/aquasecurity.github.io_clustercompliancedetailreports.yaml`]: ./deploy/compliance/clustercompliancedetailreports.crd.yaml
-[`deploy/compliance/aquasecurity.github.io_clustercompliancereports.yaml`]: ./deploy/compliance/clustercompliancereports.crd.yaml
-[`deploy/crd/aquasecurity.github.io_clusterconfigauditreports.yaml`]: ./deploy/crd/clusterconfigauditreports.crd.yaml
-[`deploy/crd/aquasecurity.github.io_configauditreports.yaml`]: ./deploy/crd/configauditreports.crd.yaml
-[`deploy/crd/aquasecurity.github.io_vulnerabilityreports.yaml`]: ./deploy/crd/vulnerabilityreports.crd.yaml
-[`deploy/crd/aquasecurity.github.io_exposedsecretreports.yaml`]: ./deploy/crd/exposedsecretreports.crd.yaml
-[`deploy/crd/aquasecurity.github.io_rbacassessmentreports.yaml`]: ./deploy/crd/rbacassessmentreports.crd.yaml
-[`deploy/crd/aquasecurity.github.io_clusterrbacassessmentreports.yaml`]: ./deploy/crd/clusterrbacassessmentreports.crd.yaml
-[`deploy/static/namespace.yaml`]: ./deploy/static/namespace.yaml
+[`config/default/kustomization.yaml`]: ./config/default/kustomization.yaml
 [`deploy/specs/nsa-1.0.yaml`]: ./deploy/specs/nsa-1.0.yaml
-[`deploy/static/trivy-operator.yaml`]: ./deploy/static/trivy-operator.yaml
 [`mkdocs.yml`]: ./mkdocs.yml
 [`.github/workflows/release.yaml`]: ./.github/workflows/release.yaml
 [`.github/workflows/publish-helm-chart.yaml`]: ./.github/workflows/publish-helm-chart.yaml

@@ -1228,11 +1228,15 @@ rules:
     verbs:
       - create
       - get
+      - list
+      - watch
   # Permissions required to read image pull secrets references from serviceaccounts
   - apiGroups:
       - ""
     resources:
       - serviceaccounts
+      - list
+      - watch
     verbs:
       - get
   - apiGroups:

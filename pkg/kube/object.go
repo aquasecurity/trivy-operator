@@ -275,7 +275,7 @@ func NewObjectResolver(c client.Client, cm CompatibleMgr) ObjectResolver {
 	return ObjectResolver{c, cm}
 }
 
-//InitCompatibleMgr initialized a CompatibleObjectMapper who store a map the of supported kinds with it compatible Objects (group/api/kind)
+//InitCompatibleMgr initializes a CompatibleObjectMapper who store a map the of supported kinds with it compatible Objects (group/api/kind)
 // it dynamically fetches the compatible k8s objects (group/api/kind) by resource from the cluster and store it in kind vs k8s object mapping
 // It will enable the operator to support old and new API resources based on cluster version support
 func InitCompatibleMgr(restMapper meta.RESTMapper) (CompatibleMgr, error) {

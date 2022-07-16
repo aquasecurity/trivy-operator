@@ -20,8 +20,9 @@ func TestNewReadWriter(t *testing.T) {
 	kubernetesScheme := trivyoperator.NewScheme()
 
 	t.Run("Should create ExposedSecretReports", func(t *testing.T) {
-		client := fake.NewClientBuilder().WithScheme(kubernetesScheme).Build()
-		readWriter := exposedsecretreport.NewReadWriter(client)
+		testClient := fake.NewClientBuilder().WithScheme(kubernetesScheme).Build()
+		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
+		readWriter := exposedsecretreport.NewReadWriter(&resolver)
 		err := readWriter.Write(context.TODO(), []v1alpha1.ExposedSecretReport{
 			{
 				ObjectMeta: metav1.ObjectMeta{
@@ -52,7 +53,7 @@ func TestNewReadWriter(t *testing.T) {
 		})
 		require.NoError(t, err)
 		var list v1alpha1.ExposedSecretReportList
-		err = client.List(context.TODO(), &list)
+		err = testClient.List(context.TODO(), &list)
 		require.NoError(t, err)
 		reports := map[string]v1alpha1.ExposedSecretReport{}
 		for _, item := range list.Items {
@@ -91,7 +92,7 @@ func TestNewReadWriter(t *testing.T) {
 	})
 
 	t.Run("Should update ExposedSecretReports", func(t *testing.T) {
-		client := fake.NewClientBuilder().WithScheme(kubernetesScheme).WithObjects(
+		testClient := fake.NewClientBuilder().WithScheme(kubernetesScheme).WithObjects(
 			&v1alpha1.ExposedSecretReport{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:            "deployment-app1-container1",
@@ -120,7 +121,8 @@ func TestNewReadWriter(t *testing.T) {
 					},
 				},
 			}).Build()
-		readWriter := exposedsecretreport.NewReadWriter(client)
+		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
+		readWriter := exposedsecretreport.NewReadWriter(&resolver)
 		err := readWriter.Write(context.TODO(), []v1alpha1.ExposedSecretReport{
 			{
 				ObjectMeta: metav1.ObjectMeta{
@@ -152,7 +154,7 @@ func TestNewReadWriter(t *testing.T) {
 		require.NoError(t, err)
 
 		var found v1alpha1.ExposedSecretReport
-		err = client.Get(context.TODO(), types.NamespacedName{
+		err = testClient.Get(context.TODO(), types.NamespacedName{
 			Namespace: "qa",
 			Name:      "deployment-app1-container1",
 		}, &found)
@@ -176,7 +178,7 @@ func TestNewReadWriter(t *testing.T) {
 			},
 		}, found)
 
-		err = client.Get(context.TODO(), types.NamespacedName{
+		err = testClient.Get(context.TODO(), types.NamespacedName{
 			Namespace: "qa",
 			Name:      "deployment-app1-container2",
 		}, &found)
@@ -202,7 +204,7 @@ func TestNewReadWriter(t *testing.T) {
 	})
 
 	t.Run("Should find ExposedSecretReports", func(t *testing.T) {
-		client := fake.NewClientBuilder().WithScheme(kubernetesScheme).WithObjects(&v1alpha1.ExposedSecretReport{
+		testClient := fake.NewClientBuilder().WithScheme(kubernetesScheme).WithObjects(&v1alpha1.ExposedSecretReport{
 			ObjectMeta: metav1.ObjectMeta{
 				Namespace: "my-namespace",
 				Name:      "deployment-my-deploy-my-container-01",
@@ -239,8 +241,8 @@ func TestNewReadWriter(t *testing.T) {
 			},
 			Report: v1alpha1.ExposedSecretReportData{},
 		}).Build()
-
-		readWriter := exposedsecretreport.NewReadWriter(client)
+		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
+		readWriter := exposedsecretreport.NewReadWriter(&resolver)
 		list, err := readWriter.FindByOwner(context.TODO(), kube.ObjectRef{
 			Kind:      kube.KindDeployment,
 			Name:      "my-deploy",

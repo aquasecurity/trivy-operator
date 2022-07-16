@@ -3,6 +3,7 @@ package plugin
 import (
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/plugin/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
@@ -15,6 +16,7 @@ type Resolver struct {
 	namespace          string
 	serviceAccountName string
 	client             client.Client
+	objectResolver     *kube.ObjectResolver
 }
 
 func NewResolver() *Resolver {
@@ -45,6 +47,10 @@ func (r *Resolver) WithClient(client client.Client) *Resolver {
 	r.client = client
 	return r
 }
+func (r *Resolver) WithObjectResolver(objectResolver *kube.ObjectResolver) *Resolver {
+	r.objectResolver = objectResolver
+	return r
+}
 
 // GetVulnerabilityPlugin is a factory method that instantiates the vulnerabilityreport.Plugin.
 //
@@ -60,13 +66,13 @@ func (r *Resolver) GetVulnerabilityPlugin() (vulnerabilityreport.Plugin, trivyop
 
 	pluginContext := trivyoperator.NewPluginContext().
 		WithName(string(scanner)).
+		WithClient(r.client).
 		WithNamespace(r.namespace).
 		WithServiceAccountName(r.serviceAccountName).
-		WithClient(r.client).
 		WithTrivyOperatorConfig(r.config).
 		Get()
 
-	return trivy.NewPlugin(ext.NewSystemClock(), ext.NewGoogleUUIDGenerator(), r.client), pluginContext, nil
+	return trivy.NewPlugin(ext.NewSystemClock(), ext.NewGoogleUUIDGenerator(), r.objectResolver), pluginContext, nil
 }
 
 // GetConfigAuditPlugin is a factory method that instantiates the configauditreport.Plugin.
@@ -78,11 +84,11 @@ func (r *Resolver) GetConfigAuditPlugin() (configauditreport.PluginInMemory, tri
 
 	pluginContext := trivyoperator.NewPluginContext().
 		WithName(string(scanner)).
+		WithClient(r.client).
 		WithNamespace(r.namespace).
 		WithServiceAccountName(r.serviceAccountName).
-		WithClient(r.client).
 		WithTrivyOperatorConfig(r.config).
 		Get()
 
-	return trivy.NewTrivyConfigAuditPlugin(ext.NewSystemClock(), ext.NewGoogleUUIDGenerator(), r.client), pluginContext, nil
+	return trivy.NewTrivyConfigAuditPlugin(ext.NewSystemClock(), ext.NewGoogleUUIDGenerator(), r.objectResolver), pluginContext, nil
 }

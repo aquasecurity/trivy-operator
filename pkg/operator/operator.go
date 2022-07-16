@@ -3,7 +3,6 @@ package operator
 import (
 	"context"
 	"fmt"
-
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
@@ -94,14 +93,12 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	if err != nil {
 		return fmt.Errorf("getting kube client config: %w", err)
 	}
-
 	// The only reason we're using kubernetes.Clientset is that we need it to read Pod logs,
 	// which is not supported by the client returned by the ctrl.Manager.
 	kubeClientset, err := kubernetes.NewForConfig(kubeConfig)
 	if err != nil {
 		return fmt.Errorf("constructing kube client: %w", err)
 	}
-
 	mgr, err := ctrl.NewManager(kubeConfig, options)
 	if err != nil {
 		return fmt.Errorf("constructing controllers manager: %w", err)
@@ -127,8 +124,14 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	if err != nil {
 		return err
 	}
-
-	objectResolver := kube.ObjectResolver{Client: mgr.GetClient()}
+	compatibleObjectMapper, err := kube.InitCompatibleMgr(mgr.GetClient().RESTMapper())
+	if err != nil {
+		return err
+	}
+	objectResolver := kube.NewObjectResolver(mgr.GetClient(), compatibleObjectMapper)
+	if err != nil {
+		return err
+	}
 	limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
 	logsReader := kube.NewLogsReader(kubeClientset)
 	secretsReader := kube.NewSecretsReader(mgr.GetClient())
@@ -140,6 +143,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			WithServiceAccountName(operatorConfig.ServiceAccount).
 			WithConfig(trivyOperatorConfig).
 			WithClient(mgr.GetClient()).
+			WithObjectResolver(&objectResolver).
 			GetVulnerabilityPlugin()
 		if err != nil {
 			return err
@@ -161,8 +165,8 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			SecretsReader:           secretsReader,
 			Plugin:                  plugin,
 			PluginContext:           pluginContext,
-			VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(mgr.GetClient()),
-			ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(mgr.GetClient()),
+			VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(&objectResolver),
+			ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(&objectResolver),
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup vulnerabilityreport reconciler: %w", err)
 		}
@@ -184,7 +188,9 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			WithNamespace(operatorNamespace).
 			WithServiceAccountName(operatorConfig.ServiceAccount).
 			WithConfig(trivyOperatorConfig).
-			WithClient(mgr.GetClient()).GetConfigAuditPlugin()
+			WithClient(mgr.GetClient()).
+			WithObjectResolver(&objectResolver).
+			GetConfigAuditPlugin()
 		if err != nil {
 			return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
 		}
@@ -201,8 +207,8 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			ObjectResolver: objectResolver,
 			PluginContext:  pluginContext,
 			PluginInMemory: plugin,
-			ReadWriter:     configauditreport.NewReadWriter(mgr.GetClient()),
-			RbacReadWriter: rbacassessment.NewReadWriter(mgr.GetClient()),
+			ReadWriter:     configauditreport.NewReadWriter(&objectResolver),
+			RbacReadWriter: rbacassessment.NewReadWriter(&objectResolver),
 			BuildInfo:      buildInfo,
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup resource controller: %w", err)

@@ -268,7 +268,7 @@ type CompatibleObjectMapper struct {
 
 type ObjectResolver struct {
 	client.Client
-	CompatibleMgr CompatibleMgr
+	CompatibleMgr
 }
 
 func NewObjectResolver(c client.Client, cm CompatibleMgr) ObjectResolver {

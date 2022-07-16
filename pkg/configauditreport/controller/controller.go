@@ -91,7 +91,7 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		{kind: kube.KindReplicationController, forObject: &corev1.ReplicationController{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
 		{kind: kube.KindStatefulSet, forObject: &appsv1.StatefulSet{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
 		{kind: kube.KindDaemonSet, forObject: &appsv1.DaemonSet{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindCronJob, forObject: r.ObjectResolver.CompatibleMgr.GetSupportedObjectByKind(kube.KindCronJob), ownsObject: &v1alpha1.ConfigAuditReport{}},
+		{kind: kube.KindCronJob, forObject: r.ObjectResolver.GetSupportedObjectByKind(kube.KindCronJob), ownsObject: &v1alpha1.ConfigAuditReport{}},
 		{kind: kube.KindJob, forObject: &batchv1.Job{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
 		{kind: kube.KindService, forObject: &corev1.Service{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
 		{kind: kube.KindConfigMap, forObject: &corev1.ConfigMap{}, ownsObject: &v1alpha1.ConfigAuditReport{}},

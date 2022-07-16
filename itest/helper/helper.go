@@ -2,7 +2,6 @@ package helper
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
@@ -401,14 +400,7 @@ func (h *Helper) GetActiveReplicaSetForDeployment(namespace, name string) (*apps
 		return nil, err
 	}
 
-	deploymentSelector, err := metav1.LabelSelectorAsMap(deployment.Spec.Selector)
-	if err != nil {
-		return nil, fmt.Errorf("mapping label selector: %w", err)
-	}
-	selector := labels.Set(deploymentSelector)
-
-	err = h.kubeClient.List(context.TODO(), &replicaSetList, client.MatchingLabels(selector))
-
+	err = h.kubeClient.List(context.TODO(), &replicaSetList, client.MatchingLabels(deployment.Spec.Selector.MatchLabels))
 	if err != nil {
 		return nil, err
 	}

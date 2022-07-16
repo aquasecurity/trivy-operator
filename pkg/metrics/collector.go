@@ -16,23 +16,23 @@ import (
 )
 
 const (
-	namespace        = "namespace"
-	name             = "name"
-	image_registry   = "image_registry"
-	image_repository = "image_repository"
-	image_tag        = "image_tag"
-	image_digest     = "image_digest"
-	severity         = "severity"
+	namespace       = "namespace"
+	name            = "name"
+	imageRegistry   = "image_registry"
+	imageRepository = "image_repository"
+	imageTag        = "image_tag"
+	imageDigest     = "image_digest"
+	severity        = "severity"
 )
 
 var (
 	imageVulnLabels = []string{
 		namespace,
 		name,
-		image_registry,
-		image_repository,
-		image_tag,
-		image_digest,
+		imageRegistry,
+		imageRepository,
+		imageTag,
+		imageDigest,
 		severity,
 	}
 	imageVulnDesc = prometheus.NewDesc(
@@ -61,10 +61,10 @@ var (
 	exposedSecretLabels = []string{
 		namespace,
 		name,
-		image_registry,
-		image_repository,
-		image_tag,
-		image_digest,
+		imageRegistry,
+		imageRepository,
+		imageTag,
+		imageDigest,
 		severity,
 	}
 	exposedSecretDesc = prometheus.NewDesc(

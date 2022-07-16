@@ -75,7 +75,7 @@ something like the following listing:
     "containers": [
       {
         "name": "nginx",
-        "image": "nginx:1.16",
+        "image": "nginx:1.16"
       }
     ]
   }

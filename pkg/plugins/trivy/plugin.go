@@ -33,7 +33,6 @@ const (
 )
 
 const (
-	AWSECR_Image_Regex        = "^\\d+\\.dkr\\.ecr\\.(\\w+-\\w+-\\d+)\\.amazonaws\\.com\\/"
 	SupportedConfigAuditKinds = "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
 )
 
@@ -1555,9 +1554,12 @@ func getContainers(spec corev1.PodSpec) []corev1.Container {
 	return containers
 }
 
+var awsECRMatcher = regexp.MustCompile("^\\d+\\.dkr\\.ecr\\.(\\w+-\\w+-\\d+)\\.amazonaws\\.com/")
+
 func CheckAwsEcrPrivateRegistry(ImageUrl string) string {
-	if len(regexp.MustCompile(AWSECR_Image_Regex).FindAllStringSubmatch(ImageUrl, -1)) != 0 {
-		return regexp.MustCompile(AWSECR_Image_Regex).FindAllStringSubmatch(ImageUrl, -1)[0][1]
+	matches := awsECRMatcher.FindAllStringSubmatch(ImageUrl, -1)
+	if len(matches) > 0 {
+		return matches[0][1]
 	}
 	return ""
 }

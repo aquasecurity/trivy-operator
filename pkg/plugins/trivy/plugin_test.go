@@ -3736,9 +3736,9 @@ func TestPlugin_ParseReportData(t *testing.T) {
 		},
 		{
 			name:          "Should return error when image reference cannot be parsed",
-			imageRef:      ":",
+			imageRef:      "/",
 			input:         "null",
-			expectedError: errors.New("could not parse reference: :"),
+			expectedError: errors.New("could not parse reference: /"),
 		},
 	}
 

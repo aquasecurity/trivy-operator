@@ -32,7 +32,7 @@ var (
 // main is the entrypoint of the Trivy Operator executable command.
 func main() {
 	if err := run(); err != nil {
-		fmt.Fprintf(os.Stderr, "unable to run trivy operator: %v\n", err)
+		_, _ = fmt.Fprintf(os.Stderr, "unable to run trivy operator: %v\n", err)
 		os.Exit(1)
 	}
 }

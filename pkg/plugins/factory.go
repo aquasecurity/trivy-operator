@@ -1,10 +1,10 @@
-package plugin
+package plugins
 
 import (
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/plugin/trivy"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -43,8 +43,8 @@ func (r *Resolver) WithServiceAccountName(name string) *Resolver {
 	return r
 }
 
-func (r *Resolver) WithClient(client client.Client) *Resolver {
-	r.client = client
+func (r *Resolver) WithClient(c client.Client) *Resolver {
+	r.client = c
 	return r
 }
 func (r *Resolver) WithObjectResolver(objectResolver *kube.ObjectResolver) *Resolver {

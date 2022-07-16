@@ -143,8 +143,8 @@ func (b *PluginContextBuilder) WithName(name string) *PluginContextBuilder {
 	return b
 }
 
-func (b *PluginContextBuilder) WithClient(client client.Client) *PluginContextBuilder {
-	b.ctx.client = client
+func (b *PluginContextBuilder) WithClient(c client.Client) *PluginContextBuilder {
+	b.ctx.client = c
 	return b
 }
 

@@ -15,7 +15,6 @@ import (
 	coordinationv1 "k8s.io/api/coordination/v1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
-	policyv1beta1 "k8s.io/api/policy/v1beta1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -33,7 +32,6 @@ func NewScheme() *runtime.Scheme {
 	_ = batchv1beta1.AddToScheme(scheme)
 	_ = rbacv1.AddToScheme(scheme)
 	_ = networkingv1.AddToScheme(scheme)
-	_ = policyv1beta1.AddToScheme(scheme)
 	_ = v1alpha1.AddToScheme(scheme)
 	_ = coordinationv1.AddToScheme(scheme)
 	_ = apiextensionsv1.AddToScheme(scheme)

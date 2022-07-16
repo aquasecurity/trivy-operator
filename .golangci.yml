@@ -5,7 +5,12 @@ linters:
     - errorlint
     - govet
     - gosec
+    - gocritic
   disable:
     - gosimple
     - ineffassign
     - staticcheck
+linters-settings:
+  gocritic:
+    enabled-checks:
+      - importShadow

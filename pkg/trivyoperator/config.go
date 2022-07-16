@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/google/go-containerregistry/pkg/name"
+	containerimage "github.com/google/go-containerregistry/pkg/name"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	batchv1beta1 "k8s.io/api/batch/v1beta1"
@@ -168,16 +168,16 @@ func (c ConfigData) GetRequiredData(key string) (string, error) {
 // GetVersionFromImageRef returns the image identifier for the specified image
 // reference.
 func GetVersionFromImageRef(imageRef string) (string, error) {
-	ref, err := name.ParseReference(imageRef)
+	ref, err := containerimage.ParseReference(imageRef)
 	if err != nil {
 		return "", fmt.Errorf("parsing reference: %w", err)
 	}
 
 	var version string
 	switch t := ref.(type) {
-	case name.Tag:
+	case containerimage.Tag:
 		version = t.TagStr()
-	case name.Digest:
+	case containerimage.Digest:
 		version = t.DigestStr()
 	}
 

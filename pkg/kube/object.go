@@ -15,7 +15,6 @@ import (
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/validation"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -123,20 +122,20 @@ func ObjectRefToLabels(obj ObjectRef) map[string]string {
 
 // ObjectToObjectMeta encodes the specified client.Object as a set of labels
 // and annotations added to the given ObjectMeta.
-func ObjectToObjectMeta(obj client.Object, meta *metav1.ObjectMeta) error {
-	if meta.Labels == nil {
-		meta.Labels = make(map[string]string)
+func ObjectToObjectMeta(obj client.Object, objectMeta *metav1.ObjectMeta) error {
+	if objectMeta.Labels == nil {
+		objectMeta.Labels = make(map[string]string)
 	}
-	meta.Labels[trivyoperator.LabelResourceKind] = obj.GetObjectKind().GroupVersionKind().Kind
-	meta.Labels[trivyoperator.LabelResourceNamespace] = obj.GetNamespace()
+	objectMeta.Labels[trivyoperator.LabelResourceKind] = obj.GetObjectKind().GroupVersionKind().Kind
+	objectMeta.Labels[trivyoperator.LabelResourceNamespace] = obj.GetNamespace()
 	if len(validation.IsValidLabelValue(obj.GetName())) == 0 {
-		meta.Labels[trivyoperator.LabelResourceName] = obj.GetName()
+		objectMeta.Labels[trivyoperator.LabelResourceName] = obj.GetName()
 	} else {
-		meta.Labels[trivyoperator.LabelResourceNameHash] = ComputeHash(obj.GetName())
-		if meta.Annotations == nil {
-			meta.Annotations = make(map[string]string)
+		objectMeta.Labels[trivyoperator.LabelResourceNameHash] = ComputeHash(obj.GetName())
+		if objectMeta.Annotations == nil {
+			objectMeta.Annotations = make(map[string]string)
 		}
-		meta.Annotations[trivyoperator.LabelResourceName] = obj.GetName()
+		objectMeta.Annotations[trivyoperator.LabelResourceName] = obj.GetName()
 	}
 	return nil
 }
@@ -435,9 +434,7 @@ func (o *ObjectResolver) ReplicaSetByDeployment(ctx context.Context, deployment 
 	var rsList appsv1.ReplicaSetList
 	err := o.Client.List(ctx, &rsList,
 		client.InNamespace(deployment.Namespace),
-		client.MatchingLabelsSelector{
-			Selector: labels.SelectorFromSet(deployment.Spec.Selector.MatchLabels),
-		})
+		client.MatchingLabels(deployment.Spec.Selector.MatchLabels))
 	if err != nil {
 		return nil, fmt.Errorf("listing replicasets for deployment %q: %w", deployment.Namespace+"/"+deployment.Name, err)
 	}
@@ -574,31 +571,31 @@ func (o *ObjectResolver) GetNodeName(ctx context.Context, obj client.Object) (st
 		if err != nil {
 			return "", err
 		}
-		pods, err := o.getActivePodsByLabelSelector(ctx, obj.GetNamespace(), replicaSet.Spec.Selector.MatchLabels)
+		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), replicaSet.Spec.Selector.MatchLabels)
 		if err != nil {
 			return "", err
 		}
 		return pods[0].Spec.NodeName, nil
 	case *appsv1.ReplicaSet:
-		pods, err := o.getActivePodsByLabelSelector(ctx, obj.GetNamespace(), obj.(*appsv1.ReplicaSet).Spec.Selector.MatchLabels)
+		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), obj.(*appsv1.ReplicaSet).Spec.Selector.MatchLabels)
 		if err != nil {
 			return "", err
 		}
 		return pods[0].Spec.NodeName, nil
 	case *corev1.ReplicationController:
-		pods, err := o.getActivePodsByLabelSelector(ctx, obj.GetNamespace(), obj.(*corev1.ReplicationController).Spec.Selector)
+		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), obj.(*corev1.ReplicationController).Spec.Selector)
 		if err != nil {
 			return "", err
 		}
 		return pods[0].Spec.NodeName, nil
 	case *appsv1.StatefulSet:
-		pods, err := o.getActivePodsByLabelSelector(ctx, obj.GetNamespace(), obj.(*appsv1.StatefulSet).Spec.Selector.MatchLabels)
+		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), obj.(*appsv1.StatefulSet).Spec.Selector.MatchLabels)
 		if err != nil {
 			return "", err
 		}
 		return pods[0].Spec.NodeName, nil
 	case *appsv1.DaemonSet:
-		pods, err := o.getActivePodsByLabelSelector(ctx, obj.GetNamespace(), obj.(*appsv1.DaemonSet).Spec.Selector.MatchLabels)
+		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), obj.(*appsv1.DaemonSet).Spec.Selector.MatchLabels)
 		if err != nil {
 			return "", err
 		}
@@ -608,7 +605,7 @@ func (o *ObjectResolver) GetNodeName(ctx context.Context, obj client.Object) (st
 	case *batchv1.CronJob:
 		return "", ErrUnSupportedKind
 	case *batchv1.Job:
-		pods, err := o.getActivePodsByLabelSelector(ctx, obj.GetNamespace(), obj.(*batchv1.Job).Spec.Selector.MatchLabels)
+		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), obj.(*batchv1.Job).Spec.Selector.MatchLabels)
 		if err != nil {
 			return "", err
 		}
@@ -636,21 +633,22 @@ func (o *ObjectResolver) IsActiveReplicaSet(ctx context.Context, workloadObj cli
 	return true, nil
 }
 
-func (o *ObjectResolver) GetPodsByLabelSelector(ctx context.Context, namespace string,
-	labelSelector labels.Set) ([]corev1.Pod, error) {
+func (o *ObjectResolver) getPodsMatchingLabels(ctx context.Context, namespace string,
+	labels map[string]string) ([]corev1.Pod, error) {
 	podList := &corev1.PodList{}
-	err := o.Client.List(ctx, podList, client.InNamespace(namespace),
-		client.MatchingLabelsSelector{Selector: labels.SelectorFromSet(labelSelector)})
+	err := o.Client.List(ctx, podList,
+		client.InNamespace(namespace),
+		client.MatchingLabels(labels))
 	if err != nil {
-		return podList.Items, fmt.Errorf("listing pods in namespace %s for labelselector %v: %w", namespace,
-			labelSelector, err)
+		return podList.Items, fmt.Errorf("listing pods in namespace %s matching labels %v: %w", namespace,
+			labels, err)
 	}
 	return podList.Items, err
 }
 
-func (o *ObjectResolver) getActivePodsByLabelSelector(ctx context.Context, namespace string,
-	labelSelector labels.Set) ([]corev1.Pod, error) {
-	pods, err := o.GetPodsByLabelSelector(ctx, namespace, labelSelector)
+func (o *ObjectResolver) getActivePodsMatchingLabels(ctx context.Context, namespace string,
+	labels map[string]string) ([]corev1.Pod, error) {
+	pods, err := o.getPodsMatchingLabels(ctx, namespace, labels)
 	if err != nil {
 		return pods, err
 	}

@@ -13,10 +13,10 @@ type LimitChecker interface {
 	Check(ctx context.Context) (bool, int, error)
 }
 
-func NewLimitChecker(config etc.Config, client client.Client, trivyOperatorConfig trivyoperator.ConfigData) LimitChecker {
+func NewLimitChecker(config etc.Config, c client.Client, trivyOperatorConfig trivyoperator.ConfigData) LimitChecker {
 	return &checker{
 		config:              config,
-		client:              client,
+		client:              c,
 		trivyOperatorConfig: trivyOperatorConfig,
 	}
 }

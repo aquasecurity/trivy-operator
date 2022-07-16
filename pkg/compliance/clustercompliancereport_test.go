@@ -187,18 +187,18 @@ func (a controlObjectTypeSort) Len() int           { return len(a) }
 func (a controlObjectTypeSort) Less(i, j int) bool { return a[i].ObjectType < a[j].ObjectType }
 func (a controlObjectTypeSort) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 
-func getReport(ctx context.Context, namespaceName types.NamespacedName, client client.Client) (*v1alpha1.ClusterComplianceReport, error) {
+func getReport(ctx context.Context, namespaceName types.NamespacedName, c client.Client) (*v1alpha1.ClusterComplianceReport, error) {
 	var report v1alpha1.ClusterComplianceReport
-	err := client.Get(ctx, namespaceName, &report)
+	err := c.Get(ctx, namespaceName, &report)
 	if err != nil {
 		return nil, err
 	}
 	return &report, nil
 }
 
-func getDetailReport(ctx context.Context, namespaceName types.NamespacedName, client client.Client) (*v1alpha1.ClusterComplianceDetailReport, error) {
+func getDetailReport(ctx context.Context, namespaceName types.NamespacedName, c client.Client) (*v1alpha1.ClusterComplianceDetailReport, error) {
 	var report v1alpha1.ClusterComplianceDetailReport
-	err := client.Get(ctx, namespaceName, &report)
+	err := c.Get(ctx, namespaceName, &report)
 	if err != nil {
 		return nil, err
 	}

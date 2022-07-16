@@ -115,8 +115,8 @@ type SecretsReader interface {
 // NewSecretsReader constructs a new SecretsReader which is using the client
 // package provided by the controller-runtime libraries for interacting with
 // the Kubernetes API server.
-func NewSecretsReader(client client.Client) SecretsReader {
-	return &secretsReader{client: client}
+func NewSecretsReader(c client.Client) SecretsReader {
+	return &secretsReader{client: c}
 }
 
 //+kubebuilder:rbac:groups="",resources=secrets,verbs=get

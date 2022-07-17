@@ -115,15 +115,15 @@ type SecretsReader interface {
 // NewSecretsReader constructs a new SecretsReader which is using the client
 // package provided by the controller-runtime libraries for interacting with
 // the Kubernetes API server.
-func NewSecretsReader(c client.Client) SecretsReader {
-	return &secretsReader{client: c}
+func NewSecretsReader(r client.Reader) SecretsReader {
+	return &secretsReader{reader: r}
 }
 
 //+kubebuilder:rbac:groups="",resources=secrets,verbs=get
 //+kubebuilder:rbac:groups="",resources=serviceaccounts,verbs=get
 
 type secretsReader struct {
-	client client.Client
+	reader client.Reader
 }
 
 func (r *secretsReader) ListByLocalObjectReferences(ctx context.Context, refs []corev1.LocalObjectReference, ns string) ([]corev1.Secret, error) {
@@ -131,7 +131,7 @@ func (r *secretsReader) ListByLocalObjectReferences(ctx context.Context, refs []
 
 	for _, secretRef := range refs {
 		var secret corev1.Secret
-		err := r.client.Get(ctx, client.ObjectKey{Name: secretRef.Name, Namespace: ns}, &secret)
+		err := r.reader.Get(ctx, client.ObjectKey{Name: secretRef.Name, Namespace: ns}, &secret)
 		if err != nil {
 			if k8sapierror.IsNotFound(err) {
 				continue
@@ -150,7 +150,7 @@ func (r *secretsReader) getServiceAccountByPodSpec(ctx context.Context, spec cor
 	}
 
 	sa := &corev1.ServiceAccount{}
-	err := r.client.Get(ctx, client.ObjectKey{Name: serviceAccountName, Namespace: ns}, sa)
+	err := r.reader.Get(ctx, client.ObjectKey{Name: serviceAccountName, Namespace: ns}, sa)
 	if err != nil {
 		return nil, fmt.Errorf("getting service account by name: %s/%s: %w", ns, serviceAccountName, err)
 	}

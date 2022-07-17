@@ -1,1 +1,0 @@
-package trivy_test

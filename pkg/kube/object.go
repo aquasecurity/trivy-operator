@@ -372,7 +372,7 @@ func (o *ObjectResolver) ObjectFromObjectRef(ctx context.Context, ref ObjectRef)
 
 // ReportOwner resolves the owner of a security report for the specified object.
 func (o *ObjectResolver) ReportOwner(ctx context.Context, obj client.Object) (client.Object, error) {
-	switch obj.(type) {
+	switch r := obj.(type) {
 	case *appsv1.Deployment:
 		return o.ReplicaSetByDeployment(ctx, obj.(*appsv1.Deployment))
 	case *batchv1.Job:
@@ -382,7 +382,7 @@ func (o *ObjectResolver) ReportOwner(ctx context.Context, obj client.Object) (cl
 			return obj, nil
 		}
 		if controller.Kind == string(KindCronJob) {
-			return o.CronJobByJob(ctx, obj.(*batchv1.Job))
+			return o.CronJobByJob(ctx, r)
 		}
 		// Job controlled by sth else (usually frameworks)
 		return obj, nil
@@ -393,11 +393,11 @@ func (o *ObjectResolver) ReportOwner(ctx context.Context, obj client.Object) (cl
 			return obj, nil
 		}
 		if controller.Kind == string(KindReplicaSet) {
-			return o.ReplicaSetByPod(ctx, obj.(*corev1.Pod))
+			return o.ReplicaSetByPod(ctx, r)
 		}
 		if controller.Kind == string(KindJob) {
 			// Managed by Job or CronJob
-			job, err := o.JobByPod(ctx, obj.(*corev1.Pod))
+			job, err := o.JobByPod(ctx, r)
 			if err != nil {
 				return nil, err
 			}
@@ -563,11 +563,11 @@ func (o *ObjectResolver) RelatedReplicaSetName(ctx context.Context, object Objec
 // ErrReplicaSetNotFound error is returned. If the specified workload is a
 // CronJob the ErrUnSupportedKind error is returned.
 func (o *ObjectResolver) GetNodeName(ctx context.Context, obj client.Object) (string, error) {
-	switch obj.(type) {
+	switch r := obj.(type) {
 	case *corev1.Pod:
-		return (obj.(*corev1.Pod)).Spec.NodeName, nil
+		return r.Spec.NodeName, nil
 	case *appsv1.Deployment:
-		replicaSet, err := o.ReplicaSetByDeployment(ctx, obj.(*appsv1.Deployment))
+		replicaSet, err := o.ReplicaSetByDeployment(ctx, r)
 		if err != nil {
 			return "", err
 		}
@@ -577,25 +577,25 @@ func (o *ObjectResolver) GetNodeName(ctx context.Context, obj client.Object) (st
 		}
 		return pods[0].Spec.NodeName, nil
 	case *appsv1.ReplicaSet:
-		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), obj.(*appsv1.ReplicaSet).Spec.Selector.MatchLabels)
+		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), r.Spec.Selector.MatchLabels)
 		if err != nil {
 			return "", err
 		}
 		return pods[0].Spec.NodeName, nil
 	case *corev1.ReplicationController:
-		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), obj.(*corev1.ReplicationController).Spec.Selector)
+		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), r.Spec.Selector)
 		if err != nil {
 			return "", err
 		}
 		return pods[0].Spec.NodeName, nil
 	case *appsv1.StatefulSet:
-		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), obj.(*appsv1.StatefulSet).Spec.Selector.MatchLabels)
+		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), r.Spec.Selector.MatchLabels)
 		if err != nil {
 			return "", err
 		}
 		return pods[0].Spec.NodeName, nil
 	case *appsv1.DaemonSet:
-		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), obj.(*appsv1.DaemonSet).Spec.Selector.MatchLabels)
+		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), r.Spec.Selector.MatchLabels)
 		if err != nil {
 			return "", err
 		}
@@ -605,7 +605,7 @@ func (o *ObjectResolver) GetNodeName(ctx context.Context, obj client.Object) (st
 	case *batchv1.CronJob:
 		return "", ErrUnSupportedKind
 	case *batchv1.Job:
-		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), obj.(*batchv1.Job).Spec.Selector.MatchLabels)
+		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), r.Spec.Selector.MatchLabels)
 		if err != nil {
 			return "", err
 		}

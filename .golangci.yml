@@ -1,16 +1,14 @@
-run:
-  timeout: 5m
 linters:
+  disable:
+    - structcheck # FIXME: Currently doesn't work on Go 1.18: https://github.com/golangci/golangci-lint/issues/2649
   enable:
     - errorlint
-    - govet
-    - gosec
     - gocritic
-  disable:
-    - gosimple
-    - ineffassign
-    - staticcheck
+    - gosec
+    # - unparam FIXME: Currently doesn't work on Go 1.18: https://github.com/golangci/golangci-lint/issues/2649
 linters-settings:
   gocritic:
     enabled-checks:
       - importShadow
+run:
+  timeout: 5m

@@ -71,7 +71,7 @@ image:
 # service only expose a metrics endpoint for prometheus to scrape,
 # trivy-operator does not have a user interface.
 service:
-  metricsPort: 80
+  metricsPort: 8080
 
 # Prometheus ServiceMonitor configuration
 serviceMonitor:

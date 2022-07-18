@@ -143,16 +143,16 @@ func (r *secretsReader) ListByLocalObjectReferences(ctx context.Context, refs []
 	return secrets, nil
 }
 
-func (r *secretsReader) getServiceAccountByPodSpec(ctx context.Context, spec corev1.PodSpec, ns string) (*corev1.ServiceAccount, error) {
+func (r *secretsReader) getServiceAccountByPodSpec(ctx context.Context, spec corev1.PodSpec, ns string) (corev1.ServiceAccount, error) {
 	serviceAccountName := spec.ServiceAccountName
 	if serviceAccountName == "" {
 		serviceAccountName = serviceAccountDefault
 	}
 
-	sa := &corev1.ServiceAccount{}
-	err := r.client.Get(ctx, client.ObjectKey{Name: serviceAccountName, Namespace: ns}, sa)
+	sa := corev1.ServiceAccount{}
+	err := r.client.Get(ctx, client.ObjectKey{Name: serviceAccountName, Namespace: ns}, &sa)
 	if err != nil {
-		return nil, fmt.Errorf("getting service account by name: %s/%s: %w", ns, serviceAccountName, err)
+		return sa, fmt.Errorf("getting service account by name: %s/%s: %w", ns, serviceAccountName, err)
 	}
 	return sa, nil
 }
@@ -161,7 +161,7 @@ func (r *secretsReader) ListImagePullSecretsByPodSpec(ctx context.Context, spec 
 	imagePullSecrets := spec.ImagePullSecrets
 
 	sa, err := r.getServiceAccountByPodSpec(ctx, spec, ns)
-	if err != nil {
+	if err != nil && !k8sapierror.IsNotFound(err) {
 		return nil, err
 	}
 	imagePullSecrets = append(imagePullSecrets, sa.ImagePullSecrets...)

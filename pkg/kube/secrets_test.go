@@ -183,6 +183,15 @@ func TestMapContainerNamesToDockerAuths(t *testing.T) {
 }
 
 func TestListImagePullSecretsByPodSpec(t *testing.T) {
+	t.Run("Test no error when service account not found", func(t *testing.T) {
+		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).Build()
+		spec := corev1.PodSpec{}
+		sr := kube.NewSecretsReader(client)
+		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
+		require.NoError(t, err)
+		assert.True(t, len(foundsecret) == 0)
+	})
+
 	t.Run("Test with no service account but with one secrets should return one pull image secret from corev1.Secret", func(t *testing.T) {
 		var secret corev1.Secret
 		err := loadResource("./testdata/fixture/secret.json", &secret)

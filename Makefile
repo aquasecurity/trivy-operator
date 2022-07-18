@@ -22,6 +22,9 @@ TRIVY_OPERATOR_IMAGE_UBI8 := aquasec/trivy-operator:$(IMAGE_TAG)-ubi8
 MKDOCS_IMAGE := aquasec/mkdocs-material:trivy-operator
 MKDOCS_PORT := 8000
 
+# ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
+ENVTEST_K8S_VERSION = 1.24.2
+
 .PHONY: all
 all: build
 
@@ -48,12 +51,8 @@ compile-templates: get-qtc
 	$(GOBIN)/qtc
 
 .PHONY: test
-## Runs both unit and integration tests
-test: unit-tests itests-trivy-operator
-
-.PHONY: unit-tests
-## Runs unit tests with code coverage enabled
-unit-tests: $(SOURCES)
+test: $(SOURCES) generate-all envtest ## Run tests.
+	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" \
 	go test -v -short -race -timeout 30s -coverprofile=coverage.txt ./...
 
 .PHONY: itests-trivy-operator
@@ -120,14 +119,22 @@ LOCALBIN ?= $(shell pwd)/bin
 $(LOCALBIN):
 	mkdir -p $(LOCALBIN)
 
-## controller-gen version and binary path
+## Tool Binaries
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
+ENVTEST ?= $(LOCALBIN)/setup-envtest
+
+## Tool Versions
 CONTROLLER_TOOLS_VERSION ?= v0.9.2
 
 .PHONY: controller-gen
 controller-gen: $(CONTROLLER_GEN) ## Download controller-gen locally if necessary.
 $(CONTROLLER_GEN): $(LOCALBIN)
 	GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-tools/cmd/controller-gen@$(CONTROLLER_TOOLS_VERSION)
+
+.PHONY: envtest
+envtest: $(ENVTEST) ## Download envtest-setup locally if necessary.
+$(ENVTEST): $(LOCALBIN)
+	GOBIN=$(LOCALBIN) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
 
 .PHONY: verify-generated
 verify-generated: generate-all

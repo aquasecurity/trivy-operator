@@ -1,0 +1,22 @@
+---
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  labels:
+    app.kubernetes.io/name: wordpress
+    pod-template-hash: 84bbf6f4dd
+  name: wordpress-84bbf6f4dd
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: wordpress
+      pod-template-hash: 84bbf6f4dd
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: wordpress
+        pod-template-hash: 84bbf6f4dd
+    spec:
+      containers:
+        - image: wordpress:4.9
+          name: wordpress

@@ -50,5 +50,14 @@ func (c *checker) countScanJobs(ctx context.Context) (int, error) {
 		return 0, err
 	}
 
+	if c.config.VulnerabilityScanJobTTLAfterFinished != nil {
+		var unfinishedJobs int
+		for i := range scanJobs.Items {
+			if !IsFinished(&scanJobs.Items[i]) {
+				unfinishedJobs++
+			}
+		}
+		return unfinishedJobs, nil
+	}
 	return len(scanJobs.Items), nil
 }

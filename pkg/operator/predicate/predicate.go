@@ -6,6 +6,7 @@ import (
 
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	batchv1 "k8s.io/api/batch/v1"
 	"k8s.io/client-go/tools/leaderelection/resourcelock"
@@ -94,11 +95,11 @@ var IsBeingTerminated = predicate.NewPredicateFuncs(func(obj client.Object) bool
 	return obj.GetDeletionTimestamp() != nil
 })
 
-// JobHasAnyCondition is a predicate.Predicate that returns true if the
-// specified client.Object is a v1.Job with any v1.JobConditionType.
-var JobHasAnyCondition = predicate.NewPredicateFuncs(func(obj client.Object) bool {
+// IsJobFinished is a predicate.Predicate that returns true if the
+// specified client.Object is a v1.Job and job is finished (complete or failed).
+var IsJobFinished = predicate.NewPredicateFuncs(func(obj client.Object) bool {
 	if job, ok := obj.(*batchv1.Job); ok {
-		return len(job.Status.Conditions) > 0
+		return jobs.IsFinished(job)
 	}
 	return false
 })

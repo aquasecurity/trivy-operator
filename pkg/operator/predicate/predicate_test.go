@@ -332,32 +332,31 @@ var _ = Describe("Predicate", func() {
 	})
 
 	Describe("When checking a JobHasAnyCondition predicate", func() {
-		instance := predicate.JobHasAnyCondition
-		Context("Where job has any condition", func() {
-			It("Should return true", func() {
-				obj := &batchv1.Job{
-					Status: batchv1.JobStatus{
-						Conditions: []batchv1.JobCondition{
-							{
-								Type: batchv1.JobComplete,
-							},
-						},
-					},
-				}
+		instance := predicate.IsJobFinished
+		DescribeTable("Where job has condition",
+			func(conditionType batchv1.JobConditionType, conditionStatus corev1.ConditionStatus, wantMatch bool) {
+				job := &batchv1.Job{}
+				job.Status.Conditions = []batchv1.JobCondition{{
+					Type:   conditionType,
+					Status: conditionStatus,
+				}}
 
-				Expect(instance.Create(event.CreateEvent{Object: obj})).To(BeTrue())
-				Expect(instance.Update(event.UpdateEvent{ObjectNew: obj})).To(BeTrue())
-				Expect(instance.Delete(event.DeleteEvent{Object: obj})).To(BeTrue())
-				Expect(instance.Generic(event.GenericEvent{Object: obj})).To(BeTrue())
-			})
-		})
+				Expect(instance.Create(event.CreateEvent{Object: job})).To(Equal(wantMatch))
+				Expect(instance.Update(event.UpdateEvent{ObjectNew: job})).To(Equal(wantMatch))
+				Expect(instance.Delete(event.DeleteEvent{Object: job})).To(Equal(wantMatch))
+				Expect(instance.Generic(event.GenericEvent{Object: job})).To(Equal(wantMatch))
+			},
+			Entry("Should match complete true", batchv1.JobComplete, corev1.ConditionTrue, true),
+			Entry("Should match failed true", batchv1.JobFailed, corev1.ConditionTrue, true),
+			Entry("Should filter suspended true", batchv1.JobSuspended, corev1.ConditionTrue, false),
+			Entry("Should filter complete false", batchv1.JobComplete, corev1.ConditionFalse, false),
+			Entry("should filter failed false", batchv1.JobFailed, corev1.ConditionFalse, false),
+			Entry("Should filter suspended false", batchv1.JobSuspended, corev1.ConditionFalse, false),
+		)
+
 		Context("Where job doesn't have condition", func() {
 			It("Should return false", func() {
-				obj := &batchv1.Job{
-					Status: batchv1.JobStatus{
-						Conditions: []batchv1.JobCondition{},
-					},
-				}
+				obj := &batchv1.Job{}
 
 				Expect(instance.Create(event.CreateEvent{Object: obj})).To(BeFalse())
 				Expect(instance.Update(event.UpdateEvent{ObjectNew: obj})).To(BeFalse())

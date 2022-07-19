@@ -222,12 +222,12 @@ func TestConfigData_GetScanJobPodTemplateLabels(t *testing.T) {
 			},
 		},
 		{
-			name:     "gracefully deal with unprovided annotations",
+			name:     "gracefully deal with unprovided labels",
 			config:   trivyoperator.ConfigData{},
 			expected: labels.Set{},
 		},
 		{
-			name: "raise an error on being provided with annotations in wrong format",
+			name: "raise an error on being provided with labels in wrong format",
 			config: trivyoperator.ConfigData{
 				"scanJob.podTemplateLabels": "foo",
 			},
@@ -256,6 +256,57 @@ func TestConfigData_GetScanJobPodTemplateLabels(t *testing.T) {
 		})
 	}
 }
+
+func TestConfigData_GetScanJobPodSecurityContext(t *testing.T) {
+	expectedUid := int64(1258)
+	expectedGid := int64(55589)
+	expectedNonRoot := true
+
+	testCases := []struct {
+		name        string
+		config      trivyoperator.ConfigData
+		expected    *corev1.PodSecurityContext
+		expectError string
+	}{
+		{
+			name: "scan job template podSecurityContext can be fetched successfully",
+			config: trivyoperator.ConfigData{
+				"scanJob.podTemplateSecurityContext": "{\"RunAsUser\": 1258, \"RunAsGroup\": 55589, \"RunAsNonRoot\": true}",
+			},
+			expected: &corev1.PodSecurityContext{
+				RunAsUser:    &expectedUid,
+				RunAsGroup:   &expectedGid,
+				RunAsNonRoot: &expectedNonRoot,
+			},
+		},
+		{
+			name:     "gracefully deal with unprovided securityContext",
+			config:   trivyoperator.ConfigData{},
+			expected: nil,
+		},
+		{
+			name: "raise an error on being provided with securityContext in wrong format",
+			config: trivyoperator.ConfigData{
+				"scanJob.podTemplateSecurityContext": "foo",
+			},
+			expected:    nil,
+			expectError: "failed parsing incorrectly formatted custom scan pod template securityContext: foo",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			scanJobPodSecurityContext, err := tc.config.GetScanJobPodSecurityContext()
+			if tc.expectError != "" {
+				assert.EqualError(t, err, tc.expectError, tc.name)
+			} else {
+				assert.NoError(t, err, tc.name)
+				assert.Equal(t, tc.expected, scanJobPodSecurityContext, tc.name)
+			}
+		})
+	}
+}
+
 func TestConfigData_GetComplianceFailEntriesLimit(t *testing.T) {
 	testCases := []struct {
 		name       string

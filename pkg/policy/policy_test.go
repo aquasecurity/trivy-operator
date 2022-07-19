@@ -83,7 +83,7 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 	})
 }
 
-func TestPolicies_Applicable(t *testing.T) {
+func TestPolicies_Supported(t *testing.T) {
 
 	testCases := []struct {
 		name       string
@@ -143,7 +143,82 @@ func TestPolicies_Applicable(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			ready, _, err := policy.NewPolicies(tc.data, testConfig{}, log).Applicable(tc.resource, tc.rbacEnable)
+			ready, err := policy.NewPolicies(tc.data, testConfig{}, log).Supported(tc.resource, tc.rbacEnable)
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(ready).To(Equal(tc.expected))
+		})
+	}
+
+}
+
+func TestPolicies_Applicable(t *testing.T) {
+
+	testCases := []struct {
+		name       string
+		data       map[string]string
+		resource   client.Object
+		rbacEnable bool
+		expected   bool
+	}{
+		{
+			name: "Should return true for workload policies",
+			data: map[string]string{
+				"library.utils.rego": `package lib.utils
+
+has_key(x, k) {
+  _ = x[k]
+}`,
+				"policy.policy1.kinds": "Workload",
+				"policy.policy1.rego": `package appshield.kubernetes.KSV014
+
+__rego_metadata__ := {
+	"id": "KSV014",
+	"title": "Root file system is not read-only",
+	"description": "An immutable root file system prevents applications from writing to their local disk",
+	"severity": "LOW",
+	"type": "Kubernetes Security Check"
+}
+
+deny[res] {
+	input.kind == "Deployment"
+	not input.spec.template.spec.securityContext.runAsNonRoot
+
+	msg := "Containers must not run as root"
+
+	res := {
+		"id": __rego_metadata__.id,
+		"title": __rego_metadata__.title,
+		"severity": __rego_metadata__.severity,
+		"type": __rego_metadata__.type,
+		"msg": msg
+	}
+}
+`},
+			resource: &corev1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Pod",
+					APIVersion: "v1",
+				},
+			},
+			expected: true,
+		},
+		{
+			name: "Should return true if Pod kind and rbac disable",
+			resource: &corev1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Pod",
+					APIVersion: "v1",
+				},
+			},
+			expected: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			g := NewGomegaWithT(t)
+			log := ctrl.Log.WithName("resourcecontroller")
+			ready, _, err := policy.NewPolicies(tc.data, testConfig{builtInPolicies: false}, log).Applicable(tc.resource)
 			g.Expect(err).ToNot(HaveOccurred())
 			g.Expect(ready).To(Equal(tc.expected))
 		})

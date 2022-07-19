@@ -1,0 +1,36 @@
+---
+apiVersion: aquasecurity.github.io/v1alpha1
+kind: VulnerabilityReport
+metadata:
+  labels:
+    trivy-operator.container.name: wordpress
+    trivy-operator.resource.kind: ReplicaSet
+  ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: false
+      controller: true
+      kind: ReplicaSet
+report:
+  artifact:
+    repository: library/wordpress
+    tag: "4.9"
+  registry:
+    server: index.docker.io
+  scanner:
+    name: Trivy
+    vendor: Aqua Security
+---
+apiVersion: aquasecurity.github.io/v1alpha1
+kind: ConfigAuditReport
+metadata:
+  labels:
+    trivy-operator.resource.kind: ReplicaSet
+  ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: false
+      controller: true
+      kind: ReplicaSet
+report:
+  scanner:
+    name: Trivy
+    vendor: Aqua Security

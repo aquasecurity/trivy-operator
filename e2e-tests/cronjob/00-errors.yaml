@@ -1,0 +1,8 @@
+---
+# Asserting that no report is created for Job owned by CronJob
+apiVersion: aquasecurity.github.io/v1alpha1
+kind: VulnerabilityReport
+metadata:
+  labels:
+    trivy-operator.container.name: hello
+    trivy-operator.resource.kind: Job

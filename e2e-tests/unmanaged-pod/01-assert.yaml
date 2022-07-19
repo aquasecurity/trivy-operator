@@ -1,0 +1,15 @@
+---
+apiVersion: kuttl.dev/v1beta1
+commands:
+  - script: |
+      cnt="$(kubectl get -n $NAMESPACE vulnerabilityreports.aquasecurity.github.io pod-unmanaged-nginx-nginx \
+        -o=jsonpath='{.report.summary.criticalCount}')"
+      if [ $cnt -gt 0 ]
+      then
+        echo "CriticalCount ($cnt) OK!"
+      else
+        echo "VulnerabilityReport CriticalCount $cnt is not right, should be greater than 1"
+        exit 1
+      fi
+kind: TestAssert
+timeout: 30

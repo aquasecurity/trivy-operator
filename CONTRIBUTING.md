@@ -11,7 +11,8 @@ These guidelines will help you get started with the Trivy-operator project.
 - [Build Binaries](#build-binaries)
 - [Testing](#testing)
   - [Run Tests](#run-tests)
-  - [Run Integration Tests](#run-integration-tests)
+  - [Run end-to-end (e2e) Tests](#run-end-to-end-e2e-tests)
+  - [Writing end-to-end (e2e) Tests](#writing-end-to-end-e2e-tests)
   - [Cove Coverage](#code-coverage)
 - [Custom Resource Definitions](#custom-resource-definitions)
   - [Generating code and manifests](#generating-code-and-manifests)
@@ -68,6 +69,14 @@ Each commit message doesn't have to follow conventions as long as it is clear an
    kind create cluster
    ```
 
+4. (Optional) We use [kuttl](https://kuttl.dev/) for end-to-end (e2e) tests.
+   So if you plan to run/write e2e tests, you have to
+   [install kuttl](https://kuttl.dev/docs/cli.html#setup-the-kuttl-kubectl-plugin).
+
+   ```
+   kind create cluster
+   ```
+
 Note: Some of our tests performs integration testing by starting a local
 control plane using
 [envtest](https://pkg.go.dev/sigs.k8s.io/controller-runtime/pkg/envtest).
@@ -106,8 +115,8 @@ kind load docker-image aquasec/trivy-operator:dev
 ## Testing
 
 We generally require tests to be added for all, but the most trivial of changes. However, unit tests alone don't
-provide guarantees about the behaviour of Trivy-operator. To verify that each Go module correctly interacts with its
-collaborators, more coarse grained integration tests might be required.
+provide guarantees about the behaviour of Trivy-operator. To verify that each module correctly interacts with its
+collaborators and Kubernetes, more coarse grained integration/end-to-end tests might be required.
 
 ### Run Tests
 
@@ -123,31 +132,49 @@ To open the test coverage report in your web browser, run:
 go tool cover -html=coverage.txt
 ```
 
-### Run Integration Tests
+### Run end-to-end (e2e) Tests
 
-The integration tests assumes that you have a working kubernetes cluster (e.g KIND cluster) and `KUBECONFIG` environment
-variable is pointing to that cluster configuration file. For example:
+The end-to-end (e2) tests assumes that you have a working kubernetes cluster
+(e.g KIND cluster) and `KUBECONFIG` environment variable is pointing to that
+cluster configuration file. For example:
 
 ```
 export KUBECONFIG=~/.kube/config
 ```
 
-To open the test coverage report in your web browser, run:
-
-```
-go tool cover -html=itest/trivy-operator/coverage.txt
-```
-
-To run the integration tests for Trivy-operator Operator and view the coverage report, first do the
+To run the e2e tests for Trivy Operator, first do the
 [prerequisite steps](#set-up-your-development-environment), and then run:
 
 ```
-OPERATOR_NAMESPACE=trivy-system \
-  OPERATOR_TARGET_NAMESPACES=default \
-  OPERATOR_LOG_DEV_MODE=true \
-  make itests-trivy-operator
-go tool cover -html=itest/trivy-operator/coverage.txt
+make deploy
 ```
+
+This will build trivy-operator and ensure that the operator is running with
+the most updated configuration/manifest. Then you can run all e2e tests:
+
+```
+make e2e-test
+```
+
+### Writing end-to-end (e2e) Tests
+
+Our e2e tests are using [kuttl](https://kuttl.dev/) to test the operator from
+a user point-of-view. Please refer to the kuttl documentation for additional
+details, but writing e2e tests is actually quite simple:
+
+1. "Test" locally as a user using kind (or other Kubernetes cluster) and do what the test is supposed to test
+2. Pull down relevant resource manifests from your cluster using `kubectl`. Tip: You might find
+   [kubectl-neat](https://github.com/itaysk/kubectl-neat) useful to remove some of the clutter added by
+   Kubernetes not relevant from writing tests.
+3. "Neat" the downloaded manifest to remove random/non-deterministic fields/values (most of them added by Kubernetes)
+4. Organize your manifests to form a test that:
+    - Creates/updates resources
+    - Asserts resources present and in desired state
+    - Asserts resource absent
+
+And as always: KISS (keep it simple s...). **Please don't include or assert
+fields not relevant for the test**. This will make it a lot easier to maintain
+the tests over time.
 
 ### Code Coverage
 

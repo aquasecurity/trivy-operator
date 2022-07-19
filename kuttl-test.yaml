@@ -1,0 +1,7 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestSuite
+suppress:
+  - events
+testDirs:
+  - e2e-tests/
+timeout: 120

@@ -5,8 +5,6 @@ bin/
 dist/
 
 coverage.txt
-itest/coverage.txt
-itest/itest.test
 vendor
 
 # Ignore Mac DS_Store files

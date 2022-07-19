@@ -150,8 +150,8 @@ func (p *Policies) Applicable(resource client.Object) (bool, string, error) {
 	return true, "", nil
 }
 
-//Supported scan policies supported for this kind
-func (p *Policies) Supported(resource client.Object, rbacDEnable bool) (bool, error) {
+//SupportedKind scan policies supported for this kind
+func (p *Policies) SupportedKind(resource client.Object, rbacDEnable bool) (bool, error) {
 	resourceKind := resource.GetObjectKind().GroupVersionKind().Kind
 	if resourceKind == "" {
 		return false, errors.New("resource kind must not be blank")

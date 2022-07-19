@@ -143,7 +143,7 @@ func TestPolicies_Supported(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			ready, err := policy.NewPolicies(tc.data, testConfig{}, log).Supported(tc.resource, tc.rbacEnable)
+			ready, err := policy.NewPolicies(tc.data, testConfig{}, log).SupportedKind(tc.resource, tc.rbacEnable)
 			g.Expect(err).ToNot(HaveOccurred())
 			g.Expect(ready).To(Equal(tc.expected))
 		})

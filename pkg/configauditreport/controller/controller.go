@@ -222,7 +222,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		}
 
 		// Skip processing if there are no policies applicable to the resource
-		suppoerted, err := policies.Supported(resource, r.RbacAssessmentScannerEnabled)
+		suppoerted, err := policies.SupportedKind(resource, r.RbacAssessmentScannerEnabled)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("checking whether plugin is applicable: %w", err)
 		}

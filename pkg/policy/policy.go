@@ -134,17 +134,34 @@ func (p *Policies) ModulePolicyByKind(kind string) ([]string, error) {
 	return policy, nil
 }
 
-func (p *Policies) Applicable(resource client.Object, rbacDEnable bool) (bool, string, error) {
+//Applicable check if policies exist either built in or via policies configmap
+func (p *Policies) Applicable(resource client.Object) (bool, string, error) {
 	resourceKind := resource.GetObjectKind().GroupVersionKind().Kind
 	if resourceKind == "" {
 		return false, "", errors.New("resource kind must not be blank")
 	}
+	policies, err := p.PoliciesByKind(resourceKind)
+	if err != nil {
+		return false, "", err
+	}
+	if len(policies) == 0 && !p.cac.GetUseBuiltinRegoPolicies() {
+		return false, fmt.Sprintf("no policies found for kind %s", resource.GetObjectKind().GroupVersionKind().Kind), nil
+	}
+	return true, "", nil
+}
+
+//SupportedKind scan policies supported for this kind
+func (p *Policies) SupportedKind(resource client.Object, rbacDEnable bool) (bool, error) {
+	resourceKind := resource.GetObjectKind().GroupVersionKind().Kind
+	if resourceKind == "" {
+		return false, errors.New("resource kind must not be blank")
+	}
 	for _, kind := range p.cac.GetSupportedConfigAuditKinds() {
 		if kind == resourceKind && !p.rbacDisabled(rbacDEnable, kind) {
-			return true, "", nil
+			return true, nil
 		}
 	}
-	return false, "", nil
+	return false, nil
 }
 
 func (p *Policies) rbacDisabled(rbacEnable bool, kind string) bool {

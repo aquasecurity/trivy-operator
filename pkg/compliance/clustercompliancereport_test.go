@@ -136,6 +136,7 @@ var _ = ginkgo.Describe("cluster compliance report", func() {
 	ginkgo.Context("reconcile compliance spec report without cis-bench and audit-config data and validate compliance reports data", func() {
 		var clusterComplianceSpec v1alpha1.ClusterComplianceReport
 		err := loadResource("./testdata/fixture/clusterComplianceSpec.json", &clusterComplianceSpec)
+		Expect(err).ToNot(HaveOccurred())
 		// create new client
 		clientWithComplianceSpecOnly := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(&clusterComplianceSpec).Build()
 		// create compliance controller

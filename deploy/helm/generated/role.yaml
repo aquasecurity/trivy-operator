@@ -92,6 +92,14 @@ rules:
 - apiGroups:
   - apps
   resources:
+  - deployments
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
   - replicasets
   verbs:
   - get

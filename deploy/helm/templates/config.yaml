@@ -16,6 +16,9 @@ data:
   {{- with .Values.trivyOperator.scanJobPodTemplateLabels }}
   scanJob.podTemplateLabels: {{ . | quote }}
   {{- end }}
+  {{- with .Values.trivyOperator.scanJobPodTemplateSecurityContext }}
+  scanJob.podTemplateSecurityContext: {{ . | toJson | quote }}
+  {{- end }}
   {{- if .Values.operator.vulnerabilityScannerEnabled }}
   vulnerabilityReports.scanner: {{ .Values.trivyOperator.vulnerabilityReportsPlugin | quote }}
   {{- end }}

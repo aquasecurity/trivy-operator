@@ -56,6 +56,7 @@ const (
 	keyConfigAuditReportsScanner         = "configAuditReports.scanner"
 	keyScanJobTolerations                = "scanJob.tolerations"
 	keyScanJobAnnotations                = "scanJob.annotations"
+	keyScanJobPodSecurityContext         = "scanJob.podTemplateSecurityContext"
 	keyScanJobPodTemplateLabels          = "scanJob.podTemplateLabels"
 	keyComplianceFailEntriesLimit        = "compliance.failEntriesLimit"
 )
@@ -116,6 +117,20 @@ func (c ConfigData) GetScanJobTolerations() ([]corev1.Toleration, error) {
 	err := json.Unmarshal([]byte(c[keyScanJobTolerations]), &scanJobTolerations)
 
 	return scanJobTolerations, err
+}
+
+func (c ConfigData) GetScanJobPodSecurityContext() (*corev1.PodSecurityContext, error) {
+	if c[keyScanJobPodSecurityContext] == "" {
+		return nil, nil
+	}
+
+	scanJobPodSecurityContext := &corev1.PodSecurityContext{}
+	err := json.Unmarshal([]byte(c[keyScanJobPodSecurityContext]), scanJobPodSecurityContext)
+	if err != nil {
+		return nil, fmt.Errorf("failed parsing incorrectly formatted custom scan pod template securityContext: %s", c[keyScanJobPodSecurityContext])
+	}
+
+	return scanJobPodSecurityContext, nil
 }
 
 func (c ConfigData) GetScanJobAnnotations() (map[string]string, error) {

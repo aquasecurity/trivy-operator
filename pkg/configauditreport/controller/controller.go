@@ -315,15 +315,13 @@ func (r *ResourceController) hasClusterReport(ctx context.Context, owner kube.Ob
 		return false, err
 	}
 	if report != nil {
-		switch report.(type) {
+		switch r := report.(type) {
 		case *v1alpha1.ClusterConfigAuditReport:
-			configReport := report.(*v1alpha1.ClusterConfigAuditReport)
-			return configReport.Labels[trivyoperator.LabelResourceSpecHash] == podSpecHash &&
-				configReport.Labels[trivyoperator.LabelPluginConfigHash] == pluginConfigHash, nil
+			return r.Labels[trivyoperator.LabelResourceSpecHash] == podSpecHash &&
+				r.Labels[trivyoperator.LabelPluginConfigHash] == pluginConfigHash, nil
 		case *v1alpha1.ClusterRbacAssessmentReport:
-			rbacReport := report.(*v1alpha1.ClusterRbacAssessmentReport)
-			return rbacReport.Labels[trivyoperator.LabelResourceSpecHash] == podSpecHash &&
-				rbacReport.Labels[trivyoperator.LabelPluginConfigHash] == pluginConfigHash, nil
+			return r.Labels[trivyoperator.LabelResourceSpecHash] == podSpecHash &&
+				r.Labels[trivyoperator.LabelPluginConfigHash] == pluginConfigHash, nil
 		}
 	}
 	return false, nil
@@ -334,15 +332,13 @@ func (r *ResourceController) findReportOwner(ctx context.Context, owner kube.Obj
 		return false, err
 	}
 	if report != nil {
-		switch report.(type) {
+		switch r := report.(type) {
 		case *v1alpha1.ConfigAuditReport:
-			configReport := report.(*v1alpha1.ConfigAuditReport)
-			return configReport.Labels[trivyoperator.LabelResourceSpecHash] == podSpecHash &&
-				configReport.Labels[trivyoperator.LabelPluginConfigHash] == pluginConfigHash, nil
+			return r.Labels[trivyoperator.LabelResourceSpecHash] == podSpecHash &&
+				r.Labels[trivyoperator.LabelPluginConfigHash] == pluginConfigHash, nil
 		case *v1alpha1.RbacAssessmentReport:
-			rbacReport := report.(*v1alpha1.RbacAssessmentReport)
-			return rbacReport.Labels[trivyoperator.LabelResourceSpecHash] == podSpecHash &&
-				rbacReport.Labels[trivyoperator.LabelPluginConfigHash] == pluginConfigHash, nil
+			return r.Labels[trivyoperator.LabelResourceSpecHash] == podSpecHash &&
+				r.Labels[trivyoperator.LabelPluginConfigHash] == pluginConfigHash, nil
 		}
 	}
 	return false, nil

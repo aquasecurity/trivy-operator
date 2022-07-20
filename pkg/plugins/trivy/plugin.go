@@ -330,6 +330,9 @@ func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client
 	}
 
 	command, err := config.GetCommand()
+	if err != nil {
+		return corev1.PodSpec{}, nil, err
+	}
 
 	if command == Image {
 		switch mode {

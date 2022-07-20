@@ -270,13 +270,13 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			}
 			return ctrl.Result{}, fmt.Errorf("evaluating resource: %w", err)
 		}
-		switch reportData.(type) {
+		switch rd := reportData.(type) {
 		case v1alpha1.ConfigAuditReportData:
 			reportBuilder := configauditreport.NewReportBuilder(r.Client.Scheme()).
 				Controller(resource).
 				ResourceSpecHash(resourceHash).
 				PluginConfigHash(policiesHash).
-				Data(reportData.(v1alpha1.ConfigAuditReportData))
+				Data(rd)
 			if err := reportBuilder.Write(ctx, r.ReadWriter); err != nil {
 				return ctrl.Result{}, err
 			}
@@ -285,7 +285,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 				Controller(resource).
 				ResourceSpecHash(resourceHash).
 				PluginConfigHash(policiesHash).
-				Data(reportData.(v1alpha1.RbacAssessmentReportData))
+				Data(rd)
 			if err := rbacReportBuilder.Write(ctx, r.RbacReadWriter); err != nil {
 				return ctrl.Result{}, err
 			}

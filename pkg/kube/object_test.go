@@ -1213,8 +1213,7 @@ func TestObjectResolver_IsActiveReplicaSet(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			or := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
-			controller := metav1.GetControllerOf(tc.resource)
-			isActive, err := or.IsActiveReplicaSet(context.TODO(), tc.resource, controller)
+			isActive, _, err := or.IsActiveReplicaSet(context.TODO(), tc.resource)
 			require.NoError(t, err)
 			assert.Equal(t, isActive, tc.result)
 		})

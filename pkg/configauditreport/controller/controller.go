@@ -193,8 +193,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		}
 
 		if r.Config.ConfigAuditScannerScanOnlyCurrentRevisions && resourceKind == kube.KindReplicaSet {
-			controller := metav1.GetControllerOf(resource)
-			activeReplicaSet, err := r.IsActiveReplicaSet(ctx, resource, controller)
+			activeReplicaSet, controller, err := r.IsActiveReplicaSet(ctx, resource.(*appsv1.ReplicaSet))
 			if err != nil {
 				return ctrl.Result{}, fmt.Errorf("failed checking current revision: %w", err)
 			}

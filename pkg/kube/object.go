@@ -619,22 +619,22 @@ func (o *ObjectResolver) GetNodeName(ctx context.Context, obj client.Object) (st
 // See: https://github.com/aquasecurity/trivy-operator/issues/373 for background
 //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch
 
-func (o *ObjectResolver) IsActiveReplicaSet(ctx context.Context, workloadObj client.Object, controller *metav1.OwnerReference) (bool, error) {
+func (o *ObjectResolver) IsActiveReplicaSet(ctx context.Context, replicaSet *appsv1.ReplicaSet) (bool, *metav1.OwnerReference, error) {
+	controller := metav1.GetControllerOf(replicaSet)
 	if controller != nil && controller.Kind == string(KindDeployment) {
-		deploymentObject := &appsv1.Deployment{}
-
+		deployment := &appsv1.Deployment{}
 		err := o.Client.Get(ctx, client.ObjectKey{
-			Namespace: workloadObj.GetNamespace(),
+			Namespace: replicaSet.Namespace,
 			Name:      controller.Name,
-		}, deploymentObject)
+		}, deployment)
 		if err != nil {
-			return false, err
+			return false, nil, err
 		}
-		deploymentRevisionAnnotation := deploymentObject.GetAnnotations()
-		replicasetRevisionAnnotation := workloadObj.GetAnnotations()
-		return replicasetRevisionAnnotation[deploymentAnnotation] == deploymentRevisionAnnotation[deploymentAnnotation], nil
+		replicaSetRevisionAnnotation := replicaSet.Annotations[deploymentAnnotation]
+		deploymentRevisionAnnotation := deployment.Annotations[deploymentAnnotation]
+		return replicaSetRevisionAnnotation == deploymentRevisionAnnotation, controller, nil
 	}
-	return true, nil
+	return true, controller, nil
 }
 
 func (o *ObjectResolver) getPodsMatchingLabels(ctx context.Context, namespace string,

@@ -9,8 +9,8 @@ These guidelines will help you get started with the Trivy-operator project.
   - [Pull Requests](#pull-requests)
 - [Set up your Development Environment](#set-up-your-development-environment)
 - [Build Binaries](#build-binaries)
-- [Run Tests](#run-tests)
-  - [Run Unit Tests](#run-unit-tests)
+- [Testing](#testing)
+  - [Run Tests](#run-tests)
   - [Run Integration Tests](#run-integration-tests)
   - [Cove Coverage](#code-coverage)
 - [Custom Resource Definitions](#custom-resource-definitions)
@@ -68,6 +68,15 @@ Each commit message doesn't have to follow conventions as long as it is clear an
    kind create cluster
    ```
 
+Note: Some of our tests performs integration testing by starting a local
+control plane using
+[envtest](https://pkg.go.dev/sigs.k8s.io/controller-runtime/pkg/envtest).
+If you only run test using the Makefile
+(`m̀ake test`), no additional installation is required. But if you want to
+run some of these integration tests using `go test` or from your IDE, you'll
+have to
+[install kubebuiler-tools](https://book.kubebuilder.io/reference/envtest.html#installation).
+
 ## Build Binaries
 
 | Binary               | Image                                          | Description                                                   |
@@ -94,18 +103,18 @@ To load Docker images into your KIND cluster, run:
 kind load docker-image aquasec/trivy-operator:dev
 ```
 
-## Run Tests
+## Testing
 
 We generally require tests to be added for all, but the most trivial of changes. However, unit tests alone don't
 provide guarantees about the behaviour of Trivy-operator. To verify that each Go module correctly interacts with its
 collaborators, more coarse grained integration tests might be required.
 
-### Run Unit Tests
+### Run Tests
 
-To run all unit tests with code coverage enabled, run:
+To run all tests with code coverage enabled, run:
 
 ```
-make unit-tests
+make test
 ```
 
 To open the test coverage report in your web browser, run:

@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
+
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -175,6 +177,15 @@ func (ci ContainerImages) AsJSON() (string, error) {
 
 func (ci ContainerImages) FromJSON(value string) error {
 	return json.Unmarshal([]byte(value), &ci)
+}
+
+func (ci ContainerImages) DeepEqualTo(m map[string]bool) bool {
+	expected := map[string]bool{}
+	for containerName := range ci {
+		expected[containerName] = true
+	}
+
+	return reflect.DeepEqual(m, expected)
 }
 
 func ObjectRefFromKindAndObjectKey(kind Kind, name client.ObjectKey) ObjectRef {

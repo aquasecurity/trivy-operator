@@ -5,6 +5,7 @@ import (
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -24,6 +25,7 @@ type Writer interface {
 // owned by the given kube.ObjectRef or an empty slice if the reports are not found.
 type Reader interface {
 	FindByOwner(context.Context, kube.ObjectRef) ([]v1alpha1.ExposedSecretReport, error)
+	HasSecretReports(ctx context.Context, owner kube.ObjectRef, hash string, images kube.ContainerImages) (bool, error)
 }
 
 type ReadWriter interface {
@@ -87,4 +89,23 @@ func (r *readWriter) FindByOwner(ctx context.Context, owner kube.ObjectRef) ([]v
 	}
 
 	return list.DeepCopy().Items, nil
+}
+
+func (r *readWriter) HasSecretReports(ctx context.Context, owner kube.ObjectRef, hash string, images kube.ContainerImages) (bool, error) {
+	// TODO FindByOwner should accept optional label selector to further narrow down search results
+	list, err := r.FindByOwner(ctx, owner)
+	if err != nil {
+		return false, err
+	}
+
+	actual := map[string]bool{}
+	for _, report := range list {
+		if containerName, ok := report.Labels[trivyoperator.LabelContainerName]; ok {
+			if hash == report.Labels[trivyoperator.LabelResourceSpecHash] {
+				actual[containerName] = true
+			}
+		}
+	}
+
+	return images.DeepEqualTo(actual), nil
 }

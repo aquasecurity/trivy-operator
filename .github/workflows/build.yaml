@@ -69,8 +69,8 @@ jobs:
         run: go mod vendor
       - name: Verify all generated
         run: make verify-generated
-  unit-tests:
-    name: Run unit tests
+  tests:
+    name: Run tests
     runs-on: ubuntu-20.04
     steps:
       - name: Setup Go
@@ -86,7 +86,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Run unit tests
-        run: make unit-tests
+        run: make test
       - name: Upload code coverage
         uses: codecov/codecov-action@v3
         with:
@@ -94,7 +94,7 @@ jobs:
   itest-trivy-operator:
     name: Run integration tests / Trivy Operator
     needs:
-      - unit-tests
+      - tests
       - verify-code
     runs-on: ubuntu-20.04
     timeout-minutes: 15

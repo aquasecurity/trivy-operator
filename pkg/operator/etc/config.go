@@ -27,6 +27,7 @@ type Config struct {
 	VulnerabilityScannerEnabled                  bool           `env:"OPERATOR_VULNERABILITY_SCANNER_ENABLED" envDefault:"true"`
 	VulnerabilityScannerScanOnlyCurrentRevisions bool           `env:"OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS" envDefault:"false"`
 	VulnerabilityScannerReportTTL                *time.Duration `env:"OPERATOR_VULNERABILITY_SCANNER_REPORT_TTL"`
+	VulnerabilityScanJobTTLAfterFinished         *time.Duration `env:"OPERATOR_VULNERABILITY_SCAN_JOB_TTL_AFTER_FINISHED"`
 	ClusterComplianceEnabled                     bool           `env:"OPERATOR_CLUSTER_COMPLIANCE_ENABLED" envDefault:"false"`
 	ConfigAuditScannerEnabled                    bool           `env:"OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED" envDefault:"true"`
 	RbacAssessmentScannerEnabled                 bool           `env:"OPERATOR_RBAC_ASSESSMENT_SCANNER_ENABLED" envDefault:"true"`

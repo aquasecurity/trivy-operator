@@ -5,11 +5,13 @@ import (
 	. "github.com/onsi/gomega"
 
 	"context"
+	"time"
 
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	batchv1 "k8s.io/api/batch/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
@@ -128,6 +130,59 @@ var _ = Describe("LimitChecker", func() {
 			Expect(jobsCount).To(Equal(3))
 		})
 
+	})
+
+	Context("When vulnerability scan job TTL is set", func() {
+		It("Should only count unfinished jobs", func() {
+			client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(
+				&batchv1.Job{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "scan-vulnerabilityreport-hash1",
+						Namespace: "trivy-operator",
+						Labels: map[string]string{
+							trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+						},
+					},
+					Status: batchv1.JobStatus{
+						Conditions: []batchv1.JobCondition{{
+							Type:   batchv1.JobComplete,
+							Status: corev1.ConditionTrue,
+						}},
+					},
+				},
+				&batchv1.Job{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "scan-vulnerabilityreport-hash2",
+						Namespace: "trivy-operator",
+						Labels: map[string]string{
+							trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+						},
+					},
+					Status: batchv1.JobStatus{
+						Conditions: []batchv1.JobCondition{{
+							Type:   batchv1.JobFailed,
+							Status: corev1.ConditionTrue,
+						}},
+					},
+				},
+				&batchv1.Job{ObjectMeta: metav1.ObjectMeta{
+					Name:      "scan-configauditreport-hash2",
+					Namespace: "trivy-operator",
+					Labels: map[string]string{
+						trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+					},
+				}},
+			).Build()
+
+			ttlConfig := config
+			scanJobTTL := 2 * time.Hour
+			ttlConfig.VulnerabilityScanJobTTLAfterFinished = &scanJobTTL
+			instance := jobs.NewLimitChecker(ttlConfig, client, defaultTrivyOperatorConfig)
+			limitExceeded, jobsCount, err := instance.Check(context.TODO())
+			Expect(err).ToNot(HaveOccurred())
+			Expect(limitExceeded).To(BeFalse())
+			Expect(jobsCount).To(Equal(1))
+		})
 	})
 
 })

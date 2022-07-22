@@ -16,8 +16,8 @@ GINKGO=$(GOBIN)/ginkgo
 SOURCES := $(shell find . -name '*.go')
 
 IMAGE_TAG := dev
-TRIVY_OPERATOR_IMAGE := aquasec/trivy-operator:$(IMAGE_TAG)
-TRIVY_OPERATOR_IMAGE_UBI8 := aquasec/trivy-operator:$(IMAGE_TAG)-ubi8
+TRIVY_OPERATOR_IMAGE := aquasecurity/trivy-operator:$(IMAGE_TAG)
+TRIVY_OPERATOR_IMAGE_UBI8 := aquasecurity/trivy-operator:$(IMAGE_TAG)-ubi8
 
 MKDOCS_IMAGE := aquasec/mkdocs-material:trivy-operator
 MKDOCS_PORT := 8000

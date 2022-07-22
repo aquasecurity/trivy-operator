@@ -54,7 +54,7 @@ jobs:
       - name: Scan Trivy Operator image for vulnerabilities
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'docker.io/aquasec/trivy-operator:${{ github.sha }}-amd64'
+          image-ref: 'ghcr.io/aquasecurity/trivy-operator:${{ github.sha }}-amd64'
           exit-code: '1'
           ignore-unfixed: true
           severity: 'CRITICAL,HIGH'

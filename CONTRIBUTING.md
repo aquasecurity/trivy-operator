@@ -81,7 +81,7 @@ have to
 
 | Binary               | Image                                          | Description                                                   |
 |----------------------|------------------------------------------------|---------------------------------------------------------------|
-| `trivy-operator`     | `docker.io/aquasec/trivy-operator:dev`         | Trivy Operator                                                |
+| `trivy-operator`     | `ghcr.io/aquasecurity/trivy-operator:dev`         | Trivy Operator                                                |
 
 To build all Trivy-operator binary, run:
 
@@ -100,7 +100,7 @@ make docker-build
 To load Docker images into your KIND cluster, run:
 
 ```
-kind load docker-image aquasec/trivy-operator:dev
+kind load docker-image aquasecurity/trivy-operator:dev
 ```
 
 ## Testing
@@ -198,7 +198,7 @@ basic development workflow. For other install modes see [Operator Multitenancy w
 
 1. Build the operator binary into the Docker image and load it from your host into KIND cluster nodes:
    ```
-   make docker-build-trivy-operator && kind load docker-image aquasec/trivy-operator:dev
+   make docker-build-trivy-operator && kind load docker-image aquasecurity/trivy-operator:dev
    ```
 2. Create the `trivy-operator` Deployment in the `trivy-system` namespace to run the operator's container:
    ```

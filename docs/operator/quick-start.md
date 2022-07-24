@@ -176,9 +176,10 @@ No resources found in default namespace.
 Use `vuln` and `configaudit` as short names for `vulnerabilityreports` and `configauditreports` resources.
 
 !!! Note
-You can define the validity period for VulnerabilityReports by setting the duration as the value of the
-`OPERATOR_VULNERABILITY_SCANNER_REPORT_TTL` environment variable. For example, setting the value to `24h`
-would delete reports after 24 hours. When a VulnerabilityReport gets deleted Trivy-Operator will automatically
+The validity period for VulnerabilityReports by setting the duration as the value of the
+`OPERATOR_VULNERABILITY_SCANNER_REPORT_TTL` environment variable. The value is set to `24h` by default.
+
+The reports wil be deleted after 24 hours. When a VulnerabilityReport gets deleted Trivy-Operator will automatically rescan the resource.
 
 
 

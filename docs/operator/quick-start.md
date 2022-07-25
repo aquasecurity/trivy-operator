@@ -108,14 +108,14 @@ previous ReplicaSet named `nginx-78449c65d4` is deleted the VulnerabilityReport 
 as well as the ConfigAuditReport named `replicaset-nginx-78449c65d46` are automatically garbage collected.
 
 !!! tip
-If you only want the latest ReplicaSet in your Deployment to be scanned for vulnerabilities, you can set the value
-of the `OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS` environment variable to `true` in the operator's
-deployment descriptor. This is useful to identify vulnerabilities that impact only the running workloads.
+If you do not want only the latest ReplicaSet in your Deployment to be scanned for vulnerabilities, you can set the value
+of the `OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS` environment variable to `false` in the operator's
+deployment descriptor.
 
 !!! tip
-If you only want the latest ReplicaSet in your Deployment to be scanned for config audit, you can set the value
-of the `OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS` environment variable to `true` in the operator's
-deployment descriptor. This is useful to identify config issues that impact only the running workloads.
+If you do not want only the latest ReplicaSet in your Deployment to be scanned for config audit, you can set the value
+of the `OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS` environment variable to `false` in the operator's
+deployment descriptor.
 
 !!! tip
 You can get and describe `vulnerabilityreports` and `configauditreports` as built-in Kubernetes objects:
@@ -176,9 +176,10 @@ No resources found in default namespace.
 Use `vuln` and `configaudit` as short names for `vulnerabilityreports` and `configauditreports` resources.
 
 !!! Note
-You can define the validity period for VulnerabilityReports by setting the duration as the value of the
-`OPERATOR_VULNERABILITY_SCANNER_REPORT_TTL` environment variable. For example, setting the value to `24h`
-would delete reports after 24 hours. When a VulnerabilityReport gets deleted Trivy-Operator will automatically
+The validity period for VulnerabilityReports by setting the duration as the value of the
+`OPERATOR_VULNERABILITY_SCANNER_REPORT_TTL` environment variable. The value is set to `24h` by default.
+
+The reports wil be deleted after 24 hours. When a VulnerabilityReport gets deleted Trivy-Operator will automatically rescan the resource.
 
 
 

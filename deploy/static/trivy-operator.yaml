@@ -1275,15 +1275,15 @@ spec:
             - name: OPERATOR_VULNERABILITY_SCANNER_ENABLED
               value: "true"
             - name: OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS
-              value: "false"
+              value: "true"
             - name: OPERATOR_VULNERABILITY_SCANNER_REPORT_TTL
-              value: ""
+              value: "24h"
             - name: OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED
               value: "true"
             - name: OPERATOR_RBAC_ASSESSMENT_SCANNER_ENABLED
               value: "true"
             - name: OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS
-              value: "false"
+              value: "true"
             - name: OPERATOR_CLUSTER_COMPLIANCE_ENABLED
               value: "false"
           ports:

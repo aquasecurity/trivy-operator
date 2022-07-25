@@ -40,7 +40,7 @@ operator:
   # vulnerabilityScannerEnabled the flag to enable vulnerability scanner
   vulnerabilityScannerEnabled: true
   # vulnerabilityScannerReportTTL the flag to set how long a vulnerability report should exist. "" means that the vulnerabilityScannerReportTTL feature is disabled
-  vulnerabilityScannerReportTTL: ""
+  vulnerabilityScannerReportTTL: "24h"
   # configAuditScannerEnabled the flag to enable configuration audit scanner
   configAuditScannerEnabled: true
   # rbacAssessmentScannerEnabled the flag to enable rbac assessment scanner
@@ -52,9 +52,9 @@ operator:
   # batchDeleteLimit the maximum number of config audit reports deleted by the operator when the plugin's config has changed.
   batchDeleteLimit: 10
   # vulnerabilityScannerScanOnlyCurrentRevisions the flag to only create vulnerability scans on the current revision of a deployment.
-  vulnerabilityScannerScanOnlyCurrentRevisions: false
+  vulnerabilityScannerScanOnlyCurrentRevisions: true
   # configAuditScannerScanOnlyCurrentRevisions the flag to only create config audit scans on the current revision of a deployment.
-  configAuditScannerScanOnlyCurrentRevisions: false
+  configAuditScannerScanOnlyCurrentRevisions: true
   # batchDeleteDelay the duration to wait before deleting another batch of config audit reports.
   batchDeleteDelay: 10s
 

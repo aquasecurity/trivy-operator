@@ -65,6 +65,9 @@ data:
   {{- range $key, $registry := .nonSslRegistries }}
   trivy.nonSslRegistry.{{ $key }}: {{ $registry | quote }}
   {{- end }}
+  {{- range $key, $registry := .insecureRegistries }}
+  trivy.insecureRegistry.{{ $key }}: {{ $registry | quote }}
+  {{- end }}
   {{- range $key, $registry := .registry.mirror }}
   trivy.registry.mirror.{{ $key }}: {{ $registry | quote }}
   {{- end }}

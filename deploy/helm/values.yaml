@@ -222,6 +222,8 @@ trivy:
   #
   supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
 
+  #command. Either `image` or `filesystem` scanning. Depending on the target type required for the scan.
+  command: image
 
 compliance:
   # failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report

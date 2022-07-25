@@ -73,6 +73,7 @@ data:
   {{- end }}
   trivy.severity: {{ .severity | quote }}
   trivy.dbRepository: {{ .dbRepository | quote }}
+  trivy.command: {{ .command | quote }}
   {{- if .dbRepositoryInsecure }}
   trivy.dbRepositoryInsecure: {{ .dbRepositoryInsecure | quote }}
   {{- end }}

@@ -108,14 +108,14 @@ previous ReplicaSet named `nginx-78449c65d4` is deleted the VulnerabilityReport 
 as well as the ConfigAuditReport named `replicaset-nginx-78449c65d46` are automatically garbage collected.
 
 !!! tip
-If you only want the latest ReplicaSet in your Deployment to be scanned for vulnerabilities, you can set the value
-of the `OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS` environment variable to `true` in the operator's
-deployment descriptor. This is useful to identify vulnerabilities that impact only the running workloads.
+If you do not want only the latest ReplicaSet in your Deployment to be scanned for vulnerabilities, you can set the value
+of the `OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS` environment variable to `false` in the operator's
+deployment descriptor.
 
 !!! tip
-If you only want the latest ReplicaSet in your Deployment to be scanned for config audit, you can set the value
-of the `OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS` environment variable to `true` in the operator's
-deployment descriptor. This is useful to identify config issues that impact only the running workloads.
+If you do not want only the latest ReplicaSet in your Deployment to be scanned for config audit, you can set the value
+of the `OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS` environment variable to `false` in the operator's
+deployment descriptor.
 
 !!! tip
 You can get and describe `vulnerabilityreports` and `configauditreports` as built-in Kubernetes objects:

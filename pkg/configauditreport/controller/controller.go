@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"fmt"
+
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 
@@ -386,9 +387,10 @@ func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Poli
 		}, nil
 	}
 	return v1alpha1.ConfigAuditReportData{
-		Scanner: r.scanner(),
-		Summary: v1alpha1.ConfigAuditSummaryFromChecks(checks),
-		Checks:  checks,
+		UpdateTimestamp: metav1.NewTime(ext.NewSystemClock().Now()),
+		Scanner:         r.scanner(),
+		Summary:         v1alpha1.ConfigAuditSummaryFromChecks(checks),
+		Checks:          checks,
 	}, nil
 }
 

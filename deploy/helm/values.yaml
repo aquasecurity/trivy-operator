@@ -143,6 +143,12 @@ trivy:
   #  qaRegistry: qa.registry.aquasec.com
   #  internalRegistry: registry.registry.svc:5000
 
+  # The registry to which insecure connections are allowed. There can be multiple registries with different keys.
+  insecureRegistries: {}
+  #  pocRegistry: poc.myregistry.harbor.com.pl
+  #  qaRegistry: qa.registry.aquasec.com
+  #  internalRegistry: registry.registry.svc:5000
+
   # Mirrored registries. There can be multiple registries with different keys.
   # Make sure to quote registries containing dots
   registry:

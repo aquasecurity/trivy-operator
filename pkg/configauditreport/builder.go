@@ -3,15 +3,14 @@ package configauditreport
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/reports"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/utils/pointer"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -52,13 +51,7 @@ func (b *ReportBuilder) Data(data v1alpha1.ConfigAuditReportData) *ReportBuilder
 }
 
 func (b *ReportBuilder) reportName() string {
-	kind := b.controller.GetObjectKind().GroupVersionKind().Kind
-	name := b.controller.GetName()
-	reportName := fmt.Sprintf("%s-%s", strings.ToLower(kind), name)
-	if len(validation.IsValidLabelValue(reportName)) == 0 {
-		return reportName
-	}
-	return fmt.Sprintf("%s-%s", strings.ToLower(kind), kube.ComputeHash(name))
+	return reports.NameFromController(b.controller)
 }
 
 func (b *ReportBuilder) GetClusterReport() (v1alpha1.ClusterConfigAuditReport, error) {

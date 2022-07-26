@@ -55,19 +55,12 @@ test: $(SOURCES) generate-all envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" \
 	go test -v -short -race -timeout 30s -coverprofile=coverage.txt ./...
 
-.PHONY: itests-trivy-operator
-## Runs integration tests for Trivy Operator with code coverage enabled
-itests-trivy-operator: check-kubeconfig get-ginkgo
-	@$(GINKGO) \
-	-coverprofile=coverage.txt \
-	-coverpkg=github.com/aquasecurity/trivy-operator/pkg/operator,\
-	github.com/aquasecurity/trivy-operator/pkg/operator/predicate,\
-	github.com/aquasecurity/trivy-operator/pkg/operator/controller,\
-	github.com/aquasecurity/trivy-operator/pkg/plugin,\
-	github.com/aquasecurity/trivy-operator/pkg/plugin/trivy,\
-	github.com/aquasecurity/trivy-operator/pkg/configauditreport,\
-	github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport \
-	./itest/trivy-operator
+.PHONY: e2e-test
+e2e-test: check-kubeconfig
+	kubectl kuttl test
+
+.PHONY: test-all
+test-all: test e2e-test
 
 .PHONY: check-kubeconfig
 check-kubeconfig:
@@ -101,6 +94,13 @@ kind-load-images: \
 	$(KIND) load docker-image \
 		$(TRIVY_OPERATOR_IMAGE) \
 		$(TRIVY_OPERATOR_IMAGE_UBI8)
+
+.PHONY: deploy
+deploy: manifests kind-load-images
+	kubectl apply --server-side -k deploy/static
+	# Wait until rollout of operator is finished
+	kubectl rollout status -n trivy-system deployment/trivy-operator --timeout=2m \
+		|| (kubectl logs -n trivy-system -l=app.kubernetes.io/name=trivy-operator; false)
 
 ## Runs MkDocs development server to preview the documentation page
 mkdocs-serve:

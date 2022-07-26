@@ -1,0 +1,6 @@
+---
+apiVersion: aquasecurity.github.io/v1alpha1
+kind: VulnerabilityReport
+report:
+  artifact:
+    tag: "5"

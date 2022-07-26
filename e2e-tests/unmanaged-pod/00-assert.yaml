@@ -1,0 +1,42 @@
+---
+apiVersion: aquasecurity.github.io/v1alpha1
+kind: VulnerabilityReport
+metadata:
+  labels:
+    trivy-operator.container.name: nginx
+    trivy-operator.resource.kind: Pod
+    trivy-operator.resource.name: unmanaged-nginx
+  name: pod-unmanaged-nginx-nginx
+  ownerReferences:
+    - apiVersion: v1
+      blockOwnerDeletion: false
+      controller: true
+      kind: Pod
+      name: unmanaged-nginx
+report:
+  artifact:
+    repository: library/nginx
+    tag: "1.16"
+  registry:
+    server: index.docker.io
+  scanner:
+    name: Trivy
+    vendor: Aqua Security
+---
+apiVersion: aquasecurity.github.io/v1alpha1
+kind: ConfigAuditReport
+metadata:
+  labels:
+    trivy-operator.resource.kind: Pod
+    trivy-operator.resource.name: unmanaged-nginx
+  name: pod-unmanaged-nginx
+  ownerReferences:
+    - apiVersion: v1
+      blockOwnerDeletion: false
+      controller: true
+      kind: Pod
+      name: unmanaged-nginx
+report:
+  scanner:
+    name: Trivy
+    vendor: Aqua Security

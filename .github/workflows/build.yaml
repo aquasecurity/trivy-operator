@@ -29,6 +29,7 @@ env:
   GO_VERSION: "1.18"
   KIND_VERSION: "v0.11.1"
   KIND_IMAGE: "kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6"
+  KUTTL_VERSION: "0.12.1"
 
 # Disable permissions granted to the GITHUB_TOKEN for all the available scopes.
 permissions: {}
@@ -91,8 +92,8 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage.txt
-  itest-trivy-operator:
-    name: Run integration tests / Trivy Operator
+  e2e-tests:
+    name: Run e2e tests / Trivy Operator
     needs:
       - tests
       - verify-code
@@ -121,23 +122,25 @@ jobs:
           kubectl cluster-info
           kubectl wait --for=condition=Ready nodes --all --timeout=300s
           kubectl describe node
-      - name: Run integration tests
-        run: |
-          kubectl create -k deploy/static
-          make itests-trivy-operator
+      - name: Deploy Trivy operator
+        run: make deploy
         env:
           KUBECONFIG: /home/runner/.kube/config
-          OPERATOR_NAMESPACE: trivy-system
-          OPERATOR_TARGET_NAMESPACES: default
-      - name: Upload code coverage
-        uses: codecov/codecov-action@v3
+      - name: Setup kuttl
+        uses: supplypike/setup-bin@v1
         with:
-          files: ./itest/trivy-operator/coverage.txt
+          uri: https://github.com/kudobuilder/kuttl/releases/download/v${{ env.KUTTL_VERSION }}/kubectl-kuttl_${{ env.KUTTL_VERSION }}_linux_x86_64
+          name: kubectl-kuttl
+          version: ${{ env.KUTTL_VERSION }}
+      - name: Run e2e-tests
+        run: make e2e-test
+        env:
+          KUBECONFIG: /home/runner/.kube/config
   test-helm-chart:
     if: "false"  # TODO It's broken on a release candidate PRs because it's using container image that has not been released yet.
     name: Test Helm Chart
     needs:
-      - itest-trivy-operator
+      - e2e-tests
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout

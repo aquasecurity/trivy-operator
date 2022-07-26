@@ -13,6 +13,7 @@ env:
   GO_VERSION: "1.18"
   KIND_VERSION: "v0.11.1"
   KIND_IMAGE: "kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6"
+  KUTTL_VERSION: "0.12.1"
 jobs:
   tests:
     name: Run tests
@@ -34,8 +35,8 @@ jobs:
             ${{ runner.os }}-go-
       - name: Run unit tests
         run: make test
-  itest-trivy-operator:
-    name: Run integration tests / Trivy Operator
+  e2e-tests:
+    name: Run e2e tests / Trivy Operator
     needs:
       - tests
     runs-on: ubuntu-20.04
@@ -63,14 +64,20 @@ jobs:
           kubectl cluster-info
           kubectl wait --for=condition=Ready nodes --all --timeout=300s
           kubectl describe node
-      - name: Run integration tests
-        run: |
-          kubectl create -k deploy/static
-          make itests-trivy-operator
+      - name: Deploy Trivy operator
+        run: make deploy
         env:
           KUBECONFIG: /home/runner/.kube/config
-          OPERATOR_NAMESPACE: trivy-system
-          OPERATOR_TARGET_NAMESPACES: default
+      - name: Setup kuttl
+        uses: supplypike/setup-bin@v1
+        with:
+          uri: https://github.com/kudobuilder/kuttl/releases/download/v${{ env.KUTTL_VERSION }}/kubectl-kuttl_${{ env.KUTTL_VERSION }}_linux_x86_64
+          name: kubectl-kuttl
+          version: ${{ env.KUTTL_VERSION }}
+      - name: Run e2e-tests
+        run: make e2e-test
+        env:
+          KUBECONFIG: /home/runner/.kube/config
   release:
     name: Release
     needs:

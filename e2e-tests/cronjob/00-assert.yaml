@@ -1,0 +1,24 @@
+---
+apiVersion: aquasecurity.github.io/v1alpha1
+kind: VulnerabilityReport
+metadata:
+  labels:
+    trivy-operator.container.name: hello
+    trivy-operator.resource.kind: CronJob
+    trivy-operator.resource.name: hello
+  name: cronjob-hello-hello
+  ownerReferences:
+    - apiVersion: batch/v1
+      blockOwnerDeletion: false
+      controller: true
+      kind: CronJob
+      name: hello
+report:
+  artifact:
+    repository: library/busybox
+    tag: latest
+  registry:
+    server: index.docker.io
+  scanner:
+    name: Trivy
+    vendor: Aqua Security

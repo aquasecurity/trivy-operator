@@ -42,9 +42,9 @@ operator:
   # vulnerabilityScannerReportTTL the flag to set how long a vulnerability report should exist. "" means that the vulnerabilityScannerReportTTL feature is disabled
   vulnerabilityScannerReportTTL: "24h"
   # configAuditScannerEnabled the flag to enable configuration audit scanner
-  configAuditScannerEnabled: false
+  configAuditScannerEnabled: true
   # rbacAssessmentScannerEnabled the flag to enable rbac assessment scanner
-  rbacAssessmentScannerEnabled: false
+  rbacAssessmentScannerEnabled: true
   # kubernetesBenchmarkEnabled the flag to enable CIS Kubernetes Benchmark scanner
   kubernetesBenchmarkEnabled: false
   # clusterComplianceEnabled the flag to enable cluster compliance report generation
@@ -54,7 +54,7 @@ operator:
   # vulnerabilityScannerScanOnlyCurrentRevisions the flag to only create vulnerability scans on the current revision of a deployment.
   vulnerabilityScannerScanOnlyCurrentRevisions: true
   # configAuditScannerScanOnlyCurrentRevisions the flag to only create config audit scans on the current revision of a deployment.
-  configAuditScannerScanOnlyCurrentRevisions: false
+  configAuditScannerScanOnlyCurrentRevisions: true
   # batchDeleteDelay the duration to wait before deleting another batch of config audit reports.
   batchDeleteDelay: 10s
 
@@ -119,11 +119,11 @@ trivy:
   createConfig: true
 
   # imageRef the Trivy image reference.
-  imageRef: ghcr.io/aquasecurity/trivy:0.29.2
+  imageRef: ghcr.io/aquasecurity/trivy:0.30.0
 
   # mode is the Trivy client mode. Either Standalone or ClientServer. Depending
   # on the active mode other settings might be applicable or required.
-  mode: ClientServer
+  mode: Standalone
 
   # httpProxy is the HTTP proxy used by Trivy to download the vulnerabilities database from GitHub.
   #
@@ -188,11 +188,11 @@ trivy:
 
   # serverURL is the endpoint URL of the Trivy server. Required in ClientServer mode.
   #
-  serverURL: "http://100.71.52.222:8888"
+  # serverURL: "https://trivy.trivy:4975"
 
   # serverInsecure is the flag to enable insecure connection to the Trivy server.
   #
-  serverInsecure: true
+  # serverInsecure: true
   # serverToken is the token to authenticate Trivy client with Trivy server. Only
   # applicable in ClientServer mode.
   #
@@ -242,8 +242,7 @@ serviceAccount:
 # podAnnotations annotations added to the operator's pod
 podAnnotations: {}
 
-podSecurityContext:
-  {}
+podSecurityContext: {}
   # fsGroup: 2000
 
 securityContext:
@@ -254,8 +253,7 @@ securityContext:
     drop:
       - ALL
 
-resources:
-  {}
+resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following

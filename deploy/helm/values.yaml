@@ -222,7 +222,7 @@ trivy:
   #
   supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
 
-  #command. Either `image` or `filesystem` scanning. Depending on the target type required for the scan.
+  # command. Either `image` or `filesystem` scanning. Depending on the target type required for the scan.
   command: image
 
 compliance:

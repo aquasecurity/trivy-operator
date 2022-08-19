@@ -1,37 +1,30 @@
 package utils
 
 import (
+	"bytes"
 	"compress/bzip2"
 	"encoding/base64"
 	"io"
+	"io/ioutil"
 )
 
-//DecompressBzip2ToReader accept bzip2 compressed reader and decompress it and return reader
-func DecompressBzip2ToReader(compressedReader io.Reader) (io.Reader, error) {
-	bz2Reader := bzip2.NewReader(compressedReader)
-	pr, pw := io.Pipe()
-	go func() {
-		_, err := io.Copy(pw, bz2Reader)
-		if err != nil {
-			pw.CloseWithError(err)
-		} else {
-			pw.Close()
-		}
-	}()
-	return pr, nil
+//DecompressBzip2 accept bzip2 compressed bytes and decompress it
+//#nosec
+func DecompressBzip2(compressedBytes []byte) (io.Reader, error) {
+	bz2Reader := bzip2.NewReader(bytes.NewReader(compressedBytes))
+	uncompressedWriter := new(bytes.Buffer)
+	_, err := io.Copy(uncompressedWriter, bz2Reader)
+	if err != nil {
+		return nil, err
+	}
+	return uncompressedWriter, nil
 }
 
-// Base64DecodeToReader accept encoded reader , decode it and return reader
-func Base64DecodeToReader(EncodedReader io.Reader) io.Reader {
-	pr, pw := io.Pipe()
-	decoder := base64.NewDecoder(base64.StdEncoding, EncodedReader)
-	go func() {
-		_, err := io.Copy(pw, decoder)
-		if err != nil {
-			pw.CloseWithError(err)
-		} else {
-			pw.Close()
-		}
-	}()
-	return pr
+// Base64Decode accept encoded reader and base64 decode it
+func Base64Decode(EncodedReader io.Reader) ([]byte, error) {
+	EncodedBytes, err := ioutil.ReadAll(EncodedReader)
+	if err != nil {
+		return nil, err
+	}
+	return base64.StdEncoding.DecodeString(string(EncodedBytes))
 }

@@ -661,17 +661,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 			Env:                      env,
 			Command: []string{
-				"trivy",
-			},
-			Args: []string{
-				"--cache-dir",
-				"/tmp/trivy/.cache",
-				"--quiet",
-				"image",
-				"--skip-update",
-				"--format",
-				"json",
-				optionalMirroredImage,
+				"/bin/sh", "-c", fmt.Sprintf("trivy image %s --cache-dir /tmp/trivy/.cache --quiet  --format json | bzip2 | base64", optionalMirroredImage),
 			},
 			Resources:    resourceRequirements,
 			VolumeMounts: volumeMounts,
@@ -1330,8 +1320,15 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	if err != nil {
 		return vulnReport, secretReport, err
 	}
+	// base64 decode logs
+	decodedLogsReader := utils.Base64DecodeToReader(logsReader)
+	// ubz2 uncompress logs
+	unCompressedReader, err := utils.DecompressBzip2ToReader(decodedLogsReader)
+	if err != nil {
+		return vulnReport, secretReport, err
+	}
 	var reports ScanReport
-	err = json.NewDecoder(logsReader).Decode(&reports)
+	err = json.NewDecoder(unCompressedReader).Decode(&reports)
 	if err != nil {
 		return vulnReport, secretReport, err
 	}

@@ -21,8 +21,8 @@ func DecompressBzip2(compressedBytes []byte) (io.Reader, error) {
 }
 
 // Base64Decode accept encoded reader and base64 decode it
-func Base64Decode(EncodedReader io.Reader) ([]byte, error) {
-	encodedBytes, err := ioutil.ReadAll(EncodedReader)
+func Base64Decode(encodedReader io.Reader) ([]byte, error) {
+	encodedBytes, err := ioutil.ReadAll(encodedReader)
 	if err != nil {
 		return nil, err
 	}

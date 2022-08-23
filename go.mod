@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/aquasecurity/defsec v0.68.10
-	github.com/caarlos0/env/v6 v6.9.3
+	github.com/caarlos0/env/v6 v6.10.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dsnet/compress v0.0.1
 	github.com/emirpasic/gods v1.18.1

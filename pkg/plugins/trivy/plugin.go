@@ -671,7 +671,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 				"/bin/sh",
 			},
 			Args: []string{
-				"-c", fmt.Sprintf(`trivy image '%s' --cache-dir /tmp/trivy/.cache --quiet  --skip-update --format json > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64`, imageRef.String()),
+				"-c", fmt.Sprintf(`trivy image '%s' --security-checks %s --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64`, imageRef.String(), getSecurityChecks(ctx)),
 			},
 			Resources:    resourceRequirements,
 			VolumeMounts: volumeMounts,
@@ -1033,7 +1033,7 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 				"/bin/sh",
 			},
 			Args: []string{
-				"-c", fmt.Sprintf(`trivy image '%s' --quiet --format json --server '%s' > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64`, imageRef, encodedTrivyServerURL.String()),
+				"-c", fmt.Sprintf(`trivy image '%s' --security-checks %s --quiet --format json --server '%s' > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64`, imageRef, getSecurityChecks(ctx), encodedTrivyServerURL.String()),
 			},
 			VolumeMounts: volumeMounts,
 			Resources:    requirements,
@@ -1236,7 +1236,7 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 				"/bin/sh",
 			},
 			Args: []string{
-				"-c", fmt.Sprintf(`%s fs --cache-dir /var/trivyoperator/trivy-db --quiet --skip-update --format json / > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64`, SharedVolumeLocationOfTrivy),
+				"-c", fmt.Sprintf(`%s fs --security-checks %s --cache-dir /var/trivyoperator/trivy-db --quiet --skip-update --format json / > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64`, SharedVolumeLocationOfTrivy, getSecurityChecks(ctx)),
 			},
 			Resources:    resourceRequirements,
 			VolumeMounts: volumeMounts,
@@ -1585,4 +1585,19 @@ func CheckAwsEcrPrivateRegistry(ImageUrl string) string {
 		return regexp.MustCompile(AWSECR_Image_Regex).FindAllStringSubmatch(ImageUrl, -1)[0][1]
 	}
 	return ""
+}
+
+func getSecurityChecks(ctx trivyoperator.PluginContext) string {
+	securityChecks := make([]string, 0)
+
+	c := ctx.GetTrivyOperatorConfig()
+	if c.VulnerabilityScannerEnabled() {
+		securityChecks = append(securityChecks, "vuln")
+	}
+
+	if c.ExposedSecretsScannerEnabled() {
+		securityChecks = append(securityChecks, "secrets")
+	}
+
+	return strings.Join(securityChecks, ",")
 }

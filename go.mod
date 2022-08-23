@@ -5,7 +5,9 @@ go 1.18
 require (
 	github.com/aquasecurity/defsec v0.68.10
 	github.com/caarlos0/env/v6 v6.9.3
+	github.com/containers/image v3.0.2+incompatible
 	github.com/davecgh/go-spew v1.1.1
+	github.com/dsnet/compress v0.0.1
 	github.com/emirpasic/gods v1.18.1
 	github.com/go-logr/logr v1.2.3
 	github.com/google/go-cmp v0.5.8
@@ -18,6 +20,7 @@ require (
 	github.com/prometheus/client_golang v1.13.0
 	github.com/stretchr/testify v1.8.0
 	github.com/tenstad/dyqual v0.3.0
+	go.uber.org/multierr v1.8.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.24.3
 	k8s.io/apiextensions-apiserver v0.24.2
@@ -109,7 +112,6 @@ require (
 	github.com/yashtewari/glob-intersection v0.1.0 // indirect
 	github.com/zclconf/go-cty v1.10.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
-	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
 	golang.org/x/net v0.0.0-20220708220712-1185a9018129 // indirect

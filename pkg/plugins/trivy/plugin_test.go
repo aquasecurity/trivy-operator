@@ -1,35 +1,36 @@
 package trivy_test
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"errors"
-	"io"
-	"log"
-	"os"
-	"sort"
-	"strings"
-	"testing"
-	"time"
-
-	v1 "k8s.io/api/batch/v1"
-
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"k8s.io/api/batch/v1beta1"
-
+	"fmt"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	bz "github.com/dsnet/compress/bzip2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"io"
 	appsv1 "k8s.io/api/apps/v1"
+	v1 "k8s.io/api/batch/v1"
+	"k8s.io/api/batch/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/utils/pointer"
+	"log"
+	"os"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+	"sort"
+	"strings"
+	"testing"
+	"time"
 )
 
 var (
@@ -678,7 +679,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 				ServiceAccountName:           "trivyoperator-sa",
 				AutomountServiceAccountToken: pointer.BoolPtr(false),
 				Volumes: []corev1.Volume{
-					tmpVolume,
+					tmpVolume, getScanResultVolume(),
 				},
 				InitContainers: []corev1.Container{
 					{
@@ -855,15 +856,11 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 							},
 						},
 						Command: []string{
-							"trivy",
+							"/bin/sh",
 						},
 						Args: []string{
-							"--cache-dir", "/tmp/trivy/.cache",
-							"--quiet",
-							"image",
-							"--skip-update",
-							"--format", "json",
-							"nginx:1.16",
+							"-c",
+							"trivy image 'nginx:1.16' --cache-dir /tmp/trivy/.cache --quiet  --skip-update --format json > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -876,7 +873,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 							},
 						},
 						VolumeMounts: []corev1.VolumeMount{
-							tmpVolumeMount,
+							tmpVolumeMount, getScanResultVolumeMount(),
 						},
 						SecurityContext: &corev1.SecurityContext{
 							Privileged:               pointer.BoolPtr(false),
@@ -927,7 +924,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 				ServiceAccountName:           "trivyoperator-sa",
 				AutomountServiceAccountToken: pointer.BoolPtr(false),
 				Volumes: []corev1.Volume{
-					tmpVolume,
+					tmpVolume, getScanResultVolume(),
 				},
 				InitContainers: []corev1.Container{
 					{
@@ -1107,15 +1104,11 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 							},
 						},
 						Command: []string{
-							"trivy",
+							"/bin/sh",
 						},
 						Args: []string{
-							"--cache-dir", "/tmp/trivy/.cache",
-							"--quiet",
-							"image",
-							"--skip-update",
-							"--format", "json",
-							"poc.myregistry.harbor.com.pl/nginx:1.16",
+							"-c",
+							"trivy image 'poc.myregistry.harbor.com.pl/nginx:1.16' --cache-dir /tmp/trivy/.cache --quiet  --skip-update --format json > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1128,7 +1121,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 							},
 						},
 						VolumeMounts: []corev1.VolumeMount{
-							tmpVolumeMount,
+							tmpVolumeMount, getScanResultVolumeMount(),
 						},
 						SecurityContext: &corev1.SecurityContext{
 							Privileged:               pointer.BoolPtr(false),
@@ -1179,7 +1172,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 				ServiceAccountName:           "trivyoperator-sa",
 				AutomountServiceAccountToken: pointer.BoolPtr(false),
 				Volumes: []corev1.Volume{
-					tmpVolume,
+					tmpVolume, getScanResultVolume(),
 				},
 				InitContainers: []corev1.Container{
 					{
@@ -1359,15 +1352,11 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 							},
 						},
 						Command: []string{
-							"trivy",
+							"/bin/sh",
 						},
 						Args: []string{
-							"--cache-dir", "/tmp/trivy/.cache",
-							"--quiet",
-							"image",
-							"--skip-update",
-							"--format", "json",
-							"poc.myregistry.harbor.com.pl/nginx:1.16",
+							"-c",
+							"trivy image 'poc.myregistry.harbor.com.pl/nginx:1.16' --cache-dir /tmp/trivy/.cache --quiet  --skip-update --format json > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1380,7 +1369,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 							},
 						},
 						VolumeMounts: []corev1.VolumeMount{
-							tmpVolumeMount,
+							tmpVolumeMount, getScanResultVolumeMount(),
 						},
 						SecurityContext: &corev1.SecurityContext{
 							Privileged:               pointer.BoolPtr(false),
@@ -1435,7 +1424,7 @@ CVE-2019-1543`,
 				ServiceAccountName:           "trivyoperator-sa",
 				AutomountServiceAccountToken: pointer.BoolPtr(false),
 				Volumes: []corev1.Volume{
-					tmpVolume,
+					tmpVolume, getScanResultVolume(),
 					{
 						Name: "ignorefile",
 						VolumeSource: corev1.VolumeSource{
@@ -1631,15 +1620,11 @@ CVE-2019-1543`,
 							},
 						},
 						Command: []string{
-							"trivy",
+							"/bin/sh",
 						},
 						Args: []string{
-							"--cache-dir", "/tmp/trivy/.cache",
-							"--quiet",
-							"image",
-							"--skip-update",
-							"--format", "json",
-							"nginx:1.16",
+							"-c",
+							"trivy image 'nginx:1.16' --cache-dir /tmp/trivy/.cache --quiet  --skip-update --format json > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1652,7 +1637,7 @@ CVE-2019-1543`,
 							},
 						},
 						VolumeMounts: []corev1.VolumeMount{
-							tmpVolumeMount,
+							tmpVolumeMount, getScanResultVolumeMount(),
 							{
 								Name:      "ignorefile",
 								MountPath: "/etc/trivy/.trivyignore",
@@ -1710,7 +1695,7 @@ CVE-2019-1543`,
 				ServiceAccountName:           "trivyoperator-sa",
 				AutomountServiceAccountToken: pointer.BoolPtr(false),
 				Volumes: []corev1.Volume{
-					tmpVolume,
+					tmpVolume, getScanResultVolume(),
 				},
 				InitContainers: []corev1.Container{
 					{
@@ -1887,15 +1872,11 @@ CVE-2019-1543`,
 							},
 						},
 						Command: []string{
-							"trivy",
+							"/bin/sh",
 						},
 						Args: []string{
-							"--cache-dir", "/tmp/trivy/.cache",
-							"--quiet",
-							"image",
-							"--skip-update",
-							"--format", "json",
-							"mirror.io/library/nginx:1.16",
+							"-c",
+							"trivy image 'mirror.io/library/nginx:1.16' --cache-dir /tmp/trivy/.cache --quiet  --skip-update --format json > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1908,7 +1889,7 @@ CVE-2019-1543`,
 							},
 						},
 						VolumeMounts: []corev1.VolumeMount{
-							tmpVolumeMount,
+							tmpVolumeMount, getScanResultVolumeMount(),
 						},
 						SecurityContext: &corev1.SecurityContext{
 							Privileged:               pointer.BoolPtr(false),
@@ -1958,6 +1939,9 @@ CVE-2019-1543`,
 				RestartPolicy:                corev1.RestartPolicyNever,
 				ServiceAccountName:           "trivyoperator-sa",
 				AutomountServiceAccountToken: pointer.BoolPtr(false),
+				Volumes: []corev1.Volume{
+					getScanResultVolume(),
+				},
 				Containers: []corev1.Container{
 					{
 						Name:                     "nginx",
@@ -2088,16 +2072,11 @@ CVE-2019-1543`,
 							},
 						},
 						Command: []string{
-							"trivy",
+							"/bin/sh",
 						},
 						Args: []string{
-							"--quiet",
-							"image",
-							"--format",
-							"json",
-							"--server",
-							"http://trivy.trivy:4954",
-							"nginx:1.16",
+							"-c",
+							"trivy image 'nginx:1.16' --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2109,6 +2088,7 @@ CVE-2019-1543`,
 								corev1.ResourceMemory: resource.MustParse("500M"),
 							},
 						},
+						VolumeMounts: []corev1.VolumeMount{getScanResultVolumeMount()},
 					},
 				},
 			},
@@ -2148,6 +2128,9 @@ CVE-2019-1543`,
 				RestartPolicy:                corev1.RestartPolicyNever,
 				ServiceAccountName:           "trivyoperator-sa",
 				AutomountServiceAccountToken: pointer.BoolPtr(false),
+				Volumes: []corev1.Volume{
+					getScanResultVolume(),
+				},
 				Containers: []corev1.Container{
 					{
 						Name:                     "nginx",
@@ -2278,16 +2261,11 @@ CVE-2019-1543`,
 							},
 						},
 						Command: []string{
-							"trivy",
+							"/bin/sh",
 						},
 						Args: []string{
-							"--quiet",
-							"image",
-							"--format",
-							"json",
-							"--server",
-							"http://trivy.trivy:4954",
-							"nginx:1.16",
+							"-c",
+							"trivy image 'nginx:1.16' --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2299,6 +2277,7 @@ CVE-2019-1543`,
 								corev1.ResourceMemory: resource.MustParse("500M"),
 							},
 						},
+						VolumeMounts: []corev1.VolumeMount{getScanResultVolumeMount()},
 					},
 				},
 			},
@@ -2339,6 +2318,9 @@ CVE-2019-1543`,
 				RestartPolicy:                corev1.RestartPolicyNever,
 				ServiceAccountName:           "trivyoperator-sa",
 				AutomountServiceAccountToken: pointer.BoolPtr(false),
+				Volumes: []corev1.Volume{
+					getScanResultVolume(),
+				},
 				Containers: []corev1.Container{
 					{
 						Name:                     "nginx",
@@ -2473,16 +2455,11 @@ CVE-2019-1543`,
 							},
 						},
 						Command: []string{
-							"trivy",
+							"/bin/sh",
 						},
 						Args: []string{
-							"--quiet",
-							"image",
-							"--format",
-							"json",
-							"--server",
-							"https://trivy.trivy:4954",
-							"poc.myregistry.harbor.com.pl/nginx:1.16",
+							"-c",
+							"trivy image 'poc.myregistry.harbor.com.pl/nginx:1.16' --quiet --format json --server 'https://trivy.trivy:4954' > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2494,6 +2471,7 @@ CVE-2019-1543`,
 								corev1.ResourceMemory: resource.MustParse("500M"),
 							},
 						},
+						VolumeMounts: []corev1.VolumeMount{getScanResultVolumeMount()},
 					},
 				},
 			},
@@ -2534,6 +2512,9 @@ CVE-2019-1543`,
 				RestartPolicy:                corev1.RestartPolicyNever,
 				ServiceAccountName:           "trivyoperator-sa",
 				AutomountServiceAccountToken: pointer.BoolPtr(false),
+				Volumes: []corev1.Volume{
+					getScanResultVolume(),
+				},
 				Containers: []corev1.Container{
 					{
 						Name:                     "nginx",
@@ -2668,16 +2649,11 @@ CVE-2019-1543`,
 							},
 						},
 						Command: []string{
-							"trivy",
+							"/bin/sh",
 						},
 						Args: []string{
-							"--quiet",
-							"image",
-							"--format",
-							"json",
-							"--server",
-							"http://trivy.trivy:4954",
-							"poc.myregistry.harbor.com.pl/nginx:1.16",
+							"-c",
+							"trivy image 'poc.myregistry.harbor.com.pl/nginx:1.16' --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2689,6 +2665,7 @@ CVE-2019-1543`,
 								corev1.ResourceMemory: resource.MustParse("500M"),
 							},
 						},
+						VolumeMounts: []corev1.VolumeMount{getScanResultVolumeMount()},
 					},
 				},
 			},
@@ -2733,7 +2710,8 @@ CVE-2019-1543`,
 				RestartPolicy:                corev1.RestartPolicyNever,
 				ServiceAccountName:           "trivyoperator-sa",
 				AutomountServiceAccountToken: pointer.BoolPtr(false),
-				Volumes: []corev1.Volume{
+
+				Volumes: []corev1.Volume{getScanResultVolume(),
 					{
 						Name: "ignorefile",
 						VolumeSource: corev1.VolumeSource{
@@ -2885,16 +2863,11 @@ CVE-2019-1543`,
 							},
 						},
 						Command: []string{
-							"trivy",
+							"/bin/sh",
 						},
 						Args: []string{
-							"--quiet",
-							"image",
-							"--format",
-							"json",
-							"--server",
-							"http://trivy.trivy:4954",
-							"nginx:1.16",
+							"-c",
+							"trivy image 'nginx:1.16' --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2906,7 +2879,7 @@ CVE-2019-1543`,
 								corev1.ResourceMemory: resource.MustParse("500M"),
 							},
 						},
-						VolumeMounts: []corev1.VolumeMount{
+						VolumeMounts: []corev1.VolumeMount{getScanResultVolumeMount(),
 							{
 								Name:      "ignorefile",
 								MountPath: "/etc/trivy/.trivyignore",
@@ -2961,6 +2934,7 @@ CVE-2019-1543`,
 							},
 						},
 					},
+					getScanResultVolume(),
 				},
 				InitContainers: []corev1.Container{
 					{
@@ -3158,17 +3132,11 @@ CVE-2019-1543`,
 							},
 						},
 						Command: []string{
-							trivy.SharedVolumeLocationOfTrivy,
+							"/bin/sh",
 						},
 						Args: []string{
-							"--cache-dir",
-							"/var/trivyoperator/trivy-db",
-							"--quiet",
-							"fs",
-							"--skip-update",
-							"--format",
-							"json",
-							"/",
+							"-c",
+							"/var/trivyoperator/trivy fs --cache-dir /var/trivyoperator/trivy-db --quiet --skip-update --format json / > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3186,6 +3154,7 @@ CVE-2019-1543`,
 								ReadOnly:  false,
 								MountPath: "/var/trivyoperator",
 							},
+							getScanResultVolumeMount(),
 						},
 						SecurityContext: &corev1.SecurityContext{
 							Privileged:               pointer.BoolPtr(false),
@@ -3280,6 +3249,7 @@ CVE-2019-1543`,
 						},
 					},
 				},
+				getScanResultVolume(),
 			},
 			InitContainers: []corev1.Container{
 				{
@@ -3477,17 +3447,11 @@ CVE-2019-1543`,
 						},
 					},
 					Command: []string{
-						trivy.SharedVolumeLocationOfTrivy,
+						"/bin/sh",
 					},
 					Args: []string{
-						"--cache-dir",
-						"/var/trivyoperator/trivy-db",
-						"--quiet",
-						"fs",
-						"--skip-update",
-						"--format",
-						"json",
-						"/",
+						"-c",
+						"/var/trivyoperator/trivy fs --cache-dir /var/trivyoperator/trivy-db --quiet --skip-update --format json / > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64",
 					},
 					Resources: corev1.ResourceRequirements{
 						Requests: corev1.ResourceList{
@@ -3505,6 +3469,7 @@ CVE-2019-1543`,
 							ReadOnly:  false,
 							MountPath: "/var/trivyoperator",
 						},
+						getScanResultVolumeMount(),
 					},
 					SecurityContext: &corev1.SecurityContext{
 						Privileged:               pointer.BoolPtr(false),
@@ -3714,7 +3679,7 @@ func TestPlugin_ParseReportData(t *testing.T) {
 			name:                        "Should convert vulnerability report in JSON format when OS is not detected",
 			imageRef:                    "alpine:3.10.2",
 			input:                       `null`,
-			expectedError:               nil,
+			expectedError:               fmt.Errorf("bzip2 data invalid: bad magic value"),
 			expectedVulnerabilityReport: emptyVulnerabilityReport,
 			expectedExposedSecretReport: emptyExposedSecretReport,
 		},
@@ -3738,7 +3703,7 @@ func TestPlugin_ParseReportData(t *testing.T) {
 			name:          "Should return error when image reference cannot be parsed",
 			imageRef:      ":",
 			input:         "null",
-			expectedError: errors.New("could not parse reference: :"),
+			expectedError: errors.New("bzip2 data invalid: bad magic value"),
 		},
 	}
 
@@ -3996,6 +3961,45 @@ func getReportAsString(fixture string) string {
 	if err != nil {
 		log.Fatal(err)
 	}
+	value, err := writeBzip2AndEncode(b)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return value
+}
 
-	return string(b)
+func getScanResultVolume() corev1.Volume {
+	return corev1.Volume{
+		Name: "scanresult",
+		VolumeSource: corev1.VolumeSource{
+			EmptyDir: &corev1.EmptyDirVolumeSource{
+				Medium: corev1.StorageMediumDefault,
+			},
+		},
+	}
+}
+
+func getScanResultVolumeMount() corev1.VolumeMount {
+	return corev1.VolumeMount{
+		Name:      "scanresult",
+		ReadOnly:  false,
+		MountPath: "/tmp/scan",
+	}
+}
+
+func writeBzip2AndEncode(data []byte) (string, error) {
+	var in bytes.Buffer
+	w, err := bz.NewWriter(&in, &bz.WriterConfig{})
+	if err != nil {
+		return "", err
+	}
+	_, err = w.Write(data)
+	if err != nil {
+		return "", err
+	}
+	err = w.Close()
+	if err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(in.Bytes()), nil
 }

@@ -27,6 +27,7 @@ You can configure Trivy-Operator to control it's behavior and adapt it to your n
 | `OPERATOR_VULNERABILITY_SCANNER_REPORT_TTL`| `"24h"`                  | The flag to set how long a vulnerability report should exist. When a old report is deleted a new one will be created by the controller. It can be set to `""` to disabled the TTL for vulnerability scanner. |
 | `OPERATOR_LEADER_ELECTION_ENABLED`| `false`               | The flag to enable operator replica leader election                                                                                                                                                         |
 | `OPERATOR_LEADER_ELECTION_ID`| `trivy-operator-lock` | The name of the resource lock for leader election                                                                                                                                                           |
+| `OPERATOR_EXPOSED_SECRET_SCANNER_ENABLED`| `true`| The flag to enable exposed secret scanner|
 
 The values of the `OPERATOR_NAMESPACE` and `OPERATOR_TARGET_NAMESPACES` determine the install mode, which in turn determines the multitenancy support of the operator.
 

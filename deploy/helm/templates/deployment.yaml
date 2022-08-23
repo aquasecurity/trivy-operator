@@ -72,6 +72,8 @@ spec:
               value: {{ .Values.operator.configAuditScannerScanOnlyCurrentRevisions | quote }}
             - name: OPERATOR_CLUSTER_COMPLIANCE_ENABLED
               value: {{ .Values.operator.clusterComplianceEnabled | quote }}
+            - name: OPERATOR_EXPOSED_SECRET_SCANNER_ENABLED
+              value: {{ .Values.operator.exposedSecretScannerEnabled | quote }}
             {{- if gt (int .Values.operator.replicas) 1 }}
             - name: OPERATOR_LEADER_ELECTION_ENABLED
               value: "true"

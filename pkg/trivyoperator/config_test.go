@@ -486,7 +486,6 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 }
 
 func TestConfigManager_Delete(t *testing.T) {
-
 	t.Run("Should not return error when ConfigMap and secret do not exist", func(t *testing.T) {
 		clientset := fake.NewSimpleClientset()
 		err := trivyoperator.NewConfigManager(clientset, trivyoperator.NamespaceName).Delete(context.TODO())
@@ -526,4 +525,76 @@ func TestConfigManager_Delete(t *testing.T) {
 			Get(context.TODO(), trivyoperator.SecretName, metav1.GetOptions{})
 		assert.True(t, errors.IsNotFound(err))
 	})
+}
+
+func TestConfigData_VulnerabilityScannerEnabled(t *testing.T) {
+	testCases := []struct {
+		name     string
+		key      string
+		value    string
+		expected bool
+	}{
+		{
+			name:     "Should return false when key is not set",
+			key:      "lah",
+			value:    "true",
+			expected: false,
+		},
+		{
+			name:     "Should return false when key is set 'false'",
+			key:      trivyoperator.KeyVulnerabilityScannerEnabled,
+			value:    "false",
+			expected: false,
+		},
+		{
+			name:     "Should return true when key is set 'true'",
+			key:      trivyoperator.KeyVulnerabilityScannerEnabled,
+			value:    "true",
+			expected: true,
+		},
+	}
+	for _, tc := range testCases {
+		configData := trivyoperator.ConfigData{}
+		t.Run(tc.name, func(t *testing.T) {
+			configData.Set(tc.key, tc.value)
+			got := configData.VulnerabilityScannerEnabled()
+			assert.Equal(t, tc.expected, got)
+		})
+	}
+}
+
+func TestConfigData_ExposedSecretsScannerEnabled(t *testing.T) {
+	testCases := []struct {
+		name     string
+		key      string
+		value    string
+		expected bool
+	}{
+		{
+			name:     "Should return false when key is not set",
+			key:      "lah",
+			value:    "true",
+			expected: false,
+		},
+		{
+			name:     "Should return false when key is set 'false'",
+			key:      trivyoperator.KeyExposedSecretsScannerEnabled,
+			value:    "false",
+			expected: false,
+		},
+		{
+			name:     "Should return true when key is set 'true'",
+			key:      trivyoperator.KeyExposedSecretsScannerEnabled,
+			value:    "true",
+			expected: true,
+		},
+	}
+	for _, tc := range testCases {
+		configData := trivyoperator.ConfigData{}
+		t.Run(tc.name, func(t *testing.T) {
+			configData.Set(tc.key, tc.value)
+			got := configData.ExposedSecretsScannerEnabled()
+			assert.Equal(t, tc.expected, got)
+		})
+	}
 }

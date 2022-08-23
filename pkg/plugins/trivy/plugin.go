@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
+	containerimage "github.com/google/go-containerregistry/pkg/name"
 
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 
@@ -19,7 +21,6 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
-	containerimage "github.com/google/go-containerregistry/pkg/name"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -372,6 +373,7 @@ func (p *plugin) newSecretWithAggregateImagePullCredentials(obj client.Object, s
 const (
 	tmpVolumeName               = "tmp"
 	ignoreFileVolumeName        = "ignorefile"
+	scanResultVolumeName        = "scanresult"
 	FsSharedVolumeName          = "trivyoperator"
 	SharedVolumeLocationOfTrivy = "/var/trivyoperator/trivy"
 )
@@ -466,6 +468,8 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 			},
 		},
 	}
+	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
+	volumes = append(volumes, getScanResultVolume())
 
 	if config.IgnoreFileExists() {
 		volumes = append(volumes, corev1.Volume{
@@ -653,7 +657,10 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
-
+		imageRef, err := containerimage.ParseReference(optionalMirroredImage)
+		if err != nil {
+			return corev1.PodSpec{}, nil, err
+		}
 		containers = append(containers, corev1.Container{
 			Name:                     c.Name,
 			Image:                    trivyImageRef,
@@ -661,17 +668,10 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 			Env:                      env,
 			Command: []string{
-				"trivy",
+				"/bin/sh",
 			},
 			Args: []string{
-				"--cache-dir",
-				"/tmp/trivy/.cache",
-				"--quiet",
-				"image",
-				"--skip-update",
-				"--format",
-				"json",
-				optionalMirroredImage,
+				"-c", fmt.Sprintf(`trivy image '%s' --cache-dir /tmp/trivy/.cache --quiet  --skip-update --format json > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64`, imageRef.String()),
 			},
 			Resources:    resourceRequirements,
 			VolumeMounts: volumeMounts,
@@ -768,7 +768,7 @@ func (p *plugin) initContainerEnvVar(trivyConfigName string, config Config) []co
 func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth) (corev1.PodSpec, []*corev1.Secret, error) {
 	var secret *corev1.Secret
 	var secrets []*corev1.Secret
-	var volumeMounts []corev1.VolumeMount
+	volumeMounts := make([]corev1.VolumeMount, 0)
 	var volumes []corev1.Volume
 
 	spec, err := kube.GetPodSpec(workload)
@@ -974,34 +974,31 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 				Value: "true",
 			})
 		}
+		volumeMounts = append(volumeMounts, getScanResultVolumeMount())
+		volumes = append(volumes, getScanResultVolume())
 
 		if config.IgnoreFileExists() {
-			volumes = []corev1.Volume{
-				{
-					Name: ignoreFileVolumeName,
-					VolumeSource: corev1.VolumeSource{
-						ConfigMap: &corev1.ConfigMapVolumeSource{
-							LocalObjectReference: corev1.LocalObjectReference{
-								Name: trivyConfigName,
-							},
-							Items: []corev1.KeyToPath{
-								{
-									Key:  keyTrivyIgnoreFile,
-									Path: ".trivyignore",
-								},
+			volumes = append(volumes, corev1.Volume{
+				Name: ignoreFileVolumeName,
+				VolumeSource: corev1.VolumeSource{
+					ConfigMap: &corev1.ConfigMapVolumeSource{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: trivyConfigName,
+						},
+						Items: []corev1.KeyToPath{
+							{
+								Key:  keyTrivyIgnoreFile,
+								Path: ".trivyignore",
 							},
 						},
 					},
 				},
-			}
-
-			volumeMounts = []corev1.VolumeMount{
-				{
-					Name:      ignoreFileVolumeName,
-					MountPath: "/etc/trivy/.trivyignore",
-					SubPath:   ".trivyignore",
-				},
-			}
+			})
+			volumeMounts = append(volumeMounts, corev1.VolumeMount{
+				Name:      ignoreFileVolumeName,
+				MountPath: "/etc/trivy/.trivyignore",
+				SubPath:   ".trivyignore",
+			})
 
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_IGNOREFILE",
@@ -1018,7 +1015,14 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
-
+		encodedTrivyServerURL, err := url.Parse(trivyServerURL)
+		if err != nil {
+			return corev1.PodSpec{}, nil, err
+		}
+		imageRef, err := containerimage.ParseReference(optionalMirroredImage)
+		if err != nil {
+			return corev1.PodSpec{}, nil, err
+		}
 		containers = append(containers, corev1.Container{
 			Name:                     container.Name,
 			Image:                    trivyImageRef,
@@ -1026,16 +1030,10 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 			Env:                      env,
 			Command: []string{
-				"trivy",
+				"/bin/sh",
 			},
 			Args: []string{
-				"--quiet",
-				"image",
-				"--format",
-				"json",
-				"--server",
-				trivyServerURL,
-				optionalMirroredImage,
+				"-c", fmt.Sprintf(`trivy image '%s' --quiet --format json --server '%s' > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64`, imageRef, encodedTrivyServerURL.String()),
 			},
 			VolumeMounts: volumeMounts,
 			Resources:    requirements,
@@ -1050,6 +1048,25 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 		Containers:                   containers,
 		Volumes:                      volumes,
 	}, secrets, nil
+}
+
+func getScanResultVolume() corev1.Volume {
+	return corev1.Volume{
+		Name: scanResultVolumeName,
+		VolumeSource: corev1.VolumeSource{
+			EmptyDir: &corev1.EmptyDirVolumeSource{
+				Medium: corev1.StorageMediumDefault,
+			},
+		},
+	}
+}
+
+func getScanResultVolumeMount() corev1.VolumeMount {
+	return corev1.VolumeMount{
+		Name:      scanResultVolumeName,
+		ReadOnly:  false,
+		MountPath: "/tmp/scan",
+	}
 }
 
 //FileSystem scan option with standalone mode.
@@ -1151,6 +1168,8 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			},
 		},
 	}
+	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
+	volumes = append(volumes, getScanResultVolume())
 
 	//TODO Move this to function and refactor the code to use it
 	if config.IgnoreFileExists() {
@@ -1214,17 +1233,10 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 			Env:                      env,
 			Command: []string{
-				SharedVolumeLocationOfTrivy,
+				"/bin/sh",
 			},
 			Args: []string{
-				"--cache-dir",
-				"/var/trivyoperator/trivy-db",
-				"--quiet",
-				"fs",
-				"--skip-update",
-				"--format",
-				"json",
-				"/",
+				"-c", fmt.Sprintf(`%s fs --cache-dir /var/trivyoperator/trivy-db --quiet --skip-update --format json / > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64`, SharedVolumeLocationOfTrivy),
 			},
 			Resources:    resourceRequirements,
 			VolumeMounts: volumeMounts,
@@ -1330,8 +1342,18 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	if err != nil {
 		return vulnReport, secretReport, err
 	}
+	// base64 decode logs
+	compressedLogsBytes, err := utils.Base64Decode(logsReader)
+	if err != nil {
+		return vulnReport, secretReport, err
+	}
+	// bzip2 decompress logs
+	unCompressedLogsReader, err := utils.DecompressBzip2(compressedLogsBytes)
+	if err != nil {
+		return vulnReport, secretReport, err
+	}
 	var reports ScanReport
-	err = json.NewDecoder(logsReader).Decode(&reports)
+	err = json.NewDecoder(unCompressedLogsReader).Decode(&reports)
 	if err != nil {
 		return vulnReport, secretReport, err
 	}

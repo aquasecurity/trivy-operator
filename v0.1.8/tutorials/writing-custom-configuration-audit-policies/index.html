@@ -1,0 +1,1569 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Kubernetes-native security toolkit">
+      
+      
+      
+        <link rel="canonical" href="https://aquasecurity.github.io/trivy-operator/v0.1.8/tutorials/writing-custom-configuration-audit-policies/">
+      
+      
+        
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.4.1+insiders-4.22.0">
+    
+    
+      
+        <title>Writing Custom Configuration Audit Policies - Trivy Operator</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.3ccfee04.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#writing-custom-configuration-audit-policies" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Trivy Operator" class="md-header__button md-logo" aria-label="Trivy Operator" data-md-component="logo">
+      
+  <img src="../../images/logo-white.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Trivy Operator
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Writing Custom Configuration Audit Policies
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/aquasecurity/trivy-operator" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      <nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+
+
+
+
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+
+
+
+
+  
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../operator/" class="md-tabs__link">
+          
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+
+  
+
+
+
+
+  
+    
+    
+    
+      
+  
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../vulnerability-scanning/" class="md-tabs__link md-tabs__link--active">
+          
+  
+    
+  
+  Docs
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+
+
+
+
+  
+    <li class="md-tabs__item">
+      <a href="../../faq/" class="md-tabs__link">
+        
+  
+  Frequently Asked Questions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Trivy Operator" class="md-nav__button md-logo" aria-label="Trivy Operator" data-md-component="logo">
+      
+  <img src="../../images/logo-white.svg" alt="logo">
+
+    </a>
+    Trivy Operator
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/aquasecurity/trivy-operator" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+
+
+  
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+        
+        
+          <label class="md-nav__link" for="__nav_2">
+            
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" aria-label="Getting Started" data-md-level="1">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operator/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2_2" type="checkbox" id="__nav_2_2" >
+        
+        
+          <label class="md-nav__link" for="__nav_2_2">
+            
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" aria-label="Installation" data-md-level="2">
+          <label class="md-nav__title" for="__nav_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            Installation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operator/installation/kubectl/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    kubectl
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operator/installation/helm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Helm
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operator/installation/olm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Operator Lifecycle Manager
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operator/installation/upgrade/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Upgrade
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operator/quick-start/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Quick Start
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operator/configuration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Configuration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../operator/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Troubleshooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../settings/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Settings
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+
+
+  
+  
+    
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+          <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+        
+        
+          <label class="md-nav__link" for="__nav_3">
+            
+  
+  <span class="md-ellipsis">
+    Docs
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" aria-label="Docs" data-md-level="1">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Docs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_1" type="checkbox" id="__nav_3_1" >
+        
+        
+          <label class="md-nav__link" for="__nav_3_1">
+            
+  
+  <span class="md-ellipsis">
+    Vulnerability Scanning
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" aria-label="Vulnerability Scanning" data-md-level="2">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            Vulnerability Scanning
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vulnerability-scanning/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vulnerability-scanning/trivy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Trivy Scanner
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vulnerability-scanning/private-registries/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Private Registries
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../vulnerability-scanning/managed-registries/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Managed Registries
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_2" type="checkbox" id="__nav_3_2" >
+        
+        
+          <label class="md-nav__link" for="__nav_3_2">
+            
+  
+  <span class="md-ellipsis">
+    Configuration Auditing
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" aria-label="Configuration Auditing" data-md-level="2">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Configuration Auditing
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration-auditing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration-auditing/built-in-policies/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Built-in Configuration Audit Policies
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_3" type="checkbox" id="__nav_3_3" >
+        
+        
+          <label class="md-nav__link" for="__nav_3_3">
+            
+  
+  <span class="md-ellipsis">
+    Integrations
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" aria-label="Integrations" data-md-level="2">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            Integrations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/metrics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Metrics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/lens/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Lens Extension
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_4" type="checkbox" id="__nav_3_4" checked>
+        
+        
+          <label class="md-nav__link" for="__nav_3_4">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" aria-label="Tutorials" data-md-level="2">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Writing Custom Configuration Audit Policies
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Writing Custom Configuration Audit Policies
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#writing-a-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Writing a Policy
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-a-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing a Policy
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../manage_access_to_security_reports/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Manage Access to Security Reports
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_5" type="checkbox" id="__nav_3_5" >
+        
+        
+          <label class="md-nav__link" for="__nav_3_5">
+            
+  
+  <span class="md-ellipsis">
+    Custom Resource Definitions
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" aria-label="Custom Resource Definitions" data-md-level="2">
+          <label class="md-nav__title" for="__nav_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            Custom Resource Definitions
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../crds/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../crds/vulnerability-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VulnerabilityReport
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../crds/configaudit-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ConfigAuditReport
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../crds/exposedsecret-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ExposedSecretReport
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../crds/rbacassessment-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    RbacAssessmentReport
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Frequently Asked Questions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#writing-a-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Writing a Policy
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-a-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing a Policy
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+
+
+<h1 id="writing-custom-configuration-audit-policies">Writing Custom Configuration Audit Policies</h1>
+<p>trivy-operator ships with a set of <a href="../../configuration-auditing/built-in-policies/">Built-in Configuration Audit Policies</a> defined as OPA <a href="https://www.openpolicyagent.org/docs/latest/#rego">Rego</a> policies. You can also
+define custom policies and associate them with applicable Kubernetes resources to extend basic configuration audit
+functionality.</p>
+<p>This tutorial will walk through the process of creating and testing a new configuration audit policy that fails whenever
+a Kubernetes resource doesn't specify <code>app.kubernetes.io/name</code> or <code>app.kubernetes.io/version</code> labels.</p>
+<h2 id="writing-a-policy">Writing a Policy</h2>
+<p>To define such a policy, you must first define its metadata. This includes setting a unique identifier, title, severity
+(<code>CRITICAL</code>, <code>HIGH</code>, <code>MEDIUM</code>, <code>LOW</code>), descriptive text, and remediation steps. In Rego it's defined as the
+<code>__rego_metadata__</code> rule, which defines the following composite value:</p>
+<div class="highlight"><pre><span></span><code><span class="k">package</span> trivyoperator<span class="o">.</span>policy<span class="o">.</span>k8s<span class="o">.</span>custom
+
+<span class="k">import</span> data<span class="o">.</span>lib<span class="o">.</span>result
+<span class="k">import</span> future<span class="o">.</span>keywords<span class="o">.</span>in
+
+__rego_metadata__ <span class="o">:</span><span class="k">=</span> <span class="o">{</span>
+    <span class="s2">&quot;id&quot;</span><span class="o">:</span> <span class="s2">&quot;recommended_labels&quot;</span><span class="o">,</span>
+    <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Recommended labels&quot;</span><span class="o">,</span>
+    <span class="s2">&quot;severity&quot;</span><span class="o">:</span> <span class="s2">&quot;LOW&quot;</span><span class="o">,</span>
+    <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;Kubernetes Security Check&quot;</span><span class="o">,</span>
+    <span class="s2">&quot;description&quot;</span><span class="o">:</span> <span class="s2">&quot;A common set of labels allows tools to work interoperably, describing objects in a common manner that all tools can understand.&quot;</span><span class="o">,</span>
+    <span class="s2">&quot;recommended_actions&quot;</span><span class="o">:</span> <span class="s2">&quot;Take full advantage of using recommended labels and apply them on every resource object.&quot;</span><span class="o">,</span>
+    <span class="s2">&quot;url&quot;</span><span class="o">:</span> <span class="s2">&quot;https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/&quot;</span><span class="o">,</span>
+<span class="o">}</span>
+</code></pre></div>
+<p>Note that the <code>recommended_labels</code> policy in scoped to the <code>trivyoperator.policy.k8s.custom</code> package to avoid naming
+collision with built-in policies that are pre-installed with trivy-operator.</p>
+<p>Once we've got our metadata defined, we need to create the logic of the policy, which is done in the <code>deny</code> or <code>warn</code>
+rule.</p>
+<div class="highlight"><pre><span></span><code>__rego_input__ <span class="o">:</span><span class="k">=</span> <span class="o">{</span>
+    <span class="s2">&quot;combine&quot;</span><span class="o">:</span> <span class="kt">false</span><span class="o">,</span>
+    <span class="s2">&quot;selector&quot;</span><span class="o">:</span> <span class="o">[{</span><span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;kubernetes&quot;</span><span class="o">}],</span>
+<span class="o">}</span>
+
+deny<span class="o">[</span>res<span class="o">]</span> <span class="o">{</span>
+    input<span class="o">.</span>kind <span class="o">==</span> <span class="s2">&quot;Pod&quot;</span>
+    some container in input<span class="o">.</span>spec<span class="o">.</span>containers
+    not startswith<span class="o">(</span>container<span class="o">.</span>image<span class="o">,</span> <span class="s2">&quot;hooli.com&quot;</span><span class="o">)</span>
+    msg <span class="o">:</span><span class="k">=</span> sprintf<span class="o">(</span><span class="s2">&quot;Image &#39;%v&#39; comes from untrusted registry&quot;</span><span class="o">,</span> <span class="o">[</span>container<span class="o">.</span>image<span class="o">])</span>
+    res <span class="o">:</span><span class="k">=</span> result<span class="o">.</span>new<span class="o">(</span>msg<span class="o">,</span> container<span class="o">)</span>
+<span class="o">}</span>
+</code></pre></div>
+<p>These matches are essentially Rego assertions, so anyone familiar with writing rules for OPA or other tools that use
+Rego should find the process familiar. In this case, it’s pretty straightforward. We subtract the set of labels
+specified by the <code>input</code> resource object from the set of recommended labels. The resulting set is stored in the variable
+called <code>missing</code>. Finally, we check if the <code>missing</code> set is empty. If not, the <code>deny</code> rule fails with the appropriate
+message.</p>
+<p>The <code>input</code> document is set by trivy-operator to a Kubernetes resource when the policy is evaluated. For pods, it would look
+something like the following listing:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;apiVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v1&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Pod&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nginx&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;labels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="nt">&quot;run&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nginx&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">},</span><span class="w"></span>
+<span class="w">  </span><span class="nt">&quot;spec&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">&quot;containers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
+<span class="w">      </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nginx&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">        </span><span class="nt">&quot;image&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nginx:1.16&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">]</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</code></pre></div>
+<p>The labels set on the pod resource above can be retrieved with the following Rego expression:</p>
+<div class="highlight"><pre><span></span><code>provided <span class="o">:</span><span class="k">=</span> <span class="o">{</span>label <span class="o">|</span> input<span class="o">.</span>metadata<span class="o">.</span>labels<span class="o">[</span>label<span class="o">]}</span>
+</code></pre></div>
+<p>You can find the complete Rego code listing in <a href="../recommended_labels.rego">recommended_labels.rego</a>.</p>
+<h2 id="testing-a-policy">Testing a Policy</h2>
+<p>Now that you've created the policy, you need to test it to make sure it works as intended. To do that, add policy code to
+the <code>trivy-operator-policies-config</code> ConfigMap and associate it with any (<code>*</code>) Kubernetes resource kind:</p>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span><span class="w"></span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span><span class="w"></span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span><span class="w"></span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-operator-policies-config</span><span class="w"></span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-system</span><span class="w"></span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">app.kubernetes.io/name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-operator</span><span class="w"></span>
+<span class="w">    </span><span class="nt">app.kubernetes.io/instance</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-operator</span><span class="w"></span>
+<span class="w">    </span><span class="nt">app.kubernetes.io/version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.1.8&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="nt">app.kubernetes.io/managed-by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubectl</span><span class="w"></span>
+<span class="nt">data</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">policy.recommended_labels.kinds</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;*&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="nt">policy.recommended_labels.rego</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span><span class="w"></span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">package trivyoperator.policy.k8s.custom</span><span class="w"></span>
+
+<span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">import data.lib.result</span><span class="w"></span>
+<span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">import future.keywords.in</span><span class="w"></span>
+
+<span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">__rego_metadata__ := {</span><span class="w"></span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">&quot;id&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;recommended_labels&quot;</span><span class="err">,</span><span class="w"></span>
+<span class="w">      </span><span class="s">&quot;title&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;Recommended</span><span class="nv"> </span><span class="s">labels&quot;</span><span class="err">,</span><span class="w"></span>
+<span class="w">      </span><span class="s">&quot;severity&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;LOW&quot;</span><span class="err">,</span><span class="w"></span>
+<span class="w">      </span><span class="s">&quot;type&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;Kubernetes</span><span class="nv"> </span><span class="s">Security</span><span class="nv"> </span><span class="s">Check&quot;</span><span class="err">,</span><span class="w"></span>
+<span class="w">      </span><span class="s">&quot;description&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;A</span><span class="nv"> </span><span class="s">common</span><span class="nv"> </span><span class="s">set</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">labels</span><span class="nv"> </span><span class="s">allows</span><span class="nv"> </span><span class="s">tools</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">work</span><span class="nv"> </span><span class="s">interoperably,</span><span class="nv"> </span><span class="s">describing</span><span class="nv"> </span><span class="s">objects</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">common</span><span class="nv"> </span><span class="s">manner</span><span class="nv"> </span><span class="s">that</span><span class="nv"> </span><span class="s">all</span><span class="nv"> </span><span class="s">tools</span><span class="nv"> </span><span class="s">can</span><span class="nv"> </span><span class="s">understand.&quot;</span><span class="err">,</span><span class="w"></span>
+<span class="w">      </span><span class="s">&quot;recommended_actions&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;Take</span><span class="nv"> </span><span class="s">full</span><span class="nv"> </span><span class="s">advantage</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">using</span><span class="nv"> </span><span class="s">recommended</span><span class="nv"> </span><span class="s">labels</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">apply</span><span class="nv"> </span><span class="s">them</span><span class="nv"> </span><span class="s">on</span><span class="nv"> </span><span class="s">every</span><span class="nv"> </span><span class="s">resource</span><span class="nv"> </span><span class="s">object.&quot;</span><span class="err">,</span><span class="w"></span>
+<span class="w">      </span><span class="s">&quot;url&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/&quot;</span><span class="err">,</span><span class="w"></span>
+<span class="w">  </span><span class="err">}</span><span class="w"></span>
+
+<span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">__rego_input__ := {</span><span class="w"></span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">&quot;combine&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false,</span><span class="w"></span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">&quot;selector&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="p p-Indicator">[{</span><span class="s">&quot;type&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;kubernetes&quot;</span><span class="p p-Indicator">}]</span><span class="err">,</span><span class="w"></span>
+<span class="w">  </span><span class="err">}</span><span class="w"></span>
+
+<span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">deny[res] {</span><span class="w"></span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">input.kind == &quot;Pod&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">some container in input.spec.containers</span><span class="w"></span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">not startswith(container.image, &quot;hooli.com&quot;)</span><span class="w"></span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">msg := sprintf(&quot;Image &#39;%v&#39; comes from untrusted registry&quot;, [container.image])</span><span class="w"></span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">res := result.new(msg, container)</span><span class="w"></span>
+<span class="w">  </span><span class="err">}</span><span class="w"></span>
+</code></pre></div>
+<p>In this example, to add a new policy, you must define two data entries in the <code>trivy-operator-policies-config</code>
+ConfigMap:</p>
+<ol>
+<li>The <code>policy.&lt;your_policy_name&gt;.kinds</code> entry is used to designate applicable Kubernetes resources as a comma separated
+   list of Kubernetes kinds (e.g., <code>Pod,ConfigMap,NetworkPolicy</code>). There is also a special value (<code>Workload</code>) that you
+   can use to select all Kubernetes workloads, and (<code>*</code>) to select all Kubernetes resources recognized by trivy-operator.</li>
+<li>The <code>policy.&lt;your_policy_name&gt;.rego</code> entry holds the policy Rego code.</li>
+</ol>
+<p>trivy-operator automatically detects policies added to the <code>trivy-operator-policies-config</code> ConfigMap and immediately rescans
+applicable Kubernetes resources.</p>
+<p>Let's create the <code>test</code> ConfigMap without recommended labels:</p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>kubectl create cm <span class="nb">test</span> --from-literal<span class="o">=</span><span class="nv">foo</span><span class="o">=</span>bar
+<span class="go">configmap/test created</span>
+</code></pre></div>
+<p>When you retrieve the corresponding configuration audit report, you'll see that there is one check with <code>LOW</code> severity
+that's failing:</p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>kubectl get configauditreport configmap-test -o wide
+<span class="go">NAME             SCANNER     AGE   CRITICAL  HIGH   MEDIUM   LOW</span>
+<span class="go">configmap-test   trivy-operator   24s   0         0      0        1</span>
+</code></pre></div>
+<p>If you describe the report you'll see that it's failing because of our custom policy:</p>
+<div class="annotate highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aquasecurity.github.io/v1alpha1</span><span class="w"></span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigAuditReport</span><span class="w"></span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">trivy-operator.resource.kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span><span class="w"></span>
+<span class="w">    </span><span class="nt">trivy-operator.resource.name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test</span><span class="w"></span>
+<span class="w">    </span><span class="nt">trivy-operator.resource.namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default</span><span class="w"></span>
+<span class="w">    </span><span class="nt">plugin-config-hash</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">df767ff5f</span><span class="w"></span>
+<span class="w">    </span><span class="nt">resource-spec-hash</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">7c96769cf</span><span class="w"></span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">configmap-test</span><span class="w"></span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default</span><span class="w"></span>
+<span class="w">  </span><span class="nt">ownerReferences</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">blockOwnerDeletion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
+<span class="w">    </span><span class="nt">controller</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span><span class="w"></span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test</span><span class="w"></span>
+<span class="nt">report</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">scanner</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-operator</span><span class="w"></span>
+<span class="w">    </span><span class="nt">vendor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Aqua Security</span><span class="w"></span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.1.8</span><span class="w"></span>
+<span class="w">  </span><span class="nt">summary</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">criticalCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
+<span class="w">    </span><span class="nt">highCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
+<span class="w">    </span><span class="nt">lowCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="w">    </span><span class="nt">mediumCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
+<span class="w">  </span><span class="nt">checks</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">checkID</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">recommended_labels</span><span class="w">  </span><span class="c1"># (1)</span><span class="w"></span>
+<span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Recommended labels</span><span class="w">    </span><span class="c1"># (2)</span><span class="w"></span>
+<span class="w">    </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LOW</span><span class="w">                </span><span class="c1"># (3)</span><span class="w"></span>
+<span class="w">    </span><span class="nt">category</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Kubernetes Security Check</span><span class="w">  </span><span class="c1"># (4)</span><span class="w"></span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span><span class="w">                       </span><span class="c1"># (5)</span><span class="w"></span>
+<span class="w">      </span><span class="no">A common set of labels allows tools to work interoperably,</span><span class="w"></span>
+<span class="w">      </span><span class="no">describing objects in a common manner that all tools can</span><span class="w"></span>
+<span class="w">      </span><span class="no">understand.</span><span class="w"></span>
+<span class="w">    </span><span class="nt">success</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">  </span><span class="c1"># (6)</span><span class="w"></span>
+<span class="w">    </span><span class="nt">messages</span><span class="p">:</span><span class="w">       </span><span class="c1"># (7)</span><span class="w"></span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;You</span><span class="nv"> </span><span class="s">must</span><span class="nv"> </span><span class="s">provide</span><span class="nv"> </span><span class="s">labels:</span><span class="nv"> </span><span class="s">{&quot;app.kubernetes.io/name&quot;,</span><span class="nv"> </span><span class="s">&quot;app.kubernetes.io/version&quot;}&#39;</span><span class="w"></span>
+</code></pre></div>
+<ol>
+<li>The <code>checkID</code> property corresponds to the policy identifier, i.e. <code>__rego_meatadata__.id</code>.</li>
+<li>The <code>title</code> property as defined by the policy metadata in <code>__rego_metadata__.title</code>.</li>
+<li>The <code>severity</code> property as defined by the policy metadata in <code>__rego_metadata__.severity</code>.</li>
+<li>The <code>category</code> property as defined by the policy metadata in <code>__rego_metadata__.type</code>.</li>
+<li>The <code>description</code> property as defined by the policy metadata in <code>__rego_metadata__.description</code>.</li>
+<li>The flag indicating whether the configuration audit check has failed or passed.</li>
+<li>The array of messages with details in case of failure.</li>
+</ol>
+
+
+
+
+
+              
+            </article>
+            
+<script>var input,hash=location.hash.slice(1);hash.startsWith("__tabbed_")&&((input=document.getElementById(hash)).checked=!0)</script>
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../../integrations/lens/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Lens Extension" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Lens Extension
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../manage_access_to_security_reports/" class="md-footer__link md-footer__link--next" aria-label="Next: Manage Access to Security Reports" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Manage Access to Security Reports
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright 2019-2022 Aqua Security Software Ltd.
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections"], "search": "../../assets/javascripts/workers/search.720157f5.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"method": "mike", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.3615f3ac.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1596,7 +1596,7 @@ func getSecurityChecks(ctx trivyoperator.PluginContext) string {
 	}
 
 	if c.ExposedSecretsScannerEnabled() {
-		securityChecks = append(securityChecks, "secrets")
+		securityChecks = append(securityChecks, "secret")
 	}
 
 	return strings.Join(securityChecks, ",")

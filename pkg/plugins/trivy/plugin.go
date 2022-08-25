@@ -661,6 +661,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
+		resultFileName := getUniqueScanResultFileName(c.Name)
 		containers = append(containers, corev1.Container{
 			Name:                     c.Name,
 			Image:                    trivyImageRef,
@@ -671,7 +672,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 				"/bin/sh",
 			},
 			Args: []string{
-				"-c", fmt.Sprintf(`trivy image '%s' --security-checks %s --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64`, imageRef.String(), getSecurityChecks(ctx)),
+				"-c", fmt.Sprintf(`trivy image '%s' --security-checks %s --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, imageRef.String(), getSecurityChecks(ctx), resultFileName, resultFileName),
 			},
 			Resources:    resourceRequirements,
 			VolumeMounts: volumeMounts,
@@ -794,6 +795,8 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 	var containers []corev1.Container
 
 	trivyConfigName := trivyoperator.GetPluginConfigMapName(Plugin)
+	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
+	volumes = append(volumes, getScanResultVolume())
 
 	for _, container := range getContainers(spec) {
 		env := []corev1.EnvVar{
@@ -974,8 +977,6 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 				Value: "true",
 			})
 		}
-		volumeMounts = append(volumeMounts, getScanResultVolumeMount())
-		volumes = append(volumes, getScanResultVolume())
 
 		if config.IgnoreFileExists() {
 			volumes = append(volumes, corev1.Volume{
@@ -1023,6 +1024,7 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
+		resultFileName := getUniqueScanResultFileName(container.Name)
 		containers = append(containers, corev1.Container{
 			Name:                     container.Name,
 			Image:                    trivyImageRef,
@@ -1033,7 +1035,7 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 				"/bin/sh",
 			},
 			Args: []string{
-				"-c", fmt.Sprintf(`trivy image '%s' --security-checks %s --quiet --format json --server '%s' > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64`, imageRef, getSecurityChecks(ctx), encodedTrivyServerURL.String()),
+				"-c", fmt.Sprintf(`trivy image '%s' --security-checks %s --quiet --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, imageRef, getSecurityChecks(ctx), encodedTrivyServerURL.String(), resultFileName, resultFileName),
 			},
 			VolumeMounts: volumeMounts,
 			Resources:    requirements,
@@ -1048,6 +1050,10 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 		Containers:                   containers,
 		Volumes:                      volumes,
 	}, secrets, nil
+}
+
+func getUniqueScanResultFileName(name string) string {
+	return fmt.Sprintf("result_%s.json", name)
 }
 
 func getScanResultVolume() corev1.Volume {
@@ -1226,6 +1232,7 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
+		resultFileName := getUniqueScanResultFileName(c.Name)
 		containers = append(containers, corev1.Container{
 			Name:                     c.Name,
 			Image:                    c.Image,
@@ -1236,7 +1243,7 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 				"/bin/sh",
 			},
 			Args: []string{
-				"-c", fmt.Sprintf(`%s fs --security-checks %s --cache-dir /var/trivyoperator/trivy-db --quiet --skip-update --format json / > /tmp/scan/result.json &&  bzip2 -c /tmp/scan/result.json | base64`, SharedVolumeLocationOfTrivy, getSecurityChecks(ctx)),
+				"-c", fmt.Sprintf(`%s fs --security-checks %s --cache-dir /var/trivyoperator/trivy-db --quiet --skip-update --format json / > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, SharedVolumeLocationOfTrivy, getSecurityChecks(ctx), resultFileName, resultFileName),
 			},
 			Resources:    resourceRequirements,
 			VolumeMounts: volumeMounts,

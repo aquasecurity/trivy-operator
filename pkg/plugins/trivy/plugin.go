@@ -378,6 +378,15 @@ const (
 	SharedVolumeLocationOfTrivy = "/var/trivyoperator/trivy"
 )
 
+var InitContainerSecurityContext = corev1.SecurityContext{
+	Privileged:               pointer.BoolPtr(false),
+	AllowPrivilegeEscalation: pointer.BoolPtr(false),
+	Capabilities: &corev1.Capabilities{
+		Drop: []corev1.Capability{"all"},
+	},
+	ReadOnlyRootFilesystem: pointer.BoolPtr(true),
+}
+
 // In the Standalone mode there is the init container responsible for
 // downloading the latest Trivy DB file from GitHub and storing it to the
 // emptyDir volume shared with main containers. In other words, the init
@@ -447,6 +456,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 				ReadOnly:  false,
 			},
 		},
+		SecurityContext: &InitContainerSecurityContext,
 	}
 
 	var containers []corev1.Container
@@ -1137,8 +1147,9 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			"/usr/local/bin/trivy",
 			SharedVolumeLocationOfTrivy,
 		},
-		Resources:    requirements,
-		VolumeMounts: volumeMounts,
+		Resources:       requirements,
+		SecurityContext: &InitContainerSecurityContext,
+		VolumeMounts:    volumeMounts,
 	}
 
 	initContainerDB := corev1.Container{
@@ -1158,8 +1169,9 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			"--db-repository",
 			dbRepository,
 		},
-		Resources:    requirements,
-		VolumeMounts: volumeMounts,
+		Resources:       requirements,
+		SecurityContext: &InitContainerSecurityContext,
+		VolumeMounts:    volumeMounts,
 	}
 
 	var containers []corev1.Container

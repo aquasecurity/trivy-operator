@@ -763,6 +763,14 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								corev1.ResourceMemory: resource.MustParse("500M"),
 							},
 						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
+						},
 						VolumeMounts: []corev1.VolumeMount{
 							tmpVolumeMount,
 						},
@@ -1010,6 +1018,14 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								corev1.ResourceCPU:    resource.MustParse("500m"),
 								corev1.ResourceMemory: resource.MustParse("500M"),
 							},
+						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
 						},
 						VolumeMounts: []corev1.VolumeMount{
 							tmpVolumeMount,
@@ -1262,6 +1278,14 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								corev1.ResourceCPU:    resource.MustParse("500m"),
 								corev1.ResourceMemory: resource.MustParse("500M"),
 							},
+						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
 						},
 						VolumeMounts: []corev1.VolumeMount{
 							tmpVolumeMount,
@@ -1535,6 +1559,14 @@ CVE-2019-1543`,
 								corev1.ResourceMemory: resource.MustParse("500M"),
 							},
 						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
+						},
 						VolumeMounts: []corev1.VolumeMount{
 							tmpVolumeMount,
 						},
@@ -1794,6 +1826,14 @@ CVE-2019-1543`,
 								corev1.ResourceCPU:    resource.MustParse("500m"),
 								corev1.ResourceMemory: resource.MustParse("500M"),
 							},
+						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
 						},
 						VolumeMounts: []corev1.VolumeMount{
 							tmpVolumeMount,
@@ -3004,6 +3044,14 @@ CVE-2019-1543`,
 								corev1.ResourceMemory: resource.MustParse("500M"),
 							},
 						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
+						},
 						VolumeMounts: []corev1.VolumeMount{
 							{
 								Name:      trivy.FsSharedVolumeName,
@@ -3087,6 +3135,14 @@ CVE-2019-1543`,
 								corev1.ResourceCPU:    resource.MustParse("500m"),
 								corev1.ResourceMemory: resource.MustParse("500M"),
 							},
+						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
 						},
 						VolumeMounts: []corev1.VolumeMount{
 							{
@@ -3326,6 +3382,14 @@ CVE-2019-1543`,
 							corev1.ResourceMemory: resource.MustParse("500M"),
 						},
 					},
+					SecurityContext: &corev1.SecurityContext{
+						Privileged:               pointer.BoolPtr(false),
+						AllowPrivilegeEscalation: pointer.BoolPtr(false),
+						Capabilities: &corev1.Capabilities{
+							Drop: []corev1.Capability{"all"},
+						},
+						ReadOnlyRootFilesystem: pointer.BoolPtr(true),
+					},
 					VolumeMounts: []corev1.VolumeMount{
 						{
 							Name:      trivy.FsSharedVolumeName,
@@ -3408,6 +3472,14 @@ CVE-2019-1543`,
 							corev1.ResourceCPU:    resource.MustParse("500m"),
 							corev1.ResourceMemory: resource.MustParse("500M"),
 						},
+					},
+					SecurityContext: &corev1.SecurityContext{
+						Privileged:               pointer.BoolPtr(false),
+						AllowPrivilegeEscalation: pointer.BoolPtr(false),
+						Capabilities: &corev1.Capabilities{
+							Drop: []corev1.Capability{"all"},
+						},
+						ReadOnlyRootFilesystem: pointer.BoolPtr(true),
 					},
 					VolumeMounts: []corev1.VolumeMount{
 						{

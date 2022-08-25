@@ -34,7 +34,7 @@ metadata:
 report:
   artifact:
     repository: myimagewithsecret
-    tag: v0.1.8
+    tag: v0.1.9-rc
   registry:
     server: index.docker.io
   scanner:

@@ -662,9 +662,6 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 			return corev1.PodSpec{}, nil, err
 		}
 		resultFileName := getUniqueScanResultFileName(c.Name)
-		if err != nil {
-			return corev1.PodSpec{}, nil, err
-		}
 		containers = append(containers, corev1.Container{
 			Name:                     c.Name,
 			Image:                    trivyImageRef,
@@ -1028,9 +1025,6 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			return corev1.PodSpec{}, nil, err
 		}
 		resultFileName := getUniqueScanResultFileName(container.Name)
-		if err != nil {
-			return corev1.PodSpec{}, nil, err
-		}
 		containers = append(containers, corev1.Container{
 			Name:                     container.Name,
 			Image:                    trivyImageRef,
@@ -1239,9 +1233,6 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			return corev1.PodSpec{}, nil, err
 		}
 		resultFileName := getUniqueScanResultFileName(c.Name)
-		if err != nil {
-			return corev1.PodSpec{}, nil, err
-		}
 		containers = append(containers, corev1.Container{
 			Name:                     c.Name,
 			Image:                    c.Image,

@@ -125,6 +125,13 @@ spec:
             - -v
             - /usr/local/bin/trivy
             - /var/trivy-operator/trivy
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+               drop:
+                  - all
+            privileged: false
+            readOnlyRootFilesystem: true
           volumeMounts:
             - name: scan-volume
               mountPath: /var/trivy-operator
@@ -140,6 +147,13 @@ spec:
             - --download-db-only
             - --cache-dir
             - /var/trivy-operator/trivy-db
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+               drop:
+                  - all
+            privileged: false
+            readOnlyRootFilesystem: true
           volumeMounts:
             - name: scan-volume
               mountPath: /var/trivy-operator

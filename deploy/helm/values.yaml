@@ -102,6 +102,14 @@ trivyOperator:
   #   value: "value1"
   #   effect: "NoSchedule"
 
+  # scanJobNodeSelector nodeSelector to be applied to the scanner pods so that they can run on nodes with matching labels
+  scanJobNodeSelector: {}
+  # If you do want to specify nodeSelector, uncomment the following lines, adjust them as necessary, and remove the
+  # square brackets after 'scanJobNodeSelector:'.
+  #   nodeType: worker
+  #   cpu: sandylake
+  #   teamOwner: operators
+
   # scanJobAnnotations comma-separated representation of the annotations which the user wants the scanner pods to be
   # annotated with. Example: `foo=bar,env=stage` will annotate the scanner pods with the annotations `foo: bar` and `env: stage`
   scanJobAnnotations: ""

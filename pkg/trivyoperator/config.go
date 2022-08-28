@@ -57,6 +57,7 @@ const (
 	KeyVulnerabilityScansInSameNamespace = "vulnerabilityReports.scanJobsInSameNamespace"
 	keyConfigAuditReportsScanner         = "configAuditReports.scanner"
 	keyScanJobTolerations                = "scanJob.tolerations"
+	keyScanJobNodeSelector               = "scanJob.nodeSelector"
 	keyScanJobAnnotations                = "scanJob.annotations"
 	keyScanJobPodSecurityContext         = "scanJob.podTemplateSecurityContext"
 	keyScanJobPodTemplateLabels          = "scanJob.podTemplateLabels"
@@ -138,6 +139,19 @@ func (c ConfigData) GetScanJobTolerations() ([]corev1.Toleration, error) {
 	err := json.Unmarshal([]byte(c[keyScanJobTolerations]), &scanJobTolerations)
 
 	return scanJobTolerations, err
+}
+
+func (c ConfigData) GetScanJobNodeSelector() (map[string]string, error) {
+	scanJobNodeSelector := make(map[string]string, 0)
+	if c[keyScanJobNodeSelector] == "" {
+		return scanJobNodeSelector, nil
+	}
+
+	if err := json.Unmarshal([]byte(c[keyScanJobNodeSelector]), &scanJobNodeSelector); err != nil {
+		return scanJobNodeSelector, fmt.Errorf("failed to parse incorrect job template nodeSelector %s: %w", c[keyScanJobNodeSelector], err)
+	}
+
+	return scanJobNodeSelector, nil
 }
 
 func (c ConfigData) GetScanJobPodSecurityContext() (*corev1.PodSecurityContext, error) {

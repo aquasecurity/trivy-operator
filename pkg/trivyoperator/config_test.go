@@ -204,6 +204,60 @@ func TestConfigData_GetScanJobAnnotations(t *testing.T) {
 	}
 }
 
+
+func TestConfigData_GetScanJobNodeSelector(t *testing.T) {
+	testCases := []struct {
+		name        string
+		config      trivyoperator.ConfigData
+		expected    map[string]string
+		expectError string
+	}{
+		{
+			name: "scan job template nodeSelector can be fetched successfully",
+			config: trivyoperator.ConfigData{
+				"scanJob.nodeSelector": "{\"nodeType\":\"worker\", \"testLabel2\":\"testVal1\"}",
+			},
+			expected: map[string]string{
+				"nodeType": "worker",
+				"testLabel2": "testVal1",
+			},
+		},
+		{
+			name:     "gracefully deal with unprovided nodeSelector",
+			config:   trivyoperator.ConfigData{},
+			expected: map[string]string{},
+		},
+		{
+			name: "raise an error on being provided with empty nodeSelector",
+			config: trivyoperator.ConfigData{
+				"scanJob.nodeSelector": "{}",
+			},
+			expected:    map[string]string{},
+		},
+		{
+			name: "raise an error on being provided with template nodeSelector in wrong format",
+			config: trivyoperator.ConfigData{
+				"scanJob.nodeSelector": "{dlzm",
+			},
+			expected:    map[string]string{},
+			expectError: "failed to parse incorrect job template nodeSelector {dlzm: invalid character 'd' looking for beginning of object key string",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			scanJobPodTemplateLabels, err := tc.config.GetScanJobNodeSelector()
+			if tc.expectError != "" {
+				assert.EqualError(t, err, tc.expectError, tc.name)
+			} else {
+				assert.NoError(t, err, tc.name)
+				assert.Equal(t, tc.expected, scanJobPodTemplateLabels, tc.name)
+			}
+		})
+	}
+}
+
+
 func TestConfigData_GetScanJobPodTemplateLabels(t *testing.T) {
 	testCases := []struct {
 		name        string

@@ -367,8 +367,9 @@ func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Poli
 	}
 	checks := make([]v1alpha1.Check, 0)
 	for _, result := range results {
+		id := policies.GetResultID(result)
 		checks = append(checks, v1alpha1.Check{
-			ID:          result.Rule().LegacyID,
+			ID:          id,
 			Title:       result.Rule().Summary,
 			Description: result.Rule().Explanation,
 			Severity:    v1alpha1.Severity(result.Rule().Severity),

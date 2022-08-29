@@ -217,7 +217,16 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object) (scan.Resul
 	return scanResult, nil
 }
 
-func scannerByType(resourceKind string, scannerOptions []options.ScannerOption) scanners.Scanner {
+//GetResultID return the result id found in aliases (legacy) otherwise use AvdID
+func (r *Policies) GetResultID(result scan.Result) string {
+	id := result.Rule().AVDID
+	if len(result.Rule().Aliases) > 0 {
+		id = result.Rule().Aliases[0]
+	}
+	return id
+}
+
+func scannerByType(resourceKind string, scannerOptions []options.ScannerOption) scanners.FSScanner {
 	if strings.Contains(resourceKind, "Role") {
 		return rbac.NewScanner(scannerOptions...)
 	}

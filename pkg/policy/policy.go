@@ -217,7 +217,7 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object) (scan.Resul
 	return scanResult, nil
 }
 
-func scannerByType(resourceKind string, scannerOptions []options.ScannerOption) scanners.Scanner {
+func scannerByType(resourceKind string, scannerOptions []options.ScannerOption) scanners.FSScanner {
 	if strings.Contains(resourceKind, "Role") {
 		return rbac.NewScanner(scannerOptions...)
 	}

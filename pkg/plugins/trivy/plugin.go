@@ -1412,10 +1412,12 @@ func getVulnerabilitiesFromScanResult(report ScanResult) []v1alpha1.Vulnerabilit
 			FixedVersion:     sr.FixedVersion,
 			Severity:         sr.Severity,
 			Title:            sr.Title,
+			Description:      sr.Description,
 			PrimaryLink:      sr.PrimaryURL,
-			Links:            []string{},
+			Links:            sr.References,
 			Score:            GetScoreFromCVSS(sr.Cvss),
-			Target:           sr.Target,
+			Vector:           GetVectorFromCVSS(sr.Cvss),
+			Target:           report.Target,
 		})
 	}
 
@@ -1528,6 +1530,24 @@ func GetScoreFromCVSS(CVSSs map[string]*CVSS) *float64 {
 	}
 
 	return nvdScore
+}
+
+func GetVectorFromCVSS(CVSSs map[string]*CVSS) string {
+	var nvdVector, vendorVector string
+
+	for name, cvss := range CVSSs {
+		if name == "nvd" {
+			nvdVector = cvss.V3Vector
+		} else {
+			vendorVector = cvss.V3Vector
+		}
+	}
+
+	if len(vendorVector) > 0 {
+		return vendorVector
+	}
+
+	return nvdVector
 }
 
 func GetMirroredImage(image string, mirrors map[string]string) (string, error) {

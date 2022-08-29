@@ -10,12 +10,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
-	"github.com/aquasecurity/trivy-operator/pkg/utils"
-
 	"github.com/aquasecurity/defsec/pkg/scan"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	. "github.com/onsi/gomega"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -1071,7 +1070,11 @@ func getPolicyResults(results scan.Results) Results {
 		} else {
 			msgs = nil
 		}
-		pr := Result{Metadata: Metadata{ID: result.Rule().Aliases[0], Title: result.Rule().Summary, Severity: v1alpha1.Severity(result.Severity()), Type: "Kubernetes Security Check", Description: result.Rule().Explanation}, Success: result.Status() == scan.StatusPassed, Messages: msgs}
+		id := result.Rule().AVDID
+		if len(result.Rule().Aliases) > 0 {
+			id = result.Rule().Aliases[0]
+		}
+		pr := Result{Metadata: Metadata{ID: id, Title: result.Rule().Summary, Severity: v1alpha1.Severity(result.Severity()), Type: "Kubernetes Security Check", Description: result.Rule().Explanation}, Success: result.Status() == scan.StatusPassed, Messages: msgs}
 		prs = append(prs, pr)
 	}
 	b, _ := json.Marshal(&prs)

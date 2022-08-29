@@ -3,8 +3,8 @@ package controller
 import (
 	"context"
 	"fmt"
-
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/workload"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 
 	"github.com/aquasecurity/defsec/pkg/scan"
@@ -181,37 +181,10 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			}
 			return ctrl.Result{}, fmt.Errorf("getting %s from cache: %w", resourceKind, err)
 		}
-
-		// Skip processing if a resource is a Pod controlled by a built-in K8s workload.
-		if resourceKind == kube.KindPod {
-			controller := metav1.GetControllerOf(resource)
-			if kube.IsBuiltInWorkload(controller) {
-				log.V(1).Info("Ignoring managed pod",
-					"controllerKind", controller.Kind,
-					"controllerName", controller.Name)
-				return ctrl.Result{}, nil
-			}
-		}
-
-		if r.Config.ConfigAuditScannerScanOnlyCurrentRevisions && resourceKind == kube.KindReplicaSet {
-			controller := metav1.GetControllerOf(resource)
-			activeReplicaSet, err := r.IsActiveReplicaSet(ctx, resource, controller)
-			if err != nil {
-				return ctrl.Result{}, fmt.Errorf("failed checking current revision: %w", err)
-			}
-			if !activeReplicaSet {
-				log.V(1).Info("Ignoring inactive ReplicaSet", "controllerKind", controller.Kind, "controllerName", controller.Name)
-				return ctrl.Result{}, nil
-			}
-		}
-
-		// Skip processing if a resource is a Job controlled by CronJob.
-		if resourceKind == kube.KindJob {
-			controller := metav1.GetControllerOf(resource)
-			if controller != nil && controller.Kind == string(kube.KindCronJob) {
-				log.V(1).Info("Ignoring managed job", "controllerKind", controller.Kind, "controllerName", controller.Name)
-				return ctrl.Result{}, nil
-			}
+		// validate if workload require continuing with processing
+		if progress, err := workload.Inspect(ctx, resource, r.ObjectResolver,
+			r.Config.ConfigAuditScannerScanOnlyCurrentRevisions, log); !progress {
+			return ctrl.Result{}, err
 		}
 		cac, err := r.NewConfigForConfigAudit(r.PluginContext)
 		if err != nil {

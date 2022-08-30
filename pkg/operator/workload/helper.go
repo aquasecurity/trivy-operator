@@ -12,18 +12,18 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func Inspect(ctx context.Context, resource client.Object, or kube.ObjectResolver, scanOnlyCurrentRevisions bool, log logr.Logger) (bool, error) {
+func SkipProcessing(ctx context.Context, resource client.Object, or kube.ObjectResolver, scanOnlyCurrentRevisions bool, log logr.Logger) (bool, error) {
 	controller := metav1.GetControllerOf(resource)
 	switch resource.(type) {
 	case *appsv1.ReplicaSet:
 		if scanOnlyCurrentRevisions {
 			activeReplicaSet, err := or.IsActiveReplicaSet(ctx, resource, controller)
 			if err != nil {
-				return false, fmt.Errorf("failed checking current revision: %w", err)
+				return true, fmt.Errorf("failed checking current revision: %w", err)
 			}
 			if !activeReplicaSet {
 				log.V(1).Info("Ignoring inactive ReplicaSet", "controllerKind", controller.Kind, "controllerName", controller.Name)
-				return false, nil
+				return true, nil
 			}
 		}
 	case *corev1.Pod:
@@ -31,13 +31,13 @@ func Inspect(ctx context.Context, resource client.Object, or kube.ObjectResolver
 			log.V(1).Info("Ignoring managed pod",
 				"controllerKind", controller.Kind,
 				"controllerName", controller.Name)
-			return false, nil
+			return true, nil
 		}
 	case *batchv1.Job:
 		if controller != nil && controller.Kind == string(kube.KindCronJob) {
 			log.V(1).Info("Ignoring managed job", "controllerKind", controller.Kind, "controllerName", controller.Name)
-			return false, nil
+			return true, nil
 		}
 	}
-	return true, nil
+	return false, nil
 }

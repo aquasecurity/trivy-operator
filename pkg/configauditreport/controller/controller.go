@@ -182,8 +182,8 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			return ctrl.Result{}, fmt.Errorf("getting %s from cache: %w", resourceKind, err)
 		}
 		// validate if workload require continuing with processing
-		if progress, err := workload.Inspect(ctx, resource, r.ObjectResolver,
-			r.Config.ConfigAuditScannerScanOnlyCurrentRevisions, log); !progress {
+		if skip, err := workload.SkipProcessing(ctx, resource, r.ObjectResolver,
+			r.Config.ConfigAuditScannerScanOnlyCurrentRevisions, log); skip {
 			return ctrl.Result{}, err
 		}
 		cac, err := r.NewConfigForConfigAudit(r.PluginContext)

@@ -6,6 +6,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/workload"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
+	"strings"
 
 	"github.com/aquasecurity/defsec/pkg/scan"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -341,6 +342,10 @@ func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Poli
 	checks := make([]v1alpha1.Check, 0)
 	for _, result := range results {
 		id := policies.GetResultID(result)
+		// ignore infra components until it will be officially supported
+		if strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV") {
+			continue
+		}
 		checks = append(checks, v1alpha1.Check{
 			ID:          id,
 			Title:       result.Rule().Summary,

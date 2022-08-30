@@ -571,31 +571,31 @@ func (o *ObjectResolver) GetNodeName(ctx context.Context, obj client.Object) (st
 		if err != nil {
 			return "", err
 		}
-		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), replicaSet.Spec.Selector.MatchLabels)
+		pods, err := o.GetActivePodsMatchingLabels(ctx, obj.GetNamespace(), replicaSet.Spec.Selector.MatchLabels)
 		if err != nil {
 			return "", err
 		}
 		return pods[0].Spec.NodeName, nil
 	case *appsv1.ReplicaSet:
-		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), r.Spec.Selector.MatchLabels)
+		pods, err := o.GetActivePodsMatchingLabels(ctx, obj.GetNamespace(), r.Spec.Selector.MatchLabels)
 		if err != nil {
 			return "", err
 		}
 		return pods[0].Spec.NodeName, nil
 	case *corev1.ReplicationController:
-		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), r.Spec.Selector)
+		pods, err := o.GetActivePodsMatchingLabels(ctx, obj.GetNamespace(), r.Spec.Selector)
 		if err != nil {
 			return "", err
 		}
 		return pods[0].Spec.NodeName, nil
 	case *appsv1.StatefulSet:
-		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), r.Spec.Selector.MatchLabels)
+		pods, err := o.GetActivePodsMatchingLabels(ctx, obj.GetNamespace(), r.Spec.Selector.MatchLabels)
 		if err != nil {
 			return "", err
 		}
 		return pods[0].Spec.NodeName, nil
 	case *appsv1.DaemonSet:
-		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), r.Spec.Selector.MatchLabels)
+		pods, err := o.GetActivePodsMatchingLabels(ctx, obj.GetNamespace(), r.Spec.Selector.MatchLabels)
 		if err != nil {
 			return "", err
 		}
@@ -605,7 +605,7 @@ func (o *ObjectResolver) GetNodeName(ctx context.Context, obj client.Object) (st
 	case *batchv1.CronJob:
 		return "", ErrUnSupportedKind
 	case *batchv1.Job:
-		pods, err := o.getActivePodsMatchingLabels(ctx, obj.GetNamespace(), r.Spec.Selector.MatchLabels)
+		pods, err := o.GetActivePodsMatchingLabels(ctx, obj.GetNamespace(), r.Spec.Selector.MatchLabels)
 		if err != nil {
 			return "", err
 		}
@@ -650,7 +650,7 @@ func (o *ObjectResolver) getPodsMatchingLabels(ctx context.Context, namespace st
 	return podList.Items, err
 }
 
-func (o *ObjectResolver) getActivePodsMatchingLabels(ctx context.Context, namespace string,
+func (o *ObjectResolver) GetActivePodsMatchingLabels(ctx context.Context, namespace string,
 	labels map[string]string) ([]corev1.Pod, error) {
 	pods, err := o.getPodsMatchingLabels(ctx, namespace, labels)
 	if err != nil {

@@ -151,6 +151,9 @@ trivy:
   # on the active mode other settings might be applicable or required.
   mode: Standalone
 
+  # vulnerabilityGetAllLinks the flag to store all links associated with CVE that was found in image
+  vulnerabilityGetAllLinks: true
+  
   # httpProxy is the HTTP proxy used by Trivy to download the vulnerabilities database from GitHub.
   #
   # httpProxy:

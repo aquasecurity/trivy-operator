@@ -39,19 +39,20 @@ const (
 )
 
 const (
-	keyTrivyImageRef               = "trivy.imageRef"
-	keyTrivyMode                   = "trivy.mode"
-	keyTrivyCommand                = "trivy.command"
-	keyTrivySeverity               = "trivy.severity"
-	keyTrivyIgnoreUnfixed          = "trivy.ignoreUnfixed"
-	keyTrivyTimeout                = "trivy.timeout"
-	keyTrivyIgnoreFile             = "trivy.ignoreFile"
-	keyTrivyInsecureRegistryPrefix = "trivy.insecureRegistry."
-	keyTrivyNonSslRegistryPrefix   = "trivy.nonSslRegistry."
-	keyTrivyMirrorPrefix           = "trivy.registry.mirror."
-	keyTrivyHTTPProxy              = "trivy.httpProxy"
-	keyTrivyHTTPSProxy             = "trivy.httpsProxy"
-	keyTrivyNoProxy                = "trivy.noProxy"
+	keyTrivyImageRef                  = "trivy.imageRef"
+	keyTrivyMode                      = "trivy.mode"
+	keyTrivyVulneraibilityGetAllLinks = "trivy.vulnerabilityGetAllLinks"
+	keyTrivyCommand                   = "trivy.command"
+	keyTrivySeverity                  = "trivy.severity"
+	keyTrivyIgnoreUnfixed             = "trivy.ignoreUnfixed"
+	keyTrivyTimeout                   = "trivy.timeout"
+	keyTrivyIgnoreFile                = "trivy.ignoreFile"
+	keyTrivyInsecureRegistryPrefix    = "trivy.insecureRegistry."
+	keyTrivyNonSslRegistryPrefix      = "trivy.nonSslRegistry."
+	keyTrivyMirrorPrefix              = "trivy.registry.mirror."
+	keyTrivyHTTPProxy                 = "trivy.httpProxy"
+	keyTrivyHTTPSProxy                = "trivy.httpsProxy"
+	keyTrivyNoProxy                   = "trivy.noProxy"
 	// nolint:gosec // This is not a secret, but a configuration value.
 	keyTrivyGitHubToken          = "trivy.githubToken"
 	keyTrivySkipFiles            = "trivy.skipFiles"
@@ -120,6 +121,15 @@ func (c Config) GetMode() (Mode, error) {
 
 	return "", fmt.Errorf("invalid value (%s) of %s; allowed values (%s, %s)",
 		value, keyTrivyMode, Standalone, ClientServer)
+}
+
+func (c Config) GetVulnerabilityGetAllLinks() bool {
+	val, ok := c.Data[keyTrivyVulneraibilityGetAllLinks]
+	if !ok {
+		return false
+	}
+	boolVal, _ := strconv.ParseBool(val)
+	return boolVal
 }
 
 func (c Config) GetCommand() (Command, error) {
@@ -307,6 +317,7 @@ func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 			keyTrivyImageRef:                  "ghcr.io/aquasecurity/trivy:0.30.0",
 			keyTrivySeverity:                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
 			keyTrivyMode:                      string(Standalone),
+			keyTrivyVulneraibilityGetAllLinks: "false",
 			keyTrivyTimeout:                   "5m0s",
 			keyTrivyDBRepository:              defaultDBRepository,
 			keyTrivyUseBuiltinRegoPolicies:    "true",
@@ -1355,8 +1366,10 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
 	secrets := make([]v1alpha1.ExposedSecret, 0)
 
+	getAllLinks := config.GetVulnerabilityGetAllLinks()
+
 	for _, report := range reports.Results {
-		vulnerabilities = append(vulnerabilities, getVulnerabilitiesFromScanResult(report)...)
+		vulnerabilities = append(vulnerabilities, getVulnerabilitiesFromScanResult(report, getAllLinks)...)
 		secrets = append(secrets, getExposedSecretsFromScanResult(report)...)
 	}
 
@@ -1401,10 +1414,15 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 
 }
 
-func getVulnerabilitiesFromScanResult(report ScanResult) []v1alpha1.Vulnerability {
+func getVulnerabilitiesFromScanResult(report ScanResult, getAllLinks bool) []v1alpha1.Vulnerability {
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
 
 	for _, sr := range report.Vulnerabilities {
+		links := []string{}
+		if getAllLinks {
+			links = sr.References
+		}
+
 		vulnerabilities = append(vulnerabilities, v1alpha1.Vulnerability{
 			VulnerabilityID:  sr.VulnerabilityID,
 			Resource:         sr.PkgName,
@@ -1414,7 +1432,7 @@ func getVulnerabilitiesFromScanResult(report ScanResult) []v1alpha1.Vulnerabilit
 			Title:            sr.Title,
 			Description:      sr.Description,
 			PrimaryLink:      sr.PrimaryURL,
-			Links:            sr.References,
+			Links:            links,
 			Score:            GetScoreFromCVSS(sr.Cvss),
 			Vector:           GetVectorFromCVSS(sr.Cvss),
 			Target:           report.Target,

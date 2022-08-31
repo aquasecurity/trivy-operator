@@ -20,6 +20,7 @@ require (
 	github.com/stretchr/testify v1.8.0
 	github.com/tenstad/dyqual v0.3.0
 	go.uber.org/multierr v1.8.0
+	golang.org/x/net v0.0.0-20220708220712-1185a9018129
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.24.4
 	k8s.io/apiextensions-apiserver v0.24.2
@@ -114,7 +115,6 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
-	golang.org/x/net v0.0.0-20220708220712-1185a9018129 // indirect
 	golang.org/x/oauth2 v0.0.0-20220718184931-c8730f7fcb92 // indirect
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f // indirect
 	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect

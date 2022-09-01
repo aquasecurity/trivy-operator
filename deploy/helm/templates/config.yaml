@@ -59,6 +59,7 @@ data:
   trivy.vulnShowDescription: {{ .vulnShowDescription | quote }}
   trivy.vulnShowLinks: {{ .vulnShowLinks | quote }}
   trivy.vulnShowVector: {{ .vulnShowVector | quote }}
+  trivy.vulnShowAllCVSS: {{ .vulnShowAllCVSS | quote }}
   {{- if .httpProxy }}
   trivy.httpProxy: {{ .httpProxy | quote }}
   {{- end }}

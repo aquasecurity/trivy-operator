@@ -536,6 +536,7 @@ func TestPlugin_Init(t *testing.T) {
 				"trivy.severity":                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
 				"trivy.mode":                      "Standalone",
 				"trivy.vulnShowDescription":       "false",
+				"trivy.vulnShowAllCVSS":           "false",
 				"trivy.vulnShowLinks":             "false",
 				"trivy.vulnShowVector":            "false",
 				"trivy.timeout":                   "5m0s",

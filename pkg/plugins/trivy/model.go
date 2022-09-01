@@ -21,6 +21,7 @@ type Vulnerability struct {
 	FixedVersion     string            `json:"FixedVersion"`
 	Title            string            `json:"Title"`
 	Description      string            `json:"Description"`
+	CVSSSource       string            `json:"CVSSSource"`
 	Severity         v1alpha1.Severity `json:"Severity"`
 	Layer            Layer             `json:"Layer"`
 	PrimaryURL       string            `json:"PrimaryURL"`

@@ -44,6 +44,7 @@ const (
 	keyTrivyVulnShowDescription    = "trivy.vulnShowDescription"
 	keyTrivyVulnShowLinks          = "trivy.vulnShowLinks"
 	keyTrivyVulnShowVector         = "trivy.vulnShowVector"
+	keyTrivyVulnShowAllCVSS        = "trivy.vulnShowAllCVSS"
 	keyTrivyCommand                = "trivy.command"
 	keyTrivySeverity               = "trivy.severity"
 	keyTrivyIgnoreUnfixed          = "trivy.ignoreUnfixed"
@@ -145,6 +146,15 @@ func (c Config) GetVulnShowLinks() bool {
 
 func (c Config) GetVulnShowVector() bool {
 	val, ok := c.Data[keyTrivyVulnShowVector]
+	if !ok {
+		return false
+	}
+	boolVal, _ := strconv.ParseBool(val)
+	return boolVal
+}
+
+func (c Config) GetVulnShowAllCVSS() bool {
+	val, ok := c.Data[keyTrivyVulnShowAllCVSS]
 	if !ok {
 		return false
 	}
@@ -340,6 +350,7 @@ func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 			keyTrivyVulnShowDescription:       "false",
 			keyTrivyVulnShowLinks:             "false",
 			keyTrivyVulnShowVector:            "false",
+			keyTrivyVulnShowAllCVSS:           "false",
 			keyTrivyTimeout:                   "5m0s",
 			keyTrivyDBRepository:              defaultDBRepository,
 			keyTrivyUseBuiltinRegoPolicies:    "true",
@@ -1391,9 +1402,10 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	vulnShowDescription := config.GetVulnShowDescription()
 	vulnShowLinks := config.GetVulnShowLinks()
 	vulnShowVector := config.GetVulnShowVector()
+	vulnShowAllCVSS := config.GetVulnShowAllCVSS()
 
 	for _, report := range reports.Results {
-		vulnerabilities = append(vulnerabilities, getVulnerabilitiesFromScanResult(report, vulnShowDescription, vulnShowLinks, vulnShowVector)...)
+		vulnerabilities = append(vulnerabilities, getVulnerabilitiesFromScanResult(report, vulnShowAllCVSS, vulnShowDescription, vulnShowLinks, vulnShowVector)...)
 		secrets = append(secrets, getExposedSecretsFromScanResult(report)...)
 	}
 
@@ -1438,7 +1450,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 
 }
 
-func getVulnerabilitiesFromScanResult(report ScanResult, showDescription, showLinks, showVector bool) []v1alpha1.Vulnerability {
+func getVulnerabilitiesFromScanResult(report ScanResult, showAllCVSS, showDescription, showLinks, showVector bool) []v1alpha1.Vulnerability {
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
 
 	for _, sr := range report.Vulnerabilities {
@@ -1458,20 +1470,46 @@ func getVulnerabilitiesFromScanResult(report ScanResult, showDescription, showLi
 			vector = GetVectorFromCVSS(sr.Cvss)
 		}
 
-		vulnerabilities = append(vulnerabilities, v1alpha1.Vulnerability{
+		// Common part for all cases
+		vulnerability := v1alpha1.Vulnerability{
 			VulnerabilityID:  sr.VulnerabilityID,
 			Resource:         sr.PkgName,
 			InstalledVersion: sr.InstalledVersion,
 			FixedVersion:     sr.FixedVersion,
-			Severity:         sr.Severity,
 			Title:            sr.Title,
 			Description:      description,
 			PrimaryLink:      sr.PrimaryURL,
 			Links:            links,
-			Score:            GetScoreFromCVSS(sr.Cvss),
-			Vector:           vector,
 			Target:           report.Target,
-		})
+		}
+
+		// now it depends: if we want all of CVSS Sources we need to loop through it
+		if showAllCVSS {
+			// NVD and Vendors has CVSS, but GHSA do not
+			if sr.Cvss != nil {
+				for name, cvss := range sr.Cvss {
+					vulnerability.Severity = GetSeverityFromCVSSScore(*cvss.V3Score)
+					vulnerability.CVSSSource = name
+					vulnerability.Score = cvss.V3Score
+					vulnerability.Vector = cvss.V3Vector
+
+					vulnerabilities = append(vulnerabilities, vulnerability)
+				}
+			} else {
+				// for GHSA. There is no Score and Vector
+				vulnerability.Severity = sr.Severity
+
+				vulnerabilities = append(vulnerabilities, vulnerability)
+			}
+
+		} else {
+			vulnerability.Severity = sr.Severity
+			vulnerability.CVSSSource = GetNameFromCVSS(sr.Cvss)
+			vulnerability.Score = GetScoreFromCVSS(sr.Cvss)
+			vulnerability.Vector = vector
+
+			vulnerabilities = append(vulnerabilities, vulnerability)
+		}
 	}
 
 	return vulnerabilities
@@ -1567,6 +1605,22 @@ func (p *plugin) parseImageRef(imageRef string) (v1alpha1.Registry, v1alpha1.Art
 	return registry, artifact, nil
 }
 
+func GetSeverityFromCVSSScore(cvssScore float64) v1alpha1.Severity {
+	switch {
+	case 0.1 <= cvssScore && cvssScore <= 3.9:
+		return v1alpha1.SeverityLow
+	case 4.0 <= cvssScore && cvssScore <= 6.9:
+		return v1alpha1.SeverityMedium
+	case 7.0 <= cvssScore && cvssScore <= 8.9:
+		return v1alpha1.SeverityHigh
+	case 9.0 <= cvssScore && cvssScore <= 10.0:
+		return v1alpha1.SeverityCritical
+	default:
+		return v1alpha1.SeverityUnknown
+	}
+
+}
+
 func GetScoreFromCVSS(CVSSs map[string]*CVSS) *float64 {
 	var nvdScore, vendorScore *float64
 
@@ -1601,6 +1655,24 @@ func GetVectorFromCVSS(CVSSs map[string]*CVSS) string {
 	}
 
 	return nvdVector
+}
+
+func GetNameFromCVSS(CVSSs map[string]*CVSS) string {
+	var nvdName, vendorName string
+
+	for name := range CVSSs {
+		if name == "nvd" {
+			nvdName = name
+		} else {
+			vendorName = name
+		}
+	}
+
+	if len(vendorName) > 0 {
+		return vendorName
+	}
+
+	return nvdName
 }
 
 func GetMirroredImage(image string, mirrors map[string]string) (string, error) {

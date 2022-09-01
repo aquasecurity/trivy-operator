@@ -311,6 +311,8 @@ func TestConfigData_GetScanJobPodTemplateLabels(t *testing.T) {
 	}
 }
 
+// TODO FelixKampfer add test for JobContainerSecurityContext
+
 func TestConfigData_GetScanJobPodSecurityContext(t *testing.T) {
 	expectedUid := int64(1258)
 	expectedGid := int64(55589)

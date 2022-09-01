@@ -44,13 +44,14 @@ To change the target namespace from all namespaces to the `default` namespace ed
 
 # Scanning configuration
 
-| CONFIGMAP KEY| DEFAULT| DESCRIPTION                                                                                                                                                                                                                                                                              |
-|---|---|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `vulnerabilityReports.scanner`| `Trivy`| The name of the plugin that generates vulnerability reports. Either `Trivy` or `Aqua`.                                                                                                                                                                                                   |
-| `vulnerabilityReports.scanJobsInSameNamespace` | `"false"`| Whether to run vulnerability scan jobs in same namespace of workload. Set `"true"` to enable.                                                                                                                                                                                            |
-| `scanJob.tolerations`| N/A| JSON representation of the [tolerations] to be applied to the scanner pods so that they can run on nodes with matching taints. Example: `'[{"key":"key1", "operator":"Equal", "value":"value1", "effect":"NoSchedule"}]'`                                                                |
-| `scanJob.annotations`| N/A| One-line comma-separated representation of the annotations which the user wants the scanner pods to be annotated with. Example: `foo=bar,env=stage` will annotate the scanner pods with the annotations `foo: bar` and `env: stage`                                                      |
-| `scanJob.templateLabel`| N/A| One-line comma-separated representation of the template labels which the user wants the scanner pods to be labeled with. Example: `foo=bar,env=stage` will labeled the scanner pods with the labels `foo: bar` and `env: stage`                                                          |
+| CONFIGMAP KEY| DEFAULT| DESCRIPTION|
+|---|---|---|
+| `vulnerabilityReports.scanner`| `Trivy`| The name of the plugin that generates vulnerability reports. Either `Trivy` or `Aqua`.|
+| `vulnerabilityReports.scanJobsInSameNamespace` | `"false"`| Whether to run vulnerability scan jobs in same namespace of workload. Set `"true"` to enable.|
+| `scanJob.tolerations`| N/A| JSON representation of the [tolerations] to be applied to the scanner pods so that they can run on nodes with matching taints. Example: `'[{"key":"key1", "operator":"Equal", "value":"value1", "effect":"NoSchedule"}]'`|
+| `scanJob.nodeSelector`| N/A| JSON representation of the [nodeSelector] to be applied to the scanner pods so that they can run on nodes with matching labels. Example: `'{"example.com/node-type":"worker", "cpu-type": "sandylake"}'`|
+| `scanJob.annotations`| N/A| One-line comma-separated representation of the annotations which the user wants the scanner pods to be annotated with. Example: `foo=bar,env=stage` will annotate the scanner pods with the annotations `foo: bar` and `env: stage` |
+| `scanJob.templateLabel`| N/A| One-line comma-separated representation of the template labels which the user wants the scanner pods to be labeled with. Example: `foo=bar,env=stage` will labeled the scanner pods with the labels `foo: bar` and `env: stage`|
 | `scanJob.podTemplateSecurityContext`| N/A| One-line JSON representation of the template securityContext which the user wants the scanner pods to be secured with. Does not affect the securityContext of the initContainers, which have their own default. Example: `{"RunAsUser": 1000, "RunAsGroup": 1000, "RunAsNonRoot": true}` |
 
 ## Example - patch ConfigMap

@@ -21,6 +21,9 @@ operator:
   # replicas the number of replicas of the operator's pod
   replicas: 1
 
+  # additional labels for the operator pod
+  podLabels: {}
+
   # leaderElectionId determines the name of the resource that leader election
   # will use for holding the leader lock.
   leaderElectionId: "trivyoperator-lock"
@@ -101,6 +104,14 @@ trivyOperator:
   #   operator: "Equal"
   #   value: "value1"
   #   effect: "NoSchedule"
+
+  # scanJobNodeSelector nodeSelector to be applied to the scanner pods so that they can run on nodes with matching labels
+  scanJobNodeSelector: {}
+  # If you do want to specify nodeSelector, uncomment the following lines, adjust them as necessary, and remove the
+  # square brackets after 'scanJobNodeSelector:'.
+  #   nodeType: worker
+  #   cpu: sandylake
+  #   teamOwner: operators
 
   # scanJobAnnotations comma-separated representation of the annotations which the user wants the scanner pods to be
   # annotated with. Example: `foo=bar,env=stage` will annotate the scanner pods with the annotations `foo: bar` and `env: stage`

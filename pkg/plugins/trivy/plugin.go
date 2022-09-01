@@ -39,20 +39,22 @@ const (
 )
 
 const (
-	keyTrivyImageRef                  = "trivy.imageRef"
-	keyTrivyMode                      = "trivy.mode"
-	keyTrivyVulneraibilityGetAllLinks = "trivy.vulnerabilityGetAllLinks"
-	keyTrivyCommand                   = "trivy.command"
-	keyTrivySeverity                  = "trivy.severity"
-	keyTrivyIgnoreUnfixed             = "trivy.ignoreUnfixed"
-	keyTrivyTimeout                   = "trivy.timeout"
-	keyTrivyIgnoreFile                = "trivy.ignoreFile"
-	keyTrivyInsecureRegistryPrefix    = "trivy.insecureRegistry."
-	keyTrivyNonSslRegistryPrefix      = "trivy.nonSslRegistry."
-	keyTrivyMirrorPrefix              = "trivy.registry.mirror."
-	keyTrivyHTTPProxy                 = "trivy.httpProxy"
-	keyTrivyHTTPSProxy                = "trivy.httpsProxy"
-	keyTrivyNoProxy                   = "trivy.noProxy"
+	keyTrivyImageRef               = "trivy.imageRef"
+	keyTrivyMode                   = "trivy.mode"
+	keyTrivyVulnShowDescription    = "trivy.vulnShowDescription"
+	keyTrivyVulnShowLinks          = "trivy.vulnShowLinks"
+	keyTrivyVulnShowVector         = "trivy.vulnShowVector"
+	keyTrivyCommand                = "trivy.command"
+	keyTrivySeverity               = "trivy.severity"
+	keyTrivyIgnoreUnfixed          = "trivy.ignoreUnfixed"
+	keyTrivyTimeout                = "trivy.timeout"
+	keyTrivyIgnoreFile             = "trivy.ignoreFile"
+	keyTrivyInsecureRegistryPrefix = "trivy.insecureRegistry."
+	keyTrivyNonSslRegistryPrefix   = "trivy.nonSslRegistry."
+	keyTrivyMirrorPrefix           = "trivy.registry.mirror."
+	keyTrivyHTTPProxy              = "trivy.httpProxy"
+	keyTrivyHTTPSProxy             = "trivy.httpsProxy"
+	keyTrivyNoProxy                = "trivy.noProxy"
 	// nolint:gosec // This is not a secret, but a configuration value.
 	keyTrivyGitHubToken          = "trivy.githubToken"
 	keyTrivySkipFiles            = "trivy.skipFiles"
@@ -123,8 +125,26 @@ func (c Config) GetMode() (Mode, error) {
 		value, keyTrivyMode, Standalone, ClientServer)
 }
 
-func (c Config) GetVulnerabilityGetAllLinks() bool {
-	val, ok := c.Data[keyTrivyVulneraibilityGetAllLinks]
+func (c Config) GetVulnShowDescription() bool {
+	val, ok := c.Data[keyTrivyVulnShowDescription]
+	if !ok {
+		return false
+	}
+	boolVal, _ := strconv.ParseBool(val)
+	return boolVal
+}
+
+func (c Config) GetVulnShowLinks() bool {
+	val, ok := c.Data[keyTrivyVulnShowLinks]
+	if !ok {
+		return false
+	}
+	boolVal, _ := strconv.ParseBool(val)
+	return boolVal
+}
+
+func (c Config) GetVulnShowVector() bool {
+	val, ok := c.Data[keyTrivyVulnShowVector]
 	if !ok {
 		return false
 	}
@@ -317,7 +337,9 @@ func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 			keyTrivyImageRef:                  "ghcr.io/aquasecurity/trivy:0.30.0",
 			keyTrivySeverity:                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
 			keyTrivyMode:                      string(Standalone),
-			keyTrivyVulneraibilityGetAllLinks: "false",
+			keyTrivyVulnShowDescription:       "false",
+			keyTrivyVulnShowLinks:             "false",
+			keyTrivyVulnShowVector:            "false",
 			keyTrivyTimeout:                   "5m0s",
 			keyTrivyDBRepository:              defaultDBRepository,
 			keyTrivyUseBuiltinRegoPolicies:    "true",
@@ -1366,10 +1388,12 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
 	secrets := make([]v1alpha1.ExposedSecret, 0)
 
-	getAllLinks := config.GetVulnerabilityGetAllLinks()
+	vulnShowDescription := config.GetVulnShowDescription()
+	vulnShowLinks := config.GetVulnShowLinks()
+	vulnShowVector := config.GetVulnShowVector()
 
 	for _, report := range reports.Results {
-		vulnerabilities = append(vulnerabilities, getVulnerabilitiesFromScanResult(report, getAllLinks)...)
+		vulnerabilities = append(vulnerabilities, getVulnerabilitiesFromScanResult(report, vulnShowDescription, vulnShowLinks, vulnShowVector)...)
 		secrets = append(secrets, getExposedSecretsFromScanResult(report)...)
 	}
 
@@ -1414,13 +1438,24 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 
 }
 
-func getVulnerabilitiesFromScanResult(report ScanResult, getAllLinks bool) []v1alpha1.Vulnerability {
+func getVulnerabilitiesFromScanResult(report ScanResult, showDescription, showLinks, showVector bool) []v1alpha1.Vulnerability {
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
 
 	for _, sr := range report.Vulnerabilities {
+		description := ""
 		links := []string{}
-		if getAllLinks {
+		vector := ""
+
+		if showDescription {
+			description = sr.Description
+		}
+
+		if showLinks {
 			links = sr.References
+		}
+
+		if showVector {
+			vector = GetVectorFromCVSS(sr.Cvss)
 		}
 
 		vulnerabilities = append(vulnerabilities, v1alpha1.Vulnerability{
@@ -1430,11 +1465,11 @@ func getVulnerabilitiesFromScanResult(report ScanResult, getAllLinks bool) []v1a
 			FixedVersion:     sr.FixedVersion,
 			Severity:         sr.Severity,
 			Title:            sr.Title,
-			Description:      sr.Description,
+			Description:      description,
 			PrimaryLink:      sr.PrimaryURL,
 			Links:            links,
 			Score:            GetScoreFromCVSS(sr.Cvss),
-			Vector:           GetVectorFromCVSS(sr.Cvss),
+			Vector:           vector,
 			Target:           report.Target,
 		})
 	}

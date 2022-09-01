@@ -1203,6 +1203,9 @@ metadata:
 data:
   trivy.imageRef: "ghcr.io/aquasecurity/trivy:0.30.0"
   trivy.mode: "Standalone"
+  trivy.vulnShowDescription: "false"
+  trivy.vulnShowLinks: "false"
+  trivy.vulnShowVector: "false"
   trivy.severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
   trivy.dbRepository: "ghcr.io/aquasecurity/trivy-db"
   trivy.command: "image"

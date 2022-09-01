@@ -56,7 +56,9 @@ metadata:
 data:
   trivy.imageRef: {{ required ".Values.trivy.imageRef is required" .imageRef | quote }}
   trivy.mode: {{ .mode | quote }}
-  trivy.vulnerabilityGetAllLinks: {{ .vulnerabilityGetAllLinks | quote }}
+  trivy.vulnShowDescription: {{ .vulnShowDescription | quote }}
+  trivy.vulnShowLinks: {{ .vulnShowLinks | quote }}
+  trivy.vulnShowVector: {{ .vulnShowVector | quote }}
   {{- if .httpProxy }}
   trivy.httpProxy: {{ .httpProxy | quote }}
   {{- end }}

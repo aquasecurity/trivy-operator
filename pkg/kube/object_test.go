@@ -802,6 +802,95 @@ func TestObjectRefFromObjectMeta(t *testing.T) {
 
 }
 
+func TestGetActivePodsMatchingLabels(t *testing.T) {
+	nginxReplicaSet := &appsv1.ReplicaSet{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "apps/v1",
+			Kind:       "ReplicaSet",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: corev1.NamespaceDefault,
+			Name:      "nginx-6d4cf56db6",
+			Labels: map[string]string{
+				"app":               "nginx",
+				"pod-template-hash": "6d4cf56db6",
+			},
+			Annotations: map[string]string{
+				"deployment.kubernetes.io/desired-replicas": "1",
+				"deployment.kubernetes.io/max-replicas":     "4",
+				"deployment.kubernetes.io/revision":         "1",
+			},
+			UID: "ecfff877-784c-4f05-8b70-abe441ca1976",
+			OwnerReferences: []metav1.OwnerReference{
+				{
+					APIVersion:         "apps/v1",
+					Kind:               "Deployment",
+					Name:               "nginx",
+					UID:                "734c1370-2281-4946-9b5f-940b33f3e4b8",
+					Controller:         pointer.BoolPtr(true),
+					BlockOwnerDeletion: pointer.BoolPtr(true),
+				},
+			},
+		},
+		Spec: appsv1.ReplicaSetSpec{
+			Replicas: pointer.Int32(1),
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{
+					"app":               "nginx",
+					"pod-template-hash": "6d4cf56db6",
+				},
+			},
+		},
+	}
+	nginxPod := &corev1.Pod{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "v1",
+			Kind:       "Pod",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: corev1.NamespaceDefault,
+			Name:      "nginx-6d4cf56db6-4kw2v",
+			Labels: map[string]string{
+				"app":               "nginx",
+				"pod-template-hash": "6d4cf56db6",
+			},
+			UID: "44ca7a2a-29c5-4510-b503-0218bc9d3308",
+			OwnerReferences: []metav1.OwnerReference{
+				{
+					APIVersion:         "apps/v1",
+					Kind:               "ReplicaSet",
+					Name:               "nginx-6d4cf56db6",
+					UID:                "ecfff877-784c-4f05-8b70-abe441ca1976",
+					Controller:         pointer.BoolPtr(true),
+					BlockOwnerDeletion: pointer.BoolPtr(true),
+				},
+			},
+		},
+	}
+
+	testClient := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(
+		nginxReplicaSet,
+		nginxPod,
+	).Build()
+
+	t.Run("found active pods", func(t *testing.T) {
+		ctx := context.TODO()
+		or := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
+		pods, err := or.GetActivePodsMatchingLabels(ctx, nginxReplicaSet.Namespace, nginxReplicaSet.GetLabels())
+		assert.NoError(t, err)
+		assert.Equal(t, len(pods), 1)
+	})
+	t.Run("active pods not found", func(t *testing.T) {
+		ctx := context.TODO()
+		or := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
+		pods, err := or.GetActivePodsMatchingLabels(ctx, nginxReplicaSet.Namespace, map[string]string{
+			"app":               "nginx",
+			"pod-template-hash": "6d4cf56db5"})
+		assert.Equal(t, err, kube.ErrNoRunningPods)
+		assert.Equal(t, len(pods), 0)
+	})
+}
+
 func TestObjectResolver_ReportOwner(t *testing.T) {
 	nginxDeploy := &appsv1.Deployment{
 		TypeMeta: metav1.TypeMeta{

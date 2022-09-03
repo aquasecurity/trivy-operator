@@ -1,6 +1,7 @@
 package trivy
 
 import (
+	"github.com/aquasecurity/trivy-db/pkg/types"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 )
 
@@ -21,18 +22,17 @@ type Vulnerability struct {
 	FixedVersion     string            `json:"FixedVersion"`
 	Title            string            `json:"Title"`
 	Description      string            `json:"Description"`
-	CVSSSource       string            `json:"CVSSSource"`
 	Severity         v1alpha1.Severity `json:"Severity"`
 	Layer            Layer             `json:"Layer"`
 	PrimaryURL       string            `json:"PrimaryURL"`
 	References       []string          `json:"References"`
-	Cvss             map[string]*CVSS  `json:"CVSS"`
+	CvssScore        map[string]*CVSS  `json:"CVSSScore"`
+	CVSS             types.VendorCVSS  `json:"CVSS"`
 	Target           string            `json:"Target"`
 }
 
 type CVSS struct {
-	V3Score  *float64 `json:"V3Score,omitempty"`
-	V3Vector string   `json:"V3Vector,omitempty"`
+	V3Score *float64 `json:"V3Score,omitempty"`
 }
 
 type Layer struct {

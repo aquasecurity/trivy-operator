@@ -6,6 +6,7 @@
 package v1alpha1
 
 import (
+	"github.com/aquasecurity/trivy-db/pkg/types"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -874,6 +875,13 @@ func (in *Vulnerability) DeepCopyInto(out *Vulnerability) {
 		in, out := &in.Score, &out.Score
 		*out = new(float64)
 		**out = **in
+	}
+	if in.CVSS != nil {
+		in, out := &in.CVSS, &out.CVSS
+		*out = make(types.VendorCVSS, len(*in))
+		for key, val := range *in {
+			(*out)[key] = val
+		}
 	}
 }
 

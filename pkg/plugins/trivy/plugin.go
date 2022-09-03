@@ -39,23 +39,20 @@ const (
 )
 
 const (
-	keyTrivyImageRef               = "trivy.imageRef"
-	keyTrivyMode                   = "trivy.mode"
-	keyTrivyVulnShowDescription    = "trivy.vulnShowDescription"
-	keyTrivyVulnShowLinks          = "trivy.vulnShowLinks"
-	keyTrivyVulnShowVector         = "trivy.vulnShowVector"
-	keyTrivyVulnShowAllCVSS        = "trivy.vulnShowAllCVSS"
-	keyTrivyCommand                = "trivy.command"
-	keyTrivySeverity               = "trivy.severity"
-	keyTrivyIgnoreUnfixed          = "trivy.ignoreUnfixed"
-	keyTrivyTimeout                = "trivy.timeout"
-	keyTrivyIgnoreFile             = "trivy.ignoreFile"
-	keyTrivyInsecureRegistryPrefix = "trivy.insecureRegistry."
-	keyTrivyNonSslRegistryPrefix   = "trivy.nonSslRegistry."
-	keyTrivyMirrorPrefix           = "trivy.registry.mirror."
-	keyTrivyHTTPProxy              = "trivy.httpProxy"
-	keyTrivyHTTPSProxy             = "trivy.httpsProxy"
-	keyTrivyNoProxy                = "trivy.noProxy"
+	keyTrivyImageRef                            = "trivy.imageRef"
+	keyTrivyMode                                = "trivy.mode"
+	keyTrivyAdditionalVulnerabilityReportFields = "trivy.additionalVulnerabilityReportFields"
+	keyTrivyCommand                             = "trivy.command"
+	keyTrivySeverity                            = "trivy.severity"
+	keyTrivyIgnoreUnfixed                       = "trivy.ignoreUnfixed"
+	keyTrivyTimeout                             = "trivy.timeout"
+	keyTrivyIgnoreFile                          = "trivy.ignoreFile"
+	keyTrivyInsecureRegistryPrefix              = "trivy.insecureRegistry."
+	keyTrivyNonSslRegistryPrefix                = "trivy.nonSslRegistry."
+	keyTrivyMirrorPrefix                        = "trivy.registry.mirror."
+	keyTrivyHTTPProxy                           = "trivy.httpProxy"
+	keyTrivyHTTPSProxy                          = "trivy.httpsProxy"
+	keyTrivyNoProxy                             = "trivy.noProxy"
 	// nolint:gosec // This is not a secret, but a configuration value.
 	keyTrivyGitHubToken          = "trivy.githubToken"
 	keyTrivySkipFiles            = "trivy.skipFiles"
@@ -98,9 +95,38 @@ const (
 	Image      Command = "image"
 )
 
+type AdditionalFields struct {
+	Description bool
+	Links       bool
+	CVSS        bool
+}
+
 // Config defines configuration params for this plugin.
 type Config struct {
 	trivyoperator.PluginConfig
+}
+
+func (c Config) GetAdditionalVulnerabilityReportFields() AdditionalFields {
+	addFields := AdditionalFields{}
+
+	fields, ok := c.Data[keyTrivyAdditionalVulnerabilityReportFields]
+	if !ok {
+		return addFields
+	}
+
+	for _, field := range strings.Split(fields, ",") {
+		if field == "Description" {
+			addFields.Description = true
+		}
+		if field == "Links" {
+			addFields.Links = true
+		}
+		if field == "CVSS" {
+			addFields.CVSS = true
+		}
+	}
+
+	return addFields
 }
 
 // GetImageRef returns upstream Trivy container image reference.
@@ -124,42 +150,6 @@ func (c Config) GetMode() (Mode, error) {
 
 	return "", fmt.Errorf("invalid value (%s) of %s; allowed values (%s, %s)",
 		value, keyTrivyMode, Standalone, ClientServer)
-}
-
-func (c Config) GetVulnShowDescription() bool {
-	val, ok := c.Data[keyTrivyVulnShowDescription]
-	if !ok {
-		return false
-	}
-	boolVal, _ := strconv.ParseBool(val)
-	return boolVal
-}
-
-func (c Config) GetVulnShowLinks() bool {
-	val, ok := c.Data[keyTrivyVulnShowLinks]
-	if !ok {
-		return false
-	}
-	boolVal, _ := strconv.ParseBool(val)
-	return boolVal
-}
-
-func (c Config) GetVulnShowVector() bool {
-	val, ok := c.Data[keyTrivyVulnShowVector]
-	if !ok {
-		return false
-	}
-	boolVal, _ := strconv.ParseBool(val)
-	return boolVal
-}
-
-func (c Config) GetVulnShowAllCVSS() bool {
-	val, ok := c.Data[keyTrivyVulnShowAllCVSS]
-	if !ok {
-		return false
-	}
-	boolVal, _ := strconv.ParseBool(val)
-	return boolVal
 }
 
 func (c Config) GetCommand() (Command, error) {
@@ -344,13 +334,10 @@ func NewTrivyConfigAuditPlugin(clock ext.Clock, idGenerator ext.IDGenerator, obj
 func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 	return ctx.EnsureConfig(trivyoperator.PluginConfig{
 		Data: map[string]string{
-			keyTrivyImageRef:                  "ghcr.io/aquasecurity/trivy:0.30.0",
-			keyTrivySeverity:                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
-			keyTrivyMode:                      string(Standalone),
-			keyTrivyVulnShowDescription:       "false",
-			keyTrivyVulnShowLinks:             "false",
-			keyTrivyVulnShowVector:            "false",
-			keyTrivyVulnShowAllCVSS:           "false",
+			keyTrivyImageRef: "ghcr.io/aquasecurity/trivy:0.30.0",
+			keyTrivySeverity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
+			keyTrivyMode:     string(Standalone),
+			keyTrivyAdditionalVulnerabilityReportFields: "",
 			keyTrivyTimeout:                   "5m0s",
 			keyTrivyDBRepository:              defaultDBRepository,
 			keyTrivyUseBuiltinRegoPolicies:    "true",
@@ -1399,13 +1386,10 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
 	secrets := make([]v1alpha1.ExposedSecret, 0)
 
-	vulnShowDescription := config.GetVulnShowDescription()
-	vulnShowLinks := config.GetVulnShowLinks()
-	vulnShowVector := config.GetVulnShowVector()
-	vulnShowAllCVSS := config.GetVulnShowAllCVSS()
+	addFields := config.GetAdditionalVulnerabilityReportFields()
 
 	for _, report := range reports.Results {
-		vulnerabilities = append(vulnerabilities, getVulnerabilitiesFromScanResult(report, vulnShowAllCVSS, vulnShowDescription, vulnShowLinks, vulnShowVector)...)
+		vulnerabilities = append(vulnerabilities, getVulnerabilitiesFromScanResult(report, addFields)...)
 		secrets = append(secrets, getExposedSecretsFromScanResult(report)...)
 	}
 
@@ -1450,66 +1434,34 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 
 }
 
-func getVulnerabilitiesFromScanResult(report ScanResult, showAllCVSS, showDescription, showLinks, showVector bool) []v1alpha1.Vulnerability {
+func getVulnerabilitiesFromScanResult(report ScanResult, addFields AdditionalFields) []v1alpha1.Vulnerability {
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
 
 	for _, sr := range report.Vulnerabilities {
-		description := ""
-		links := []string{}
-		vector := ""
-
-		if showDescription {
-			description = sr.Description
-		}
-
-		if showLinks {
-			links = sr.References
-		}
-
-		if showVector {
-			vector = GetVectorFromCVSS(sr.Cvss)
-		}
-
-		// Common part for all cases
 		vulnerability := v1alpha1.Vulnerability{
 			VulnerabilityID:  sr.VulnerabilityID,
 			Resource:         sr.PkgName,
 			InstalledVersion: sr.InstalledVersion,
 			FixedVersion:     sr.FixedVersion,
+			Severity:         sr.Severity,
 			Title:            sr.Title,
-			Description:      description,
 			PrimaryLink:      sr.PrimaryURL,
-			Links:            links,
-			Target:           report.Target,
+			Links:            []string{},
+			Score:            GetScoreFromCVSS(sr.CvssScore),
+			Target:           sr.Target,
 		}
 
-		// now it depends: if we want all of CVSS Sources we need to loop through it
-		if showAllCVSS {
-			// NVD and Vendors has CVSS, but GHSA do not
-			if sr.Cvss != nil {
-				for name, cvss := range sr.Cvss {
-					vulnerability.Severity = GetSeverityFromCVSSScore(*cvss.V3Score)
-					vulnerability.CVSSSource = name
-					vulnerability.Score = cvss.V3Score
-					vulnerability.Vector = cvss.V3Vector
-
-					vulnerabilities = append(vulnerabilities, vulnerability)
-				}
-			} else {
-				// for GHSA. There is no Score and Vector
-				vulnerability.Severity = sr.Severity
-
-				vulnerabilities = append(vulnerabilities, vulnerability)
-			}
-
-		} else {
-			vulnerability.Severity = sr.Severity
-			vulnerability.CVSSSource = GetNameFromCVSS(sr.Cvss)
-			vulnerability.Score = GetScoreFromCVSS(sr.Cvss)
-			vulnerability.Vector = vector
-
-			vulnerabilities = append(vulnerabilities, vulnerability)
+		if addFields.Description {
+			vulnerability.Description = sr.Description
 		}
+		if addFields.Links {
+			vulnerability.Links = sr.References
+		}
+		if addFields.CVSS {
+			vulnerability.CVSS = sr.CVSS
+		}
+
+		vulnerabilities = append(vulnerabilities, vulnerability)
 	}
 
 	return vulnerabilities
@@ -1605,22 +1557,6 @@ func (p *plugin) parseImageRef(imageRef string) (v1alpha1.Registry, v1alpha1.Art
 	return registry, artifact, nil
 }
 
-func GetSeverityFromCVSSScore(cvssScore float64) v1alpha1.Severity {
-	switch {
-	case 0.1 <= cvssScore && cvssScore <= 3.9:
-		return v1alpha1.SeverityLow
-	case 4.0 <= cvssScore && cvssScore <= 6.9:
-		return v1alpha1.SeverityMedium
-	case 7.0 <= cvssScore && cvssScore <= 8.9:
-		return v1alpha1.SeverityHigh
-	case 9.0 <= cvssScore && cvssScore <= 10.0:
-		return v1alpha1.SeverityCritical
-	default:
-		return v1alpha1.SeverityUnknown
-	}
-
-}
-
 func GetScoreFromCVSS(CVSSs map[string]*CVSS) *float64 {
 	var nvdScore, vendorScore *float64
 
@@ -1637,24 +1573,6 @@ func GetScoreFromCVSS(CVSSs map[string]*CVSS) *float64 {
 	}
 
 	return nvdScore
-}
-
-func GetVectorFromCVSS(CVSSs map[string]*CVSS) string {
-	var nvdVector, vendorVector string
-
-	for name, cvss := range CVSSs {
-		if name == "nvd" {
-			nvdVector = cvss.V3Vector
-		} else {
-			vendorVector = cvss.V3Vector
-		}
-	}
-
-	if len(vendorVector) > 0 {
-		return vendorVector
-	}
-
-	return nvdVector
 }
 
 func GetNameFromCVSS(CVSSs map[string]*CVSS) string {

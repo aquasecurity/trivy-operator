@@ -151,15 +151,10 @@ trivy:
   # on the active mode other settings might be applicable or required.
   mode: Standalone
 
-  # vulnShowDescription the flag to show Description of the vulnerability
-  vulnShowDescription: false
-  # vulnShowLinks the flag to store all links associated with CVE that was found in image
-  vulnShowLinks: false
-  # vulnShowVector the flag to show CVSS Vector of the vulnerability
-  vulnShowVector: false
-  # vulnShowAllCVSS the flag to show all results available for CVE (NVD, Vendor, GHSA, etc)
-  vulnShowAllCVSS: false
-  
+  # additionalVulnerabilityReportFields is a comma separated list of additional fields which
+  # can be added to the VulnerabilityReport. Supported parameters: Description, Links, CVSS
+  additionalVulnerabilityReportFields: ""
+
   # httpProxy is the HTTP proxy used by Trivy to download the vulnerabilities database from GitHub.
   #
   # httpProxy:

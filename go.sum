@@ -129,8 +129,8 @@ github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kd
 github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20210826220005-b48c857c3a0e/go.mod h1:F7bn7fEU90QkQ3tnmaTx3LTKLEDqnwWODIYppRQ5hnY=
 github.com/apparentlymart/go-textseg/v13 v13.0.0 h1:Y+KvPE1NYz0xl601PVImeQfFyEy6iT90AvPUL1NNfNw=
 github.com/apparentlymart/go-textseg/v13 v13.0.0/go.mod h1:ZK2fH7c4NqDTLtiYLvIkEghdlcqw7yxLeM89kiTRPUo=
-github.com/aquasecurity/defsec v0.72.3 h1:jmq0GeG2nWFouyN7uKjlmPK1da2jOPq003cxaM3hyW4=
-github.com/aquasecurity/defsec v0.72.3/go.mod h1:2jYgkIi3UFbkrbtpnr3Cu49JZ3MGuLMJAhyh63jV1I4=
+github.com/aquasecurity/defsec v0.73.0 h1:ewu4MtOHGkUJ4Ax2K8WAtj+AB5po2bB/DeqIwUZfOaQ=
+github.com/aquasecurity/defsec v0.73.0/go.mod h1:2jYgkIi3UFbkrbtpnr3Cu49JZ3MGuLMJAhyh63jV1I4=
 github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0 h1:jfIu9sQUG6Ig+0+Ap1h4unLjW6YQJpKZVmUzxsD4E/Q=
 github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0/go.mod h1:t2tdKJDJF9BV14lnkjHmOQgcvEKgtqs5a1N3LNdJhGE=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=

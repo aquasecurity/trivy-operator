@@ -348,7 +348,7 @@ func TestConfigData_GetScanContainerSecurityContext(t *testing.T) {
 				"scanJob.podTemplateContainerSecurityContext": "foo",
 			},
 			expected:    nil,
-			expectError: "failed parsing incorrectly formatted custom scan pod template securityContext: foo",
+			expectError: "failed parsing incorrectly formatted custom scan container template securityContext: foo",
 		},
 	}
 

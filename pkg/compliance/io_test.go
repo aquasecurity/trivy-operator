@@ -1,8 +1,6 @@
 package compliance
 
 import (
-	"fmt"
-
 	"github.com/stretchr/testify/assert"
 
 	//"github.com/stretchr/testify/assert"
@@ -145,7 +143,6 @@ func TestCheckIdsToResults(t *testing.T) {
 			if err != nil {
 				t.Error(err)
 			}
-			fmt.Println(cct)
 			assert.True(t, reflect.DeepEqual(cct, tt.wantResult))
 		})
 	}

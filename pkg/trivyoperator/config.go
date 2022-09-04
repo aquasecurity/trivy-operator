@@ -174,13 +174,13 @@ func (c ConfigData) GetScanJobContainerSecurityContext() (*corev1.SecurityContex
 		return nil, nil
 	}
 
-	scanJobSecurityContext := &corev1.SecurityContext{}
-	err := json.Unmarshal([]byte(c[KeyScanJobContainerSecurityContext]), scanJobSecurityContext)
+	scanJobContainerSecurityContext := &corev1.SecurityContext{}
+	err := json.Unmarshal([]byte(c[KeyScanJobContainerSecurityContext]), scanJobContainerSecurityContext)
 	if err != nil {
-		return nil, fmt.Errorf("failed parsing incorrectly formatted custom scan pod template securityContext: %s", c[KeyScanJobContainerSecurityContext])
+		return nil, fmt.Errorf("failed parsing incorrectly formatted custom scan container template securityContext: %s", c[KeyScanJobContainerSecurityContext])
 	}
 
-	return scanJobSecurityContext, nil
+	return scanJobContainerSecurityContext, nil
 }
 
 func (c ConfigData) GetScanJobAnnotations() (map[string]string, error) {

@@ -6,6 +6,7 @@ import (
 
 	"context"
 
+	"github.com/aquasecurity/trivy-operator/pkg/config"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -16,11 +17,14 @@ import (
 
 var _ = Describe("LimitChecker", func() {
 
-	config := etc.Config{
+	etcConfig := etc.Config{
 		Namespace:               "trivy-operator",
 		ConcurrentScanJobsLimit: 2,
 	}
+
 	defaultTrivyOperatorConfig := trivyoperator.GetDefaultConfig()
+
+	cfg := config.GetConfig(etcConfig, defaultTrivyOperatorConfig)
 
 	Context("When there are more jobs than limit", func() {
 
@@ -54,7 +58,7 @@ var _ = Describe("LimitChecker", func() {
 				}},
 			).Build()
 
-			instance := jobs.NewLimitChecker(config, client, defaultTrivyOperatorConfig)
+			instance := jobs.NewLimitChecker(cfg, client)
 			limitExceeded, jobsCount, err := instance.Check(context.TODO())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(limitExceeded).To(BeTrue())
@@ -80,7 +84,7 @@ var _ = Describe("LimitChecker", func() {
 				}},
 			).Build()
 
-			instance := jobs.NewLimitChecker(config, client, defaultTrivyOperatorConfig)
+			instance := jobs.NewLimitChecker(cfg, client)
 			limitExceeded, jobsCount, err := instance.Check(context.TODO())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(limitExceeded).To(BeFalse())
@@ -119,9 +123,13 @@ var _ = Describe("LimitChecker", func() {
 					},
 				}},
 			).Build()
+
 			trivyOperatorConfig := defaultTrivyOperatorConfig
 			trivyOperatorConfig[trivyoperator.KeyVulnerabilityScansInSameNamespace] = "true"
-			instance := jobs.NewLimitChecker(config, client, trivyOperatorConfig)
+
+			cfg = config.GetConfig(etcConfig, trivyOperatorConfig)
+
+			instance := jobs.NewLimitChecker(cfg, client)
 			limitExceeded, jobsCount, err := instance.Check(context.TODO())
 			Expect(err).ToNot(HaveOccurred())
 			Expect(limitExceeded).To(BeTrue())

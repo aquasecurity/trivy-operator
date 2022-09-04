@@ -1,18 +1,21 @@
 package plugins
 
 import (
+	"github.com/aquasecurity/trivy-operator/pkg/config"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/pluginconfig"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
+
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type Resolver struct {
 	buildInfo          trivyoperator.BuildInfo
-	config             trivyoperator.ConfigData
+	cfg                config.Config
 	namespace          string
 	serviceAccountName string
 	client             client.Client
@@ -28,8 +31,8 @@ func (r *Resolver) WithBuildInfo(buildInfo trivyoperator.BuildInfo) *Resolver {
 	return r
 }
 
-func (r *Resolver) WithConfig(config trivyoperator.ConfigData) *Resolver {
-	r.config = config
+func (r *Resolver) WithConfig(cfg config.Config) *Resolver {
+	r.cfg = cfg
 	return r
 }
 
@@ -58,36 +61,36 @@ func (r *Resolver) WithObjectResolver(objectResolver *kube.ObjectResolver) *Reso
 // mode.
 //
 // You could add your own scanner by implementing the vulnerabilityreport.Plugin interface.
-func (r *Resolver) GetVulnerabilityPlugin() (vulnerabilityreport.Plugin, trivyoperator.PluginContext, error) {
-	scanner, err := r.config.GetVulnerabilityReportsScanner()
+func (r *Resolver) GetVulnerabilityPlugin() (vulnerabilityreport.Plugin, pluginconfig.PluginContext, error) {
+	scanner, err := r.cfg.GetVulnerabilityReportsScanner()
 	if err != nil {
 		return nil, nil, err
 	}
 
-	pluginContext := trivyoperator.NewPluginContext().
+	pluginContext := pluginconfig.NewPluginContext().
 		WithName(string(scanner)).
 		WithClient(r.client).
 		WithNamespace(r.namespace).
 		WithServiceAccountName(r.serviceAccountName).
-		WithTrivyOperatorConfig(r.config).
+		WithTrivyOperatorConfig(r.cfg).
 		Get()
 
 	return trivy.NewPlugin(ext.NewSystemClock(), ext.NewGoogleUUIDGenerator(), r.objectResolver), pluginContext, nil
 }
 
 // GetConfigAuditPlugin is a factory method that instantiates the configauditreport.Plugin.
-func (r *Resolver) GetConfigAuditPlugin() (configauditreport.PluginInMemory, trivyoperator.PluginContext, error) {
-	scanner, err := r.config.GetConfigAuditReportsScanner()
+func (r *Resolver) GetConfigAuditPlugin() (configauditreport.PluginInMemory, pluginconfig.PluginContext, error) {
+	scanner, err := r.cfg.GetConfigAuditReportsScanner()
 	if err != nil {
 		return nil, nil, err
 	}
 
-	pluginContext := trivyoperator.NewPluginContext().
+	pluginContext := pluginconfig.NewPluginContext().
 		WithName(string(scanner)).
 		WithClient(r.client).
 		WithNamespace(r.namespace).
 		WithServiceAccountName(r.serviceAccountName).
-		WithTrivyOperatorConfig(r.config).
+		WithTrivyOperatorConfig(r.cfg).
 		Get()
 
 	return trivy.NewTrivyConfigAuditPlugin(ext.NewSystemClock(), ext.NewGoogleUUIDGenerator(), r.objectResolver), pluginContext, nil

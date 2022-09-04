@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+
 	containerimage "github.com/google/go-containerregistry/pkg/name"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -73,7 +74,6 @@ type ConfigData map[string]string
 type ConfigManager interface {
 	EnsureDefault(ctx context.Context) error
 	Read(ctx context.Context) (ConfigData, error)
-	Delete(ctx context.Context) error
 }
 
 // GetDefaultConfig returns the default configuration settings.
@@ -344,22 +344,6 @@ func (c *configManager) Read(ctx context.Context) (ConfigData, error) {
 	}
 
 	return data, nil
-}
-
-func (c *configManager) Delete(ctx context.Context) error {
-	err := c.client.CoreV1().ConfigMaps(c.namespace).Delete(ctx, ConfigMapName, metav1.DeleteOptions{})
-	if err != nil && !apierrors.IsNotFound(err) {
-		return err
-	}
-	err = c.client.CoreV1().ConfigMaps(c.namespace).Delete(ctx, GetPluginConfigMapName("Trivy"), metav1.DeleteOptions{})
-	if err != nil && !apierrors.IsNotFound(err) {
-		return err
-	}
-	err = c.client.CoreV1().Secrets(c.namespace).Delete(ctx, SecretName, metav1.DeleteOptions{})
-	if err != nil && !apierrors.IsNotFound(err) {
-		return err
-	}
-	return nil
 }
 
 // LinuxNodeAffinity constructs a new Affinity resource with linux supported nodes.

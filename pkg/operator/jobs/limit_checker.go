@@ -3,7 +3,7 @@ package jobs
 import (
 	"context"
 
-	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/config"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	batchv1 "k8s.io/api/batch/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -13,18 +13,16 @@ type LimitChecker interface {
 	Check(ctx context.Context) (bool, int, error)
 }
 
-func NewLimitChecker(config etc.Config, c client.Client, trivyOperatorConfig trivyoperator.ConfigData) LimitChecker {
+func NewLimitChecker(cfg config.Config, c client.Client) LimitChecker {
 	return &checker{
-		config:              config,
-		client:              c,
-		trivyOperatorConfig: trivyOperatorConfig,
+		cfg:    cfg,
+		client: c,
 	}
 }
 
 type checker struct {
-	config              etc.Config
-	client              client.Client
-	trivyOperatorConfig trivyoperator.ConfigData
+	cfg    config.Config
+	client client.Client
 }
 
 func (c *checker) Check(ctx context.Context) (bool, int, error) {
@@ -33,7 +31,7 @@ func (c *checker) Check(ctx context.Context) (bool, int, error) {
 		return false, 0, err
 	}
 
-	return scanJobsCount >= c.config.ConcurrentScanJobsLimit, scanJobsCount, nil
+	return scanJobsCount >= c.cfg.ConcurrentScanJobsLimit(), scanJobsCount, nil
 }
 
 func (c *checker) countScanJobs(ctx context.Context) (int, error) {
@@ -41,9 +39,9 @@ func (c *checker) countScanJobs(ctx context.Context) (int, error) {
 	listOptions := []client.ListOption{client.MatchingLabels{
 		trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
 	}}
-	if !c.trivyOperatorConfig.VulnerabilityScanJobsInSameNamespace() {
+	if !c.cfg.VulnerabilityScanJobsInSameNamespace() {
 		// scan jobs are running in only trivyoperator operator namespace
-		listOptions = append(listOptions, client.InNamespace(c.config.Namespace))
+		listOptions = append(listOptions, client.InNamespace(c.cfg.Namespace()))
 	}
 	err := c.client.List(ctx, &scanJobs, listOptions...)
 	if err != nil {

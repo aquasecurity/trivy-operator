@@ -1,9 +1,11 @@
-package trivyoperator
+package pluginconfig
 
 import (
 	"context"
 	"fmt"
 	"strings"
+
+	"github.com/aquasecurity/trivy-operator/pkg/config"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -12,6 +14,9 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
+
+// TODO: this is a dup for now
+const labelK8SAppManagedBy = "app.kubernetes.io/managed-by"
 
 // PluginConfig holds plugin configuration settings.
 type PluginConfig struct {
@@ -37,7 +42,7 @@ type PluginContext interface {
 	// GetConfig returns the PluginConfig object that holds configuration settings of the plugin.
 	GetConfig() (PluginConfig, error)
 	// EnsureConfig ensures the PluginConfig, typically when a plugin is initialized.
-	EnsureConfig(config PluginConfig) error
+	EnsureConfig(cfg PluginConfig) error
 	// GetNamespace return the name of the K8s Namespace where Trivy-operator creates Jobs
 	// and other helper objects.
 	GetNamespace() string
@@ -45,7 +50,7 @@ type PluginContext interface {
 	// created by Trivy-operator.
 	GetServiceAccountName() string
 	// GetTrivyOperatorConfig returns trivyoperator configuration.
-	GetTrivyOperatorConfig() ConfigData
+	GetTrivyOperatorConfig() config.Config
 }
 
 // GetPluginConfigMapName returns the name of a ConfigMap used to configure a plugin
@@ -60,23 +65,23 @@ type pluginContext struct {
 	client              client.Client
 	namespace           string
 	serviceAccountName  string
-	trivyOperatorConfig ConfigData
+	trivyOperatorConfig config.Config
 }
 
 func (p *pluginContext) GetName() string {
 	return p.name
 }
 
-func (p *pluginContext) EnsureConfig(config PluginConfig) error {
+func (p *pluginContext) EnsureConfig(cfg PluginConfig) error {
 	err := p.client.Create(context.Background(), &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: p.namespace,
 			Name:      GetPluginConfigMapName(p.name),
 			Labels: labels.Set{
-				LabelK8SAppManagedBy: "trivyoperator",
+				labelK8SAppManagedBy: "trivyoperator",
 			},
 		},
-		Data: config.Data,
+		Data: cfg.Data,
 	})
 	if err != nil && !errors.IsAlreadyExists(err) {
 		return err
@@ -124,7 +129,7 @@ func (p *pluginContext) GetServiceAccountName() string {
 	return p.serviceAccountName
 }
 
-func (p *pluginContext) GetTrivyOperatorConfig() ConfigData {
+func (p *pluginContext) GetTrivyOperatorConfig() config.Config {
 	return p.trivyOperatorConfig
 }
 
@@ -158,8 +163,8 @@ func (b *PluginContextBuilder) WithServiceAccountName(name string) *PluginContex
 	return b
 }
 
-func (b *PluginContextBuilder) WithTrivyOperatorConfig(config ConfigData) *PluginContextBuilder {
-	b.ctx.trivyOperatorConfig = config
+func (b *PluginContextBuilder) WithTrivyOperatorConfig(cfg config.Config) *PluginContextBuilder {
+	b.ctx.trivyOperatorConfig = cfg
 	return b
 }
 

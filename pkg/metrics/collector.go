@@ -12,7 +12,7 @@ import (
 	k8smetrics "sigs.k8s.io/controller-runtime/pkg/metrics"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/config"
 )
 
 const (
@@ -166,7 +166,7 @@ var (
 // metrics from a dedicated workload supporting sharding etc.
 type ResourcesMetricsCollector struct {
 	logr.Logger
-	etc.Config
+	config.Config
 	client.Client
 }
 

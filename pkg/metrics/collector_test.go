@@ -4,6 +4,9 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/config"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -16,6 +19,12 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 	var collector ResourcesMetricsCollector
 	var client *fake.ClientBuilder
 
+	etcConfig := etc.Config{}
+
+	defaultTrivyOperatorConfig := trivyoperator.GetDefaultConfig()
+
+	cfg := config.GetConfig(etcConfig, defaultTrivyOperatorConfig)
+
 	BeforeEach(func() {
 		scheme := runtime.NewScheme()
 		Expect(v1alpha1.AddToScheme(scheme)).To(Succeed())
@@ -25,6 +34,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 	JustBeforeEach(func() {
 		collector = ResourcesMetricsCollector{
 			Client: client.Build(),
+			Config: cfg,
 		}
 	})
 
@@ -92,7 +102,15 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		})
 
 		It("should produce correct metrics from target namespaces", func() {
-			collector.TargetNamespaces = "default,some-ns"
+			etcConfig := etc.Config{TargetNamespaces: "default,some-ns"}
+			defaultTrivyOperatorConfig := trivyoperator.GetDefaultConfig()
+			cfg := config.GetConfig(etcConfig, defaultTrivyOperatorConfig)
+
+			collector = ResourcesMetricsCollector{
+				Client: client.Build(),
+				Config: cfg,
+			}
+
 			const expected = `
         # HELP trivy_image_vulnerabilities Number of container image vulnerabilities
         # TYPE trivy_image_vulnerabilities gauge
@@ -165,7 +183,15 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		})
 
 		It("should produce correct metrics from target namespaces", func() {
-			collector.TargetNamespaces = "default,some-ns"
+			etcConfig := etc.Config{TargetNamespaces: "default,some-ns"}
+			defaultTrivyOperatorConfig := trivyoperator.GetDefaultConfig()
+			cfg := config.GetConfig(etcConfig, defaultTrivyOperatorConfig)
+
+			collector = ResourcesMetricsCollector{
+				Client: client.Build(),
+				Config: cfg,
+			}
+
 			const expected = `
         # HELP trivy_image_exposedsecrets Number of image exposed secrets
         # TYPE trivy_image_exposedsecrets gauge
@@ -229,7 +255,15 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		})
 
 		It("should produce correct metrics from target namespaces", func() {
-			collector.TargetNamespaces = "default,some-ns"
+			etcConfig := etc.Config{TargetNamespaces: "default,some-ns"}
+			defaultTrivyOperatorConfig := trivyoperator.GetDefaultConfig()
+			cfg := config.GetConfig(etcConfig, defaultTrivyOperatorConfig)
+
+			collector = ResourcesMetricsCollector{
+				Client: client.Build(),
+				Config: cfg,
+			}
+
 			const expected = `
         # HELP trivy_resource_configaudits Number of failing resource configuration auditing checks
         # TYPE trivy_resource_configaudits gauge
@@ -292,7 +326,15 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		})
 
 		It("should produce correct rbac assessment metrics from target namespaces", func() {
-			collector.TargetNamespaces = "default,some-ns"
+			etcConfig := etc.Config{TargetNamespaces: "default,some-ns"}
+			defaultTrivyOperatorConfig := trivyoperator.GetDefaultConfig()
+			cfg := config.GetConfig(etcConfig, defaultTrivyOperatorConfig)
+
+			collector = ResourcesMetricsCollector{
+				Client: client.Build(),
+				Config: cfg,
+			}
+
 			const expected = `
       # HELP trivy_role_rbacassessments Number of rbac risky role assessment checks
       # TYPE trivy_role_rbacassessments gauge
@@ -309,6 +351,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 				To(Succeed())
 		})
 	})
+
 	Context("RbacAssessment", func() {
 		BeforeEach(func() {
 			car1 := &v1alpha1.ClusterRbacAssessmentReport{}

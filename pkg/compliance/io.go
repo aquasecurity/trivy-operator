@@ -3,10 +3,10 @@ package compliance
 import (
 	"context"
 	"fmt"
-	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	"strings"
 
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy-operator/pkg/config"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
@@ -26,18 +26,18 @@ type Mgr interface {
 	GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportSpec) error
 }
 
-func NewMgr(c client.Client, log logr.Logger, config trivyoperator.ConfigData) Mgr {
+func NewMgr(c client.Client, log logr.Logger, cfg config.Config) Mgr {
 	return &cm{
 		client: c,
 		log:    log,
-		config: config,
+		cfg:    cfg,
 	}
 }
 
 type cm struct {
 	client client.Client
 	log    logr.Logger
-	config trivyoperator.ConfigData
+	cfg    config.Config
 }
 
 type summaryTotal struct {
@@ -249,7 +249,7 @@ func (w *cm) createScanCheckResult(results []*ScannerCheckResult) []v1alpha1.Sca
 		var ctt v1alpha1.ScannerCheckResult
 		failedResultEntries := make([]v1alpha1.ResultDetails, 0)
 		for _, crd := range checkResult.Details {
-			if len(failedResultEntries) >= w.config.ComplianceFailEntriesLimit() {
+			if len(failedResultEntries) >= w.cfg.ComplianceFailEntriesLimit() {
 				continue
 			}
 			//control check detail relevant to fail checks only

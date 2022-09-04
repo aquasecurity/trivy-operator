@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/aquasecurity/trivy-operator/pkg/config"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -27,8 +28,8 @@ import (
 // runs scan jobs. However, we do not want to scan the workloads that might run
 // in the operator namespace unless the operator namespace is added to the list
 // of target namespaces.
-var InstallModePredicate = func(config etc.Config) (predicate.Predicate, error) {
-	mode, operatorNamespace, targetNamespaces, err := config.ResolveInstallMode()
+var InstallModePredicate = func(cfg config.Config) (predicate.Predicate, error) {
+	mode, operatorNamespace, targetNamespaces, err := cfg.ResolveInstallMode()
 	if err != nil {
 		return nil, err
 	}
@@ -42,8 +43,8 @@ var InstallModePredicate = func(config etc.Config) (predicate.Predicate, error) 
 			return ext.SliceContainsString(targetNamespaces, obj.GetNamespace())
 		}
 
-		if mode == etc.AllNamespaces && strings.TrimSpace(config.ExcludeNamespaces) != "" {
-			namespaces := strings.Split(config.ExcludeNamespaces, ",")
+		if mode == etc.AllNamespaces && strings.TrimSpace(cfg.ExcludeNamespaces()) != "" {
+			namespaces := strings.Split(cfg.ExcludeNamespaces(), ",")
 			for _, namespace := range namespaces {
 				matches, err := filepath.Match(strings.TrimSpace(namespace), obj.GetNamespace())
 				if err != nil {

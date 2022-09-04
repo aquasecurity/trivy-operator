@@ -10,17 +10,17 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/aquasecurity/trivy-operator/pkg/utils"
-	containerimage "github.com/google/go-containerregistry/pkg/name"
-
-	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
-
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/pluginconfig"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
+
+	containerimage "github.com/google/go-containerregistry/pkg/name"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -96,7 +96,7 @@ const (
 
 // Config defines configuration params for this plugin.
 type Config struct {
-	trivyoperator.PluginConfig
+	pluginconfig.PluginConfig
 }
 
 // GetImageRef returns upstream Trivy container image reference.
@@ -301,8 +301,8 @@ func NewTrivyConfigAuditPlugin(clock ext.Clock, idGenerator ext.IDGenerator, obj
 }
 
 // Init ensures the default Config required by this plugin.
-func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
-	return ctx.EnsureConfig(trivyoperator.PluginConfig{
+func (p *plugin) Init(ctx pluginconfig.PluginContext) error {
+	return ctx.EnsureConfig(pluginconfig.PluginConfig{
 		Data: map[string]string{
 			keyTrivyImageRef:                  "ghcr.io/aquasecurity/trivy:0.30.0",
 			keyTrivySeverity:                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
@@ -319,7 +319,7 @@ func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 	})
 }
 
-func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext) (corev1.PodSpec, []*corev1.Secret, error) {
+func (p *plugin) GetScanJobSpec(ctx pluginconfig.PluginContext, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext) (corev1.PodSpec, []*corev1.Secret, error) {
 	config, err := p.newConfigFrom(ctx)
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
@@ -391,7 +391,7 @@ const (
 //
 //     trivy --cache-dir /tmp/trivy/.cache image --skip-update \
 //       --format json <container image>
-func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext) (corev1.PodSpec, []*corev1.Secret, error) {
+func (p *plugin) getPodSpecForStandaloneMode(ctx pluginconfig.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext) (corev1.PodSpec, []*corev1.Secret, error) {
 	var secret *corev1.Secret
 	var secrets []*corev1.Secret
 
@@ -410,7 +410,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 		return corev1.PodSpec{}, nil, err
 	}
 
-	trivyConfigName := trivyoperator.GetPluginConfigMapName(Plugin)
+	trivyConfigName := pluginconfig.GetPluginConfigMapName(Plugin)
 
 	dbRepository, err := config.GetDBRepository()
 	if err != nil {
@@ -760,7 +760,7 @@ func (p *plugin) initContainerEnvVar(trivyConfigName string, config Config) []co
 //
 //     trivy image --server <server URL> \
 //       --format json <container image>
-func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext) (corev1.PodSpec, []*corev1.Secret, error) {
+func (p *plugin) getPodSpecForClientServerMode(ctx pluginconfig.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext) (corev1.PodSpec, []*corev1.Secret, error) {
 	var secret *corev1.Secret
 	var secrets []*corev1.Secret
 	volumeMounts := make([]corev1.VolumeMount, 0)
@@ -788,7 +788,7 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 
 	var containers []corev1.Container
 
-	trivyConfigName := trivyoperator.GetPluginConfigMapName(Plugin)
+	trivyConfigName := pluginconfig.GetPluginConfigMapName(Plugin)
 	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
 	volumes = append(volumes, getScanResultVolume())
 
@@ -1076,7 +1076,7 @@ func getScanResultVolumeMount() corev1.VolumeMount {
 //
 //     trivy --quiet fs  --format json --ignore-unfixed  file/system/location
 //
-func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Config,
+func (p *plugin) getPodSpecForStandaloneFSMode(ctx pluginconfig.PluginContext, config Config,
 	workload client.Object, securityContext *corev1.SecurityContext) (corev1.PodSpec, []*corev1.Secret, error) {
 	var secrets []*corev1.Secret
 	spec, err := kube.GetPodSpec(workload)
@@ -1101,7 +1101,7 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 		return corev1.PodSpec{}, nil, err
 	}
 
-	trivyConfigName := trivyoperator.GetPluginConfigMapName(Plugin)
+	trivyConfigName := pluginconfig.GetPluginConfigMapName(Plugin)
 
 	dbRepository, err := config.GetDBRepository()
 	if err != nil {
@@ -1328,7 +1328,7 @@ func (p *plugin) appendTrivyNonSSLEnv(config Config, image string, env []corev1.
 	return env, nil
 }
 
-func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef string, logsReader io.ReadCloser) (v1alpha1.VulnerabilityReportData, v1alpha1.ExposedSecretReportData, error) {
+func (p *plugin) ParseReportData(ctx pluginconfig.PluginContext, imageRef string, logsReader io.ReadCloser) (v1alpha1.VulnerabilityReportData, v1alpha1.ExposedSecretReportData, error) {
 	var vulnReport v1alpha1.VulnerabilityReportData
 	var secretReport v1alpha1.ExposedSecretReportData
 
@@ -1439,11 +1439,11 @@ func getExposedSecretsFromScanResult(report ScanResult) []v1alpha1.ExposedSecret
 	return secrets
 }
 
-func (p *plugin) newConfigFrom(ctx trivyoperator.PluginContext) (Config, error) {
+func (p *plugin) newConfigFrom(ctx pluginconfig.PluginContext) (Config, error) {
 	return p.getConfig(ctx)
 }
 
-func (p *plugin) getConfig(ctx trivyoperator.PluginContext) (Config, error) {
+func (p *plugin) getConfig(ctx pluginconfig.PluginContext) (Config, error) {
 	pluginConfig, err := ctx.GetConfig()
 	if err != nil {
 		return Config{}, err
@@ -1452,7 +1452,7 @@ func (p *plugin) getConfig(ctx trivyoperator.PluginContext) (Config, error) {
 }
 
 // NewConfigForConfigAudit and interface which expose related configaudit report configuration
-func (p *plugin) NewConfigForConfigAudit(ctx trivyoperator.PluginContext) (configauditreport.ConfigAuditConfig, error) {
+func (p *plugin) NewConfigForConfigAudit(ctx pluginconfig.PluginContext) (configauditreport.ConfigAuditConfig, error) {
 	return p.getConfig(ctx)
 }
 
@@ -1581,10 +1581,11 @@ func CheckAwsEcrPrivateRegistry(ImageUrl string) string {
 	return ""
 }
 
-func getSecurityChecks(ctx trivyoperator.PluginContext) string {
+func getSecurityChecks(ctx pluginconfig.PluginContext) string {
 	securityChecks := make([]string, 0)
 
 	c := ctx.GetTrivyOperatorConfig()
+
 	if c.VulnerabilityScannerEnabled() {
 		securityChecks = append(securityChecks, "vuln")
 	}

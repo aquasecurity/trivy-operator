@@ -6,8 +6,10 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"github.com/aquasecurity/trivy-operator/pkg/config"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -21,16 +23,21 @@ var _ = Describe("Predicate", func() {
 		Context("When install mode is SingleNamespace", func() {
 			When("and object is in operator namespace", func() {
 				It("Should return false", func() {
-					config := etc.Config{
+					etcConfig := etc.Config{
 						Namespace:        "trivy-operator",
 						TargetNamespaces: "default",
 					}
+
+					defaultTrivyOperatorConfig := trivyoperator.GetDefaultConfig()
+
+					cfg := config.GetConfig(etcConfig, defaultTrivyOperatorConfig)
+
 					obj := &corev1.Pod{
 						ObjectMeta: metav1.ObjectMeta{
 							Namespace: "trivy-operator",
 						},
 					}
-					instance, err := predicate.InstallModePredicate(config)
+					instance, err := predicate.InstallModePredicate(cfg)
 					Expect(err).ToNot(HaveOccurred())
 
 					Expect(instance.Create(event.CreateEvent{Object: obj})).To(BeFalse())
@@ -42,16 +49,21 @@ var _ = Describe("Predicate", func() {
 
 			When("and object is in target namespace", func() {
 				It("Should return true", func() {
-					config := etc.Config{
+					etcConfig := etc.Config{
 						Namespace:        "trivy-operator",
 						TargetNamespaces: "foo",
 					}
+
+					defaultTrivyOperatorConfig := trivyoperator.GetDefaultConfig()
+
+					cfg := config.GetConfig(etcConfig, defaultTrivyOperatorConfig)
+
 					obj := &corev1.Pod{
 						ObjectMeta: metav1.ObjectMeta{
 							Namespace: "foo",
 						},
 					}
-					instance, err := predicate.InstallModePredicate(config)
+					instance, err := predicate.InstallModePredicate(cfg)
 					Expect(err).ToNot(HaveOccurred())
 
 					Expect(instance.Create(event.CreateEvent{Object: obj})).To(BeTrue())
@@ -65,16 +77,21 @@ var _ = Describe("Predicate", func() {
 		Context("When install mode is MultiNamespaces", func() {
 			When("and object is in target namespace", func() {
 				It("Should return true", func() {
-					config := etc.Config{
+					etcConfig := etc.Config{
 						Namespace:        "trivy-operator",
 						TargetNamespaces: "foo,trivy-operator",
 					}
+
+					defaultTrivyOperatorConfig := trivyoperator.GetDefaultConfig()
+
+					cfg := config.GetConfig(etcConfig, defaultTrivyOperatorConfig)
+
 					obj := &corev1.Pod{
 						ObjectMeta: metav1.ObjectMeta{
 							Namespace: "trivy-operator",
 						},
 					}
-					instance, err := predicate.InstallModePredicate(config)
+					instance, err := predicate.InstallModePredicate(cfg)
 					Expect(err).ToNot(HaveOccurred())
 
 					Expect(instance.Create(event.CreateEvent{Object: obj})).To(BeTrue())
@@ -86,16 +103,21 @@ var _ = Describe("Predicate", func() {
 
 			When("and object is not in target namespace", func() {
 				It("Should return false", func() {
-					config := etc.Config{
+					etcConfig := etc.Config{
 						Namespace:        "trivy-operator",
 						TargetNamespaces: "foo,bar",
 					}
+
+					defaultTrivyOperatorConfig := trivyoperator.GetDefaultConfig()
+
+					cfg := config.GetConfig(etcConfig, defaultTrivyOperatorConfig)
+
 					obj := &corev1.Pod{
 						ObjectMeta: metav1.ObjectMeta{
 							Namespace: "trivy-operator",
 						},
 					}
-					instance, err := predicate.InstallModePredicate(config)
+					instance, err := predicate.InstallModePredicate(cfg)
 					Expect(err).ToNot(HaveOccurred())
 
 					Expect(instance.Create(event.CreateEvent{Object: obj})).To(BeFalse())
@@ -109,17 +131,22 @@ var _ = Describe("Predicate", func() {
 		Context("When install mode is AllNamespaces", func() {
 			When("and object is not excluded", func() {
 				It("Should return true", func() {
-					config := etc.Config{
+					etcConfig := etc.Config{
 						Namespace:         "trivy-operator",
 						TargetNamespaces:  "",
 						ExcludeNamespaces: "kube-system",
 					}
+
+					defaultTrivyOperatorConfig := trivyoperator.GetDefaultConfig()
+
+					cfg := config.GetConfig(etcConfig, defaultTrivyOperatorConfig)
+
 					obj := &corev1.Pod{
 						ObjectMeta: metav1.ObjectMeta{
 							Namespace: "default",
 						},
 					}
-					instance, err := predicate.InstallModePredicate(config)
+					instance, err := predicate.InstallModePredicate(cfg)
 					Expect(err).ToNot(HaveOccurred())
 
 					Expect(instance.Create(event.CreateEvent{Object: obj})).To(BeTrue())
@@ -131,17 +158,22 @@ var _ = Describe("Predicate", func() {
 
 			When("and object is excluded", func() {
 				It("Should return false", func() {
-					config := etc.Config{
+					etcConfig := etc.Config{
 						Namespace:         "trivy-operator",
 						TargetNamespaces:  "",
 						ExcludeNamespaces: "kube-system,trivyoperator-system",
 					}
+
+					defaultTrivyOperatorConfig := trivyoperator.GetDefaultConfig()
+
+					cfg := config.GetConfig(etcConfig, defaultTrivyOperatorConfig)
+
 					obj := &corev1.Pod{
 						ObjectMeta: metav1.ObjectMeta{
 							Namespace: "kube-system",
 						},
 					}
-					instance, err := predicate.InstallModePredicate(config)
+					instance, err := predicate.InstallModePredicate(cfg)
 					Expect(err).ToNot(HaveOccurred())
 
 					Expect(instance.Create(event.CreateEvent{Object: obj})).To(BeFalse())
@@ -153,17 +185,22 @@ var _ = Describe("Predicate", func() {
 
 			When("and object is excluded with glob pattern", func() {
 				It("Should return false", func() {
-					config := etc.Config{
+					etcConfig := etc.Config{
 						Namespace:         "trivy-operator",
 						TargetNamespaces:  "",
 						ExcludeNamespaces: "kube-*,trivyoperator-system",
 					}
+
+					defaultTrivyOperatorConfig := trivyoperator.GetDefaultConfig()
+
+					cfg := config.GetConfig(etcConfig, defaultTrivyOperatorConfig)
+
 					obj := &corev1.Pod{
 						ObjectMeta: metav1.ObjectMeta{
 							Namespace: "kube-system",
 						},
 					}
-					instance, err := predicate.InstallModePredicate(config)
+					instance, err := predicate.InstallModePredicate(cfg)
 					Expect(err).ToNot(HaveOccurred())
 
 					Expect(instance.Create(event.CreateEvent{Object: obj})).To(BeFalse())

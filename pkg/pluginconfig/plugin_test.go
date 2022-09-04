@@ -1,9 +1,11 @@
-package trivyoperator_test
+package pluginconfig_test
 
 import (
 	"testing"
 
+	"github.com/aquasecurity/trivy-operator/pkg/pluginconfig"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+
 	"github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -12,7 +14,7 @@ import (
 
 func TestGetPluginConfigMapName(t *testing.T) {
 	g := gomega.NewGomegaWithT(t)
-	name := trivyoperator.GetPluginConfigMapName("Trivy")
+	name := pluginconfig.GetPluginConfigMapName("Trivy")
 	g.Expect(name).To(gomega.Equal("trivy-operator-trivy-config"))
 }
 
@@ -34,7 +36,7 @@ func TestPluginContext_GetConfig(t *testing.T) {
 			}).
 			Build()
 
-		pluginContext := trivyoperator.NewPluginContext().
+		pluginContext := pluginconfig.NewPluginContext().
 			WithName("trivy").
 			WithNamespace("trivyoperator-ns").
 			WithClient(client).
@@ -44,7 +46,7 @@ func TestPluginContext_GetConfig(t *testing.T) {
 
 		g.Expect(err).ToNot(gomega.HaveOccurred())
 		g.Expect(cm).To(gomega.Equal(
-			trivyoperator.PluginConfig{
+			pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"foo": "bar",
 				},
@@ -75,7 +77,7 @@ func TestPluginContext_GetConfig(t *testing.T) {
 			}).
 			Build()
 
-		pluginContext := trivyoperator.NewPluginContext().
+		pluginContext := pluginconfig.NewPluginContext().
 			WithName("trivy").
 			WithNamespace("trivyoperator-ns").
 			WithClient(client).
@@ -85,7 +87,7 @@ func TestPluginContext_GetConfig(t *testing.T) {
 
 		g.Expect(err).ToNot(gomega.HaveOccurred())
 		g.Expect(cm).To(gomega.Equal(
-			trivyoperator.PluginConfig{
+			pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"foo": "bar",
 				},

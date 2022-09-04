@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
+	"github.com/aquasecurity/trivy-operator/pkg/config"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
@@ -35,20 +36,60 @@ var (
 // Start starts all registered reconcilers and blocks until the context is cancelled.
 // Returns an error if there is an error starting any reconciler.
 func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfig etc.Config) error {
-	installMode, operatorNamespace, targetNamespaces, err := operatorConfig.ResolveInstallMode()
+	kubeConfig, err := ctrl.GetConfig()
+	if err != nil {
+		return fmt.Errorf("getting kube client config: %w", err)
+	}
+	// The only reason we're using kubernetes.Clientset is that we need it to read Pod logs,
+	// which is not supported by the client returned by the ctrl.Manager.
+	kubeClientset, err := kubernetes.NewForConfig(kubeConfig)
+	if err != nil {
+		return fmt.Errorf("constructing kube client: %w", err)
+	}
+
+	// TODO: reconsidet operatorConfig.Namespace
+	configManager := trivyoperator.NewConfigManager(kubeClientset, operatorConfig.Namespace)
+	err = configManager.EnsureDefault(context.Background())
+	if err != nil {
+		return err
+	}
+
+	trivyOperatorConfig, err := configManager.Read(context.Background())
+	if err != nil {
+		return err
+	}
+
+	// sets keys before config.GetConfig()
+
+	if operatorConfig.VulnerabilityScannerEnabled || operatorConfig.ExposedSecretScannerEnabled {
+		trivyOperatorConfig.Set(
+			trivyoperator.KeyVulnerabilityScannerEnabled,
+			strconv.FormatBool(operatorConfig.VulnerabilityScannerEnabled))
+
+		trivyOperatorConfig.Set(
+			trivyoperator.KeyExposedSecretsScannerEnabled,
+			strconv.FormatBool(operatorConfig.ExposedSecretScannerEnabled))
+	}
+
+	// encapsuluate both configurations options. This is a firt step towards refactoring to have
+	// only one configuration source from a configmap
+	cfg := config.GetConfig(operatorConfig, trivyOperatorConfig)
+
+	installMode, operatorNamespace, targetNamespaces, err := cfg.ResolveInstallMode()
 	if err != nil {
 		return fmt.Errorf("resolving install mode: %w", err)
 	}
+
 	setupLog.Info("Resolved install mode", "install mode", installMode,
 		"operator namespace", operatorNamespace,
 		"target namespaces", targetNamespaces,
-		"exclude namespaces", operatorConfig.ExcludeNamespaces)
+		"exclude namespaces", cfg.ExcludeNamespaces())
 
 	// Set the default manager options.
 	options := manager.Options{
 		Scheme:                 trivyoperator.NewScheme(),
-		MetricsBindAddress:     operatorConfig.MetricsBindAddress,
-		HealthProbeBindAddress: operatorConfig.HealthProbeBindAddress,
+		MetricsBindAddress:     cfg.MetricsBindAddress(),
+		HealthProbeBindAddress: cfg.HealthProbeBindAddress(),
 		// Disable cache for resources used to look up image pull secrets to avoid
 		// spinning up informers and to tighten operator RBAC permissions
 		ClientDisableCacheFor: []client.Object{
@@ -57,9 +98,9 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		},
 	}
 
-	if operatorConfig.LeaderElectionEnabled {
-		options.LeaderElection = operatorConfig.LeaderElectionEnabled
-		options.LeaderElectionID = operatorConfig.LeaderElectionID
+	if cfg.LeaderElectionEnabled() {
+		options.LeaderElection = cfg.LeaderElectionEnabled()
+		options.LeaderElectionID = cfg.LeaderElectionID()
 		options.LeaderElectionNamespace = operatorNamespace
 	}
 
@@ -91,16 +132,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		return fmt.Errorf("unrecognized install mode: %v", installMode)
 	}
 
-	kubeConfig, err := ctrl.GetConfig()
-	if err != nil {
-		return fmt.Errorf("getting kube client config: %w", err)
-	}
-	// The only reason we're using kubernetes.Clientset is that we need it to read Pod logs,
-	// which is not supported by the client returned by the ctrl.Manager.
-	kubeClientset, err := kubernetes.NewForConfig(kubeConfig)
-	if err != nil {
-		return fmt.Errorf("constructing kube client: %w", err)
-	}
 	mgr, err := ctrl.NewManager(kubeConfig, options)
 	if err != nil {
 		return fmt.Errorf("constructing controllers manager: %w", err)
@@ -116,16 +147,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		return err
 	}
 
-	configManager := trivyoperator.NewConfigManager(kubeClientset, operatorNamespace)
-	err = configManager.EnsureDefault(context.Background())
-	if err != nil {
-		return err
-	}
-
-	trivyOperatorConfig, err := configManager.Read(context.Background())
-	if err != nil {
-		return err
-	}
 	compatibleObjectMapper, err := kube.InitCompatibleMgr(mgr.GetClient().RESTMapper())
 	if err != nil {
 		return err
@@ -134,20 +155,20 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	if err != nil {
 		return err
 	}
-	limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
+
+	limitChecker := jobs.NewLimitChecker(cfg, mgr.GetClient())
 	logsReader := kube.NewLogsReader(kubeClientset)
 	secretsReader := kube.NewSecretsReader(mgr.GetClient())
 
-	if operatorConfig.VulnerabilityScannerEnabled || operatorConfig.ExposedSecretScannerEnabled {
-
-		trivyOperatorConfig.Set(trivyoperator.KeyVulnerabilityScannerEnabled, strconv.FormatBool(operatorConfig.VulnerabilityScannerEnabled))
-		trivyOperatorConfig.Set(trivyoperator.KeyExposedSecretsScannerEnabled, strconv.FormatBool(operatorConfig.ExposedSecretScannerEnabled))
+	if cfg.VulnerabilityScannerEnabled() || cfg.ExposedSecretsScannerEnabled() {
 
 		plugin, pluginContext, err := plugins.NewResolver().
 			WithBuildInfo(buildInfo).
+			// TODO: do I need it? considering I'm injecting config
 			WithNamespace(operatorNamespace).
-			WithServiceAccountName(operatorConfig.ServiceAccount).
-			WithConfig(trivyOperatorConfig).
+			// TODO: do I need it? considering I'm injecting config
+			WithServiceAccountName(cfg.ServiceAccount()).
+			WithConfig(cfg).
 			WithClient(mgr.GetClient()).
 			WithObjectResolver(&objectResolver).
 			GetVulnerabilityPlugin()
@@ -162,8 +183,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 
 		if err = (&vulnerabilityreport.WorkloadController{
 			Logger:                  ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
-			Config:                  operatorConfig,
-			ConfigData:              trivyOperatorConfig,
+			Config:                  cfg,
 			Client:                  mgr.GetClient(),
 			ObjectResolver:          objectResolver,
 			LimitChecker:            limitChecker,
@@ -177,10 +197,10 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			return fmt.Errorf("unable to setup vulnerabilityreport reconciler: %w", err)
 		}
 
-		if operatorConfig.VulnerabilityScannerReportTTL != nil {
+		if cfg.VulnerabilityScannerReportTTL() != nil {
 			if err = (&vulnerabilityreport.TTLReportReconciler{
 				Logger: ctrl.Log.WithName("reconciler").WithName("ttlreport"),
-				Config: operatorConfig,
+				Config: cfg,
 				Client: mgr.GetClient(),
 				Clock:  ext.NewSystemClock(),
 			}).SetupWithManager(mgr); err != nil {
@@ -189,11 +209,11 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 	}
 
-	if operatorConfig.ConfigAuditScannerEnabled {
+	if cfg.ConfigAuditScannerEnabled() {
 		plugin, pluginContext, err := plugins.NewResolver().WithBuildInfo(buildInfo).
 			WithNamespace(operatorNamespace).
-			WithServiceAccountName(operatorConfig.ServiceAccount).
-			WithConfig(trivyOperatorConfig).
+			WithServiceAccountName(cfg.ServiceAccount()).
+			WithConfig(cfg).
 			WithClient(mgr.GetClient()).
 			WithObjectResolver(&objectResolver).
 			GetConfigAuditPlugin()
@@ -207,8 +227,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		setupLog.Info("Enabling built-in configuration audit scanner")
 		if err = (&controller.ResourceController{
 			Logger:         ctrl.Log.WithName("resourcecontroller"),
-			Config:         operatorConfig,
-			ConfigData:     trivyOperatorConfig,
+			Config:         cfg,
 			Client:         mgr.GetClient(),
 			ObjectResolver: objectResolver,
 			PluginContext:  pluginContext,
@@ -222,12 +241,12 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 
 	}
 
-	if operatorConfig.ClusterComplianceEnabled {
+	if cfg.ClusterComplianceEnabled() {
 		logger := ctrl.Log.WithName("reconciler").WithName("clustercompliancereport")
 		cc := &compliance.ClusterComplianceReportReconciler{
 			Logger: logger,
 			Client: mgr.GetClient(),
-			Mgr:    compliance.NewMgr(mgr.GetClient(), logger, trivyOperatorConfig),
+			Mgr:    compliance.NewMgr(mgr.GetClient(), logger, cfg),
 			Clock:  ext.NewSystemClock(),
 		}
 		if err := cc.SetupWithManager(mgr); err != nil {
@@ -235,11 +254,11 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 	}
 
-	if operatorConfig.MetricsFindingsEnabled {
+	if cfg.MetricsFindingsEnabled() {
 		logger := ctrl.Log.WithName("metrics")
 		rmc := &metrics.ResourcesMetricsCollector{
 			Logger: logger,
-			Config: operatorConfig,
+			Config: cfg,
 			Client: mgr.GetClient(),
 		}
 		if err := rmc.SetupWithManager(mgr); err != nil {

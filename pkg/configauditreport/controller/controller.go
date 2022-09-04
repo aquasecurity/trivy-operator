@@ -3,10 +3,13 @@ package controller
 import (
 	"context"
 	"fmt"
+	"strings"
+
+	"github.com/aquasecurity/trivy-operator/pkg/config"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/workload"
+	"github.com/aquasecurity/trivy-operator/pkg/pluginconfig"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
-	"strings"
 
 	"github.com/aquasecurity/defsec/pkg/scan"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -14,7 +17,6 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -39,11 +41,10 @@ import (
 // possible.
 type ResourceController struct {
 	logr.Logger
-	etc.Config
-	trivyoperator.ConfigData
+	config.Config
 	client.Client
 	kube.ObjectResolver
-	trivyoperator.PluginContext
+	pluginconfig.PluginContext
 	configauditreport.PluginInMemory
 	configauditreport.ReadWriter
 	RbacReadWriter rbacassessment.ReadWriter
@@ -133,7 +134,7 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 			For(&corev1.ConfigMap{}, builder.WithPredicates(
 				predicate.Not(predicate.IsBeingTerminated),
 				predicate.HasName(trivyoperator.PoliciesConfigMapName),
-				predicate.InNamespace(r.Config.Namespace),
+				predicate.InNamespace(r.Config.Namespace()),
 			)).
 			Complete(r.reconcileConfig(resource.kind))
 		if err != nil {
@@ -159,7 +160,7 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 			For(&corev1.ConfigMap{}, builder.WithPredicates(
 				predicate.Not(predicate.IsBeingTerminated),
 				predicate.HasName(trivyoperator.PoliciesConfigMapName),
-				predicate.InNamespace(r.Config.Namespace))).
+				predicate.InNamespace(r.Config.Namespace()))).
 			Complete(r.reconcileClusterConfig(resource.kind))
 		if err != nil {
 			return err
@@ -184,7 +185,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		}
 		// validate if workload require continuing with processing
 		if skip, err := workload.SkipProcessing(ctx, resource, r.ObjectResolver,
-			r.Config.ConfigAuditScannerScanOnlyCurrentRevisions, log); skip {
+			r.Config.ConfigAuditScannerScanOnlyCurrentRevisions(), log); skip {
 			return ctrl.Result{}, err
 		}
 		cac, err := r.NewConfigForConfigAudit(r.PluginContext)
@@ -197,7 +198,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		}
 
 		// Skip processing if there are no policies applicable to the resource
-		supported, err := policies.SupportedKind(resource, r.RbacAssessmentScannerEnabled)
+		supported, err := policies.SupportedKind(resource, r.Config.RbacAssessmentScannerEnabled())
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("checking whether plugin is applicable: %w", err)
 		}
@@ -215,7 +216,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			log.V(1).Info("Pushing back reconcile key",
 				"reason", reason,
 				"retryAfter", r.ScanJobRetryAfter)
-			return ctrl.Result{RequeueAfter: r.Config.ScanJobRetryAfter}, nil
+			return ctrl.Result{RequeueAfter: r.Config.ScanJobRetryAfter()}, nil
 		}
 
 		resourceHash, err := kube.ComputeSpecHash(resource)
@@ -323,12 +324,12 @@ func (r *ResourceController) policies(ctx context.Context, cac configauditreport
 	cm := &corev1.ConfigMap{}
 
 	err := r.Client.Get(ctx, client.ObjectKey{
-		Namespace: r.Config.Namespace,
+		Namespace: r.Config.Namespace(),
 		Name:      trivyoperator.PoliciesConfigMapName,
 	}, cm)
 	if err != nil {
 		if !apierrors.IsNotFound(err) {
-			return nil, fmt.Errorf("failed getting policies from configmap: %s/%s: %w", r.Config.Namespace, trivyoperator.PoliciesConfigMapName, err)
+			return nil, fmt.Errorf("failed getting policies from configmap: %s/%s: %w", r.Config.Namespace(), trivyoperator.PoliciesConfigMapName, err)
 		}
 	}
 	return policy.NewPolicies(cm.Data, cac, r.Logger), nil
@@ -420,14 +421,14 @@ func (r *ResourceController) reconcileConfig(kind kube.Kind) reconcile.Func {
 			return ctrl.Result{}, err
 		}
 		var rbacRequeueAfter bool
-		if r.RbacAssessmentScannerEnabled {
+		if r.Config.RbacAssessmentScannerEnabled() {
 			rbacRequeueAfter, err = r.deleteReports(ctx, labelSelector, rbacReportItems(v1alpha1.RbacAssessmentReportList{}))
 			if err != nil {
 				return ctrl.Result{}, err
 			}
 		}
 		if configRequeueAfter || rbacRequeueAfter {
-			return ctrl.Result{RequeueAfter: r.Config.BatchDeleteDelay}, nil
+			return ctrl.Result{RequeueAfter: r.Config.BatchDeleteDelay()}, nil
 		}
 		return ctrl.Result{}, nil
 	}
@@ -436,20 +437,20 @@ func (r *ResourceController) reconcileConfig(kind kube.Kind) reconcile.Func {
 func (r *ResourceController) deleteReports(ctx context.Context, labelSelector labels.Selector, reportItems func() (client.ObjectList, []client.Object)) (bool, error) {
 	reportList, items := reportItems()
 	err := r.Client.List(ctx, reportList,
-		client.Limit(r.Config.BatchDeleteLimit+1),
+		client.Limit(r.Config.BatchDeleteLimit()+1),
 		client.MatchingLabelsSelector{Selector: labelSelector})
 	if err != nil {
 		return false, fmt.Errorf("listing reports: %w", err)
 	}
 	reportSize := len(items)
-	for i := 0; i < ext.MinInt(r.Config.BatchDeleteLimit, reportSize); i++ {
+	for i := 0; i < ext.MinInt(r.Config.BatchDeleteLimit(), reportSize); i++ {
 		reportItem := items[i]
 		b, err := r.deleteReport(ctx, reportItem)
 		if err != nil {
 			return b, err
 		}
 	}
-	return reportSize-r.Config.BatchDeleteLimit > 0, nil
+	return reportSize-r.Config.BatchDeleteLimit() > 0, nil
 }
 
 func (r *ResourceController) deleteReport(ctx context.Context, report client.Object) (bool, error) {
@@ -502,14 +503,14 @@ func (r *ResourceController) reconcileClusterConfig(kind kube.Kind) reconcile.Fu
 			return ctrl.Result{}, err
 		}
 		var rbacRequeueAfter bool
-		if r.RbacAssessmentScannerEnabled {
+		if r.Config.RbacAssessmentScannerEnabled() {
 			rbacRequeueAfter, err = r.deleteReports(ctx, labelSelector, clusterRbacReportItems(v1alpha1.ClusterRbacAssessmentReportList{}))
 			if err != nil {
 				return ctrl.Result{}, err
 			}
 		}
 		if configRequeueAfter || rbacRequeueAfter {
-			return ctrl.Result{RequeueAfter: r.Config.BatchDeleteDelay}, nil
+			return ctrl.Result{RequeueAfter: r.Config.BatchDeleteDelay()}, nil
 		}
 		return ctrl.Result{}, nil
 	}

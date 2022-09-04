@@ -7,7 +7,9 @@ import (
 	"time"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/config"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/google/go-cmp/cmp"
 	"github.com/onsi/ginkgo/v2"
@@ -34,7 +36,7 @@ func loadResource(filePath string, resource interface{}) error {
 
 var _ = ginkgo.Describe("cluster compliance report", func() {
 	logger := log.Log.WithName("operator")
-	config := getTrivyOperatorConfig()
+	cfg := getConfig(getTrivyOperatorConfig())
 	ginkgo.Context("reconcile compliance spec report with cis-bench anc audit-config data and validate compliance reports data and requeue", func() {
 		var confAuditList v1alpha1.ConfigAuditReportList
 		err := loadResource("./testdata/fixture/configAuditReportList.json", &confAuditList)
@@ -51,7 +53,7 @@ var _ = ginkgo.Describe("cluster compliance report", func() {
 		).Build()
 
 		// create compliance controller
-		instance := ClusterComplianceReportReconciler{Logger: logger, Client: client, Mgr: NewMgr(client, logger, config), Clock: ext.NewSystemClock()}
+		instance := ClusterComplianceReportReconciler{Logger: logger, Client: client, Mgr: NewMgr(client, logger, cfg), Clock: ext.NewSystemClock()}
 
 		// trigger compliance report generation
 		_, err = instance.generateComplianceReport(context.TODO(), types.NamespacedName{Namespace: "", Name: "nsa"})
@@ -140,7 +142,7 @@ var _ = ginkgo.Describe("cluster compliance report", func() {
 		// create new client
 		clientWithComplianceSpecOnly := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(&clusterComplianceSpec).Build()
 		// create compliance controller
-		complianceControllerInstance := ClusterComplianceReportReconciler{Logger: logger, Client: clientWithComplianceSpecOnly, Mgr: NewMgr(clientWithComplianceSpecOnly, logger, config), Clock: ext.NewSystemClock()}
+		complianceControllerInstance := ClusterComplianceReportReconciler{Logger: logger, Client: clientWithComplianceSpecOnly, Mgr: NewMgr(clientWithComplianceSpecOnly, logger, cfg), Clock: ext.NewSystemClock()}
 		reconcileReport, err := complianceControllerInstance.generateComplianceReport(context.TODO(), types.NamespacedName{Namespace: "", Name: "nsa"})
 		Expect(err).ToNot(HaveOccurred())
 
@@ -208,4 +210,10 @@ func getDetailReport(ctx context.Context, namespaceName types.NamespacedName, c 
 
 func getTrivyOperatorConfig() trivyoperator.ConfigData {
 	return trivyoperator.ConfigData{"compliance.failEntriesLimit": "1"}
+}
+
+func getConfig(configData map[string]string) config.Config {
+	var etcConfig etc.Config
+
+	return config.GetConfig(etcConfig, configData)
 }

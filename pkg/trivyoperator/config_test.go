@@ -5,12 +5,12 @@ import (
 	"testing"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/pluginconfig"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/onsi/gomega"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes/fake"
@@ -204,7 +204,6 @@ func TestConfigData_GetScanJobAnnotations(t *testing.T) {
 	}
 }
 
-
 func TestConfigData_GetScanJobNodeSelector(t *testing.T) {
 	testCases := []struct {
 		name        string
@@ -218,7 +217,7 @@ func TestConfigData_GetScanJobNodeSelector(t *testing.T) {
 				"scanJob.nodeSelector": "{\"nodeType\":\"worker\", \"testLabel2\":\"testVal1\"}",
 			},
 			expected: map[string]string{
-				"nodeType": "worker",
+				"nodeType":   "worker",
 				"testLabel2": "testVal1",
 			},
 		},
@@ -232,7 +231,7 @@ func TestConfigData_GetScanJobNodeSelector(t *testing.T) {
 			config: trivyoperator.ConfigData{
 				"scanJob.nodeSelector": "{}",
 			},
-			expected:    map[string]string{},
+			expected: map[string]string{},
 		},
 		{
 			name: "raise an error on being provided with template nodeSelector in wrong format",
@@ -256,7 +255,6 @@ func TestConfigData_GetScanJobNodeSelector(t *testing.T) {
 		})
 	}
 }
-
 
 func TestConfigData_GetScanJobPodTemplateLabels(t *testing.T) {
 	testCases := []struct {
@@ -557,7 +555,7 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 			&corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: namespace,
-					Name:      trivyoperator.GetPluginConfigMapName("Trivy"),
+					Name:      pluginconfig.GetPluginConfigMapName("Trivy"),
 				},
 				Data: map[string]string{
 					"trivy.policy.my-check.rego": "<REGO>",
@@ -584,55 +582,13 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 		}))
 
 		pluginConfig, err := clientset.CoreV1().ConfigMaps(namespace).
-			Get(context.TODO(), trivyoperator.GetPluginConfigMapName("Trivy"), metav1.GetOptions{})
+			Get(context.TODO(), pluginconfig.GetPluginConfigMapName("Trivy"), metav1.GetOptions{})
 		g.Expect(err).ToNot(gomega.HaveOccurred())
 		g.Expect(pluginConfig.Data).To(gomega.Equal(map[string]string{
 			"trivy.policy.my-check.rego": "<REGO>",
 		}))
 	})
 
-}
-
-func TestConfigManager_Delete(t *testing.T) {
-	t.Run("Should not return error when ConfigMap and secret do not exist", func(t *testing.T) {
-		clientset := fake.NewSimpleClientset()
-		err := trivyoperator.NewConfigManager(clientset, trivyoperator.NamespaceName).Delete(context.TODO())
-		require.NoError(t, err)
-	})
-
-	t.Run("Should delete ConfigMap and secret", func(t *testing.T) {
-		clientset := fake.NewSimpleClientset(
-			&corev1.ConfigMap{
-				ObjectMeta: metav1.ObjectMeta{
-					Namespace: trivyoperator.NamespaceName,
-					Name:      trivyoperator.ConfigMapName,
-				},
-				Data: map[string]string{
-					"foo": "bar",
-				},
-			},
-			&corev1.Secret{
-				ObjectMeta: metav1.ObjectMeta{
-					Namespace: trivyoperator.NamespaceName,
-					Name:      trivyoperator.SecretName,
-				},
-				Data: map[string][]byte{
-					"baz": []byte("s3cret"),
-				},
-			},
-		)
-
-		err := trivyoperator.NewConfigManager(clientset, trivyoperator.NamespaceName).Delete(context.TODO())
-		require.NoError(t, err)
-
-		_, err = clientset.CoreV1().ConfigMaps(trivyoperator.NamespaceName).
-			Get(context.TODO(), trivyoperator.ConfigMapName, metav1.GetOptions{})
-		assert.True(t, errors.IsNotFound(err))
-
-		_, err = clientset.CoreV1().Secrets(trivyoperator.NamespaceName).
-			Get(context.TODO(), trivyoperator.SecretName, metav1.GetOptions{})
-		assert.True(t, errors.IsNotFound(err))
-	})
 }
 
 func TestConfigData_VulnerabilityScannerEnabled(t *testing.T) {

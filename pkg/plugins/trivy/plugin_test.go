@@ -15,10 +15,14 @@ import (
 	"time"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/config"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/pluginconfig"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+
 	bz "github.com/dsnet/compress/bzip2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -50,12 +54,12 @@ func TestConfig_GetImageRef(t *testing.T) {
 	}{
 		{
 			name:          "Should return error",
-			configData:    trivy.Config{PluginConfig: trivyoperator.PluginConfig{}},
+			configData:    trivy.Config{PluginConfig: pluginconfig.PluginConfig{}},
 			expectedError: "property trivy.imageRef not set",
 		},
 		{
 			name: "Should return image reference from config data",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"trivy.imageRef": "gcr.io/aquasecurity/trivy:0.8.0",
 				},
@@ -86,7 +90,7 @@ func TestConfig_GetMode(t *testing.T) {
 	}{
 		{
 			name: "Should return Standalone",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"trivy.mode": "Standalone",
 				},
@@ -95,7 +99,7 @@ func TestConfig_GetMode(t *testing.T) {
 		},
 		{
 			name: "Should return ClientServer",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"trivy.mode": "ClientServer",
 				},
@@ -104,12 +108,12 @@ func TestConfig_GetMode(t *testing.T) {
 		},
 		{
 			name:          "Should return error when value is not set",
-			configData:    trivy.Config{PluginConfig: trivyoperator.PluginConfig{}},
+			configData:    trivy.Config{PluginConfig: pluginconfig.PluginConfig{}},
 			expectedError: "property trivy.mode not set",
 		},
 		{
 			name: "Should return error when value is not allowed",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"trivy.mode": "P2P",
 				},
@@ -139,7 +143,7 @@ func TestConfig_GetCommand(t *testing.T) {
 	}{
 		{
 			name: "Should return image",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"trivy.command": "image",
 				},
@@ -148,14 +152,14 @@ func TestConfig_GetCommand(t *testing.T) {
 		},
 		{
 			name: "Should return image when value is not set",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{},
 			}},
 			expectedCommand: trivy.Image,
 		},
 		{
 			name: "Should return filesystem",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"trivy.command": "filesystem",
 				},
@@ -164,7 +168,7 @@ func TestConfig_GetCommand(t *testing.T) {
 		},
 		{
 			name: "Should return error when value is not allowed",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"trivy.command": "ls",
 				},
@@ -195,7 +199,7 @@ func TestConfig_GetResourceRequirements(t *testing.T) {
 		{
 			name: "Should return empty requirements by default",
 			config: trivy.Config{
-				PluginConfig: trivyoperator.PluginConfig{},
+				PluginConfig: pluginconfig.PluginConfig{},
 			},
 			expectedError: "",
 			expectedRequirements: corev1.ResourceRequirements{
@@ -206,7 +210,7 @@ func TestConfig_GetResourceRequirements(t *testing.T) {
 		{
 			name: "Should return configured resource requirement",
 			config: trivy.Config{
-				PluginConfig: trivyoperator.PluginConfig{
+				PluginConfig: pluginconfig.PluginConfig{
 					Data: map[string]string{
 						"trivy.dbRepository":              defaultDBRepository,
 						"trivy.resources.requests.cpu":    "800m",
@@ -231,7 +235,7 @@ func TestConfig_GetResourceRequirements(t *testing.T) {
 		{
 			name: "Should return error if resource is not parseable",
 			config: trivy.Config{
-				PluginConfig: trivyoperator.PluginConfig{
+				PluginConfig: pluginconfig.PluginConfig{
 					Data: map[string]string{
 						"trivy.resources.requests.cpu": "roughly 100",
 					},
@@ -261,7 +265,7 @@ func TestConfig_IgnoreFileExists(t *testing.T) {
 	}{
 		{
 			name: "Should return false",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"foo": "bar",
 				},
@@ -270,7 +274,7 @@ func TestConfig_IgnoreFileExists(t *testing.T) {
 		},
 		{
 			name: "Should return true",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"foo": "bar",
 					"trivy.ignoreFile": `# Accept the risk
@@ -300,7 +304,7 @@ func TestConfig_IgnoreUnfixed(t *testing.T) {
 	}{
 		{
 			name: "Should return false",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"foo": "bar",
 				},
@@ -309,7 +313,7 @@ func TestConfig_IgnoreUnfixed(t *testing.T) {
 		},
 		{
 			name: "Should return true",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"foo":                 "bar",
 					"trivy.ignoreUnfixed": "true",
@@ -319,7 +323,7 @@ func TestConfig_IgnoreUnfixed(t *testing.T) {
 		},
 		{
 			name: "Should return false when set it as false",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"foo":                 "bar",
 					"trivy.ignoreUnfixed": "false",
@@ -344,7 +348,7 @@ func TestConfig_dbRepositoryInsecure(t *testing.T) {
 	}{
 		{
 			name: "good value Should return false",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"trivy.dbRepositoryInsecure": "false",
 				},
@@ -353,7 +357,7 @@ func TestConfig_dbRepositoryInsecure(t *testing.T) {
 		},
 		{
 			name: "good value Should return true",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"trivy.dbRepositoryInsecure": "true",
 				},
@@ -362,7 +366,7 @@ func TestConfig_dbRepositoryInsecure(t *testing.T) {
 		},
 		{
 			name: "bad value Should return false",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"trivy.dbRepositoryInsecure": "true1",
 				},
@@ -371,7 +375,7 @@ func TestConfig_dbRepositoryInsecure(t *testing.T) {
 		},
 		{
 			name: "no value Should return false",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{},
 			}},
 			expectedOutput: false,
@@ -393,7 +397,7 @@ func TestConfig_GetInsecureRegistries(t *testing.T) {
 	}{
 		{
 			name: "Should return nil map when there is no key with trivy.insecureRegistry. prefix",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"foo": "bar",
 				},
@@ -402,7 +406,7 @@ func TestConfig_GetInsecureRegistries(t *testing.T) {
 		},
 		{
 			name: "Should return insecure registries in map",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"foo":                                "bar",
 					"trivy.insecureRegistry.pocRegistry": "poc.myregistry.harbor.com.pl",
@@ -432,7 +436,7 @@ func TestConfig_GetNonSSLRegistries(t *testing.T) {
 	}{
 		{
 			name: "Should return nil map when there is no key with trivy.nonSslRegistry. prefix",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"foo": "bar",
 				},
@@ -441,7 +445,7 @@ func TestConfig_GetNonSSLRegistries(t *testing.T) {
 		},
 		{
 			name: "Should return insecure registries in map",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"foo":                              "bar",
 					"trivy.nonSslRegistry.pocRegistry": "poc.myregistry.harbor.com.pl",
@@ -471,7 +475,7 @@ func TestConfig_GetMirrors(t *testing.T) {
 	}{
 		{
 			name: "Should return empty map when there is no key with trivy.mirrors.registry. prefix",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"foo": "bar",
 				},
@@ -480,7 +484,7 @@ func TestConfig_GetMirrors(t *testing.T) {
 		},
 		{
 			name: "Should return mirrors in a map",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+			configData: trivy.Config{PluginConfig: pluginconfig.PluginConfig{
 				Data: map[string]string{
 					"trivy.registry.mirror.docker.io": "mirror.io",
 				},
@@ -503,7 +507,7 @@ func TestPlugin_Init(t *testing.T) {
 		or := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &or)
 
-		pluginContext := trivyoperator.NewPluginContext().
+		pluginContext := pluginconfig.NewPluginContext().
 			WithName(trivy.Plugin).
 			WithNamespace("trivyoperator-ns").
 			WithServiceAccountName("trivyoperator-sa").
@@ -568,7 +572,7 @@ func TestPlugin_Init(t *testing.T) {
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
 
-		pluginContext := trivyoperator.NewPluginContext().
+		pluginContext := pluginconfig.NewPluginContext().
 			WithName(trivy.Plugin).
 			WithNamespace("trivyoperator-ns").
 			WithServiceAccountName("trivyoperator-sa").
@@ -3324,11 +3328,11 @@ CVE-2019-1543`,
 					},
 					Data: tc.config,
 				}, &v1.CronJob{}).Build()
-			pluginContext := trivyoperator.NewPluginContext().
+			pluginContext := pluginconfig.NewPluginContext().
 				WithName(trivy.Plugin).
 				WithNamespace("trivyoperator-ns").
 				WithServiceAccountName("trivyoperator-sa").
-				WithTrivyOperatorConfig(tc.trivyOperatorConfig).
+				WithTrivyOperatorConfig(getConfig(tc.trivyOperatorConfig)).
 				WithClient(fakeclient).
 				Get()
 			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
@@ -3669,12 +3673,12 @@ CVE-2019-1543`,
 					},
 					Data: tc.config,
 				}, &v1beta1.CronJob{}).Build()
-			pluginContext := trivyoperator.NewPluginContext().
+			pluginContext := pluginconfig.NewPluginContext().
 				WithName(trivy.Plugin).
 				WithNamespace("trivyoperator-ns").
 				WithServiceAccountName("trivyoperator-sa").
 				WithClient(fakeclient).
-				WithTrivyOperatorConfig(tc.trivyOperatorConfig).
+				WithTrivyOperatorConfig(getConfig(tc.trivyOperatorConfig)).
 				Get()
 			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
 			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
@@ -3832,7 +3836,7 @@ var (
 )
 
 func TestPlugin_ParseReportData(t *testing.T) {
-	config := &corev1.ConfigMap{
+	cfg := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "trivy-operator-trivy-config",
 			Namespace: "trivyoperator-ns",
@@ -3892,8 +3896,8 @@ func TestPlugin_ParseReportData(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			fakeClient := fake.NewClientBuilder().WithObjects(config).Build()
-			ctx := trivyoperator.NewPluginContext().
+			fakeClient := fake.NewClientBuilder().WithObjects(cfg).Build()
+			ctx := pluginconfig.NewPluginContext().
 				WithName("Trivy").
 				WithNamespace("trivyoperator-ns").
 				WithServiceAccountName("trivyoperator-sa").
@@ -4108,12 +4112,12 @@ func TestGetContainers(t *testing.T) {
 				},
 			).Build()
 
-			pluginContext := trivyoperator.NewPluginContext().
+			pluginContext := pluginconfig.NewPluginContext().
 				WithName(trivy.Plugin).
 				WithNamespace("trivyoperator-ns").
 				WithServiceAccountName("trivyoperator-sa").
 				WithClient(fakeclient).
-				WithTrivyOperatorConfig(map[string]string{trivyoperator.KeyVulnerabilityScansInSameNamespace: "true"}).
+				WithTrivyOperatorConfig(getConfig(map[string]string{trivyoperator.KeyVulnerabilityScansInSameNamespace: "true"})).
 				Get()
 			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
 			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
@@ -4184,4 +4188,10 @@ func writeBzip2AndEncode(data []byte) (string, error) {
 		return "", err
 	}
 	return base64.StdEncoding.EncodeToString(in.Bytes()), nil
+}
+
+func getConfig(configData map[string]string) config.Config {
+	var etcConfig etc.Config
+
+	return config.GetConfig(etcConfig, configData)
 }

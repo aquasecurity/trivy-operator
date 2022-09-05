@@ -20,7 +20,10 @@ data:
   scanJob.nodeSelector: {{ . | toJson | quote }}
   {{- end }}
   {{- with .Values.trivyOperator.scanJobPodTemplateSecurityContext }}
-  scanJob.podTemplateSecurityContext: {{ . | toJson | quote }}
+  scanJob.podTemplatePodSecurityContext: {{ . | toJson | quote }}
+  {{- end }}
+  {{- with .Values.trivyOperator.scanJobPodTemplateContainerSecurityContext }}
+  scanJob.podTemplateContainerSecurityContext: {{ . | toJson | quote }}
   {{- end }}
   {{- if .Values.operator.vulnerabilityScannerEnabled }}
   vulnerabilityReports.scanner: {{ .Values.trivyOperator.vulnerabilityReportsPlugin | quote }}

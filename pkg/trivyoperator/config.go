@@ -59,6 +59,7 @@ const (
 	keyScanJobTolerations                = "scanJob.tolerations"
 	keyScanJobNodeSelector               = "scanJob.nodeSelector"
 	keyScanJobAnnotations                = "scanJob.annotations"
+	KeyScanJobContainerSecurityContext   = "scanJob.podTemplateContainerSecurityContext"
 	keyScanJobPodSecurityContext         = "scanJob.podTemplateSecurityContext"
 	keyScanJobPodTemplateLabels          = "scanJob.podTemplateLabels"
 	keyComplianceFailEntriesLimit        = "compliance.failEntriesLimit"
@@ -166,6 +167,20 @@ func (c ConfigData) GetScanJobPodSecurityContext() (*corev1.PodSecurityContext, 
 	}
 
 	return scanJobPodSecurityContext, nil
+}
+
+func (c ConfigData) GetScanJobContainerSecurityContext() (*corev1.SecurityContext, error) {
+	if c[KeyScanJobContainerSecurityContext] == "" {
+		return nil, nil
+	}
+
+	scanJobContainerSecurityContext := &corev1.SecurityContext{}
+	err := json.Unmarshal([]byte(c[KeyScanJobContainerSecurityContext]), scanJobContainerSecurityContext)
+	if err != nil {
+		return nil, fmt.Errorf("failed parsing incorrectly formatted custom scan container template securityContext: %s", c[KeyScanJobContainerSecurityContext])
+	}
+
+	return scanJobContainerSecurityContext, nil
 }
 
 func (c ConfigData) GetScanJobAnnotations() (map[string]string, error) {

@@ -319,7 +319,7 @@ func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 	})
 }
 
-func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client.Object, credentials map[string]docker.Auth) (corev1.PodSpec, []*corev1.Secret, error) {
+func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext) (corev1.PodSpec, []*corev1.Secret, error) {
 	config, err := p.newConfigFrom(ctx)
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
@@ -338,9 +338,9 @@ func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client
 	if command == Image {
 		switch mode {
 		case Standalone:
-			return p.getPodSpecForStandaloneMode(ctx, config, workload, credentials)
+			return p.getPodSpecForStandaloneMode(ctx, config, workload, credentials, securityContext)
 		case ClientServer:
-			return p.getPodSpecForClientServerMode(ctx, config, workload, credentials)
+			return p.getPodSpecForClientServerMode(ctx, config, workload, credentials, securityContext)
 		default:
 			return corev1.PodSpec{}, nil, fmt.Errorf("unrecognized trivy mode %q for command %q", mode, command)
 		}
@@ -349,7 +349,7 @@ func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client
 	if command == Filesystem {
 		switch mode {
 		case Standalone:
-			return p.getPodSpecForStandaloneFSMode(ctx, config, workload)
+			return p.getPodSpecForStandaloneFSMode(ctx, config, workload, securityContext)
 		default:
 			return corev1.PodSpec{}, nil, fmt.Errorf("unrecognized trivy mode %q for command %q", mode, command)
 		}
@@ -391,7 +391,7 @@ const (
 //
 //     trivy --cache-dir /tmp/trivy/.cache image --skip-update \
 //       --format json <container image>
-func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth) (corev1.PodSpec, []*corev1.Secret, error) {
+func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext) (corev1.PodSpec, []*corev1.Secret, error) {
 	var secret *corev1.Secret
 	var secrets []*corev1.Secret
 
@@ -439,7 +439,8 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 			"--db-repository",
 			dbRepository,
 		},
-		Resources: requirements,
+		Resources:       requirements,
+		SecurityContext: securityContext,
 		VolumeMounts: []corev1.VolumeMount{
 			{
 				Name:      tmpVolumeName,
@@ -674,16 +675,9 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 			Args: []string{
 				"-c", fmt.Sprintf(`trivy image '%s' --security-checks %s --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, imageRef.String(), getSecurityChecks(ctx), resultFileName, resultFileName),
 			},
-			Resources:    resourceRequirements,
-			VolumeMounts: volumeMounts,
-			SecurityContext: &corev1.SecurityContext{
-				Privileged:               pointer.BoolPtr(false),
-				AllowPrivilegeEscalation: pointer.BoolPtr(false),
-				Capabilities: &corev1.Capabilities{
-					Drop: []corev1.Capability{"all"},
-				},
-				ReadOnlyRootFilesystem: pointer.BoolPtr(true),
-			},
+			Resources:       resourceRequirements,
+			SecurityContext: securityContext,
+			VolumeMounts:    volumeMounts,
 		})
 	}
 
@@ -766,7 +760,7 @@ func (p *plugin) initContainerEnvVar(trivyConfigName string, config Config) []co
 //
 //     trivy image --server <server URL> \
 //       --format json <container image>
-func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth) (corev1.PodSpec, []*corev1.Secret, error) {
+func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext) (corev1.PodSpec, []*corev1.Secret, error) {
 	var secret *corev1.Secret
 	var secrets []*corev1.Secret
 	volumeMounts := make([]corev1.VolumeMount, 0)
@@ -1037,8 +1031,9 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			Args: []string{
 				"-c", fmt.Sprintf(`trivy image '%s' --security-checks %s --quiet --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, imageRef, getSecurityChecks(ctx), encodedTrivyServerURL.String(), resultFileName, resultFileName),
 			},
-			VolumeMounts: volumeMounts,
-			Resources:    requirements,
+			Resources:       requirements,
+			SecurityContext: securityContext,
+			VolumeMounts:    volumeMounts,
 		})
 	}
 
@@ -1082,7 +1077,7 @@ func getScanResultVolumeMount() corev1.VolumeMount {
 //     trivy --quiet fs  --format json --ignore-unfixed  file/system/location
 //
 func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Config,
-	workload client.Object) (corev1.PodSpec, []*corev1.Secret, error) {
+	workload client.Object, securityContext *corev1.SecurityContext) (corev1.PodSpec, []*corev1.Secret, error) {
 	var secrets []*corev1.Secret
 	spec, err := kube.GetPodSpec(workload)
 	if err != nil {
@@ -1137,8 +1132,9 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			"/usr/local/bin/trivy",
 			SharedVolumeLocationOfTrivy,
 		},
-		Resources:    requirements,
-		VolumeMounts: volumeMounts,
+		Resources:       requirements,
+		SecurityContext: securityContext,
+		VolumeMounts:    volumeMounts,
 	}
 
 	initContainerDB := corev1.Container{
@@ -1158,8 +1154,9 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			"--db-repository",
 			dbRepository,
 		},
-		Resources:    requirements,
-		VolumeMounts: volumeMounts,
+		Resources:       requirements,
+		SecurityContext: securityContext,
+		VolumeMounts:    volumeMounts,
 	}
 
 	var containers []corev1.Container
@@ -1245,19 +1242,9 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			Args: []string{
 				"-c", fmt.Sprintf(`%s fs --security-checks %s --cache-dir /var/trivyoperator/trivy-db --quiet --skip-update --format json / > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, SharedVolumeLocationOfTrivy, getSecurityChecks(ctx), resultFileName, resultFileName),
 			},
-			Resources:    resourceRequirements,
-			VolumeMounts: volumeMounts,
-			// Todo review security Context which is better for trivy fs scan
-			SecurityContext: &corev1.SecurityContext{
-				Privileged:               pointer.BoolPtr(false),
-				AllowPrivilegeEscalation: pointer.BoolPtr(false),
-				Capabilities: &corev1.Capabilities{
-					Drop: []corev1.Capability{"all"},
-				},
-				ReadOnlyRootFilesystem: pointer.BoolPtr(true),
-				// Currently Trivy needs to run as root user to scan filesystem, So we will run fs scan job with root user.
-				RunAsUser: pointer.Int64(0),
-			},
+			Resources:       resourceRequirements,
+			SecurityContext: securityContext,
+			VolumeMounts:    volumeMounts,
 		})
 	}
 

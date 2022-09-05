@@ -311,6 +311,60 @@ func TestConfigData_GetScanJobPodTemplateLabels(t *testing.T) {
 	}
 }
 
+func TestConfigData_GetScanContainerSecurityContext(t *testing.T) {
+	expectedAllowPrivilegeEscalation := false
+	expectedCapabilities := corev1.Capabilities{
+		Drop: []corev1.Capability{"all"},
+	}
+	expectedPrivileged := false
+	expectedReadOnlyRootFilesystem := true
+
+	testCases := []struct {
+		name        string
+		config      trivyoperator.ConfigData
+		expected    *corev1.SecurityContext
+		expectError string
+	}{
+		{
+			name: "scan job template [container] SecurityContext can be fetched successfully",
+			config: trivyoperator.ConfigData{
+				"scanJob.podTemplateContainerSecurityContext": "{\"allowPrivilegeEscalation\":false,\"capabilities\":{\"drop\":[\"all\"]},\"privileged\":false,\"readOnlyRootFilesystem\":true}",
+			},
+			expected: &corev1.SecurityContext{
+				AllowPrivilegeEscalation: &expectedAllowPrivilegeEscalation,
+				Capabilities:             &expectedCapabilities,
+				Privileged:               &expectedPrivileged,
+				ReadOnlyRootFilesystem:   &expectedReadOnlyRootFilesystem,
+			},
+		},
+		{
+			name:     "gracefully deal with unprovided securityContext",
+			config:   trivyoperator.ConfigData{},
+			expected: nil,
+		},
+		{
+			name: "raise an error on being provided with securityContext in wrong format",
+			config: trivyoperator.ConfigData{
+				"scanJob.podTemplateContainerSecurityContext": "foo",
+			},
+			expected:    nil,
+			expectError: "failed parsing incorrectly formatted custom scan container template securityContext: foo",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			scanJobSecurityContext, err := tc.config.GetScanJobContainerSecurityContext()
+			if tc.expectError != "" {
+				assert.EqualError(t, err, tc.expectError, tc.name)
+			} else {
+				assert.NoError(t, err, tc.name)
+				assert.Equal(t, tc.expected, scanJobSecurityContext, tc.name)
+			}
+		})
+	}
+}
+
 func TestConfigData_GetScanJobPodSecurityContext(t *testing.T) {
 	expectedUid := int64(1258)
 	expectedGid := int64(55589)

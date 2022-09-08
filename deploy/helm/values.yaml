@@ -128,6 +128,18 @@ trivyOperator:
   #   RunAsNonRoot: true
   scanJobPodTemplateSecurityContext: ""
 
+  # scanJobPodTemplateContainerSecurityContext SecurityContext the user wants the scanner containers (and their
+  # initContainers) to be amended with.
+  scanJobPodTemplateContainerSecurityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    privileged: false
+    readOnlyRootFilesystem: true
+    # For filesystem scanning, Trivy needs to run as the root user
+    # runAsUser: 0
+
 trivy:
   # createConfig indicates whether to create config objects
   createConfig: true
@@ -236,7 +248,9 @@ trivy:
   #
   supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
 
-  # command. Either `image` or `filesystem` scanning. Depending on the target type required for the scan.
+  # command. Either `image` or `filesystem` scanning, depending on the target type required for the scan.
+  # For 'filesystem' scanning, ensure that the `trivyOperator.scanJobPodTemplateContainerSecurityContext` is configured
+  # to run as the root user (runAsUser = 0).
   command: image
 
 compliance:

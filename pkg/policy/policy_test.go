@@ -1077,8 +1077,6 @@ func getPolicyResults(results scan.Results) Results {
 		pr := Result{Metadata: Metadata{ID: id, Title: result.Rule().Summary, Severity: v1alpha1.Severity(result.Severity()), Type: "Kubernetes Security Check", Description: result.Rule().Explanation}, Success: result.Status() == scan.StatusPassed, Messages: msgs}
 		prs = append(prs, pr)
 	}
-	b, _ := json.Marshal(&prs)
-	fmt.Println(string(b))
 	sort.Sort(resultSort(prs))
 	return prs
 }

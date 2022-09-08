@@ -766,6 +766,14 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 						VolumeMounts: []corev1.VolumeMount{
 							tmpVolumeMount,
 						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
+						},
 					},
 				},
 				Containers: []corev1.Container{
@@ -1013,6 +1021,14 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 						},
 						VolumeMounts: []corev1.VolumeMount{
 							tmpVolumeMount,
+						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
 						},
 					},
 				},
@@ -1265,6 +1281,14 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 						},
 						VolumeMounts: []corev1.VolumeMount{
 							tmpVolumeMount,
+						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
 						},
 					},
 				},
@@ -1538,6 +1562,14 @@ CVE-2019-1543`,
 						VolumeMounts: []corev1.VolumeMount{
 							tmpVolumeMount,
 						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
+						},
 					},
 				},
 				Containers: []corev1.Container{
@@ -1797,6 +1829,14 @@ CVE-2019-1543`,
 						},
 						VolumeMounts: []corev1.VolumeMount{
 							tmpVolumeMount,
+						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
 						},
 					},
 				},
@@ -2115,6 +2155,14 @@ CVE-2019-1543`,
 							},
 						},
 						VolumeMounts: []corev1.VolumeMount{getScanResultVolumeMount()},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
+						},
 					},
 				},
 			},
@@ -2308,6 +2356,14 @@ CVE-2019-1543`,
 							},
 						},
 						VolumeMounts: []corev1.VolumeMount{getScanResultVolumeMount()},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
+						},
 					},
 				},
 			},
@@ -2506,6 +2562,14 @@ CVE-2019-1543`,
 							},
 						},
 						VolumeMounts: []corev1.VolumeMount{getScanResultVolumeMount()},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
+						},
 					},
 				},
 			},
@@ -2704,6 +2768,14 @@ CVE-2019-1543`,
 							},
 						},
 						VolumeMounts: []corev1.VolumeMount{getScanResultVolumeMount()},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
+						},
 					},
 				},
 			},
@@ -2928,6 +3000,14 @@ CVE-2019-1543`,
 								SubPath:   ".trivyignore",
 							},
 						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
+						},
 					},
 				},
 			},
@@ -3010,6 +3090,14 @@ CVE-2019-1543`,
 								ReadOnly:  false,
 								MountPath: "/var/trivyoperator",
 							},
+						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
 						},
 					},
 					{
@@ -3094,6 +3182,14 @@ CVE-2019-1543`,
 								ReadOnly:  false,
 								MountPath: "/var/trivyoperator",
 							},
+						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
 						},
 					},
 				},
@@ -3209,7 +3305,6 @@ CVE-2019-1543`,
 								Drop: []corev1.Capability{"all"},
 							},
 							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
-							RunAsUser:              pointer.Int64(0),
 						},
 					},
 				},
@@ -3238,7 +3333,15 @@ CVE-2019-1543`,
 				Get()
 			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
 			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
-			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, nil)
+			securityContext := &corev1.SecurityContext{
+				Privileged:               pointer.BoolPtr(false),
+				AllowPrivilegeEscalation: pointer.BoolPtr(false),
+				Capabilities: &corev1.Capabilities{
+					Drop: []corev1.Capability{"all"},
+				},
+				ReadOnlyRootFilesystem: pointer.BoolPtr(true),
+			}
+			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, nil, securityContext)
 			require.NoError(t, err)
 			assert.Empty(t, secrets)
 			assert.Equal(t, tc.expectedJobSpec, jobSpec)
@@ -3333,6 +3436,15 @@ CVE-2019-1543`,
 							MountPath: "/var/trivyoperator",
 						},
 					},
+					SecurityContext: &corev1.SecurityContext{
+						Privileged:               pointer.BoolPtr(false),
+						AllowPrivilegeEscalation: pointer.BoolPtr(false),
+						Capabilities: &corev1.Capabilities{
+							Drop: []corev1.Capability{"all"},
+						},
+						ReadOnlyRootFilesystem: pointer.BoolPtr(true),
+						RunAsUser:              pointer.Int64(0),
+					},
 				},
 				{
 					Name:                     "00000000-0000-0000-0000-000000000002",
@@ -3415,6 +3527,15 @@ CVE-2019-1543`,
 							ReadOnly:  false,
 							MountPath: "/var/trivyoperator",
 						},
+					},
+					SecurityContext: &corev1.SecurityContext{
+						Privileged:               pointer.BoolPtr(false),
+						AllowPrivilegeEscalation: pointer.BoolPtr(false),
+						Capabilities: &corev1.Capabilities{
+							Drop: []corev1.Capability{"all"},
+						},
+						ReadOnlyRootFilesystem: pointer.BoolPtr(true),
+						RunAsUser:              pointer.Int64(0),
 					},
 				},
 			},
@@ -3557,7 +3678,17 @@ CVE-2019-1543`,
 				Get()
 			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
 			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
-			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, nil)
+			securityContext := &corev1.SecurityContext{
+				Privileged:               pointer.BoolPtr(false),
+				AllowPrivilegeEscalation: pointer.BoolPtr(false),
+				Capabilities: &corev1.Capabilities{
+					Drop: []corev1.Capability{"all"},
+				},
+				ReadOnlyRootFilesystem: pointer.BoolPtr(true),
+				// Root expected for standalone mode - the user would need to know this
+				RunAsUser: pointer.Int64Ptr(0),
+			}
+			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, nil, securityContext)
 			require.NoError(t, err)
 			assert.Empty(t, secrets)
 			assert.Equal(t, tc.expectedJobSpec, jobSpec)
@@ -3986,8 +4117,7 @@ func TestGetContainers(t *testing.T) {
 				Get()
 			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
 			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
-
-			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil)
+			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil)
 			assert.NoError(t, err)
 
 			containers := make([]string, 0)

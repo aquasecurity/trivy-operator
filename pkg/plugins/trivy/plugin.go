@@ -99,6 +99,7 @@ type AdditionalFields struct {
 	Description bool
 	Links       bool
 	CVSS        bool
+	Target      bool
 }
 
 // Config defines configuration params for this plugin.
@@ -123,6 +124,9 @@ func (c Config) GetAdditionalVulnerabilityReportFields() AdditionalFields {
 		}
 		if field == "CVSS" {
 			addFields.CVSS = true
+		}
+		if field == "Target" {
+			addFields.Target = true
 		}
 	}
 
@@ -1448,7 +1452,6 @@ func getVulnerabilitiesFromScanResult(report ScanResult, addFields AdditionalFie
 			PrimaryLink:      sr.PrimaryURL,
 			Links:            []string{},
 			Score:            GetScoreFromCVSS(sr.CvssScore),
-			Target:           sr.Target,
 		}
 
 		if addFields.Description {
@@ -1459,6 +1462,9 @@ func getVulnerabilitiesFromScanResult(report ScanResult, addFields AdditionalFie
 		}
 		if addFields.CVSS {
 			vulnerability.CVSS = sr.CVSS
+		}
+		if addFields.Target {
+			vulnerability.Target = report.Target
 		}
 
 		vulnerabilities = append(vulnerabilities, vulnerability)
@@ -1573,24 +1579,6 @@ func GetScoreFromCVSS(CVSSs map[string]*CVSS) *float64 {
 	}
 
 	return nvdScore
-}
-
-func GetNameFromCVSS(CVSSs map[string]*CVSS) string {
-	var nvdName, vendorName string
-
-	for name := range CVSSs {
-		if name == "nvd" {
-			nvdName = name
-		} else {
-			vendorName = name
-		}
-	}
-
-	if len(vendorName) > 0 {
-		return vendorName
-	}
-
-	return nvdName
 }
 
 func GetMirroredImage(image string, mirrors map[string]string) (string, error) {

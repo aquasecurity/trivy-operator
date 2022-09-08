@@ -35,13 +35,14 @@ func (r *WebhookReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	reports := []client.Object{
 		&v1alpha1.VulnerabilityReport{},
 		&v1alpha1.ExposedSecretReport{},
+		// TODO: Add more report types if needed
 	}
 
 	for _, reportType := range reports {
 		err = ctrl.NewControllerManagedBy(mgr).
 			For(reportType, builder.WithPredicates(
 				predicate.Not(predicate.IsBeingTerminated),
-				installModePredicate)). // TODO: Is there a predicate that determines existance?
+				installModePredicate)).
 			Complete(r.reconcileReport(reportType))
 		if err != nil {
 			return err
@@ -64,14 +65,14 @@ func (r *WebhookReconciler) reconcileReport(reportType client.Object) reconcile.
 			return ctrl.Result{}, fmt.Errorf("getting report from cache: %w", err)
 		}
 
-		if err := sendReports(reportType, r.WebhookBroadcastURL, *r.WebhookBroadcastTimeout); err != nil {
+		if err := sendReport(reportType, r.WebhookBroadcastURL, *r.WebhookBroadcastTimeout); err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to send vulnerability report: %w", err)
 		}
 		return ctrl.Result{}, nil
 	}
 }
 
-func sendReports[T any](reports T, endpoint string, timeout time.Duration) error {
+func sendReport[T any](reports T, endpoint string, timeout time.Duration) error {
 	b, err := json.Marshal(reports)
 	if err != nil {
 		return fmt.Errorf("failed to marshal reports: %w", err)

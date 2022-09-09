@@ -1289,6 +1289,10 @@ spec:
               value: "false"
             - name: OPERATOR_EXPOSED_SECRET_SCANNER_ENABLED
               value: "true"
+            - name: OPERATOR_WEBHOOK_BROADCAST_URL
+              value: ""
+            - name: OPERATOR_WEBHOOK_BROADCAST_TIMEOUT
+              value: "30s"
           ports:
             - name: metrics
               containerPort: 8080

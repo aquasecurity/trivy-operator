@@ -66,6 +66,13 @@ operator:
 
   # exposedSecretScannerEnabled the flag to enable exposed secret scanner
   exposedSecretScannerEnabled: true
+
+  # webhookBroadcastURL the flag to set reports should be sent to a webhook endpoint. "" means that the webhookBroadcastURL feature is disabled
+  webhookBroadcastURL: ""
+
+  # webhookBroadcastTimeout the flag to set timeout for webhook requests if webhookBroadcastURL is enabled
+  webhookBroadcastTimeout: 30s
+
 image:
   repository: "ghcr.io/aquasecurity/trivy-operator"
   # tag is an override of the image tag, which is by default set by the

@@ -1225,7 +1225,7 @@ data:
   trivy.supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
   trivy.timeout: "5m0s"
   trivy.resources.requests.cpu: 100m
-  trivy.resources.requests.memory: 300M
+  trivy.resources.requests.memory: 100M
   trivy.resources.limits.cpu: 500m
   trivy.resources.limits.memory: 500M
 ---

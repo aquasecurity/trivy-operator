@@ -66,7 +66,7 @@ func (r *WebhookReconciler) reconcileReport(reportType client.Object) reconcile.
 		}
 
 		if err := sendReport(reportType, r.WebhookBroadcastURL, *r.WebhookBroadcastTimeout); err != nil {
-			return ctrl.Result{}, fmt.Errorf("failed to send vulnerability report: %w", err)
+			return ctrl.Result{}, fmt.Errorf("failed to send report: %w", err)
 		}
 		return ctrl.Result{}, nil
 	}
@@ -76,14 +76,13 @@ func sendReport[T any](reports T, endpoint string, timeout time.Duration) error 
 	b, err := json.Marshal(reports)
 	if err != nil {
 		return fmt.Errorf("failed to marshal reports: %w", err)
-	} else {
-		hc := http.Client{
-			Timeout: timeout,
-		}
-		_, err = hc.Post(endpoint, "application/json", bytes.NewBuffer(b))
-		if err != nil {
-			return fmt.Errorf("failed to send reports to endpoint: %w", err)
-		}
+	}
+	hc := http.Client{
+		Timeout: timeout,
+	}
+	_, err = hc.Post(endpoint, "application/json", bytes.NewBuffer(b))
+	if err != nil {
+		return fmt.Errorf("failed to send reports to endpoint: %w", err)
 	}
 	return nil
 }

@@ -39,19 +39,20 @@ const (
 )
 
 const (
-	keyTrivyImageRef               = "trivy.imageRef"
-	keyTrivyMode                   = "trivy.mode"
-	keyTrivyCommand                = "trivy.command"
-	keyTrivySeverity               = "trivy.severity"
-	keyTrivyIgnoreUnfixed          = "trivy.ignoreUnfixed"
-	keyTrivyTimeout                = "trivy.timeout"
-	keyTrivyIgnoreFile             = "trivy.ignoreFile"
-	keyTrivyInsecureRegistryPrefix = "trivy.insecureRegistry."
-	keyTrivyNonSslRegistryPrefix   = "trivy.nonSslRegistry."
-	keyTrivyMirrorPrefix           = "trivy.registry.mirror."
-	keyTrivyHTTPProxy              = "trivy.httpProxy"
-	keyTrivyHTTPSProxy             = "trivy.httpsProxy"
-	keyTrivyNoProxy                = "trivy.noProxy"
+	keyTrivyImageRef                            = "trivy.imageRef"
+	keyTrivyMode                                = "trivy.mode"
+	keyTrivyAdditionalVulnerabilityReportFields = "trivy.additionalVulnerabilityReportFields"
+	keyTrivyCommand                             = "trivy.command"
+	keyTrivySeverity                            = "trivy.severity"
+	keyTrivyIgnoreUnfixed                       = "trivy.ignoreUnfixed"
+	keyTrivyTimeout                             = "trivy.timeout"
+	keyTrivyIgnoreFile                          = "trivy.ignoreFile"
+	keyTrivyInsecureRegistryPrefix              = "trivy.insecureRegistry."
+	keyTrivyNonSslRegistryPrefix                = "trivy.nonSslRegistry."
+	keyTrivyMirrorPrefix                        = "trivy.registry.mirror."
+	keyTrivyHTTPProxy                           = "trivy.httpProxy"
+	keyTrivyHTTPSProxy                          = "trivy.httpsProxy"
+	keyTrivyNoProxy                             = "trivy.noProxy"
 	// nolint:gosec // This is not a secret, but a configuration value.
 	keyTrivyGitHubToken          = "trivy.githubToken"
 	keyTrivySkipFiles            = "trivy.skipFiles"
@@ -94,9 +95,42 @@ const (
 	Image      Command = "image"
 )
 
+type AdditionalFields struct {
+	Description bool
+	Links       bool
+	CVSS        bool
+	Target      bool
+}
+
 // Config defines configuration params for this plugin.
 type Config struct {
 	trivyoperator.PluginConfig
+}
+
+func (c Config) GetAdditionalVulnerabilityReportFields() AdditionalFields {
+	addFields := AdditionalFields{}
+
+	fields, ok := c.Data[keyTrivyAdditionalVulnerabilityReportFields]
+	if !ok {
+		return addFields
+	}
+
+	for _, field := range strings.Split(fields, ",") {
+		if field == "Description" {
+			addFields.Description = true
+		}
+		if field == "Links" {
+			addFields.Links = true
+		}
+		if field == "CVSS" {
+			addFields.CVSS = true
+		}
+		if field == "Target" {
+			addFields.Target = true
+		}
+	}
+
+	return addFields
 }
 
 // GetImageRef returns upstream Trivy container image reference.
@@ -1355,8 +1389,10 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
 	secrets := make([]v1alpha1.ExposedSecret, 0)
 
+	addFields := config.GetAdditionalVulnerabilityReportFields()
+
 	for _, report := range reports.Results {
-		vulnerabilities = append(vulnerabilities, getVulnerabilitiesFromScanResult(report)...)
+		vulnerabilities = append(vulnerabilities, getVulnerabilitiesFromScanResult(report, addFields)...)
 		secrets = append(secrets, getExposedSecretsFromScanResult(report)...)
 	}
 
@@ -1401,11 +1437,11 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 
 }
 
-func getVulnerabilitiesFromScanResult(report ScanResult) []v1alpha1.Vulnerability {
+func getVulnerabilitiesFromScanResult(report ScanResult, addFields AdditionalFields) []v1alpha1.Vulnerability {
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
 
 	for _, sr := range report.Vulnerabilities {
-		vulnerabilities = append(vulnerabilities, v1alpha1.Vulnerability{
+		vulnerability := v1alpha1.Vulnerability{
 			VulnerabilityID:  sr.VulnerabilityID,
 			Resource:         sr.PkgName,
 			InstalledVersion: sr.InstalledVersion,
@@ -1414,9 +1450,23 @@ func getVulnerabilitiesFromScanResult(report ScanResult) []v1alpha1.Vulnerabilit
 			Title:            sr.Title,
 			PrimaryLink:      sr.PrimaryURL,
 			Links:            []string{},
-			Score:            GetScoreFromCVSS(sr.Cvss),
-			Target:           sr.Target,
-		})
+			Score:            GetScoreFromCVSS(sr.CvssScore),
+		}
+
+		if addFields.Description {
+			vulnerability.Description = sr.Description
+		}
+		if addFields.Links {
+			vulnerability.Links = sr.References
+		}
+		if addFields.CVSS {
+			vulnerability.CVSS = sr.CVSS
+		}
+		if addFields.Target {
+			vulnerability.Target = report.Target
+		}
+
+		vulnerabilities = append(vulnerabilities, vulnerability)
 	}
 
 	return vulnerabilities

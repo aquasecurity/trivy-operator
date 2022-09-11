@@ -1074,6 +1074,21 @@ spec:
                 items:
                   description: Vulnerability is the spec for a vulnerability record.
                   properties:
+                    cvss:
+                      additionalProperties:
+                        properties:
+                          V2Score:
+                            type: number
+                          V2Vector:
+                            type: string
+                          V3Score:
+                            type: number
+                          V3Vector:
+                            type: string
+                        type: object
+                      type: object
+                    cvsssource:
+                      type: string
                     description:
                       type: string
                     fixedVersion:
@@ -1201,6 +1216,7 @@ metadata:
 data:
   trivy.imageRef: "ghcr.io/aquasecurity/trivy:0.30.0"
   trivy.mode: "Standalone"
+  trivy.additionalVulnerabilityReportFields: ""
   trivy.severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
   trivy.dbRepository: "ghcr.io/aquasecurity/trivy-db"
   trivy.command: "image"

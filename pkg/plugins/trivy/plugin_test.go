@@ -532,10 +532,9 @@ func TestPlugin_Init(t *testing.T) {
 				ResourceVersion: "1",
 			},
 			Data: map[string]string{
-				"trivy.imageRef": "ghcr.io/aquasecurity/trivy:0.30.0",
-				"trivy.severity": "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
-				"trivy.mode":     "Standalone",
-				"trivy.additionalVulnerabilityReportFields": "",
+				"trivy.imageRef":                  "ghcr.io/aquasecurity/trivy:0.30.0",
+				"trivy.severity":                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
+				"trivy.mode":                      "Standalone",
 				"trivy.timeout":                   "5m0s",
 				"trivy.dbRepository":              defaultDBRepository,
 				"trivy.useBuiltinRegoPolicies":    "true",

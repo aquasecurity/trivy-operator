@@ -59,8 +59,6 @@ spec:
               value: {{ .Values.operator.metricsFindingsEnabled | quote }}
             - name: OPERATOR_HEALTH_PROBE_BIND_ADDRESS
               value: ":9090"
-            - name: OPERATOR_CIS_KUBERNETES_BENCHMARK_ENABLED
-              value: {{ .Values.operator.kubernetesBenchmarkEnabled | quote }}
             - name: OPERATOR_VULNERABILITY_SCANNER_ENABLED
               value: {{ .Values.operator.vulnerabilityScannerEnabled | quote }}
             - name: OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS

@@ -1287,8 +1287,6 @@ spec:
               value: "true"
             - name: OPERATOR_HEALTH_PROBE_BIND_ADDRESS
               value: ":9090"
-            - name: OPERATOR_CIS_KUBERNETES_BENCHMARK_ENABLED
-              value: "false"
             - name: OPERATOR_VULNERABILITY_SCANNER_ENABLED
               value: "true"
             - name: OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS

@@ -94,7 +94,7 @@ data:
   .dockerconfigjson: OUTPUT
 ```
 
-Note that base64 encoding is not encryption, thust, you should not commit this file. If you are looking to store secrets in Kubernetes, have a look at XXX
+Note that base64 encoding is not encryption, thust, you should not commit this file. If you are looking to store secrets in Kubernetes, have a look at e.g. [Hashicorp Secret Vault](https://www.vaultproject.io/use-cases/kubernetes), or with an [External Secrets Operator (ESO)](https://youtu.be/SyRZe5YVCVk).
 
 Make sure to reference the ImagePullSecret in your container `spec`:
 ```

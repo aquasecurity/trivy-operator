@@ -300,3 +300,6 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+  # automountServiceAccountToken the flag to enable automount for service account token
+automountServiceAccountToken: true

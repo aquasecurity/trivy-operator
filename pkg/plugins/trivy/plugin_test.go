@@ -3728,7 +3728,6 @@ var (
 				Title:            "openssl: information disclosure in fork()",
 				PrimaryLink:      "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-1549",
 				Links:            []string{},
-				Target:           "alpine:3.10.2 (alpine 3.10.2)",
 			},
 			{
 				VulnerabilityID:  "CVE-2019-1547",
@@ -3739,7 +3738,6 @@ var (
 				Title:            "openssl: side-channel weak encryption vulnerability",
 				PrimaryLink:      "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-1547",
 				Links:            []string{},
-				Target:           "alpine:3.10.2 (alpine 3.10.2)",
 			},
 		},
 	}

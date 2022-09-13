@@ -25,7 +25,7 @@ spec:
         {{- include "trivy-operator.selectorLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ include "trivy-operator.serviceAccountName" . }}
-      automountServiceAccountToken: true
+      automountServiceAccountToken: {{ .Values.automountServiceAccountToken }}
       containers:
         - name: {{ .Chart.Name | quote }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"

@@ -32,6 +32,7 @@ nav:
       - Integrations:
           - Metrics: integrations/metrics.md
           - Lens Extension: integrations/lens.md
+          - Webhook Integration: integrations/webhook.md
       - Tutorials:
           - Writing Custom Configuration Audit Policies: tutorials/writing-custom-configuration-audit-policies.md
           - Manage Access to Security Reports: tutorials/manage_access_to_security_reports.md

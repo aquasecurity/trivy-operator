@@ -75,6 +75,10 @@ spec:
               value: {{ .Values.operator.clusterComplianceEnabled | quote }}
             - name: OPERATOR_EXPOSED_SECRET_SCANNER_ENABLED
               value: {{ .Values.operator.exposedSecretScannerEnabled | quote }}
+            - name: OPERATOR_WEBHOOK_BROADCAST_URL
+              value: {{ .Values.operator.webhookBroadcastURL | quote }}
+            - name: OPERATOR_WEBHOOK_BROADCAST_TIMEOUT
+              value: {{ .Values.operator.webhookBroadcastTimeout | quote }}
             {{- if gt (int .Values.operator.replicas) 1 }}
             - name: OPERATOR_LEADER_ELECTION_ENABLED
               value: "true"

@@ -18,6 +18,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
+	"github.com/aquasecurity/trivy-operator/pkg/webhook"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -185,6 +186,16 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				Clock:  ext.NewSystemClock(),
 			}).SetupWithManager(mgr); err != nil {
 				return fmt.Errorf("unable to setup TTLreport reconciler: %w", err)
+			}
+		}
+
+		if operatorConfig.WebhookBroadcastURL != "" {
+			if err = (&webhook.WebhookReconciler{
+				Logger: ctrl.Log.WithName("reconciler").WithName("webhookreporter"),
+				Config: operatorConfig,
+				Client: mgr.GetClient(),
+			}).SetupWithManager(mgr); err != nil {
+				return fmt.Errorf("unable to setup webhookreporter: %w", err)
 			}
 		}
 	}

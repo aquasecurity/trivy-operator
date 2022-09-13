@@ -33,6 +33,8 @@ type Config struct {
 	LeaderElectionEnabled                        bool           `env:"OPERATOR_LEADER_ELECTION_ENABLED" envDefault:"false"`
 	LeaderElectionID                             string         `env:"OPERATOR_LEADER_ELECTION_ID" envDefault:"trivyoperator-lock"`
 	ExposedSecretScannerEnabled                  bool           `env:"OPERATOR_EXPOSED_SECRET_SCANNER_ENABLED" envDefault:"true"`
+	WebhookBroadcastURL                          string         `env:"OPERATOR_WEBHOOK_BROADCAST_URL"`
+	WebhookBroadcastTimeout                      *time.Duration `env:"OPERATOR_WEBHOOK_BROADCAST_TIMEOUT" envDefault:"30s"`
 }
 
 // GetOperatorConfig loads Config from environment variables.

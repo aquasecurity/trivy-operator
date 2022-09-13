@@ -35,6 +35,7 @@ nav:
       - Tutorials:
           - Writing Custom Configuration Audit Policies: tutorials/writing-custom-configuration-audit-policies.md
           - Manage Access to Security Reports: tutorials/manage_access_to_security_reports.md
+          - Operator Access to Private Registries: tutorials/private-registries.md
       - Custom Resource Definitions:
           - Overview: crds/index.md
           - VulnerabilityReport: crds/vulnerability-report.md

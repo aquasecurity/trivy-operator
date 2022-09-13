@@ -50,10 +50,20 @@ helm upgrade --install trivy-operator aqua/trivy-operator \
   --values ./values.yaml
 ```
 
+Alternatively, it is possible to set the values directly through Helm instead of referencing an additional `values.yaml` file:
+```
+helm upgrade --install trivy-operator aqua/trivy-operator \
+  --namespace trivy-system \
+  --create-namespace \
+  --version 0.1.9
+  --set="trivy.command=fs"
+  --set="trivyOperator.scanJobPodTemplateContainerSecurityContext.runAsUser=0"
+```
+
 Once installed, make sure that 
 
 1. the operator is running in your cluster
-2. the operator has created a VulnerabilitReport for the container image from the private registry:
+2. the operator has created a VulnerabilitReport for the container image from the private registry
 
 ```
 ❯ kubectl get deployment -n trivy-system

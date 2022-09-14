@@ -24,7 +24,7 @@ type ClusterComplianceReport struct {
 	Status            ReportStatus `json:"status,omitempty"`
 }
 
-//ReportSpec represent the compliance specification
+// ReportSpec represent the compliance specification
 type ReportSpec struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -36,7 +36,7 @@ type ReportSpec struct {
 	Controls []Control `json:"controls"`
 }
 
-//Control represent the cps controls data and mapping checks
+// Control represent the cps controls data and mapping checks
 type Control struct {
 	// id define the control check id
 	ID          string `json:"id"`
@@ -53,13 +53,13 @@ type Control struct {
 	DefaultStatus ControlStatus `json:"defaultStatus,omitempty"`
 }
 
-//SpecCheck represent the scanner who perform the control check
+// SpecCheck represent the scanner who perform the control check
 type SpecCheck struct {
 	// id define the check id as produced by scanner
 	ID string `json:"id"`
 }
 
-//Mapping represent the scanner who perform the control check
+// Mapping represent the scanner who perform the control check
 type Mapping struct {
 	// scanner define the name of the scanner which produce data, currently only config-audit is supported
 	//+kubebuilder:validation:Pattern=`^config-audit$`

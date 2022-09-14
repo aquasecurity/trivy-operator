@@ -255,7 +255,7 @@ var ErrReplicaSetNotFound = errors.New("replicaset not found")
 var ErrNoRunningPods = errors.New("no active pods for controller")
 var ErrUnSupportedKind = errors.New("unsupported workload kind")
 
-//CompatibleMgr provide k8s compatible objects (group/api/kind) capabilities
+// CompatibleMgr provide k8s compatible objects (group/api/kind) capabilities
 type CompatibleMgr interface {
 	// GetSupportedObjectByKind get specific k8s compatible object (group/api/kind) by kind
 	GetSupportedObjectByKind(kind Kind) client.Object
@@ -274,7 +274,7 @@ func NewObjectResolver(c client.Client, cm CompatibleMgr) ObjectResolver {
 	return ObjectResolver{c, cm}
 }
 
-//InitCompatibleMgr initializes a CompatibleObjectMapper who store a map the of supported kinds with it compatible Objects (group/api/kind)
+// InitCompatibleMgr initializes a CompatibleObjectMapper who store a map the of supported kinds with it compatible Objects (group/api/kind)
 // it dynamically fetches the compatible k8s objects (group/api/kind) by resource from the cluster and store it in kind vs k8s object mapping
 // It will enable the operator to support old and new API resources based on cluster version support
 func InitCompatibleMgr(restMapper meta.RESTMapper) (CompatibleMgr, error) {
@@ -311,7 +311,7 @@ func getCompatibleResources() []string {
 	return []string{cronJobResource}
 }
 
-//GetSupportedObjectByKind accept kind and return the supported object (group/api/kind) of the cluster
+// GetSupportedObjectByKind accept kind and return the supported object (group/api/kind) of the cluster
 func (o *CompatibleObjectMapper) GetSupportedObjectByKind(kind Kind) client.Object {
 	return o.kindObjectMap[string(kind)]
 }
@@ -429,7 +429,7 @@ func (o *ObjectResolver) ReplicaSetByDeploymentRef(ctx context.Context, deployme
 
 // ReplicaSetByDeployment returns the current revision of the specified
 // Deployment. If the current revision cannot be found the ErrReplicaSetNotFound
-//error is returned.
+// error is returned.
 func (o *ObjectResolver) ReplicaSetByDeployment(ctx context.Context, deployment *appsv1.Deployment) (*appsv1.ReplicaSet, error) {
 	var rsList appsv1.ReplicaSetList
 	err := o.Client.List(ctx, &rsList,

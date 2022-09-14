@@ -1,11 +1,11 @@
 linters:
   disable:
-    - structcheck # FIXME: Currently doesn't work on Go 1.19: https://github.com/golangci/golangci-lint/issues/2649
+    - structcheck # FIXME: Currently doesn't work on Go 1.18: https://github.com/golangci/golangci-lint/issues/2649
   enable:
     - errorlint
     - gocritic
     - gosec
-    # - unparam FIXME: Currently doesn't work on Go 1.19: https://github.com/golangci/golangci-lint/issues/2649
+    # - unparam FIXME: Currently doesn't work on Go 1.18: https://github.com/golangci/golangci-lint/issues/2649
 linters-settings:
   gocritic:
     enabled-checks:

@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"reflect"
 
 	"github.com/stretchr/testify/assert"
@@ -74,7 +74,7 @@ func TestMapComplianceScannerToResource(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			d, err := ioutil.ReadFile(tt.specPath)
+			d, err := os.ReadFile(tt.specPath)
 			if err != nil {
 				t.Error(err)
 			}
@@ -142,7 +142,7 @@ func TestMapReportDataToMap(t *testing.T) {
 
 func getWantResults(filePath string) map[string]*ScannerCheckResult {
 	var tct map[string]*ScannerCheckResult
-	data, err := ioutil.ReadFile(filePath)
+	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil
 	}
@@ -155,7 +155,7 @@ func getWantResults(filePath string) map[string]*ScannerCheckResult {
 
 func getWantMapResults(filePath string) map[string][]*ScannerCheckResult {
 	var tct map[string][]*ScannerCheckResult
-	data, err := ioutil.ReadFile(filePath)
+	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil
 	}

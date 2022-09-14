@@ -1214,7 +1214,7 @@ metadata:
     app.kubernetes.io/version: "0.2.0-rc"
     app.kubernetes.io/managed-by: kubectl
 data:
-  trivy.imageRef: "ghcr.io/aquasecurity/trivy:0.30.0"
+  trivy.imageRef: "ghcr.io/aquasecurity/trivy:0.31.3"
   trivy.mode: "Standalone"
   trivy.additionalVulnerabilityReportFields: ""
   trivy.severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"

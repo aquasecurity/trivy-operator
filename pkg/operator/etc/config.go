@@ -35,6 +35,7 @@ type Config struct {
 	ExposedSecretScannerEnabled                  bool           `env:"OPERATOR_EXPOSED_SECRET_SCANNER_ENABLED" envDefault:"true"`
 	WebhookBroadcastURL                          string         `env:"OPERATOR_WEBHOOK_BROADCAST_URL"`
 	WebhookBroadcastTimeout                      *time.Duration `env:"OPERATOR_WEBHOOK_BROADCAST_TIMEOUT" envDefault:"30s"`
+	TargetWorkloads                              string         `env:"OPERATOR_TARGET_WORKLOADS" envDefault:"Pod,Replicaset,ReplicationController,StatefulSet,DaemonSet,CronJob,Job"`
 }
 
 // GetOperatorConfig loads Config from environment variables.
@@ -64,6 +65,15 @@ func (c Config) GetTargetNamespaces() []string {
 	if namespaces != "" {
 		return strings.Split(namespaces, ",")
 	}
+	return []string{}
+}
+
+func (c Config) GetTargetWorkloads() []string {
+	workloads := c.TargetWorkloads
+	if workloads != "" {
+		return strings.Split(workloads, ",")
+	}
+
 	return []string{}
 }
 

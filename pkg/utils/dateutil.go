@@ -18,12 +18,12 @@ func NextCronDuration(cronString string, creationTime time.Time, clock ext.Clock
 	return timeToExpiration(expr.Next(creationTime), clock), nil
 }
 
-//DurationExceeded  check if duration is now meaning zero
+// DurationExceeded  check if duration is now meaning zero
 func DurationExceeded(duration time.Duration) bool {
 	return duration.Nanoseconds() <= 0
 }
 
-//timeToExpiration  return the duration between time to expiration
+// timeToExpiration  return the duration between time to expiration
 func timeToExpiration(expiresAt time.Time, clock ext.Clock) time.Duration {
 	return expiresAt.Sub(clock.Now())
 }

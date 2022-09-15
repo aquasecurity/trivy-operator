@@ -134,7 +134,7 @@ func (p *Policies) ModulePolicyByKind(kind string) ([]string, error) {
 	return policy, nil
 }
 
-//Applicable check if policies exist either built in or via policies configmap
+// Applicable check if policies exist either built in or via policies configmap
 func (p *Policies) Applicable(resource client.Object) (bool, string, error) {
 	resourceKind := resource.GetObjectKind().GroupVersionKind().Kind
 	if resourceKind == "" {
@@ -150,7 +150,7 @@ func (p *Policies) Applicable(resource client.Object) (bool, string, error) {
 	return true, "", nil
 }
 
-//SupportedKind scan policies supported for this kind
+// SupportedKind scan policies supported for this kind
 func (p *Policies) SupportedKind(resource client.Object, rbacDEnable bool) (bool, error) {
 	resourceKind := resource.GetObjectKind().GroupVersionKind().Kind
 	if resourceKind == "" {
@@ -217,7 +217,7 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object) (scan.Resul
 	return scanResult, nil
 }
 
-//GetResultID return the result id found in aliases (legacy) otherwise use AvdID
+// GetResultID return the result id found in aliases (legacy) otherwise use AvdID
 func (r *Policies) GetResultID(result scan.Result) string {
 	id := result.Rule().AVDID
 	if len(result.Rule().Aliases) > 0 {

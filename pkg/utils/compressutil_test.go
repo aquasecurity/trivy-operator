@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
+	"io"
 	"strings"
 	"testing"
 )
@@ -42,7 +42,7 @@ func TestDecompressBzip2(t *testing.T) {
 			if tt.hasError {
 				assert.Error(t, err)
 			} else {
-				b, err := ioutil.ReadAll(got)
+				b, err := io.ReadAll(got)
 				assert.NoError(t, err)
 				assert.Equal(t, string(b), tt.want)
 			}

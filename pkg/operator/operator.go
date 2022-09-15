@@ -43,7 +43,8 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	setupLog.Info("Resolved install mode", "install mode", installMode,
 		"operator namespace", operatorNamespace,
 		"target namespaces", targetNamespaces,
-		"exclude namespaces", operatorConfig.ExcludeNamespaces)
+		"exclude namespaces", operatorConfig.ExcludeNamespaces,
+		"target workloads", operatorConfig.TargetWorkloads)
 
 	// Set the default manager options.
 	options := manager.Options{

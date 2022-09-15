@@ -15,9 +15,8 @@ targetNamespaces: ""
 excludeNamespaces: "kube-system,{{ .Release.Namespace }}"
 
 # targetWorkloads is a comma seperated list of Kubernetes workloads
-# to be excluded from the vulnerability and config-audit scans
-# default, it's a blank string to select all Kubernetes workload types
-targetWorkloads: ""
+# to be included in the vulnerability and config-audit scans
+targetWorkloads: "Pod,ReplicaSet,ReplicationController,StatefulSet,DaemonSet,CronJob,Job"
 
 nameOverride: ""
 fullnameOverride: ""
@@ -34,7 +33,7 @@ operator:
   leaderElectionId: "trivyoperator-lock"
 
   # logDevMode the flag to enable development mode (more human-readable output, extra stack traces and logging information, etc)
-  logDevMode: false
+  logDevMode: true
 
   # scanJobTimeout the length of time to wait before giving up on a scan job
   scanJobTimeout: 5m
@@ -77,11 +76,11 @@ operator:
   webhookBroadcastTimeout: 30s
 
 image:
-  repository: "ghcr.io/aquasecurity/trivy-operator"
+  repository: "docker.io/tks98/trivy-operator"
   # tag is an override of the image tag, which is by default set by the
   # appVersion field in Chart.yaml.
-  tag: ""
-  pullPolicy: IfNotPresent
+  tag: "test6"
+  pullPolicy: Always
   pullSecrets: []
 
 # service only expose a metrics endpoint for prometheus to scrape,

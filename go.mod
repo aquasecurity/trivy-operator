@@ -1,6 +1,6 @@
 module github.com/aquasecurity/trivy-operator
 
-go 1.18
+go 1.19
 
 require (
 	github.com/aquasecurity/defsec v0.74.2

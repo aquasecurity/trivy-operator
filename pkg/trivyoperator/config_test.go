@@ -204,7 +204,6 @@ func TestConfigData_GetScanJobAnnotations(t *testing.T) {
 	}
 }
 
-
 func TestConfigData_GetScanJobNodeSelector(t *testing.T) {
 	testCases := []struct {
 		name        string
@@ -218,7 +217,7 @@ func TestConfigData_GetScanJobNodeSelector(t *testing.T) {
 				"scanJob.nodeSelector": "{\"nodeType\":\"worker\", \"testLabel2\":\"testVal1\"}",
 			},
 			expected: map[string]string{
-				"nodeType": "worker",
+				"nodeType":   "worker",
 				"testLabel2": "testVal1",
 			},
 		},
@@ -232,7 +231,7 @@ func TestConfigData_GetScanJobNodeSelector(t *testing.T) {
 			config: trivyoperator.ConfigData{
 				"scanJob.nodeSelector": "{}",
 			},
-			expected:    map[string]string{},
+			expected: map[string]string{},
 		},
 		{
 			name: "raise an error on being provided with template nodeSelector in wrong format",
@@ -256,7 +255,6 @@ func TestConfigData_GetScanJobNodeSelector(t *testing.T) {
 		})
 	}
 }
-
 
 func TestConfigData_GetScanJobPodTemplateLabels(t *testing.T) {
 	testCases := []struct {

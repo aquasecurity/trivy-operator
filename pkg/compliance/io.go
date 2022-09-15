@@ -81,7 +81,7 @@ func (w *cm) GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportS
 
 }
 
-//createComplianceReport create compliance report
+// createComplianceReport create compliance report
 func (w *cm) createComplianceReport(ctx context.Context, spec v1alpha1.ReportSpec, st summaryTotal, controlChecks []v1alpha1.ControlCheck) (*v1alpha1.ClusterComplianceReport, error) {
 	statusControlChecks := make([]v1alpha1.ControlCheck, 0)
 	//check if status data should be updated
@@ -110,7 +110,7 @@ func (w *cm) createComplianceReport(ctx context.Context, spec v1alpha1.ReportSpe
 	return copied, nil
 }
 
-//createComplianceDetailReport create and publish compliance details report
+// createComplianceDetailReport create and publish compliance details report
 func (w *cm) createComplianceDetailReport(ctx context.Context, spec v1alpha1.ReportSpec, smd *specDataMapping, checkIdsToResults map[string][]*ScannerCheckResult, st summaryTotal) error {
 	controlChecksDetails := w.controlChecksDetailsByScannerChecks(smd, checkIdsToResults)
 	name := strings.ToLower(fmt.Sprintf("%s-%s", spec.Name, "details"))
@@ -289,7 +289,7 @@ func (w *cm) checkIdsToResults(scannerResourceMap map[string]map[string]client.O
 	return checkIdsToResults, nil
 }
 
-//populateSpecDataToMaps populate spec data to map structures
+// populateSpecDataToMaps populate spec data to map structures
 func (w *cm) populateSpecDataToMaps(spec v1alpha1.ReportSpec) *specDataMapping {
 	//control to resource list map
 	controlIDControlObject := make(map[string]v1alpha1.Control)

@@ -2,7 +2,7 @@ package compliance
 
 import (
 	"context"
-	"io/ioutil"
+	"os"
 	"sort"
 	"time"
 
@@ -21,7 +21,7 @@ import (
 )
 
 func loadResource(filePath string, resource interface{}) error {
-	data, err := ioutil.ReadFile(filePath)
+	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil
 	}

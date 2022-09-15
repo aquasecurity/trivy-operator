@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"sort"
 	"strings"
 	"testing"
@@ -1083,7 +1083,7 @@ func getPolicyResults(results scan.Results) Results {
 
 func getBuildInResults(t *testing.T, filePath string) Results {
 	var prs Results
-	b, err := ioutil.ReadFile(filePath)
+	b, err := os.ReadFile(filePath)
 	if err != nil {
 		t.Error(err)
 	}

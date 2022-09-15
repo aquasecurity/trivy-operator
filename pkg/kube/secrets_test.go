@@ -3,7 +3,7 @@ package kube_test
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -263,7 +263,7 @@ func TestListImagePullSecretsByPodSpec(t *testing.T) {
 }
 
 func loadResource(filePath string, resource interface{}) error {
-	data, err := ioutil.ReadFile(filePath)
+	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil
 	}

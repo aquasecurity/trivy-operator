@@ -83,26 +83,46 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 
-	resources := []struct {
+	type resource struct {
 		kind       kube.Kind
 		forObject  client.Object
 		ownsObject client.Object
-	}{
-		{kind: kube.KindPod, forObject: &corev1.Pod{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindReplicaSet, forObject: &appsv1.ReplicaSet{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindReplicationController, forObject: &corev1.ReplicationController{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindStatefulSet, forObject: &appsv1.StatefulSet{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindDaemonSet, forObject: &appsv1.DaemonSet{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindCronJob, forObject: r.ObjectResolver.GetSupportedObjectByKind(kube.KindCronJob), ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindJob, forObject: &batchv1.Job{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindService, forObject: &corev1.Service{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindConfigMap, forObject: &corev1.ConfigMap{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindRole, forObject: &rbacv1.Role{}, ownsObject: &v1alpha1.RbacAssessmentReport{}},
-		{kind: kube.KindRoleBinding, forObject: &rbacv1.RoleBinding{}, ownsObject: &v1alpha1.RbacAssessmentReport{}},
-		{kind: kube.KindNetworkPolicy, forObject: &networkingv1.NetworkPolicy{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindIngress, forObject: &networkingv1.Ingress{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindResourceQuota, forObject: &corev1.ResourceQuota{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindLimitRange, forObject: &corev1.LimitRange{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
+	}
+
+	// Add non workload related resources
+	var resources []resource
+	resources = append(resources, resource{kind: kube.KindService, forObject: &corev1.Service{}, ownsObject: &v1alpha1.ConfigAuditReport{}})
+	resources = append(resources, resource{kind: kube.KindService, forObject: &corev1.Service{}, ownsObject: &v1alpha1.ConfigAuditReport{}})
+	resources = append(resources, resource{kind: kube.KindConfigMap, forObject: &corev1.ConfigMap{}, ownsObject: &v1alpha1.ConfigAuditReport{}})
+	resources = append(resources, resource{kind: kube.KindRole, forObject: &rbacv1.Role{}, ownsObject: &v1alpha1.RbacAssessmentReport{}})
+	resources = append(resources, resource{kind: kube.KindRoleBinding, forObject: &rbacv1.RoleBinding{}, ownsObject: &v1alpha1.RbacAssessmentReport{}})
+	resources = append(resources, resource{kind: kube.KindNetworkPolicy, forObject: &networkingv1.NetworkPolicy{}, ownsObject: &v1alpha1.ConfigAuditReport{}})
+	resources = append(resources, resource{kind: kube.KindIngress, forObject: &networkingv1.Ingress{}, ownsObject: &v1alpha1.ConfigAuditReport{}})
+	resources = append(resources, resource{kind: kube.KindResourceQuota, forObject: &corev1.ResourceQuota{}, ownsObject: &v1alpha1.ConfigAuditReport{}})
+	resources = append(resources, resource{kind: kube.KindNetworkPolicy, forObject: &networkingv1.NetworkPolicy{}, ownsObject: &v1alpha1.ConfigAuditReport{}})
+	resources = append(resources, resource{kind: kube.KindLimitRange, forObject: &corev1.LimitRange{}, ownsObject: &v1alpha1.ConfigAuditReport{}})
+
+	// Determine which Kubernetes workloads the controller will reconcile
+	targetWorkloads := r.Config.GetTargetWorkloads()
+	for _, tw := range targetWorkloads {
+		switch strings.ToLower(tw) {
+		case "pod":
+			resources = append(resources, resource{kind: kube.KindPod, forObject: &corev1.Pod{}, ownsObject: &v1alpha1.ConfigAuditReport{}})
+		case "replicaset":
+			resources = append(resources, resource{kind: kube.KindReplicaSet, forObject: &appsv1.ReplicaSet{}, ownsObject: &v1alpha1.ConfigAuditReport{}})
+		case "replicationcontroller":
+			resources = append(resources, resource{kind: kube.KindReplicationController, forObject: &corev1.ReplicationController{}, ownsObject: &v1alpha1.ConfigAuditReport{}})
+		case "statefulset":
+			resources = append(resources, resource{kind: kube.KindStatefulSet, forObject: &appsv1.StatefulSet{}, ownsObject: &v1alpha1.ConfigAuditReport{}})
+		case "daemonset":
+			resources = append(resources, resource{kind: kube.KindDaemonSet, forObject: &appsv1.DaemonSet{}, ownsObject: &v1alpha1.ConfigAuditReport{}})
+		case "cronjob":
+			resources = append(resources, resource{kind: kube.KindCronJob, forObject: r.ObjectResolver.GetSupportedObjectByKind(kube.KindCronJob), ownsObject: &v1alpha1.ConfigAuditReport{}})
+		case "job":
+			resources = append(resources, resource{kind: kube.KindJob, forObject: &batchv1.Job{}, ownsObject: &v1alpha1.ConfigAuditReport{}})
+		default:
+			return fmt.Errorf("workload %s is not supported", tw)
+		}
 	}
 
 	clusterResources := []struct {

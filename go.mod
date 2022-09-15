@@ -3,7 +3,7 @@ module github.com/aquasecurity/trivy-operator
 go 1.19
 
 require (
-	github.com/aquasecurity/defsec v0.74.2
+	github.com/aquasecurity/defsec v0.75.3
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dsnet/compress v0.0.1

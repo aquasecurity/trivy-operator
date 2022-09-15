@@ -119,8 +119,8 @@ func NewSecretsReader(c client.Client) SecretsReader {
 	return &secretsReader{client: c}
 }
 
-//+kubebuilder:rbac:groups="",resources=secrets,verbs=get
-//+kubebuilder:rbac:groups="",resources=serviceaccounts,verbs=get
+// kubebuilder:rbac:groups="",resources=secrets,verbs=get
+// kubebuilder:rbac:groups="",resources=serviceaccounts,verbs=get
 
 type secretsReader struct {
 	client client.Client

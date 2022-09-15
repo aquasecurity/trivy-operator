@@ -1302,6 +1302,8 @@ spec:
               value: "30s"
             - name: OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES
               value: "{}"
+            - name: OPERATOR_USE_WORKLOAD_IMAGE_PULL_SECRET
+              value: "true"
           ports:
             - name: metrics
               containerPort: 8080
@@ -1499,20 +1501,6 @@ rules:
   - get
   - list
   - watch
-- apiGroups:
-  - ""
-  resources:
-  - secrets
-  verbs:
-  - create
-  - get
-  - update
-- apiGroups:
-  - ""
-  resources:
-  - serviceaccounts
-  verbs:
-  - get
 - apiGroups:
   - ""
   resources:
@@ -1731,6 +1719,20 @@ rules:
   - get
   - list
   - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - get
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  verbs:
+  - get
 ---
 # Source: trivy-operator/templates/rbac.yaml
 # permissions for end users to view configauditreports
@@ -1847,6 +1849,14 @@ rules:
       - get
       - list
       - watch
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - get
+      - delete
 ---
 # Source: trivy-operator/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1

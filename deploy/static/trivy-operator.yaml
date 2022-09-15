@@ -1267,10 +1267,12 @@ spec:
               value: ""
             - name: OPERATOR_EXCLUDE_NAMESPACES
               value: "kube-system,trivy-system"
+            - name: OPERATOR_TARGET_WORKLOADS
+              value: "Pod,ReplicaSet,ReplicationController,StatefulSet,DaemonSet,CronJob,Job"
             - name: OPERATOR_SERVICE_ACCOUNT
               value: "trivy-operator"
             - name: OPERATOR_LOG_DEV_MODE
-              value: "false"
+              value: "true"
             - name: OPERATOR_SCAN_JOB_TIMEOUT
               value: "5m"
             - name: OPERATOR_CONCURRENT_SCAN_JOBS_LIMIT

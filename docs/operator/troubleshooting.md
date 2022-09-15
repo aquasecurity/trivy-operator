@@ -104,3 +104,8 @@ system:kube-controller-manager               system:kube-controller-manager  Use
 If the `ClusterRoleBinding` does not exist, Trivy currently cannot monitor any namespace outside of the `trivy-system` namespace.
 
 For instance, if you are using the [Helm Chart](./installation/helm.md), you want to make sure to set the `targetNamespace` to the namespace that you want the Operator to monitor.
+
+The operator also could not be configured to scan the workload you are expecting. Check to make sure `OPERATOR_TARGET_WORKLOADS` is set correctly in your configuration. This allows you to specify which workload types to be scanned. 
+
+For example, by default in the [Helm Chart](./installation/helm.md) values, the follow Kubernetes workloads are configured to be scanned
+`"Pod,ReplicaSet,ReplicationController,StatefulSet,DaemonSet,CronJob,Job"`.

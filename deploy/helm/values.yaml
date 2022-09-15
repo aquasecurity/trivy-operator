@@ -33,7 +33,7 @@ operator:
   leaderElectionId: "trivyoperator-lock"
 
   # logDevMode the flag to enable development mode (more human-readable output, extra stack traces and logging information, etc)
-  logDevMode: true
+  logDevMode: false
 
   # scanJobTimeout the length of time to wait before giving up on a scan job
   scanJobTimeout: 5m

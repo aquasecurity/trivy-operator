@@ -343,7 +343,7 @@ func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Poli
 	for _, result := range results {
 		id := policies.GetResultID(result)
 		// ignore infra components until it will be officially supported
-		if strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV") {
+		if strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV") || strings.HasPrefix(id, "N/A") {
 			continue
 		}
 		checks = append(checks, v1alpha1.Check{

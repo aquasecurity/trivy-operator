@@ -107,5 +107,5 @@ For instance, if you are using the [Helm Chart](./installation/helm.md), you wan
 
 The operator also could not be configured to scan the workload you are expecting. Check to make sure `OPERATOR_TARGET_WORKLOADS` is set correctly in your configuration. This allows you to specify which workload types to be scanned. 
 
-For example, by default in the [Helm Chart](./installation/helm.md) values, the follow Kubernetes workloads are configured to be scanned
+For example, by default in the [Helm Chart](./installation/helm.md) values, the following Kubernetes workloads are configured to be scanned
 `"Pod,ReplicaSet,ReplicationController,StatefulSet,DaemonSet,CronJob,Job"`.

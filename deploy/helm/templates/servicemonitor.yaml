@@ -3,7 +3,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: {{ include "trivy-operator.fullname" . }}
-  namespace: {{ .Values.serviceMonitor.namespace | default .Release.Namespace }}
+  namespace: {{ .Values.serviceMonitor.namespace | default (include "trivy-operator.namespace" . ) }}
   labels:
     {{- include "trivy-operator.labels" . | nindent 4 }}
     {{- if .Values.serviceMonitor.labels }}
@@ -13,7 +13,7 @@ spec:
   {{- if .Values.serviceMonitor.namespace }}
   namespaceSelector:
     matchNames:
-    - {{ .Release.Namespace }}
+    - {{ include "trivy-operator.namespace" . }}
   {{- end }}
   selector:
     matchLabels:

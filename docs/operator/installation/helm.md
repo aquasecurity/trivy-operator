@@ -54,6 +54,12 @@ except `kube-system` and `trivy-system`:
    kubectl logs deployment/trivy-operator -n trivy-system
    ```
 
+## Install as Helm dependency
+
+There are cases, when potential chart developers want to add the operator as dependency. An example would be the creation of an umbrella chart for an application, which depends on 3d-party charts.
+
+In this case, It maybe not suitable to install the Trivy Operator in the same namespace as the main application. Instead, we can use the Helm value `operator.namespace` to define a namespace where only the operator will be installed. The Operator chart will then either create a new namespace if not existing or use the existing one.
+
 ## Uninstall
 
 You can uninstall the operator with the following command:

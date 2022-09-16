@@ -40,7 +40,7 @@ spec:
             - name: OPERATOR_EXCLUDE_NAMESPACES
               value: {{ tpl .Values.excludeNamespaces . | quote }}
             - name: OPERATOR_TARGET_WORKLOADS
-              value: {{ .Values.targetWorkloads | quote }}
+              value: {{ tpl .Values.targetWorkloads . | quote }}
             - name: OPERATOR_SERVICE_ACCOUNT
               value: {{ include "trivy-operator.serviceAccountName" . | quote }}
             - name: OPERATOR_LOG_DEV_MODE

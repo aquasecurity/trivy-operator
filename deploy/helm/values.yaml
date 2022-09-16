@@ -149,8 +149,10 @@ trivy:
   # createConfig indicates whether to create config objects
   createConfig: true
 
-  # imageRef the Trivy image reference.
-  imageRef: ghcr.io/aquasecurity/trivy:0.31.3
+  # repository of the Trivy image
+  repository: ghcr.io/aquasecurity/trivy
+  # tag version of the Trivy image
+  tag: 0.31.3
 
   # mode is the Trivy client mode. Either Standalone or ClientServer. Depending
   # on the active mode other settings might be applicable or required.

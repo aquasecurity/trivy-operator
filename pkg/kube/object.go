@@ -662,6 +662,38 @@ func (o *ObjectResolver) GetActivePodsMatchingLabels(ctx context.Context, namesp
 	return pods, nil
 }
 
+// Resource represents a Kubernetes resource Object
+type Resource struct {
+	Kind       Kind
+	ForObject  client.Object
+	OwnsObject client.Object
+}
+
+// GetTargetWorkloadResource converts a kubernetes workload resource name and the object to attach it to and returns a Resource Object
+func (r *Resource) GetTargetWorkloadResource(workload string, object client.Object) error {
+
+	switch workload {
+	case "pod":
+		*r = Resource{Kind: KindPod, ForObject: &corev1.Pod{}, OwnsObject: object}
+	case "replicaset":
+		*r = Resource{Kind: KindReplicaSet, ForObject: &appsv1.ReplicaSet{}, OwnsObject: object}
+	case "replicationcontroller":
+		*r = Resource{Kind: KindReplicationController, ForObject: &corev1.ReplicationController{}, OwnsObject: object}
+	case "statefulset":
+		*r = Resource{Kind: KindStatefulSet, ForObject: &appsv1.StatefulSet{}, OwnsObject: object}
+	case "daemonset":
+		*r = Resource{Kind: KindDaemonSet, ForObject: &appsv1.DaemonSet{}, OwnsObject: object}
+	case "cronjob":
+		*r = Resource{Kind: KindCronJob, ForObject: &batchv1.CronJob{}, OwnsObject: object}
+	case "job":
+		*r = Resource{Kind: KindJob, ForObject: &batchv1.Job{}, OwnsObject: object}
+	default:
+		return fmt.Errorf("workload %s is not supported", workload)
+	}
+
+	return nil
+}
+
 func IsValidK8sKind(kind string) bool {
 	if IsWorkload(kind) || IsClusterScopedKind(kind) || IsRoleRelatedNamespaceScope(Kind(kind)) || isValidNamespaceResource(Kind(kind)) || kind == "Workload" {
 		return true

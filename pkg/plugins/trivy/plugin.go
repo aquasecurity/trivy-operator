@@ -39,7 +39,8 @@ const (
 )
 
 const (
-	keyTrivyImageRef                            = "trivy.imageRef"
+	keyTrivyImageRepository                     = "trivy.repository"
+	keyTrivyImageTag                            = "trivy.tag"
 	keyTrivyMode                                = "trivy.mode"
 	keyTrivyAdditionalVulnerabilityReportFields = "trivy.additionalVulnerabilityReportFields"
 	keyTrivyCommand                             = "trivy.command"
@@ -135,7 +136,16 @@ func (c Config) GetAdditionalVulnerabilityReportFields() AdditionalFields {
 
 // GetImageRef returns upstream Trivy container image reference.
 func (c Config) GetImageRef() (string, error) {
-	return c.GetRequiredData(keyTrivyImageRef)
+	repository, err := c.GetRequiredData(keyTrivyImageRepository)
+	if err != nil {
+		return "", err
+	}
+	tag, err := c.GetRequiredData(keyTrivyImageTag)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%s:%s", repository, tag), nil
 }
 
 func (c Config) GetMode() (Mode, error) {
@@ -338,7 +348,8 @@ func NewTrivyConfigAuditPlugin(clock ext.Clock, idGenerator ext.IDGenerator, obj
 func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 	return ctx.EnsureConfig(trivyoperator.PluginConfig{
 		Data: map[string]string{
-			keyTrivyImageRef:                  "ghcr.io/aquasecurity/trivy:0.31.3",
+			keyTrivyImageRepository:           "ghcr.io/aquasecurity/trivy",
+			keyTrivyImageTag:                  "0.31.3",
 			keyTrivySeverity:                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
 			keyTrivyMode:                      string(Standalone),
 			keyTrivyTimeout:                   "5m0s",

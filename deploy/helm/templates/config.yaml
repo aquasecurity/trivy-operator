@@ -54,7 +54,8 @@ metadata:
   labels:
     {{- include "trivy-operator.labels" $ | nindent 4 }}
 data:
-  trivy.imageRef: {{ required ".Values.trivy.imageRef is required" .imageRef | quote }}
+  trivy.repository: {{ required ".Values.trivy.repository is required" .repository | quote }}
+  trivy.tag: {{ required ".Values.trivy.tag is required" .tag | quote }}
   trivy.mode: {{ .mode | quote }}
   trivy.additionalVulnerabilityReportFields: {{ .additionalVulnerabilityReportFields | quote}}
   {{- if .httpProxy }}

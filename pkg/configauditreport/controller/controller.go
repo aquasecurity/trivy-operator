@@ -97,7 +97,7 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 	targetWorkloads := r.Config.GetTargetWorkloads()
 	for _, tw := range targetWorkloads {
 		var resource kube.Resource
-		err := resource.GetTargetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{})
+		err := resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{})
 		if err != nil {
 			return err
 		}

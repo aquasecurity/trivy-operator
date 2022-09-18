@@ -669,8 +669,8 @@ type Resource struct {
 	OwnsObject client.Object
 }
 
-// GetTargetWorkloadResource converts a kubernetes workload resource name and the object to attach it to and returns a Resource Object
-func (r *Resource) GetTargetWorkloadResource(workload string, object client.Object) error {
+// GetWorkloadResource converts a kubernetes workload resource name and client.Object and returns a Resource Object
+func (r *Resource) GetWorkloadResource(workload string, object client.Object) error {
 
 	switch workload {
 	case "pod":

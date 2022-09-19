@@ -19,6 +19,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
+	"strings"
 )
 
 // ObjectRef is a simplified representation of a Kubernetes client.Object.
@@ -670,9 +671,11 @@ type Resource struct {
 }
 
 // GetWorkloadResource converts a kubernetes workload resource name and client.Object and returns a Resource Object
-func (r *Resource) GetWorkloadResource(workload string, object client.Object) error {
+func (r *Resource) GetWorkloadResource(kind string, object client.Object) error {
 
-	switch workload {
+	kind = strings.ToLower(kind)
+
+	switch kind {
 	case "pod":
 		*r = Resource{Kind: KindPod, ForObject: &corev1.Pod{}, OwnsObject: object}
 	case "replicaset":
@@ -688,7 +691,7 @@ func (r *Resource) GetWorkloadResource(workload string, object client.Object) er
 	case "job":
 		*r = Resource{Kind: KindJob, ForObject: &batchv1.Job{}, OwnsObject: object}
 	default:
-		return fmt.Errorf("workload %s is not supported", workload)
+		return fmt.Errorf("workload of kind %s is not supported", kind)
 	}
 
 	return nil

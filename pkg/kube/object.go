@@ -670,8 +670,8 @@ type Resource struct {
 	OwnsObject client.Object
 }
 
-// GetWorkloadResource converts a kubernetes workload resource name and client.Object and returns a Resource Object
-func (r *Resource) GetWorkloadResource(kind string, object client.Object) error {
+// GetWorkloadResource returns a Resource object which can be used by controllers for reconciliation
+func (r *Resource) GetWorkloadResource(kind string, object client.Object, resolver ObjectResolver) error {
 
 	kind = strings.ToLower(kind)
 
@@ -687,7 +687,7 @@ func (r *Resource) GetWorkloadResource(kind string, object client.Object) error 
 	case "daemonset":
 		*r = Resource{Kind: KindDaemonSet, ForObject: &appsv1.DaemonSet{}, OwnsObject: object}
 	case "cronjob":
-		*r = Resource{Kind: KindCronJob, ForObject: &batchv1.CronJob{}, OwnsObject: object}
+		*r = Resource{Kind: KindCronJob, ForObject: resolver.GetSupportedObjectByKind(KindCronJob), OwnsObject: object}
 	case "job":
 		*r = Resource{Kind: KindJob, ForObject: &batchv1.Job{}, OwnsObject: object}
 	default:

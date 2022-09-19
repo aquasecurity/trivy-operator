@@ -34,12 +34,13 @@ const (
 )
 
 const (
-	kindAny        = "*"
-	kindWorkload   = "Workload"
-	inputFolder    = "inputs"
-	policiesFolder = "externalPolicies"
-	regoExt        = "rego"
-	yamlExt        = "yaml"
+	kindAny                   = "*"
+	kindWorkload              = "Workload"
+	inputFolder               = "inputs"
+	policiesFolder            = "externalPolicies"
+	regoExt                   = "rego"
+	yamlExt                   = "yaml"
+	externalPoliciesNamespace = "trivyoperator"
 )
 
 type Policies struct {
@@ -237,6 +238,7 @@ func getScannerOptions(hasExternalPolicies bool, useDefaultPolicies bool, polici
 	optionsArray := []options.ScannerOption{options.ScannerWithEmbeddedPolicies(useDefaultPolicies)}
 	if hasExternalPolicies {
 		optionsArray = append(optionsArray, options.ScannerWithPolicyDirs(policiesFolder))
+		optionsArray = append(optionsArray, options.ScannerWithPolicyNamespaces(externalPoliciesNamespace))
 	}
 	return optionsArray
 }

@@ -19,8 +19,6 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/go-logr/logr"
-	appsv1 "k8s.io/api/apps/v1"
-	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -83,50 +81,48 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 
-	resources := []struct {
-		kind       kube.Kind
-		forObject  client.Object
-		ownsObject client.Object
-	}{
-		{kind: kube.KindPod, forObject: &corev1.Pod{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindReplicaSet, forObject: &appsv1.ReplicaSet{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindReplicationController, forObject: &corev1.ReplicationController{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindStatefulSet, forObject: &appsv1.StatefulSet{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindDaemonSet, forObject: &appsv1.DaemonSet{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindCronJob, forObject: r.ObjectResolver.GetSupportedObjectByKind(kube.KindCronJob), ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindJob, forObject: &batchv1.Job{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindService, forObject: &corev1.Service{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindConfigMap, forObject: &corev1.ConfigMap{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindRole, forObject: &rbacv1.Role{}, ownsObject: &v1alpha1.RbacAssessmentReport{}},
-		{kind: kube.KindRoleBinding, forObject: &rbacv1.RoleBinding{}, ownsObject: &v1alpha1.RbacAssessmentReport{}},
-		{kind: kube.KindNetworkPolicy, forObject: &networkingv1.NetworkPolicy{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindIngress, forObject: &networkingv1.Ingress{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindResourceQuota, forObject: &corev1.ResourceQuota{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
-		{kind: kube.KindLimitRange, forObject: &corev1.LimitRange{}, ownsObject: &v1alpha1.ConfigAuditReport{}},
+	// Add non workload related resources
+	resources := []kube.Resource{
+		{Kind: kube.KindService, ForObject: &corev1.Service{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
+		{Kind: kube.KindConfigMap, ForObject: &corev1.ConfigMap{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
+		{Kind: kube.KindRole, ForObject: &rbacv1.Role{}, OwnsObject: &v1alpha1.RbacAssessmentReport{}},
+		{Kind: kube.KindRoleBinding, ForObject: &rbacv1.RoleBinding{}, OwnsObject: &v1alpha1.RbacAssessmentReport{}},
+		{Kind: kube.KindNetworkPolicy, ForObject: &networkingv1.NetworkPolicy{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
+		{Kind: kube.KindIngress, ForObject: &networkingv1.Ingress{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
+		{Kind: kube.KindResourceQuota, ForObject: &corev1.ResourceQuota{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
+		{Kind: kube.KindLimitRange, ForObject: &corev1.LimitRange{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
 	}
 
-	clusterResources := []struct {
-		kind       kube.Kind
-		forObject  client.Object
-		ownsObject client.Object
-	}{
-		{kind: kube.KindClusterRole, forObject: &rbacv1.ClusterRole{}, ownsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
-		{kind: kube.KindClusterRoleBindings, forObject: &rbacv1.ClusterRoleBinding{}, ownsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
-		{kind: kube.KindCustomResourceDefinition, forObject: &apiextensionsv1.CustomResourceDefinition{}, ownsObject: &v1alpha1.ClusterConfigAuditReport{}},
+	// Determine which Kubernetes workloads the controller will reconcile and add them to resources
+	targetWorkloads := r.Config.GetTargetWorkloads()
+	for _, tw := range targetWorkloads {
+		var resource kube.Resource
+		err := resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, r.ObjectResolver)
+		if err != nil {
+			return err
+		}
+		resources = append(resources, resource)
+	}
+
+	clusterResources := []kube.Resource{
+
+		{Kind: kube.KindClusterRole, ForObject: &rbacv1.ClusterRole{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
+		{Kind: kube.KindClusterRoleBindings, ForObject: &rbacv1.ClusterRoleBinding{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
+		{Kind: kube.KindCustomResourceDefinition, ForObject: &apiextensionsv1.CustomResourceDefinition{}, OwnsObject: &v1alpha1.ClusterConfigAuditReport{}},
 	}
 
 	for _, resource := range resources {
 		err = ctrl.NewControllerManagedBy(mgr).
-			For(resource.forObject, builder.WithPredicates(
+			For(resource.ForObject, builder.WithPredicates(
 				predicate.Not(predicate.ManagedByTrivyOperator),
 				predicate.Not(predicate.IsLeaderElectionResource),
 				predicate.Not(predicate.IsBeingTerminated),
 				installModePredicate,
 			)).
-			Owns(resource.ownsObject).
-			Complete(r.reconcileResource(resource.kind))
+			Owns(resource.OwnsObject).
+			Complete(r.reconcileResource(resource.Kind))
 		if err != nil {
-			return fmt.Errorf("constructing controller for %s: %w", resource.kind, err)
+			return fmt.Errorf("constructing controller for %s: %w", resource.Kind, err)
 		}
 
 		err = ctrl.NewControllerManagedBy(mgr).
@@ -135,7 +131,7 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 				predicate.HasName(trivyoperator.PoliciesConfigMapName),
 				predicate.InNamespace(r.Config.Namespace),
 			)).
-			Complete(r.reconcileConfig(resource.kind))
+			Complete(r.reconcileConfig(resource.Kind))
 		if err != nil {
 			return err
 		}
@@ -145,14 +141,14 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 	for _, resource := range clusterResources {
 
 		err = ctrl.NewControllerManagedBy(mgr).
-			For(resource.forObject, builder.WithPredicates(
+			For(resource.ForObject, builder.WithPredicates(
 				predicate.Not(predicate.ManagedByTrivyOperator),
 				predicate.Not(predicate.IsBeingTerminated),
 			)).
-			Owns(resource.ownsObject).
-			Complete(r.reconcileResource(resource.kind))
+			Owns(resource.OwnsObject).
+			Complete(r.reconcileResource(resource.Kind))
 		if err != nil {
-			return fmt.Errorf("constructing controller for %s: %w", resource.kind, err)
+			return fmt.Errorf("constructing controller for %s: %w", resource.Kind, err)
 		}
 
 		err = ctrl.NewControllerManagedBy(mgr).
@@ -160,7 +156,7 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 				predicate.Not(predicate.IsBeingTerminated),
 				predicate.HasName(trivyoperator.PoliciesConfigMapName),
 				predicate.InNamespace(r.Config.Namespace))).
-			Complete(r.reconcileClusterConfig(resource.kind))
+			Complete(r.reconcileClusterConfig(resource.Kind))
 		if err != nil {
 			return err
 		}

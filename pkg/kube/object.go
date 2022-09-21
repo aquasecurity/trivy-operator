@@ -19,6 +19,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
+	"strings"
 )
 
 // ObjectRef is a simplified representation of a Kubernetes client.Object.
@@ -660,6 +661,40 @@ func (o *ObjectResolver) GetActivePodsMatchingLabels(ctx context.Context, namesp
 		return pods, ErrNoRunningPods
 	}
 	return pods, nil
+}
+
+// Resource represents a Kubernetes resource Object
+type Resource struct {
+	Kind       Kind
+	ForObject  client.Object
+	OwnsObject client.Object
+}
+
+// GetWorkloadResource returns a Resource object which can be used by controllers for reconciliation
+func (r *Resource) GetWorkloadResource(kind string, object client.Object, resolver ObjectResolver) error {
+
+	kind = strings.ToLower(kind)
+
+	switch kind {
+	case "pod":
+		*r = Resource{Kind: KindPod, ForObject: &corev1.Pod{}, OwnsObject: object}
+	case "replicaset":
+		*r = Resource{Kind: KindReplicaSet, ForObject: &appsv1.ReplicaSet{}, OwnsObject: object}
+	case "replicationcontroller":
+		*r = Resource{Kind: KindReplicationController, ForObject: &corev1.ReplicationController{}, OwnsObject: object}
+	case "statefulset":
+		*r = Resource{Kind: KindStatefulSet, ForObject: &appsv1.StatefulSet{}, OwnsObject: object}
+	case "daemonset":
+		*r = Resource{Kind: KindDaemonSet, ForObject: &appsv1.DaemonSet{}, OwnsObject: object}
+	case "cronjob":
+		*r = Resource{Kind: KindCronJob, ForObject: resolver.GetSupportedObjectByKind(KindCronJob), OwnsObject: object}
+	case "job":
+		*r = Resource{Kind: KindJob, ForObject: &batchv1.Job{}, OwnsObject: object}
+	default:
+		return fmt.Errorf("workload of kind %s is not supported", kind)
+	}
+
+	return nil
 }
 
 func IsValidK8sKind(kind string) bool {

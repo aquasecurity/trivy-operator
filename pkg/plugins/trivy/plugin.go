@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/aquasecurity/trivy-db/pkg/types"
+
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	containerimage "github.com/google/go-containerregistry/pkg/name"
 
@@ -1460,7 +1462,7 @@ func getVulnerabilitiesFromScanResult(report ScanResult, addFields AdditionalFie
 			Title:            sr.Title,
 			PrimaryLink:      sr.PrimaryURL,
 			Links:            []string{},
-			Score:            GetScoreFromCVSS(sr.CvssScore),
+			Score:            GetScoreFromCVSS(GetCvssV3(sr.CVSS)),
 		}
 
 		if addFields.Description {
@@ -1570,6 +1572,18 @@ func (p *plugin) parseImageRef(imageRef string) (v1alpha1.Registry, v1alpha1.Art
 		artifact.Digest = t.DigestStr()
 	}
 	return registry, artifact, nil
+}
+
+func GetCvssV3(findingCvss types.VendorCVSS) map[string]*CVSS {
+	cvssV3 := make(map[string]*CVSS)
+	for vendor, cvss := range findingCvss {
+		var v3Score *float64
+		if cvss.V3Score != 0.0 {
+			v3Score = pointer.Float64(cvss.V3Score)
+		}
+		cvssV3[string(vendor)] = &CVSS{v3Score}
+	}
+	return cvssV3
 }
 
 func GetScoreFromCVSS(CVSSs map[string]*CVSS) *float64 {

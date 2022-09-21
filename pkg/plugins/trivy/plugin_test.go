@@ -9,11 +9,13 @@ import (
 	"io"
 	"log"
 	"os"
+	"reflect"
 	"sort"
 	"strings"
 	"testing"
 	"time"
 
+	dbtypes "github.com/aquasecurity/trivy-db/pkg/types"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
@@ -29,7 +31,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/utils/pointer"
+	pointer "k8s.io/utils/pointer"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
@@ -3951,65 +3953,116 @@ func TestPlugin_ParseReportData(t *testing.T) {
 func TestGetScoreFromCVSS(t *testing.T) {
 	testCases := []struct {
 		name          string
-		cvss          map[string]*trivy.CVSS
+		cvss          dbtypes.VendorCVSS
 		expectedScore *float64
 	}{
 		{
 			name: "Should return vendor score when vendor v3 score exist",
-			cvss: map[string]*trivy.CVSS{
+			cvss: dbtypes.VendorCVSS{
 				"nvd": {
-					V3Score: pointer.Float64Ptr(8.1),
+					V3Score: 8.1,
 				},
 				"redhat": {
-					V3Score: pointer.Float64Ptr(8.3),
+					V3Score: 8.3,
 				},
 			},
-			expectedScore: pointer.Float64Ptr(8.3),
+			expectedScore: pointer.Float64(8.3),
 		},
 		{
 			name: "Should return nvd score when vendor v3 score is nil",
-			cvss: map[string]*trivy.CVSS{
+			cvss: dbtypes.VendorCVSS{
 				"nvd": {
-					V3Score: pointer.Float64Ptr(8.1),
+					V3Score: 8.1,
 				},
 				"redhat": {
-					V3Score: nil,
+					V3Score: 0.0,
 				},
 			},
-			expectedScore: pointer.Float64Ptr(8.1),
+			expectedScore: pointer.Float64(8.1),
 		},
 		{
 			name: "Should return nvd score when vendor doesn't exist",
-			cvss: map[string]*trivy.CVSS{
+			cvss: dbtypes.VendorCVSS{
 				"nvd": {
-					V3Score: pointer.Float64Ptr(8.1),
+					V3Score: 8.1,
 				},
 			},
-			expectedScore: pointer.Float64Ptr(8.1),
+			expectedScore: pointer.Float64(8.1),
 		},
 		{
 			name: "Should return nil when vendor and nvd both v3 scores are nil",
-			cvss: map[string]*trivy.CVSS{
+			cvss: dbtypes.VendorCVSS{
 				"nvd": {
-					V3Score: nil,
+					V3Score: 0.0,
 				},
 				"redhat": {
-					V3Score: nil,
+					V3Score: 0.0,
 				},
 			},
 			expectedScore: nil,
 		},
 		{
 			name:          "Should return nil when cvss doesn't exist",
-			cvss:          map[string]*trivy.CVSS{},
+			cvss:          dbtypes.VendorCVSS{},
 			expectedScore: nil,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			score := trivy.GetScoreFromCVSS(tc.cvss)
+			score := trivy.GetScoreFromCVSS(trivy.GetCvssV3(tc.cvss))
 			assert.Equal(t, tc.expectedScore, score)
+		})
+	}
+}
+
+func TestGetCVSSV3(t *testing.T) {
+	testCases := []struct {
+		name     string
+		cvss     dbtypes.VendorCVSS
+		expected map[string]*trivy.CVSS
+	}{
+		{
+			name: "Should return vendor score when vendor v3 score exist",
+			cvss: dbtypes.VendorCVSS{
+				"nvd": {
+					V3Score: 8.1,
+				},
+				"redhat": {
+					V3Score: 8.3,
+				},
+			},
+			expected: map[string]*trivy.CVSS{
+				"nvd":    {V3Score: pointer.Float64(8.1)},
+				"redhat": {V3Score: pointer.Float64(8.3)},
+			},
+		},
+		{
+			name: "Should return nil when vendor and nvd both v3 scores are nil",
+			cvss: dbtypes.VendorCVSS{
+				"nvd": {
+					V3Score: 0.0,
+				},
+				"redhat": {
+					V3Score: 0.0,
+				},
+			},
+			expected: map[string]*trivy.CVSS{
+				"nvd":    {V3Score: nil},
+				"redhat": {V3Score: nil},
+			},
+		},
+		{
+			name:     "Should return nil when cvss doesn't exist",
+			cvss:     dbtypes.VendorCVSS{},
+			expected: map[string]*trivy.CVSS{},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			score := trivy.GetCvssV3(tc.cvss)
+			assert.True(t, reflect.DeepEqual(tc.expected, score))
 		})
 	}
 }

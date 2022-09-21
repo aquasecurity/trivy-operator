@@ -26,7 +26,6 @@ type Vulnerability struct {
 	Layer            Layer             `json:"Layer"`
 	PrimaryURL       string            `json:"PrimaryURL"`
 	References       []string          `json:"References"`
-	CvssScore        map[string]*CVSS  `json:"CVSSScore"`
 	CVSS             types.VendorCVSS  `json:"CVSS"`
 	Target           string            `json:"Target"`
 }

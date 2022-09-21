@@ -103,3 +103,39 @@ func TestOperator_ResolveInstallMode(t *testing.T) {
 		})
 	}
 }
+
+func TestOperator_GetTargetWorkloads(t *testing.T) {
+	testCases := []struct {
+		name                    string
+		operator                etc.Config
+		expectedTargetWorkloads []string
+	}{
+		{
+			name: "Should return all target workloads",
+			operator: etc.Config{
+				TargetWorkloads: "Pod,ReplicaSet,ReplicationController,StatefulSet,DaemonSet,CronJob,Job",
+			},
+			expectedTargetWorkloads: []string{"pod", "replicaset", "replicationcontroller", "statefulset", "daemonset", "cronjob", "job"},
+		},
+		{
+			name: "Should return single workload",
+			operator: etc.Config{
+				TargetWorkloads: "Pod",
+			},
+			expectedTargetWorkloads: []string{"pod"},
+		},
+		{
+			name: "Should return multiple workloads",
+			operator: etc.Config{
+				TargetWorkloads: "Pod,Job,StatefulSet",
+			},
+			expectedTargetWorkloads: []string{"pod", "job", "statefulset"},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.expectedTargetWorkloads, tc.operator.GetTargetWorkloads())
+		})
+	}
+}

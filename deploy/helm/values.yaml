@@ -14,6 +14,11 @@ targetNamespaces: ""
 # mode, i.e. when the targetNamespaces values is a blank string.
 excludeNamespaces: "kube-system,{{ .Release.Namespace }}"
 
+# targetWorkloads is a comma seperated list of Kubernetes workload resources
+# to be included in the vulnerability and config-audit scans
+# if left blank, all workload resources will be scanned
+targetWorkloads: "pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job"
+
 nameOverride: ""
 fullnameOverride: ""
 

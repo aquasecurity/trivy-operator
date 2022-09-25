@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: trivy-operator
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ include "trivy-operator.namespace" . }}
   labels:
     {{- include "trivy-operator.labels" . | nindent 4 }}
 data:
@@ -39,7 +39,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: trivy-operator
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ include "trivy-operator.namespace" . }}
   labels:
     {{- include "trivy-operator.labels" . | nindent 4 }}
 {{- if eq .Values.trivyOperator.vulnerabilityReportsPlugin "Trivy" }}
@@ -50,7 +50,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: trivy-operator-trivy-config
-  namespace: {{ $.Release.Namespace }}
+  namespace: {{ include "trivy-operator.namespace" $ }}
   labels:
     {{- include "trivy-operator.labels" $ | nindent 4 }}
 data:
@@ -125,7 +125,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: trivy-operator-trivy-config
-  namespace: {{ $.Release.Namespace }}
+  namespace: {{ include "trivy-operator.namespace" $ }}
   labels:
     {{- include "trivy-operator.labels" $ | nindent 4 }}
 data:

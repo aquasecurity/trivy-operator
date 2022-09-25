@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "trivy-operator.fullname" . }}
-  namespace: {{ .Release.Namespace }}
+  namespace: {{ include "trivy-operator.namespace" . }}
   labels:
     {{- include "trivy-operator.labels" . | nindent 4 }}
 spec:
@@ -34,11 +34,11 @@ spec:
           {{- end }}
           env:
             - name: OPERATOR_NAMESPACE
-              value: {{ .Release.Namespace | quote }}
+              value: {{ include "trivy-operator.namespace" . }}
             - name: OPERATOR_TARGET_NAMESPACES
               value: {{ .Values.targetNamespaces | quote }}
             - name: OPERATOR_EXCLUDE_NAMESPACES
-              value: {{ tpl .Values.excludeNamespaces . | quote }}
+              value: {{ printf "%s,%s" (tpl .Values.excludeNamespaces .) (include "trivy-operator.namespace" . ) | quote }}
             - name: OPERATOR_TARGET_WORKLOADS
               value: {{ tpl .Values.targetWorkloads . | quote }}
             - name: OPERATOR_SERVICE_ACCOUNT

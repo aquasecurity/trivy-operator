@@ -19,7 +19,7 @@ data:
   {{- with .Values.trivyOperator.scanJobNodeSelector }}
   scanJob.nodeSelector: {{ . | toJson | quote }}
   {{- end }}
-  {{- with .Values.trivyOperator.scanJobPodTemplateSecurityContext }}
+  {{- with .Values.trivyOperator.scanJobPodTemplatePodSecurityContext }}
   scanJob.podTemplatePodSecurityContext: {{ . | toJson | quote }}
   {{- end }}
   {{- with .Values.trivyOperator.scanJobPodTemplateContainerSecurityContext }}

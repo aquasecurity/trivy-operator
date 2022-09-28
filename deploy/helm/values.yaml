@@ -133,12 +133,12 @@ trivyOperator:
   # labeled with. Example: `foo=bar,env=stage` will labeled the scanner pods with the labels `foo: bar` and `env: stage`
   scanJobPodTemplateLabels: ""
 
-  # scanJobPodTemplateSecurityContext podSecurityContext the user wants the scanner pods to be amended with.
+  # scanJobPodTemplatePodSecurityContext podSecurityContext the user wants the scanner pods to be amended with.
   # Example:
   #   RunAsUser: 10000
   #   RunAsGroup: 10000
   #   RunAsNonRoot: true
-  scanJobPodTemplateSecurityContext: ""
+  scanJobPodTemplatePodSecurityContext: {}
 
   # scanJobPodTemplateContainerSecurityContext SecurityContext the user wants the scanner containers (and their
   # initContainers) to be amended with.

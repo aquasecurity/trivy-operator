@@ -377,7 +377,7 @@ func TestConfigData_GetScanJobPodSecurityContext(t *testing.T) {
 		{
 			name: "scan job template podSecurityContext can be fetched successfully",
 			config: trivyoperator.ConfigData{
-				"scanJob.podTemplateSecurityContext": "{\"RunAsUser\": 1258, \"RunAsGroup\": 55589, \"RunAsNonRoot\": true}",
+				"scanJob.podTemplatePodSecurityContext": "{\"RunAsUser\": 1258, \"RunAsGroup\": 55589, \"RunAsNonRoot\": true}",
 			},
 			expected: &corev1.PodSecurityContext{
 				RunAsUser:    &expectedUid,
@@ -393,7 +393,7 @@ func TestConfigData_GetScanJobPodSecurityContext(t *testing.T) {
 		{
 			name: "raise an error on being provided with securityContext in wrong format",
 			config: trivyoperator.ConfigData{
-				"scanJob.podTemplateSecurityContext": "foo",
+				"scanJob.podTemplatePodSecurityContext": "foo",
 			},
 			expected:    nil,
 			expectError: "failed parsing incorrectly formatted custom scan pod template securityContext: foo",

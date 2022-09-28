@@ -60,7 +60,7 @@ const (
 	keyScanJobNodeSelector               = "scanJob.nodeSelector"
 	keyScanJobAnnotations                = "scanJob.annotations"
 	KeyScanJobContainerSecurityContext   = "scanJob.podTemplateContainerSecurityContext"
-	keyScanJobPodSecurityContext         = "scanJob.podTemplateSecurityContext"
+	keyScanJobPodSecurityContext         = "scanJob.podTemplatePodSecurityContext"
 	keyScanJobPodTemplateLabels          = "scanJob.podTemplateLabels"
 	keyComplianceFailEntriesLimit        = "compliance.failEntriesLimit"
 )

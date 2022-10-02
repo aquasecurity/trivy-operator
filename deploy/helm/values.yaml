@@ -78,6 +78,9 @@ operator:
   # webhookBroadcastTimeout the flag to set timeout for webhook requests if webhookBroadcastURL is enabled
   webhookBroadcastTimeout: 30s
 
+  # privateRegistryScanSecretsNames is map of namespace:secrets which can be used to authenticate in private registries in case if there no imagePullSecrets provided
+  privateRegistryScanSecretsNames: {}
+
 image:
   repository: "ghcr.io/aquasecurity/trivy-operator"
   # tag is an override of the image tag, which is by default set by the

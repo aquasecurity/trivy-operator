@@ -178,6 +178,22 @@ func (r *secretsReader) ListImagePullSecretsByPodSpec(ctx context.Context, spec 
 	return secrets, nil
 }
 
+func (r *secretsReader) GetSecretsFromEnv(ctx context.Context, secretsInfo map[string]string) ([]corev1.Secret, error) {
+	secretsFromEnv := make([]corev1.Secret, 0)
+
+	for ns, secretName := range secretsInfo {
+		var secretFromEnv corev1.Secret
+		err := r.client.Get(ctx, client.ObjectKey{Name: secretName, Namespace: ns}, &secretFromEnv)
+
+		if err != nil && !k8sapierror.IsNotFound(err) {
+			return nil, fmt.Errorf("getting secret by name: %s/%s: %w", ns, secretName, err)
+		}
+
+		secretsFromEnv = append(secretsFromEnv, secretFromEnv)
+	}
+	return secretsFromEnv, nil
+}
+
 func (r *secretsReader) CredentialsByWorkloadAndEnv(ctx context.Context, workload client.Object, secretsInfo map[string]string) (map[string]docker.Auth, error) {
 	spec, err := GetPodSpec(workload)
 	if err != nil {
@@ -187,16 +203,11 @@ func (r *secretsReader) CredentialsByWorkloadAndEnv(ctx context.Context, workloa
 	if err != nil {
 		return nil, err
 	}
-
-	for ns, secretName := range secretsInfo {
-		var envSecret corev1.Secret
-		err = r.client.Get(ctx, client.ObjectKey{Name: secretName, Namespace: ns}, &envSecret)
-
-		if err != nil && !k8sapierror.IsNotFound(err) {
-			return nil, fmt.Errorf("getting secret by name: %s/%s: %w", ns, secretName, err)
-		}
-
-		imagePullSecrets = append(imagePullSecrets, envSecret)
+	secretsFromEnv, err := r.GetSecretsFromEnv(ctx, secretsInfo)
+	if err != nil {
+		return nil, err
 	}
+	imagePullSecrets = append(imagePullSecrets, secretsFromEnv...)
+
 	return MapContainerNamesToDockerAuths(GetContainerImagesFromPodSpec(spec), imagePullSecrets)
 }

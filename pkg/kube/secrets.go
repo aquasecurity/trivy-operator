@@ -188,8 +188,13 @@ func (r *secretsReader) CredentialsByWorkloadAndEnv(ctx context.Context, workloa
 	if err != nil {
 		return nil, err
 	}
+
 	secretsInfoMap := map[string]string{}
-	json.Unmarshal([]byte(secretsInfo), &secretsInfoMap)
+	err = json.Unmarshal([]byte(secretsInfo), &secretsInfoMap)
+	if err != nil {
+		return nil, fmt.Errorf("failed parsing incorrectly formatted information about namespaces and secrets: %s", secretsInfo)
+	}
+
 	for ns, secretName := range secretsInfoMap {
 		var envSecret corev1.Secret
 		err = r.client.Get(ctx, client.ObjectKey{Name: secretName, Namespace: ns}, &envSecret)

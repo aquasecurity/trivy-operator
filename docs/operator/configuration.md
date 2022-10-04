@@ -31,6 +31,7 @@ You can configure Trivy-Operator to control it's behavior and adapt it to your n
 | `OPERATOR_EXPOSED_SECRET_SCANNER_ENABLED`                    | `true`                 | The flag to enable exposed secret scanner                                                                                                                                                                    |
 | `OPERATOR_WEBHOOK_BROADCAST_URL`                             | `""`                   | The flag to enable operator reports to be sent to a webhook endpoint. "" means that this feature is disabled                                                                                                 |
 | `OPERATOR_WEBHOOK_BROADCAST_TIMEOUT`                         | `30s`                  | The flag to set operator webhook timeouts, if webhook broadcast is enabled                                                                                                                                   |
+| `OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES`                | `{}`                  | The flag to provide information about names of the secrets for different namespaces to use them for authentication in private registries if there are no imagePullSecrets in Service Accounts and/or in Pod's Spec                                                                                                                                   |
 
 The values of the `OPERATOR_NAMESPACE` and `OPERATOR_TARGET_NAMESPACES` determine the install mode, which in turn determines the multitenancy support of the operator.
 

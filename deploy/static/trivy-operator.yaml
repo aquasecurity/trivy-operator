@@ -1300,6 +1300,8 @@ spec:
               value: ""
             - name: OPERATOR_WEBHOOK_BROADCAST_TIMEOUT
               value: "30s"
+            - name: OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES
+              value: "{}"
           ports:
             - name: metrics
               containerPort: 8080

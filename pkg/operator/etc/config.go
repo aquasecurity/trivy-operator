@@ -1,6 +1,7 @@
 package etc
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -36,6 +37,7 @@ type Config struct {
 	WebhookBroadcastURL                          string         `env:"OPERATOR_WEBHOOK_BROADCAST_URL"`
 	WebhookBroadcastTimeout                      *time.Duration `env:"OPERATOR_WEBHOOK_BROADCAST_TIMEOUT" envDefault:"30s"`
 	TargetWorkloads                              string         `env:"OPERATOR_TARGET_WORKLOADS" envDefault:"Pod,ReplicaSet,ReplicationController,StatefulSet,DaemonSet,CronJob,Job"`
+	PrivateRegistryScanSecretsNames              string         `env:"OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES"`
 }
 
 // GetOperatorConfig loads Config from environment variables.
@@ -66,6 +68,18 @@ func (c Config) GetTargetNamespaces() []string {
 		return strings.Split(namespaces, ",")
 	}
 	return []string{}
+}
+
+func (c Config) GetPrivateRegistryScanSecretsNames() (map[string]string, error) {
+	privateRegistryScanSecretsNames := c.PrivateRegistryScanSecretsNames
+	secretsInfoMap := map[string]string{}
+	if privateRegistryScanSecretsNames != "" {
+		err := json.Unmarshal([]byte(privateRegistryScanSecretsNames), &secretsInfoMap)
+		if err != nil {
+			return nil, fmt.Errorf("failed parsing incorrectly formatted information about namespaces and secrets: %s", privateRegistryScanSecretsNames)
+		}
+	}
+	return secretsInfoMap, nil
 }
 
 func (c Config) GetTargetWorkloads() []string {

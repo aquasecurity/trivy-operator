@@ -69,6 +69,9 @@ operator:
   # metricsFindingsEnabled the flag to enable metrics for findings
   metricsFindingsEnabled: true
 
+  # metricsVulnIdEnabled the flag to enable metrics about cve vulns id
+  metricsVulnIdEnabled: true
+
   # exposedSecretScannerEnabled the flag to enable exposed secret scanner
   exposedSecretScannerEnabled: true
 

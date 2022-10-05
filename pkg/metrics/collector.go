@@ -23,6 +23,7 @@ const (
 	image_tag        = "image_tag"
 	image_digest     = "image_digest"
 	severity         = "severity"
+	vuln_id          = "vuln_id"
 )
 
 var (
@@ -35,10 +36,26 @@ var (
 		image_digest,
 		severity,
 	}
+	vulnIdLabels = []string{
+		namespace,
+		name,
+		image_registry,
+		image_repository,
+		image_tag,
+		image_digest,
+		severity,
+		vuln_id,
+	}
 	imageVulnDesc = prometheus.NewDesc(
 		prometheus.BuildFQName("trivy", "image", "vulnerabilities"),
 		"Number of container image vulnerabilities",
 		imageVulnLabels,
+		nil,
+	)
+	vulnIdDesc = prometheus.NewDesc(
+		prometheus.BuildFQName("trivy", "vulnerability", "id"),
+		"Number of container image vulnerabilities group by vulnerability id",
+		vulnIdLabels,
 		nil,
 	)
 	imageVulnSeverities = map[string]func(vs v1alpha1.VulnerabilitySummary) int{
@@ -191,6 +208,7 @@ func (c ResourcesMetricsCollector) Collect(metrics chan<- prometheus.Metric) {
 func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
 	reports := &v1alpha1.VulnerabilityReportList{}
 	labelValues := make([]string, len(imageVulnLabels))
+	vulnLabelValues := make([]string, len(vulnIdLabels))
 	for _, n := range targetNamespaces {
 		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
 			c.Logger.Error(err, "failed to list vulnerabilityreports from API", "namespace", n)
@@ -207,6 +225,24 @@ func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Conte
 				labelValues[6] = severity
 				count := countFn(r.Report.Summary)
 				metrics <- prometheus.MustNewConstMetric(imageVulnDesc, prometheus.GaugeValue, float64(count), labelValues...)
+			}
+			if c.Config.MetricsVulnerabilityId {
+				vulnLabelValues[0] = r.Namespace
+				vulnLabelValues[1] = r.Name
+				vulnLabelValues[2] = r.Report.Registry.Server
+				vulnLabelValues[3] = r.Report.Artifact.Repository
+				vulnLabelValues[4] = r.Report.Artifact.Tag
+				vulnLabelValues[5] = r.Report.Artifact.Digest
+				var vulnList = make(map[string]bool)
+				for _, vuln := range r.Report.Vulnerabilities {
+					if vulnList[vuln.VulnerabilityID] {
+						continue
+					}
+					vulnList[vuln.VulnerabilityID] = true
+					vulnLabelValues[6] = string(vuln.Severity)
+					vulnLabelValues[7] = vuln.VulnerabilityID
+					metrics <- prometheus.MustNewConstMetric(vulnIdDesc, prometheus.GaugeValue, float64(1), vulnLabelValues...)
+				}
 			}
 		}
 	}
@@ -295,6 +331,7 @@ func (c *ResourcesMetricsCollector) populateRbacAssessmentValues(labelValues []s
 
 func (c ResourcesMetricsCollector) Describe(descs chan<- *prometheus.Desc) {
 	descs <- imageVulnDesc
+	descs <- vulnIdDesc
 	descs <- configAuditDesc
 	descs <- exposedSecretDesc
 	descs <- rbacAssessmentDesc

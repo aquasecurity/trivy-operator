@@ -64,7 +64,6 @@ rules:
       - get
       - list
       - watch
-  {{- if not .Values.operator.accessGlobalSecretsAndServiceAccount -}}
   - apiGroups:
       - ""
     resources:
@@ -73,8 +72,7 @@ rules:
       - create
       - get
       - delete
-  {{- end }}
----
+deploy/helm/templates/rbac.yaml---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:

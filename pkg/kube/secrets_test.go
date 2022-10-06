@@ -245,11 +245,11 @@ func TestListImagePullSecretsByPodSpec(t *testing.T) {
 		sr := kube.NewSecretsReader(client)
 		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
 		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
-		require.Error(t, err)
-		assert.Nil(t, foundsecret)
+		require.NoError(t, err)
+		assert.True(t, len(foundsecret) == 0)
 	})
 
-	t.Run("Test with service account with bad image pull secret and no secrets should return error no secret found", func(t *testing.T) {
+	t.Run("Test with service account with bad image pull secret and no secrets should not return error when no secret found", func(t *testing.T) {
 		var sa corev1.ServiceAccount
 		err := loadResource("./testdata/fixture/sa_with_image_pull_secret.json", &sa)
 		require.NoError(t, err)
@@ -257,8 +257,8 @@ func TestListImagePullSecretsByPodSpec(t *testing.T) {
 		sr := kube.NewSecretsReader(client)
 		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
 		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
-		require.Error(t, err)
-		assert.Nil(t, foundsecret)
+		require.NoError(t, err)
+		assert.True(t, len(foundsecret) == 0)
 	})
 }
 

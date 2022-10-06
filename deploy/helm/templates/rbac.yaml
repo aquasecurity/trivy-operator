@@ -15,7 +15,7 @@ metadata:
 
 {{- if .Values.rbac.create }}
 {{ .Files.Get "generated/role.yaml" }}
-{{- if .Values.operator.useWorkloadImagePullSecret -}}
+{{- if .Values.operator.accessGlobalSecretsAndServiceAccount -}}
 - apiGroups:
   - ""
   resources:

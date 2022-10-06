@@ -1719,6 +1719,20 @@ rules:
   - get
   - list
   - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - get
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  verbs:
+  - get
 ---
 # Source: trivy-operator/templates/rbac.yaml
 # permissions for end users to view configauditreports

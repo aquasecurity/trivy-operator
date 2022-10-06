@@ -70,7 +70,8 @@ operator:
   metricsFindingsEnabled: true
 
   # metricsVulnIdEnabled the flag to enable metrics about cve vulns id
-  metricsVulnIdEnabled: true
+  # be aware of metrics cardinality is significantly increased with this feature enabled.
+  metricsVulnIdEnabled: false
 
   # exposedSecretScannerEnabled the flag to enable exposed secret scanner
   exposedSecretScannerEnabled: true

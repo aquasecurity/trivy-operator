@@ -65,7 +65,7 @@ operator:
   configAuditScannerScanOnlyCurrentRevisions: true
   # batchDeleteDelay the duration to wait before deleting another batch of config audit reports.
   batchDeleteDelay: 10s
-  # accessGlobalSecretsAndServiceAccount the flag to use workloads imagePullSecrets and create out of it secrets for scanJobs to pull images from private registries
+  # accessGlobalSecretsAndServiceAccount The flag to enable access to global secrets/service accounts to allow `vulnerability scan job` to pull images from private registries 
   accessGlobalSecretsAndServiceAccount: true
 
   # metricsFindingsEnabled the flag to enable metrics for findings

@@ -119,8 +119,8 @@ func NewSecretsReader(c client.Client) SecretsReader {
 	return &secretsReader{client: c}
 }
 
-//+kubebuilder:rbac:groups="",resources=secrets,verbs=get
-//+kubebuilder:rbac:groups="",resources=serviceaccounts,verbs=get
+// kubebuilder:rbac:groups="",resources=secrets,verbs=get
+// kubebuilder:rbac:groups="",resources=serviceaccounts,verbs=get
 
 type secretsReader struct {
 	client client.Client
@@ -170,11 +170,6 @@ func (r *secretsReader) ListImagePullSecretsByPodSpec(ctx context.Context, spec 
 	if err != nil {
 		return nil, err
 	}
-
-	// if image pull secret define in either service account or pod spec and no secrets found
-	if len(imagePullSecrets) > 0 && len(secrets) == 0 {
-		return nil, fmt.Errorf("failed to list secrets by imagePullSecrets ref %v and service account %s", spec.ImagePullSecrets, sa.Name)
-	}
 	return secrets, nil
 }
 
@@ -185,10 +180,12 @@ func (r *secretsReader) GetSecretsFromEnv(ctx context.Context, secretsInfo map[s
 		var secretFromEnv corev1.Secret
 		err := r.client.Get(ctx, client.ObjectKey{Name: secretName, Namespace: ns}, &secretFromEnv)
 
-		if err != nil && !k8sapierror.IsNotFound(err) {
+		if err != nil {
+			if k8sapierror.IsNotFound(err) {
+				continue
+			}
 			return nil, fmt.Errorf("getting secret by name: %s/%s: %w", ns, secretName, err)
 		}
-
 		secretsFromEnv = append(secretsFromEnv, secretFromEnv)
 	}
 	return secretsFromEnv, nil

@@ -55,20 +55,6 @@ rules:
 - apiGroups:
   - ""
   resources:
-  - secrets
-  verbs:
-  - create
-  - get
-  - update
-- apiGroups:
-  - ""
-  resources:
-  - serviceaccounts
-  verbs:
-  - get
-- apiGroups:
-  - ""
-  resources:
   - services
   verbs:
   - get

@@ -85,6 +85,8 @@ spec:
               value: {{ .Values.operator.webhookBroadcastTimeout | quote }}
             - name: OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES
               value: {{ .Values.operator.privateRegistryScanSecretsNames | toJson | quote }}
+            - name: OPERATOR_ACCESS_GLOBAL_SECRETS_SERVICE_ACCOUNTS
+              value: {{ .Values.operator.accessGlobalSecretsAndServiceAccount | quote }}
             {{- if gt (int .Values.operator.replicas) 1 }}
             - name: OPERATOR_LEADER_ELECTION_ENABLED
               value: "true"

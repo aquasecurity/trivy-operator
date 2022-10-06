@@ -1302,7 +1302,7 @@ spec:
               value: "30s"
             - name: OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES
               value: "{}"
-            - name: OPERATOR_USE_WORKLOAD_IMAGE_PULL_SECRET
+            - name: OPERATOR_ACCESS_GLOBAL_SECRETS_SERVICE_ACCOUNTS
               value: "true"
           ports:
             - name: metrics
@@ -1719,20 +1719,6 @@ rules:
   - get
   - list
   - watch
-- apiGroups:
-  - ""
-  resources:
-  - secrets
-  verbs:
-  - create
-  - get
-  - update
-- apiGroups:
-  - ""
-  resources:
-  - serviceaccounts
-  verbs:
-  - get
 ---
 # Source: trivy-operator/templates/rbac.yaml
 # permissions for end users to view configauditreports

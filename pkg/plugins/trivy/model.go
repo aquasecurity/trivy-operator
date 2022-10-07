@@ -7,6 +7,7 @@ import (
 
 type ScanResult struct {
 	Target          string          `json:"Target"`
+	Class           string          `json:"Class"`
 	Vulnerabilities []Vulnerability `json:"Vulnerabilities"`
 	Secrets         []Secret        `json:"Secrets"`
 }
@@ -28,6 +29,7 @@ type Vulnerability struct {
 	References       []string          `json:"References"`
 	CVSS             types.VendorCVSS  `json:"CVSS"`
 	Target           string            `json:"Target"`
+	Class            string            `json:"Class"`
 }
 
 type CVSS struct {

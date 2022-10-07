@@ -1074,6 +1074,8 @@ spec:
                 items:
                   description: Vulnerability is the spec for a vulnerability record.
                   properties:
+                    class:
+                      type: string
                     cvss:
                       additionalProperties:
                         properties:

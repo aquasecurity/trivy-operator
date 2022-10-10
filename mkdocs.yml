@@ -37,6 +37,7 @@ nav:
           - Writing Custom Configuration Audit Policies: tutorials/writing-custom-configuration-audit-policies.md
           - Manage Access to Security Reports: tutorials/manage_access_to_security_reports.md
           - Operator Access to Private Registries: tutorials/private-registries.md
+          - Using the Trivy Operator addon in microk8s: tutorials/microk8s.md
       - Custom Resource Definitions:
           - Overview: crds/index.md
           - VulnerabilityReport: crds/vulnerability-report.md

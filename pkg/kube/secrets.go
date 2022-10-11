@@ -164,7 +164,7 @@ func (r *secretsReader) ListImagePullSecretsByPodSpec(ctx context.Context, spec 
 	if err != nil && !k8sapierror.IsNotFound(err) {
 		return nil, err
 	}
-	imagePullSecrets = append(imagePullSecrets, sa.ImagePullSecrets...)
+	imagePullSecrets = append(sa.ImagePullSecrets, imagePullSecrets...)
 
 	secrets, err := r.ListByLocalObjectReferences(ctx, imagePullSecrets, ns)
 	if err != nil {

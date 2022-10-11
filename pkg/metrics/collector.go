@@ -59,19 +59,19 @@ var (
 		nil,
 	)
 	imageVulnSeverities = map[string]func(vs v1alpha1.VulnerabilitySummary) int{
-		"Critical": func(vs v1alpha1.VulnerabilitySummary) int {
+		SeverityCritical().Label: func(vs v1alpha1.VulnerabilitySummary) int {
 			return vs.CriticalCount
 		},
-		"High": func(vs v1alpha1.VulnerabilitySummary) int {
+		SeverityHigh().Label: func(vs v1alpha1.VulnerabilitySummary) int {
 			return vs.HighCount
 		},
-		"Medium": func(vs v1alpha1.VulnerabilitySummary) int {
+		SeverityMedium().Label: func(vs v1alpha1.VulnerabilitySummary) int {
 			return vs.MediumCount
 		},
-		"Low": func(vs v1alpha1.VulnerabilitySummary) int {
+		SeverityLow().Label: func(vs v1alpha1.VulnerabilitySummary) int {
 			return vs.LowCount
 		},
-		"Unknown": func(vs v1alpha1.VulnerabilitySummary) int {
+		SeverityUnknown().Label: func(vs v1alpha1.VulnerabilitySummary) int {
 			return vs.UnknownCount
 		},
 	}
@@ -91,16 +91,16 @@ var (
 		nil,
 	)
 	exposedSecretSeverities = map[string]func(vs v1alpha1.ExposedSecretSummary) int{
-		"Critical": func(vs v1alpha1.ExposedSecretSummary) int {
+		SeverityCritical().Label: func(vs v1alpha1.ExposedSecretSummary) int {
 			return vs.CriticalCount
 		},
-		"High": func(vs v1alpha1.ExposedSecretSummary) int {
+		SeverityHigh().Label: func(vs v1alpha1.ExposedSecretSummary) int {
 			return vs.HighCount
 		},
-		"Medium": func(vs v1alpha1.ExposedSecretSummary) int {
+		SeverityMedium().Label: func(vs v1alpha1.ExposedSecretSummary) int {
 			return vs.MediumCount
 		},
-		"Low": func(vs v1alpha1.ExposedSecretSummary) int {
+		SeverityLow().Label: func(vs v1alpha1.ExposedSecretSummary) int {
 			return vs.LowCount
 		},
 	}
@@ -116,16 +116,16 @@ var (
 		nil,
 	)
 	configAuditSeverities = map[string]func(vs v1alpha1.ConfigAuditSummary) int{
-		"Critical": func(cas v1alpha1.ConfigAuditSummary) int {
+		SeverityCritical().Label: func(cas v1alpha1.ConfigAuditSummary) int {
 			return cas.CriticalCount
 		},
-		"High": func(cas v1alpha1.ConfigAuditSummary) int {
+		SeverityHigh().Label: func(cas v1alpha1.ConfigAuditSummary) int {
 			return cas.HighCount
 		},
-		"Medium": func(cas v1alpha1.ConfigAuditSummary) int {
+		SeverityMedium().Label: func(cas v1alpha1.ConfigAuditSummary) int {
 			return cas.MediumCount
 		},
-		"Low": func(cas v1alpha1.ConfigAuditSummary) int {
+		SeverityLow().Label: func(cas v1alpha1.ConfigAuditSummary) int {
 			return cas.LowCount
 		},
 	}
@@ -147,16 +147,16 @@ var (
 		nil,
 	)
 	rbacAssessmentSeverities = map[string]func(vs v1alpha1.RbacAssessmentSummary) int{
-		"Critical": func(cas v1alpha1.RbacAssessmentSummary) int {
+		SeverityCritical().Label: func(cas v1alpha1.RbacAssessmentSummary) int {
 			return cas.CriticalCount
 		},
-		"High": func(cas v1alpha1.RbacAssessmentSummary) int {
+		SeverityHigh().Label: func(cas v1alpha1.RbacAssessmentSummary) int {
 			return cas.HighCount
 		},
-		"Medium": func(cas v1alpha1.RbacAssessmentSummary) int {
+		SeverityMedium().Label: func(cas v1alpha1.RbacAssessmentSummary) int {
 			return cas.MediumCount
 		},
-		"Low": func(cas v1alpha1.RbacAssessmentSummary) int {
+		SeverityLow().Label: func(cas v1alpha1.RbacAssessmentSummary) int {
 			return cas.LowCount
 		},
 	}
@@ -199,6 +199,9 @@ func (c ResourcesMetricsCollector) Collect(metrics chan<- prometheus.Metric) {
 		targetNamespaces = append(targetNamespaces, "")
 	}
 	c.collectVulnerabilityReports(ctx, metrics, targetNamespaces)
+	if c.Config.MetricsVulnerabilityId {
+		c.collectVulnerabilityIdReports(ctx, metrics, targetNamespaces)
+	}
 	c.collectExposedSecretsReports(ctx, metrics, targetNamespaces)
 	c.collectConfigAuditReports(ctx, metrics, targetNamespaces)
 	c.collectRbacAssessmentReports(ctx, metrics, targetNamespaces)
@@ -208,7 +211,6 @@ func (c ResourcesMetricsCollector) Collect(metrics chan<- prometheus.Metric) {
 func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
 	reports := &v1alpha1.VulnerabilityReportList{}
 	labelValues := make([]string, len(imageVulnLabels))
-	vulnLabelValues := make([]string, len(vulnIdLabels))
 	for _, n := range targetNamespaces {
 		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
 			c.Logger.Error(err, "failed to list vulnerabilityreports from API", "namespace", n)
@@ -226,6 +228,19 @@ func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Conte
 				count := countFn(r.Report.Summary)
 				metrics <- prometheus.MustNewConstMetric(imageVulnDesc, prometheus.GaugeValue, float64(count), labelValues...)
 			}
+		}
+	}
+}
+
+func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
+	reports := &v1alpha1.VulnerabilityReportList{}
+	vulnLabelValues := make([]string, len(vulnIdLabels))
+	for _, n := range targetNamespaces {
+		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
+			c.Logger.Error(err, "failed to list vulnerabilityreports from API", "namespace", n)
+			continue
+		}
+		for _, r := range reports.Items {
 			if c.Config.MetricsVulnerabilityId {
 				vulnLabelValues[0] = r.Namespace
 				vulnLabelValues[1] = r.Name
@@ -239,7 +254,7 @@ func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Conte
 						continue
 					}
 					vulnList[vuln.VulnerabilityID] = true
-					vulnLabelValues[6] = string(vuln.Severity)
+					vulnLabelValues[6] = NewSeverityLabel(vuln.Severity).Label
 					vulnLabelValues[7] = vuln.VulnerabilityID
 					metrics <- prometheus.MustNewConstMetric(vulnIdDesc, prometheus.GaugeValue, float64(1), vulnLabelValues...)
 				}

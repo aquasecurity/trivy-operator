@@ -566,33 +566,6 @@ warn[res] {
 			expectedError: "failed to load rego policies from [externalPolicies]: 1 error occurred: externalPolicies/file_0.rego:1: rego_parse_error: illegal token\n\t$^&!\n\t^",
 		},
 		{
-			name:    "Should return error when library cannot be parsed",
-			results: getBuildInResults(t, "./testdata/fixture/buitin_result.json"),
-			resource: &appsv1.Deployment{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Deployment",
-					APIVersion: "appsv1",
-				},
-				Spec: appsv1.DeploymentSpec{
-					Template: corev1.PodTemplateSpec{
-						Spec: corev1.PodSpec{
-							SecurityContext: &corev1.PodSecurityContext{
-								RunAsNonRoot: pointer.BoolPtr(true),
-							},
-							Containers: []corev1.Container{
-								{
-									Name:  "nginx",
-									Image: "nginx:1.16",
-								},
-							},
-						},
-					},
-				},
-			},
-			useBuiltInPolicies: !testConfig{}.GetUseBuiltinRegoPolicies(),
-			policies:           map[string]string{},
-		},
-		{
 			name:          "Should eval deny rule with any resource and multiple messages",
 			expectedError: "failed to run policy checks on resources",
 			resource: &appsv1.Deployment{

@@ -64,6 +64,7 @@ const (
 	KeyScanJobContainerSecurityContext     = "scanJob.podTemplateContainerSecurityContext"
 	keyScanJobPodSecurityContext           = "scanJob.podTemplatePodSecurityContext"
 	keyScanJobPodTemplateLabels            = "scanJob.podTemplateLabels"
+	KeyScanResourceLabelsToInclude         = "scanJob.resourceLabelsToInclude"
 	keyComplianceFailEntriesLimit          = "compliance.failEntriesLimit"
 )
 
@@ -225,6 +226,17 @@ func (c ConfigData) GetScanJobPodTemplateLabels() (labels.Set, error) {
 	}
 
 	return scanJobPodTemplateLabelsMap, nil
+}
+
+func (c ConfigData) GetScanJobResourceLabelsToInclude() []string {
+	scanResourceLabelsToIncludeStr, found := c[KeyScanResourceLabelsToInclude]
+	if !found || strings.TrimSpace(scanResourceLabelsToIncludeStr) == "" {
+		return []string{}
+	}
+
+	scanResourceLabelsToIncludeList := strings.Split(scanResourceLabelsToIncludeStr, ",")
+
+	return scanResourceLabelsToIncludeList
 }
 
 func (c ConfigData) GetRequiredData(key string) (string, error) {

@@ -309,6 +309,44 @@ func TestConfigData_GetScanJobPodTemplateLabels(t *testing.T) {
 	}
 }
 
+func TestConfigData_GetScanJobResourceLabelsToInclude(t *testing.T) {
+	testCases := []struct {
+		name     string
+		config   trivyoperator.ConfigData
+		expected []string
+	}{
+		{
+			name: "Should return a single label if the config only have a single label",
+			config: trivyoperator.ConfigData{
+				"scanJob.resourceLabelsToInclude": "my-own-label",
+			},
+			expected: []string{"my-own-label"},
+		},
+		{
+			name: "Should return multiple labels if the config have multiple labels",
+			config: trivyoperator.ConfigData{
+				"scanJob.resourceLabelsToInclude": "my-own-label,my-second-label",
+			},
+			expected: []string{"my-own-label", "my-second-label"},
+		},
+		{
+			name: "Should return an empty list if the config is empty",
+			config: trivyoperator.ConfigData{
+				"scanJob.resourceLabelsToInclude": "",
+			},
+			expected: []string{},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			scanJobResourceLabelsToInclude := tc.config.GetScanJobResourceLabelsToInclude()
+			assert.Equal(t, tc.expected, scanJobResourceLabelsToInclude, tc.name)
+
+		})
+	}
+}
+
 func TestConfigData_GetScanContainerSecurityContext(t *testing.T) {
 	expectedAllowPrivilegeEscalation := false
 	expectedCapabilities := corev1.Capabilities{

@@ -140,6 +140,16 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	logsReader := kube.NewLogsReader(kubeClientset)
 	secretsReader := kube.NewSecretsReader(mgr.GetClient())
 
+	if operatorConfig.MetricsFindingsEnabled {
+		trivyOperatorConfig.Set(trivyoperator.KeyScanResourceLabelsToInclude, operatorConfig.MetricsResourceLabelsToInclude)
+
+		logger := ctrl.Log.WithName("metrics")
+		rmc := metrics.NewResourcesMetricsCollector(logger, operatorConfig, mgr.GetClient())
+		if err := rmc.SetupWithManager(mgr); err != nil {
+			return fmt.Errorf("unable to setup resources metrics collector: %w", err)
+		}
+	}
+
 	if operatorConfig.VulnerabilityScannerEnabled || operatorConfig.ExposedSecretScannerEnabled {
 
 		trivyOperatorConfig.Set(trivyoperator.KeyVulnerabilityScannerEnabled, strconv.FormatBool(operatorConfig.VulnerabilityScannerEnabled))
@@ -244,14 +254,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 		if err := cc.SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup clustercompliancereport reconciler: %w", err)
-		}
-	}
-
-	if operatorConfig.MetricsFindingsEnabled {
-		logger := ctrl.Log.WithName("metrics")
-		rmc := metrics.NewResourcesMetricsCollector(logger, operatorConfig, mgr.GetClient())
-		if err := rmc.SetupWithManager(mgr); err != nil {
-			return fmt.Errorf("unable to setup resources metrics collector: %w", err)
 		}
 	}
 

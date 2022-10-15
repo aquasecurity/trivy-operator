@@ -24,6 +24,7 @@ const (
 	image_digest     = "image_digest"
 	severity         = "severity"
 	vuln_id          = "vuln_id"
+	k8s_label_prefix = "k8s_label_"
 )
 
 type metricDescriptors struct {
@@ -155,6 +156,7 @@ func buildMetricDescriptors(config etc.Config) metricDescriptors {
 		image_digest,
 		severity,
 	}
+	imageVulnLabels = includeDynamicConfigLabels(imageVulnLabels, config)
 	vulnIdLabels := []string{
 		namespace,
 		name,
@@ -165,6 +167,7 @@ func buildMetricDescriptors(config etc.Config) metricDescriptors {
 		severity,
 		vuln_id,
 	}
+	vulnIdLabels = includeDynamicConfigLabels(vulnIdLabels, config)
 	exposedSecretLabels := []string{
 		namespace,
 		name,
@@ -174,16 +177,19 @@ func buildMetricDescriptors(config etc.Config) metricDescriptors {
 		image_digest,
 		severity,
 	}
+	exposedSecretLabels = includeDynamicConfigLabels(exposedSecretLabels, config)
 	configAuditLabels := []string{
 		namespace,
 		name,
 		severity,
 	}
+	configAuditLabels = includeDynamicConfigLabels(configAuditLabels, config)
 	rbacAssessmentLabels := []string{
 		namespace,
 		name,
 		severity,
 	}
+	rbacAssessmentLabels = includeDynamicConfigLabels(rbacAssessmentLabels, config)
 
 	imageVulnDesc := prometheus.NewDesc(
 		prometheus.BuildFQName("trivy", "image", "vulnerabilities"),
@@ -243,6 +249,14 @@ func buildMetricDescriptors(config etc.Config) metricDescriptors {
 	}
 }
 
+func includeDynamicConfigLabels(labels []string, config etc.Config) []string {
+	resourceLabels := config.GetMetricsResourceLabelsToInclude()
+	for _, label := range resourceLabels {
+		labels = append(labels, k8s_label_prefix+label)
+	}
+	return labels
+}
+
 func (c *ResourcesMetricsCollector) SetupWithManager(mgr ctrl.Manager) error {
 	return mgr.Add(c)
 }
@@ -279,6 +293,9 @@ func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Conte
 			labelValues[3] = r.Report.Artifact.Repository
 			labelValues[4] = r.Report.Artifact.Tag
 			labelValues[5] = r.Report.Artifact.Digest
+			for i, label := range c.GetMetricsResourceLabelsToInclude() {
+				labelValues[i+7] = r.Labels[label]
+			}
 			for severity, countFn := range c.imageVulnSeverities {
 				labelValues[6] = severity
 				count := countFn(r.Report.Summary)
@@ -304,6 +321,9 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 				vulnLabelValues[3] = r.Report.Artifact.Repository
 				vulnLabelValues[4] = r.Report.Artifact.Tag
 				vulnLabelValues[5] = r.Report.Artifact.Digest
+				for i, label := range c.GetMetricsResourceLabelsToInclude() {
+					vulnLabelValues[i+8] = r.Labels[label]
+				}
 				var vulnList = make(map[string]bool)
 				for _, vuln := range r.Report.Vulnerabilities {
 					if vulnList[vuln.VulnerabilityID] {
@@ -334,6 +354,9 @@ func (c ResourcesMetricsCollector) collectExposedSecretsReports(ctx context.Cont
 			labelValues[3] = r.Report.Artifact.Repository
 			labelValues[4] = r.Report.Artifact.Tag
 			labelValues[5] = r.Report.Artifact.Digest
+			for i, label := range c.GetMetricsResourceLabelsToInclude() {
+				labelValues[i+7] = r.Labels[label]
+			}
 			for severity, countFn := range c.exposedSecretSeverities {
 				labelValues[6] = severity
 				count := countFn(r.Report.Summary)
@@ -354,6 +377,9 @@ func (c *ResourcesMetricsCollector) collectConfigAuditReports(ctx context.Contex
 		for _, r := range reports.Items {
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
+			for i, label := range c.GetMetricsResourceLabelsToInclude() {
+				labelValues[i+3] = r.Labels[label]
+			}
 			for severity, countFn := range c.configAuditSeverities {
 				labelValues[2] = severity
 				count := countFn(r.Report.Summary)
@@ -374,6 +400,9 @@ func (c *ResourcesMetricsCollector) collectRbacAssessmentReports(ctx context.Con
 		for _, r := range reports.Items {
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
+			for i, label := range c.GetMetricsResourceLabelsToInclude() {
+				labelValues[i+3] = r.Labels[label]
+			}
 			c.populateRbacAssessmentValues(labelValues, c.rbacAssessmentDesc, r.Report.Summary, metrics, 2)
 		}
 	}
@@ -388,6 +417,9 @@ func (c *ResourcesMetricsCollector) collectClusterRbacAssessmentReports(ctx cont
 	}
 	for _, r := range reports.Items {
 		labelValues[0] = r.Name
+		for i, label := range c.GetMetricsResourceLabelsToInclude() {
+			labelValues[i+2] = r.Labels[label]
+		}
 		c.populateRbacAssessmentValues(labelValues, c.clusterRbacAssessmentDesc, r.Report.Summary, metrics, 1)
 	}
 }

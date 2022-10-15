@@ -6,6 +6,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/go-logr/logr"
+	"k8s.io/apimachinery/pkg/labels"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -43,6 +44,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr1 := &v1alpha1.VulnerabilityReport{}
 			vr1.Namespace = "default"
 			vr1.Name = "replicaset-nginx-6d4cf56db6-nginx"
+			vr1.Labels = labels.Set{"tier": "tier-1", "owner": "team-a"}
 			vr1.Report.Registry.Server = "index.docker.io"
 			vr1.Report.Artifact.Repository = "library/nginx"
 			vr1.Report.Artifact.Tag = "1.16"
@@ -179,6 +181,31 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_vulnerability_id")).
+				To(Succeed())
+		})
+		It("should produce correct metrics with configured labels included", func() {
+			collector.MetricsResourceLabelsToInclude = "tier,ssot"
+			collector.metricDescriptors = buildMetricDescriptors(collector.Config) // Force rebuild metricDescriptors again
+			const expected = `
+				# HELP trivy_image_vulnerabilities Number of container image vulnerabilities
+				# TYPE trivy_image_vulnerabilities gauge
+				trivy_image_vulnerabilities{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",k8s_label_ssot="",k8s_label_tier="tier-1",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Critical"} 2
+				trivy_image_vulnerabilities{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",k8s_label_ssot="",k8s_label_tier="tier-1",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="High"} 0
+				trivy_image_vulnerabilities{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",k8s_label_ssot="",k8s_label_tier="tier-1",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Low"} 0
+				trivy_image_vulnerabilities{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",k8s_label_ssot="",k8s_label_tier="tier-1",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Medium"} 0
+				trivy_image_vulnerabilities{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",k8s_label_ssot="",k8s_label_tier="tier-1",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Unknown"} 0
+				trivy_image_vulnerabilities{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",k8s_label_ssot="",k8s_label_tier="",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Critical"} 4
+				trivy_image_vulnerabilities{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",k8s_label_ssot="",k8s_label_tier="",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High"} 7
+				trivy_image_vulnerabilities{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",k8s_label_ssot="",k8s_label_tier="",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Low"} 0
+				trivy_image_vulnerabilities{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",k8s_label_ssot="",k8s_label_tier="",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Medium"} 0
+				trivy_image_vulnerabilities{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",k8s_label_ssot="",k8s_label_tier="",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Unknown"} 0
+				trivy_image_vulnerabilities{image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",k8s_label_ssot="",k8s_label_tier="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Critical"} 1
+				trivy_image_vulnerabilities{image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",k8s_label_ssot="",k8s_label_tier="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="High"} 0
+				trivy_image_vulnerabilities{image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",k8s_label_ssot="",k8s_label_tier="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Low"} 0
+				trivy_image_vulnerabilities{image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",k8s_label_ssot="",k8s_label_tier="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Medium"} 0
+				trivy_image_vulnerabilities{image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",k8s_label_ssot="",k8s_label_tier="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Unknown"} 0
+				`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_image_vulnerabilities")).
 				To(Succeed())
 		})
 	})

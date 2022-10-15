@@ -4,6 +4,8 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/go-logr/logr"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -23,9 +25,9 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 	})
 
 	JustBeforeEach(func() {
-		collector = ResourcesMetricsCollector{
-			Client: client.Build(),
-		}
+		var logger logr.Logger
+		var config etc.Config
+		collector = *NewResourcesMetricsCollector(logger, config, client.Build())
 	})
 
 	AssertNoLintIssues := func() {

@@ -225,7 +225,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			return ctrl.Result{}, fmt.Errorf("computing policies hash: %w", err)
 		}
 
-		resourceLabelsToInclude := r.GetScanJobResourceLabelsToInclude()
+		resourceLabelsToInclude := r.GetMetricsResourceLabelsToInclude()
 
 		log.V(1).Info("Checking whether configuration audit report exists")
 		hasReport, err := r.hasReport(ctx, resourceRef, resourceHash, policiesHash)

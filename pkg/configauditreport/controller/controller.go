@@ -3,10 +3,11 @@ package controller
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/workload"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
-	"strings"
 
 	"github.com/aquasecurity/defsec/pkg/scan"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -224,6 +225,8 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			return ctrl.Result{}, fmt.Errorf("computing policies hash: %w", err)
 		}
 
+		resourceLabelsToInclude := r.GetScanJobResourceLabelsToInclude()
+
 		log.V(1).Info("Checking whether configuration audit report exists")
 		hasReport, err := r.hasReport(ctx, resourceRef, resourceHash, policiesHash)
 		if err != nil {
@@ -247,6 +250,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 				Controller(resource).
 				ResourceSpecHash(resourceHash).
 				PluginConfigHash(policiesHash).
+				ResourceLabelsToInclude(resourceLabelsToInclude).
 				Data(rd)
 			if r.Config.ScannerReportTTL != nil {
 				reportBuilder.ReportTTL(r.Config.ScannerReportTTL)
@@ -259,6 +263,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 				Controller(resource).
 				ResourceSpecHash(resourceHash).
 				PluginConfigHash(policiesHash).
+				ResourceLabelsToInclude(resourceLabelsToInclude).
 				Data(rd)
 			if r.Config.ScannerReportTTL != nil {
 				rbacReportBuilder.ReportTTL(r.Config.ScannerReportTTL)

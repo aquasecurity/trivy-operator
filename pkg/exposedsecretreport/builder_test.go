@@ -9,6 +9,7 @@ import (
 	"github.com/onsi/gomega"
 	appsv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/utils/pointer"
 )
@@ -24,11 +25,13 @@ func TestReportBuilder(t *testing.T) {
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "some-owner",
 				Namespace: "qa",
+				Labels:    labels.Set{"tier": "tier-1", "owner": "team-a"},
 			},
 		}).
 		Container("my-container").
 		PodSpecHash("xyz").
 		Data(v1alpha1.ExposedSecretReportData{}).
+		ResourceLabelsToInclude([]string{"tier"}).
 		Get()
 
 	g.Expect(err).ToNot(gomega.HaveOccurred())
@@ -51,6 +54,7 @@ func TestReportBuilder(t *testing.T) {
 				trivyoperator.LabelResourceNamespace: "qa",
 				trivyoperator.LabelContainerName:     "my-container",
 				trivyoperator.LabelResourceSpecHash:  "xyz",
+				"tier":                               "tier-1",
 			},
 		},
 		Report: v1alpha1.ExposedSecretReportData{},

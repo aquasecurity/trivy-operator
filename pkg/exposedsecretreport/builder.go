@@ -17,12 +17,13 @@ import (
 )
 
 type ReportBuilder struct {
-	scheme     *runtime.Scheme
-	controller client.Object
-	container  string
-	hash       string
-	data       v1alpha1.ExposedSecretReportData
-	reportTTL  *time.Duration
+	scheme                  *runtime.Scheme
+	controller              client.Object
+	container               string
+	hash                    string
+	data                    v1alpha1.ExposedSecretReportData
+	reportTTL               *time.Duration
+	resourceLabelsToInclude []string
 }
 
 func NewReportBuilder(scheme *runtime.Scheme) *ReportBuilder {
@@ -56,6 +57,11 @@ func (b *ReportBuilder) ReportTTL(ttl *time.Duration) *ReportBuilder {
 	return b
 }
 
+func (b *ReportBuilder) ResourceLabelsToInclude(resourceLabelsToInclude []string) *ReportBuilder {
+	b.resourceLabelsToInclude = resourceLabelsToInclude
+	return b
+}
+
 func (b *ReportBuilder) reportName() string {
 	kind := b.controller.GetObjectKind().GroupVersionKind().Kind
 	name := b.controller.GetName()
@@ -70,6 +76,13 @@ func (b *ReportBuilder) reportName() string {
 func (b *ReportBuilder) Get() (v1alpha1.ExposedSecretReport, error) {
 	labels := map[string]string{
 		trivyoperator.LabelContainerName: b.container,
+	}
+
+	objectLabels := b.controller.GetLabels()
+	for _, labelToInclude := range b.resourceLabelsToInclude {
+		if value, ok := objectLabels[labelToInclude]; ok {
+			labels[labelToInclude] = value
+		}
 	}
 
 	if b.hash != "" {

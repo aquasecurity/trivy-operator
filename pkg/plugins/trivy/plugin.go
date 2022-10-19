@@ -104,6 +104,7 @@ type AdditionalFields struct {
 	Links       bool
 	CVSS        bool
 	Target      bool
+	Class       bool
 }
 
 // Config defines configuration params for this plugin.
@@ -131,6 +132,9 @@ func (c Config) GetAdditionalVulnerabilityReportFields() AdditionalFields {
 		}
 		if field == "Target" {
 			addFields.Target = true
+		}
+		if field == "Class" {
+			addFields.Class = true
 		}
 	}
 
@@ -1475,6 +1479,9 @@ func getVulnerabilitiesFromScanResult(report ScanResult, addFields AdditionalFie
 		}
 		if addFields.Target {
 			vulnerability.Target = report.Target
+		}
+		if addFields.Class {
+			vulnerability.Class = report.Class
 		}
 
 		vulnerabilities = append(vulnerabilities, vulnerability)

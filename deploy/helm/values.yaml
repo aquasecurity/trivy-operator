@@ -175,7 +175,7 @@ trivy:
   mode: Standalone
 
   # additionalVulnerabilityReportFields is a comma separated list of additional fields which
-  # can be added to the VulnerabilityReport. Supported parameters: Description, Links, CVSS and Target
+  # can be added to the VulnerabilityReport. Supported parameters: Description, Links, CVSS, Target and Class
   additionalVulnerabilityReportFields: ""
 
   # httpProxy is the HTTP proxy used by Trivy to download the vulnerabilities database from GitHub.

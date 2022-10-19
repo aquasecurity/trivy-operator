@@ -19,7 +19,7 @@ func TestBase64Decode(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := Base64Decode(strings.NewReader(tt.data))
+			got, err := base64Decode(strings.NewReader(tt.data))
 			assert.NoError(t, err)
 			assert.Equal(t, string(got), tt.want)
 		})
@@ -38,7 +38,7 @@ func TestDecompressBzip2(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := DecompressBzip2(tt.data)
+			got, err := decompressBzip2(tt.data)
 			if tt.hasError {
 				assert.Error(t, err)
 			} else {

@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -3309,11 +3308,17 @@ CVE-2019-1543`,
 							},
 						},
 						Command: []string{
-							"/bin/sh",
+							trivy.SharedVolumeLocationOfTrivy,
 						},
 						Args: []string{
-							"-c",
-							"/var/trivyoperator/trivy fs --security-checks vuln,secret --cache-dir /var/trivyoperator/trivy-db --quiet --skip-update --format json / > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"--cache-dir",
+							"/var/trivyoperator/trivy-db",
+							"--quiet",
+							"fs",
+							"--skip-update",
+							"--format",
+							"json",
+							"/",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3656,11 +3661,17 @@ CVE-2019-1543`,
 						},
 					},
 					Command: []string{
-						"/bin/sh",
+						trivy.SharedVolumeLocationOfTrivy,
 					},
 					Args: []string{
-						"-c",
-						"/var/trivyoperator/trivy fs --security-checks vuln,secret --cache-dir /var/trivyoperator/trivy-db --quiet --skip-update --format json / > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+						"--cache-dir",
+						"/var/trivyoperator/trivy-db",
+						"--quiet",
+						"fs",
+						"--skip-update",
+						"--format",
+						"json",
+						"/",
 					},
 					Resources: corev1.ResourceRequirements{
 						Requests: corev1.ResourceList{
@@ -3894,10 +3905,18 @@ func TestPlugin_ParseReportData(t *testing.T) {
 			expectedExposedSecretReport: sampleExposedSecretReport,
 		},
 		{
+			name:                        "Should convert both vulnerability and exposedsecret report in JSON format when input is quiet",
+			imageRef:                    "alpine:3.10.2",
+			input:                       getReportAsStringnonCompressed("full_report.json"),
+			expectedError:               nil,
+			expectedVulnerabilityReport: sampleVulnerabilityReport,
+			expectedExposedSecretReport: sampleExposedSecretReport,
+		},
+		{
 			name:                        "Should convert vulnerability report in JSON format when OS is not detected",
 			imageRef:                    "alpine:3.10.2",
 			input:                       `null`,
-			expectedError:               fmt.Errorf("bzip2 data invalid: bad magic value"),
+			expectedError:               nil,
 			expectedVulnerabilityReport: emptyVulnerabilityReport,
 			expectedExposedSecretReport: emptyExposedSecretReport,
 		},
@@ -3921,7 +3940,7 @@ func TestPlugin_ParseReportData(t *testing.T) {
 			name:          "Should return error when image reference cannot be parsed",
 			imageRef:      ":",
 			input:         "null",
-			expectedError: errors.New("bzip2 data invalid: bad magic value"),
+			expectedError: errors.New("could not parse reference: :"),
 		},
 	}
 
@@ -4237,6 +4256,18 @@ func getReportAsString(fixture string) string {
 		log.Fatal(err)
 	}
 	return value
+}
+func getReportAsStringnonCompressed(fixture string) string {
+	f, err := os.Open("./testdata/fixture/" + fixture)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	b, err := io.ReadAll(f)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(b)
 }
 
 func getScanResultVolume() corev1.Volume {

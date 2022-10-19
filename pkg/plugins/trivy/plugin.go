@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy-db/pkg/types"
+	"go.uber.org/multierr"
 
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	containerimage "github.com/google/go-containerregistry/pkg/name"
@@ -1275,7 +1276,6 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
-		resultFileName := getUniqueScanResultFileName(c.Name)
 		containers = append(containers, corev1.Container{
 			Name:                     c.Name,
 			Image:                    c.Image,
@@ -1283,10 +1283,17 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 			Env:                      env,
 			Command: []string{
-				"/bin/sh",
+				SharedVolumeLocationOfTrivy,
 			},
 			Args: []string{
-				"-c", fmt.Sprintf(`%s fs --security-checks %s --cache-dir /var/trivyoperator/trivy-db --quiet --skip-update --format json / > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, SharedVolumeLocationOfTrivy, getSecurityChecks(ctx), resultFileName, resultFileName),
+				"--cache-dir",
+				"/var/trivyoperator/trivy-db",
+				"--quiet",
+				"fs",
+				"--skip-update",
+				"--format",
+				"json",
+				"/",
 			},
 			Resources:       resourceRequirements,
 			SecurityContext: securityContext,
@@ -1382,20 +1389,12 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	if err != nil {
 		return vulnReport, secretReport, err
 	}
-	// base64 decode logs
-	compressedLogsBytes, err := utils.Base64Decode(logsReader)
-	if err != nil {
-		return vulnReport, secretReport, err
-	}
-	// bzip2 decompress logs
-	unCompressedLogsReader, err := utils.DecompressBzip2(compressedLogsBytes)
-	if err != nil {
-		return vulnReport, secretReport, err
-	}
+	reportReader, errCompress := utils.ReadCompressData(logsReader)
+
 	var reports ScanReport
-	err = json.NewDecoder(unCompressedLogsReader).Decode(&reports)
+	err = json.NewDecoder(reportReader).Decode(&reports)
 	if err != nil {
-		return vulnReport, secretReport, err
+		return vulnReport, secretReport, multierr.Append(errCompress, err)
 	}
 
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)

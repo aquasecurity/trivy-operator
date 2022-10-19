@@ -65,6 +65,28 @@ policy that checks for recommended Kubernetes labels on any resource kind.
 | [Default Seccomp profile not set]         | The RuntimeDefault seccomp profile must be required, or allow specific additional profiles.                                                      | Workload |
 
 
+## RBAC
+
+| NAME                                       | DESCRIPTION                                                                                                                                                                                                         | KINDS    |
+|--------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
+| [Allow Role Clusterrolebindings Associate Privileged Cluster Role]                          | Check whether role permits creating role ClusterRoleBindings and association with privileged cluster role.                                                                                                                                                          | Role/ClusterRole |
+| [Deny Create Update Malicious Pod]               | Check whether role permits update/create of a malicious pod contention.                                             | Role/ClusterRole |
+| [Do Not Allow Role Binding Associate Privileged Role]               | Check whether role permits creating role bindings and associating to privileged role/clusterrole.                                                                                                                  | Role/ClusterRole |
+| [No Attaching Shell Pods]         | Check whether role permits attaching to shell on pods.                                                                                                            | Role/ClusterRole |
+| [No Delete Pod Logs]        | Used to cover attacker’s tracks, but most clusters ship logs quickly off-cluster.| Role/ClusterRole |
+| [No Getting Shell Pods]                       | Check whether role permits getting shell on pods | Role/ClusterRole |
+| [No Impersonate Privileged Groups]            | Do not allow impersonation of privileged groups                                                | Role/ClusterRole |
+| [No Manage Configmaps] | Do not allow management of configmaps                                                                                                                              | Role/ClusterRole |
+| [No Manage Networking Resources]                   | Do not allow management of networking resources                                                                                                                      | Role/ClusterRole |
+| [No Manage Rbac Resources]                    | An effective level of access equivalent to cluster-admin should not be provided. | Role/ClusterRole |
+| [No Manage Secrets]                       | Do not allow management of secrets                                                                                                                                                                          | Role/ClusterRole |
+| [Do Privilege Escalation From Node Proxy]                 | Do not allow privilege escalation from node proxy                 | Role/ClusterRole |
+| [No Wildcard Resource Role]                    | No wildcard resource roles  | Role/ClusterRole |                                                                                 
+| [No Wildcard Verb Resource Role]                 | No wildcard verb and resource roles                  | Role/ClusterRole |
+| [No Wildcard Verb Role]                    | No wildcard verb roles  | Role/ClusterRole |
+| [View All Secrets]                       | Do not allow users in a rolebinding to add other users to their rolebindings                                        | Role/ClusterRole |
+
+
 [CPU not limited]: https://avd.aquasec.com/misconfig/kubernetes/ksv011/
 [CPU requests not specified]: https://avd.aquasec.com/misconfig/kubernetes/ksv015/
 [SYS_ADMIN capability added]: https://avd.aquasec.com/misconfig/kubernetes/ksv005/
@@ -87,6 +109,7 @@ policy that checks for recommended Kubernetes labels on any resource kind.
 [resource quota usage]: https://avd.aquasec.com/misconfig/kubernetes/ksv040/
 [All container images must start with the *.azurecr.io domain]: https://avd.aquasec.com/misconfig/kubernetes/ksv032/
 [All container images must start with a GCR domain]: https://avd.aquasec.com/misconfig/kubernetes/ksv033/
+[No Manage Rbac Resources]:https://avd.aquasec.com/misconfig/rbac/general/avd-ksv-0050/
 
 [Access to host IPC namespace]: https://avd.aquasec.com/misconfig/kubernetes/ksv008/
 [Access to host network]: https://avd.aquasec.com/misconfig/kubernetes/ksv009/
@@ -105,3 +128,21 @@ policy that checks for recommended Kubernetes labels on any resource kind.
 [Runs as root user]: https://avd.aquasec.com/misconfig/kubernetes/ksv012/
 [A root primary or supplementary GID set]: https://avd.aquasec.com/misconfig/kubernetes/ksv029/
 [Default Seccomp profile not set]: https://avd.aquasec.com/misconfig/kubernetes/ksv030/
+
+
+
+[Allow Role Clusterrolebindings Associate Privileged Cluster Role]: https://avd.aquasec.com/misconfig/rbac/general/avd-ksv-0052/
+[Deny Create Update Malicious Pod]: https://avd.aquasec.com/misconfig/rbac/general/avd-ksv-0048/
+[Do Not Allow Role Binding Associate Privileged Role]:https://avd.aquasec.com/misconfig/rbac/general/avd-ksv-0051/
+[No Attaching Shell Pods]: https://avd.aquasec.com/misconfig/rbac/general/avd-ksv-0054/
+[No Delete Pod Logs]: https://avd.aquasec.com/misconfig/rbac/general/avd-ksv-0042/
+[No Getting Shell Pods]:https://avd.aquasec.com/misconfig/rbac/general/avd-ksv-0053/
+[No Impersonate Privileged Groups]:https://avd.aquasec.com/misconfig/rbac/general/avd-ksv-0043/
+[No Manage Configmaps]:https://avd.aquasec.com/misconfig/rbac/general/avd-ksv-0049/
+[No Manage Networking Resources]:https://avd.aquasec.com/misconfig/rbac/general/avd-ksv-0056/
+[No Manage Secrets]:https://avd.aquasec.com/misconfig/rbac/general/avd-ksv-0041/
+[Do Privilege Escalation From Node Proxy]:https://avd.aquasec.com/misconfig/rbac/general/avd-ksv-0047/
+[No Wildcard Resource Role]:https://avd.aquasec.com/misconfig/rbac/general/avd-ksv-0046/
+[No Wildcard Verb Resource Role]:https://avd.aquasec.com/misconfig/rbac/general/avd-ksv-0044/
+[No Wildcard Verb Role]:https://avd.aquasec.com/misconfig/rbac/general/avd-ksv-0045/
+[View All Secrets]:https://avd.aquasec.com/misconfig/rbac/general/avd-ksv-0055/

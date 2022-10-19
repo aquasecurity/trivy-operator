@@ -81,8 +81,7 @@ policy that checks for recommended Kubernetes labels on any resource kind.
 | [No Manage Rbac Resources]                    | An effective level of access equivalent to cluster-admin should not be provided. | Role/ClusterRole |
 | [No Manage Secrets]                       | Do not allow management of secrets                                                                                                                                                                          | Role/ClusterRole |
 | [Do Privilege Escalation From Node Proxy]                 | Do not allow privilege escalation from node proxy                 | Role/ClusterRole |
-| [No Wildcard Resource Role]                    | No wildcard resource roles  | Role/ClusterRole |
-| [No Manage Secrets]                       | Do not allow management of secrets                                                                                                                                                                          | Role/ClusterRole |
+| [No Wildcard Resource Role]                    | No wildcard resource roles  | Role/ClusterRole |                                                                                 
 | [No Wildcard Verb Resource Role]                 | No wildcard verb and resource roles                  | Role/ClusterRole |
 | [No Wildcard Verb Role]                    | No wildcard verb roles  | Role/ClusterRole |
 | [View All Secrets]                       | Do not allow users in a rolebinding to add other users to their rolebindings                                        | Role/ClusterRole |

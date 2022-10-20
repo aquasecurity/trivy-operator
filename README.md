@@ -5,7 +5,6 @@
 [![GitHub Release][release-img]][release]
 [![Build Action][action-build-img]][action-build]
 [![Release snapshot Action][action-release-snapshot-img]][action-release-snapshot]
-[![Coverage Status][cov-img]][cov]
 [![Go Report Card][report-card-img]][report-card]
 [![License][license-img]][license]
 [![GitHub All Releases][github-all-releases-img]][release]

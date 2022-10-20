@@ -58,3 +58,12 @@ jobs:
           exit-code: '1'
           ignore-unfixed: true
           severity: 'CRITICAL,HIGH'
+      - name: Notify dedicated teams channel
+        uses: jdcargile/ms-teams-notification@v1.3
+        if: failure()
+        with:
+          github-token: ${{ secrets.ORG_REPO_TOKEN }}
+          ms-teams-webhook-uri: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+          notification-summary: vulnerabilities has been found in trivy-operator image
+          notification-color: 17a2b8
+          timezone: America/Denver

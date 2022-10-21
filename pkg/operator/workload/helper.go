@@ -3,7 +3,12 @@ package workload
 import (
 	"errors"
 	"fmt"
+	"k8s.io/client-go/util/retry"
+	"time"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/go-logr/logr"
 	"golang.org/x/net/context"
 	appsv1 "k8s.io/api/apps/v1"
@@ -32,6 +37,10 @@ func SkipProcessing(ctx context.Context, resource client.Object, or kube.ObjectR
 			}
 			if !activeReplicaSet {
 				log.V(1).Info("Ignoring inactive ReplicaSet", "controllerKind", controller.Kind, "controllerName", controller.Name)
+				err := MarkOldReportForImmediateDeletion(ctx, or, resource.GetNamespace(), resource.GetName())
+				if err != nil {
+					return true, fmt.Errorf("failed marking old reports for immediate deletion : %w", err)
+				}
 				return true, nil
 			}
 		}
@@ -70,4 +79,40 @@ func SkipProcessing(ctx context.Context, resource client.Object, or kube.ObjectR
 		}
 	}
 	return false, nil
+}
+
+// GetReportsByLabel fetch reports by matching labels
+func GetReportsByLabel[T client.ObjectList](ctx context.Context, resolver kube.ObjectResolver, objectList T, namespace string,
+	labels map[string]string) (T, error) {
+	err := resolver.Client.List(ctx, objectList,
+		client.InNamespace(namespace),
+		client.MatchingLabels(labels))
+	if err != nil {
+		return objectList, fmt.Errorf("listing reports in namespace %s matching labels %v: %w", namespace,
+			labels, err)
+	}
+	return objectList, err
+}
+
+// MarkOldReportForImmediateDeletion set old (historical replicaSets) reports with TTL = 0 for immediate deletion
+func MarkOldReportForImmediateDeletion(ctx context.Context, resolver kube.ObjectResolver, namespace string, resourceName string) error {
+	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		resourceNameLabels := map[string]string{trivyoperator.LabelResourceName: resourceName}
+		VulnerabilityReportList, err := GetReportsByLabel(ctx, resolver, &v1alpha1.VulnerabilityReportList{}, namespace, resourceNameLabels)
+		if err != nil {
+			return err
+		}
+		annotation := map[string]string{
+			v1alpha1.TTLReportAnnotation: time.Duration(0).String(),
+		}
+		for _, item := range VulnerabilityReportList.Items {
+			copied := item.DeepCopy()
+			copied.Annotations = annotation
+			err := resolver.Client.Update(ctx, copied)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }

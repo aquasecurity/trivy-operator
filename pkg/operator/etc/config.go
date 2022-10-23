@@ -25,6 +25,7 @@ type Config struct {
 	MetricsFindingsEnabled                       bool           `env:"OPERATOR_METRICS_FINDINGS_ENABLED" envDefault:"true"`
 	MetricsVulnerabilityId                       bool           `env:"OPERATOR_METRICS_VULN_ID_ENABLED" envDefault:"false"`
 	MetricsResourceLabelsToInclude               string         `env:"OPERATOR_METRICS_RESOURCE_LABELS_TO_INCLUDE"`
+	MetricsResourceLabelsPrefix                  string         `env:"OPERATOR_METRICS_RESOURCE_LABELS_PREFIX" envDefault:"k8s_labels_"`
 	HealthProbeBindAddress                       string         `env:"OPERATOR_HEALTH_PROBE_BIND_ADDRESS" envDefault:":9090"`
 	VulnerabilityScannerEnabled                  bool           `env:"OPERATOR_VULNERABILITY_SCANNER_ENABLED" envDefault:"true"`
 	VulnerabilityScannerScanOnlyCurrentRevisions bool           `env:"OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS" envDefault:"true"`

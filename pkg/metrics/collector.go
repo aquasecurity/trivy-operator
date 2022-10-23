@@ -24,7 +24,6 @@ const (
 	image_digest     = "image_digest"
 	severity         = "severity"
 	vuln_id          = "vuln_id"
-	k8s_label_prefix = "k8s_label_"
 )
 
 type metricDescriptors struct {
@@ -252,7 +251,7 @@ func buildMetricDescriptors(config etc.Config) metricDescriptors {
 func includeDynamicConfigLabels(labels []string, config etc.Config) []string {
 	resourceLabels := config.GetMetricsResourceLabelsToInclude()
 	for _, label := range resourceLabels {
-		labels = append(labels, k8s_label_prefix+label)
+		labels = append(labels, config.MetricsResourceLabelsPrefix+label)
 	}
 	return labels
 }

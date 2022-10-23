@@ -179,7 +179,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			return fmt.Errorf("unable to setup vulnerabilityreport reconciler: %w", err)
 		}
 
-		if operatorConfig.VulnerabilityScannerReportTTL != nil {
+		if operatorConfig.ScannerReportTTL != nil {
 			if err = (&TTLReportReconciler{
 				Logger: ctrl.Log.WithName("reconciler").WithName("ttlreport"),
 				Config: operatorConfig,

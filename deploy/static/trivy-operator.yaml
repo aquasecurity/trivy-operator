@@ -1288,7 +1288,7 @@ spec:
               value: "true"
             - name: OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS
               value: "true"
-            - name: OPERATOR_VULNERABILITY_SCANNER_REPORT_TTL
+            - name: OPERATOR_SCANNER_REPORT_TTL
               value: "24h"
             - name: OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED
               value: "true"

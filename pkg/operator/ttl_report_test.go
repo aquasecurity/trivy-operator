@@ -31,12 +31,12 @@ func TestRegenerateReportIfExpired(t *testing.T) {
 	// scheme
 	scheme := trivyoperator.NewScheme()
 
-	// set the VulnerabilityScannerReportTTL
+	// set the ScannerReportTTL
 	config, err := etc.GetOperatorConfig()
 	require.NoError(t, err)
 	hours, err := time.ParseDuration("24h")
 	require.NoError(t, err)
-	config.VulnerabilityScannerReportTTL = &hours
+	config.ScannerReportTTL = &hours
 
 	// logger object
 	logger := log.Log.WithName("testing")

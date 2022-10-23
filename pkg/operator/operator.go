@@ -180,7 +180,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 
 		if operatorConfig.VulnerabilityScannerReportTTL != nil {
-			if err = (&vulnerabilityreport.TTLReportReconciler{
+			if err = (&TTLReportReconciler{
 				Logger: ctrl.Log.WithName("reconciler").WithName("ttlreport"),
 				Config: operatorConfig,
 				Client: mgr.GetClient(),

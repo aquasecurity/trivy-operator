@@ -3,6 +3,9 @@ package rbacassessment
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -13,7 +16,6 @@ import (
 	"k8s.io/utils/pointer"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	"strings"
 )
 
 type ReportBuilder struct {
@@ -22,6 +24,7 @@ type ReportBuilder struct {
 	resourceSpecHash string
 	pluginConfigHash string
 	data             v1alpha1.RbacAssessmentReportData
+	reportTTL        *time.Duration
 }
 
 func NewReportBuilder(scheme *runtime.Scheme) *ReportBuilder {
@@ -47,6 +50,11 @@ func (b *ReportBuilder) PluginConfigHash(hash string) *ReportBuilder {
 
 func (b *ReportBuilder) Data(data v1alpha1.RbacAssessmentReportData) *ReportBuilder {
 	b.data = data
+	return b
+}
+
+func (b *ReportBuilder) ReportTTL(ttl *time.Duration) *ReportBuilder {
+	b.reportTTL = ttl
 	return b
 }
 
@@ -112,6 +120,11 @@ func (b *ReportBuilder) GetReport() (v1alpha1.RbacAssessmentReport, error) {
 			Labels:    labelsSet,
 		},
 		Report: b.data,
+	}
+	if b.reportTTL != nil {
+		report.Annotations = map[string]string{
+			v1alpha1.TTLReportAnnotation: b.reportTTL.String(),
+		}
 	}
 	err := kube.ObjectToObjectMeta(b.controller, &report.ObjectMeta)
 	if err != nil {

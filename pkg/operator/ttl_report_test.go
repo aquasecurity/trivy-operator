@@ -1,4 +1,4 @@
-package vulnerabilityreport_test
+package operator_test
 
 import (
 	"context"
@@ -13,9 +13,9 @@ import (
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"github.com/aquasecurity/trivy-operator/pkg/operator"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 )
 
 const (
@@ -41,7 +41,7 @@ func TestRegenerateReportIfExpired(t *testing.T) {
 	logger := log.Log.WithName("testing")
 
 	// create TTLReport controller
-	instance := vulnerabilityreport.TTLReportReconciler{Logger: logger, Config: config, Clock: clock}
+	instance := operator.TTLReportReconciler{Logger: logger, Config: config, Clock: clock}
 
 	// vuln report data
 	vulnReport := v1alpha1.VulnerabilityReport{}
@@ -101,7 +101,7 @@ func TestRegenerateReportIfExpired(t *testing.T) {
 			nsName := types.NamespacedName{Namespace: ns, Name: vulnReport.Name}
 
 			// Check if TTL expired for the vulnerability report
-			_, err := instance.DeleteReportIfExpired(context.TODO(), nsName)
+			_, err := instance.DeleteReportIfExpired(context.TODO(), nsName,&v1alpha1.VulnerabilityReport{})
 			if tt.wantError {
 				require.Error(t, err)
 				return

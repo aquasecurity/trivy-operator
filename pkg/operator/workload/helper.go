@@ -96,23 +96,67 @@ func GetReportsByLabel[T client.ObjectList](ctx context.Context, resolver kube.O
 
 // MarkOldReportForImmediateDeletion set old (historical replicaSets) reports with TTL = 0 for immediate deletion
 func MarkOldReportForImmediateDeletion(ctx context.Context, resolver kube.ObjectResolver, namespace string, resourceName string) error {
+	annotation := map[string]string{v1alpha1.TTLReportAnnotation: time.Duration(0).String()}
+	resourceNameLabels := map[string]string{trivyoperator.LabelResourceName: resourceName}
+	err := markOldVulnerabilityReportsForImmediateDeletion(ctx, resolver, namespace, resourceNameLabels, annotation)
+	if err != nil {
+		return err
+	}
+	err = markOldConfigAuditReportsForImmediateDeletion(ctx, resolver, namespace, resourceNameLabels, annotation)
+	if err != nil {
+		return err
+	}
+	err = markOldExposeSecretsReportForImmediateDeletion(ctx, resolver, namespace, resourceNameLabels, annotation)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func markOldVulnerabilityReportsForImmediateDeletion(ctx context.Context, resolver kube.ObjectResolver, namespace string, resourceNameLabels map[string]string, annotation map[string]string) error {
 	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		resourceNameLabels := map[string]string{trivyoperator.LabelResourceName: resourceName}
 		VulnerabilityReportList, err := GetReportsByLabel(ctx, resolver, &v1alpha1.VulnerabilityReportList{}, namespace, resourceNameLabels)
 		if err != nil {
 			return err
 		}
-		annotation := map[string]string{
-			v1alpha1.TTLReportAnnotation: time.Duration(0).String(),
-		}
-		for _, item := range VulnerabilityReportList.Items {
-			copied := item.DeepCopy()
-			copied.Annotations = annotation
-			err := resolver.Client.Update(ctx, copied)
-			if err != nil {
-				return err
-			}
+		for _, report := range VulnerabilityReportList.Items {
+			markReportTTL(ctx, resolver, report.DeepCopy(), annotation)
 		}
 		return nil
 	})
+}
+
+func markOldConfigAuditReportsForImmediateDeletion(ctx context.Context, resolver kube.ObjectResolver, namespace string, resourceNameLabels map[string]string, annotation map[string]string) error {
+	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		configAuditReportList, err := GetReportsByLabel(ctx, resolver, &v1alpha1.ConfigAuditReportList{}, namespace, resourceNameLabels)
+		if err != nil {
+			return err
+		}
+		for _, report := range configAuditReportList.Items {
+			markReportTTL(ctx, resolver, report.DeepCopy(), annotation)
+		}
+		return nil
+	})
+}
+
+func markOldExposeSecretsReportForImmediateDeletion(ctx context.Context, resolver kube.ObjectResolver, namespace string, resourceNameLabels map[string]string, annotation map[string]string) error {
+	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		exposeSecretReportList, err := GetReportsByLabel(ctx, resolver, &v1alpha1.ExposedSecretReportList{}, namespace, resourceNameLabels)
+		if err != nil {
+			return err
+		}
+		for _, report := range exposeSecretReportList.Items {
+			markReportTTL(ctx, resolver, report.DeepCopy(), annotation)
+		}
+		return nil
+	})
+}
+
+func markReportTTL[T client.Object](ctx context.Context, resolver kube.ObjectResolver, report T, annotation map[string]string) error {
+	report.SetAnnotations(annotation)
+	err := resolver.Client.Update(ctx, report)
+	if err != nil {
+		return err
+	}
+	return nil
 }

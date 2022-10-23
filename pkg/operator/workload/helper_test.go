@@ -36,6 +36,7 @@ func TestGetReportsByLabel(t *testing.T) {
 			or := kube.NewObjectResolver(testClient, nil)
 			ctx := context.TODO()
 			reports, err := GetReportsByLabel(ctx, or, tt.wantObjectList, tt.namespace, tt.labels)
+			assert.NoError(t, err)
 			switch i := reports.(type) {
 			case *v1alpha1.VulnerabilityReportList:
 				for index, report := range i.Items {

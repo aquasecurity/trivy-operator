@@ -120,7 +120,10 @@ func markOldVulnerabilityReportsForImmediateDeletion(ctx context.Context, resolv
 			return err
 		}
 		for _, report := range VulnerabilityReportList.Items {
-			markReportTTL(ctx, resolver, report.DeepCopy(), annotation)
+			err := markReportTTL(ctx, resolver, report.DeepCopy(), annotation)
+			if err != nil {
+				return err
+			}
 		}
 		return nil
 	})
@@ -133,7 +136,10 @@ func markOldConfigAuditReportsForImmediateDeletion(ctx context.Context, resolver
 			return err
 		}
 		for _, report := range configAuditReportList.Items {
-			markReportTTL(ctx, resolver, report.DeepCopy(), annotation)
+			err := markReportTTL(ctx, resolver, report.DeepCopy(), annotation)
+			if err != nil {
+				return err
+			}
 		}
 		return nil
 	})
@@ -146,7 +152,10 @@ func markOldExposeSecretsReportForImmediateDeletion(ctx context.Context, resolve
 			return err
 		}
 		for _, report := range exposeSecretReportList.Items {
-			markReportTTL(ctx, resolver, report.DeepCopy(), annotation)
+			err := markReportTTL(ctx, resolver, report.DeepCopy(), annotation)
+			if err != nil {
+				return err
+			}
 		}
 		return nil
 	})

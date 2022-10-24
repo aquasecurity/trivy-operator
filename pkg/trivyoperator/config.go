@@ -51,18 +51,19 @@ type BuildInfo struct {
 type Scanner string
 
 const (
-	KeyVulnerabilityScannerEnabled       = "vulnerabilityScannerEnabled"
-	KeyExposedSecretsScannerEnabled      = "exposedSecretsScannerEnabled"
-	keyVulnerabilityReportsScanner       = "vulnerabilityReports.scanner"
-	KeyVulnerabilityScansInSameNamespace = "vulnerabilityReports.scanJobsInSameNamespace"
-	keyConfigAuditReportsScanner         = "configAuditReports.scanner"
-	keyScanJobTolerations                = "scanJob.tolerations"
-	keyScanJobNodeSelector               = "scanJob.nodeSelector"
-	keyScanJobAnnotations                = "scanJob.annotations"
-	KeyScanJobContainerSecurityContext   = "scanJob.podTemplateContainerSecurityContext"
-	keyScanJobPodSecurityContext         = "scanJob.podTemplatePodSecurityContext"
-	keyScanJobPodTemplateLabels          = "scanJob.podTemplateLabels"
-	keyComplianceFailEntriesLimit        = "compliance.failEntriesLimit"
+	KeyVulnerabilityScannerEnabled         = "vulnerabilityScannerEnabled"
+	KeyExposedSecretsScannerEnabled        = "exposedSecretsScannerEnabled"
+	keyVulnerabilityReportsScanner         = "vulnerabilityReports.scanner"
+	KeyVulnerabilityScansInSameNamespace   = "vulnerabilityReports.scanJobsInSameNamespace"
+	keyConfigAuditReportsScanner           = "configAuditReports.scanner"
+	keyScanJobTolerations                  = "scanJob.tolerations"
+	keyScanJobNodeSelector                 = "scanJob.nodeSelector"
+	keyScanJobAnnotations                  = "scanJob.annotations"
+	keyscanJobAutomountServiceAccountToken = "scanJob.automountServiceAccountToken"
+	KeyScanJobContainerSecurityContext     = "scanJob.podTemplateContainerSecurityContext"
+	keyScanJobPodSecurityContext           = "scanJob.podTemplatePodSecurityContext"
+	keyScanJobPodTemplateLabels            = "scanJob.podTemplateLabels"
+	keyComplianceFailEntriesLimit          = "compliance.failEntriesLimit"
 )
 
 // ConfigData holds Trivy-operator configuration settings as a set of key-value
@@ -181,6 +182,10 @@ func (c ConfigData) GetScanJobContainerSecurityContext() (*corev1.SecurityContex
 	}
 
 	return scanJobContainerSecurityContext, nil
+}
+
+func (c ConfigData) GetScanJobAutomountServiceAccountToken() bool {
+	return c.getBoolKey(keyscanJobAutomountServiceAccountToken)
 }
 
 func (c ConfigData) GetScanJobAnnotations() (map[string]string, error) {

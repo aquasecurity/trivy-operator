@@ -13,6 +13,9 @@ data:
   {{- with .Values.trivyOperator.scanJobAnnotations }}
   scanJob.annotations: {{ . | quote }}
   {{- end }}
+  {{- if .Values.trivyOperator.scanJobAutomountServiceAccountToken }}
+  scanJob.automountServiceAccountToken: {{ .Values.trivyOperator.scanJobAutomountServiceAccountToken | quote }}
+  {{- end }}
   {{- with .Values.trivyOperator.scanJobPodTemplateLabels }}
   scanJob.podTemplateLabels: {{ . | quote }}
   {{- end }}

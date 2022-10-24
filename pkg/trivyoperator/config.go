@@ -59,6 +59,7 @@ const (
 	keyScanJobTolerations                  = "scanJob.tolerations"
 	keyScanJobNodeSelector                 = "scanJob.nodeSelector"
 	keyScanJobAnnotations                  = "scanJob.annotations"
+	//nolint 
 	keyscanJobAutomountServiceAccountToken = "scanJob.automountServiceAccountToken"
 	KeyScanJobContainerSecurityContext     = "scanJob.podTemplateContainerSecurityContext"
 	keyScanJobPodSecurityContext           = "scanJob.podTemplatePodSecurityContext"

@@ -17,7 +17,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.3.1
 	github.com/onsi/gomega v1.22.1
 	github.com/prometheus/client_golang v1.13.0
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.1
 	github.com/tenstad/dyqual v0.3.0
 	go.uber.org/multierr v1.8.0
 	golang.org/x/net v0.1.0

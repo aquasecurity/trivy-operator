@@ -51,15 +51,15 @@ type BuildInfo struct {
 type Scanner string
 
 const (
-	KeyVulnerabilityScannerEnabled         = "vulnerabilityScannerEnabled"
-	KeyExposedSecretsScannerEnabled        = "exposedSecretsScannerEnabled"
-	keyVulnerabilityReportsScanner         = "vulnerabilityReports.scanner"
-	KeyVulnerabilityScansInSameNamespace   = "vulnerabilityReports.scanJobsInSameNamespace"
-	keyConfigAuditReportsScanner           = "configAuditReports.scanner"
-	keyScanJobTolerations                  = "scanJob.tolerations"
-	keyScanJobNodeSelector                 = "scanJob.nodeSelector"
-	keyScanJobAnnotations                  = "scanJob.annotations"
-	//nolint 
+	KeyVulnerabilityScannerEnabled       = "vulnerabilityScannerEnabled"
+	KeyExposedSecretsScannerEnabled      = "exposedSecretsScannerEnabled"
+	keyVulnerabilityReportsScanner       = "vulnerabilityReports.scanner"
+	KeyVulnerabilityScansInSameNamespace = "vulnerabilityReports.scanJobsInSameNamespace"
+	keyConfigAuditReportsScanner         = "configAuditReports.scanner"
+	keyScanJobTolerations                = "scanJob.tolerations"
+	keyScanJobNodeSelector               = "scanJob.nodeSelector"
+	keyScanJobAnnotations                = "scanJob.annotations"
+	//nolint
 	keyscanJobAutomountServiceAccountToken = "scanJob.automountServiceAccountToken"
 	KeyScanJobContainerSecurityContext     = "scanJob.podTemplateContainerSecurityContext"
 	keyScanJobPodSecurityContext           = "scanJob.podTemplatePodSecurityContext"

@@ -57,7 +57,7 @@ const (
 	KeyVulnerabilityScansInSameNamespace = "vulnerabilityReports.scanJobsInSameNamespace"
 	keyConfigAuditReportsScanner         = "configAuditReports.scanner"
 	keyScanJobTolerations                = "scanJob.tolerations"
-	keyScanJobcompressLogs               = "scanJob.compressLogs"
+	KeyScanJobcompressLogs               = "scanJob.compressLogs"
 	keyScanJobNodeSelector               = "scanJob.nodeSelector"
 	keyScanJobAnnotations                = "scanJob.annotations"
 	//nolint
@@ -84,7 +84,7 @@ func GetDefaultConfig() ConfigData {
 	return map[string]string{
 		keyVulnerabilityReportsScanner: "Trivy",
 		keyConfigAuditReportsScanner:   "Trivy",
-		keyScanJobcompressLogs:         "true",
+		KeyScanJobcompressLogs:         "true",
 		"compliance.failEntriesLimit":  "10",
 	}
 }
@@ -96,7 +96,7 @@ func (c ConfigData) Set(key, value string) {
 
 // CompressLogs returns if scan job output should be compressed
 func (c ConfigData) CompressLogs() bool {
-	return c.getBoolKey(keyScanJobcompressLogs)
+	return c.getBoolKey(KeyScanJobcompressLogs)
 }
 
 // VulnerabilityScannerEnabled returns if the vulnerability scanners is enabled/disablsed

@@ -670,6 +670,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 			trivyOperatorConfig: map[string]string{
 				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
 				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+				trivyoperator.KeyScanJobcompressLogs:          "true",
 			},
 			config: map[string]string{
 				"trivy.repository":                "docker.io/aquasec/trivy",
@@ -931,6 +932,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 			trivyOperatorConfig: map[string]string{
 				trivyoperator.KeyVulnerabilityScannerEnabled:  "false",
 				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+				trivyoperator.KeyScanJobcompressLogs:          "true",
 			},
 			config: map[string]string{
 				"trivy.repository":                   "docker.io/aquasec/trivy",
@@ -1192,6 +1194,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 			trivyOperatorConfig: map[string]string{
 				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
 				trivyoperator.KeyExposedSecretsScannerEnabled: "false",
+				trivyoperator.KeyScanJobcompressLogs:          "true",
 			},
 			config: map[string]string{
 				"trivy.repository":                 "docker.io/aquasec/trivy",
@@ -1453,6 +1456,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 			trivyOperatorConfig: map[string]string{
 				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
 				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+				trivyoperator.KeyScanJobcompressLogs:          "true",
 			},
 			config: map[string]string{
 				"trivy.repository": "docker.io/aquasec/trivy",
@@ -1739,6 +1743,7 @@ CVE-2019-1543`,
 			trivyOperatorConfig: map[string]string{
 				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
 				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+				trivyoperator.KeyScanJobcompressLogs:          "true",
 			},
 			config: map[string]string{
 				"trivy.repository": "docker.io/aquasec/trivy",
@@ -1999,6 +2004,7 @@ CVE-2019-1543`,
 			trivyOperatorConfig: map[string]string{
 				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
 				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+				trivyoperator.KeyScanJobcompressLogs:          "true",
 			},
 			config: map[string]string{
 				"trivy.repository":                "docker.io/aquasec/trivy",
@@ -2201,6 +2207,7 @@ CVE-2019-1543`,
 			trivyOperatorConfig: map[string]string{
 				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
 				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+				trivyoperator.KeyScanJobcompressLogs:          "true",
 			},
 			config: map[string]string{
 				"trivy.repository":                "docker.io/aquasec/trivy",
@@ -2403,6 +2410,7 @@ CVE-2019-1543`,
 			trivyOperatorConfig: map[string]string{
 				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
 				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+				trivyoperator.KeyScanJobcompressLogs:          "true",
 			},
 			config: map[string]string{
 				"trivy.repository":                "docker.io/aquasec/trivy",
@@ -2610,6 +2618,7 @@ CVE-2019-1543`,
 			trivyOperatorConfig: map[string]string{
 				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
 				trivyoperator.KeyExposedSecretsScannerEnabled: "false",
+				trivyoperator.KeyScanJobcompressLogs:          "true",
 			},
 			config: map[string]string{
 				"trivy.repository":                 "docker.io/aquasec/trivy",
@@ -2817,6 +2826,7 @@ CVE-2019-1543`,
 			trivyOperatorConfig: map[string]string{
 				trivyoperator.KeyVulnerabilityScannerEnabled:  "false",
 				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+				trivyoperator.KeyScanJobcompressLogs:          "true",
 			},
 			config: map[string]string{
 				"trivy.repository": "docker.io/aquasec/trivy",
@@ -3050,6 +3060,7 @@ CVE-2019-1543`,
 			trivyOperatorConfig: map[string]string{
 				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
 				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+				trivyoperator.KeyScanJobcompressLogs:          "true",
 			},
 			config: map[string]string{
 				"trivy.repository":                "docker.io/aquasec/trivy",
@@ -3315,6 +3326,8 @@ CVE-2019-1543`,
 							"/var/trivyoperator/trivy-db",
 							"--quiet",
 							"fs",
+							"--security-checks",
+							"vuln,secret",
 							"--skip-update",
 							"--format",
 							"json",
@@ -3668,6 +3681,8 @@ CVE-2019-1543`,
 						"/var/trivyoperator/trivy-db",
 						"--quiet",
 						"fs",
+						"--security-checks",
+						"vuln,secret",
 						"--skip-update",
 						"--format",
 						"json",

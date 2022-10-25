@@ -715,21 +715,18 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 			return corev1.PodSpec{}, nil, err
 		}
 		resultFileName := getUniqueScanResultFileName(c.Name)
+		cmd, args := p.getCommandAndArgs(ctx, Standalone, imageRef.String(), "", resultFileName)
 		containers = append(containers, corev1.Container{
 			Name:                     c.Name,
 			Image:                    trivyImageRef,
 			ImagePullPolicy:          corev1.PullIfNotPresent,
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 			Env:                      env,
-			Command: []string{
-				"/bin/sh",
-			},
-			Args: []string{
-				"-c", fmt.Sprintf(`trivy image '%s' --security-checks %s --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, imageRef.String(), getSecurityChecks(ctx), resultFileName, resultFileName),
-			},
-			Resources:       resourceRequirements,
-			SecurityContext: securityContext,
-			VolumeMounts:    volumeMounts,
+			Command:                  cmd,
+			Args:                     args,
+			Resources:                resourceRequirements,
+			SecurityContext:          securityContext,
+			VolumeMounts:             volumeMounts,
 		})
 	}
 
@@ -1087,23 +1084,21 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			return corev1.PodSpec{}, nil, err
 		}
 		resultFileName := getUniqueScanResultFileName(container.Name)
+		cmd, args := p.getCommandAndArgs(ctx, ClientServer, imageRef.String(), encodedTrivyServerURL.String(), resultFileName)
 		containers = append(containers, corev1.Container{
 			Name:                     container.Name,
 			Image:                    trivyImageRef,
 			ImagePullPolicy:          corev1.PullIfNotPresent,
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 			Env:                      env,
-			Command: []string{
-				"/bin/sh",
-			},
-			Args: []string{
-				"-c", fmt.Sprintf(`trivy image '%s' --security-checks %s --quiet --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, imageRef, getSecurityChecks(ctx), encodedTrivyServerURL.String(), resultFileName, resultFileName),
-			},
-			Resources:       requirements,
-			SecurityContext: securityContext,
-			VolumeMounts:    volumeMounts,
+			Command:                  cmd,
+			Args:                     args,
+			Resources:                requirements,
+			SecurityContext:          securityContext,
+			VolumeMounts:             volumeMounts,
 		})
 	}
+
 	return corev1.PodSpec{
 		Affinity:                     trivyoperator.LinuxNodeAffinity(),
 		RestartPolicy:                corev1.RestartPolicyNever,
@@ -1114,10 +1109,31 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 	}, secrets, nil
 }
 
+func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef string, trivyServerURL string, resultFileName string) ([]string, []string) {
+	baseArgs := []string{"--quiet", "image", "--security-checks", getSecurityChecks(ctx), "--skip-update", "--format", "json"}
+	standaloneArgs := []string{"--cache-dir", "/tmp/trivy/.cache"}
+	command := []string{"trivy"}
+
+	if mode == ClientServer {
+		if !ctx.GetTrivyOperatorConfig().CompressLogs() {
+			baseArgs = append(baseArgs, trivyServerURL)
+			baseArgs = append(baseArgs, imageRef)
+			return command, baseArgs
+		}
+		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image '%s' --security-checks %s --quiet --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, imageRef, getSecurityChecks(ctx), trivyServerURL, resultFileName, resultFileName)}
+	}
+
+	if !ctx.GetTrivyOperatorConfig().CompressLogs() {
+		standaloneArgs = append(standaloneArgs, baseArgs...)
+		standaloneArgs = append(standaloneArgs, imageRef)
+		return command, standaloneArgs
+	}
+	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image '%s' --security-checks %s --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, imageRef, getSecurityChecks(ctx), resultFileName, resultFileName)}
+}
+
 func getAutomountServiceAccountToken(ctx trivyoperator.PluginContext) bool {
 	return ctx.GetTrivyOperatorConfig().GetScanJobAutomountServiceAccountToken()
 }
-
 func getUniqueScanResultFileName(name string) string {
 	return fmt.Sprintf("result_%s.json", name)
 }
@@ -1313,6 +1329,8 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 				"/var/trivyoperator/trivy-db",
 				"--quiet",
 				"fs",
+				"--security-checks",
+				getSecurityChecks(ctx),
 				"--skip-update",
 				"--format",
 				"json",

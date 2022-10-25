@@ -479,10 +479,17 @@ func TestGetScanJobCompressLogs(t *testing.T) {
 		{
 			name:       "should return Scan Job compress logs  default value",
 			configData: trivyoperator.ConfigData{},
-			want:       true,
+			want:       false,
 		},
 		{
 			name: "Should return scan job compress logs true",
+			configData: trivyoperator.ConfigData{
+				"scanJob.compressLogs": "true",
+			},
+			want: true,
+		},
+		{
+			name: "Should return scan job compress logs false",
 			configData: trivyoperator.ConfigData{
 				"scanJob.compressLogs": "false",
 			},
@@ -491,8 +498,8 @@ func TestGetScanJobCompressLogs(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			gotLimit := tc.configData.CompressLogs()
-			assert.Equal(t, tc.want, gotLimit)
+			compressLogs := tc.configData.CompressLogs()
+			assert.Equal(t, tc.want, compressLogs)
 		})
 	}
 }

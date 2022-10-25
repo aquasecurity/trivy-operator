@@ -1191,6 +1191,7 @@ metadata:
     app.kubernetes.io/managed-by: kubectl
 data:
   scanJob.podTemplateContainerSecurityContext: "{\"allowPrivilegeEscalation\":false,\"capabilities\":{\"drop\":[\"ALL\"]},\"privileged\":false,\"readOnlyRootFilesystem\":true}"
+  scanJob.compressLogs: "true"
   vulnerabilityReports.scanner: "Trivy"
   configAuditReports.scanner: "Trivy"
 ---

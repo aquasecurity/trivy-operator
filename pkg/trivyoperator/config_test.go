@@ -470,6 +470,33 @@ func TestConfigData_GetComplianceFailEntriesLimit(t *testing.T) {
 	}
 }
 
+func TestGetScanJobCompressLogs(t *testing.T) {
+	testCases := []struct {
+		name       string
+		configData trivyoperator.ConfigData
+		want       bool
+	}{
+		{
+			name:       "should return Scan Job compress logs  default value",
+			configData: trivyoperator.ConfigData{},
+			want:       true,
+		},
+		{
+			name: "Should return scan job compress logs true",
+			configData: trivyoperator.ConfigData{
+				"scanJob.compressLogs": "false",
+			},
+			want: false,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			gotLimit := tc.configData.CompressLogs()
+			assert.Equal(t, tc.want, gotLimit)
+		})
+	}
+}
+
 func TestGetVersionFromImageRef(t *testing.T) {
 	testCases := []struct {
 		imageRef        string

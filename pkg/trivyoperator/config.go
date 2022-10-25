@@ -84,8 +84,8 @@ func GetDefaultConfig() ConfigData {
 	return map[string]string{
 		keyVulnerabilityReportsScanner: "Trivy",
 		keyConfigAuditReportsScanner:   "Trivy",
-
-		"compliance.failEntriesLimit": "10",
+		keyScanJobcompressLogs:         "true",
+		"compliance.failEntriesLimit":  "10",
 	}
 }
 
@@ -96,8 +96,7 @@ func (c ConfigData) Set(key, value string) {
 
 // CompressLogs returns if scan job output should be compressed
 func (c ConfigData) CompressLogs() bool {
-	//return c.getBoolKey(keyScanJobcompressLogs)
-	return false
+	return c.getBoolKey(keyScanJobcompressLogs)
 }
 
 // VulnerabilityScannerEnabled returns if the vulnerability scanners is enabled/disablsed

@@ -75,12 +75,12 @@ type ResourcesMetricsCollector struct {
 	metricDescriptors
 }
 
-func NewResourcesMetricsCollector(logger logr.Logger, config etc.Config, client client.Client) *ResourcesMetricsCollector {
+func NewResourcesMetricsCollector(logger logr.Logger, config etc.Config, clt client.Client) *ResourcesMetricsCollector {
 	metricDescriptors := buildMetricDescriptors(config)
 	return &ResourcesMetricsCollector{
 		Logger:            logger,
 		Config:            config,
-		Client:            client,
+		Client:            clt,
 		metricDescriptors: metricDescriptors,
 	}
 }

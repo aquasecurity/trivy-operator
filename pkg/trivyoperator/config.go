@@ -65,6 +65,8 @@ const (
 	keyScanJobPodSecurityContext           = "scanJob.podTemplatePodSecurityContext"
 	keyScanJobPodTemplateLabels            = "scanJob.podTemplateLabels"
 	keyComplianceFailEntriesLimit          = "compliance.failEntriesLimit"
+	KeyReportResourceLabels                = "report.resourceLabels"
+	KeyMetricsResourceLabelsPrefix         = "metrics.resourceLabelsPrefix"
 )
 
 // ConfigData holds Trivy-operator configuration settings as a set of key-value
@@ -225,6 +227,19 @@ func (c ConfigData) GetScanJobPodTemplateLabels() (labels.Set, error) {
 	}
 
 	return scanJobPodTemplateLabelsMap, nil
+}
+
+func (c ConfigData) GetReportResourceLabels() []string {
+	ResourceLabelsStr, found := c[KeyReportResourceLabels]
+	if !found || strings.TrimSpace(ResourceLabelsStr) == "" {
+		return []string{}
+	}
+
+	return strings.Split(ResourceLabelsStr, ",")
+}
+
+func (c ConfigData) GetMetricsResourceLabelsPrefix() string {
+	return c[KeyMetricsResourceLabelsPrefix]
 }
 
 func (c ConfigData) GetRequiredData(key string) (string, error) {

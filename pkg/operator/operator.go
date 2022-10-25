@@ -249,7 +249,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 
 	if operatorConfig.MetricsFindingsEnabled {
 		logger := ctrl.Log.WithName("metrics")
-		rmc := metrics.NewResourcesMetricsCollector(logger, operatorConfig, mgr.GetClient())
+		rmc := metrics.NewResourcesMetricsCollector(logger, operatorConfig, trivyOperatorConfig, mgr.GetClient())
 		if err := rmc.SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup resources metrics collector: %w", err)
 		}

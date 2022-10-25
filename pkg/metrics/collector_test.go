@@ -5,6 +5,7 @@ import (
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/labels"
 
@@ -28,7 +29,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 	JustBeforeEach(func() {
 		var logger logr.Logger
 		var config etc.Config
-		collector = *NewResourcesMetricsCollector(logger, config, client.Build())
+		var trvConfig = trivyoperator.GetDefaultConfig()
+		collector = *NewResourcesMetricsCollector(logger, config, trvConfig, client.Build())
 	})
 
 	AssertNoLintIssues := func() {
@@ -184,9 +186,9 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 				To(Succeed())
 		})
 		It("should produce correct metrics with configured labels included using the correct prefix", func() {
-			collector.MetricsResourceLabelsToInclude = "tier,ssot"
-			collector.MetricsResourceLabelsPrefix = "custom_prefix_"
-			collector.metricDescriptors = buildMetricDescriptors(collector.Config) // Force rebuild metricDescriptors again
+			collector.Set(trivyoperator.KeyReportResourceLabels, "tier,ssot")
+			collector.Set(trivyoperator.KeyMetricsResourceLabelsPrefix, "custom_prefix_")
+			collector.metricDescriptors = buildMetricDescriptors(collector.ConfigData) // Force rebuild metricDescriptors again
 			const expected = `
 				# HELP trivy_image_vulnerabilities Number of container image vulnerabilities
 				# TYPE trivy_image_vulnerabilities gauge

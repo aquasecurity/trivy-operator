@@ -132,7 +132,7 @@ func markOldVulnerabilityReports(ctx context.Context, resolver kube.ObjectResolv
 
 func markOldConfigAuditReports(ctx context.Context, resolver kube.ObjectResolver, namespace string, resourceNameLabels map[string]string, annotation map[string]string) error {
 	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		var configAuditReportList v1alpha1.VulnerabilityReportList
+		var configAuditReportList v1alpha1.ConfigAuditReportList
 		err := GetReportsByLabel(ctx, resolver, &configAuditReportList, namespace, resourceNameLabels)
 		if err != nil {
 			return err

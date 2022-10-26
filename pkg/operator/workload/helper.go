@@ -83,43 +83,44 @@ func SkipProcessing(ctx context.Context, resource client.Object, or kube.ObjectR
 
 // GetReportsByLabel fetch reports by matching labels
 func GetReportsByLabel[T client.ObjectList](ctx context.Context, resolver kube.ObjectResolver, objectList T, namespace string,
-	labels map[string]string) (T, error) {
+	labels map[string]string) error {
 	err := resolver.Client.List(ctx, objectList,
 		client.InNamespace(namespace),
 		client.MatchingLabels(labels))
 	if err != nil {
-		return objectList, fmt.Errorf("listing reports in namespace %s matching labels %v: %w", namespace,
+		return fmt.Errorf("listing reports in namespace %s matching labels %v: %w", namespace,
 			labels, err)
 	}
-	return objectList, err
+	return err
 }
 
 // MarkOldReportForImmediateDeletion set old (historical replicaSets) reports with TTL = 0 for immediate deletion
 func MarkOldReportForImmediateDeletion(ctx context.Context, resolver kube.ObjectResolver, namespace string, resourceName string) error {
 	annotation := map[string]string{v1alpha1.TTLReportAnnotation: time.Duration(0).String()}
 	resourceNameLabels := map[string]string{trivyoperator.LabelResourceName: resourceName}
-	err := markOldVulnerabilityReportsForImmediateDeletion(ctx, resolver, namespace, resourceNameLabels, annotation)
+	err := markOldVulnerabilityReports(ctx, resolver, namespace, resourceNameLabels, annotation)
 	if err != nil {
 		return err
 	}
-	err = markOldConfigAuditReportsForImmediateDeletion(ctx, resolver, namespace, resourceNameLabels, annotation)
+	err = markOldConfigAuditReports(ctx, resolver, namespace, resourceNameLabels, annotation)
 	if err != nil {
 		return err
 	}
-	err = markOldExposeSecretsReportForImmediateDeletion(ctx, resolver, namespace, resourceNameLabels, annotation)
+	err = markOldExposeSecretsReport(ctx, resolver, namespace, resourceNameLabels, annotation)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func markOldVulnerabilityReportsForImmediateDeletion(ctx context.Context, resolver kube.ObjectResolver, namespace string, resourceNameLabels map[string]string, annotation map[string]string) error {
+func markOldVulnerabilityReports(ctx context.Context, resolver kube.ObjectResolver, namespace string, resourceNameLabels map[string]string, annotation map[string]string) error {
 	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		VulnerabilityReportList, err := GetReportsByLabel(ctx, resolver, &v1alpha1.VulnerabilityReportList{}, namespace, resourceNameLabels)
+		var vulnerabilityReportList v1alpha1.VulnerabilityReportList
+		err := GetReportsByLabel(ctx, resolver, &vulnerabilityReportList, namespace, resourceNameLabels)
 		if err != nil {
 			return err
 		}
-		for _, report := range VulnerabilityReportList.Items {
+		for _, report := range vulnerabilityReportList.Items {
 			err := markReportTTL(ctx, resolver, report.DeepCopy(), annotation)
 			if err != nil {
 				return err
@@ -129,9 +130,10 @@ func markOldVulnerabilityReportsForImmediateDeletion(ctx context.Context, resolv
 	})
 }
 
-func markOldConfigAuditReportsForImmediateDeletion(ctx context.Context, resolver kube.ObjectResolver, namespace string, resourceNameLabels map[string]string, annotation map[string]string) error {
+func markOldConfigAuditReports(ctx context.Context, resolver kube.ObjectResolver, namespace string, resourceNameLabels map[string]string, annotation map[string]string) error {
 	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		configAuditReportList, err := GetReportsByLabel(ctx, resolver, &v1alpha1.ConfigAuditReportList{}, namespace, resourceNameLabels)
+		var configAuditReportList v1alpha1.VulnerabilityReportList
+		err := GetReportsByLabel(ctx, resolver, &configAuditReportList, namespace, resourceNameLabels)
 		if err != nil {
 			return err
 		}
@@ -145,9 +147,10 @@ func markOldConfigAuditReportsForImmediateDeletion(ctx context.Context, resolver
 	})
 }
 
-func markOldExposeSecretsReportForImmediateDeletion(ctx context.Context, resolver kube.ObjectResolver, namespace string, resourceNameLabels map[string]string, annotation map[string]string) error {
+func markOldExposeSecretsReport(ctx context.Context, resolver kube.ObjectResolver, namespace string, resourceNameLabels map[string]string, annotation map[string]string) error {
 	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		exposeSecretReportList, err := GetReportsByLabel(ctx, resolver, &v1alpha1.ExposedSecretReportList{}, namespace, resourceNameLabels)
+		var exposeSecretReportList v1alpha1.ExposedSecretReportList
+		err := GetReportsByLabel(ctx, resolver, &exposeSecretReportList, namespace, resourceNameLabels)
 		if err != nil {
 			return err
 		}

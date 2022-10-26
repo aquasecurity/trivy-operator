@@ -151,6 +151,36 @@ func TestConfigData_GetScanJobTolerations(t *testing.T) {
 	}
 }
 
+func TestAutomountServiceAccountToken(t *testing.T) {
+	testCases := []struct {
+		name     string
+		config   trivyoperator.ConfigData
+		expected bool
+	}{
+		{
+			name:     "no scanJob.automountServiceAccountToken in ConfigData",
+			config:   trivyoperator.ConfigData{},
+			expected: false,
+		},
+		{
+			name:     "scanJob.automountServiceAccountToken false",
+			config:   trivyoperator.ConfigData{"scanJob.automountServiceAccountToken": `false`},
+			expected: false,
+		},
+		{
+			name:     "scanJob.automountServiceAccountToken true",
+			config:   trivyoperator.ConfigData{"scanJob.automountServiceAccountToken": `true`},
+			expected: true,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.config.GetScanJobAutomountServiceAccountToken()
+			assert.Equal(t, tc.expected, got, tc.name)
+		})
+	}
+}
+
 func TestConfigData_GetScanJobAnnotations(t *testing.T) {
 	testCases := []struct {
 		name        string

@@ -59,10 +59,12 @@ const (
 	keyScanJobTolerations                = "scanJob.tolerations"
 	keyScanJobNodeSelector               = "scanJob.nodeSelector"
 	keyScanJobAnnotations                = "scanJob.annotations"
-	KeyScanJobContainerSecurityContext   = "scanJob.podTemplateContainerSecurityContext"
-	keyScanJobPodSecurityContext         = "scanJob.podTemplatePodSecurityContext"
-	keyScanJobPodTemplateLabels          = "scanJob.podTemplateLabels"
-	keyComplianceFailEntriesLimit        = "compliance.failEntriesLimit"
+	//nolint
+	keyscanJobAutomountServiceAccountToken = "scanJob.automountServiceAccountToken"
+	KeyScanJobContainerSecurityContext     = "scanJob.podTemplateContainerSecurityContext"
+	keyScanJobPodSecurityContext           = "scanJob.podTemplatePodSecurityContext"
+	keyScanJobPodTemplateLabels            = "scanJob.podTemplateLabels"
+	keyComplianceFailEntriesLimit          = "compliance.failEntriesLimit"
 )
 
 // ConfigData holds Trivy-operator configuration settings as a set of key-value
@@ -181,6 +183,10 @@ func (c ConfigData) GetScanJobContainerSecurityContext() (*corev1.SecurityContex
 	}
 
 	return scanJobContainerSecurityContext, nil
+}
+
+func (c ConfigData) GetScanJobAutomountServiceAccountToken() bool {
+	return c.getBoolKey(keyscanJobAutomountServiceAccountToken)
 }
 
 func (c ConfigData) GetScanJobAnnotations() (map[string]string, error) {

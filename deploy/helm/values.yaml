@@ -134,6 +134,9 @@ trivyOperator:
   #   cpu: sandylake
   #   teamOwner: operators
 
+  # scanJobAutomountServiceAccountToken the flag to enable automount for service account token on scan job
+  scanJobAutomountServiceAccountToken: false
+
   # scanJobAnnotations comma-separated representation of the annotations which the user wants the scanner pods to be
   # annotated with. Example: `foo=bar,env=stage` will annotate the scanner pods with the annotations `foo: bar` and `env: stage`
   scanJobAnnotations: ""

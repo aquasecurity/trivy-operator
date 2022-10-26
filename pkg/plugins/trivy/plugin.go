@@ -737,7 +737,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 		Affinity:                     trivyoperator.LinuxNodeAffinity(),
 		RestartPolicy:                corev1.RestartPolicyNever,
 		ServiceAccountName:           ctx.GetServiceAccountName(),
-		AutomountServiceAccountToken: pointer.BoolPtr(false),
+		AutomountServiceAccountToken: pointer.Bool(getAutomountServiceAccountToken(ctx)),
 		Volumes:                      volumes,
 		InitContainers:               []corev1.Container{initContainer},
 		Containers:                   containers,
@@ -1088,15 +1088,18 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			VolumeMounts:    volumeMounts,
 		})
 	}
-
 	return corev1.PodSpec{
 		Affinity:                     trivyoperator.LinuxNodeAffinity(),
 		RestartPolicy:                corev1.RestartPolicyNever,
 		ServiceAccountName:           ctx.GetServiceAccountName(),
-		AutomountServiceAccountToken: pointer.BoolPtr(false),
+		AutomountServiceAccountToken: pointer.Bool(getAutomountServiceAccountToken(ctx)),
 		Containers:                   containers,
 		Volumes:                      volumes,
 	}, secrets, nil
+}
+
+func getAutomountServiceAccountToken(ctx trivyoperator.PluginContext) bool {
+	return ctx.GetTrivyOperatorConfig().GetScanJobAutomountServiceAccountToken()
 }
 
 func getUniqueScanResultFileName(name string) string {
@@ -1309,7 +1312,7 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 		Affinity:                     trivyoperator.LinuxNodeAffinity(),
 		RestartPolicy:                corev1.RestartPolicyNever,
 		ServiceAccountName:           ctx.GetServiceAccountName(),
-		AutomountServiceAccountToken: pointer.BoolPtr(false),
+		AutomountServiceAccountToken: pointer.Bool(getAutomountServiceAccountToken(ctx)),
 		Volumes:                      volumes,
 		InitContainers:               []corev1.Container{initContainerCopyBinary, initContainerDB},
 		Containers:                   containers,

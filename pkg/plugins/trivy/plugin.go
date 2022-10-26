@@ -1110,23 +1110,39 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 }
 
 func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef string, trivyServerURL string, resultFileName string) ([]string, []string) {
-	baseArgs := []string{"--quiet", "image", "--security-checks", getSecurityChecks(ctx), "--skip-update", "--format", "json"}
-	standaloneArgs := []string{"--cache-dir", "/tmp/trivy/.cache"}
-	command := []string{"trivy"}
-
+	command := []string{
+		"trivy",
+	}
 	if mode == ClientServer {
 		if !ctx.GetTrivyOperatorConfig().CompressLogs() {
-			baseArgs = append(baseArgs, trivyServerURL)
-			baseArgs = append(baseArgs, imageRef)
-			return command, baseArgs
+			return command, []string{
+				"--quiet",
+				"image",
+				"--security-checks",
+				getSecurityChecks(ctx),
+				"--format",
+				"json",
+				"--server",
+				trivyServerURL,
+				imageRef,
+			}
 		}
 		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image '%s' --security-checks %s --quiet --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, imageRef, getSecurityChecks(ctx), trivyServerURL, resultFileName, resultFileName)}
 	}
 
 	if !ctx.GetTrivyOperatorConfig().CompressLogs() {
-		standaloneArgs = append(standaloneArgs, baseArgs...)
-		standaloneArgs = append(standaloneArgs, imageRef)
-		return command, standaloneArgs
+		return command, []string{
+			"--cache-dir",
+			"/tmp/trivy/.cache",
+			"--quiet",
+			"image",
+			"--security-checks",
+			getSecurityChecks(ctx),
+			"--skip-update",
+			"--format",
+			"json",
+			imageRef,
+		}
 	}
 	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image '%s' --security-checks %s --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, imageRef, getSecurityChecks(ctx), resultFileName, resultFileName)}
 }

@@ -1,4 +1,4 @@
-package vulnerabilityreport
+package operator
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
@@ -27,36 +28,41 @@ type TTLReportReconciler struct {
 	ext.Clock
 }
 
-//+kubebuilder:rbac:groups=aquasecurity.github.io,resources=vulnerabilityreports,verbs=get;list;watch;delete
-
 func (r *TTLReportReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	// watch reports for ttl
+	ttlResources := []kube.Resource{
+		{ForObject: &v1alpha1.VulnerabilityReport{}},
+		{ForObject: &v1alpha1.ConfigAuditReport{}},
+		{ForObject: &v1alpha1.ExposedSecretReport{}},
+		{ForObject: &v1alpha1.RbacAssessmentReport{}},
+	}
 	installModePredicate, err := predicate.InstallModePredicate(r.Config)
 	if err != nil {
 		return err
 	}
-
-	err = ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.VulnerabilityReport{}, builder.WithPredicates(
-			predicate.Not(predicate.IsBeingTerminated),
-			installModePredicate)).
-		Complete(r.reconcileReport())
-	if err != nil {
-		return err
+	for _, reportType := range ttlResources {
+		err = ctrl.NewControllerManagedBy(mgr).
+			For(reportType.ForObject, builder.WithPredicates(
+				predicate.Not(predicate.IsBeingTerminated),
+				installModePredicate)).
+			Complete(r.reconcileReport(reportType.ForObject))
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
-func (r *TTLReportReconciler) reconcileReport() reconcile.Func {
+func (r *TTLReportReconciler) reconcileReport(reportType client.Object) reconcile.Func {
 	return func(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-		return r.DeleteReportIfExpired(ctx, req.NamespacedName)
+		return r.DeleteReportIfExpired(ctx, req.NamespacedName, reportType)
 	}
 }
 
-func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespacedName types.NamespacedName) (ctrl.Result, error) {
+func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespacedName types.NamespacedName, reportType client.Object) (ctrl.Result, error) {
 	log := r.Logger.WithValues("report", namespacedName)
 
-	report := &v1alpha1.VulnerabilityReport{}
-	err := r.Client.Get(ctx, namespacedName, report)
+	err := r.Client.Get(ctx, namespacedName, reportType)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			log.V(1).Info("Ignoring cached report that must have been deleted")
@@ -65,7 +71,7 @@ func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespa
 		return ctrl.Result{}, fmt.Errorf("getting report from cache: %w", err)
 	}
 
-	ttlReportAnnotationStr, ok := report.Annotations[v1alpha1.TTLReportAnnotation]
+	ttlReportAnnotationStr, ok := reportType.GetAnnotations()[v1alpha1.TTLReportAnnotation]
 	if !ok {
 		log.V(1).Info("Ignoring report without TTL set")
 		return ctrl.Result{}, nil
@@ -75,10 +81,10 @@ func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespa
 	if err != nil {
 		return ctrl.Result{}, fmt.Errorf("failed parsing %v with value %v %w", v1alpha1.TTLReportAnnotation, ttlReportAnnotationStr, err)
 	}
-	ttlExpired, durationToTTLExpiration := utils.IsTTLExpired(reportTTLTime, report.Report.UpdateTimestamp.Time, r.Clock)
+	ttlExpired, durationToTTLExpiration := utils.IsTTLExpired(reportTTLTime, reportType.GetCreationTimestamp().Time, r.Clock)
 	if ttlExpired {
-		log.V(1).Info("Removing vulnerabilityReport with expired TTL")
-		err := r.Client.Delete(ctx, report, &client.DeleteOptions{})
+		log.V(1).Info("Removing report with expired TTL")
+		err := r.Client.Delete(ctx, reportType, &client.DeleteOptions{})
 		if err != nil && !errors.IsNotFound(err) {
 			return ctrl.Result{}, err
 		}

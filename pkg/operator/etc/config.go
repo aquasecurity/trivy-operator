@@ -27,7 +27,7 @@ type Config struct {
 	HealthProbeBindAddress                       string         `env:"OPERATOR_HEALTH_PROBE_BIND_ADDRESS" envDefault:":9090"`
 	VulnerabilityScannerEnabled                  bool           `env:"OPERATOR_VULNERABILITY_SCANNER_ENABLED" envDefault:"true"`
 	VulnerabilityScannerScanOnlyCurrentRevisions bool           `env:"OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS" envDefault:"true"`
-	VulnerabilityScannerReportTTL                *time.Duration `env:"OPERATOR_VULNERABILITY_SCANNER_REPORT_TTL" envDefault:"24h"`
+	ScannerReportTTL                             *time.Duration `env:"OPERATOR_SCANNER_REPORT_TTL" envDefault:"24h"`
 	ClusterComplianceEnabled                     bool           `env:"OPERATOR_CLUSTER_COMPLIANCE_ENABLED" envDefault:"false"`
 	ConfigAuditScannerEnabled                    bool           `env:"OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED" envDefault:"true"`
 	RbacAssessmentScannerEnabled                 bool           `env:"OPERATOR_RBAC_ASSESSMENT_SCANNER_ENABLED" envDefault:"true"`

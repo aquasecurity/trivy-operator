@@ -49,8 +49,8 @@ operator:
 
   # vulnerabilityScannerEnabled the flag to enable vulnerability scanner
   vulnerabilityScannerEnabled: true
-  # vulnerabilityScannerReportTTL the flag to set how long a vulnerability report should exist. "" means that the vulnerabilityScannerReportTTL feature is disabled
-  vulnerabilityScannerReportTTL: "24h"
+  # scannerReportTTL the flag to set how long a report should exist. "" means that the ScannerReportTTL feature is disabled
+  scannerReportTTL: "24h"
   # configAuditScannerEnabled the flag to enable configuration audit scanner
   configAuditScannerEnabled: true
   # rbacAssessmentScannerEnabled the flag to enable rbac assessment scanner

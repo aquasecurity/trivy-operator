@@ -248,6 +248,9 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 				ResourceSpecHash(resourceHash).
 				PluginConfigHash(policiesHash).
 				Data(rd)
+			if r.Config.ScannerReportTTL != nil {
+				reportBuilder.ReportTTL(r.Config.ScannerReportTTL)
+			}
 			if err := reportBuilder.Write(ctx, r.ReadWriter); err != nil {
 				return ctrl.Result{}, err
 			}
@@ -257,6 +260,9 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 				ResourceSpecHash(resourceHash).
 				PluginConfigHash(policiesHash).
 				Data(rd)
+			if r.Config.ScannerReportTTL != nil {
+				rbacReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
+			}
 			if err := rbacReportBuilder.Write(ctx, r.RbacReadWriter); err != nil {
 				return ctrl.Result{}, err
 			}

@@ -2,8 +2,6 @@ package workload
 
 import (
 	"context"
-	"encoding/json"
-	"os"
 	"reflect"
 	"testing"
 
@@ -52,16 +50,4 @@ func TestGetReportsByLabel(t *testing.T) {
 			}
 		})
 	}
-}
-
-func loadResource(filePath string, resource interface{}) error {
-	data, err := os.ReadFile(filePath)
-	if err != nil {
-		return nil
-	}
-	err = json.Unmarshal(data, &resource)
-	if err != nil {
-		return nil
-	}
-	return err
 }

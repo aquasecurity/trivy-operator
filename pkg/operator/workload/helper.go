@@ -3,7 +3,12 @@ package workload
 import (
 	"errors"
 	"fmt"
+	"k8s.io/client-go/util/retry"
+	"time"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/go-logr/logr"
 	"golang.org/x/net/context"
 	appsv1 "k8s.io/api/apps/v1"
@@ -32,6 +37,10 @@ func SkipProcessing(ctx context.Context, resource client.Object, or kube.ObjectR
 			}
 			if !activeReplicaSet {
 				log.V(1).Info("Ignoring inactive ReplicaSet", "controllerKind", controller.Kind, "controllerName", controller.Name)
+				err := MarkOldReportForImmediateDeletion(ctx, or, resource.GetNamespace(), resource.GetName())
+				if err != nil {
+					return true, fmt.Errorf("failed marking old reports for immediate deletion : %w", err)
+				}
 				return true, nil
 			}
 		}
@@ -70,4 +79,96 @@ func SkipProcessing(ctx context.Context, resource client.Object, or kube.ObjectR
 		}
 	}
 	return false, nil
+}
+
+// GetReportsByLabel fetch reports by matching labels
+func GetReportsByLabel(ctx context.Context, resolver kube.ObjectResolver, objectList client.ObjectList, namespace string,
+	labels map[string]string) error {
+	err := resolver.Client.List(ctx, objectList,
+		client.InNamespace(namespace),
+		client.MatchingLabels(labels))
+	if err != nil {
+		return fmt.Errorf("listing reports in namespace %s matching labels %v: %w", namespace,
+			labels, err)
+	}
+	return err
+}
+
+// MarkOldReportForImmediateDeletion set old (historical replicaSets) reports with TTL = 0 for immediate deletion
+func MarkOldReportForImmediateDeletion(ctx context.Context, resolver kube.ObjectResolver, namespace string, resourceName string) error {
+	annotation := map[string]string{v1alpha1.TTLReportAnnotation: time.Duration(0).String()}
+	resourceNameLabels := map[string]string{trivyoperator.LabelResourceName: resourceName}
+	err := markOldVulnerabilityReports(ctx, resolver, namespace, resourceNameLabels, annotation)
+	if err != nil {
+		return err
+	}
+	err = markOldConfigAuditReports(ctx, resolver, namespace, resourceNameLabels, annotation)
+	if err != nil {
+		return err
+	}
+	err = markOldExposeSecretsReport(ctx, resolver, namespace, resourceNameLabels, annotation)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func markOldVulnerabilityReports(ctx context.Context, resolver kube.ObjectResolver, namespace string, resourceNameLabels map[string]string, annotation map[string]string) error {
+	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		var vulnerabilityReportList v1alpha1.VulnerabilityReportList
+		err := GetReportsByLabel(ctx, resolver, &vulnerabilityReportList, namespace, resourceNameLabels)
+		if err != nil {
+			return err
+		}
+		for _, report := range vulnerabilityReportList.Items {
+			err := markReportTTL(ctx, resolver, report.DeepCopy(), annotation)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
+func markOldConfigAuditReports(ctx context.Context, resolver kube.ObjectResolver, namespace string, resourceNameLabels map[string]string, annotation map[string]string) error {
+	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		var configAuditReportList v1alpha1.ConfigAuditReportList
+		err := GetReportsByLabel(ctx, resolver, &configAuditReportList, namespace, resourceNameLabels)
+		if err != nil {
+			return err
+		}
+		for _, report := range configAuditReportList.Items {
+			err := markReportTTL(ctx, resolver, report.DeepCopy(), annotation)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
+func markOldExposeSecretsReport(ctx context.Context, resolver kube.ObjectResolver, namespace string, resourceNameLabels map[string]string, annotation map[string]string) error {
+	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		var exposeSecretReportList v1alpha1.ExposedSecretReportList
+		err := GetReportsByLabel(ctx, resolver, &exposeSecretReportList, namespace, resourceNameLabels)
+		if err != nil {
+			return err
+		}
+		for _, report := range exposeSecretReportList.Items {
+			err := markReportTTL(ctx, resolver, report.DeepCopy(), annotation)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
+func markReportTTL[T client.Object](ctx context.Context, resolver kube.ObjectResolver, report T, annotation map[string]string) error {
+	report.SetAnnotations(annotation)
+	err := resolver.Client.Update(ctx, report)
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -55,8 +55,6 @@ operator:
   configAuditScannerEnabled: true
   # rbacAssessmentScannerEnabled the flag to enable rbac assessment scanner
   rbacAssessmentScannerEnabled: true
-  # clusterComplianceEnabled the flag to enable cluster compliance report generation
-  clusterComplianceEnabled: false
   # batchDeleteLimit the maximum number of config audit reports deleted by the operator when the plugin's config has changed.
   batchDeleteLimit: 10
   # vulnerabilityScannerScanOnlyCurrentRevisions the flag to only create vulnerability scans on the current revision of a deployment.

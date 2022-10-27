@@ -1296,8 +1296,6 @@ spec:
               value: "true"
             - name: OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS
               value: "true"
-            - name: OPERATOR_CLUSTER_COMPLIANCE_ENABLED
-              value: "false"
             - name: OPERATOR_EXPOSED_SECRET_SCANNER_ENABLED
               value: "true"
             - name: OPERATOR_WEBHOOK_BROADCAST_URL

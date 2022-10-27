@@ -37,6 +37,10 @@ data:
   {{- if .Values.operator.clusterComplianceEnabled }}
   compliance.failEntriesLimit: {{ required ".Values.compliance.failEntriesLimit is required" .Values.compliance.failEntriesLimit | quote }}
   {{- end }}
+  {{- if .Values.trivyOperator.reportResourceLabels }}
+  report.resourceLabels: {{ .Values.trivyOperator.reportResourceLabels | quote }}
+  metrics.resourceLabelsPrefix: {{ .Values.trivyOperator.metricsResourceLabelsPrefix | quote }}
+  {{- end }}
 ---
 apiVersion: v1
 kind: Secret

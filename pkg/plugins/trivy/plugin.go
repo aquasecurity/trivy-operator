@@ -815,9 +815,6 @@ func (p *plugin) initContainerEnvVar(trivyConfigName string, config Config) []co
 func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext) (corev1.PodSpec, []*corev1.Secret, error) {
 	var secret *corev1.Secret
 	var secrets []*corev1.Secret
-	volumeMounts := make([]corev1.VolumeMount, 0)
-	var volumes []corev1.Volume
-
 	spec, err := kube.GetPodSpec(workload)
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
@@ -841,7 +838,26 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 	var containers []corev1.Container
 
 	trivyConfigName := trivyoperator.GetPluginConfigMapName(Plugin)
+	// add tmp volume mount
+	volumeMounts := []corev1.VolumeMount{
+		{
+			Name:      tmpVolumeName,
+			ReadOnly:  false,
+			MountPath: "/tmp",
+		},
+	}
 	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
+	// add tmp volume
+	volumes := []corev1.Volume{
+		{
+			Name: tmpVolumeName,
+			VolumeSource: corev1.VolumeSource{
+				EmptyDir: &corev1.EmptyDirVolumeSource{
+					Medium: corev1.StorageMediumDefault,
+				},
+			},
+		},
+	}
 	volumes = append(volumes, getScanResultVolume())
 
 	for _, container := range getContainers(spec) {

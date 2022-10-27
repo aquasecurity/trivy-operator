@@ -2034,7 +2034,7 @@ CVE-2019-1543`,
 				RestartPolicy:                corev1.RestartPolicyNever,
 				ServiceAccountName:           "trivyoperator-sa",
 				AutomountServiceAccountToken: pointer.BoolPtr(false),
-				Volumes: []corev1.Volume{
+				Volumes: []corev1.Volume{getTmpVolume(),
 					getScanResultVolume(),
 				},
 				Containers: []corev1.Container{
@@ -2183,7 +2183,7 @@ CVE-2019-1543`,
 								corev1.ResourceMemory: resource.MustParse("500M"),
 							},
 						},
-						VolumeMounts: []corev1.VolumeMount{getScanResultVolumeMount()},
+						VolumeMounts: []corev1.VolumeMount{getTmpVolumeMount(), getScanResultVolumeMount()},
 						SecurityContext: &corev1.SecurityContext{
 							Privileged:               pointer.BoolPtr(false),
 							AllowPrivilegeEscalation: pointer.BoolPtr(false),
@@ -2236,7 +2236,7 @@ CVE-2019-1543`,
 				RestartPolicy:                corev1.RestartPolicyNever,
 				ServiceAccountName:           "trivyoperator-sa",
 				AutomountServiceAccountToken: pointer.BoolPtr(false),
-				Volumes: []corev1.Volume{
+				Volumes: []corev1.Volume{getTmpVolume(),
 					getScanResultVolume(),
 				},
 				Containers: []corev1.Container{
@@ -2385,7 +2385,7 @@ CVE-2019-1543`,
 								corev1.ResourceMemory: resource.MustParse("500M"),
 							},
 						},
-						VolumeMounts: []corev1.VolumeMount{getScanResultVolumeMount()},
+						VolumeMounts: []corev1.VolumeMount{getTmpVolumeMount(), getScanResultVolumeMount()},
 						SecurityContext: &corev1.SecurityContext{
 							Privileged:               pointer.BoolPtr(false),
 							AllowPrivilegeEscalation: pointer.BoolPtr(false),
@@ -2439,7 +2439,7 @@ CVE-2019-1543`,
 				RestartPolicy:                corev1.RestartPolicyNever,
 				ServiceAccountName:           "trivyoperator-sa",
 				AutomountServiceAccountToken: pointer.BoolPtr(false),
-				Volumes: []corev1.Volume{
+				Volumes: []corev1.Volume{getTmpVolume(),
 					getScanResultVolume(),
 				},
 				Containers: []corev1.Container{
@@ -2592,7 +2592,7 @@ CVE-2019-1543`,
 								corev1.ResourceMemory: resource.MustParse("500M"),
 							},
 						},
-						VolumeMounts: []corev1.VolumeMount{getScanResultVolumeMount()},
+						VolumeMounts: []corev1.VolumeMount{getTmpVolumeMount(), getScanResultVolumeMount()},
 						SecurityContext: &corev1.SecurityContext{
 							Privileged:               pointer.BoolPtr(false),
 							AllowPrivilegeEscalation: pointer.BoolPtr(false),
@@ -2646,7 +2646,7 @@ CVE-2019-1543`,
 				RestartPolicy:                corev1.RestartPolicyNever,
 				ServiceAccountName:           "trivyoperator-sa",
 				AutomountServiceAccountToken: pointer.BoolPtr(false),
-				Volumes: []corev1.Volume{
+				Volumes: []corev1.Volume{getTmpVolume(),
 					getScanResultVolume(),
 				},
 				Containers: []corev1.Container{
@@ -2799,7 +2799,7 @@ CVE-2019-1543`,
 								corev1.ResourceMemory: resource.MustParse("500M"),
 							},
 						},
-						VolumeMounts: []corev1.VolumeMount{getScanResultVolumeMount()},
+						VolumeMounts: []corev1.VolumeMount{getTmpVolumeMount(), getScanResultVolumeMount()},
 						SecurityContext: &corev1.SecurityContext{
 							Privileged:               pointer.BoolPtr(false),
 							AllowPrivilegeEscalation: pointer.BoolPtr(false),
@@ -2858,7 +2858,7 @@ CVE-2019-1543`,
 				ServiceAccountName:           "trivyoperator-sa",
 				AutomountServiceAccountToken: pointer.BoolPtr(false),
 
-				Volumes: []corev1.Volume{getScanResultVolume(),
+				Volumes: []corev1.Volume{getTmpVolume(), getScanResultVolume(),
 					{
 						Name: "ignorefile",
 						VolumeSource: corev1.VolumeSource{
@@ -3026,7 +3026,7 @@ CVE-2019-1543`,
 								corev1.ResourceMemory: resource.MustParse("500M"),
 							},
 						},
-						VolumeMounts: []corev1.VolumeMount{getScanResultVolumeMount(),
+						VolumeMounts: []corev1.VolumeMount{getTmpVolumeMount(), getScanResultVolumeMount(),
 							{
 								Name:      "ignorefile",
 								MountPath: "/etc/trivy/.trivyignore",
@@ -4280,12 +4280,30 @@ func getScanResultVolume() corev1.Volume {
 		},
 	}
 }
+func getTmpVolume() corev1.Volume {
+	return corev1.Volume{
+		Name: "tmp",
+		VolumeSource: corev1.VolumeSource{
+			EmptyDir: &corev1.EmptyDirVolumeSource{
+				Medium: corev1.StorageMediumDefault,
+			},
+		},
+	}
+}
 
 func getScanResultVolumeMount() corev1.VolumeMount {
 	return corev1.VolumeMount{
 		Name:      "scanresult",
 		ReadOnly:  false,
 		MountPath: "/tmp/scan",
+	}
+}
+
+func getTmpVolumeMount() corev1.VolumeMount {
+	return corev1.VolumeMount{
+		Name:      "tmp",
+		ReadOnly:  false,
+		MountPath: "/tmp",
 	}
 }
 

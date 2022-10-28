@@ -19,12 +19,13 @@ import (
 )
 
 type ReportBuilder struct {
-	scheme           *runtime.Scheme
-	controller       client.Object
-	resourceSpecHash string
-	pluginConfigHash string
-	data             v1alpha1.RbacAssessmentReportData
-	reportTTL        *time.Duration
+	scheme                  *runtime.Scheme
+	controller              client.Object
+	resourceSpecHash        string
+	pluginConfigHash        string
+	data                    v1alpha1.RbacAssessmentReportData
+	reportTTL               *time.Duration
+	resourceLabelsToInclude []string
 }
 
 func NewReportBuilder(scheme *runtime.Scheme) *ReportBuilder {
@@ -58,6 +59,11 @@ func (b *ReportBuilder) ReportTTL(ttl *time.Duration) *ReportBuilder {
 	return b
 }
 
+func (b *ReportBuilder) ResourceLabelsToInclude(resourceLabelsToInclude []string) *ReportBuilder {
+	b.resourceLabelsToInclude = resourceLabelsToInclude
+	return b
+}
+
 func (b *ReportBuilder) reportName() string {
 	kind := b.controller.GetObjectKind().GroupVersionKind().Kind
 	name := b.controller.GetName()
@@ -70,6 +76,12 @@ func (b *ReportBuilder) reportName() string {
 
 func (b *ReportBuilder) GetClusterReport() (v1alpha1.ClusterRbacAssessmentReport, error) {
 	labelsSet := make(labels.Set)
+	objectLabels := b.controller.GetLabels()
+	for _, labelToInclude := range b.resourceLabelsToInclude {
+		if value, ok := objectLabels[labelToInclude]; ok {
+			labelsSet[labelToInclude] = value
+		}
+	}
 	if b.resourceSpecHash != "" {
 		labelsSet[trivyoperator.LabelResourceSpecHash] = b.resourceSpecHash
 	}
@@ -106,6 +118,12 @@ func (b *ReportBuilder) GetClusterReport() (v1alpha1.ClusterRbacAssessmentReport
 
 func (b *ReportBuilder) GetReport() (v1alpha1.RbacAssessmentReport, error) {
 	labelsSet := make(labels.Set)
+	objectLabels := b.controller.GetLabels()
+	for _, labelToInclude := range b.resourceLabelsToInclude {
+		if value, ok := objectLabels[labelToInclude]; ok {
+			labelsSet[labelToInclude] = value
+		}
+	}
 	if b.resourceSpecHash != "" {
 		labelsSet[trivyoperator.LabelResourceSpecHash] = b.resourceSpecHash
 	}

@@ -162,6 +162,14 @@ trivyOperator:
     # For filesystem scanning, Trivy needs to run as the root user
     # runAsUser: 0
 
+  # reportResourceLabels comma-separated scanned resource labels which the user wants to include in the Prometheus
+  # metrics report. Example: `owner,app`
+  reportResourceLabels: ""
+
+  # metricsResourceLabelsPrefix Prefix that will be prepended to the labels names indicated in `reportResourceLabels`
+  # when including them in the Prometheus metrics
+  metricsResourceLabelsPrefix: "k8s_label_"
+
 trivy:
   # createConfig indicates whether to create config objects
   createConfig: true

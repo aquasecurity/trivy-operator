@@ -3,6 +3,7 @@ package metrics
 import (
 	"context"
 
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/go-logr/logr"
 	ctrl "sigs.k8s.io/controller-runtime"
 
@@ -26,141 +27,28 @@ const (
 	vuln_id          = "vuln_id"
 )
 
-var (
-	imageVulnLabels = []string{
-		namespace,
-		name,
-		image_registry,
-		image_repository,
-		image_tag,
-		image_digest,
-		severity,
-	}
-	vulnIdLabels = []string{
-		namespace,
-		name,
-		image_registry,
-		image_repository,
-		image_tag,
-		image_digest,
-		severity,
-		vuln_id,
-	}
-	imageVulnDesc = prometheus.NewDesc(
-		prometheus.BuildFQName("trivy", "image", "vulnerabilities"),
-		"Number of container image vulnerabilities",
-		imageVulnLabels,
-		nil,
-	)
-	vulnIdDesc = prometheus.NewDesc(
-		prometheus.BuildFQName("trivy", "vulnerability", "id"),
-		"Number of container image vulnerabilities group by vulnerability id",
-		vulnIdLabels,
-		nil,
-	)
-	imageVulnSeverities = map[string]func(vs v1alpha1.VulnerabilitySummary) int{
-		SeverityCritical().Label: func(vs v1alpha1.VulnerabilitySummary) int {
-			return vs.CriticalCount
-		},
-		SeverityHigh().Label: func(vs v1alpha1.VulnerabilitySummary) int {
-			return vs.HighCount
-		},
-		SeverityMedium().Label: func(vs v1alpha1.VulnerabilitySummary) int {
-			return vs.MediumCount
-		},
-		SeverityLow().Label: func(vs v1alpha1.VulnerabilitySummary) int {
-			return vs.LowCount
-		},
-		SeverityUnknown().Label: func(vs v1alpha1.VulnerabilitySummary) int {
-			return vs.UnknownCount
-		},
-	}
-	exposedSecretLabels = []string{
-		namespace,
-		name,
-		image_registry,
-		image_repository,
-		image_tag,
-		image_digest,
-		severity,
-	}
-	exposedSecretDesc = prometheus.NewDesc(
-		prometheus.BuildFQName("trivy", "image", "exposedsecrets"),
-		"Number of image exposed secrets",
-		exposedSecretLabels,
-		nil,
-	)
-	exposedSecretSeverities = map[string]func(vs v1alpha1.ExposedSecretSummary) int{
-		SeverityCritical().Label: func(vs v1alpha1.ExposedSecretSummary) int {
-			return vs.CriticalCount
-		},
-		SeverityHigh().Label: func(vs v1alpha1.ExposedSecretSummary) int {
-			return vs.HighCount
-		},
-		SeverityMedium().Label: func(vs v1alpha1.ExposedSecretSummary) int {
-			return vs.MediumCount
-		},
-		SeverityLow().Label: func(vs v1alpha1.ExposedSecretSummary) int {
-			return vs.LowCount
-		},
-	}
-	configAuditLabels = []string{
-		namespace,
-		name,
-		severity,
-	}
-	configAuditDesc = prometheus.NewDesc(
-		prometheus.BuildFQName("trivy", "resource", "configaudits"),
-		"Number of failing resource configuration auditing checks",
-		configAuditLabels,
-		nil,
-	)
-	configAuditSeverities = map[string]func(vs v1alpha1.ConfigAuditSummary) int{
-		SeverityCritical().Label: func(cas v1alpha1.ConfigAuditSummary) int {
-			return cas.CriticalCount
-		},
-		SeverityHigh().Label: func(cas v1alpha1.ConfigAuditSummary) int {
-			return cas.HighCount
-		},
-		SeverityMedium().Label: func(cas v1alpha1.ConfigAuditSummary) int {
-			return cas.MediumCount
-		},
-		SeverityLow().Label: func(cas v1alpha1.ConfigAuditSummary) int {
-			return cas.LowCount
-		},
-	}
-	rbacAssessmentLabels = []string{
-		namespace,
-		name,
-		severity,
-	}
-	rbacAssessmentDesc = prometheus.NewDesc(
-		prometheus.BuildFQName("trivy", "role", "rbacassessments"),
-		"Number of rbac risky role assessment checks",
-		rbacAssessmentLabels,
-		nil,
-	)
-	clusterRbacAssessmentDesc = prometheus.NewDesc(
-		prometheus.BuildFQName("trivy", "clusterrole", "clusterrbacassessments"),
-		"Number of rbac risky cluster role assessment checks",
-		rbacAssessmentLabels[1:],
-		nil,
-	)
-	rbacAssessmentSeverities = map[string]func(vs v1alpha1.RbacAssessmentSummary) int{
-		SeverityCritical().Label: func(cas v1alpha1.RbacAssessmentSummary) int {
-			return cas.CriticalCount
-		},
-		SeverityHigh().Label: func(cas v1alpha1.RbacAssessmentSummary) int {
-			return cas.HighCount
-		},
-		SeverityMedium().Label: func(cas v1alpha1.RbacAssessmentSummary) int {
-			return cas.MediumCount
-		},
-		SeverityLow().Label: func(cas v1alpha1.RbacAssessmentSummary) int {
-			return cas.LowCount
-		},
-	}
-)
+type metricDescriptors struct {
+	// Severities
+	imageVulnSeverities      map[string]func(vs v1alpha1.VulnerabilitySummary) int
+	exposedSecretSeverities  map[string]func(vs v1alpha1.ExposedSecretSummary) int
+	configAuditSeverities    map[string]func(vs v1alpha1.ConfigAuditSummary) int
+	rbacAssessmentSeverities map[string]func(vs v1alpha1.RbacAssessmentSummary) int
+
+	// Labels
+	imageVulnLabels      []string
+	vulnIdLabels         []string
+	exposedSecretLabels  []string
+	configAuditLabels    []string
+	rbacAssessmentLabels []string
+
+	// Descriptors
+	imageVulnDesc             *prometheus.Desc
+	vulnIdDesc                *prometheus.Desc
+	configAuditDesc           *prometheus.Desc
+	exposedSecretDesc         *prometheus.Desc
+	rbacAssessmentDesc        *prometheus.Desc
+	clusterRbacAssessmentDesc *prometheus.Desc
+}
 
 // ResourcesMetricsCollector is a custom Prometheus collector that produces
 // metrics on-demand from the trivy-operator custom resources. Since these
@@ -184,7 +72,191 @@ var (
 type ResourcesMetricsCollector struct {
 	logr.Logger
 	etc.Config
+	trivyoperator.ConfigData
 	client.Client
+	metricDescriptors
+}
+
+func NewResourcesMetricsCollector(logger logr.Logger, config etc.Config, trvConfig trivyoperator.ConfigData, clt client.Client) *ResourcesMetricsCollector {
+	metricDescriptors := buildMetricDescriptors(trvConfig)
+	return &ResourcesMetricsCollector{
+		Logger:            logger,
+		Config:            config,
+		ConfigData:        trvConfig,
+		Client:            clt,
+		metricDescriptors: metricDescriptors,
+	}
+}
+
+func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
+	imageVulnSeverities := map[string]func(vs v1alpha1.VulnerabilitySummary) int{
+		SeverityCritical().Label: func(vs v1alpha1.VulnerabilitySummary) int {
+			return vs.CriticalCount
+		},
+		SeverityHigh().Label: func(vs v1alpha1.VulnerabilitySummary) int {
+			return vs.HighCount
+		},
+		SeverityMedium().Label: func(vs v1alpha1.VulnerabilitySummary) int {
+			return vs.MediumCount
+		},
+		SeverityLow().Label: func(vs v1alpha1.VulnerabilitySummary) int {
+			return vs.LowCount
+		},
+		SeverityUnknown().Label: func(vs v1alpha1.VulnerabilitySummary) int {
+			return vs.UnknownCount
+		},
+	}
+	exposedSecretSeverities := map[string]func(vs v1alpha1.ExposedSecretSummary) int{
+		SeverityCritical().Label: func(vs v1alpha1.ExposedSecretSummary) int {
+			return vs.CriticalCount
+		},
+		SeverityHigh().Label: func(vs v1alpha1.ExposedSecretSummary) int {
+			return vs.HighCount
+		},
+		SeverityMedium().Label: func(vs v1alpha1.ExposedSecretSummary) int {
+			return vs.MediumCount
+		},
+		SeverityLow().Label: func(vs v1alpha1.ExposedSecretSummary) int {
+			return vs.LowCount
+		},
+	}
+	configAuditSeverities := map[string]func(vs v1alpha1.ConfigAuditSummary) int{
+		SeverityCritical().Label: func(cas v1alpha1.ConfigAuditSummary) int {
+			return cas.CriticalCount
+		},
+		SeverityHigh().Label: func(cas v1alpha1.ConfigAuditSummary) int {
+			return cas.HighCount
+		},
+		SeverityMedium().Label: func(cas v1alpha1.ConfigAuditSummary) int {
+			return cas.MediumCount
+		},
+		SeverityLow().Label: func(cas v1alpha1.ConfigAuditSummary) int {
+			return cas.LowCount
+		},
+	}
+	rbacAssessmentSeverities := map[string]func(vs v1alpha1.RbacAssessmentSummary) int{
+		SeverityCritical().Label: func(cas v1alpha1.RbacAssessmentSummary) int {
+			return cas.CriticalCount
+		},
+		SeverityHigh().Label: func(cas v1alpha1.RbacAssessmentSummary) int {
+			return cas.HighCount
+		},
+		SeverityMedium().Label: func(cas v1alpha1.RbacAssessmentSummary) int {
+			return cas.MediumCount
+		},
+		SeverityLow().Label: func(cas v1alpha1.RbacAssessmentSummary) int {
+			return cas.LowCount
+		},
+	}
+
+	imageVulnLabels := []string{
+		namespace,
+		name,
+		image_registry,
+		image_repository,
+		image_tag,
+		image_digest,
+		severity,
+	}
+	imageVulnLabels = includeDynamicConfigLabels(imageVulnLabels, config)
+	vulnIdLabels := []string{
+		namespace,
+		name,
+		image_registry,
+		image_repository,
+		image_tag,
+		image_digest,
+		severity,
+		vuln_id,
+	}
+	vulnIdLabels = includeDynamicConfigLabels(vulnIdLabels, config)
+	exposedSecretLabels := []string{
+		namespace,
+		name,
+		image_registry,
+		image_repository,
+		image_tag,
+		image_digest,
+		severity,
+	}
+	exposedSecretLabels = includeDynamicConfigLabels(exposedSecretLabels, config)
+	configAuditLabels := []string{
+		namespace,
+		name,
+		severity,
+	}
+	configAuditLabels = includeDynamicConfigLabels(configAuditLabels, config)
+	rbacAssessmentLabels := []string{
+		namespace,
+		name,
+		severity,
+	}
+	rbacAssessmentLabels = includeDynamicConfigLabels(rbacAssessmentLabels, config)
+
+	imageVulnDesc := prometheus.NewDesc(
+		prometheus.BuildFQName("trivy", "image", "vulnerabilities"),
+		"Number of container image vulnerabilities",
+		imageVulnLabels,
+		nil,
+	)
+	vulnIdDesc := prometheus.NewDesc(
+		prometheus.BuildFQName("trivy", "vulnerability", "id"),
+		"Number of container image vulnerabilities group by vulnerability id",
+		vulnIdLabels,
+		nil,
+	)
+	exposedSecretDesc := prometheus.NewDesc(
+		prometheus.BuildFQName("trivy", "image", "exposedsecrets"),
+		"Number of image exposed secrets",
+		exposedSecretLabels,
+		nil,
+	)
+	configAuditDesc := prometheus.NewDesc(
+		prometheus.BuildFQName("trivy", "resource", "configaudits"),
+		"Number of failing resource configuration auditing checks",
+		configAuditLabels,
+		nil,
+	)
+	rbacAssessmentDesc := prometheus.NewDesc(
+		prometheus.BuildFQName("trivy", "role", "rbacassessments"),
+		"Number of rbac risky role assessment checks",
+		rbacAssessmentLabels,
+		nil,
+	)
+	clusterRbacAssessmentDesc := prometheus.NewDesc(
+		prometheus.BuildFQName("trivy", "clusterrole", "clusterrbacassessments"),
+		"Number of rbac risky cluster role assessment checks",
+		rbacAssessmentLabels[1:],
+		nil,
+	)
+
+	return metricDescriptors{
+		imageVulnSeverities:      imageVulnSeverities,
+		exposedSecretSeverities:  exposedSecretSeverities,
+		configAuditSeverities:    configAuditSeverities,
+		rbacAssessmentSeverities: rbacAssessmentSeverities,
+
+		imageVulnLabels:      imageVulnLabels,
+		vulnIdLabels:         vulnIdLabels,
+		exposedSecretLabels:  exposedSecretLabels,
+		configAuditLabels:    configAuditLabels,
+		rbacAssessmentLabels: rbacAssessmentLabels,
+
+		imageVulnDesc:             imageVulnDesc,
+		vulnIdDesc:                vulnIdDesc,
+		configAuditDesc:           configAuditDesc,
+		exposedSecretDesc:         exposedSecretDesc,
+		rbacAssessmentDesc:        rbacAssessmentDesc,
+		clusterRbacAssessmentDesc: clusterRbacAssessmentDesc,
+	}
+}
+
+func includeDynamicConfigLabels(labels []string, config trivyoperator.ConfigData) []string {
+	resourceLabels := config.GetReportResourceLabels()
+	for _, label := range resourceLabels {
+		labels = append(labels, config.GetMetricsResourceLabelsPrefix()+label)
+	}
+	return labels
 }
 
 func (c *ResourcesMetricsCollector) SetupWithManager(mgr ctrl.Manager) error {
@@ -210,7 +282,7 @@ func (c ResourcesMetricsCollector) Collect(metrics chan<- prometheus.Metric) {
 
 func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
 	reports := &v1alpha1.VulnerabilityReportList{}
-	labelValues := make([]string, len(imageVulnLabels))
+	labelValues := make([]string, len(c.imageVulnLabels))
 	for _, n := range targetNamespaces {
 		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
 			c.Logger.Error(err, "failed to list vulnerabilityreports from API", "namespace", n)
@@ -223,10 +295,13 @@ func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Conte
 			labelValues[3] = r.Report.Artifact.Repository
 			labelValues[4] = r.Report.Artifact.Tag
 			labelValues[5] = r.Report.Artifact.Digest
-			for severity, countFn := range imageVulnSeverities {
+			for i, label := range c.GetReportResourceLabels() {
+				labelValues[i+7] = r.Labels[label]
+			}
+			for severity, countFn := range c.imageVulnSeverities {
 				labelValues[6] = severity
 				count := countFn(r.Report.Summary)
-				metrics <- prometheus.MustNewConstMetric(imageVulnDesc, prometheus.GaugeValue, float64(count), labelValues...)
+				metrics <- prometheus.MustNewConstMetric(c.imageVulnDesc, prometheus.GaugeValue, float64(count), labelValues...)
 			}
 		}
 	}
@@ -234,7 +309,7 @@ func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Conte
 
 func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
 	reports := &v1alpha1.VulnerabilityReportList{}
-	vulnLabelValues := make([]string, len(vulnIdLabels))
+	vulnLabelValues := make([]string, len(c.vulnIdLabels))
 	for _, n := range targetNamespaces {
 		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
 			c.Logger.Error(err, "failed to list vulnerabilityreports from API", "namespace", n)
@@ -248,6 +323,9 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 				vulnLabelValues[3] = r.Report.Artifact.Repository
 				vulnLabelValues[4] = r.Report.Artifact.Tag
 				vulnLabelValues[5] = r.Report.Artifact.Digest
+				for i, label := range c.GetReportResourceLabels() {
+					vulnLabelValues[i+8] = r.Labels[label]
+				}
 				var vulnList = make(map[string]bool)
 				for _, vuln := range r.Report.Vulnerabilities {
 					if vulnList[vuln.VulnerabilityID] {
@@ -256,7 +334,7 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 					vulnList[vuln.VulnerabilityID] = true
 					vulnLabelValues[6] = NewSeverityLabel(vuln.Severity).Label
 					vulnLabelValues[7] = vuln.VulnerabilityID
-					metrics <- prometheus.MustNewConstMetric(vulnIdDesc, prometheus.GaugeValue, float64(1), vulnLabelValues...)
+					metrics <- prometheus.MustNewConstMetric(c.vulnIdDesc, prometheus.GaugeValue, float64(1), vulnLabelValues...)
 				}
 			}
 		}
@@ -265,7 +343,7 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 
 func (c ResourcesMetricsCollector) collectExposedSecretsReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
 	reports := &v1alpha1.ExposedSecretReportList{}
-	labelValues := make([]string, len(exposedSecretLabels))
+	labelValues := make([]string, len(c.exposedSecretLabels))
 	for _, n := range targetNamespaces {
 		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
 			c.Logger.Error(err, "failed to list exposedsecretreports from API", "namespace", n)
@@ -278,10 +356,13 @@ func (c ResourcesMetricsCollector) collectExposedSecretsReports(ctx context.Cont
 			labelValues[3] = r.Report.Artifact.Repository
 			labelValues[4] = r.Report.Artifact.Tag
 			labelValues[5] = r.Report.Artifact.Digest
-			for severity, countFn := range exposedSecretSeverities {
+			for i, label := range c.GetReportResourceLabels() {
+				labelValues[i+7] = r.Labels[label]
+			}
+			for severity, countFn := range c.exposedSecretSeverities {
 				labelValues[6] = severity
 				count := countFn(r.Report.Summary)
-				metrics <- prometheus.MustNewConstMetric(exposedSecretDesc, prometheus.GaugeValue, float64(count), labelValues...)
+				metrics <- prometheus.MustNewConstMetric(c.exposedSecretDesc, prometheus.GaugeValue, float64(count), labelValues...)
 			}
 		}
 	}
@@ -289,7 +370,7 @@ func (c ResourcesMetricsCollector) collectExposedSecretsReports(ctx context.Cont
 
 func (c *ResourcesMetricsCollector) collectConfigAuditReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
 	reports := &v1alpha1.ConfigAuditReportList{}
-	labelValues := make([]string, len(configAuditLabels))
+	labelValues := make([]string, len(c.configAuditLabels))
 	for _, n := range targetNamespaces {
 		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
 			c.Logger.Error(err, "failed to list configauditreports from API", "namespace", n)
@@ -298,10 +379,13 @@ func (c *ResourcesMetricsCollector) collectConfigAuditReports(ctx context.Contex
 		for _, r := range reports.Items {
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
-			for severity, countFn := range configAuditSeverities {
+			for i, label := range c.GetReportResourceLabels() {
+				labelValues[i+3] = r.Labels[label]
+			}
+			for severity, countFn := range c.configAuditSeverities {
 				labelValues[2] = severity
 				count := countFn(r.Report.Summary)
-				metrics <- prometheus.MustNewConstMetric(configAuditDesc, prometheus.GaugeValue, float64(count), labelValues...)
+				metrics <- prometheus.MustNewConstMetric(c.configAuditDesc, prometheus.GaugeValue, float64(count), labelValues...)
 			}
 		}
 	}
@@ -309,7 +393,7 @@ func (c *ResourcesMetricsCollector) collectConfigAuditReports(ctx context.Contex
 
 func (c *ResourcesMetricsCollector) collectRbacAssessmentReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
 	reports := &v1alpha1.RbacAssessmentReportList{}
-	labelValues := make([]string, len(rbacAssessmentLabels))
+	labelValues := make([]string, len(c.rbacAssessmentLabels))
 	for _, n := range targetNamespaces {
 		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
 			c.Logger.Error(err, "failed to list rbacAssessment from API", "namespace", n)
@@ -318,26 +402,32 @@ func (c *ResourcesMetricsCollector) collectRbacAssessmentReports(ctx context.Con
 		for _, r := range reports.Items {
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
-			c.populateRbacAssessmentValues(labelValues, rbacAssessmentDesc, r.Report.Summary, metrics, 2)
+			for i, label := range c.GetReportResourceLabels() {
+				labelValues[i+3] = r.Labels[label]
+			}
+			c.populateRbacAssessmentValues(labelValues, c.rbacAssessmentDesc, r.Report.Summary, metrics, 2)
 		}
 	}
 }
 
 func (c *ResourcesMetricsCollector) collectClusterRbacAssessmentReports(ctx context.Context, metrics chan<- prometheus.Metric) {
 	reports := &v1alpha1.ClusterRbacAssessmentReportList{}
-	labelValues := make([]string, len(rbacAssessmentLabels[1:]))
+	labelValues := make([]string, len(c.rbacAssessmentLabels[1:]))
 	if err := c.List(ctx, reports); err != nil {
 		c.Logger.Error(err, "failed to list cluster rbacAssessment from API")
 		return
 	}
 	for _, r := range reports.Items {
 		labelValues[0] = r.Name
-		c.populateRbacAssessmentValues(labelValues, clusterRbacAssessmentDesc, r.Report.Summary, metrics, 1)
+		for i, label := range c.GetReportResourceLabels() {
+			labelValues[i+2] = r.Labels[label]
+		}
+		c.populateRbacAssessmentValues(labelValues, c.clusterRbacAssessmentDesc, r.Report.Summary, metrics, 1)
 	}
 }
 
 func (c *ResourcesMetricsCollector) populateRbacAssessmentValues(labelValues []string, desc *prometheus.Desc, summary v1alpha1.RbacAssessmentSummary, metrics chan<- prometheus.Metric, index int) {
-	for severity, countFn := range rbacAssessmentSeverities {
+	for severity, countFn := range c.rbacAssessmentSeverities {
 		labelValues[index] = severity
 		count := countFn(summary)
 		metrics <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, float64(count), labelValues...)
@@ -345,12 +435,12 @@ func (c *ResourcesMetricsCollector) populateRbacAssessmentValues(labelValues []s
 }
 
 func (c ResourcesMetricsCollector) Describe(descs chan<- *prometheus.Desc) {
-	descs <- imageVulnDesc
-	descs <- vulnIdDesc
-	descs <- configAuditDesc
-	descs <- exposedSecretDesc
-	descs <- rbacAssessmentDesc
-	descs <- clusterRbacAssessmentDesc
+	descs <- c.imageVulnDesc
+	descs <- c.vulnIdDesc
+	descs <- c.configAuditDesc
+	descs <- c.exposedSecretDesc
+	descs <- c.rbacAssessmentDesc
+	descs <- c.clusterRbacAssessmentDesc
 }
 
 func (c ResourcesMetricsCollector) Start(ctx context.Context) error {

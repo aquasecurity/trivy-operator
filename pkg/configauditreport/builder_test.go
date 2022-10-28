@@ -2,6 +2,7 @@ package configauditreport_test
 
 import (
 	. "github.com/onsi/gomega"
+	"k8s.io/apimachinery/pkg/labels"
 
 	"testing"
 
@@ -29,11 +30,13 @@ func TestReportBuilder(t *testing.T) {
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "some-owner",
 					Namespace: "qa",
+					Labels:    labels.Set{"tier": "tier-1", "owner": "team-a"},
 				},
 			}).
 			ResourceSpecHash("xyz").
 			PluginConfigHash("nop").
 			Data(v1alpha1.ConfigAuditReportData{}).
+			ResourceLabelsToInclude([]string{"tier"}).
 			GetReport()
 
 		g.Expect(err).ToNot(HaveOccurred())
@@ -56,6 +59,7 @@ func TestReportBuilder(t *testing.T) {
 					trivyoperator.LabelResourceNamespace: "qa",
 					trivyoperator.LabelResourceSpecHash:  "xyz",
 					trivyoperator.LabelPluginConfigHash:  "nop",
+					"tier":                               "tier-1",
 				},
 			},
 			Report: v1alpha1.ConfigAuditReportData{},
@@ -72,12 +76,14 @@ func TestReportBuilder(t *testing.T) {
 					APIVersion: "rbac.authorization.k8s.io/v1",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name: "system:controller:node-controller",
+					Name:   "system:controller:node-controller",
+					Labels: labels.Set{"tier": "tier-1", "owner": "team-a"},
 				},
 			}).
 			ResourceSpecHash("xyz").
 			PluginConfigHash("nop").
 			Data(v1alpha1.ConfigAuditReportData{}).
+			ResourceLabelsToInclude([]string{"tier"}).
 			GetClusterReport()
 
 		g.Expect(err).ToNot(HaveOccurred())
@@ -99,6 +105,7 @@ func TestReportBuilder(t *testing.T) {
 					trivyoperator.LabelResourceNamespace: "",
 					trivyoperator.LabelResourceSpecHash:  "xyz",
 					trivyoperator.LabelPluginConfigHash:  "nop",
+					"tier":                               "tier-1",
 				},
 				Annotations: map[string]string{
 					trivyoperator.LabelResourceName: "system:controller:node-controller",

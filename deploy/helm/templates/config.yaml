@@ -28,6 +28,9 @@ data:
   {{- with .Values.trivyOperator.scanJobPodTemplateContainerSecurityContext }}
   scanJob.podTemplateContainerSecurityContext: {{ . | toJson | quote }}
   {{- end }}
+  {{- with .Values.trivyOperator.scanJobCompressLogs }}
+  scanJob.compressLogs: {{ . | toJson | quote }}
+  {{- end }}
   {{- if .Values.operator.vulnerabilityScannerEnabled }}
   vulnerabilityReports.scanner: {{ .Values.trivyOperator.vulnerabilityReportsPlugin | quote }}
   {{- end }}

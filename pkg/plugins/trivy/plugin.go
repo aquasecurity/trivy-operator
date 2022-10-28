@@ -356,7 +356,7 @@ func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 	return ctx.EnsureConfig(trivyoperator.PluginConfig{
 		Data: map[string]string{
 			keyTrivyImageRepository:           "ghcr.io/aquasecurity/trivy",
-			keyTrivyImageTag:                  "0.31.3",
+			keyTrivyImageTag:                  "0.33.0",
 			keyTrivySeverity:                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
 			keyTrivyMode:                      string(Standalone),
 			keyTrivyTimeout:                   "5m0s",

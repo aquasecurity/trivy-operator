@@ -95,6 +95,9 @@ data:
   {{- if .dbRepositoryInsecure }}
   trivy.dbRepositoryInsecure: {{ .dbRepositoryInsecure | quote }}
   {{- end }}
+  {{- if .imagePullSecret }}
+  trivy.imagePullSecret: {{ .imagePullSecret | quote }}
+  {{- end }}
   {{- if .useBuiltinRegoPolicies }}
   trivy.useBuiltinRegoPolicies: {{ .useBuiltinRegoPolicies | quote }}
   {{- end }}

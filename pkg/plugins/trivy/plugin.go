@@ -44,6 +44,7 @@ const (
 const (
 	keyTrivyImageRepository                     = "trivy.repository"
 	keyTrivyImageTag                            = "trivy.tag"
+	keyTrivyImagePullSecret                     = "trivy.imagePullSecret"
 	keyTrivyMode                                = "trivy.mode"
 	keyTrivyAdditionalVulnerabilityReportFields = "trivy.additionalVulnerabilityReportFields"
 	keyTrivyCommand                             = "trivy.command"
@@ -248,6 +249,14 @@ func (c Config) GetInsecureRegistries() map[string]bool {
 	return insecureRegistries
 }
 
+func (c Config) GetImagePullSecret() []corev1.LocalObjectReference {
+	ips, ok := c.Data[keyTrivyImagePullSecret]
+	if !ok {
+		return []corev1.LocalObjectReference{}
+	}
+	return []corev1.LocalObjectReference{{Name: ips}}
+}
+
 func (c Config) GetNonSSLRegistries() map[string]bool {
 	nonSSLRegistries := make(map[string]bool)
 	for key, val := range c.Data {
@@ -376,7 +385,6 @@ func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
 	}
-
 	mode, err := config.GetMode()
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
@@ -386,13 +394,14 @@ func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
 	}
-
+	var podSpec corev1.PodSpec
+	var secrets []*corev1.Secret
 	if command == Image {
 		switch mode {
 		case Standalone:
-			return p.getPodSpecForStandaloneMode(ctx, config, workload, credentials, securityContext)
+			podSpec, secrets, err = p.getPodSpecForStandaloneMode(ctx, config, workload, credentials, securityContext)
 		case ClientServer:
-			return p.getPodSpecForClientServerMode(ctx, config, workload, credentials, securityContext)
+			podSpec, secrets, err = p.getPodSpecForClientServerMode(ctx, config, workload, credentials, securityContext)
 		default:
 			return corev1.PodSpec{}, nil, fmt.Errorf("unrecognized trivy mode %q for command %q", mode, command)
 		}
@@ -401,13 +410,14 @@ func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client
 	if command == Filesystem {
 		switch mode {
 		case Standalone:
-			return p.getPodSpecForStandaloneFSMode(ctx, config, workload, securityContext)
+			podSpec, secrets, err = p.getPodSpecForStandaloneFSMode(ctx, config, workload, securityContext)
 		default:
 			return corev1.PodSpec{}, nil, fmt.Errorf("unrecognized trivy mode %q for command %q", mode, command)
 		}
 	}
-
-	return corev1.PodSpec{}, nil, fmt.Errorf("unrecognized trivy command %q", command)
+	// add image pull secret to be used when pulling trivy image fom private registry
+	podSpec.ImagePullSecrets = config.GetImagePullSecret()
+	return podSpec, secrets, err
 }
 
 func (p *plugin) newSecretWithAggregateImagePullCredentials(obj client.Object, spec corev1.PodSpec, credentials map[string]docker.Auth) *corev1.Secret {
@@ -473,7 +483,6 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
 	}
-
 	initContainer := corev1.Container{
 		Name:                     p.idGenerator.GenerateID(),
 		Image:                    trivyImageRef,

@@ -42,8 +42,8 @@ const (
 )
 
 const (
-	keyTrivyImageRepository                     = "trivy.repository"
-	keyTrivyImageTag                            = "trivy.tag"
+	keyTrivyImageRepository = "trivy.repository"
+	keyTrivyImageTag        = "trivy.tag"
 	//nolint:gosec
 	keyTrivyImagePullSecret                     = "trivy.imagePullSecret"
 	keyTrivyMode                                = "trivy.mode"
@@ -164,7 +164,6 @@ func (c Config) GetImagePullSecret() []corev1.LocalObjectReference {
 	}
 	return []corev1.LocalObjectReference{{Name: ips}}
 }
-
 
 func (c Config) GetMode() (Mode, error) {
 	var ok bool

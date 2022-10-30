@@ -66,6 +66,9 @@ metadata:
 data:
   trivy.repository: {{ required ".Values.trivy.repository is required" .repository | quote }}
   trivy.tag: {{ required ".Values.trivy.tag is required" .tag | quote }}
+  {{- if .imagePullSecret }}
+  trivy.imagePullSecret: {{ .imagePullSecret | quote }}
+  {{- end }}
   trivy.mode: {{ .mode | quote }}
   trivy.additionalVulnerabilityReportFields: {{ .additionalVulnerabilityReportFields | quote}}
   {{- if .httpProxy }}

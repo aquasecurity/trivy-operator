@@ -44,6 +44,7 @@ const (
 const (
 	keyTrivyImageRepository                     = "trivy.repository"
 	keyTrivyImageTag                            = "trivy.tag"
+	//nolint:gosec
 	keyTrivyImagePullSecret                     = "trivy.imagePullSecret"
 	keyTrivyMode                                = "trivy.mode"
 	keyTrivyAdditionalVulnerabilityReportFields = "trivy.additionalVulnerabilityReportFields"

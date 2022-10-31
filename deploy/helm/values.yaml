@@ -178,7 +178,7 @@ trivy:
   # repository of the Trivy image
   repository: ghcr.io/aquasecurity/trivy
   # tag version of the Trivy image
-  tag: 0.31.3
+  tag: 0.33.0
 
   # mode is the Trivy client mode. Either Standalone or ClientServer. Depending
   # on the active mode other settings might be applicable or required.

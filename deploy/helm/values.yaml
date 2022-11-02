@@ -274,6 +274,10 @@ trivy:
   #
   # serverCustomHeaders: "foo=bar"
 
+  # existingSecret if an existing secret has been created outside the chart.
+  # Overrides gitHubToken, serverToken, serverCustomHeaders
+  # existingSecret: ""
+
   dbRepository: "ghcr.io/aquasecurity/trivy-db"
 
   # The Flag to enable insecure connection for downloading trivy-db via proxy (air-gaped env)

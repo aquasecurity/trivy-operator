@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	rbacv1 "k8s.io/api/rbac/v1"
 	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
@@ -22,7 +23,6 @@ import (
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
-	rbacv1 "k8s.io/api/rbac/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -422,13 +422,15 @@ func (r *ResourceController) reconcileConfig(kind kube.Kind) reconcile.Func {
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("parsing label selector: %w", err)
 		}
-		configRequeueAfter, err := r.deleteReports(ctx, labelSelector, auditConfigReportItems(v1alpha1.ConfigAuditReportList{}))
+		carl := v1alpha1.ConfigAuditReportList{}
+		configRequeueAfter, err := r.deleteReports(ctx, labelSelector, &carl, auditConfigReportItems(&carl))
 		if err != nil {
 			return ctrl.Result{}, err
 		}
 		var rbacRequeueAfter bool
 		if r.RbacAssessmentScannerEnabled {
-			rbacRequeueAfter, err = r.deleteReports(ctx, labelSelector, rbacReportItems(v1alpha1.RbacAssessmentReportList{}))
+			cral := v1alpha1.RbacAssessmentReportList{}
+			rbacRequeueAfter, err = r.deleteReports(ctx, labelSelector, &cral, rbacReportItems(&cral))
 			if err != nil {
 				return ctrl.Result{}, err
 			}
@@ -440,14 +442,14 @@ func (r *ResourceController) reconcileConfig(kind kube.Kind) reconcile.Func {
 	}
 }
 
-func (r *ResourceController) deleteReports(ctx context.Context, labelSelector labels.Selector, reportItems func() (client.ObjectList, []client.Object)) (bool, error) {
-	reportList, items := reportItems()
+func (r *ResourceController) deleteReports(ctx context.Context, labelSelector labels.Selector, reportList client.ObjectList, reportItems func() []client.Object) (bool, error) {
 	err := r.Client.List(ctx, reportList,
 		client.Limit(r.Config.BatchDeleteLimit+1),
 		client.MatchingLabelsSelector{Selector: labelSelector})
 	if err != nil {
 		return false, fmt.Errorf("listing reports: %w", err)
 	}
+	items := reportItems()
 	reportSize := len(items)
 	for i := 0; i < ext.MinInt(r.Config.BatchDeleteLimit, reportSize); i++ {
 		reportItem := items[i]
@@ -503,14 +505,15 @@ func (r *ResourceController) reconcileClusterConfig(kind kube.Kind) reconcile.Fu
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("parsing label selector: %w", err)
 		}
-
-		configRequeueAfter, err := r.deleteReports(ctx, labelSelector, clusterAuditConfigReportItems(v1alpha1.ClusterConfigAuditReportList{}))
+		cacrl := v1alpha1.ClusterConfigAuditReportList{}
+		configRequeueAfter, err := r.deleteReports(ctx, labelSelector, &cacrl, clusterAuditConfigReportItems(&cacrl))
 		if err != nil {
 			return ctrl.Result{}, err
 		}
 		var rbacRequeueAfter bool
 		if r.RbacAssessmentScannerEnabled {
-			rbacRequeueAfter, err = r.deleteReports(ctx, labelSelector, clusterRbacReportItems(v1alpha1.ClusterRbacAssessmentReportList{}))
+			rarl := v1alpha1.ClusterRbacAssessmentReportList{}
+			rbacRequeueAfter, err = r.deleteReports(ctx, labelSelector, &rarl, clusterRbacReportItems(&rarl))
 			if err != nil {
 				return ctrl.Result{}, err
 			}
@@ -522,41 +525,41 @@ func (r *ResourceController) reconcileClusterConfig(kind kube.Kind) reconcile.Fu
 	}
 }
 
-func clusterRbacReportItems(crar v1alpha1.ClusterRbacAssessmentReportList) func() (client.ObjectList, []client.Object) {
-	return func() (client.ObjectList, []client.Object) {
+func clusterRbacReportItems(crar *v1alpha1.ClusterRbacAssessmentReportList) func() []client.Object {
+	return func() []client.Object {
 		objlist := make([]client.Object, 0)
 		for idx := range crar.Items {
 			objlist = append(objlist, &crar.Items[idx])
 		}
-		return &crar, objlist
+		return objlist
 	}
 }
 
-func rbacReportItems(rar v1alpha1.RbacAssessmentReportList) func() (client.ObjectList, []client.Object) {
-	return func() (client.ObjectList, []client.Object) {
+func rbacReportItems(rar *v1alpha1.RbacAssessmentReportList) func() []client.Object {
+	return func() []client.Object {
 		objlist := make([]client.Object, 0)
 		for idx := range rar.Items {
 			objlist = append(objlist, &rar.Items[idx])
 		}
-		return &rar, objlist
+		return objlist
 	}
 }
 
-func clusterAuditConfigReportItems(ccar v1alpha1.ClusterConfigAuditReportList) func() (client.ObjectList, []client.Object) {
-	return func() (client.ObjectList, []client.Object) {
+func clusterAuditConfigReportItems(ccar *v1alpha1.ClusterConfigAuditReportList) func() []client.Object {
+	return func() []client.Object {
 		objlist := make([]client.Object, 0)
 		for idx := range ccar.Items {
 			objlist = append(objlist, &ccar.Items[idx])
 		}
-		return &ccar, objlist
+		return objlist
 	}
 }
-func auditConfigReportItems(car v1alpha1.ConfigAuditReportList) func() (client.ObjectList, []client.Object) {
-	return func() (client.ObjectList, []client.Object) {
+func auditConfigReportItems(car *v1alpha1.ConfigAuditReportList) func() []client.Object {
+	return func() []client.Object {
 		objlist := make([]client.Object, 0)
 		for idx := range car.Items {
 			objlist = append(objlist, &car.Items[idx])
 		}
-		return &car, objlist
+		return objlist
 	}
 }

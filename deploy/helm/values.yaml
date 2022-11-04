@@ -274,9 +274,11 @@ trivy:
   #
   # serverCustomHeaders: "foo=bar"
 
-  # existingSecret if an existing secret has been created outside the chart.
+  # existingSecret if a secret containing gitHubToken, serverToken or serverCustomHeaders has been created outside the chart (e.g external-secrets, sops, etc...).
+  # Keys must be at least one of the following: trivy.githubToken, trivy.serverToken, trivy.serverCustomHeaders
   # Overrides gitHubToken, serverToken, serverCustomHeaders
-  # existingSecret: "my-trivy-secret"
+  # Note: The secret has to be named "trivy-operator-trivy-config".
+  # existingSecret: true
 
   dbRepository: "ghcr.io/aquasecurity/trivy-db"
 

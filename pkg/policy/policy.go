@@ -92,7 +92,6 @@ func (p *Policies) PoliciesByKind(kind string) (map[string]string, error) {
 			if k != kindAny && k != kindWorkload && k != kind {
 				continue
 			}
-
 			policyKey := strings.TrimSuffix(key, keySuffixKinds) + keySuffixRego
 			var ok bool
 

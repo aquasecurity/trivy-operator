@@ -134,6 +134,7 @@ data:
     {{- end }}
   {{- end }}
 ---
+{{- if not .existingSecret }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -153,6 +154,7 @@ data:
   trivy.serverCustomHeaders: {{ .serverCustomHeaders | b64enc | quote }}
   {{- end }}
   {{- end }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

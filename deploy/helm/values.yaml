@@ -85,6 +85,12 @@ operator:
   # privateRegistryScanSecretsNames is map of namespace:secrets which can be used to authenticate in private registries in case if there no imagePullSecrets provided
   privateRegistryScanSecretsNames: {}
 
+  # existingSecret if a secret containing gitHubToken, serverToken or serverCustomHeaders has been created outside the chart (e.g external-secrets, sops, etc...).
+  # Keys must be at least one of the following: trivy.githubToken, trivy.serverToken, trivy.serverCustomHeaders
+  # Overrides trivy.gitHubToken, trivy.serverToken, trivy.serverCustomHeaders values.
+  # Note: The secret has to be named "trivy-operator-trivy-config".
+  # existingSecret: true
+
 image:
   repository: "ghcr.io/aquasecurity/trivy-operator"
   # tag is an override of the image tag, which is by default set by the

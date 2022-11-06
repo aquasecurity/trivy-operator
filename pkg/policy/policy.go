@@ -92,7 +92,7 @@ func (p *Policies) PoliciesByKind(kind string) (map[string]string, error) {
 			if k != kindAny && k != kindWorkload && k != kind {
 				continue
 			}
-			if !(kube.IsRoleRelatedKinds(kube.Kind(k)) && k == kind)  {
+			if !(kube.IsRoleRelatedKinds(kube.Kind(k)) && k == kind) {
 				continue
 			}
 			policyKey := strings.TrimSuffix(key, keySuffixKinds) + keySuffixRego

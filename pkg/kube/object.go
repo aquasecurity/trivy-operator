@@ -719,7 +719,7 @@ func IsRoleTypes(kind Kind) bool {
 }
 
 func IsRoleRelatedKinds(kind Kind) bool {
-	if kind == KindRole || kind == KindClusterRole || kind == KindClusterRoleBindings || kind == KindRoleBinding  {
+	if kind == KindRole || kind == KindClusterRole || kind == KindClusterRoleBindings || kind == KindRoleBinding {
 		return true
 	}
 	return false

@@ -46,7 +46,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr1 := &v1alpha1.VulnerabilityReport{}
 			vr1.Namespace = "default"
 			vr1.Name = "replicaset-nginx-6d4cf56db6-nginx"
-			vr1.Labels = labels.Set{"tier": "tier-1", "owner": "team-a"}
+			vr1.Labels = labels.Set{"tier": "tier-1", "owner": "team-a", "app.kubernetes.io/name": "my_name"}
 			vr1.Report.Registry.Server = "index.docker.io"
 			vr1.Report.Artifact.Repository = "library/nginx"
 			vr1.Report.Artifact.Tag = "1.16"
@@ -207,6 +207,32 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 				trivy_image_vulnerabilities{custom_prefix_ssot="",custom_prefix_tier="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Low"} 0
 				trivy_image_vulnerabilities{custom_prefix_ssot="",custom_prefix_tier="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Medium"} 0
 				trivy_image_vulnerabilities{custom_prefix_ssot="",custom_prefix_tier="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Unknown"} 0
+				`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_image_vulnerabilities")).
+				To(Succeed())
+		})
+		It("should produce correct metrics with configured labels included using the correct prefix and sanitized the invalid metric label", func() {
+			collector.Set(trivyoperator.KeyReportResourceLabels, "app.kubernetes.io/name")
+			collector.Set(trivyoperator.KeyMetricsResourceLabelsPrefix, "custom_prefix_")
+			collector.metricDescriptors = buildMetricDescriptors(collector.ConfigData) // Force rebuild metricDescriptors again
+			const expected = `
+				# HELP trivy_image_vulnerabilities Number of container image vulnerabilities
+				# TYPE trivy_image_vulnerabilities gauge
+				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="my_name",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Critical"} 2
+				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="my_name",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="High"} 0
+				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="my_name",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Low"} 0
+				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="my_name",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Medium"} 0
+				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="my_name",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Unknown"} 0
+				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Critical"} 4
+				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High"} 7
+				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Low"} 0
+				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Medium"} 0
+				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Unknown"} 0
+				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Critical"} 1
+				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="High"} 0
+				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Low"} 0
+				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Medium"} 0
+				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Unknown"} 0
 				`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_image_vulnerabilities")).
 				To(Succeed())

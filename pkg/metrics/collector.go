@@ -148,7 +148,7 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 			return cas.LowCount
 		},
 	}
-
+	dynamicLabels := getDynamicConfigLabels(config)
 	imageVulnLabels := []string{
 		namespace,
 		name,
@@ -158,7 +158,7 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		image_digest,
 		severity,
 	}
-	imageVulnLabels = includeDynamicConfigLabels(imageVulnLabels, config)
+	imageVulnLabels = append(imageVulnLabels, dynamicLabels...)
 	vulnIdLabels := []string{
 		namespace,
 		name,
@@ -169,7 +169,7 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		severity,
 		vuln_id,
 	}
-	vulnIdLabels = includeDynamicConfigLabels(vulnIdLabels, config)
+	vulnIdLabels = append(vulnIdLabels, dynamicLabels...)
 	exposedSecretLabels := []string{
 		namespace,
 		name,
@@ -179,19 +179,19 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		image_digest,
 		severity,
 	}
-	exposedSecretLabels = includeDynamicConfigLabels(exposedSecretLabels, config)
+	exposedSecretLabels = append(exposedSecretLabels, dynamicLabels...)
 	configAuditLabels := []string{
 		namespace,
 		name,
 		severity,
 	}
-	configAuditLabels = includeDynamicConfigLabels(configAuditLabels, config)
+	configAuditLabels = append(configAuditLabels, dynamicLabels...)
 	rbacAssessmentLabels := []string{
 		namespace,
 		name,
 		severity,
 	}
-	rbacAssessmentLabels = includeDynamicConfigLabels(rbacAssessmentLabels, config)
+	rbacAssessmentLabels = append(rbacAssessmentLabels, dynamicLabels...)
 
 	imageVulnDesc := prometheus.NewDesc(
 		prometheus.BuildFQName("trivy", "image", "vulnerabilities"),
@@ -251,10 +251,11 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 	}
 }
 
-func includeDynamicConfigLabels(labels []string, config trivyoperator.ConfigData) []string {
+func getDynamicConfigLabels(config trivyoperator.ConfigData) []string {
+	labels := make([]string, 0)
 	resourceLabels := config.GetReportResourceLabels()
 	for _, label := range resourceLabels {
-		labels = append(labels, config.GetMetricsResourceLabelsPrefix()+label)
+		labels = append(labels, config.GetMetricsResourceLabelsPrefix()+sanitizeLabelName(label))
 	}
 	return labels
 }

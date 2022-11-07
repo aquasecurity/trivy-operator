@@ -187,7 +187,7 @@ trivy:
   tag: 0.33.0
   # imagePullSecret is the secret name to be used when pulling trivy image from private registries example : reg-secret
   # It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace
-  #imagePullSecret:
+  # imagePullSecret:
 
   # mode is the Trivy client mode. Either Standalone or ClientServer. Depending
   # on the active mode other settings might be applicable or required.

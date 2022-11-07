@@ -183,6 +183,18 @@ rules:
 - apiGroups:
   - aquasecurity.github.io
   resources:
+  - infraassessmentreports
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aquasecurity.github.io
+  resources:
   - rbacassessmentreports
   verbs:
   - create

@@ -69,6 +69,8 @@ type ResourceController struct {
 //+kubebuilder:rbac:groups="",resources=limitranges,verbs=get;list;watch
 //+kubebuilder:rbac:groups=aquasecurity.github.io,resources=configauditreports,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aquasecurity.github.io,resources=rbacassessmentreports,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=aquasecurity.github.io,resources=infraassessmentreports,verbs=get;list;watch;create;update;patch;delete
+
 
 //+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterroles,verbs=get;list;watch
 //+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterrolebindings,verbs=get;list;watch
@@ -374,7 +376,7 @@ func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Poli
 	for _, result := range results {
 		id := policies.GetResultID(result)
 		// ignore infra components until it will be officially supported
-		if strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV") {
+		if (strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV")) && resource.GetNamespace() == "kube-system"  {
 			if strings.HasPrefix(id, "N/A") {
 				continue
 			}

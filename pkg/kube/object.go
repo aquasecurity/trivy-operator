@@ -719,7 +719,7 @@ func IsRoleTypes(kind Kind) bool {
 }
 
 func isValidNamespaceResource(kind Kind) bool {
-	if kind == KindConfigMap || kind == KindNetworkPolicy || kind == KindIngress || kind == KindResourceQuota || kind == KindLimitRange {
+	if kind == KindConfigMap || kind == KindNetworkPolicy || kind == KindIngress || kind == KindResourceQuota || kind == KindLimitRange || kind == KindService {
 		return true
 	}
 	return false

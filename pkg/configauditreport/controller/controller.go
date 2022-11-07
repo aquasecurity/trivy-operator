@@ -3,10 +3,12 @@ package controller
 import (
 	"context"
 	"fmt"
-	rbacv1 "k8s.io/api/rbac/v1"
 	"strings"
 
+	rbacv1 "k8s.io/api/rbac/v1"
+
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/workload"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 
@@ -45,7 +47,8 @@ type ResourceController struct {
 	trivyoperator.PluginContext
 	configauditreport.PluginInMemory
 	configauditreport.ReadWriter
-	RbacReadWriter rbacassessment.ReadWriter
+	RbacReadWriter  rbacassessment.ReadWriter
+	InfraReadWriter infraassessment.ReadWriter
 	trivyoperator.BuildInfo
 }
 
@@ -236,38 +239,52 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			log.V(1).Info("Configuration audit report exists")
 			return ctrl.Result{}, nil
 		}
-		reportData, err := r.evaluate(ctx, policies, resource)
+		misConfigData, err := r.evaluate(ctx, policies, resource)
 		if err != nil {
 			if err.Error() == policy.PoliciesNotFoundError {
 				return ctrl.Result{}, nil
 			}
 			return ctrl.Result{}, fmt.Errorf("evaluating resource: %w", err)
 		}
-		switch rd := reportData.(type) {
-		case v1alpha1.ConfigAuditReportData:
+		if len(misConfigData.configAuditReportData.Checks) > 0 {
 			reportBuilder := configauditreport.NewReportBuilder(r.Client.Scheme()).
 				Controller(resource).
 				ResourceSpecHash(resourceHash).
 				PluginConfigHash(policiesHash).
 				ResourceLabelsToInclude(resourceLabelsToInclude).
-				Data(rd)
+				Data(misConfigData.configAuditReportData)
 			if r.Config.ScannerReportTTL != nil {
 				reportBuilder.ReportTTL(r.Config.ScannerReportTTL)
 			}
 			if err := reportBuilder.Write(ctx, r.ReadWriter); err != nil {
 				return ctrl.Result{}, err
 			}
-		case v1alpha1.RbacAssessmentReportData:
+		}
+		if len(misConfigData.rbacAssessmentReportData.Checks) > 0 {
 			rbacReportBuilder := rbacassessment.NewReportBuilder(r.Client.Scheme()).
 				Controller(resource).
 				ResourceSpecHash(resourceHash).
 				PluginConfigHash(policiesHash).
 				ResourceLabelsToInclude(resourceLabelsToInclude).
-				Data(rd)
+				Data(misConfigData.rbacAssessmentReportData)
 			if r.Config.ScannerReportTTL != nil {
 				rbacReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
 			}
 			if err := rbacReportBuilder.Write(ctx, r.RbacReadWriter); err != nil {
+				return ctrl.Result{}, err
+			}
+		}
+		if len(misConfigData.infraAssessmentReportData.Checks) > 0 {
+			infraReportBuilder := infraassessment.NewReportBuilder(r.Client.Scheme()).
+				Controller(resource).
+				ResourceSpecHash(resourceHash).
+				PluginConfigHash(policiesHash).
+				ResourceLabelsToInclude(resourceLabelsToInclude).
+				Data(misConfigData.infraAssessmentReportData)
+			if r.Config.ScannerReportTTL != nil {
+				infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
+			}
+			if err := infraReportBuilder.Write(ctx, r.InfraReadWriter); err != nil {
 				return ctrl.Result{}, err
 			}
 		}
@@ -340,43 +357,65 @@ func (r *ResourceController) policies(ctx context.Context, cac configauditreport
 	return policy.NewPolicies(cm.Data, cac, r.Logger), nil
 }
 
-func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Policies, resource client.Object) (interface{}, error) {
+type Misconfiguration struct {
+	configAuditReportData     v1alpha1.ConfigAuditReportData
+	rbacAssessmentReportData  v1alpha1.RbacAssessmentReportData
+	infraAssessmentReportData v1alpha1.InfraAssessmentReportData
+}
+
+func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Policies, resource client.Object) (Misconfiguration, error) {
+	misconfiguration := Misconfiguration{}
 	results, err := policies.Eval(ctx, resource)
 	if err != nil {
-		return nil, err
+		return Misconfiguration{}, err
 	}
+	infraChecks := make([]v1alpha1.Check, 0)
 	checks := make([]v1alpha1.Check, 0)
 	for _, result := range results {
 		id := policies.GetResultID(result)
 		// ignore infra components until it will be officially supported
-		if strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV") || strings.HasPrefix(id, "N/A") {
+		if strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV") {
+			if strings.HasPrefix(id, "N/A") {
+				continue
+			}
+			infraChecks = append(infraChecks, getCheck(result, id))
 			continue
 		}
-		checks = append(checks, v1alpha1.Check{
-			ID:          id,
-			Title:       result.Rule().Summary,
-			Description: result.Rule().Explanation,
-			Severity:    v1alpha1.Severity(result.Rule().Severity),
-			Category:    "Kubernetes Security Check",
-
-			Success:  result.Status() == scan.StatusPassed,
-			Messages: []string{result.Description()},
-		})
+		checks = append(checks, getCheck(result, id))
 	}
 	kind := resource.GetObjectKind().GroupVersionKind().Kind
 	if kube.IsRoleTypes(kube.Kind(kind)) {
-		return v1alpha1.RbacAssessmentReportData{
+		misconfiguration.rbacAssessmentReportData = v1alpha1.RbacAssessmentReportData{
 			Scanner: r.scanner(),
 			Summary: v1alpha1.RbacAssessmentSummaryFromChecks(checks),
 			Checks:  checks,
-		}, nil
+		}
 	}
-	return v1alpha1.ConfigAuditReportData{
+	misconfiguration.configAuditReportData = v1alpha1.ConfigAuditReportData{
 		UpdateTimestamp: metav1.NewTime(ext.NewSystemClock().Now()),
 		Scanner:         r.scanner(),
 		Summary:         v1alpha1.ConfigAuditSummaryFromChecks(checks),
 		Checks:          checks,
-	}, nil
+	}
+	misconfiguration.infraAssessmentReportData = v1alpha1.InfraAssessmentReportData{
+		Scanner: r.scanner(),
+		Summary: v1alpha1.InfraAssessmentSummaryFromChecks(checks),
+		Checks:  infraChecks,
+	}
+	return misconfiguration, nil
+}
+
+func getCheck(result scan.Result, id string) v1alpha1.Check {
+	return v1alpha1.Check{
+		ID:          id,
+		Title:       result.Rule().Summary,
+		Description: result.Rule().Explanation,
+		Severity:    v1alpha1.Severity(result.Rule().Severity),
+		Category:    "Kubernetes Security Check",
+
+		Success:  result.Status() == scan.StatusPassed,
+		Messages: []string{result.Description()},
+	}
 }
 
 func (r *ResourceController) scanner() v1alpha1.Scanner {

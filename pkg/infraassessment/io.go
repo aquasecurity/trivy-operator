@@ -9,8 +9,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-// Writer is the interface for saving v1alpha1.ClusterConfigAuditReport
-// and v1alpha1.ConfigAuditReport instances.
+// Writer is the interface for saving v1alpha1.InfraAssessmentReport instances.
 type Writer interface {
 
 	// WriteReport creates or updates the given v1alpha1.InfraAssessmentReport instance.

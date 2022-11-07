@@ -10,6 +10,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/metrics"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
@@ -218,16 +219,17 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 		setupLog.Info("Enabling built-in configuration audit scanner")
 		if err = (&controller.ResourceController{
-			Logger:         ctrl.Log.WithName("resourcecontroller"),
-			Config:         operatorConfig,
-			ConfigData:     trivyOperatorConfig,
-			Client:         mgr.GetClient(),
-			ObjectResolver: objectResolver,
-			PluginContext:  pluginContext,
-			PluginInMemory: plugin,
-			ReadWriter:     configauditreport.NewReadWriter(&objectResolver),
-			RbacReadWriter: rbacassessment.NewReadWriter(&objectResolver),
-			BuildInfo:      buildInfo,
+			Logger:          ctrl.Log.WithName("resourcecontroller"),
+			Config:          operatorConfig,
+			ConfigData:      trivyOperatorConfig,
+			Client:          mgr.GetClient(),
+			ObjectResolver:  objectResolver,
+			PluginContext:   pluginContext,
+			PluginInMemory:  plugin,
+			ReadWriter:      configauditreport.NewReadWriter(&objectResolver),
+			RbacReadWriter:  rbacassessment.NewReadWriter(&objectResolver),
+			InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
+			BuildInfo:       buildInfo,
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup resource controller: %w", err)
 		}

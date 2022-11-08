@@ -86,6 +86,22 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 
+	// Determine which Kubernetes workloads the controller will reconcile and add them to resources
+	targetWorkloads := r.Config.GetTargetWorkloads()
+	for _, tw := range targetWorkloads {
+		var resource kube.Resource
+		err := resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, r.ObjectResolver)
+		if err != nil {
+			return err
+		}
+		mgrBuilder := r.buildControlMgr(mgr, resource, installModePredicate)
+		err = mgrBuilder.Owns(&v1alpha1.InfraAssessmentReport{}).
+			Complete(r.reconcileResource(resource.Kind))
+		if err != nil {
+			return fmt.Errorf("constructing controller for %s: %w", resource.Kind, err)
+		}
+	}
+
 	// Add non workload related resources
 	resources := []kube.Resource{
 		{Kind: kube.KindService, ForObject: &corev1.Service{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
@@ -97,24 +113,8 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		{Kind: kube.KindLimitRange, ForObject: &corev1.LimitRange{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
 	}
 
-	// Determine which Kubernetes workloads the controller will reconcile and add them to resources
-	targetWorkloads := r.Config.GetTargetWorkloads()
-	for _, tw := range targetWorkloads {
-		var resource kube.Resource
-		err := resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, r.ObjectResolver)
-		if err != nil {
-			return err
-		}
-		mgrBuilder := r.manageResources(mgr, resource, installModePredicate)
-		err = mgrBuilder.Owns(&v1alpha1.InfraAssessmentReport{}).
-			Complete(r.reconcileResource(resource.Kind))
-		if err != nil {
-			return fmt.Errorf("constructing controller for %s: %w", resource.Kind, err)
-		}
-	}
-
 	for _, configResource := range resources {
-		err := r.manageResources(mgr, configResource, installModePredicate).
+		err := r.buildControlMgr(mgr, configResource, installModePredicate).
 			Complete(r.reconcileResource(configResource.Kind))
 		if err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", configResource.Kind, err)
@@ -167,7 +167,7 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 
 }
 
-func (r *ResourceController) manageResources(mgr ctrl.Manager, configResource kube.Resource, installModePredicate k8s_predicate.Predicate) *builder.Builder {
+func (r *ResourceController) buildControlMgr(mgr ctrl.Manager, configResource kube.Resource, installModePredicate k8s_predicate.Predicate) *builder.Builder {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(configResource.ForObject, builder.WithPredicates(
 			predicate.Not(predicate.ManagedByTrivyOperator),

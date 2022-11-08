@@ -1433,7 +1433,7 @@ spec:
             - name: OPERATOR_TARGET_NAMESPACES
               value: ""
             - name: OPERATOR_EXCLUDE_NAMESPACES
-              value: "kube-system,trivy-system"
+              value: ",trivy-system"
             - name: OPERATOR_TARGET_WORKLOADS
               value: "pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job"
             - name: OPERATOR_SERVICE_ACCOUNT
@@ -1467,6 +1467,8 @@ spec:
             - name: OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED
               value: "true"
             - name: OPERATOR_RBAC_ASSESSMENT_SCANNER_ENABLED
+              value: "true"
+            - name: OPERATOR_INFRA_ASSESSMENT_SCANNER_ENABLED
               value: "true"
             - name: OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS
               value: "true"

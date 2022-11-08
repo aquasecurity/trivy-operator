@@ -20,6 +20,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 	"github.com/aquasecurity/trivy-operator/pkg/webhook"
 	corev1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/client-go/kubernetes"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
@@ -56,6 +57,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		ClientDisableCacheFor: []client.Object{
 			&corev1.Secret{},
 			&corev1.ServiceAccount{},
+			&networkingv1.Ingress{},
 		},
 	}
 

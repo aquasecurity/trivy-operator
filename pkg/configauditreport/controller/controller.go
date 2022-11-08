@@ -269,7 +269,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 				return ctrl.Result{}, err
 			}
 		}
-		if len(misConfigData.rbacAssessmentReportData.Checks) > 0 {
+		if len(misConfigData.rbacAssessmentReportData.Checks) > 0 && r.Config.RbacAssessmentScannerEnabled {
 			rbacReportBuilder := rbacassessment.NewReportBuilder(r.Client.Scheme()).
 				Controller(resource).
 				ResourceSpecHash(resourceHash).
@@ -283,7 +283,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 				return ctrl.Result{}, err
 			}
 		}
-		if len(misConfigData.infraAssessmentReportData.Checks) > 0 {
+		if len(misConfigData.infraAssessmentReportData.Checks) > 0 && r.Config.InfraAssessmentScannerEnabled {
 			infraReportBuilder := infraassessment.NewReportBuilder(r.Client.Scheme()).
 				Controller(resource).
 				ResourceSpecHash(resourceHash).
@@ -383,7 +383,7 @@ func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Poli
 	for _, result := range results {
 		id := policies.GetResultID(result)
 		// ignore infra components until it will be officially supported
-		if (strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV")) && resource.GetNamespace() == "kube-system" {
+		if isInfraCheck(id, resource.GetNamespace()) {
 			if strings.HasPrefix(id, "N/A") {
 				continue
 			}
@@ -399,6 +399,7 @@ func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Poli
 			Summary: v1alpha1.RbacAssessmentSummaryFromChecks(checks),
 			Checks:  checks,
 		}
+		return misconfiguration, nil
 	}
 	misconfiguration.configAuditReportData = v1alpha1.ConfigAuditReportData{
 		UpdateTimestamp: metav1.NewTime(ext.NewSystemClock().Now()),
@@ -412,6 +413,10 @@ func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Poli
 		Checks:  infraChecks,
 	}
 	return misconfiguration, nil
+}
+
+func isInfraCheck(id string, namespace string) bool {
+	return (strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV")) && namespace == "kube-system"
 }
 
 func getCheck(result scan.Result, id string) v1alpha1.Check {

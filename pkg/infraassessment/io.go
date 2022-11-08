@@ -24,7 +24,6 @@ type Reader interface {
 	// FindReportByOwner returns a v1alpha1.InfraAssessmentReport owned by the given
 	// kube.ObjectRef or nil if the report is not found.
 	FindReportByOwner(ctx context.Context, owner kube.ObjectRef) (interface{}, error)
-
 }
 
 type ReadWriter interface {

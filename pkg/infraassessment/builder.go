@@ -123,9 +123,9 @@ func (b *ReportBuilder) GetReport() (v1alpha1.InfraAssessmentReport, error) {
 }
 
 func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
-		report, err := b.GetReport()
-		if err != nil {
-			return err
-		}
-		return writer.WriteReport(ctx, report)
+	report, err := b.GetReport()
+	if err != nil {
+		return err
+	}
+	return writer.WriteReport(ctx, report)
 }

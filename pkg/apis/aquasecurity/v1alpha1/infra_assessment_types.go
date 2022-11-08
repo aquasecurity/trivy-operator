@@ -48,7 +48,7 @@ type InfraAssessmentReportList struct {
 }
 
 type InfraAssessmentReportData struct {
-	Scanner Scanner               `json:"scanner"`
+	Scanner Scanner                `json:"scanner"`
 	Summary InfraAssessmentSummary `json:"summary"`
 
 	// Checks provides results of conducting audit steps.

@@ -114,7 +114,7 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 	}
 
 	for _, configResource := range resources {
-		r.manageResources(mgr, configResource, installModePredicate).
+		err := r.manageResources(mgr, configResource, installModePredicate).
 			Complete(r.reconcileResource(configResource.Kind))
 		if err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", configResource.Kind, err)

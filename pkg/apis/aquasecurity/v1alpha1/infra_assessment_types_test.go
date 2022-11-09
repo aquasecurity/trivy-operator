@@ -59,8 +59,8 @@ func TestInfraAssessmentSummaryFromChecks(t *testing.T) {
 			Success:  true,
 		},
 	}
-	summary := v1alpha1.RbacAssessmentSummaryFromChecks(checks)
-	assert.Equal(t, v1alpha1.RbacAssessmentSummary{
+	summary := v1alpha1.InfraAssessmentSummaryFromChecks(checks)
+	assert.Equal(t, v1alpha1.InfraAssessmentSummary{
 		CriticalCount: 2,
 		HighCount:     1,
 		MediumCount:   3,

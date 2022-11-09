@@ -373,6 +373,34 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 				To(Succeed())
 		})
 	})
+
+	Context("InfraAssessmentReport", func() { 
+		BeforeEach(func() {
+			car1 := &v1alpha1.InfraAssessmentReport{}
+			car1.Namespace = "kube-system"
+			car1.Name = "pod-kube-apiserver-minikube-6d4cf56db6"
+			car1.Report.Summary.CriticalCount = 2
+			car1.Report.Summary.LowCount = 9
+
+			client.WithRuntimeObjects(car1)
+		})
+
+		AssertNoLintIssues()
+
+		It("should produce infra assessment metrics on kube-system namespace", func() {
+			const expected = `
+      # HELP trivy_resource_infraassessments Number of failing k8s infra assessment checks
+      # TYPE trivy_resource_infraassessments gauge
+      trivy_resource_infraassessments{name="pod-kube-apiserver-minikube-6d4cf56db6",namespace="kube-system",severity="Critical"} 2
+	  trivy_resource_infraassessments{name="pod-kube-apiserver-minikube-6d4cf56db6",namespace="kube-system",severity="High"} 0
+      trivy_resource_infraassessments{name="pod-kube-apiserver-minikube-6d4cf56db6",namespace="kube-system",severity="Low"} 9
+      trivy_resource_infraassessments{name="pod-kube-apiserver-minikube-6d4cf56db6",namespace="kube-system",severity="Medium"} 0
+		`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_resource_infraassessments")).
+				To(Succeed())
+		})
+	})
+
 	Context("RbacAssessment", func() {
 		BeforeEach(func() {
 			car1 := &v1alpha1.RbacAssessmentReport{}

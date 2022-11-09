@@ -88,6 +88,7 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 
 	// Determine which Kubernetes workloads the controller will reconcile and add them to resources
 	targetWorkloads := r.Config.GetTargetWorkloads()
+	workloadResources := make([]kube.Resource, 0)
 	for _, tw := range targetWorkloads {
 		var resource kube.Resource
 		err := resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, r.ObjectResolver)
@@ -100,6 +101,7 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		if err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", resource.Kind, err)
 		}
+		workloadResources = append(workloadResources, resource)
 	}
 
 	// Add non workload related resources
@@ -119,7 +121,9 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		if err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", configResource.Kind, err)
 		}
-
+	}
+	resources = append(resources, workloadResources...)
+	for _, configResource := range resources {
 		err = ctrl.NewControllerManagedBy(mgr).
 			For(&corev1.ConfigMap{}, builder.WithPredicates(
 				predicate.Not(predicate.IsBeingTerminated),
@@ -128,7 +132,7 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 			)).
 			Complete(r.reconcileConfig(configResource.Kind))
 		if err != nil {
-			return err
+			return fmt.Errorf("constructing controller for %s: %w", configResource.Kind, err)
 		}
 
 	}

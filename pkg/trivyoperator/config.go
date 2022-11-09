@@ -241,7 +241,7 @@ func (c ConfigData) GetReportResourceLabels() []string {
 	if !found || strings.TrimSpace(ResourceLabelsStr) == "" {
 		return []string{}
 	}
-	
+
 	return strings.Split(ResourceLabelsStr, ",")
 }
 

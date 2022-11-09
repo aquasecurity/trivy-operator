@@ -67,6 +67,7 @@ const (
 	keyScanJobPodTemplateLabels            = "scanJob.podTemplateLabels"
 	keyComplianceFailEntriesLimit          = "compliance.failEntriesLimit"
 	KeyReportResourceLabels                = "report.resourceLabels"
+	KeyReportRecordFailedChecksOnly        = "report.recordFailedChecksOnly"
 	KeyMetricsResourceLabelsPrefix         = "metrics.resourceLabelsPrefix"
 )
 
@@ -236,12 +237,15 @@ func (c ConfigData) GetScanJobPodTemplateLabels() (labels.Set, error) {
 }
 
 func (c ConfigData) GetReportResourceLabels() []string {
-	ResourceLabelsStr, found := c[KeyReportResourceLabels]
-	if !found || strings.TrimSpace(ResourceLabelsStr) == "" {
+	resourceLabelsStr, found := c[KeyReportResourceLabels]
+	if !found || strings.TrimSpace(resourceLabelsStr) == "" {
 		return []string{}
 	}
+	return strings.Split(resourceLabelsStr, ",")
+}
 
-	return strings.Split(ResourceLabelsStr, ",")
+func (c ConfigData) ReportRecordFailedChecksOnly() bool {
+	return c.getBoolKey(KeyReportRecordFailedChecksOnly)
 }
 
 func (c ConfigData) GetMetricsResourceLabelsPrefix() string {

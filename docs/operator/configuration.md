@@ -62,6 +62,8 @@ To change the target namespace from all namespaces to the `default` namespace ed
 | `scanJob.podTemplateContainerSecurityContext`| N/A| One-line JSON representation of the template securityContext which the user wants the scanner containers (and their initContainers) to be amended with. Example: `{"allowPrivilegeEscalation": false, "capabilities": { "drop": ["ALL"]},"privileged": false, "readOnlyRootFilesystem": true }` |
 | `report.resourceLabels`| N/A| One-line comma-separated representation of the scanned resource labels which the user wants to include in the Prometheus metrics report. Example: `owner,app,tier`|
 | `metrics.resourceLabelsPrefix`| `k8s_label`| Prefix that will be prepended to the labels names indicated in `report.ResourceLabels` when including them in the Prometheus metrics|
+|`report.recordFailedChecksOnly`| `"false"`| this flag is to record only failed checks on misconfiguration reports (config-audit and rbac assessment)
+
 
 ## Example - patch ConfigMap
 

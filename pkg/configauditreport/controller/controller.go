@@ -353,6 +353,9 @@ func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Poli
 		if strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV") || strings.HasPrefix(id, "N/A") {
 			continue
 		}
+		if r.ConfigData.ReportRecordFailedChecksOnly() && result.Status() == scan.StatusPassed {
+			continue
+		}
 		checks = append(checks, v1alpha1.Check{
 			ID:          id,
 			Title:       result.Rule().Summary,

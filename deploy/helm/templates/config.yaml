@@ -44,6 +44,9 @@ data:
   report.resourceLabels: {{ .Values.trivyOperator.reportResourceLabels | quote }}
   metrics.resourceLabelsPrefix: {{ .Values.trivyOperator.metricsResourceLabelsPrefix | quote }}
   {{- end }}
+  {{- if .Values.trivyOperator.reportRecordFailedChecksOnly }}
+  report.recordFailedChecksOnly: {{ .Values.trivyOperator.reportRecordFailedChecksOnly | quote }}
+  {{- end }}
 ---
 apiVersion: v1
 kind: Secret

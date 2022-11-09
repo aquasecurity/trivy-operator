@@ -237,11 +237,11 @@ func (c ConfigData) GetScanJobPodTemplateLabels() (labels.Set, error) {
 }
 
 func (c ConfigData) GetReportResourceLabels() []string {
-	resourceLabelsStr, found := c[KeyReportResourceLabels]
-	if !found || strings.TrimSpace(resourceLabelsStr) == "" {
+	ResourceLabelsStr, found := c[KeyReportResourceLabels]
+	if !found || strings.TrimSpace(ResourceLabelsStr) == "" {
 		return []string{}
 	}
-	return strings.Split(resourceLabelsStr, ",")
+	return strings.Split(ResourceLabelsStr, ",")
 }
 
 func (c ConfigData) ReportRecordFailedChecksOnly() bool {

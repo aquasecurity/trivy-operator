@@ -374,7 +374,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		})
 	})
 
-	Context("InfraAssessmentReport", func() { 
+	Context("InfraAssessmentReport", func() {
 		BeforeEach(func() {
 			car1 := &v1alpha1.InfraAssessmentReport{}
 			car1.Namespace = "kube-system"

@@ -47,7 +47,7 @@ trivy_image_exposedsecrets{
 
 ## Vulnerability ID
 
-Exposing vulnerability ID on metrics by settting the EnvVar: `OPERATOR_METRICS_VULN_ID_ENABLED" envDefault:"true"`
+Exposing vulnerability ID on metrics by settting the EnvVar: `OPERATOR_METRICS_VULN_ID_ENABLED" envDefault:"false"`
 
 ```shell
 trivy_vulnerability_id{

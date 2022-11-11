@@ -235,6 +235,10 @@ trivy:
   #
   ignoreUnfixed: false
 
+  # offlineScan is the flag to enable the offline scan functionality in Trivy
+  # This will prevent outgoing HTTP requests, e.g. to search.maven.org
+  offlineScan: false
+
   # timeout is the duration to wait for scan completion.
   timeout: "5m0s"
 

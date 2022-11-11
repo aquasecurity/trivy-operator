@@ -356,6 +356,50 @@ func TestConfig_IgnoreUnfixed(t *testing.T) {
 	}
 }
 
+func TestConfig_OfflineScan(t *testing.T) {
+	testCases := []struct {
+		name           string
+		configData     trivy.Config
+		expectedOutput bool
+	}{
+		{
+			name: "Should return false",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"foo": "bar",
+				},
+			}},
+			expectedOutput: false,
+		},
+		{
+			name: "Should return true",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"foo":               "bar",
+					"trivy.offlineScan": "true",
+				},
+			}},
+			expectedOutput: true,
+		},
+		{
+			name: "Should return false when set it as false",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"foo":               "bar",
+					"trivy.offlineScan": "false",
+				},
+			}},
+			expectedOutput: true,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			exists := tc.configData.OfflineScan()
+			assert.Equal(t, tc.expectedOutput, exists)
+		})
+	}
+}
+
 func TestConfig_dbRepositoryInsecure(t *testing.T) {
 	testCases := []struct {
 		name           string
@@ -833,6 +877,18 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 									},
 								},
 							},
+							{
+								Name: "TRIVY_OFFLINE_SCAN",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.offlineScan",
+										Optional: pointer.BoolPtr(true),
+									},
+								},
+							},
 							timeoutEnv,
 							{
 								Name: "TRIVY_SKIP_FILES",
@@ -1088,6 +1144,18 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.ignoreUnfixed",
+										Optional: pointer.BoolPtr(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_OFFLINE_SCAN",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.offlineScan",
 										Optional: pointer.BoolPtr(true),
 									},
 								},
@@ -1351,6 +1419,18 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.ignoreUnfixed",
+										Optional: pointer.BoolPtr(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_OFFLINE_SCAN",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.offlineScan",
 										Optional: pointer.BoolPtr(true),
 									},
 								},
@@ -1638,6 +1718,18 @@ CVE-2019-1543`,
 									},
 								},
 							},
+							{
+								Name: "TRIVY_OFFLINE_SCAN",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.offlineScan",
+										Optional: pointer.BoolPtr(true),
+									},
+								},
+							},
 							timeoutEnv,
 							{
 								Name: "TRIVY_SKIP_FILES",
@@ -1909,6 +2001,18 @@ CVE-2019-1543`,
 									},
 								},
 							},
+							{
+								Name: "TRIVY_OFFLINE_SCAN",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.offlineScan",
+										Optional: pointer.BoolPtr(true),
+									},
+								},
+							},
 							timeoutEnv,
 							{
 								Name: "TRIVY_SKIP_FILES",
@@ -2116,6 +2220,18 @@ CVE-2019-1543`,
 									},
 								},
 							},
+							{
+								Name: "TRIVY_OFFLINE_SCAN",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.offlineScan",
+										Optional: pointer.BoolPtr(true),
+									},
+								},
+							},
 							timeoutEnv,
 							{
 								Name: "TRIVY_SKIP_FILES",
@@ -2316,6 +2432,18 @@ CVE-2019-1543`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.ignoreUnfixed",
+										Optional: pointer.BoolPtr(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_OFFLINE_SCAN",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.offlineScan",
 										Optional: pointer.BoolPtr(true),
 									},
 								},
@@ -2525,6 +2653,18 @@ CVE-2019-1543`,
 									},
 								},
 							},
+							{
+								Name: "TRIVY_OFFLINE_SCAN",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.offlineScan",
+										Optional: pointer.BoolPtr(true),
+									},
+								},
+							},
 							timeoutEnv,
 							{
 								Name: "TRIVY_SKIP_FILES",
@@ -2730,6 +2870,18 @@ CVE-2019-1543`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.ignoreUnfixed",
+										Optional: pointer.BoolPtr(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_OFFLINE_SCAN",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.offlineScan",
 										Optional: pointer.BoolPtr(true),
 									},
 								},
@@ -2959,6 +3111,18 @@ CVE-2019-1543`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.ignoreUnfixed",
+										Optional: pointer.BoolPtr(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_OFFLINE_SCAN",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.offlineScan",
 										Optional: pointer.BoolPtr(true),
 									},
 								},

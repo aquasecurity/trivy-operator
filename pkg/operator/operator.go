@@ -57,7 +57,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		ClientDisableCacheFor: []client.Object{
 			&corev1.Secret{},
 			&corev1.ServiceAccount{},
-			&networkingv1.Ingress{},
 		},
 	}
 

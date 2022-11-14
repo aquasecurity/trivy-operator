@@ -20,38 +20,32 @@ users about security issues in Kubernetes workloads and infrastructure component
 might be, they tend to sit alongside Kubernetes, with each new product requiring users to learn a separate set of
 commands and installation steps in order to operate them and find critical security information.
 
-Trivy-Operator leverage the trivy security tools by incorporating it outputs into Kubernetes CRDs
+The Trivy-Operator leverages trivy security tools by incorporating their outputs into Kubernetes CRDs
 (Custom Resource Definitions) and from there, making security reports accessible through the Kubernetes API. This way
 users can find and view the risks that relate to different resources in what we call a Kubernetes-native way.
 
-Trivy-Operator provides:
+The Trivy operator automatically updates security reports in response to workload and other changes on a Kubernetes cluster, generating the following reports:
 
-- Automated vulnerability scanning for Kubernetes workloads.
-- Automated configuration audits for Kubernetes resources with predefined rules or custom Open Policy Agent (OPA) policies.
-- [Custom Resource Definitions] and a [Go module] to work with and integrate a range of security scanners.
-- The [Lens Extension] that make security reports available through familiar Kubernetes interfaces.
+- Vulnerability Scans: Automated vulnerability scanning for Kubernetes workloads.
+- ConfigAudit Scans: Automated configuration audits for Kubernetes resources with predefined rules or custom Open Policy Agent (OPA) policies.
+- Exposed Secret Scans: Automated secret scans which find and detail the location of exposed Secrets within your cluster.
+- RBAC scans: Role Based Access Control scans provide detailed information on the access rights of the different resources installed.
 
 <p align="center">
 <img src="docs/images/trivy-operator-overview.png" alt="Trivy-operator Overview"/>
 </p>
-
-Trivy-Operator can be used:
-
-- As a [Kubernetes operator] to automatically update security reports in response to workload and other changes on a
-  Kubernetes cluster - for example, initiating a vulnerability and misconfiguration scan when a new Pod is started.
 
 # Status
 
 Although we are trying to keep new releases backward compatible with previous versions, this project is still incubating,
 and some APIs and [Custom Resource Definitions] may change.
 
-# Documentation
+# Usage
 
 The official [Documentation] provides detailed installation, configuration, troubleshooting, and quick start guides.
 
 You can install the Trivy-operator Operator with [Static YAML Manifests] and follow the [Getting Started][getting-started-operator]
 guide to see how vulnerability and configuration audit reports are generated automatically.
-
 
 # Contributing
 
@@ -61,6 +55,7 @@ Kubernetes-native ways.
 
 * See [Contributing] for information about setting up your development environment, and the contribution workflow that
   we expect.
+* Please ensure that you are following our [Code Of Conduct](https://github.com/aquasecurity/community/blob/main/CODE_OF_CONDUCT.md) during any interaction with the Aqua projects and their community.
 
 ---
 Trivy-Operator is an [Aqua Security](https://aquasec.com) open source project.  

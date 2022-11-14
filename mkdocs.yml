@@ -44,6 +44,7 @@ nav:
           - ConfigAuditReport: crds/configaudit-report.md
           - ExposedSecretReport: crds/exposedsecret-report.md
           - RbacAssessmentReport: crds/rbacassessment-report.md
+          - InfraAssessmentReport: crds/infraassessment-report.md
   - Frequently Asked Questions: faq.md
 
 theme:

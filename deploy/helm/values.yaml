@@ -12,7 +12,7 @@ targetNamespaces: ""
 # excludeNamespaces is a comma separated list of namespaces (or glob patterns)
 # to be excluded from scanning. Only applicable in the all namespaces install
 # mode, i.e. when the targetNamespaces values is a blank string.
-excludeNamespaces: "kube-system"
+excludeNamespaces: ""
 
 # targetWorkloads is a comma seperated list of Kubernetes workload resources
 # to be included in the vulnerability and config-audit scans
@@ -55,6 +55,8 @@ operator:
   configAuditScannerEnabled: true
   # rbacAssessmentScannerEnabled the flag to enable rbac assessment scanner
   rbacAssessmentScannerEnabled: true
+  # infraAssessmentScannerEnabled the flag to enable infra assessment scanner
+  infraAssessmentScannerEnabled: true
   # batchDeleteLimit the maximum number of config audit reports deleted by the operator when the plugin's config has changed.
   batchDeleteLimit: 10
   # vulnerabilityScannerScanOnlyCurrentRevisions the flag to only create vulnerability scans on the current revision of a deployment.

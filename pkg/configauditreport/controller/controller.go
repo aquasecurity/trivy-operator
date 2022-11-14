@@ -3,16 +3,16 @@ package controller
 import (
 	"context"
 	"fmt"
-	rbacv1 "k8s.io/api/rbac/v1"
 	"strings"
 
+	rbacv1 "k8s.io/api/rbac/v1"
+
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/workload"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 
 	"github.com/aquasecurity/defsec/pkg/scan"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
@@ -25,11 +25,13 @@ import (
 	networkingv1 "k8s.io/api/networking/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	k8s_predicate "sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
@@ -45,7 +47,8 @@ type ResourceController struct {
 	trivyoperator.PluginContext
 	configauditreport.PluginInMemory
 	configauditreport.ReadWriter
-	RbacReadWriter rbacassessment.ReadWriter
+	RbacReadWriter  rbacassessment.ReadWriter
+	InfraReadWriter infraassessment.ReadWriter
 	trivyoperator.BuildInfo
 }
 
@@ -66,6 +69,7 @@ type ResourceController struct {
 //+kubebuilder:rbac:groups="",resources=limitranges,verbs=get;list;watch
 //+kubebuilder:rbac:groups=aquasecurity.github.io,resources=configauditreports,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aquasecurity.github.io,resources=rbacassessmentreports,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=aquasecurity.github.io,resources=infraassessmentreports,verbs=get;list;watch;create;update;patch;delete
 
 //+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterroles,verbs=get;list;watch
 //+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterrolebindings,verbs=get;list;watch
@@ -82,6 +86,22 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 
+	// Determine which Kubernetes workloads the controller will reconcile and add them to resources
+	targetWorkloads := r.Config.GetTargetWorkloads()
+	workloadResources := make([]kube.Resource, 0)
+	for _, tw := range targetWorkloads {
+		var resource kube.Resource
+		if err = resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, r.ObjectResolver); err != nil {
+			return err
+		}
+		if err = r.buildControlMgr(mgr, resource, installModePredicate).
+			Owns(&v1alpha1.InfraAssessmentReport{}).
+			Complete(r.reconcileResource(resource.Kind)); err != nil {
+			return fmt.Errorf("constructing controller for %s: %w", resource.Kind, err)
+		}
+		workloadResources = append(workloadResources, resource)
+	}
+
 	// Add non workload related resources
 	resources := []kube.Resource{
 		{Kind: kube.KindService, ForObject: &corev1.Service{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
@@ -93,61 +113,41 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		{Kind: kube.KindLimitRange, ForObject: &corev1.LimitRange{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
 	}
 
-	// Determine which Kubernetes workloads the controller will reconcile and add them to resources
-	targetWorkloads := r.Config.GetTargetWorkloads()
-	for _, tw := range targetWorkloads {
-		var resource kube.Resource
-		err := resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, r.ObjectResolver)
-		if err != nil {
-			return err
+	for _, configResource := range resources {
+		if err := r.buildControlMgr(mgr, configResource, installModePredicate).
+			Complete(r.reconcileResource(configResource.Kind)); err != nil {
+			return fmt.Errorf("constructing controller for %s: %w", configResource.Kind, err)
 		}
-		resources = append(resources, resource)
 	}
-
-	clusterResources := []kube.Resource{
-
-		{Kind: kube.KindClusterRole, ForObject: &rbacv1.ClusterRole{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
-		{Kind: kube.KindClusterRoleBindings, ForObject: &rbacv1.ClusterRoleBinding{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
-		{Kind: kube.KindCustomResourceDefinition, ForObject: &apiextensionsv1.CustomResourceDefinition{}, OwnsObject: &v1alpha1.ClusterConfigAuditReport{}},
-	}
-
-	for _, resource := range resources {
-		err = ctrl.NewControllerManagedBy(mgr).
-			For(resource.ForObject, builder.WithPredicates(
-				predicate.Not(predicate.ManagedByTrivyOperator),
-				predicate.Not(predicate.IsLeaderElectionResource),
-				predicate.Not(predicate.IsBeingTerminated),
-				installModePredicate,
-			)).
-			Owns(resource.OwnsObject).
-			Complete(r.reconcileResource(resource.Kind))
-		if err != nil {
-			return fmt.Errorf("constructing controller for %s: %w", resource.Kind, err)
-		}
-
-		err = ctrl.NewControllerManagedBy(mgr).
+	resources = append(resources, workloadResources...)
+	for _, configResource := range resources {
+		if err = ctrl.NewControllerManagedBy(mgr).
 			For(&corev1.ConfigMap{}, builder.WithPredicates(
 				predicate.Not(predicate.IsBeingTerminated),
 				predicate.HasName(trivyoperator.PoliciesConfigMapName),
 				predicate.InNamespace(r.Config.Namespace),
 			)).
-			Complete(r.reconcileConfig(resource.Kind))
-		if err != nil {
-			return err
+			Complete(r.reconcileConfig(configResource.Kind)); err != nil {
+			return fmt.Errorf("constructing controller for %s: %w", configResource.Kind, err)
 		}
 
 	}
 
+	clusterResources := []kube.Resource{
+		{Kind: kube.KindClusterRole, ForObject: &rbacv1.ClusterRole{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
+		{Kind: kube.KindClusterRoleBindings, ForObject: &rbacv1.ClusterRoleBinding{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
+		{Kind: kube.KindCustomResourceDefinition, ForObject: &apiextensionsv1.CustomResourceDefinition{}, OwnsObject: &v1alpha1.ClusterConfigAuditReport{}},
+	}
+
 	for _, resource := range clusterResources {
 
-		err = ctrl.NewControllerManagedBy(mgr).
+		if err = ctrl.NewControllerManagedBy(mgr).
 			For(resource.ForObject, builder.WithPredicates(
 				predicate.Not(predicate.ManagedByTrivyOperator),
 				predicate.Not(predicate.IsBeingTerminated),
 			)).
 			Owns(resource.OwnsObject).
-			Complete(r.reconcileResource(resource.Kind))
-		if err != nil {
+			Complete(r.reconcileResource(resource.Kind)); err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", resource.Kind, err)
 		}
 
@@ -164,6 +164,17 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 
 	return nil
 
+}
+
+func (r *ResourceController) buildControlMgr(mgr ctrl.Manager, configResource kube.Resource, installModePredicate k8s_predicate.Predicate) *builder.Builder {
+	return ctrl.NewControllerManagedBy(mgr).
+		For(configResource.ForObject, builder.WithPredicates(
+			predicate.Not(predicate.ManagedByTrivyOperator),
+			predicate.Not(predicate.IsLeaderElectionResource),
+			predicate.Not(predicate.IsBeingTerminated),
+			installModePredicate,
+		)).
+		Owns(configResource.OwnsObject)
 }
 
 func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile.Func {
@@ -236,40 +247,59 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			log.V(1).Info("Configuration audit report exists")
 			return ctrl.Result{}, nil
 		}
-		reportData, err := r.evaluate(ctx, policies, resource)
+		misConfigData, err := r.evaluate(ctx, policies, resource)
 		if err != nil {
 			if err.Error() == policy.PoliciesNotFoundError {
 				return ctrl.Result{}, nil
 			}
 			return ctrl.Result{}, fmt.Errorf("evaluating resource: %w", err)
 		}
-		switch rd := reportData.(type) {
-		case v1alpha1.ConfigAuditReportData:
+		kind := resource.GetObjectKind().GroupVersionKind().Kind
+		// create config-audit report
+		if !kube.IsRoleTypes(kube.Kind(kind)) {
 			reportBuilder := configauditreport.NewReportBuilder(r.Client.Scheme()).
 				Controller(resource).
 				ResourceSpecHash(resourceHash).
 				PluginConfigHash(policiesHash).
 				ResourceLabelsToInclude(resourceLabelsToInclude).
-				Data(rd)
+				Data(misConfigData.configAuditReportData)
 			if r.Config.ScannerReportTTL != nil {
 				reportBuilder.ReportTTL(r.Config.ScannerReportTTL)
 			}
 			if err := reportBuilder.Write(ctx, r.ReadWriter); err != nil {
 				return ctrl.Result{}, err
 			}
-		case v1alpha1.RbacAssessmentReportData:
+			// create infra-assessment report
+			if resource.GetNamespace() == kube.KubeSystemNamespace && r.Config.InfraAssessmentScannerEnabled {
+				infraReportBuilder := infraassessment.NewReportBuilder(r.Client.Scheme()).
+					Controller(resource).
+					ResourceSpecHash(resourceHash).
+					PluginConfigHash(policiesHash).
+					ResourceLabelsToInclude(resourceLabelsToInclude).
+					Data(misConfigData.infraAssessmentReportData)
+				if r.Config.ScannerReportTTL != nil {
+					infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
+				}
+				if err := infraReportBuilder.Write(ctx, r.InfraReadWriter); err != nil {
+					return ctrl.Result{}, err
+				}
+			}
+		}
+		// create rbac-assessment report
+		if kube.IsRoleTypes(kube.Kind(kind)) && r.Config.RbacAssessmentScannerEnabled {
 			rbacReportBuilder := rbacassessment.NewReportBuilder(r.Client.Scheme()).
 				Controller(resource).
 				ResourceSpecHash(resourceHash).
 				PluginConfigHash(policiesHash).
 				ResourceLabelsToInclude(resourceLabelsToInclude).
-				Data(rd)
+				Data(misConfigData.rbacAssessmentReportData)
 			if r.Config.ScannerReportTTL != nil {
 				rbacReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
 			}
 			if err := rbacReportBuilder.Write(ctx, r.RbacReadWriter); err != nil {
 				return ctrl.Result{}, err
 			}
+
 		}
 		return ctrl.Result{}, nil
 	}
@@ -340,43 +370,70 @@ func (r *ResourceController) policies(ctx context.Context, cac configauditreport
 	return policy.NewPolicies(cm.Data, cac, r.Logger), nil
 }
 
-func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Policies, resource client.Object) (interface{}, error) {
+type Misconfiguration struct {
+	configAuditReportData     v1alpha1.ConfigAuditReportData
+	rbacAssessmentReportData  v1alpha1.RbacAssessmentReportData
+	infraAssessmentReportData v1alpha1.InfraAssessmentReportData
+}
+
+func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Policies, resource client.Object) (Misconfiguration, error) {
+	misconfiguration := Misconfiguration{}
 	results, err := policies.Eval(ctx, resource)
 	if err != nil {
-		return nil, err
+		return Misconfiguration{}, err
 	}
+	infraChecks := make([]v1alpha1.Check, 0)
 	checks := make([]v1alpha1.Check, 0)
 	for _, result := range results {
 		id := policies.GetResultID(result)
 		// ignore infra components until it will be officially supported
-		if strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV") || strings.HasPrefix(id, "N/A") {
+		if isInfraCheck(id, resource.GetNamespace()) {
+			if strings.HasPrefix(id, "N/A") {
+				continue
+			}
+			infraChecks = append(infraChecks, getCheck(result, id))
 			continue
 		}
-		checks = append(checks, v1alpha1.Check{
-			ID:          id,
-			Title:       result.Rule().Summary,
-			Description: result.Rule().Explanation,
-			Severity:    v1alpha1.Severity(result.Rule().Severity),
-			Category:    "Kubernetes Security Check",
-
-			Success:  result.Status() == scan.StatusPassed,
-			Messages: []string{result.Description()},
-		})
+		checks = append(checks, getCheck(result, id))
 	}
 	kind := resource.GetObjectKind().GroupVersionKind().Kind
 	if kube.IsRoleTypes(kube.Kind(kind)) {
-		return v1alpha1.RbacAssessmentReportData{
+		misconfiguration.rbacAssessmentReportData = v1alpha1.RbacAssessmentReportData{
 			Scanner: r.scanner(),
 			Summary: v1alpha1.RbacAssessmentSummaryFromChecks(checks),
 			Checks:  checks,
-		}, nil
+		}
+		return misconfiguration, nil
 	}
-	return v1alpha1.ConfigAuditReportData{
+	misconfiguration.configAuditReportData = v1alpha1.ConfigAuditReportData{
 		UpdateTimestamp: metav1.NewTime(ext.NewSystemClock().Now()),
 		Scanner:         r.scanner(),
 		Summary:         v1alpha1.ConfigAuditSummaryFromChecks(checks),
 		Checks:          checks,
-	}, nil
+	}
+	misconfiguration.infraAssessmentReportData = v1alpha1.InfraAssessmentReportData{
+		Scanner: r.scanner(),
+		Summary: v1alpha1.InfraAssessmentSummaryFromChecks(infraChecks),
+		Checks:  infraChecks,
+	}
+	return misconfiguration, nil
+}
+
+func isInfraCheck(id string, namespace string) bool {
+	return (strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV")) && namespace == kube.KubeSystemNamespace
+}
+
+func getCheck(result scan.Result, id string) v1alpha1.Check {
+	return v1alpha1.Check{
+		ID:          id,
+		Title:       result.Rule().Summary,
+		Description: result.Rule().Explanation,
+		Severity:    v1alpha1.Severity(result.Rule().Severity),
+		Category:    "Kubernetes Security Check",
+
+		Success:  result.Status() == scan.StatusPassed,
+		Messages: []string{result.Description()},
+	}
 }
 
 func (r *ResourceController) scanner() v1alpha1.Scanner {
@@ -430,6 +487,13 @@ func (r *ResourceController) reconcileConfig(kind kube.Kind) reconcile.Func {
 		if r.RbacAssessmentScannerEnabled {
 			cral := v1alpha1.RbacAssessmentReportList{}
 			rbacRequeueAfter, err = r.deleteReports(ctx, labelSelector, &cral, rbacReportItems(&cral))
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+		}
+		if r.InfraAssessmentScannerEnabled {
+			ial := v1alpha1.InfraAssessmentReportList{}
+			rbacRequeueAfter, err = r.deleteReports(ctx, labelSelector, &ial, infraReportItems(&ial))
 			if err != nil {
 				return ctrl.Result{}, err
 			}
@@ -535,6 +599,16 @@ func clusterRbacReportItems(crar *v1alpha1.ClusterRbacAssessmentReportList) func
 }
 
 func rbacReportItems(rar *v1alpha1.RbacAssessmentReportList) func() []client.Object {
+	return func() []client.Object {
+		objlist := make([]client.Object, 0)
+		for idx := range rar.Items {
+			objlist = append(objlist, &rar.Items[idx])
+		}
+		return objlist
+	}
+}
+
+func infraReportItems(rar *v1alpha1.InfraAssessmentReportList) func() []client.Object {
 	return func() []client.Object {
 		objlist := make([]client.Object, 0)
 		for idx := range rar.Items {

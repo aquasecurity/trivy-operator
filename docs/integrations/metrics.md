@@ -44,6 +44,17 @@ trivy_image_exposedsecrets{
     } 1
 ```
 
+### InfraAssessments
+
+A report summary series exposes the count of checks of each status reported in a given `InfraAssessmentsReport`. For example:
+
+```shell
+trivy_resource_infraassessments{
+    name="pod-kube-controller-manager-minikube",namespace="kube-system",severity="Low"
+    } 3
+```
+
+
 
 ## Vulnerability ID
 

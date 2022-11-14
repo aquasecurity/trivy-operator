@@ -91,14 +91,12 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 	workloadResources := make([]kube.Resource, 0)
 	for _, tw := range targetWorkloads {
 		var resource kube.Resource
-		err := resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, r.ObjectResolver)
-		if err != nil {
+		if err = resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, r.ObjectResolver); err != nil {
 			return err
 		}
-		mgrBuilder := r.buildControlMgr(mgr, resource, installModePredicate)
-		err = mgrBuilder.Owns(&v1alpha1.InfraAssessmentReport{}).
-			Complete(r.reconcileResource(resource.Kind))
-		if err != nil {
+		if err = r.buildControlMgr(mgr, resource, installModePredicate).
+			Owns(&v1alpha1.InfraAssessmentReport{}).
+			Complete(r.reconcileResource(resource.Kind)); err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", resource.Kind, err)
 		}
 		workloadResources = append(workloadResources, resource)
@@ -116,22 +114,20 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 	}
 
 	for _, configResource := range resources {
-		err := r.buildControlMgr(mgr, configResource, installModePredicate).
-			Complete(r.reconcileResource(configResource.Kind))
-		if err != nil {
+		if err := r.buildControlMgr(mgr, configResource, installModePredicate).
+			Complete(r.reconcileResource(configResource.Kind)); err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", configResource.Kind, err)
 		}
 	}
 	resources = append(resources, workloadResources...)
 	for _, configResource := range resources {
-		err = ctrl.NewControllerManagedBy(mgr).
+		if err = ctrl.NewControllerManagedBy(mgr).
 			For(&corev1.ConfigMap{}, builder.WithPredicates(
 				predicate.Not(predicate.IsBeingTerminated),
 				predicate.HasName(trivyoperator.PoliciesConfigMapName),
 				predicate.InNamespace(r.Config.Namespace),
 			)).
-			Complete(r.reconcileConfig(configResource.Kind))
-		if err != nil {
+			Complete(r.reconcileConfig(configResource.Kind)); err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", configResource.Kind, err)
 		}
 
@@ -145,14 +141,13 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 
 	for _, resource := range clusterResources {
 
-		err = ctrl.NewControllerManagedBy(mgr).
+		if err = ctrl.NewControllerManagedBy(mgr).
 			For(resource.ForObject, builder.WithPredicates(
 				predicate.Not(predicate.ManagedByTrivyOperator),
 				predicate.Not(predicate.IsBeingTerminated),
 			)).
 			Owns(resource.OwnsObject).
-			Complete(r.reconcileResource(resource.Kind))
-		if err != nil {
+			Complete(r.reconcileResource(resource.Kind)); err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", resource.Kind, err)
 		}
 
@@ -259,7 +254,9 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			}
 			return ctrl.Result{}, fmt.Errorf("evaluating resource: %w", err)
 		}
-		if len(misConfigData.configAuditReportData.Checks) > 0 {
+		kind := resource.GetObjectKind().GroupVersionKind().Kind
+		// create config-audit report
+		if !kube.IsRoleTypes(kube.Kind(kind)) {
 			reportBuilder := configauditreport.NewReportBuilder(r.Client.Scheme()).
 				Controller(resource).
 				ResourceSpecHash(resourceHash).
@@ -272,8 +269,24 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			if err := reportBuilder.Write(ctx, r.ReadWriter); err != nil {
 				return ctrl.Result{}, err
 			}
+			// create infra-assessment report
+			if resource.GetNamespace() == kube.KubeSystemNamespace && r.Config.InfraAssessmentScannerEnabled {
+				infraReportBuilder := infraassessment.NewReportBuilder(r.Client.Scheme()).
+					Controller(resource).
+					ResourceSpecHash(resourceHash).
+					PluginConfigHash(policiesHash).
+					ResourceLabelsToInclude(resourceLabelsToInclude).
+					Data(misConfigData.infraAssessmentReportData)
+				if r.Config.ScannerReportTTL != nil {
+					infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
+				}
+				if err := infraReportBuilder.Write(ctx, r.InfraReadWriter); err != nil {
+					return ctrl.Result{}, err
+				}
+			}
 		}
-		if len(misConfigData.rbacAssessmentReportData.Checks) > 0 && r.Config.RbacAssessmentScannerEnabled {
+		// create rbac-assessment report
+		if kube.IsRoleTypes(kube.Kind(kind)) && r.Config.RbacAssessmentScannerEnabled {
 			rbacReportBuilder := rbacassessment.NewReportBuilder(r.Client.Scheme()).
 				Controller(resource).
 				ResourceSpecHash(resourceHash).
@@ -286,20 +299,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			if err := rbacReportBuilder.Write(ctx, r.RbacReadWriter); err != nil {
 				return ctrl.Result{}, err
 			}
-		}
-		if len(misConfigData.infraAssessmentReportData.Checks) > 0 && r.Config.InfraAssessmentScannerEnabled {
-			infraReportBuilder := infraassessment.NewReportBuilder(r.Client.Scheme()).
-				Controller(resource).
-				ResourceSpecHash(resourceHash).
-				PluginConfigHash(policiesHash).
-				ResourceLabelsToInclude(resourceLabelsToInclude).
-				Data(misConfigData.infraAssessmentReportData)
-			if r.Config.ScannerReportTTL != nil {
-				infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
-			}
-			if err := infraReportBuilder.Write(ctx, r.InfraReadWriter); err != nil {
-				return ctrl.Result{}, err
-			}
+
 		}
 		return ctrl.Result{}, nil
 	}
@@ -420,7 +420,7 @@ func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Poli
 }
 
 func isInfraCheck(id string, namespace string) bool {
-	return (strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV")) && namespace == "kube-system"
+	return (strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV")) && namespace == kube.KubeSystemNamespace
 }
 
 func getCheck(result scan.Result, id string) v1alpha1.Check {

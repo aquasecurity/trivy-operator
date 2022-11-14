@@ -12,6 +12,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/rand"
 )
 
+const KubeSystemNamespace = "kube-system"
+
 // GetContainerImagesFromPodSpec returns a map of container names
 // to container images from the specified v1.PodSpec.
 func GetContainerImagesFromPodSpec(spec corev1.PodSpec) ContainerImages {

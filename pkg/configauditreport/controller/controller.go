@@ -386,7 +386,11 @@ func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Poli
 	checks := make([]v1alpha1.Check, 0)
 	for _, result := range results {
 		id := policies.GetResultID(result)
-		// ignore infra components until it will be officially supported
+
+		// record only misconfig failed checks
+		if r.ConfigData.ReportRecordFailedChecksOnly() && result.Status() == scan.StatusPassed {
+			continue
+		}
 		if isInfraCheck(id, resource.GetNamespace()) {
 			if strings.HasPrefix(id, "N/A") {
 				continue

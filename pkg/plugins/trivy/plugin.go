@@ -51,6 +51,7 @@ const (
 	keyTrivyCommand                             = "trivy.command"
 	keyTrivySeverity                            = "trivy.severity"
 	keyTrivyIgnoreUnfixed                       = "trivy.ignoreUnfixed"
+	keyTrivyOfflineScan                         = "trivy.offlineScan"
 	keyTrivyTimeout                             = "trivy.timeout"
 	keyTrivyIgnoreFile                          = "trivy.ignoreFile"
 	keyTrivyInsecureRegistryPrefix              = "trivy.insecureRegistry."
@@ -244,6 +245,11 @@ func (c Config) IgnoreFileExists() bool {
 
 func (c Config) IgnoreUnfixed() bool {
 	_, ok := c.Data[keyTrivyIgnoreUnfixed]
+	return ok
+}
+
+func (c Config) OfflineScan() bool {
+	_, ok := c.Data[keyTrivyOfflineScan]
 	return ok
 }
 
@@ -582,6 +588,18 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 							Name: trivyConfigName,
 						},
 						Key:      keyTrivyIgnoreUnfixed,
+						Optional: pointer.BoolPtr(true),
+					},
+				},
+			},
+			{
+				Name: "TRIVY_OFFLINE_SCAN",
+				ValueFrom: &corev1.EnvVarSource{
+					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: trivyConfigName,
+						},
+						Key:      keyTrivyOfflineScan,
 						Optional: pointer.BoolPtr(true),
 					},
 				},
@@ -926,6 +944,18 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 							Name: trivyConfigName,
 						},
 						Key:      keyTrivyIgnoreUnfixed,
+						Optional: pointer.BoolPtr(true),
+					},
+				},
+			},
+			{
+				Name: "TRIVY_OFFLINE_SCAN",
+				ValueFrom: &corev1.EnvVarSource{
+					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: trivyConfigName,
+						},
+						Key:      keyTrivyOfflineScan,
 						Optional: pointer.BoolPtr(true),
 					},
 				},
@@ -1331,6 +1361,11 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 		if config.IgnoreUnfixed() {
 			env = append(env, constructEnvVarSourceFromConfigMap("TRIVY_IGNORE_UNFIXED",
 				trivyConfigName, keyTrivyIgnoreUnfixed))
+		}
+
+		if config.OfflineScan() {
+			env = append(env, constructEnvVarSourceFromConfigMap("TRIVY_OFFLINE_SCAN",
+				trivyConfigName, keyTrivyOfflineScan))
 		}
 
 		env, err = p.appendTrivyInsecureEnv(config, c.Image, env)

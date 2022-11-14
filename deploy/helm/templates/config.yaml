@@ -108,6 +108,9 @@ data:
   {{- if .ignoreUnfixed }}
   trivy.ignoreUnfixed: {{ .ignoreUnfixed | quote }}
   {{- end }}
+  {{- if .offlineScan }}
+  trivy.offlineScan: {{ .offlineScan | quote }}
+  {{- end }}
   {{- if .timeout }}
   trivy.timeout: {{ .timeout | quote }}
   {{- end }}

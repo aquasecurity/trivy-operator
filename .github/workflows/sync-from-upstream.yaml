@@ -1,0 +1,23 @@
+name: Sync from upstream
+
+on:
+  schedule:
+    - cron: '0 7 */7 * *' # At 07:00 on every 7th day-of-month
+
+  # Allows to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  sync-app-trivy-operator-repository:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Sync trivy-operator from upstream
+        uses: giantswarm/subtree-util@v0.2.0
+        with:
+          target_github_token: ${{ secrets.ISSUE_AUTOMATION }}
+          target_repository: giantswarm/trivy-operator-app
+          target_path: helm/trivy-operator/charts/trivy-operator
+          source_path: deploy/helm

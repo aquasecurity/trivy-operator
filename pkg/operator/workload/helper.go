@@ -3,22 +3,30 @@ package workload
 import (
 	"errors"
 	"fmt"
-	"k8s.io/client-go/util/retry"
 	"time"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/go-logr/logr"
+	"golang.org/x/exp/maps"
 	"golang.org/x/net/context"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/util/retry"
+	"k8s.io/utils/strings/slices"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func SkipProcessing(ctx context.Context, resource client.Object, or kube.ObjectResolver, scanOnlyCurrentRevisions bool, log logr.Logger) (bool, error) {
+func SkipProcessing(ctx context.Context, resource client.Object, or kube.ObjectResolver, scanOnlyCurrentRevisions bool, log logr.Logger, skipResourceLabels []string) (bool, error) {
+	resourceLabelKeys := maps.Keys(resource.GetLabels())
+	for _, skipResourceLabel := range skipResourceLabels {
+		if slices.Contains(resourceLabelKeys, skipResourceLabel) {
+			return true, nil
+		}
+	}
 	switch r := resource.(type) {
 	case *appsv1.ReplicaSet:
 		_, err := or.GetActivePodsMatchingLabels(ctx, resource.GetNamespace(), r.Spec.Selector.MatchLabels)

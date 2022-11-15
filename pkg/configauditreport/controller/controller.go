@@ -191,7 +191,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		}
 		// validate if workload require continuing with processing
 		if skip, err := workload.SkipProcessing(ctx, resource, r.ObjectResolver,
-			r.Config.ConfigAuditScannerScanOnlyCurrentRevisions, log); skip {
+			r.Config.ConfigAuditScannerScanOnlyCurrentRevisions, log, r.ConfigData.GetSkipResourceByLabels()); skip {
 			return ctrl.Result{}, err
 		}
 		cac, err := r.NewConfigForConfigAudit(r.PluginContext)

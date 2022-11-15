@@ -66,6 +66,7 @@ const (
 	keyScanJobPodSecurityContext           = "scanJob.podTemplatePodSecurityContext"
 	keyScanJobPodTemplateLabels            = "scanJob.podTemplateLabels"
 	keyComplianceFailEntriesLimit          = "compliance.failEntriesLimit"
+	keySkipResourceByLabels                = "skipResourceByLabels"
 	KeyReportResourceLabels                = "report.resourceLabels"
 	KeyReportRecordFailedChecksOnly        = "report.recordFailedChecksOnly"
 	KeyMetricsResourceLabelsPrefix         = "metrics.resourceLabelsPrefix"
@@ -243,6 +244,15 @@ func (c ConfigData) GetReportResourceLabels() []string {
 	}
 
 	return strings.Split(resourceLabelsStr, ",")
+}
+
+func (c ConfigData) GetSkipResourceByLabels() []string {
+	scanSkipResourceLabels, found := c[keySkipResourceByLabels]
+	if !found || strings.TrimSpace(scanSkipResourceLabels) == "" {
+		return []string{}
+	}
+
+	return strings.Split(scanSkipResourceLabels, ",")
 }
 
 func (c ConfigData) GetMetricsResourceLabelsPrefix() string {

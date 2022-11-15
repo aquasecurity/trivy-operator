@@ -177,7 +177,9 @@ trivyOperator:
 
 # reportRecordFailedChecksOnly flag is to record only failed checks on misconfiguration reports (config-audit and rbac assessment)
   reportRecordFailedChecksOnly: false
-  
+
+  #skipResourceByLabels  comma-separated labels keys which trivy-operator will skip scanning on resources with matching labels
+  skipResourceByLabels: ""
   # metricsResourceLabelsPrefix Prefix that will be prepended to the labels names indicated in `reportResourceLabels`
   # when including them in the Prometheus metrics
   metricsResourceLabelsPrefix: "k8s_label_"

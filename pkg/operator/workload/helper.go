@@ -21,10 +21,12 @@ import (
 )
 
 func SkipProcessing(ctx context.Context, resource client.Object, or kube.ObjectResolver, scanOnlyCurrentRevisions bool, log logr.Logger, skipResourceLabels []string) (bool, error) {
-	resourceLabelKeys := maps.Keys(resource.GetLabels())
-	for _, skipResourceLabel := range skipResourceLabels {
-		if slices.Contains(resourceLabelKeys, skipResourceLabel) {
-			return true, nil
+	if len(skipResourceLabels) > 0 {
+		resourceLabelKeys := maps.Keys(resource.GetLabels())
+		for _, skipResourceLabel := range skipResourceLabels {
+			if slices.Contains(resourceLabelKeys, skipResourceLabel) {
+				return true, nil
+			}
 		}
 	}
 	switch r := resource.(type) {

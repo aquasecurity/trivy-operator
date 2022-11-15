@@ -140,7 +140,7 @@ data:
     {{- end }}
   {{- end }}
 ---
-{{- if not .existingSecret }}
+{{- if not $.Values.operator.existingSecret }}
 apiVersion: v1
 kind: Secret
 metadata:

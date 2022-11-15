@@ -62,7 +62,7 @@ Exposing vulnerability ID on metrics by settting the EnvVar: `OPERATOR_METRICS_V
 
 ```shell
 trivy_vulnerability_id{
-image_digest="",image_registry="index.docker.io",image_repository="rancher/local-path-provisioner",image_tag="v0.0.19",name="replicaset-5b55b99965",namespace="kube-system",severity="Medium",vuln_id="CVE-2020-28928"
+image_digest="",image_registry="index.docker.io",image_repository="rancher/local-path-provisioner",image_tag="v0.0.19",installed_version="1.1.24-r9",name="replicaset-5b55b99965",namespace="kube-system",resource="musl-utils",severity="Medium",vuln_id="CVE-2020-28928"
     } 1
 ```
 

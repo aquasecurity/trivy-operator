@@ -17,16 +17,14 @@ import (
 )
 
 const (
-	namespace         = "namespace"
-	name              = "name"
-	image_registry    = "image_registry"
-	image_repository  = "image_repository"
-	image_tag         = "image_tag"
-	image_digest      = "image_digest"
-	installed_version = "installed_version"
-	resource          = "resource"
-	severity          = "severity"
-	vuln_id           = "vuln_id"
+	namespace        = "namespace"
+	name             = "name"
+	image_registry   = "image_registry"
+	image_repository = "image_repository"
+	image_tag        = "image_tag"
+	image_digest     = "image_digest"
+	severity         = "severity"
+	vuln_id          = "vuln_id"
 )
 
 type metricDescriptors struct {
@@ -185,8 +183,6 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		image_repository,
 		image_tag,
 		image_digest,
-		installed_version,
-		resource,
 		severity,
 		vuln_id,
 	}
@@ -370,10 +366,8 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 						continue
 					}
 					vulnList[vuln.VulnerabilityID] = true
-					vulnLabelValues[6] = vuln.InstalledVersion
-					vulnLabelValues[7] = vuln.Resource
-					vulnLabelValues[8] = NewSeverityLabel(vuln.Severity).Label
-					vulnLabelValues[9] = vuln.VulnerabilityID
+					vulnLabelValues[6] = NewSeverityLabel(vuln.Severity).Label
+					vulnLabelValues[7] = vuln.VulnerabilityID
 					metrics <- prometheus.MustNewConstMetric(c.vulnIdDesc, prometheus.GaugeValue, float64(1), vulnLabelValues...)
 				}
 			}

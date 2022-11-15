@@ -52,8 +52,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr1.Report.Artifact.Tag = "1.16"
 			vr1.Report.Summary.CriticalCount = 2
 			vr1.Report.Vulnerabilities = []v1alpha1.Vulnerability{
-				{InstalledVersion: "2.28-10", Resource: "libc-bin", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR1-CRITICAL-1"},
-				{InstalledVersion: "1.19.7", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR1-CRITICAL-2"},
+				{Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR1-CRITICAL-1"},
+				{Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR1-CRITICAL-2"},
 			}
 
 			vr2 := &v1alpha1.VulnerabilityReport{}
@@ -65,17 +65,17 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr2.Report.Summary.CriticalCount = 4
 			vr2.Report.Summary.HighCount = 7
 			vr2.Report.Vulnerabilities = []v1alpha1.Vulnerability{
-				{InstalledVersion: "1.2.11-r3", Resource: "zlib", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-1"},
-				{InstalledVersion: "1.34.1-r3", Resource: "ssl_client", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-2"},
-				{InstalledVersion: "1.2.11-r3", Resource: "zlib", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-3"},
-				{InstalledVersion: "1.1.1l-r7", Resource: "libssl1.1", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-4"},
-				{InstalledVersion: "v1.9.0", Resource: "golang.org/prometheus/client_golang", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-1"},
-				{InstalledVersion: "v0.0.0-20210711020723-a769d52b0f97", Resource: "golang.org/x/crypto", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-2"},
-				{InstalledVersion: "v0.0.0-20210226172049-e18ecbb05110", Resource: "golang.org/x/net", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-3"},
-				{InstalledVersion: "v0.3.3", Resource: "golang.org/x/text", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-4"},
-				{InstalledVersion: "1.2.11-r3", Resource: "zlib", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-5"},
-				{InstalledVersion: "1.34.1-r3", Resource: "busybox", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-6"},
-				{InstalledVersion: "1.1.1l-r7", Resource: "libssl1.1", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-7"},
+				{Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-1"},
+				{Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-2"},
+				{Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-3"},
+				{Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-4"},
+				{Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-1"},
+				{Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-2"},
+				{Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-3"},
+				{Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-4"},
+				{Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-5"},
+				{Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-6"},
+				{Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-7"},
 			}
 
 			vr3 := &v1alpha1.VulnerabilityReport{}
@@ -86,7 +86,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr3.Report.Artifact.Digest = "sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8"
 			vr3.Report.Summary.CriticalCount = 1
 			vr3.Report.Vulnerabilities = []v1alpha1.Vulnerability{
-				{InstalledVersion: "1.19.7", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-1"},
+				{Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-1"},
 			}
 
 			client.WithRuntimeObjects(vr1, vr2, vr3)
@@ -142,20 +142,20 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			const expected = `
 		        # HELP trivy_vulnerability_id Number of container image vulnerabilities group by vulnerability id
 		        # TYPE trivy_vulnerability_id gauge
-				trivy_vulnerability_id{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",installed_version="2.28-10",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource="libc-bin",severity="Critical",vuln_id="CVE-VR1-CRITICAL-1"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",installed_version="1.19.7",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource="dppkg",severity="Critical",vuln_id="CVE-VR1-CRITICAL-2"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="zlib",severity="Critical",vuln_id="CVE-VR2-CRITICAL-1"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.34.1-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="ssl_client",severity="Critical",vuln_id="CVE-VR2-CRITICAL-2"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="zlib",severity="Critical",vuln_id="CVE-VR2-CRITICAL-3"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.1.1l-r7",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="libssl1.1",severity="Critical",vuln_id="CVE-VR2-CRITICAL-4"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v1.9.0",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="golang.org/prometheus/client_golang",severity="High",vuln_id="CVE-VR2-HIGH-1"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.0.0-20210711020723-a769d52b0f97",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="golang.org/x/crypto",severity="High",vuln_id="CVE-VR2-HIGH-2"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.0.0-20210226172049-e18ecbb05110",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="golang.org/x/net",severity="High",vuln_id="CVE-VR2-HIGH-3"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.3.3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="golang.org/x/text",severity="High",vuln_id="CVE-VR2-HIGH-4"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="zlib",severity="High",vuln_id="CVE-VR2-HIGH-5"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.34.1-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="busybox",severity="High",vuln_id="CVE-VR2-HIGH-6"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.1.1l-r7",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="libssl1.1",severity="High",vuln_id="CVE-VR2-HIGH-7"} 1
-				trivy_vulnerability_id{image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",installed_version="1.19.7",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource="dppkg",severity="Critical",vuln_id="CVE-VR3-CRITICAL-1"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Critical",vuln_id="CVE-VR1-CRITICAL-1"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Critical",vuln_id="CVE-VR1-CRITICAL-2"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Critical",vuln_id="CVE-VR2-CRITICAL-1"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Critical",vuln_id="CVE-VR2-CRITICAL-2"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Critical",vuln_id="CVE-VR2-CRITICAL-3"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Critical",vuln_id="CVE-VR2-CRITICAL-4"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High",vuln_id="CVE-VR2-HIGH-1"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High",vuln_id="CVE-VR2-HIGH-2"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High",vuln_id="CVE-VR2-HIGH-3"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High",vuln_id="CVE-VR2-HIGH-4"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High",vuln_id="CVE-VR2-HIGH-5"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High",vuln_id="CVE-VR2-HIGH-6"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High",vuln_id="CVE-VR2-HIGH-7"} 1
+				trivy_vulnerability_id{image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Critical",vuln_id="CVE-VR3-CRITICAL-1"} 1
 
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_vulnerability_id")).
@@ -167,19 +167,19 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			const expected = `
 		        # HELP trivy_vulnerability_id Number of container image vulnerabilities group by vulnerability id
 		        # TYPE trivy_vulnerability_id gauge
-				trivy_vulnerability_id{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",installed_version="2.28-10",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource="libc-bin",severity="Critical",vuln_id="CVE-VR1-CRITICAL-1"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",installed_version="1.19.7",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource="dppkg",severity="Critical",vuln_id="CVE-VR1-CRITICAL-2"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="zlib",severity="Critical",vuln_id="CVE-VR2-CRITICAL-1"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.34.1-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="ssl_client",severity="Critical",vuln_id="CVE-VR2-CRITICAL-2"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="zlib",severity="Critical",vuln_id="CVE-VR2-CRITICAL-3"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.1.1l-r7",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="libssl1.1",severity="Critical",vuln_id="CVE-VR2-CRITICAL-4"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v1.9.0",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="golang.org/prometheus/client_golang",severity="High",vuln_id="CVE-VR2-HIGH-1"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.0.0-20210711020723-a769d52b0f97",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="golang.org/x/crypto",severity="High",vuln_id="CVE-VR2-HIGH-2"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.0.0-20210226172049-e18ecbb05110",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="golang.org/x/net",severity="High",vuln_id="CVE-VR2-HIGH-3"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.3.3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="golang.org/x/text",severity="High",vuln_id="CVE-VR2-HIGH-4"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="zlib",severity="High",vuln_id="CVE-VR2-HIGH-5"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.34.1-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="busybox",severity="High",vuln_id="CVE-VR2-HIGH-6"} 1
-				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.1.1l-r7",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource="libssl1.1",severity="High",vuln_id="CVE-VR2-HIGH-7"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Critical",vuln_id="CVE-VR1-CRITICAL-1"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Critical",vuln_id="CVE-VR1-CRITICAL-2"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Critical",vuln_id="CVE-VR2-CRITICAL-1"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Critical",vuln_id="CVE-VR2-CRITICAL-2"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Critical",vuln_id="CVE-VR2-CRITICAL-3"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Critical",vuln_id="CVE-VR2-CRITICAL-4"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High",vuln_id="CVE-VR2-HIGH-1"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High",vuln_id="CVE-VR2-HIGH-2"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High",vuln_id="CVE-VR2-HIGH-3"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High",vuln_id="CVE-VR2-HIGH-4"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High",vuln_id="CVE-VR2-HIGH-5"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High",vuln_id="CVE-VR2-HIGH-6"} 1
+				trivy_vulnerability_id{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High",vuln_id="CVE-VR2-HIGH-7"} 1
 
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_vulnerability_id")).

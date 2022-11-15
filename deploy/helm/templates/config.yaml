@@ -45,11 +45,11 @@ data:
   metrics.resourceLabelsPrefix: {{ .Values.trivyOperator.metricsResourceLabelsPrefix | quote }}
   {{- end }}
   {{- if .Values.trivyOperator.reportRecordFailedChecksOnly }}
-    report.recordFailedChecksOnly: {{ .Values.trivyOperator.reportRecordFailedChecksOnly | quote }}
-    {{- end }}
+  report.recordFailedChecksOnly: {{ .Values.trivyOperator.reportRecordFailedChecksOnly | quote }}
+  {{- end }}
   {{- if .Values.trivyOperator.skipResourceByLabels }}
-    skipResourceByLabels: {{ .Values.trivyOperator.skipResourceByLabels | quote }}
-   {{- end }}
+  skipResourceByLabels: {{ .Values.trivyOperator.skipResourceByLabels | quote }}
+  {{- end }}
 ---
 apiVersion: v1
 kind: Secret

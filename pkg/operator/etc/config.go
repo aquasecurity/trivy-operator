@@ -41,6 +41,7 @@ type Config struct {
 	TargetWorkloads                              string         `env:"OPERATOR_TARGET_WORKLOADS" envDefault:"Pod,ReplicaSet,ReplicationController,StatefulSet,DaemonSet,CronJob,Job"`
 	AccessGlobalSecretsAndServiceAccount         bool           `env:"OPERATOR_ACCESS_GLOBAL_SECRETS_SERVICE_ACCOUNTS" envDefault:"true"`
 	PrivateRegistryScanSecretsNames              string         `env:"OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES"`
+	BuiltInTrivyServer                           bool           `env:"OPERATOR_BUILT_IN_TRIVY_SERVER" envDefault:"false"`
 }
 
 // GetOperatorConfig loads Config from environment variables.

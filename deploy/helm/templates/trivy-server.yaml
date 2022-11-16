@@ -1,5 +1,5 @@
+{{- if .Values.operator.builtInTrivyServer}}
 ---
-# Source: trivy/templates/configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -194,3 +194,4 @@ spec:
       volumes:
         - name: tmp-data
           emptyDir: {}
+{{- end}}

@@ -69,7 +69,7 @@ operator:
   accessGlobalSecretsAndServiceAccount: true
   # builtInTrivyServer The flag enable the usage of built-in trivy server in cluster ,its also override the following trivy params with built-in values
   # trivy.mode = ClientServer and serverURL = http://trivy.<trivy operator namespace>:4975
-  builtInTrivyServer: true
+  builtInTrivyServer: false
 
   # metricsFindingsEnabled the flag to enable metrics for findings
   metricsFindingsEnabled: true

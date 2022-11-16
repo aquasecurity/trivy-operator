@@ -116,6 +116,7 @@ data:
   {{- if .offlineScan }}
   trivy.offlineScan: {{ .offlineScan | quote }}
   trivy.supportedConfigAuditKinds: {{ .Values.trivy.supportedConfigAuditKinds | quote }}
+  {{- end }}
   {{- if .Values.trivy.ignoreUnfixed }}
   trivy.ignoreUnfixed: {{ .Values.trivy.ignoreUnfixed | quote }}
   {{- end }}

@@ -6,14 +6,13 @@ metadata:
   name: trivy
   namespace: {{ include "trivy-operator.namespace" . }}
   labels:
-    app.kubernetes.io/name: trivy
-    app.kubernetes.io/instance: trivy
-    app.kubernetes.io/version: "0.34.0"
+    app.kubernetes.io/name: trivy-server
+    app.kubernetes.io/instance: trivy-server
 spec:
   type: ClusterIP
   selector:
-    app.kubernetes.io/name: trivy
-    app.kubernetes.io/instance: trivy
+    app.kubernetes.io/name: trivy-server
+    app.kubernetes.io/instance: trivy-server
   ports:
     - name: trivy-http
       protocol: TCP
@@ -25,20 +24,19 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: trivy
+  name: trivy-server
   namespace: {{ include "trivy-operator.namespace" . }}
   labels:
-    app.kubernetes.io/name: trivy
-    app.kubernetes.io/instance: trivy
-    app.kubernetes.io/version: "0.34.0"
+    app.kubernetes.io/name: trivy-server
+    app.kubernetes.io/instance: trivy-server
 spec:
   podManagementPolicy: "Parallel"
   serviceName: trivy
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: trivy
-      app.kubernetes.io/instance: trivy
+      app.kubernetes.io/name: trivy-server
+      app.kubernetes.io/instance: trivy-server
   volumeClaimTemplates:
     - metadata:
         name: data
@@ -54,8 +52,8 @@ spec:
       annotations:
         checksum/config: 7fcc66ace3f98462349856795765021e7bf7a0106f28439a9f6dc74257404370
       labels:
-        app.kubernetes.io/name: trivy
-        app.kubernetes.io/instance: trivy
+        app.kubernetes.io/name: trivy-server
+        app.kubernetes.io/instance: trivy-server
     spec:
       serviceAccountName: trivy-operator
       automountServiceAccountToken: false

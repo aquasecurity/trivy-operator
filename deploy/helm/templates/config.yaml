@@ -51,8 +51,8 @@ data:
   skipResourceByLabels: {{ .Values.trivyOperator.skipResourceByLabels | quote }}
   {{- end }}
   {{- if .Values.operator.builtInTrivyServer }}
-    trivy.serverUrl: {{ printf "%s.%s:%s" "http://trivy" (include "trivy-operator.namespace" .) "4975"  | quote }}
-   {{- end }}
+  trivy.serverUrl: {{ printf "%s.%s:%s" "http://trivy" (include "trivy-operator.namespace" .) "4975"  | quote }}
+  {{- end }}
 ---
 apiVersion: v1
 kind: Secret

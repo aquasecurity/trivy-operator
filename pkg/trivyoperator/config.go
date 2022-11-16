@@ -71,7 +71,6 @@ const (
 	KeyReportRecordFailedChecksOnly        = "report.recordFailedChecksOnly"
 	KeyMetricsResourceLabelsPrefix         = "metrics.resourceLabelsPrefix"
 	KeyTrivyServerURL                      = "trivy.serverURL"
-	KeyTrivyServerURL                      = "trivy.serverURL"
 )
 
 // ConfigData holds Trivy-operator configuration settings as a set of key-value

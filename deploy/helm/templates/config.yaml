@@ -110,11 +110,8 @@ data:
   trivy.useBuiltinRegoPolicies: {{ .Values.trivy.useBuiltinRegoPolicies | quote }}
   {{- end }}
   trivy.supportedConfigAuditKinds: {{ .supportedConfigAuditKinds | quote }}
-  {{- if .ignoreUnfixed }}
-  trivy.ignoreUnfixed: {{ .ignoreUnfixed | quote }}
-  {{- end }}
-  {{- if .offlineScan }}
-  trivy.offlineScan: {{ .offlineScan | quote }}
+  {{- if .Values.trivy.offlineScan }}
+  trivy.offlineScan: {{ .Values.trivy.offlineScan | quote }}
   trivy.supportedConfigAuditKinds: {{ .Values.trivy.supportedConfigAuditKinds | quote }}
   {{- end }}
   {{- if .Values.trivy.ignoreUnfixed }}

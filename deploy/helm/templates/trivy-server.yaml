@@ -1,42 +1,6 @@
 {{- if .Values.operator.builtInTrivyServer}}
 ---
 apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: trivy
-  namespace: trivy-system
-  labels:
-    app.kubernetes.io/name: trivy
-    app.kubernetes.io/instance: trivy
-    app.kubernetes.io/version: "0.34.4"
-
-data:
-  TRIVY_LISTEN: "0.0.0.0:4954"
-  TRIVY_CACHE_DIR: "/home/scanner/.cache/trivy"
-  TRIVY_DEBUG: "false"
-  TRIVY_SKIP_UPDATE: "false"
-  TRIVY_DB_REPOSITORY: "ghcr.io/aquasecurity/trivy-db"
-
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: trivy
-  namespace: trivy-system
-  labels:
-    app.kubernetes.io/name: trivy
-    helm.sh/chart: trivy-0.4.17
-    app.kubernetes.io/instance: trivy
-    app.kubernetes.io/version: "0.34.0"
-type: Opaque
-data:
-  GITHUB_TOKEN: ""
-  TRIVY_TOKEN: ""
-  TRIVY_USERNAME: ""
-  TRIVY_PASSWORD: ""
-
----
-apiVersion: v1
 kind: Service
 metadata:
   name: trivy
@@ -111,9 +75,9 @@ spec:
             - server
           envFrom:
             - configMapRef:
-                name: trivy
+                name: trivy-operator-trivy-config
             - secretRef:
-                name: trivy
+                name: trivy-operator-trivy-config
           ports:
             - name: trivy-http
               containerPort: 4954

@@ -18,36 +18,6 @@ data:
   TRIVY_DB_REPOSITORY: "ghcr.io/aquasecurity/trivy-db"
 
 ---
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: trivy
-  namespace: trivy-system
-  labels:
-    app.kubernetes.io/name: trivy
-    app.kubernetes.io/instance: trivy
-    app.kubernetes.io/version: "0.34.0"
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: trivy
-  namespace: trivy-system
-  labels:
-    app.kubernetes.io/name: trivy
-    helm.sh/chart: trivy-0.4.17
-    app.kubernetes.io/instance: trivy
-    app.kubernetes.io/version: "0.34.0"
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: trivy
-subjects:
-- kind: ServiceAccount
-  name: trivy
-
----
 apiVersion: v1
 kind: Secret
 metadata:
@@ -88,18 +58,6 @@ spec:
   sessionAffinity: ClientIP
 
 ---
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: trivy
-  namespace: trivy-system
-  labels:
-    app.kubernetes.io/name: trivy
-    helm.sh/chart: trivy-0.4.17
-    app.kubernetes.io/instance: trivy
-    app.kubernetes.io/version: "0.34.0"
-
----
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -136,7 +94,7 @@ spec:
         app.kubernetes.io/name: trivy
         app.kubernetes.io/instance: trivy
     spec:
-      serviceAccountName: trivy
+      serviceAccountName: trivy-operator
       automountServiceAccountToken: false
       securityContext:
         fsGroup: 65534

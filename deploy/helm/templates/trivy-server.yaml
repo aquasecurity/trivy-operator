@@ -1,4 +1,4 @@
-{{- if .Values.operator.builtInTrivyServer}}
+{{- if .Values.operator.builtInTrivyServer }}
 ---
 apiVersion: v1
 kind: Service

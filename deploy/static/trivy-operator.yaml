@@ -1350,10 +1350,6 @@ metadata:
     app.kubernetes.io/version: "0.6.0"
     app.kubernetes.io/managed-by: kubectl
 data:
-  GITHUB_TOKEN: ""
-  TRIVY_TOKEN: ""
-  TRIVY_USERNAME: ""
-  TRIVY_PASSWORD: ""
 ---
 # Source: trivy-operator/templates/config.yaml
 apiVersion: v1
@@ -1399,11 +1395,6 @@ data:
   trivy.resources.requests.memory: 100M
   trivy.resources.limits.cpu: 500m
   trivy.resources.limits.memory: 500M
-  TRIVY_LISTEN: "0.0.0.0:4954"
-  TRIVY_CACHE_DIR: "/home/scanner/.cache/trivy"
-  TRIVY_DEBUG: "false"
-  TRIVY_SKIP_UPDATE: "false"
-  TRIVY_DB_REPOSITORY: "ghcr.io/aquasecurity/trivy-db"
 ---
 # Source: trivy-operator/templates/deployment.yaml
 apiVersion: apps/v1

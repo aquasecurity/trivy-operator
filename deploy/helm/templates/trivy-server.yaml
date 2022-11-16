@@ -4,7 +4,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: trivy
-  namespace: trivy-system
+  namespace: {{ include "trivy-operator.namespace" . }}
   labels:
     app.kubernetes.io/name: trivy
     app.kubernetes.io/instance: trivy
@@ -26,10 +26,9 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: trivy
-  namespace: trivy-system
+  namespace: {{ include "trivy-operator.namespace" . }}
   labels:
     app.kubernetes.io/name: trivy
-    helm.sh/chart: trivy-0.4.17
     app.kubernetes.io/instance: trivy
     app.kubernetes.io/version: "0.34.0"
 spec:

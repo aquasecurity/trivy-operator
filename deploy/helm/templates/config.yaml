@@ -51,7 +51,7 @@ data:
   skipResourceByLabels: {{ .Values.trivyOperator.skipResourceByLabels | quote }}
   {{- end }}
   {{- if .Values.operator.builtInTrivyServer }}
-  trivy.serverUrl: {{ printf "%s.%s:%s" "http://trivy" (include "trivy-operator.namespace" .) "4975"  | quote }}
+  trivy.serverURL: {{ printf "%s.%s:%s" "http://trivy" (include "trivy-operator.namespace" .) "4954"  | quote }}
   {{- end }}
 ---
 apiVersion: v1
@@ -77,7 +77,6 @@ data:
   {{- if .Values.trivy.imagePullSecret }}
   trivy.imagePullSecret: {{ .Values.trivy.imagePullSecret | quote }}
   {{- end }}
-  trivy.mode: {{ .Values.trivy.mode | quote }}
   trivy.additionalVulnerabilityReportFields: {{ .Values.trivy.additionalVulnerabilityReportFields | quote}}
   {{- if .Values.trivy.httpProxy }}
   trivy.httpProxy: {{ .Values.trivy.httpProxy | quote }}
@@ -109,11 +108,10 @@ data:
   {{- if .Values.trivy.useBuiltinRegoPolicies }}
   trivy.useBuiltinRegoPolicies: {{ .Values.trivy.useBuiltinRegoPolicies | quote }}
   {{- end }}
-  trivy.supportedConfigAuditKinds: {{ .supportedConfigAuditKinds | quote }}
   {{- if .Values.trivy.offlineScan }}
   trivy.offlineScan: {{ .Values.trivy.offlineScan | quote }}
-  trivy.supportedConfigAuditKinds: {{ .Values.trivy.supportedConfigAuditKinds | quote }}
   {{- end }}
+  trivy.supportedConfigAuditKinds: {{ .Values.trivy.supportedConfigAuditKinds | quote }}
   {{- if .Values.trivy.ignoreUnfixed }}
   trivy.ignoreUnfixed: {{ .Values.trivy.ignoreUnfixed | quote }}
   {{- end }}
@@ -125,11 +123,13 @@ data:
 {{- . | trim | nindent 4 }}
   {{- end }}
   {{- if .Values.operator.builtInTrivyServer }}
-  trivy.serverURL: {{ printf "%s.%s:%s" "http://trivy" (include "trivy-operator.namespace" .) "4975"  | quote }}
+  trivy.serverURL: {{ printf "%s.%s:%s" "http://trivy" (include "trivy-operator.namespace" .) "4954"  | quote }}
   trivy.mode: "ClientServer"
-  {{- else if eq .Values.trivy.mode "ClientServer" }}
-  trivy.serverURL: {{ required ".Values.trivy.serverURL is required" .Values.trivy.serverURL | quote }}
   {{- else }}
+  trivy.mode: {{ .Values.trivy.mode | quote }}
+  {{- if eq .Values.trivy.mode "ClientServer" }}
+  trivy.serverURL: {{ required ".Values.trivy.serverURL is required" .Values.trivy.serverURL | quote }}
+  {{- end }}
   {{- end }}
   {{- with .Values.trivy.resources }}
     {{- with .requests }}

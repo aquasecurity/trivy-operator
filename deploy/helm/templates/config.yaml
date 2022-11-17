@@ -51,7 +51,7 @@ data:
   skipResourceByLabels: {{ .Values.trivyOperator.skipResourceByLabels | quote }}
   {{- end }}
   {{- if .Values.operator.builtInTrivyServer }}
-  trivy.serverURL: {{ printf "%s.%s:%s" "http://trivy" (include "trivy-operator.namespace" .) "4954"  | quote }}
+  trivy.serverURL: {{ printf "http://%s.%s:%s" .Values.trivy.serverServiceName (include "trivy-operator.namespace" .) "4954"  | quote }}
   {{- end }}
 ---
 apiVersion: v1
@@ -123,7 +123,7 @@ data:
 {{- . | trim | nindent 4 }}
   {{- end }}
   {{- if .Values.operator.builtInTrivyServer }}
-  trivy.serverURL: {{ printf "%s.%s:%s" "http://trivy" (include "trivy-operator.namespace" .) "4954"  | quote }}
+  trivy.serverURL: {{ printf "http://%s.%s:%s" .Values.trivy.serverServiceName (include "trivy-operator.namespace" .) "4954"  | quote }}
   trivy.mode: "ClientServer"
   {{- else }}
   trivy.mode: {{ .Values.trivy.mode | quote }}

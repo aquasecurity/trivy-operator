@@ -319,7 +319,6 @@ trivy:
   serverPassword: ""
   # serverServiceName this param is the server service name to be used in cluster
   serverServiceName: "trivy-service"
-  
 
 compliance:
   # failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report

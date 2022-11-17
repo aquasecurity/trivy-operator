@@ -67,6 +67,9 @@ operator:
   batchDeleteDelay: 10s
   # accessGlobalSecretsAndServiceAccount The flag to enable access to global secrets/service accounts to allow `vulnerability scan job` to pull images from private registries
   accessGlobalSecretsAndServiceAccount: true
+  # builtInTrivyServer The flag enable the usage of built-in trivy server in cluster ,its also override the following trivy params with built-in values
+  # trivy.mode = ClientServer and serverURL = http://<serverServiceName>.<trivy operator namespace>:4975
+  builtInTrivyServer: false
 
   # metricsFindingsEnabled the flag to enable metrics for findings
   metricsFindingsEnabled: true
@@ -310,6 +313,13 @@ trivy:
   # For 'filesystem' scanning, ensure that the `trivyOperator.scanJobPodTemplateContainerSecurityContext` is configured
   # to run as the root user (runAsUser = 0).
   command: image
+  # serverUser this param is the server user to be used to download db from private registry
+  serverUser: ""
+  # serverPassword this param is the server user to be used to download db from private registry
+  serverPassword: ""
+  # serverServiceName this param is the server service name to be used in cluster
+  serverServiceName: "trivy-service"
+  
 
 compliance:
   # failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report

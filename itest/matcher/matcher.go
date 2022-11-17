@@ -21,7 +21,7 @@ var (
 	trivyScanner = v1alpha1.Scanner{
 		Name:    v1alpha1.ScannerNameTrivy,
 		Vendor:  "Aqua Security",
-		Version: "0.33.0",
+		Version: "0.34.0",
 	}
 	builtInScanner = v1alpha1.Scanner{
 		Name:    v1alpha1.ScannerNameTrivy,

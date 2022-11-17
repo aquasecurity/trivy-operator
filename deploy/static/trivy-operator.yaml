@@ -1382,7 +1382,6 @@ metadata:
 data:
   trivy.repository: "ghcr.io/aquasecurity/trivy"
   trivy.tag: "0.34.0"
-  trivy.mode: "Standalone"
   trivy.additionalVulnerabilityReportFields: ""
   trivy.severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
   trivy.dbRepository: "ghcr.io/aquasecurity/trivy-db"
@@ -1391,6 +1390,7 @@ data:
   trivy.useBuiltinRegoPolicies: "true"
   trivy.supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
   trivy.timeout: "5m0s"
+  trivy.mode: "Standalone"
   trivy.resources.requests.cpu: 100m
   trivy.resources.requests.memory: 100M
   trivy.resources.limits.cpu: 500m
@@ -1482,6 +1482,8 @@ spec:
               value: "{}"
             - name: OPERATOR_ACCESS_GLOBAL_SECRETS_SERVICE_ACCOUNTS
               value: "true"
+            - name: OPERATOR_BUILT_IN_TRIVY_SERVER
+              value: "false"
           ports:
             - name: metrics
               containerPort: 8080

@@ -172,7 +172,7 @@ trivyOperator:
   # reportRecordFailedChecksOnly flag is to record only failed checks on misconfiguration reports (config-audit and rbac assessment)
   reportRecordFailedChecksOnly: false
 
-  #skipResourceByLabels  comma-separated labels keys which trivy-operator will skip scanning on resources with matching labels
+  # skipResourceByLabels  comma-separated labels keys which trivy-operator will skip scanning on resources with matching labels
   skipResourceByLabels: ""
 
   # metricsResourceLabelsPrefix Prefix that will be prepended to the labels names indicated in `reportResourceLabels`

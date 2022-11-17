@@ -264,7 +264,7 @@ func (c ConfigData) ReportRecordFailedChecksOnly() bool {
 	return c.getBoolKey(KeyReportRecordFailedChecksOnly)
 }
 
-func (c ConfigData) GeTrivyserverURL() string {
+func (c ConfigData) GeTrivyServerURL() string {
 	return c[KeyTrivyServerURL]
 }
 func (c ConfigData) GetRequiredData(key string) (string, error) {

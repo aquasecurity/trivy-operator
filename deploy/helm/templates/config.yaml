@@ -154,7 +154,7 @@ data:
   TRIVY_CACHE_DIR: "/home/scanner/.cache/trivy"
   TRIVY_DEBUG: "false"
   TRIVY_SKIP_UPDATE: "false"
-  TRIVY_DB_REPOSITORY: "ghcr.io/aquasecurity/trivy-db"
+  TRIVY_DB_REPOSITORY: {{ .Values.trivy.dbRepository | quote }}
   {{- end }}
 ---
 {{- if not .Values.operator.existingSecret }}
@@ -181,8 +181,12 @@ data:
 {{- end }}
 {{- end }}
 {{- if .Values.operator.builtInTrivyServer }}
-  GITHUB_TOKEN: ""
-  TRIVY_TOKEN: ""
-  TRIVY_USERNAME: ""
-  TRIVY_PASSWORD: ""
+  {{- if .Values.trivy.githubToken }}
+  GITHUB_TOKEN: {{ .Values.trivy.githubToken | quote }}
+  {{- end }}
+  {{- if .Values.trivy.serverToken }}
+  TRIVY_TOKEN: {{ .Values.trivy.serverToken  | quote }}
+  {{- end }}
+  TRIVY_USERNAME: {{ .Values.trivy.serverUser  | quote }}
+  TRIVY_PASSWORD: {{ .Values.trivy.serverPassword  | quote }}
 {{- end }}

@@ -313,6 +313,10 @@ trivy:
   # For 'filesystem' scanning, ensure that the `trivyOperator.scanJobPodTemplateContainerSecurityContext` is configured
   # to run as the root user (runAsUser = 0).
   command: image
+  # serverUser this param is the server user to be used to download db from private registry
+  serverUser: ""
+  # serverPassword this param is the server user to be used to download db from private registry
+  serverPassword: ""
 
 compliance:
   # failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report

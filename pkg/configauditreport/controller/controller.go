@@ -270,7 +270,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 				return ctrl.Result{}, err
 			}
 			// create infra-assessment report
-			if resource.GetNamespace() == kube.KubeSystemNamespace && r.Config.InfraAssessmentScannerEnabled {
+			if k8sCoreComponent(resource) && r.Config.InfraAssessmentScannerEnabled {
 				infraReportBuilder := infraassessment.NewReportBuilder(r.Client.Scheme()).
 					Controller(resource).
 					ResourceSpecHash(resourceHash).
@@ -391,11 +391,13 @@ func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Poli
 		if r.ConfigData.ReportRecordFailedChecksOnly() && result.Status() == scan.StatusPassed {
 			continue
 		}
-		if isInfraCheck(id, resource.GetNamespace()) {
+		if infraCheck(id) {
 			if strings.HasPrefix(id, "N/A") {
 				continue
 			}
-			infraChecks = append(infraChecks, getCheck(result, id))
+			if k8sCoreComponent(resource) {
+				infraChecks = append(infraChecks, getCheck(result, id))
+			}
 			continue
 		}
 		checks = append(checks, getCheck(result, id))
@@ -423,8 +425,16 @@ func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Poli
 	return misconfiguration, nil
 }
 
-func isInfraCheck(id string, namespace string) bool {
-	return (strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV")) && namespace == kube.KubeSystemNamespace
+func infraCheck(id string) bool {
+	return (strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV"))
+}
+
+func k8sCoreComponent(resource client.Object) bool {
+	return resource.GetNamespace() == kube.KubeSystemNamespace &&
+		(strings.Contains(resource.GetName(), "kube-apiserver") ||
+			strings.Contains(resource.GetName(), "kube-controller-manager") ||
+			strings.Contains(resource.GetName(), "kube-scheduler") ||
+			strings.Contains(resource.GetName(), "etcd"))
 }
 
 func getCheck(result scan.Result, id string) v1alpha1.Check {

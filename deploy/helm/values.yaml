@@ -89,6 +89,8 @@ operator:
 
   # privateRegistryScanSecretsNames is map of namespace:secrets which can be used to authenticate in private registries in case if there no imagePullSecrets provided
   privateRegistryScanSecretsNames: {}
+  # mergeRbacFindingWithConfigAudit the flag to enable merging rbac finding with config-audit report
+  mergeRbacFindingWithConfigAudit: false
 
 image:
   repository: "ghcr.io/aquasecurity/trivy-operator"
@@ -348,7 +350,8 @@ securityContext:
     drop:
       - ALL
 
-resources: {}
+resources:
+  {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -366,7 +369,7 @@ tolerations: []
 
 affinity: {}
 
-priorityClassName: ""
+priorityClassName:  ""
 
   # automountServiceAccountToken the flag to enable automount for service account token
 automountServiceAccountToken: true

@@ -256,7 +256,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		}
 		kind := resource.GetObjectKind().GroupVersionKind().Kind
 		// create config-audit report
-		if !kube.IsRoleTypes(kube.Kind(kind)) {
+		if !kube.IsRoleTypes(kube.Kind(kind)) || r.MergeRbacFindingWithConfigAudit {
 			reportBuilder := configauditreport.NewReportBuilder(r.Client.Scheme()).
 				Controller(resource).
 				ResourceSpecHash(resourceHash).
@@ -286,7 +286,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			}
 		}
 		// create rbac-assessment report
-		if kube.IsRoleTypes(kube.Kind(kind)) && r.Config.RbacAssessmentScannerEnabled {
+		if kube.IsRoleTypes(kube.Kind(kind)) && r.Config.RbacAssessmentScannerEnabled && !r.MergeRbacFindingWithConfigAudit {
 			rbacReportBuilder := rbacassessment.NewReportBuilder(r.Client.Scheme()).
 				Controller(resource).
 				ResourceSpecHash(resourceHash).
@@ -403,7 +403,7 @@ func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Poli
 		checks = append(checks, getCheck(result, id))
 	}
 	kind := resource.GetObjectKind().GroupVersionKind().Kind
-	if kube.IsRoleTypes(kube.Kind(kind)) {
+	if kube.IsRoleTypes(kube.Kind(kind)) && !r.MergeRbacFindingWithConfigAudit {
 		misconfiguration.rbacAssessmentReportData = v1alpha1.RbacAssessmentReportData{
 			Scanner: r.scanner(),
 			Summary: v1alpha1.RbacAssessmentSummaryFromChecks(checks),

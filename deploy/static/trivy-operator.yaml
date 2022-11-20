@@ -1484,6 +1484,8 @@ spec:
               value: "true"
             - name: OPERATOR_BUILT_IN_TRIVY_SERVER
               value: "false"
+            - name: OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT
+              value: "false"
           ports:
             - name: metrics
               containerPort: 8080

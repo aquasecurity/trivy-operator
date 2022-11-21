@@ -157,7 +157,7 @@ data:
   TRIVY_DB_REPOSITORY: {{ .Values.trivy.dbRepository | quote }}
   {{- end }}
 ---
-{{- if not .Values.operator.existingSecret }}
+{{- if not .Values.trivy.existingSecret }}
 apiVersion: v1
 kind: Secret
 metadata:

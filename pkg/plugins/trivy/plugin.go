@@ -119,7 +119,10 @@ type Config struct {
 func (c Config) GetAdditionalVulnerabilityReportFields() AdditionalFields {
 	addFields := AdditionalFields{}
 
-	fields:="Description,Links,CVSS,Target,PackageType"
+	fields, ok := c.Data[keyTrivyAdditionalVulnerabilityReportFields]
+	if !ok {
+		return addFields
+	}
 
 	for _, field := range strings.Split(fields, ",") {
 		switch field {

@@ -104,12 +104,12 @@ func TestConfig_GetAdditionalVulnerabilityReportFields(t *testing.T) {
 		additionalFields trivy.AdditionalFields
 	}{
 		{
-			name:             "Should return error",
+			name:             "no additional fields are set",
 			configData:       trivy.Config{PluginConfig: trivyoperator.PluginConfig{}},
 			additionalFields: trivy.AdditionalFields{},
 		},
 		{
-			name: "Should return error",
+			name: "all additional fields are set",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
 					"trivy.additionalVulnerabilityReportFields": "PackageType,Class,Target,Links,Description,CVSS",
@@ -118,7 +118,7 @@ func TestConfig_GetAdditionalVulnerabilityReportFields(t *testing.T) {
 			additionalFields: trivy.AdditionalFields{Description: true, Links: true, CVSS: true, Class: true, PackageType: true, Target: true},
 		},
 		{
-			name: "Should return error",
+			name: "some additional fields are set",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
 					"trivy.additionalVulnerabilityReportFields": "PackageType,Target,Links,CVSS",

@@ -97,6 +97,50 @@ func TestConfig_GetImageRef(t *testing.T) {
 	}
 }
 
+func TestConfig_GetAdditionalVulnerabilityReportFields(t *testing.T) {
+	testCases := []struct {
+		name             string
+		configData       trivy.Config
+		additionalFields trivy.AdditionalFields
+	}{
+		{
+			name:             "Should return error",
+			configData:       trivy.Config{PluginConfig: trivyoperator.PluginConfig{}},
+			additionalFields: trivy.AdditionalFields{},
+		},
+		{
+			name: "Should return error",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.additionalVulnerabilityReportFields": "PackageType,Class,Target,Links,Description,CVSS",
+				},
+			}},
+			additionalFields: trivy.AdditionalFields{Description: true, Links: true, CVSS: true, Class: true, PackageType: true, Target: true},
+		},
+		{
+			name: "Should return error",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.additionalVulnerabilityReportFields": "PackageType,Target,Links,CVSS",
+				},
+			}},
+			additionalFields: trivy.AdditionalFields{Links: true, CVSS: true, PackageType: true, Target: true},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			addFields := tc.configData.GetAdditionalVulnerabilityReportFields()
+			assert.True(t, addFields.Description == tc.additionalFields.Description)
+			assert.True(t, addFields.CVSS == tc.additionalFields.CVSS)
+			assert.True(t, addFields.Target == tc.additionalFields.Target)
+			assert.True(t, addFields.PackageType == tc.additionalFields.PackageType)
+			assert.True(t, addFields.Class == tc.additionalFields.Class)
+			assert.True(t, addFields.Links == tc.additionalFields.Links)
+		})
+	}
+}
+
 func TestConfig_GetMode(t *testing.T) {
 	testCases := []struct {
 		name          string

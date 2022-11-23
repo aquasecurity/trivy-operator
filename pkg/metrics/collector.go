@@ -25,6 +25,8 @@ const (
 	image_digest      = "image_digest"
 	installed_version = "installed_version"
 	resource          = "resource"
+	package_type      = "package_type"
+	class             = "class"
 	severity          = "severity"
 	vuln_id           = "vuln_id"
 )
@@ -188,6 +190,8 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		installed_version,
 		resource,
 		severity,
+		package_type,
+		class,
 		vuln_id,
 	}
 	vulnIdLabels = append(vulnIdLabels, dynamicLabels...)
@@ -373,7 +377,9 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 					vulnLabelValues[6] = vuln.InstalledVersion
 					vulnLabelValues[7] = vuln.Resource
 					vulnLabelValues[8] = NewSeverityLabel(vuln.Severity).Label
-					vulnLabelValues[9] = vuln.VulnerabilityID
+					vulnLabelValues[9] = vuln.PackageType
+					vulnLabelValues[10] = vuln.Class
+					vulnLabelValues[11] = vuln.VulnerabilityID
 					metrics <- prometheus.MustNewConstMetric(c.vulnIdDesc, prometheus.GaugeValue, float64(1), vulnLabelValues...)
 				}
 			}

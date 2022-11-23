@@ -8,7 +8,6 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
-	vcontroller "github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
@@ -20,6 +19,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
+	vcontroller "github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/webhook"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
@@ -171,7 +171,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			Client:                  mgr.GetClient(),
 			ObjectResolver:          objectResolver,
 			LimitChecker:            limitChecker,
-			LogsReader:              logsReader,
 			SecretsReader:           secretsReader,
 			Plugin:                  plugin,
 			PluginContext:           pluginContext,
@@ -185,11 +184,8 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			Logger:                  ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
 			Config:                  operatorConfig,
 			ConfigData:              trivyOperatorConfig,
-			Client:                  mgr.GetClient(),
 			ObjectResolver:          objectResolver,
-			LimitChecker:            limitChecker,
 			LogsReader:              logsReader,
-			SecretsReader:           secretsReader,
 			Plugin:                  plugin,
 			PluginContext:           pluginContext,
 			VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(&objectResolver),

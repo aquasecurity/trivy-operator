@@ -91,6 +91,7 @@ func GetDefaultConfig() ConfigData {
 		keyConfigAuditReportsScanner:   "Trivy",
 		KeyScanJobcompressLogs:         "true",
 		"compliance.failEntriesLimit":  "10",
+		KeyReportRecordFailedChecksOnly: "true",
 	}
 }
 

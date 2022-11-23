@@ -8,6 +8,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
+	vcontroller "github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
@@ -163,7 +164,24 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
 		}
 
-		if err = (&vulnerabilityreport.WorkloadController{
+		if err = (&vcontroller.WorkloadController{
+			Logger:                  ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
+			Config:                  operatorConfig,
+			ConfigData:              trivyOperatorConfig,
+			Client:                  mgr.GetClient(),
+			ObjectResolver:          objectResolver,
+			LimitChecker:            limitChecker,
+			LogsReader:              logsReader,
+			SecretsReader:           secretsReader,
+			Plugin:                  plugin,
+			PluginContext:           pluginContext,
+			VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(&objectResolver),
+			ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(&objectResolver),
+		}).SetupWithManager(mgr); err != nil {
+			return fmt.Errorf("unable to setup vulnerabilityreport reconciler: %w", err)
+		}
+
+		if err = (&vcontroller.ScanJobController{
 			Logger:                  ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
 			Config:                  operatorConfig,
 			ConfigData:              trivyOperatorConfig,

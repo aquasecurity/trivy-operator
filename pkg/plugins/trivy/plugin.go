@@ -123,9 +123,8 @@ func (c Config) GetAdditionalVulnerabilityReportFields() AdditionalFields {
 	if !ok {
 		return addFields
 	}
-
 	for _, field := range strings.Split(fields, ",") {
-		switch field {
+		switch strings.TrimSpace(field) {
 		case "Description":
 			addFields.Description = true
 		case "Links":

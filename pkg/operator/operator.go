@@ -181,7 +181,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 
 		if err = (&vcontroller.ScanJobController{
-			Logger:                  ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
+			Logger:                  ctrl.Log.WithName("reconciler").WithName("scan job"),
 			Config:                  operatorConfig,
 			ConfigData:              trivyOperatorConfig,
 			ObjectResolver:          objectResolver,
@@ -191,7 +191,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(&objectResolver),
 			ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(&objectResolver),
 		}).SetupWithManager(mgr); err != nil {
-			return fmt.Errorf("unable to setup vulnerabilityreport reconciler: %w", err)
+			return fmt.Errorf("unable to setup scan job  reconciler: %w", err)
 		}
 
 		if operatorConfig.ScannerReportTTL != nil {

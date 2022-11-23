@@ -40,7 +40,6 @@ type ResourceController struct {
 	logr.Logger
 	etc.Config
 	trivyoperator.ConfigData
-	client.Client
 	kube.ObjectResolver
 	trivyoperator.PluginContext
 	configauditreport.PluginInMemory

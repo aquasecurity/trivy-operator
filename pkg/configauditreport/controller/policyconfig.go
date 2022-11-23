@@ -7,8 +7,6 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
-	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
-	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
@@ -28,21 +26,15 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-// ResourceController watches all Kubernetes kinds and generates
+// PolicyConfigController watches changes on policies config map and generates
 // v1alpha1.ConfigAuditReport instances based on OPA Rego policies as fast as
 // possible.
 type PolicyConfigController struct {
 	logr.Logger
 	etc.Config
-	trivyoperator.ConfigData
-	client.Client
 	kube.ObjectResolver
 	trivyoperator.PluginContext
 	configauditreport.PluginInMemory
-	configauditreport.ReadWriter
-	RbacReadWriter  rbacassessment.ReadWriter
-	InfraReadWriter infraassessment.ReadWriter
-	trivyoperator.BuildInfo
 }
 
 // Controller for trivy-operator-policies-config in the operator namespace; must be cluster scoped even with namespace predicate

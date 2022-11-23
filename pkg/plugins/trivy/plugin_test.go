@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -4130,6 +4131,7 @@ func TestPlugin_ParseReportData(t *testing.T) {
 		expectedError               error
 		expectedVulnerabilityReport v1alpha1.VulnerabilityReportData
 		expectedExposedSecretReport v1alpha1.ExposedSecretReportData
+		compressed                  string
 	}{
 		{
 			name:                        "Should convert both vulnerability and exposedsecret report in JSON format when input is quiet",
@@ -4138,6 +4140,7 @@ func TestPlugin_ParseReportData(t *testing.T) {
 			expectedError:               nil,
 			expectedVulnerabilityReport: sampleVulnerabilityReport,
 			expectedExposedSecretReport: sampleExposedSecretReport,
+			compressed:                  "true",
 		},
 		{
 			name:                        "Should convert both vulnerability and exposedsecret report in JSON format when input is quiet",
@@ -4146,14 +4149,16 @@ func TestPlugin_ParseReportData(t *testing.T) {
 			expectedError:               nil,
 			expectedVulnerabilityReport: sampleVulnerabilityReport,
 			expectedExposedSecretReport: sampleExposedSecretReport,
+			compressed:                  "false",
 		},
 		{
 			name:                        "Should convert vulnerability report in JSON format when OS is not detected",
 			imageRef:                    "alpine:3.10.2",
 			input:                       `null`,
-			expectedError:               nil,
+			expectedError:               fmt.Errorf("bzip2 data invalid: bad magic value"),
 			expectedVulnerabilityReport: emptyVulnerabilityReport,
 			expectedExposedSecretReport: emptyExposedSecretReport,
+			compressed:                  "true",
 		},
 		{
 			name:                        "Should only parse vulnerability report",
@@ -4162,6 +4167,7 @@ func TestPlugin_ParseReportData(t *testing.T) {
 			expectedError:               nil,
 			expectedVulnerabilityReport: sampleVulnerabilityReport,
 			expectedExposedSecretReport: emptyExposedSecretReport,
+			compressed:                  "true",
 		},
 		{
 			name:                        "Should only parse exposedsecret report",
@@ -4170,12 +4176,14 @@ func TestPlugin_ParseReportData(t *testing.T) {
 			expectedError:               nil,
 			expectedVulnerabilityReport: emptyVulnerabilityReport,
 			expectedExposedSecretReport: sampleExposedSecretReport,
+			compressed:                  "true",
 		},
 		{
 			name:          "Should return error when image reference cannot be parsed",
 			imageRef:      ":",
 			input:         "null",
 			expectedError: errors.New("could not parse reference: :"),
+			compressed:    "false",
 		},
 	}
 
@@ -4187,7 +4195,9 @@ func TestPlugin_ParseReportData(t *testing.T) {
 				WithNamespace("trivyoperator-ns").
 				WithServiceAccountName("trivyoperator-sa").
 				WithClient(fakeClient).
+				WithTrivyOperatorConfig(map[string]string{"scanJob.compressLogs": tc.compressed}).
 				Get()
+
 			resolver := kube.NewObjectResolver(fakeClient, &kube.CompatibleObjectMapper{})
 			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
 			vulnReport, secretReport, err := instance.ParseReportData(ctx, tc.imageRef, io.NopCloser(strings.NewReader(tc.input)))

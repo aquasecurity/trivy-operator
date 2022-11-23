@@ -1490,12 +1490,18 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	if err != nil {
 		return vulnReport, secretReport, err
 	}
-	reportReader, errCompress := utils.ReadCompressData(logsReader)
+	if ctx.GetTrivyOperatorConfig().CompressLogs() {
+		var errCompress error
+		logsReader, errCompress = utils.ReadCompressData(logsReader)
+		if errCompress != nil {
+			return vulnReport, secretReport, errCompress
+		}
+	}
 
 	var reports ScanReport
-	err = json.NewDecoder(reportReader).Decode(&reports)
+	err = json.NewDecoder(logsReader).Decode(&reports)
 	if err != nil {
-		return vulnReport, secretReport, multierr.Append(errCompress, err)
+		return vulnReport, secretReport, err
 	}
 
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)

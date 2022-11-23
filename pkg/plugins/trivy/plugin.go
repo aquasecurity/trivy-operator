@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy-db/pkg/types"
-	"go.uber.org/multierr"
 
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	containerimage "github.com/google/go-containerregistry/pkg/name"

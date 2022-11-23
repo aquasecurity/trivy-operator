@@ -87,10 +87,10 @@ type ConfigManager interface {
 // GetDefaultConfig returns the default configuration settings.
 func GetDefaultConfig() ConfigData {
 	return map[string]string{
-		keyVulnerabilityReportsScanner: "Trivy",
-		keyConfigAuditReportsScanner:   "Trivy",
-		KeyScanJobcompressLogs:         "true",
-		"compliance.failEntriesLimit":  "10",
+		keyVulnerabilityReportsScanner:  "Trivy",
+		keyConfigAuditReportsScanner:    "Trivy",
+		KeyScanJobcompressLogs:          "true",
+		"compliance.failEntriesLimit":   "10",
 		KeyReportRecordFailedChecksOnly: "true",
 	}
 }

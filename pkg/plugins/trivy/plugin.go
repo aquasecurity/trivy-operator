@@ -1259,6 +1259,11 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			ReadOnly:  false,
 			MountPath: "/var/trivyoperator",
 		},
+		{
+			Name:      tmpVolumeName,
+			MountPath: "/tmp",
+			ReadOnly:  false,
+		},
 	}
 
 	initContainerCopyBinary := corev1.Container{
@@ -1304,6 +1309,14 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 	volumes := []corev1.Volume{
 		{
 			Name: FsSharedVolumeName,
+			VolumeSource: corev1.VolumeSource{
+				EmptyDir: &corev1.EmptyDirVolumeSource{
+					Medium: corev1.StorageMediumDefault,
+				},
+			},
+		},
+		{
+			Name: tmpVolumeName,
 			VolumeSource: corev1.VolumeSource{
 				EmptyDir: &corev1.EmptyDirVolumeSource{
 					Medium: corev1.StorageMediumDefault,

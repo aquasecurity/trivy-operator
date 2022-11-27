@@ -63,7 +63,7 @@ spec:
         runAsUser: 65534
       containers:
         - name: main
-          image: docker.io/aquasec/trivy:0.34.0
+          image: "{{ .Values.trivy.repository }}:{{ .Values.trivy.tag }}"
           imagePullPolicy: "IfNotPresent"
           securityContext:
             privileged: false

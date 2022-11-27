@@ -236,7 +236,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			Logger:          ctrl.Log.WithName("resourcecontroller"),
 			Config:          operatorConfig,
 			ConfigData:      trivyOperatorConfig,
-			Client:          mgr.GetClient(),
 			ObjectResolver:  objectResolver,
 			PluginContext:   pluginContext,
 			PluginInMemory:  plugin,
@@ -244,6 +243,15 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			RbacReadWriter:  rbacassessment.NewReadWriter(&objectResolver),
 			InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
 			BuildInfo:       buildInfo,
+		}).SetupWithManager(mgr); err != nil {
+			return fmt.Errorf("unable to setup resource controller: %w", err)
+		}
+		if err = (&controller.PolicyConfigController{
+			Logger:         ctrl.Log.WithName("resourcecontroller"),
+			Config:         operatorConfig,
+			ObjectResolver: objectResolver,
+			PluginContext:  pluginContext,
+			PluginInMemory: plugin,
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup resource controller: %w", err)
 		}

@@ -25,9 +25,7 @@ import (
 	networkingv1 "k8s.io/api/networking/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -42,7 +40,6 @@ type ResourceController struct {
 	logr.Logger
 	etc.Config
 	trivyoperator.ConfigData
-	client.Client
 	kube.ObjectResolver
 	trivyoperator.PluginContext
 	configauditreport.PluginInMemory
@@ -77,9 +74,6 @@ type ResourceController struct {
 //+kubebuilder:rbac:groups=aquasecurity.github.io,resources=clusterconfigauditreports,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aquasecurity.github.io,resources=clusterrbacassessmentreports,verbs=get;list;watch;create;update;patch;delete
 
-// Controller for trivy-operator-policies-config in the operator namespace; must be cluster scoped even with namespace predicate
-//+kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch
-
 func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 	installModePredicate, err := predicate.InstallModePredicate(r.Config)
 	if err != nil {
@@ -88,7 +82,6 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 
 	// Determine which Kubernetes workloads the controller will reconcile and add them to resources
 	targetWorkloads := r.Config.GetTargetWorkloads()
-	workloadResources := make([]kube.Resource, 0)
 	for _, tw := range targetWorkloads {
 		var resource kube.Resource
 		if err = resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, r.ObjectResolver); err != nil {
@@ -99,7 +92,6 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 			Complete(r.reconcileResource(resource.Kind)); err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", resource.Kind, err)
 		}
-		workloadResources = append(workloadResources, resource)
 	}
 
 	// Add non workload related resources
@@ -119,19 +111,6 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 			return fmt.Errorf("constructing controller for %s: %w", configResource.Kind, err)
 		}
 	}
-	resources = append(resources, workloadResources...)
-	for _, configResource := range resources {
-		if err = ctrl.NewControllerManagedBy(mgr).
-			For(&corev1.ConfigMap{}, builder.WithPredicates(
-				predicate.Not(predicate.IsBeingTerminated),
-				predicate.HasName(trivyoperator.PoliciesConfigMapName),
-				predicate.InNamespace(r.Config.Namespace),
-			)).
-			Complete(r.reconcileConfig(configResource.Kind)); err != nil {
-			return fmt.Errorf("constructing controller for %s: %w", configResource.Kind, err)
-		}
-
-	}
 
 	clusterResources := []kube.Resource{
 		{Kind: kube.KindClusterRole, ForObject: &rbacv1.ClusterRole{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
@@ -149,16 +128,6 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 			Owns(resource.OwnsObject).
 			Complete(r.reconcileResource(resource.Kind)); err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", resource.Kind, err)
-		}
-
-		err = ctrl.NewControllerManagedBy(mgr).
-			For(&corev1.ConfigMap{}, builder.WithPredicates(
-				predicate.Not(predicate.IsBeingTerminated),
-				predicate.HasName(trivyoperator.PoliciesConfigMapName),
-				predicate.InNamespace(r.Config.Namespace))).
-			Complete(r.reconcileClusterConfig(resource.Kind))
-		if err != nil {
-			return err
 		}
 	}
 
@@ -198,7 +167,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		policies, err := r.policies(ctx, cac)
+		policies, err := policies(ctx, r.Config, r.Client, cac, r.Logger)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
 		}
@@ -355,21 +324,6 @@ func (r *ResourceController) findReportOwner(ctx context.Context, owner kube.Obj
 	return false, nil
 }
 
-func (r *ResourceController) policies(ctx context.Context, cac configauditreport.ConfigAuditConfig) (*policy.Policies, error) {
-	cm := &corev1.ConfigMap{}
-
-	err := r.Client.Get(ctx, client.ObjectKey{
-		Namespace: r.Config.Namespace,
-		Name:      trivyoperator.PoliciesConfigMapName,
-	}, cm)
-	if err != nil {
-		if !apierrors.IsNotFound(err) {
-			return nil, fmt.Errorf("failed getting policies from configmap: %s/%s: %w", r.Config.Namespace, trivyoperator.PoliciesConfigMapName, err)
-		}
-	}
-	return policy.NewPolicies(cm.Data, cac, r.Logger), nil
-}
-
 type Misconfiguration struct {
 	configAuditReportData     v1alpha1.ConfigAuditReportData
 	rbacAssessmentReportData  v1alpha1.RbacAssessmentReportData
@@ -455,150 +409,6 @@ func (r *ResourceController) scanner() v1alpha1.Scanner {
 		Name:    v1alpha1.ScannerNameTrivy,
 		Vendor:  "Aqua Security",
 		Version: r.BuildInfo.Version,
-	}
-}
-
-func (r *ResourceController) reconcileConfig(kind kube.Kind) reconcile.Func {
-	return func(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-		log := r.Logger.WithValues("configMap", req.NamespacedName)
-
-		cm := &corev1.ConfigMap{}
-
-		err := r.Client.Get(ctx, req.NamespacedName, cm)
-		if err != nil {
-			if errors.IsNotFound(err) {
-				log.V(1).Info("Ignoring cached ConfigMap that must have been deleted")
-				return ctrl.Result{}, nil
-			}
-			return ctrl.Result{}, fmt.Errorf("getting ConfigMap from cache: %w", err)
-		}
-		cac, err := r.NewConfigForConfigAudit(r.PluginContext)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		policies, err := r.policies(ctx, cac)
-		if err != nil {
-			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
-		}
-
-		configHash, err := policies.Hash(string(kind))
-		if err != nil {
-			return ctrl.Result{}, fmt.Errorf("getting config hash: %w", err)
-		}
-
-		labelSelector, err := labels.Parse(fmt.Sprintf("%s!=%s,%s=%s",
-			trivyoperator.LabelPluginConfigHash, configHash,
-			trivyoperator.LabelResourceKind, kind))
-		if err != nil {
-			return ctrl.Result{}, fmt.Errorf("parsing label selector: %w", err)
-		}
-		carl := v1alpha1.ConfigAuditReportList{}
-		configRequeueAfter, err := r.deleteReports(ctx, labelSelector, &carl, auditConfigReportItems(&carl))
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		var rbacRequeueAfter bool
-		if r.RbacAssessmentScannerEnabled {
-			cral := v1alpha1.RbacAssessmentReportList{}
-			rbacRequeueAfter, err = r.deleteReports(ctx, labelSelector, &cral, rbacReportItems(&cral))
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-		}
-		if r.InfraAssessmentScannerEnabled {
-			ial := v1alpha1.InfraAssessmentReportList{}
-			rbacRequeueAfter, err = r.deleteReports(ctx, labelSelector, &ial, infraReportItems(&ial))
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-		}
-		if configRequeueAfter || rbacRequeueAfter {
-			return ctrl.Result{RequeueAfter: r.Config.BatchDeleteDelay}, nil
-		}
-		return ctrl.Result{}, nil
-	}
-}
-
-func (r *ResourceController) deleteReports(ctx context.Context, labelSelector labels.Selector, reportList client.ObjectList, reportItems func() []client.Object) (bool, error) {
-	err := r.Client.List(ctx, reportList,
-		client.Limit(r.Config.BatchDeleteLimit+1),
-		client.MatchingLabelsSelector{Selector: labelSelector})
-	if err != nil {
-		return false, fmt.Errorf("listing reports: %w", err)
-	}
-	items := reportItems()
-	reportSize := len(items)
-	for i := 0; i < ext.MinInt(r.Config.BatchDeleteLimit, reportSize); i++ {
-		reportItem := items[i]
-		b, err := r.deleteReport(ctx, reportItem)
-		if err != nil {
-			return b, err
-		}
-	}
-	return reportSize-r.Config.BatchDeleteLimit > 0, nil
-}
-
-func (r *ResourceController) deleteReport(ctx context.Context, report client.Object) (bool, error) {
-	err := r.Client.Delete(ctx, report)
-	if err != nil {
-		if !errors.IsNotFound(err) {
-			return false, fmt.Errorf("deleting ConfigAuditReport: %w", err)
-		}
-	}
-	return false, nil
-}
-
-func (r *ResourceController) reconcileClusterConfig(kind kube.Kind) reconcile.Func {
-	return func(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-		log := r.Logger.WithValues("configMap", req.NamespacedName)
-
-		cm := &corev1.ConfigMap{}
-
-		err := r.Client.Get(ctx, req.NamespacedName, cm)
-		if err != nil {
-			if errors.IsNotFound(err) {
-				log.V(1).Info("Ignoring cached ConfigMap that must have been deleted")
-				return ctrl.Result{}, nil
-			}
-			return ctrl.Result{}, fmt.Errorf("getting ConfigMap from cache: %w", err)
-		}
-		cac, err := r.NewConfigForConfigAudit(r.PluginContext)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		policies, err := r.policies(ctx, cac)
-		if err != nil {
-			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
-		}
-
-		configHash, err := policies.Hash(string(kind))
-		if err != nil {
-			return ctrl.Result{}, fmt.Errorf("getting config hash: %w", err)
-		}
-
-		labelSelector, err := labels.Parse(fmt.Sprintf("%s!=%s,%s=%s",
-			trivyoperator.LabelPluginConfigHash, configHash,
-			trivyoperator.LabelResourceKind, kind))
-		if err != nil {
-			return ctrl.Result{}, fmt.Errorf("parsing label selector: %w", err)
-		}
-		cacrl := v1alpha1.ClusterConfigAuditReportList{}
-		configRequeueAfter, err := r.deleteReports(ctx, labelSelector, &cacrl, clusterAuditConfigReportItems(&cacrl))
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		var rbacRequeueAfter bool
-		if r.RbacAssessmentScannerEnabled {
-			rarl := v1alpha1.ClusterRbacAssessmentReportList{}
-			rbacRequeueAfter, err = r.deleteReports(ctx, labelSelector, &rarl, clusterRbacReportItems(&rarl))
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-		}
-		if configRequeueAfter || rbacRequeueAfter {
-			return ctrl.Result{RequeueAfter: r.Config.BatchDeleteDelay}, nil
-		}
-		return ctrl.Result{}, nil
 	}
 }
 

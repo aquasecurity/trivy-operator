@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy-db/pkg/types"
-	"go.uber.org/multierr"
 
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	containerimage "github.com/google/go-containerregistry/pkg/name"
@@ -1260,6 +1259,11 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			ReadOnly:  false,
 			MountPath: "/var/trivyoperator",
 		},
+		{
+			Name:      tmpVolumeName,
+			MountPath: "/tmp",
+			ReadOnly:  false,
+		},
 	}
 
 	initContainerCopyBinary := corev1.Container{
@@ -1305,6 +1309,14 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 	volumes := []corev1.Volume{
 		{
 			Name: FsSharedVolumeName,
+			VolumeSource: corev1.VolumeSource{
+				EmptyDir: &corev1.EmptyDirVolumeSource{
+					Medium: corev1.StorageMediumDefault,
+				},
+			},
+		},
+		{
+			Name: tmpVolumeName,
 			VolumeSource: corev1.VolumeSource{
 				EmptyDir: &corev1.EmptyDirVolumeSource{
 					Medium: corev1.StorageMediumDefault,
@@ -1490,12 +1502,22 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	if err != nil {
 		return vulnReport, secretReport, err
 	}
-	reportReader, errCompress := utils.ReadCompressData(logsReader)
+	cmd, err := config.GetCommand()
+	if err != nil {
+		return vulnReport, secretReport, err
+	}
+	if ctx.GetTrivyOperatorConfig().CompressLogs() && cmd != Filesystem {
+		var errCompress error
+		logsReader, errCompress = utils.ReadCompressData(logsReader)
+		if errCompress != nil {
+			return vulnReport, secretReport, errCompress
+		}
+	}
 
 	var reports ScanReport
-	err = json.NewDecoder(reportReader).Decode(&reports)
+	err = json.NewDecoder(logsReader).Decode(&reports)
 	if err != nil {
-		return vulnReport, secretReport, multierr.Append(errCompress, err)
+		return vulnReport, secretReport, err
 	}
 
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)

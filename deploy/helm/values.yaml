@@ -67,6 +67,9 @@ operator:
   batchDeleteDelay: 10s
   # accessGlobalSecretsAndServiceAccount The flag to enable access to global secrets/service accounts to allow `vulnerability scan job` to pull images from private registries
   accessGlobalSecretsAndServiceAccount: true
+  # builtInTrivyServer The flag enable the usage of built-in trivy server in cluster ,its also override the following trivy params with built-in values
+  # trivy.mode = ClientServer and serverURL = http://<serverServiceName>.<trivy operator namespace>:4975
+  builtInTrivyServer: false
 
   # metricsFindingsEnabled the flag to enable metrics for findings
   metricsFindingsEnabled: true
@@ -86,12 +89,8 @@ operator:
 
   # privateRegistryScanSecretsNames is map of namespace:secrets which can be used to authenticate in private registries in case if there no imagePullSecrets provided
   privateRegistryScanSecretsNames: {}
-
-  # existingSecret if a secret containing gitHubToken, serverToken or serverCustomHeaders has been created outside the chart (e.g external-secrets, sops, etc...).
-  # Keys must be at least one of the following: trivy.githubToken, trivy.serverToken, trivy.serverCustomHeaders
-  # Overrides trivy.gitHubToken, trivy.serverToken, trivy.serverCustomHeaders values.
-  # Note: The secret has to be named "trivy-operator-trivy-config".
-  # existingSecret: true
+  # mergeRbacFindingWithConfigAudit the flag to enable merging rbac finding with config-audit report
+  mergeRbacFindingWithConfigAudit: false
 
 image:
   repository: "ghcr.io/aquasecurity/trivy-operator"
@@ -175,12 +174,12 @@ trivyOperator:
   # metrics report. Example: `owner,app`
   reportResourceLabels: ""
 
-# reportRecordFailedChecksOnly flag is to record only failed checks on misconfiguration reports (config-audit and rbac assessment)
-  reportRecordFailedChecksOnly: false
+  # reportRecordFailedChecksOnly flag is to record only failed checks on misconfiguration reports (config-audit and rbac assessment)
+  reportRecordFailedChecksOnly: true
 
-  #skipResourceByLabels  comma-separated labels keys which trivy-operator will skip scanning on resources with matching labels
+  # skipResourceByLabels  comma-separated labels keys which trivy-operator will skip scanning on resources with matching labels
   skipResourceByLabels: ""
-  
+
   # metricsResourceLabelsPrefix Prefix that will be prepended to the labels names indicated in `reportResourceLabels`
   # when including them in the Prometheus metrics
   metricsResourceLabelsPrefix: "k8s_label_"
@@ -192,7 +191,7 @@ trivy:
   # repository of the Trivy image
   repository: ghcr.io/aquasecurity/trivy
   # tag version of the Trivy image
-  tag: 0.33.0
+  tag: 0.34.0
   # imagePullSecret is the secret name to be used when pulling trivy image from private registries example : reg-secret
   # It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace
   # imagePullSecret:
@@ -202,7 +201,7 @@ trivy:
   mode: Standalone
 
   # additionalVulnerabilityReportFields is a comma separated list of additional fields which
-  # can be added to the VulnerabilityReport. Supported parameters: Description, Links, CVSS, Target and Class
+  # can be added to the VulnerabilityReport. Supported parameters: Description, Links, CVSS, Target, Class and PackageType
   additionalVulnerabilityReportFields: ""
 
   # httpProxy is the HTTP proxy used by Trivy to download the vulnerabilities database from GitHub.
@@ -282,6 +281,12 @@ trivy:
   #
   # serverToken: "*****"
 
+  # existingSecret if a secret containing gitHubToken, serverToken or serverCustomHeaders has been created outside the chart (e.g external-secrets, sops, etc...).
+  # Keys must be at least one of the following: trivy.githubToken, trivy.serverToken, trivy.serverCustomHeaders
+  # Overrides trivy.gitHubToken, trivy.serverToken, trivy.serverCustomHeaders values.
+  # Note: The secret has to be named "trivy-operator-trivy-config".
+  # existingSecret: true
+
   # serverTokenHeader is the name of the HTTP header used to send the authentication
   # token to Trivy server. Only application in ClientServer mode when
   # trivy.serverToken is specified.
@@ -310,6 +315,12 @@ trivy:
   # For 'filesystem' scanning, ensure that the `trivyOperator.scanJobPodTemplateContainerSecurityContext` is configured
   # to run as the root user (runAsUser = 0).
   command: image
+  # serverUser this param is the server user to be used to download db from private registry
+  serverUser: ""
+  # serverPassword this param is the server user to be used to download db from private registry
+  serverPassword: ""
+  # serverServiceName this param is the server service name to be used in cluster
+  serverServiceName: "trivy-service"
 
 compliance:
   # failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report

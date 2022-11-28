@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy-db/pkg/types"
-	"go.uber.org/multierr"
 
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	containerimage "github.com/google/go-containerregistry/pkg/name"
@@ -108,6 +107,7 @@ type AdditionalFields struct {
 	CVSS        bool
 	Target      bool
 	Class       bool
+	PackageType bool
 }
 
 // Config defines configuration params for this plugin.
@@ -122,25 +122,22 @@ func (c Config) GetAdditionalVulnerabilityReportFields() AdditionalFields {
 	if !ok {
 		return addFields
 	}
-
 	for _, field := range strings.Split(fields, ",") {
-		if field == "Description" {
+		switch strings.TrimSpace(field) {
+		case "Description":
 			addFields.Description = true
-		}
-		if field == "Links" {
+		case "Links":
 			addFields.Links = true
-		}
-		if field == "CVSS" {
+		case "CVSS":
 			addFields.CVSS = true
-		}
-		if field == "Target" {
+		case "Target":
 			addFields.Target = true
-		}
-		if field == "Class" {
+		case "Class":
 			addFields.Class = true
+		case "PackageType":
+			addFields.PackageType = true
 		}
 	}
-
 	return addFields
 }
 
@@ -372,7 +369,7 @@ func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 	return ctx.EnsureConfig(trivyoperator.PluginConfig{
 		Data: map[string]string{
 			keyTrivyImageRepository:           "ghcr.io/aquasecurity/trivy",
-			keyTrivyImageTag:                  "0.33.0",
+			keyTrivyImageTag:                  "0.34.0",
 			keyTrivySeverity:                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
 			keyTrivyMode:                      string(Standalone),
 			keyTrivyTimeout:                   "5m0s",
@@ -1262,6 +1259,11 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			ReadOnly:  false,
 			MountPath: "/var/trivyoperator",
 		},
+		{
+			Name:      tmpVolumeName,
+			MountPath: "/tmp",
+			ReadOnly:  false,
+		},
 	}
 
 	initContainerCopyBinary := corev1.Container{
@@ -1307,6 +1309,14 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 	volumes := []corev1.Volume{
 		{
 			Name: FsSharedVolumeName,
+			VolumeSource: corev1.VolumeSource{
+				EmptyDir: &corev1.EmptyDirVolumeSource{
+					Medium: corev1.StorageMediumDefault,
+				},
+			},
+		},
+		{
+			Name: tmpVolumeName,
 			VolumeSource: corev1.VolumeSource{
 				EmptyDir: &corev1.EmptyDirVolumeSource{
 					Medium: corev1.StorageMediumDefault,
@@ -1492,12 +1502,22 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	if err != nil {
 		return vulnReport, secretReport, err
 	}
-	reportReader, errCompress := utils.ReadCompressData(logsReader)
+	cmd, err := config.GetCommand()
+	if err != nil {
+		return vulnReport, secretReport, err
+	}
+	if ctx.GetTrivyOperatorConfig().CompressLogs() && cmd != Filesystem {
+		var errCompress error
+		logsReader, errCompress = utils.ReadCompressData(logsReader)
+		if errCompress != nil {
+			return vulnReport, secretReport, errCompress
+		}
+	}
 
 	var reports ScanReport
-	err = json.NewDecoder(reportReader).Decode(&reports)
+	err = json.NewDecoder(logsReader).Decode(&reports)
 	if err != nil {
-		return vulnReport, secretReport, multierr.Append(errCompress, err)
+		return vulnReport, secretReport, err
 	}
 
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
@@ -1581,6 +1601,9 @@ func getVulnerabilitiesFromScanResult(report ScanResult, addFields AdditionalFie
 		}
 		if addFields.Class {
 			vulnerability.Class = report.Class
+		}
+		if addFields.PackageType {
+			vulnerability.PackageType = report.Type
 		}
 
 		vulnerabilities = append(vulnerabilities, vulnerability)

@@ -31,10 +31,14 @@ You can configure Trivy-Operator to control it's behavior and adapt it to your n
 | `OPERATOR_LEADER_ELECTION_ID`                                | `trivy-operator-lock`  | The name of the resource lock for leader election                                                                                                                                                            |
 | `OPERATOR_EXPOSED_SECRET_SCANNER_ENABLED`                    | `true`                 | The flag to enable exposed secret scanner                                                                                                                                                                    |
 | `OPERATOR_WEBHOOK_BROADCAST_URL`                             | `""`                   | The flag to enable operator reports to be sent to a webhook endpoint. "" means that this feature is disabled                                                                                                 |
+| `OPERATOR_BUILT_IN_TRIVY_SERVER`                             | `false`                | The flag enable the usage of built-in trivy server in cluster ,its also overwrite the following trivy params with built-in values trivy.mode = ClientServer and serverURL = http://[server Service Name].[trivy Operator Namespace]:4975
 | `OPERATOR_WEBHOOK_BROADCAST_TIMEOUT`                         | `30s`                  | The flag to set operator webhook timeouts, if webhook broadcast is enabled                                                                                                                                   |
-| `OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES`               | `{}`                  | The flag to provide information about names of the secrets for different namespaces to use them for authentication in private registries if there are no imagePullSecrets in Service Accounts and/or in Pod's Spec                                                                                                                                   |
+| `OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES`               | `{}`                   | The flag to provide information about names of the secrets for different namespaces to use them for authentication in private registries if there are no imagePullSecrets in Service Accounts and/or in Pod's Spec                                                                                                                                   |
+| `OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT`              | `false`                | The flag to enable merging rbac finding with config-audit report
+
 
 The values of the `OPERATOR_NAMESPACE` and `OPERATOR_TARGET_NAMESPACES` determine the install mode, which in turn determines the multitenancy support of the operator.
+
 
 | MODE| OPERATOR_NAMESPACE | OPERATOR_TARGET_NAMESPACES | DESCRIPTION|
 |---|---|---|---|
@@ -62,7 +66,7 @@ To change the target namespace from all namespaces to the `default` namespace ed
 | `scanJob.podTemplateContainerSecurityContext`| N/A| One-line JSON representation of the template securityContext which the user wants the scanner containers (and their initContainers) to be amended with. Example: `{"allowPrivilegeEscalation": false, "capabilities": { "drop": ["ALL"]},"privileged": false, "readOnlyRootFilesystem": true }` |
 | `report.resourceLabels`| N/A| One-line comma-separated representation of the scanned resource labels which the user wants to include in the Prometheus metrics report. Example: `owner,app,tier`|
 | `metrics.resourceLabelsPrefix`| `k8s_label`| Prefix that will be prepended to the labels names indicated in `report.ResourceLabels` when including them in the Prometheus metrics|
-|`report.recordFailedChecksOnly`| `"false"`| this flag is to record only failed checks on misconfiguration reports (config-audit and rbac assessment)
+|`report.recordFailedChecksOnly`| `"true"`| this flag is to record only failed checks on misconfiguration reports (config-audit and rbac assessment)
 | `skipResourceByLabels`| N/A| One-line comma-separated labels keys which trivy-operator will skip scanning on resources with matching labels. Example: `test,transient`|
 
 ## Example - patch ConfigMap

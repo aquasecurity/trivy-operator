@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -93,6 +94,50 @@ func TestConfig_GetImageRef(t *testing.T) {
 				require.NoError(t, err)
 				assert.Equal(t, tc.expectedImageRef, imageRef)
 			}
+		})
+	}
+}
+
+func TestConfig_GetAdditionalVulnerabilityReportFields(t *testing.T) {
+	testCases := []struct {
+		name             string
+		configData       trivy.Config
+		additionalFields trivy.AdditionalFields
+	}{
+		{
+			name:             "no additional fields are set",
+			configData:       trivy.Config{PluginConfig: trivyoperator.PluginConfig{}},
+			additionalFields: trivy.AdditionalFields{},
+		},
+		{
+			name: "all additional fields are set",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.additionalVulnerabilityReportFields": "PackageType,Class,Target,Links,Description,CVSS",
+				},
+			}},
+			additionalFields: trivy.AdditionalFields{Description: true, Links: true, CVSS: true, Class: true, PackageType: true, Target: true},
+		},
+		{
+			name: "some additional fields are set",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.additionalVulnerabilityReportFields": "PackageType,Target,Links,CVSS",
+				},
+			}},
+			additionalFields: trivy.AdditionalFields{Links: true, CVSS: true, PackageType: true, Target: true},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			addFields := tc.configData.GetAdditionalVulnerabilityReportFields()
+			assert.True(t, addFields.Description == tc.additionalFields.Description)
+			assert.True(t, addFields.CVSS == tc.additionalFields.CVSS)
+			assert.True(t, addFields.Target == tc.additionalFields.Target)
+			assert.True(t, addFields.PackageType == tc.additionalFields.PackageType)
+			assert.True(t, addFields.Class == tc.additionalFields.Class)
+			assert.True(t, addFields.Links == tc.additionalFields.Links)
 		})
 	}
 }
@@ -597,7 +642,7 @@ func TestPlugin_Init(t *testing.T) {
 			},
 			Data: map[string]string{
 				"trivy.repository":                "ghcr.io/aquasecurity/trivy",
-				"trivy.tag":                       "0.33.0",
+				"trivy.tag":                       "0.34.0",
 				"trivy.severity":                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
 				"trivy.mode":                      "Standalone",
 				"trivy.timeout":                   "5m0s",
@@ -626,7 +671,7 @@ func TestPlugin_Init(t *testing.T) {
 				},
 				Data: map[string]string{
 					"trivy.repository": "gcr.io/aquasecurity/trivy",
-					"trivy.tag":        "0.33.0",
+					"trivy.tag":        "0.34.0",
 					"trivy.severity":   "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
 					"trivy.mode":       "Standalone",
 				},
@@ -661,7 +706,7 @@ func TestPlugin_Init(t *testing.T) {
 			},
 			Data: map[string]string{
 				"trivy.repository": "gcr.io/aquasecurity/trivy",
-				"trivy.tag":        "0.33.0",
+				"trivy.tag":        "0.34.0",
 				"trivy.severity":   "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
 				"trivy.mode":       "Standalone",
 			},
@@ -3238,7 +3283,7 @@ CVE-2019-1543`,
 			},
 			config: map[string]string{
 				"trivy.repository":                "docker.io/aquasec/trivy",
-				"trivy.tag":                       "0.33.0",
+				"trivy.tag":                       "0.34.0",
 				"trivy.mode":                      string(trivy.Standalone),
 				"trivy.command":                   string(trivy.Filesystem),
 				"trivy.dbRepository":              defaultDBRepository,
@@ -3280,12 +3325,20 @@ CVE-2019-1543`,
 							},
 						},
 					},
+					{
+						Name: "tmp",
+						VolumeSource: corev1.VolumeSource{
+							EmptyDir: &corev1.EmptyDirVolumeSource{
+								Medium: corev1.StorageMediumDefault,
+							},
+						},
+					},
 					getScanResultVolume(),
 				},
 				InitContainers: []corev1.Container{
 					{
 						Name:                     "00000000-0000-0000-0000-000000000001",
-						Image:                    "docker.io/aquasec/trivy:0.33.0",
+						Image:                    "docker.io/aquasec/trivy:0.34.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Command: []string{
@@ -3310,6 +3363,11 @@ CVE-2019-1543`,
 								ReadOnly:  false,
 								MountPath: "/var/trivyoperator",
 							},
+							{
+								Name:      "tmp",
+								MountPath: "/tmp",
+								ReadOnly:  false,
+							},
 						},
 						SecurityContext: &corev1.SecurityContext{
 							Privileged:               pointer.BoolPtr(false),
@@ -3322,7 +3380,7 @@ CVE-2019-1543`,
 					},
 					{
 						Name:                     "00000000-0000-0000-0000-000000000002",
-						Image:                    "docker.io/aquasec/trivy:0.33.0",
+						Image:                    "docker.io/aquasec/trivy:0.34.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -3401,6 +3459,11 @@ CVE-2019-1543`,
 								Name:      trivy.FsSharedVolumeName,
 								ReadOnly:  false,
 								MountPath: "/var/trivyoperator",
+							},
+							{
+								Name:      "tmp",
+								MountPath: "/tmp",
+								ReadOnly:  false,
 							},
 						},
 						SecurityContext: &corev1.SecurityContext{
@@ -3524,6 +3587,11 @@ CVE-2019-1543`,
 								ReadOnly:  false,
 								MountPath: "/var/trivyoperator",
 							},
+							{
+								Name:      "tmp",
+								MountPath: "/tmp",
+								ReadOnly:  false,
+							},
 							getScanResultVolumeMount(),
 						},
 						SecurityContext: &corev1.SecurityContext{
@@ -3635,6 +3703,14 @@ CVE-2019-1543`,
 						},
 					},
 				},
+				{
+					Name: "tmp",
+					VolumeSource: corev1.VolumeSource{
+						EmptyDir: &corev1.EmptyDirVolumeSource{
+							Medium: corev1.StorageMediumDefault,
+						},
+					},
+				},
 				getScanResultVolume(),
 			},
 			InitContainers: []corev1.Container{
@@ -3664,6 +3740,11 @@ CVE-2019-1543`,
 							Name:      trivy.FsSharedVolumeName,
 							ReadOnly:  false,
 							MountPath: "/var/trivyoperator",
+						},
+						{
+							Name:      "tmp",
+							MountPath: "/tmp",
+							ReadOnly:  false,
 						},
 					},
 					SecurityContext: &corev1.SecurityContext{
@@ -3756,6 +3837,11 @@ CVE-2019-1543`,
 							Name:      trivy.FsSharedVolumeName,
 							ReadOnly:  false,
 							MountPath: "/var/trivyoperator",
+						},
+						{
+							Name:      "tmp",
+							MountPath: "/tmp",
+							ReadOnly:  false,
 						},
 					},
 					SecurityContext: &corev1.SecurityContext{
@@ -3879,6 +3965,11 @@ CVE-2019-1543`,
 							Name:      trivy.FsSharedVolumeName,
 							ReadOnly:  false,
 							MountPath: "/var/trivyoperator",
+						},
+						{
+							Name:      "tmp",
+							MountPath: "/tmp",
+							ReadOnly:  false,
 						},
 						getScanResultVolumeMount(),
 					},
@@ -4086,6 +4177,7 @@ func TestPlugin_ParseReportData(t *testing.T) {
 		expectedError               error
 		expectedVulnerabilityReport v1alpha1.VulnerabilityReportData
 		expectedExposedSecretReport v1alpha1.ExposedSecretReportData
+		compressed                  string
 	}{
 		{
 			name:                        "Should convert both vulnerability and exposedsecret report in JSON format when input is quiet",
@@ -4094,6 +4186,7 @@ func TestPlugin_ParseReportData(t *testing.T) {
 			expectedError:               nil,
 			expectedVulnerabilityReport: sampleVulnerabilityReport,
 			expectedExposedSecretReport: sampleExposedSecretReport,
+			compressed:                  "true",
 		},
 		{
 			name:                        "Should convert both vulnerability and exposedsecret report in JSON format when input is quiet",
@@ -4102,14 +4195,16 @@ func TestPlugin_ParseReportData(t *testing.T) {
 			expectedError:               nil,
 			expectedVulnerabilityReport: sampleVulnerabilityReport,
 			expectedExposedSecretReport: sampleExposedSecretReport,
+			compressed:                  "false",
 		},
 		{
 			name:                        "Should convert vulnerability report in JSON format when OS is not detected",
 			imageRef:                    "alpine:3.10.2",
 			input:                       `null`,
-			expectedError:               nil,
+			expectedError:               fmt.Errorf("bzip2 data invalid: bad magic value"),
 			expectedVulnerabilityReport: emptyVulnerabilityReport,
 			expectedExposedSecretReport: emptyExposedSecretReport,
+			compressed:                  "true",
 		},
 		{
 			name:                        "Should only parse vulnerability report",
@@ -4118,6 +4213,7 @@ func TestPlugin_ParseReportData(t *testing.T) {
 			expectedError:               nil,
 			expectedVulnerabilityReport: sampleVulnerabilityReport,
 			expectedExposedSecretReport: emptyExposedSecretReport,
+			compressed:                  "true",
 		},
 		{
 			name:                        "Should only parse exposedsecret report",
@@ -4126,12 +4222,14 @@ func TestPlugin_ParseReportData(t *testing.T) {
 			expectedError:               nil,
 			expectedVulnerabilityReport: emptyVulnerabilityReport,
 			expectedExposedSecretReport: sampleExposedSecretReport,
+			compressed:                  "true",
 		},
 		{
 			name:          "Should return error when image reference cannot be parsed",
 			imageRef:      ":",
 			input:         "null",
 			expectedError: errors.New("could not parse reference: :"),
+			compressed:    "false",
 		},
 	}
 
@@ -4143,7 +4241,9 @@ func TestPlugin_ParseReportData(t *testing.T) {
 				WithNamespace("trivyoperator-ns").
 				WithServiceAccountName("trivyoperator-sa").
 				WithClient(fakeClient).
+				WithTrivyOperatorConfig(map[string]string{"scanJob.compressLogs": tc.compressed}).
 				Get()
+
 			resolver := kube.NewObjectResolver(fakeClient, &kube.CompatibleObjectMapper{})
 			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
 			vulnReport, secretReport, err := instance.ParseReportData(ctx, tc.imageRef, io.NopCloser(strings.NewReader(tc.input)))

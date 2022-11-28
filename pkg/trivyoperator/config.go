@@ -70,6 +70,7 @@ const (
 	KeyReportResourceLabels                = "report.resourceLabels"
 	KeyReportRecordFailedChecksOnly        = "report.recordFailedChecksOnly"
 	KeyMetricsResourceLabelsPrefix         = "metrics.resourceLabelsPrefix"
+	KeyTrivyServerURL                      = "trivy.serverURL"
 )
 
 // ConfigData holds Trivy-operator configuration settings as a set of key-value
@@ -86,10 +87,11 @@ type ConfigManager interface {
 // GetDefaultConfig returns the default configuration settings.
 func GetDefaultConfig() ConfigData {
 	return map[string]string{
-		keyVulnerabilityReportsScanner: "Trivy",
-		keyConfigAuditReportsScanner:   "Trivy",
-		KeyScanJobcompressLogs:         "true",
-		"compliance.failEntriesLimit":  "10",
+		keyVulnerabilityReportsScanner:  "Trivy",
+		keyConfigAuditReportsScanner:    "Trivy",
+		KeyScanJobcompressLogs:          "true",
+		"compliance.failEntriesLimit":   "10",
+		KeyReportRecordFailedChecksOnly: "true",
 	}
 }
 
@@ -263,6 +265,9 @@ func (c ConfigData) ReportRecordFailedChecksOnly() bool {
 	return c.getBoolKey(KeyReportRecordFailedChecksOnly)
 }
 
+func (c ConfigData) GeTrivyServerURL() string {
+	return c[KeyTrivyServerURL]
+}
 func (c ConfigData) GetRequiredData(key string) (string, error) {
 	var ok bool
 	var value string

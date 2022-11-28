@@ -87,6 +87,10 @@ spec:
               value: {{ .Values.operator.privateRegistryScanSecretsNames | toJson | quote }}
             - name: OPERATOR_ACCESS_GLOBAL_SECRETS_SERVICE_ACCOUNTS
               value: {{ .Values.operator.accessGlobalSecretsAndServiceAccount | quote }}
+            - name: OPERATOR_BUILT_IN_TRIVY_SERVER
+              value: {{ .Values.operator.builtInTrivyServer | quote }}
+            - name: OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT
+              value: {{ .Values.operator.mergeRbacFindingWithConfigAudit | quote }}
             {{- if gt (int .Values.operator.replicas) 1 }}
             - name: OPERATOR_LEADER_ELECTION_ENABLED
               value: "true"

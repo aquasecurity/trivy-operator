@@ -28,18 +28,16 @@ func base64Decode(encodedReader io.Reader) ([]byte, error) {
 	return base64.StdEncoding.DecodeString(string(encodedBytes))
 }
 
-func ReadCompressData(encodedReader io.ReadCloser) (io.Reader, error) {
-	buf := &bytes.Buffer{}
-	tee := io.TeeReader(encodedReader, buf)
+func ReadCompressData(encodedReader io.ReadCloser) (io.ReadCloser, error) {
 	// base64 decode logs
-	compressedLogsBytes, err := base64Decode(tee)
+	compressedLogsBytes, err := base64Decode(encodedReader)
 	if err != nil {
-		return buf, err
+		return nil, err
 	}
 	// bzip2 decompress logs
 	unCompressedLogsReader, err := decompressBzip2(compressedLogsBytes)
 	if err != nil {
-		return buf, err
+		return nil, err
 	}
-	return unCompressedLogsReader, nil
+	return io.NopCloser(unCompressedLogsReader), nil
 }

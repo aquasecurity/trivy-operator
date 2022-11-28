@@ -19,6 +19,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
+	vcontroller "github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/webhook"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
@@ -163,14 +164,13 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
 		}
 
-		if err = (&vulnerabilityreport.WorkloadController{
+		if err = (&vcontroller.WorkloadController{
 			Logger:                  ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
 			Config:                  operatorConfig,
 			ConfigData:              trivyOperatorConfig,
 			Client:                  mgr.GetClient(),
 			ObjectResolver:          objectResolver,
 			LimitChecker:            limitChecker,
-			LogsReader:              logsReader,
 			SecretsReader:           secretsReader,
 			Plugin:                  plugin,
 			PluginContext:           pluginContext,
@@ -178,6 +178,20 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(&objectResolver),
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup vulnerabilityreport reconciler: %w", err)
+		}
+
+		if err = (&vcontroller.ScanJobController{
+			Logger:                  ctrl.Log.WithName("reconciler").WithName("scan job"),
+			Config:                  operatorConfig,
+			ConfigData:              trivyOperatorConfig,
+			ObjectResolver:          objectResolver,
+			LogsReader:              logsReader,
+			Plugin:                  plugin,
+			PluginContext:           pluginContext,
+			VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(&objectResolver),
+			ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(&objectResolver),
+		}).SetupWithManager(mgr); err != nil {
+			return fmt.Errorf("unable to setup scan job  reconciler: %w", err)
 		}
 
 		if operatorConfig.ScannerReportTTL != nil {
@@ -222,7 +236,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			Logger:          ctrl.Log.WithName("resourcecontroller"),
 			Config:          operatorConfig,
 			ConfigData:      trivyOperatorConfig,
-			Client:          mgr.GetClient(),
 			ObjectResolver:  objectResolver,
 			PluginContext:   pluginContext,
 			PluginInMemory:  plugin,
@@ -230,6 +243,15 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			RbacReadWriter:  rbacassessment.NewReadWriter(&objectResolver),
 			InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
 			BuildInfo:       buildInfo,
+		}).SetupWithManager(mgr); err != nil {
+			return fmt.Errorf("unable to setup resource controller: %w", err)
+		}
+		if err = (&controller.PolicyConfigController{
+			Logger:         ctrl.Log.WithName("resourcecontroller"),
+			Config:         operatorConfig,
+			ObjectResolver: objectResolver,
+			PluginContext:  pluginContext,
+			PluginInMemory: plugin,
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup resource controller: %w", err)
 		}

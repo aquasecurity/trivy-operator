@@ -227,7 +227,7 @@ func (r *Policies) GetResultID(result scan.Result) string {
 }
 
 func scannerByType(resourceKind string, scannerOptions []options.ScannerOption) scanners.FSScanner {
-	if strings.Contains(resourceKind, "Role") {
+	if resourceKind == "Role" || resourceKind == "ClusterRole" {
 		return rbac.NewScanner(scannerOptions...)
 	}
 	return kubernetes.NewScanner(scannerOptions...)

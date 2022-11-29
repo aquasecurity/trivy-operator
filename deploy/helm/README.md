@@ -1,6 +1,6 @@
 # Trivy-Operator 
 
-Kubernetes-native security toolkit helm chart installtion
+Kubernetes-native security toolkit helm chart installation
 
 ## Introduction
 
@@ -12,7 +12,7 @@ This chart bootstraps a Trivy-operator deployment on a [Kubernetes](http://kuber
 - Kubernetes 1.12+
 - Helm 3+
 
-As an example, let's install the operator in the `trivy-system` namespace and configure it to select all namespaces,
+Install the operator in the `trivy-system` namespace and configure it to select all namespaces,
 except `trivy-system`:
 
 1. Install the chart from the Aqua chart repository:

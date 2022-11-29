@@ -26,12 +26,19 @@ type ClusterComplianceReport struct {
 
 // ReportSpec represent the compliance specification
 type ReportSpec struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
 	// cron define the intervals for report generation
 	//+kubebuilder:validation:Pattern=`^(((([\*]{1}){1})|((\*\/){0,1}(([0-9]{1}){1}|(([1-5]{1}){1}([0-9]{1}){1}){1}))) ((([\*]{1}){1})|((\*\/){0,1}(([0-9]{1}){1}|(([1]{1}){1}([0-9]{1}){1}){1}|([2]{1}){1}([0-3]{1}){1}))) ((([\*]{1}){1})|((\*\/){0,1}(([1-9]{1}){1}|(([1-2]{1}){1}([0-9]{1}){1}){1}|([3]{1}){1}([0-1]{1}){1}))) ((([\*]{1}){1})|((\*\/){0,1}(([1-9]{1}){1}|(([1-2]{1}){1}([0-9]{1}){1}){1}|([3]{1}){1}([0-1]{1}){1}))|(jan|feb|mar|apr|may|jun|jul|aug|sep|okt|nov|dec)) ((([\*]{1}){1})|((\*\/){0,1}(([0-7]{1}){1}))|(sun|mon|tue|wed|thu|fri|sat)))$`
-	Cron    string `json:"cron"`
-	Version string `json:"version"`
+	Cron         string     `json:"cron"`
+	ReportFormat string     `json:"reportFormat"`
+	Complaince   Complaince `json:"complaince"`
+}
+
+type Complaince struct {
+	ID               string   `json:"id"`
+	Title            string   `json:"title"`
+	Description      string   `json:"description"`
+	Version          string   `json:"version"`
+	RelatedResources []string `json:"relatedResources"`
 	// Control represent the cps controls data and mapping checks
 	Controls []Control `json:"controls"`
 }

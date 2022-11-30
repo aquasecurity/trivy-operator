@@ -195,6 +195,61 @@ func TestConfig_GetMode(t *testing.T) {
 	}
 }
 
+func TestGetSlow(t *testing.T) {
+	testCases := []struct {
+		name       string
+		configData trivy.Config
+		want       bool
+	}{
+		{
+			name: "slow param set to true",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.tag":  "0.35.0",
+					"trivy.slow": "true",
+				},
+			}},
+			want: true,
+		},
+		{
+			name: "slow param set to false",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.tag":  "0.35.0",
+					"trivy.slow": "false",
+				},
+			}},
+			want: false,
+		},
+		{
+			name: "slow param set to no valid value",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.tag":  "0.35.0",
+					"trivy.slow": "false2",
+				},
+			}},
+			want: true,
+		},
+		{
+			name: "slow param set to true and trivy tag is less then 0.35.0",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.slow": "true",
+					"trivy.tag":  "0.33.0",
+				},
+			}},
+			want: false,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.configData.GetSlow()
+			assert.Equal(t, got, tc.want)
+
+		})
+	}
+}
 func TestConfig_GetCommand(t *testing.T) {
 	testCases := []struct {
 		name            string
@@ -644,7 +699,7 @@ func TestPlugin_Init(t *testing.T) {
 				"trivy.repository":                "ghcr.io/aquasecurity/trivy",
 				"trivy.tag":                       "0.35.0",
 				"trivy.severity":                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
-				"trivy.slow":                  	   "true",
+				"trivy.slow":                      "true",
 				"trivy.mode":                      "Standalone",
 				"trivy.timeout":                   "5m0s",
 				"trivy.dbRepository":              defaultDBRepository,

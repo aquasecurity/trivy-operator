@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/Masterminds/semver"
+	"github.com/aquasecurity/trivy-db/pkg/types"
 	"io"
 	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/aquasecurity/trivy-db/pkg/types"
 
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	containerimage "github.com/google/go-containerregistry/pkg/name"
@@ -229,15 +229,38 @@ func (c Config) GetUseBuiltinRegoPolicies() bool {
 }
 
 func (c Config) GetSlow() bool {
+	tag, err := c.GetRequiredData(keyTrivyImageTag)
+	if err != nil {
+		return false
+	}
+	// support backward competability with older tags
+	if !validateVersion(tag, ">= 0.35.0") {
+		return false
+	}
 	val, ok := c.Data[keyTrivySlow]
 	if !ok {
 		return true
 	}
+
 	boolVal, err := strconv.ParseBool(val)
 	if err != nil {
 		return true
 	}
 	return boolVal
+}
+
+func validateVersion(currentTag string, contraint string) bool {
+	c, err := semver.NewConstraint(contraint)
+	if err != nil {
+		return false
+	}
+
+	v, err := semver.NewVersion(currentTag)
+	if err != nil {
+		return false
+	}
+	// Check if the version meets the constraints. The a variable will be true.
+	return c.Check(v)
 }
 
 func (c Config) GetSupportedConfigAuditKinds() []string {

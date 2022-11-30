@@ -195,6 +195,71 @@ func TestConfig_GetMode(t *testing.T) {
 	}
 }
 
+func TestGetSlow(t *testing.T) {
+	testCases := []struct {
+		name       string
+		configData trivy.Config
+		want       bool
+	}{
+		{
+			name: "slow param set to true",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.tag":  "0.35.0",
+					"trivy.slow": "true",
+				},
+			}},
+			want: true,
+		},
+		{
+			name: "slow param set to false",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.tag":  "0.35.0",
+					"trivy.slow": "false",
+				},
+			}},
+			want: false,
+		},
+		{
+			name: "slow param set to no valid value",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.tag":  "0.35.0",
+					"trivy.slow": "false2",
+				},
+			}},
+			want: true,
+		},
+		{
+			name: "slow param set to true and trivy tag is less then 0.35.0",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.slow": "true",
+					"trivy.tag":  "0.33.0",
+				},
+			}},
+			want: false,
+		},
+		{
+			name: "slow param set to true and trivy tag is bigger then 0.35.0",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.slow": "true",
+					"trivy.tag":  "0.36.0",
+				},
+			}},
+			want: true,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.configData.GetSlow()
+			assert.Equal(t, got, tc.want)
+
+		})
+	}
+}
 func TestConfig_GetCommand(t *testing.T) {
 	testCases := []struct {
 		name            string
@@ -644,6 +709,7 @@ func TestPlugin_Init(t *testing.T) {
 				"trivy.repository":                "ghcr.io/aquasecurity/trivy",
 				"trivy.tag":                       "0.35.0",
 				"trivy.severity":                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
+				"trivy.slow":                      "true",
 				"trivy.mode":                      "Standalone",
 				"trivy.timeout":                   "5m0s",
 				"trivy.dbRepository":              defaultDBRepository,
@@ -763,7 +829,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 			},
 			config: map[string]string{
 				"trivy.repository":                "docker.io/aquasec/trivy",
-				"trivy.tag":                       "0.14.0",
+				"trivy.tag":                       "0.35.0",
 				"trivy.mode":                      string(trivy.Standalone),
 				"trivy.dbRepository":              defaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
@@ -805,7 +871,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 				InitContainers: []corev1.Container{
 					{
 						Name:                     "00000000-0000-0000-0000-000000000001",
-						Image:                    "docker.io/aquasec/trivy:0.14.0",
+						Image:                    "docker.io/aquasec/trivy:0.35.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -894,7 +960,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 				Containers: []corev1.Container{
 					{
 						Name:                     "nginx",
-						Image:                    "docker.io/aquasec/trivy:0.14.0",
+						Image:                    "docker.io/aquasec/trivy:0.35.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -1001,7 +1067,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'nginx:1.16' --security-checks vuln,secret --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1038,7 +1104,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 			},
 			config: map[string]string{
 				"trivy.repository":                   "docker.io/aquasec/trivy",
-				"trivy.tag":                          "0.14.0",
+				"trivy.tag":                          "0.35.0",
 				"trivy.mode":                         string(trivy.Standalone),
 				"trivy.insecureRegistry.pocRegistry": "poc.myregistry.harbor.com.pl",
 				"trivy.dbRepository":                 defaultDBRepository,
@@ -1077,7 +1143,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 				InitContainers: []corev1.Container{
 					{
 						Name:                     "00000000-0000-0000-0000-000000000001",
-						Image:                    "docker.io/aquasec/trivy:0.14.0",
+						Image:                    "docker.io/aquasec/trivy:0.35.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -1165,7 +1231,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 				Containers: []corev1.Container{
 					{
 						Name:                     "nginx",
-						Image:                    "docker.io/aquasec/trivy:0.14.0",
+						Image:                    "docker.io/aquasec/trivy:0.35.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -1276,7 +1342,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks secret --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks secret --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1313,7 +1379,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 			},
 			config: map[string]string{
 				"trivy.repository":                 "docker.io/aquasec/trivy",
-				"trivy.tag":                        "0.14.0",
+				"trivy.tag":                        "0.35.0",
 				"trivy.mode":                       string(trivy.Standalone),
 				"trivy.nonSslRegistry.pocRegistry": "poc.myregistry.harbor.com.pl",
 				"trivy.dbRepository":               defaultDBRepository,
@@ -1352,7 +1418,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 				InitContainers: []corev1.Container{
 					{
 						Name:                     "00000000-0000-0000-0000-000000000001",
-						Image:                    "docker.io/aquasec/trivy:0.14.0",
+						Image:                    "docker.io/aquasec/trivy:0.35.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -1440,7 +1506,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 				Containers: []corev1.Container{
 					{
 						Name:                     "nginx",
-						Image:                    "docker.io/aquasec/trivy:0.14.0",
+						Image:                    "docker.io/aquasec/trivy:0.35.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -1551,7 +1617,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1588,7 +1654,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 			},
 			config: map[string]string{
 				"trivy.repository": "docker.io/aquasec/trivy",
-				"trivy.tag":        "0.14.0",
+				"trivy.tag":        "0.35.0",
 				"trivy.mode":       string(trivy.Standalone),
 				"trivy.ignoreFile": `# Accept the risk
 CVE-2018-14618
@@ -1647,7 +1713,7 @@ CVE-2019-1543`,
 				InitContainers: []corev1.Container{
 					{
 						Name:                     "00000000-0000-0000-0000-000000000001",
-						Image:                    "docker.io/aquasec/trivy:0.14.0",
+						Image:                    "docker.io/aquasec/trivy:0.35.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -1735,7 +1801,7 @@ CVE-2019-1543`,
 				Containers: []corev1.Container{
 					{
 						Name:                     "nginx",
-						Image:                    "docker.io/aquasec/trivy:0.14.0",
+						Image:                    "docker.io/aquasec/trivy:0.35.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -1846,7 +1912,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'nginx:1.16' --security-checks vuln,secret --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1888,7 +1954,7 @@ CVE-2019-1543`,
 			},
 			config: map[string]string{
 				"trivy.repository": "docker.io/aquasec/trivy",
-				"trivy.tag":        "0.14.0",
+				"trivy.tag":        "0.35.0",
 				"trivy.mode":       string(trivy.Standalone),
 
 				"trivy.dbRepository":              defaultDBRepository,
@@ -1929,7 +1995,7 @@ CVE-2019-1543`,
 				InitContainers: []corev1.Container{
 					{
 						Name:                     "00000000-0000-0000-0000-000000000001",
-						Image:                    "docker.io/aquasec/trivy:0.14.0",
+						Image:                    "docker.io/aquasec/trivy:0.35.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -2018,7 +2084,7 @@ CVE-2019-1543`,
 				Containers: []corev1.Container{
 					{
 						Name:                     "nginx",
-						Image:                    "docker.io/aquasec/trivy:0.14.0",
+						Image:                    "docker.io/aquasec/trivy:0.35.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -2125,7 +2191,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'mirror.io/library/nginx:1.16' --security-checks vuln,secret --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'mirror.io/library/nginx:1.16' --security-checks vuln,secret --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2162,7 +2228,7 @@ CVE-2019-1543`,
 			},
 			config: map[string]string{
 				"trivy.repository":                "docker.io/aquasec/trivy",
-				"trivy.tag":                       "0.14.0",
+				"trivy.tag":                       "0.35.0",
 				"trivy.mode":                      string(trivy.ClientServer),
 				"trivy.serverURL":                 "http://trivy.trivy:4954",
 				"trivy.dbRepository":              defaultDBRepository,
@@ -2201,7 +2267,7 @@ CVE-2019-1543`,
 				Containers: []corev1.Container{
 					{
 						Name:                     "nginx",
-						Image:                    "docker.io/aquasec/trivy:0.14.0",
+						Image:                    "docker.io/aquasec/trivy:0.35.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -2344,7 +2410,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'nginx:1.16' --security-checks vuln,secret --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2378,7 +2444,7 @@ CVE-2019-1543`,
 			},
 			config: map[string]string{
 				"trivy.repository":                "docker.io/aquasec/trivy",
-				"trivy.tag":                       "0.14.0",
+				"trivy.tag":                       "0.35.0",
 				"trivy.mode":                      string(trivy.ClientServer),
 				"trivy.serverURL":                 "http://trivy.trivy:4954",
 				"trivy.dbRepository":              defaultDBRepository,
@@ -2417,7 +2483,7 @@ CVE-2019-1543`,
 				Containers: []corev1.Container{
 					{
 						Name:                     "nginx",
-						Image:                    "docker.io/aquasec/trivy:0.14.0",
+						Image:                    "docker.io/aquasec/trivy:0.35.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -2560,7 +2626,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'nginx:1.16' --security-checks vuln,secret --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2594,7 +2660,7 @@ CVE-2019-1543`,
 			},
 			config: map[string]string{
 				"trivy.repository":                "docker.io/aquasec/trivy",
-				"trivy.tag":                       "0.14.0",
+				"trivy.tag":                       "0.35.0",
 				"trivy.mode":                      string(trivy.ClientServer),
 				"trivy.serverURL":                 "https://trivy.trivy:4954",
 				"trivy.serverInsecure":            "true",
@@ -2634,7 +2700,7 @@ CVE-2019-1543`,
 				Containers: []corev1.Container{
 					{
 						Name:                     "nginx",
-						Image:                    "docker.io/aquasec/trivy:0.14.0",
+						Image:                    "docker.io/aquasec/trivy:0.35.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -2781,7 +2847,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln,secret --quiet --format json --server 'https://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln,secret --quiet --format json --server 'https://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2815,7 +2881,7 @@ CVE-2019-1543`,
 			},
 			config: map[string]string{
 				"trivy.repository":                 "docker.io/aquasec/trivy",
-				"trivy.tag":                        "0.14.0",
+				"trivy.tag":                        "0.35.0",
 				"trivy.mode":                       string(trivy.ClientServer),
 				"trivy.serverURL":                  "http://trivy.trivy:4954",
 				"trivy.nonSslRegistry.pocRegistry": "poc.myregistry.harbor.com.pl",
@@ -2855,7 +2921,7 @@ CVE-2019-1543`,
 				Containers: []corev1.Container{
 					{
 						Name:                     "nginx",
-						Image:                    "docker.io/aquasec/trivy:0.14.0",
+						Image:                    "docker.io/aquasec/trivy:0.35.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -3002,7 +3068,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3036,7 +3102,7 @@ CVE-2019-1543`,
 			},
 			config: map[string]string{
 				"trivy.repository": "docker.io/aquasec/trivy",
-				"trivy.tag":        "0.14.0",
+				"trivy.tag":        "0.35.0",
 				"trivy.mode":       string(trivy.ClientServer),
 				"trivy.serverURL":  "http://trivy.trivy:4954",
 				"trivy.ignoreFile": `# Accept the risk
@@ -3096,7 +3162,7 @@ CVE-2019-1543`,
 				Containers: []corev1.Container{
 					{
 						Name:                     "nginx",
-						Image:                    "docker.io/aquasec/trivy:0.14.0",
+						Image:                    "docker.io/aquasec/trivy:0.35.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -3243,7 +3309,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image 'nginx:1.16' --security-checks secret --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'nginx:1.16' --security-checks secret --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3570,6 +3636,7 @@ CVE-2019-1543`,
 							"--format",
 							"json",
 							"/",
+							"--slow",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3660,7 +3727,7 @@ CVE-2019-1543`,
 		},
 		config: map[string]string{
 			"trivy.repository":                "docker.io/aquasec/trivy",
-			"trivy.tag":                       "0.22.0",
+			"trivy.tag":                       "0.35.0",
 			"trivy.mode":                      string(trivy.Standalone),
 			"trivy.command":                   string(trivy.Filesystem),
 			"trivy.dbRepository":              defaultDBRepository,
@@ -3716,7 +3783,7 @@ CVE-2019-1543`,
 			InitContainers: []corev1.Container{
 				{
 					Name:                     "00000000-0000-0000-0000-000000000001",
-					Image:                    "docker.io/aquasec/trivy:0.22.0",
+					Image:                    "docker.io/aquasec/trivy:0.35.0",
 					ImagePullPolicy:          corev1.PullIfNotPresent,
 					TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 					Command: []string{
@@ -3759,7 +3826,7 @@ CVE-2019-1543`,
 				},
 				{
 					Name:                     "00000000-0000-0000-0000-000000000002",
-					Image:                    "docker.io/aquasec/trivy:0.22.0",
+					Image:                    "docker.io/aquasec/trivy:0.35.0",
 					ImagePullPolicy:          corev1.PullIfNotPresent,
 					TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 					Env: []corev1.EnvVar{
@@ -3949,6 +4016,7 @@ CVE-2019-1543`,
 						"--format",
 						"json",
 						"/",
+						"--slow",
 					},
 					Resources: corev1.ResourceRequirements{
 						Requests: corev1.ResourceList{
@@ -4457,7 +4525,7 @@ func TestGetContainers(t *testing.T) {
 			configData: map[string]string{
 				"trivy.dbRepository": defaultDBRepository,
 				"trivy.repository":   "gcr.io/aquasec/trivy",
-				"trivy.tag":          "0.22.0",
+				"trivy.tag":          "0.35.0",
 				"trivy.mode":         string(trivy.Standalone),
 				"trivy.command":      string(trivy.Image),
 			},
@@ -4468,7 +4536,7 @@ func TestGetContainers(t *testing.T) {
 				"trivy.serverURL":    "http://trivy.trivy:4954",
 				"trivy.dbRepository": defaultDBRepository,
 				"trivy.repository":   "gcr.io/aquasec/trivy",
-				"trivy.tag":          "0.22.0",
+				"trivy.tag":          "0.35.0",
 				"trivy.mode":         string(trivy.ClientServer),
 				"trivy.command":      string(trivy.Image),
 			},
@@ -4479,7 +4547,7 @@ func TestGetContainers(t *testing.T) {
 				"trivy.serverURL":    "http://trivy.trivy:4954",
 				"trivy.dbRepository": defaultDBRepository,
 				"trivy.repository":   "docker.io/aquasec/trivy",
-				"trivy.tag":          "0.22.0",
+				"trivy.tag":          "0.35.0",
 				"trivy.mode":         string(trivy.Standalone),
 				"trivy.command":      string(trivy.Filesystem),
 			},

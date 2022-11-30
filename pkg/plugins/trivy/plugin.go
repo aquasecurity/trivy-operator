@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/Masterminds/semver"
+	"github.com/aquasecurity/trivy-db/pkg/types"
 	"io"
 	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/aquasecurity/trivy-db/pkg/types"
 
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	containerimage "github.com/google/go-containerregistry/pkg/name"
@@ -49,6 +49,7 @@ const (
 	keyTrivyAdditionalVulnerabilityReportFields = "trivy.additionalVulnerabilityReportFields"
 	keyTrivyCommand                             = "trivy.command"
 	keyTrivySeverity                            = "trivy.severity"
+	keyTrivySlow                                = "trivy.slow"
 	keyTrivyIgnoreUnfixed                       = "trivy.ignoreUnfixed"
 	keyTrivyOfflineScan                         = "trivy.offlineScan"
 	keyTrivyTimeout                             = "trivy.timeout"
@@ -227,6 +228,41 @@ func (c Config) GetUseBuiltinRegoPolicies() bool {
 	return boolVal
 }
 
+func (c Config) GetSlow() bool {
+	tag, err := c.GetRequiredData(keyTrivyImageTag)
+	if err != nil {
+		return false
+	}
+	// support backward competability with older tags
+	if !validVersion(tag, ">= 0.35.0") {
+		return false
+	}
+	val, ok := c.Data[keyTrivySlow]
+	if !ok {
+		return true
+	}
+
+	boolVal, err := strconv.ParseBool(val)
+	if err != nil {
+		return true
+	}
+	return boolVal
+}
+
+func validVersion(currentTag string, contraint string) bool {
+	c, err := semver.NewConstraint(contraint)
+	if err != nil {
+		return false
+	}
+
+	v, err := semver.NewVersion(currentTag)
+	if err != nil {
+		return false
+	}
+	// Check if the version meets the constraints. The a variable will be true.
+	return c.Check(v)
+}
+
 func (c Config) GetSupportedConfigAuditKinds() []string {
 	val, ok := c.Data[keyTrivySupportedConfigAuditKinds]
 	if !ok {
@@ -371,6 +407,7 @@ func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 			keyTrivyImageRepository:           "ghcr.io/aquasecurity/trivy",
 			keyTrivyImageTag:                  "0.35.0",
 			keyTrivySeverity:                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
+			keyTrivySlow:                      "true",
 			keyTrivyMode:                      string(Standalone),
 			keyTrivyTimeout:                   "5m0s",
 			keyTrivyDBRepository:              defaultDBRepository,
@@ -1151,9 +1188,11 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 	command := []string{
 		"trivy",
 	}
+	compressLogs := ctx.GetTrivyOperatorConfig().CompressLogs()
+	slow := p.trivySlow(ctx)
 	if mode == ClientServer {
-		if !ctx.GetTrivyOperatorConfig().CompressLogs() {
-			return command, []string{
+		if !compressLogs {
+			args := []string{
 				"--quiet",
 				"image",
 				"--security-checks",
@@ -1164,12 +1203,16 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 				trivyServerURL,
 				imageRef,
 			}
+			if len(slow) > 0 {
+				args = append(args, slow)
+			}
+			return command, args
 		}
-		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image '%s' --security-checks %s --quiet --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, imageRef, getSecurityChecks(ctx), trivyServerURL, resultFileName, resultFileName)}
+		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' --security-checks %s --quiet --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, getSecurityChecks(ctx), trivyServerURL, resultFileName, resultFileName)}
 	}
 
-	if !ctx.GetTrivyOperatorConfig().CompressLogs() {
-		return command, []string{
+	if !compressLogs {
+		args := []string{
 			"--cache-dir",
 			"/tmp/trivy/.cache",
 			"--quiet",
@@ -1181,8 +1224,23 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 			"json",
 			imageRef,
 		}
+		if len(slow) > 0 {
+			args = append(args, slow)
+		}
+		return command, args
 	}
-	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image '%s' --security-checks %s --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, imageRef, getSecurityChecks(ctx), resultFileName, resultFileName)}
+	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' --security-checks %s --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, getSecurityChecks(ctx), resultFileName, resultFileName)}
+}
+
+func (p *plugin) trivySlow(ctx trivyoperator.PluginContext) string {
+	config, err := p.newConfigFrom(ctx)
+	if err != nil {
+		return ""
+	}
+	if config.GetSlow() {
+		return "--slow"
+	}
+	return ""
 }
 
 func getAutomountServiceAccountToken(ctx trivyoperator.PluginContext) bool {
@@ -1396,18 +1454,7 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			Command: []string{
 				SharedVolumeLocationOfTrivy,
 			},
-			Args: []string{
-				"--cache-dir",
-				"/var/trivyoperator/trivy-db",
-				"--quiet",
-				"fs",
-				"--security-checks",
-				getSecurityChecks(ctx),
-				"--skip-update",
-				"--format",
-				"json",
-				"/",
-			},
+			Args:            p.getFSScanningArgs(ctx),
 			Resources:       resourceRequirements,
 			SecurityContext: securityContext,
 			VolumeMounts:    volumeMounts,
@@ -1431,6 +1478,26 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 	}
 
 	return podSpec, secrets, nil
+}
+
+func (p *plugin) getFSScanningArgs(ctx trivyoperator.PluginContext) []string {
+	args := []string{
+		"--cache-dir",
+		"/var/trivyoperator/trivy-db",
+		"--quiet",
+		"fs",
+		"--security-checks",
+		getSecurityChecks(ctx),
+		"--skip-update",
+		"--format",
+		"json",
+		"/",
+	}
+	slow := p.trivySlow(ctx)
+	if len(slow) > 0 {
+		args = append(args, slow)
+	}
+	return args
 }
 
 func (p *plugin) initContainerFSEnvVar(trivyConfigName string, config Config) []corev1.EnvVar {
@@ -1506,7 +1573,8 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	if err != nil {
 		return vulnReport, secretReport, err
 	}
-	if ctx.GetTrivyOperatorConfig().CompressLogs() && cmd != Filesystem {
+	compressedLogs := ctx.GetTrivyOperatorConfig().CompressLogs()
+	if compressedLogs && cmd != Filesystem {
 		var errCompress error
 		logsReader, errCompress = utils.ReadCompressData(logsReader)
 		if errCompress != nil {

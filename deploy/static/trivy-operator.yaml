@@ -1387,6 +1387,7 @@ data:
   trivy.tag: "0.35.0"
   trivy.additionalVulnerabilityReportFields: ""
   trivy.severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
+  trivy.slow: "true"
   trivy.dbRepository: "ghcr.io/aquasecurity/trivy-db"
   trivy.command: "image"
   trivy.dbRepositoryInsecure: "false"

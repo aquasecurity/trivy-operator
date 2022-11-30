@@ -234,7 +234,7 @@ func (c Config) GetSlow() bool {
 		return false
 	}
 	// support backward competability with older tags
-	if !validateVersion(tag, ">= 0.35.0") {
+	if !validVersion(tag, ">= 0.35.0") {
 		return false
 	}
 	val, ok := c.Data[keyTrivySlow]
@@ -249,7 +249,7 @@ func (c Config) GetSlow() bool {
 	return boolVal
 }
 
-func validateVersion(currentTag string, contraint string) bool {
+func validVersion(currentTag string, contraint string) bool {
 	c, err := semver.NewConstraint(contraint)
 	if err != nil {
 		return false

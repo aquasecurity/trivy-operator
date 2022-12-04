@@ -16,10 +16,6 @@ import (
 	"strings"
 )
 
-const (
-	ResourceDoNotExistInCluster = "Resource do not exist in cluster"
-)
-
 type Mgr interface {
 	GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportSpec) error
 }

@@ -9,8 +9,8 @@ metadata:
     app.kubernetes.io/version: "0.9.0-rc"
     app.kubernetes.io/managed-by: kubectl
 spec:
-  cron: "0 */3 * * *"
-  reportFormat: "summary"
+  cron: "0 */6 * * *"
+  reportType: "summary"
   compliance:
     id: "0001"
     title: nsa

@@ -4,7 +4,6 @@ import (
 	"github.com/aquasecurity/trivy/pkg/compliance/report"
 	"github.com/aquasecurity/trivy/pkg/compliance/spec"
 	"github.com/aquasecurity/trivy/pkg/types"
-	"k8s.io/api/apiserverinternal/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -35,7 +34,7 @@ type ReportSpec struct {
 	Cron string `json:"cron"`
 	//+kubebuilder:validation:Enum={summary,all}
 	ReportFormat ReportType `json:"reportType"`
-	Complaince   Complaince `json:"complaince"`
+	Complaince   Complaince `json:"compliance"`
 }
 
 type Complaince struct {
@@ -167,7 +166,7 @@ func ToComplainceSpec(cSpec Complaince) spec.ComplianceSpec {
 // FromSummaryReport map data from trivy summary report to crd summary report
 func FromSummaryReport(sr *report.SummaryReport) *SummaryReport {
 	summaryControls := make([]ControlCheckSummary, 0)
-	for _, sr := range summaryControls {
+	for _, sr := range sr.SummaryControls {
 		summaryControls = append(summaryControls, ControlCheckSummary{
 			ID:        sr.ID,
 			Name:      sr.Name,
@@ -188,7 +187,7 @@ func FromDetailReport(sr *report.ComplianceReport) *ComplianceReport {
 	for _, sr := range sr.Results {
 		checks := make([]Check, 0)
 		for _, r := range sr.Results {
-			for _, ms := range r.Misconfigurations { 
+			for _, ms := range r.Misconfigurations {
 				checks = append(checks, Check{
 					ID:          ms.AVDID,
 					Title:       ms.Title,

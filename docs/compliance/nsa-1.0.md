@@ -39,7 +39,7 @@ The NSA compliance report is composed of two parts :
 
 - `status`: represents the NSA compliance control checks results
 
-- `report types` : complaince report can br produced in two formats , summary and detail (all)
+- `report types` : compliance report can be produced in two formats , summary and detail (all)
 
 Spec can be customized by amending the control checks `report type (summary / all)` , `severity` and `cron` expression (report execution interval).
 As an example, let's enter `vi` edit mode and change the `cron` expression.

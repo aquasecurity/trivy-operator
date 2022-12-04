@@ -3,7 +3,6 @@ package v1alpha1
 import (
 	"github.com/aquasecurity/trivy/pkg/compliance/report"
 	"github.com/aquasecurity/trivy/pkg/compliance/spec"
-	"github.com/aquasecurity/trivy/pkg/types"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -202,9 +201,15 @@ func FromDetailReport(sr *report.ComplianceReport) *ComplianceReport {
 					Severity:    Severity(ms.Severity),
 					Category:    "Kubernetes Security Check",
 					Messages:    []string{ms.Message},
-					Success:     ms.Status == types.StatusPassed,
+					Success:     false,
 				})
 			}
+		}
+		// mark check as pass of no misconfig issue found
+		if len(checks) == 0 {
+			checks = append(checks, Check{
+				Success: true,
+			})
 		}
 		controlResults = append(controlResults, &ControlCheckResult{
 			ID:            sr.ID,

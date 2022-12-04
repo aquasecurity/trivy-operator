@@ -1,20 +1,19 @@
 package compliance
 
 import (
-	"context"
-	"fmt"
-	"strings"
-
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy/pkg/compliance/report"
 	ttypes "github.com/aquasecurity/trivy/pkg/types"
 
+	"context"
+	"fmt"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"strings"
 )
 
 const (
@@ -42,7 +41,7 @@ type cm struct {
 // GenerateComplianceReport generate and public compliance report by spec
 func (w *cm) GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportSpec) error {
 	// map specs to key/value map for easy processing
-	trivyResults, err := MisconfigReportToTrivyResults(w.client, ctx)
+	trivyResults, err := misconfigReportToTrivyResults(w.client, ctx)
 	if err != nil {
 		return err
 	}
@@ -101,4 +100,60 @@ func (w *cm) buildComplianceReport(spec v1alpha1.ReportSpec, complianceResults [
 	default:
 		return v1alpha1.ReportStatus{}, fmt.Errorf("report type is invalid")
 	}
+}
+
+// MisconfigReportToTrivyResults convert misconfig and infra assessment report Data to trivy results
+func misconfigReportToTrivyResults(cli client.Client, ctx context.Context) ([]ttypes.Results, error) {
+	resultsArray := make([]ttypes.Results, 0)
+	caObjList := &v1alpha1.ConfigAuditReportList{}
+	err := cli.List(ctx, caObjList)
+	if err != nil {
+		return nil, err
+	}
+	for _, ca := range caObjList.Items {
+		results := reportsToResults(ca.Report.Checks)
+		resultsArray = append(resultsArray, results)
+	}
+	iaObjList := &v1alpha1.InfraAssessmentReportList{}
+	err = cli.List(ctx, iaObjList)
+	if err != nil {
+		return nil, err
+	}
+	for _, ia := range iaObjList.Items {
+		results := reportsToResults(ia.Report.Checks)
+		resultsArray = append(resultsArray, results)
+	}
+	return resultsArray, nil
+}
+
+func reportsToResults(checks []v1alpha1.Check) ttypes.Results {
+	results := ttypes.Results{}
+	for _, check := range checks {
+		status := ttypes.StatusFailure
+		if check.Success {
+			status = ttypes.StatusPassed
+		}
+		var id string
+		if !strings.HasPrefix(check.ID, "AVD-") {
+			if strings.HasPrefix(check.ID, "KSV") {
+				id = fmt.Sprintf("%s-%s-%s", "AVD", "KSV", strings.Replace(check.ID, "KSV", "0", -1))
+			}
+			if strings.HasPrefix(check.ID, "KCV") {
+				id = fmt.Sprintf("%s-%s-%s", "AVD", "KCV", strings.Replace(check.ID, "KCV", "", -1))
+			}
+		}
+		misconfigResult := ttypes.Result{
+			Misconfigurations: []ttypes.DetectedMisconfiguration{{
+				AVDID:       id,
+				Title:       check.Title,
+				Description: check.Description,
+				Message:     check.Description,
+				Severity:    string(check.Severity),
+				Status:      status,
+			},
+			},
+		}
+		results = append(results, misconfigResult)
+	}
+	return results
 }

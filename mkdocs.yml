@@ -29,6 +29,8 @@ nav:
       - Configuration Auditing:
           - Overview: configuration-auditing/index.md
           - Built-in Configuration Audit Policies: configuration-auditing/built-in-policies.md
+      - Complaince Report:
+          - NSA ,Kubernetes Hardening Guidance: compliance/nsa-1.0.md
       - Integrations:
           - Metrics: integrations/metrics.md
           - Lens Extension: integrations/lens.md
@@ -45,6 +47,7 @@ nav:
           - ExposedSecretReport: crds/exposedsecret-report.md
           - RbacAssessmentReport: crds/rbacassessment-report.md
           - InfraAssessmentReport: crds/infraassessment-report.md
+          - ClusterComplianceReport: crds/clustercompliance-report.md
   - Frequently Asked Questions: faq.md
 
 theme:

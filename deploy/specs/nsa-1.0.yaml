@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/version: "0.9.0-rc"
     app.kubernetes.io/managed-by: kubectl
 spec:
-  cron: "* * * * *"
+  cron: "0 */6 * * *"
   reportType: "summary" # 'summary' or 'all'
   compliance:
     id: "0001"

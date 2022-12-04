@@ -1328,6 +1328,16 @@ spec:
     storage: true
     subresources: {}
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: trivy-system
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.8.0"
+    app.kubernetes.io/managed-by: kubectl
+---
 # Source: trivy-operator/templates/config.yaml
 apiVersion: v1
 kind: Secret
@@ -2097,13 +2107,4 @@ spec:
   selector:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: trivy-system
-  labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.8.0"
-    app.kubernetes.io/managed-by: kubectl
+

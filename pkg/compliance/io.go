@@ -95,9 +95,9 @@ func (w *cm) buildComplianceReport(spec v1alpha1.ReportSpec, complianceResults [
 	switch spec.ReportFormat {
 	case v1alpha1.ReportSummary:
 		rs := report.BuildSummary(cr)
-		return v1alpha1.ReportStatus{SummaryReport: v1alpha1.FromSummaryReport(rs)}, nil
+		return v1alpha1.ReportStatus{SummaryReport: v1alpha1.FromSummaryReport(rs), TotalCounts: v1alpha1.TotalsCheckCount(cr)}, nil
 	case v1alpha1.ReportDetail:
-		return v1alpha1.ReportStatus{DetailReport: v1alpha1.FromDetailReport(cr)}, nil
+		return v1alpha1.ReportStatus{DetailReport: v1alpha1.FromDetailReport(cr), TotalCounts: v1alpha1.TotalsCheckCount(cr)}, nil
 	default:
 		return v1alpha1.ReportStatus{}, fmt.Errorf("report type is invalid")
 	}

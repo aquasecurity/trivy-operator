@@ -16,8 +16,8 @@ type ClusterComplianceSummary struct {
 //+kubebuilder:resource:scope=Cluster,shortName={compliance}
 //+kubebuilder:subresource:status
 //+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"
-//+kubebuilder:printcolumn:name="Fail",type=integer,JSONPath=`.status.summary.failCount`,priority=1,description="The number of checks that failed"
-//+kubebuilder:printcolumn:name="Pass",type=integer,JSONPath=`.status.summary.passCount`,priority=1,description="The number of checks that passed"
+//+kubebuilder:printcolumn:name="Fail",type=integer,JSONPath=`.status.totalCounts.failCount`,priority=1,description="The number of checks that failed"
+//+kubebuilder:printcolumn:name="Pass",type=integer,JSONPath=`.status.totalCounts.passCount`,priority=1,description="The number of checks that passed"
 
 // ClusterComplianceReport is a specification for the ClusterComplianceReport resource.
 type ClusterComplianceReport struct {
@@ -78,6 +78,8 @@ type ClusterComplianceReportList struct {
 }
 
 type ReportStatus struct {
+	TotalCounts TotalCounts `json:"totalCounts,omitempty"`
+
 	UpdateTimestamp metav1.Time `json:"updateTimestamp"`
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:validation:XPreserveUnknownFields
@@ -85,6 +87,11 @@ type ReportStatus struct {
 	// +kubebuilder:validation:Optional
 	// +kubebuilder:validation:XPreserveUnknownFields
 	SummaryReport *SummaryReport `json:"summaryReport,omitempty"`
+}
+
+type TotalCounts struct {
+	FailCount int `json:"failCount,omitempty"`
+	PassCount int `json:"passCount,omitempty"`
 }
 
 // SummaryReport represents a kubernetes scan report with consolidated findings
@@ -215,5 +222,21 @@ func FromDetailReport(sr *report.ComplianceReport) *ComplianceReport {
 		Description:      sr.Description,
 		RelatedResources: sr.RelatedResources,
 		Results:          controlResults,
+	}
+}
+
+func TotalsCheckCount(sr *report.ComplianceReport) TotalCounts {
+	var passCount int
+	var failCount int
+	for _, sr := range sr.Results {
+		if len(sr.Results) == 0 {
+			passCount++
+			continue
+		}
+		failCount++
+	}
+	return TotalCounts{
+		PassCount: passCount,
+		FailCount: failCount,
 	}
 }

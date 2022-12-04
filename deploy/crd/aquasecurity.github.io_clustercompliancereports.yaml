@@ -23,12 +23,12 @@ spec:
       name: Age
       type: date
     - description: The number of checks that failed
-      jsonPath: .status.summary.failCount
+      jsonPath: .status.totalCounts.failCount
       name: Fail
       priority: 1
       type: integer
     - description: The number of checks that passed
-      jsonPath: .status.summary.passCount
+      jsonPath: .status.totalCounts.passCount
       name: Pass
       priority: 1
       type: integer
@@ -252,6 +252,13 @@ spec:
                     type: string
                 type: object
                 x-kubernetes-preserve-unknown-fields: true
+              totalCounts:
+                properties:
+                  failCount:
+                    type: integer
+                  passCount:
+                    type: integer
+                type: object
               updateTimestamp:
                 format: date-time
                 type: string

@@ -3,18 +3,17 @@ package compliance
 import (
 	"context"
 	"fmt"
-	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy/pkg/compliance/report"
+	"github.com/aquasecurity/trivy/pkg/types"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/go-logr/logr"
-	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -108,41 +107,6 @@ func (w *cm) createComplianceReport(ctx context.Context, spec v1alpha1.ReportSpe
 	copied.Spec = spec
 	copied.Status.UpdateTimestamp = metav1.NewTime(ext.NewSystemClock().Now())
 	return copied, nil
-}
-
-// createComplianceDetailReport create and publish compliance details report
-func (w *cm) createComplianceDetailReport(ctx context.Context, spec v1alpha1.ReportSpec, smd *specDataMapping, checkIdsToResults map[string][]*ScannerCheckResult, st summaryTotal) error {
-	controlChecksDetails := w.controlChecksDetailsByScannerChecks(smd, checkIdsToResults)
-	name := strings.ToLower(fmt.Sprintf("%s-%s", spec.Name, "details"))
-	// compliance details report
-	summary := v1alpha1.ClusterComplianceSummary{PassCount: st.pass, FailCount: st.fail}
-	report := v1alpha1.ClusterComplianceDetailReport{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: name,
-		},
-		Report: v1alpha1.ClusterComplianceDetailReportData{UpdateTimestamp: metav1.NewTime(ext.NewSystemClock().Now()),
-			Summary:       summary,
-			Type:          v1alpha1.Compliance{Name: name, Description: strings.ToLower(spec.Description), Version: spec.Version},
-			ControlChecks: controlChecksDetails},
-	}
-
-	var existing v1alpha1.ClusterComplianceDetailReport
-	err := w.client.Get(ctx, types.NamespacedName{
-		Name: name,
-	}, &existing)
-
-	if err == nil {
-		copied := existing.DeepCopy()
-		copied.Labels = report.Labels
-		copied.Report = report.Report
-		copied.Report.UpdateTimestamp = metav1.NewTime(ext.NewSystemClock().Now())
-		return w.client.Update(ctx, copied)
-	}
-
-	if errors.IsNotFound(err) {
-		return w.client.Create(ctx, &report)
-	}
-	return nil
 }
 
 // getTotals return control check totals
@@ -289,41 +253,19 @@ func (w *cm) checkIdsToResults(scannerResourceMap map[string]map[string]client.O
 	return checkIdsToResults, nil
 }
 
-// populateSpecDataToMaps populate spec data to map structures
-func (w *cm) populateSpecDataToMaps(spec v1alpha1.ReportSpec) *specDataMapping {
-	//control to resource list map
-	controlIDControlObject := make(map[string]v1alpha1.Control)
-	//control to checks map
-	controlCheckIds := make(map[string][]string)
-	//scanner to resource list map
-	scannerResourceListName := make(map[string]*hashset.Set)
-	//controlOID to resources
-	controlIdResources := make(map[string][]string)
-	for _, control := range spec.Controls {
-		control.Kinds = utils.MapKinds(control.Kinds)
-		if _, ok := scannerResourceListName[control.Mapping.Scanner]; !ok {
-			scannerResourceListName[control.Mapping.Scanner] = hashset.New()
-		}
-		if _, ok := controlIdResources[control.ID]; !ok {
-			controlIdResources[control.ID] = make([]string, 0)
-		}
-		for _, resource := range control.Kinds {
-			scannerResourceListName[control.Mapping.Scanner].Add(resource)
-			controlIdResources[control.ID] = append(controlIdResources[control.ID], resource)
-		}
-		controlIDControlObject[control.ID] = control
-		//update control resource list map
-		for _, check := range control.Mapping.Checks {
-			if _, ok := controlCheckIds[control.ID]; !ok {
-				controlCheckIds[control.ID] = make([]string, 0)
-			}
-			controlCheckIds[control.ID] = append(controlCheckIds[control.ID], check.ID)
-		}
-
+// BuildComplianceReport build compliance based on report type {summary | detail}
+func (w *cm) BuildComplianceReport(spec v1alpha1.ReportSpec, complianceResults []types.Results) (v1alpha1.ReportStatus, error) {
+	trivyCompSpec := v1alpha1.ToComplainceSpec(spec.Complaince)
+	cr, err := report.BuildComplianceReport(complianceResults, trivyCompSpec)
+	if err != nil {
+		return v1alpha1.ReportStatus{}, err
 	}
-	return &specDataMapping{
-		scannerResourceListNames: scannerResourceListName,
-		controlIDControlObject:   controlIDControlObject,
-		controlCheckIds:          controlCheckIds,
-		controlIdResources:       controlIdResources}
+	switch spec.ReportFormat {
+	case v1alpha1.ReportSummary:
+		rs := report.BuildSummary(cr)
+		return v1alpha1.ReportStatus{SummaryReport: v1alpha1.FromSummaryReport(rs)}, nil
+	case v1alpha1.ReportDetail:
+		return v1alpha1.ReportStatus{DetailReport: v1alpha1.FromDetailReport(cr)}, nil
+	}
+	return v1alpha1.ReportStatus{}, fmt.Errorf("report type is invalid")
 }

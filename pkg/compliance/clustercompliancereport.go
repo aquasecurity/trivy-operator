@@ -31,7 +31,6 @@ type ClusterComplianceReportReconciler struct {
 func (r *ClusterComplianceReportReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	if err := ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.ClusterComplianceReport{}).
-		Owns(&v1alpha1.ClusterComplianceDetailReport{}).
 		Complete(r.reconcileComplianceReport()); err != nil {
 		return err
 	}

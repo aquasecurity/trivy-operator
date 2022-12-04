@@ -28,8 +28,6 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&ClusterConfigAuditReportList{},
 		&ClusterComplianceReport{},
 		&ClusterComplianceReportList{},
-		&ClusterComplianceDetailReport{},
-		&ClusterComplianceDetailReportList{},
 		&ExposedSecretReport{},
 		&ExposedSecretReportList{},
 		&RbacAssessmentReport{},

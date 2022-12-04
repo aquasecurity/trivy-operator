@@ -57,21 +57,7 @@ var _ = ginkgo.Describe("cluster compliance report", func() {
 		_, err = instance.generateComplianceReport(context.TODO(), types.NamespacedName{Namespace: "", Name: "nsa"})
 		Expect(err).ToNot(HaveOccurred())
 
-		ginkgo.It("check cluster compliance report detail data match expected result", func() {
-			// validate cluster compliance detail report data
-			var clusterComplianceDetialReport v1alpha1.ClusterComplianceDetailReport
-			err = loadResource("./testdata/fixture/clusterComplianceDetailReport.json", &clusterComplianceDetialReport)
-			complianceDetailReport, err := getDetailReport(context.TODO(), types.NamespacedName{Namespace: "", Name: "nsa-details"}, client)
-			Expect(err).ToNot(HaveOccurred())
-			sort.Sort(controlDetailSort(complianceDetailReport.Report.ControlChecks))
-			sort.Sort(controlDetailSort(clusterComplianceDetialReport.Report.ControlChecks))
-			for i := 0; i < len(complianceDetailReport.Report.ControlChecks); i++ {
-				sort.Sort(controlObjectTypeSort(complianceDetailReport.Report.ControlChecks[i].ScannerCheckResult))
-				sort.Sort(controlObjectTypeSort(clusterComplianceDetialReport.Report.ControlChecks[i].ScannerCheckResult))
-			}
-
-			Expect(cmp.Equal(complianceDetailReport.Report, clusterComplianceDetialReport.Report, ignoreTimeStamp())).To(BeTrue())
-		})
+		
 
 		ginkgo.It("check cluster compliance report status match expected result", func() {
 			// validate cluster compliance report status

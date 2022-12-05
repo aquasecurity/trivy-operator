@@ -47,7 +47,7 @@ configure it to watch the `default` namespaces:
      config:
        env:
        - name: OPERATOR_EXCLUDE_NAMESPACES
-        value: "kube-system,trivy-system"
+        value: "kube-system"
    EOF
    ```
    The operator will be installed in the `trivy-system` namespace and will select all namespaces, except

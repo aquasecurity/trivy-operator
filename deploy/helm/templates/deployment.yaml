@@ -38,7 +38,7 @@ spec:
             - name: OPERATOR_TARGET_NAMESPACES
               value: {{ .Values.targetNamespaces | quote }}
             - name: OPERATOR_EXCLUDE_NAMESPACES
-              value: {{ printf "%s,%s" (tpl .Values.excludeNamespaces .) (include "trivy-operator.namespace" . ) | quote }}
+              value: {{ .Values.excludeNamespaces | quote }}
             - name: OPERATOR_TARGET_WORKLOADS
               value: {{ tpl .Values.targetWorkloads . | quote }}
             - name: OPERATOR_SERVICE_ACCOUNT

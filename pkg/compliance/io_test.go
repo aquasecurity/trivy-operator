@@ -20,7 +20,7 @@ func TestGenerateComplianceReport(t *testing.T) {
 		clusterComplianceReport *v1alpha1.ClusterComplianceReport
 		wantStatus              *v1alpha1.ReportStatus
 	}{
-		{name: "decode basic data", configAuditList: &v1alpha1.ConfigAuditReportList{
+		{name: "build summary report", configAuditList: &v1alpha1.ConfigAuditReportList{
 			TypeMeta: v1.TypeMeta{Kind: "ConfigAuditReport"},
 			ListMeta: v1.ListMeta{},
 			Items: []v1alpha1.ConfigAuditReport{
@@ -31,6 +31,16 @@ func TestGenerateComplianceReport(t *testing.T) {
 							{
 								ID:      "AVD-KSV-0001",
 								Title:   "some check",
+								Success: false,
+							},
+							{
+								ID:      "KSV003",
+								Title:   "another check",
+								Success: false,
+							},
+							{
+								ID:      "KCV0004",
+								Title:   "another check",
 								Success: false,
 							},
 						},
@@ -63,6 +73,24 @@ func TestGenerateComplianceReport(t *testing.T) {
 								},
 							},
 						},
+						{
+							ID:          "3.0",
+							Description: "check network access",
+							Checks: []v1alpha1.SpecCheck{
+								{
+									ID: "AVD-KSV-0003",
+								},
+							},
+						},
+						{
+							ID:          "4.0",
+							Description: "check apiserver permission",
+							Checks: []v1alpha1.SpecCheck{
+								{
+									ID: "AVD-KCV-0004",
+								},
+							},
+						},
 					},
 				},
 			},
@@ -82,6 +110,14 @@ func TestGenerateComplianceReport(t *testing.T) {
 					{
 						ID:        "2.0",
 						TotalFail: getIntPtr(0),
+					},
+					{
+						ID:        "3.0",
+						TotalFail: getIntPtr(1),
+					},
+					{
+						ID:        "4.0",
+						TotalFail: getIntPtr(1),
 					},
 				},
 			},

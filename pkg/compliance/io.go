@@ -1,7 +1,6 @@
 package compliance
 
 import (
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy/pkg/compliance/report"
 	ttypes "github.com/aquasecurity/trivy/pkg/types"
 
@@ -9,7 +8,6 @@ import (
 	"fmt"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
-	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -20,18 +18,14 @@ type Mgr interface {
 	GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportSpec) error
 }
 
-func NewMgr(c client.Client, log logr.Logger, config trivyoperator.ConfigData) Mgr {
+func NewMgr(c client.Client) Mgr {
 	return &cm{
 		client: c,
-		log:    log,
-		config: config,
 	}
 }
 
 type cm struct {
 	client client.Client
-	log    logr.Logger
-	config trivyoperator.ConfigData
 }
 
 // GenerateComplianceReport generate and public compliance report by spec
@@ -128,7 +122,7 @@ func reportsToResults(checks []v1alpha1.Check, name string, namespace string) tt
 		if check.Success {
 			status = ttypes.StatusPassed
 		}
-		var id string
+		id := check.ID
 		if !strings.HasPrefix(check.ID, "AVD-") {
 			if strings.HasPrefix(check.ID, "KSV") {
 				id = fmt.Sprintf("%s-%s-%s", "AVD", "KSV", strings.Replace(check.ID, "KSV", "0", -1))

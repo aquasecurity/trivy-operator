@@ -267,7 +267,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		cc := &compliance.ClusterComplianceReportReconciler{
 			Logger: logger,
 			Client: mgr.GetClient(),
-			Mgr:    compliance.NewMgr(mgr.GetClient(), logger, trivyOperatorConfig),
+			Mgr:    compliance.NewMgr(mgr.GetClient()),
 			Clock:  ext.NewSystemClock(),
 		}
 		if err := cc.SetupWithManager(mgr); err != nil {

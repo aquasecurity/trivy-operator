@@ -161,8 +161,8 @@ spec:
                       properties:
                         checks:
                           items:
-                            description: Check provides the result of conducting a
-                              single audit step.
+                            description: ComplianceCheck provides the result of conducting
+                              a single compliance step.
                             properties:
                               category:
                                 type: string
@@ -178,29 +178,14 @@ spec:
                                 description: Remediation provides description or links
                                   to external resources to remediate failing check.
                                 type: string
-                              scope:
-                                description: Scope indicates the section of config
-                                  that was audited.
-                                properties:
-                                  type:
-                                    description: Type indicates type of this scope,
-                                      e.g. Container, ConfigMapKey or JSONPath.
-                                    type: string
-                                  value:
-                                    description: Value indicates value of this scope
-                                      that depends on Type, e.g. container name, ConfigMap
-                                      key or JSONPath expression
-                                    type: string
-                                required:
-                                - type
-                                - value
-                                type: object
                               severity:
                                 description: Severity level of a vulnerability or
                                   a configuration audit check.
                                 type: string
                               success:
                                 type: boolean
+                              target:
+                                type: string
                               title:
                                 type: string
                             required:

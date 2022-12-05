@@ -36,7 +36,6 @@ type cm struct {
 
 // GenerateComplianceReport generate and public compliance report by spec
 func (w *cm) GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportSpec) error {
-	// map specs to key/value map for easy processing
 	trivyResults, err := misconfigReportToTrivyResults(w.client, ctx)
 	if err != nil {
 		return err
@@ -107,7 +106,7 @@ func misconfigReportToTrivyResults(cli client.Client, ctx context.Context) ([]tt
 		return nil, err
 	}
 	for _, ca := range caObjList.Items {
-		results := reportsToResults(ca.Report.Checks)
+		results := reportsToResults(ca.Report.Checks, ca.Name, ca.Namespace)
 		resultsArray = append(resultsArray, results)
 	}
 	iaObjList := &v1alpha1.InfraAssessmentReportList{}
@@ -116,13 +115,13 @@ func misconfigReportToTrivyResults(cli client.Client, ctx context.Context) ([]tt
 		return nil, err
 	}
 	for _, ia := range iaObjList.Items {
-		results := reportsToResults(ia.Report.Checks)
+		results := reportsToResults(ia.Report.Checks, ia.Name, ia.Namespace)
 		resultsArray = append(resultsArray, results)
 	}
 	return resultsArray, nil
 }
 
-func reportsToResults(checks []v1alpha1.Check) ttypes.Results {
+func reportsToResults(checks []v1alpha1.Check, name string, namespace string) ttypes.Results {
 	results := ttypes.Results{}
 	for _, check := range checks {
 		status := ttypes.StatusFailure
@@ -138,7 +137,7 @@ func reportsToResults(checks []v1alpha1.Check) ttypes.Results {
 				id = fmt.Sprintf("%s-%s-%s", "AVD", "KCV", strings.Replace(check.ID, "KCV", "", -1))
 			}
 		}
-		misconfigResult := ttypes.Result{
+		misconfigResult := ttypes.Result{Target: fmt.Sprintf("%s/%s", namespace, name),
 			Misconfigurations: []ttypes.DetectedMisconfiguration{{
 				AVDID:       id,
 				Title:       check.Title,

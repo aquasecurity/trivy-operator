@@ -138,7 +138,25 @@ type ControlCheckResult struct {
 	Description   string             `json:"description,omitempty"`
 	DefaultStatus spec.ControlStatus `json:"status,omitempty"`
 	Severity      string             `json:"severity,omitempty"`
-	Checks        []Check            `json:"checks"`
+	Checks        []ComplianceCheck  `json:"checks"`
+}
+
+// ComplianceCheck provides the result of conducting a single compliance step.
+type ComplianceCheck struct {
+	ID          string   `json:"checkID"`
+	Target      string   `json:"target,omitempty"`
+	Title       string   `json:"title,omitempty"`
+	Description string   `json:"description,omitempty"`
+	Severity    Severity `json:"severity"`
+	Category    string   `json:"category,omitempty"`
+
+	Messages []string `json:"messages,omitempty"`
+
+	// Remediation provides description or links to external resources to remediate failing check.
+	// +optional
+	Remediation string `json:"remediation,omitempty"`
+
+	Success bool `json:"success"`
 }
 
 // ToComplainceSpec map data from crd compliance spec to trivy compliance spec
@@ -191,11 +209,12 @@ func FromSummaryReport(sr *report.SummaryReport) *SummaryReport {
 func FromDetailReport(sr *report.ComplianceReport) *ComplianceReport {
 	controlResults := make([]*ControlCheckResult, 0)
 	for _, sr := range sr.Results {
-		checks := make([]Check, 0)
+		checks := make([]ComplianceCheck, 0)
 		for _, r := range sr.Results {
 			for _, ms := range r.Misconfigurations {
-				checks = append(checks, Check{
+				checks = append(checks, ComplianceCheck{
 					ID:          ms.AVDID,
+					Target:      r.Target,
 					Title:       ms.Title,
 					Description: ms.Description,
 					Severity:    Severity(ms.Severity),
@@ -207,7 +226,7 @@ func FromDetailReport(sr *report.ComplianceReport) *ComplianceReport {
 		}
 		// mark check as pass of no misconfig issue found
 		if len(checks) == 0 {
-			checks = append(checks, Check{
+			checks = append(checks, ComplianceCheck{
 				Success: true,
 			})
 		}

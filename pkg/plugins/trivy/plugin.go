@@ -1524,11 +1524,6 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 
 	trivyConfigName := trivyoperator.GetPluginConfigMapName(Plugin)
 
-	//dbRepository, err := config.GetDBRepository()
-	//if err != nil {
-	//	return corev1.PodSpec{}, nil, err
-	//}
-
 	requirements, err := config.GetResourceRequirements()
 	if err != nil {
 		return corev1.PodSpec{}, nil, err

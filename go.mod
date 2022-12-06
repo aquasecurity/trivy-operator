@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/aquasecurity/defsec v0.82.6
+	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dsnet/compress v0.0.1

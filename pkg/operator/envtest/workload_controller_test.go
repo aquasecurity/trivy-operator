@@ -56,15 +56,11 @@ var _ = Describe("Workload controller", func() {
 	}
 	var testdataResourceDir = path.Join("testdata", "fixture")
 
-	DescribeTable("When setting up the env",
+	DescribeTable("When setting up the env", Serial,
 		func(workload client.Object, workloadResourceFile string) {
 			Expect(loadResource(workload, path.Join(testdataResourceDir, workloadResourceFile))).Should(Succeed())
 			workload.SetNamespace(WorkloadNamespace)
-
-			// We'll need to retry creating resource
-			Eventually(func() error {
-				return k8sClient.Create(ctx, workload)
-			}, timeout, interval).Should(Succeed())
+			Expect(k8sClient.Create(ctx, workload)).Should(Succeed())
 		},
 		Entry("Should create a scan Job for CronJob", &batchv1.CronJob{}, "cronjob.yaml"),
 		Entry("Should create a scan Job for DaemonSet", &appsv1.DaemonSet{}, "daemonset.yaml"),
@@ -75,7 +71,7 @@ var _ = Describe("Workload controller", func() {
 		Entry("Should create a scan Job for StatefulSet", &appsv1.StatefulSet{}, "statefulset.yaml"),
 	)
 
-	DescribeTable("When creating workload",
+	DescribeTable("When creating workload", Serial,
 		func(expectedScanJobResourceFile string) {
 			expectedJob := &batchv1.Job{}
 			Expect(loadResource(expectedJob, path.Join(testdataResourceDir, expectedScanJobResourceFile))).Should(Succeed())
@@ -100,7 +96,7 @@ var _ = Describe("Workload controller", func() {
 		Entry("Should create a scan Job for StatefulSet", "statefulset-expected-scan.yaml"),
 	)
 
-	DescribeTable("When creating resource",
+	DescribeTable("When creating resource", Serial,
 		func(expectedConfigAuditReportResourceFile string) {
 			expectedConfigAuditReport := &v1alpha1.ConfigAuditReport{}
 			Expect(loadResource(expectedConfigAuditReport, path.Join(testdataResourceDir, expectedConfigAuditReportResourceFile))).Should(Succeed())

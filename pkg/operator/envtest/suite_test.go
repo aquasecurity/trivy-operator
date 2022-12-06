@@ -1,4 +1,4 @@
-package vulnerabilityreport_test
+package operator_test
 
 import (
 	"os"
@@ -11,11 +11,15 @@ import (
 	"testing"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+	ca "github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
+	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins"
+	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
@@ -50,7 +54,7 @@ var _ = BeforeSuite(func() {
 
 	By("bootstrapping test environment")
 	testEnv = &envtest.Environment{
-		CRDDirectoryPaths:     []string{filepath.Join("..", "..", "deploy", "crd")},
+		CRDDirectoryPaths:     []string{filepath.Join("..","..", "..", "deploy", "crd")},
 		ErrorIfCRDPathMissing: true,
 	}
 
@@ -119,6 +123,33 @@ var _ = BeforeSuite(func() {
 		PluginContext:           pluginContext,
 		VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(&objectResolver),
 		ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(&objectResolver),
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	buildInfo := trivyoperator.BuildInfo{
+		Version: "version",
+		Commit:  "commit",
+		Date:    "12/12/2020",
+	}
+	pluginca, pluginContext, err := plugins.NewResolver().WithBuildInfo(buildInfo).
+		WithNamespace(config.Namespace).
+		WithServiceAccountName(config.ServiceAccount).
+		WithConfig(trivyOperatorConfig).
+		WithClient(managerClient).
+		WithObjectResolver(&objectResolver).
+		GetConfigAuditPlugin()
+
+	err = (&ca.ResourceController{
+		Logger:          ctrl.Log.WithName("resourcecontroller"),
+		Config:          config,
+		ConfigData:      trivyOperatorConfig,
+		ObjectResolver:  objectResolver,
+		PluginContext:   pluginContext,
+		PluginInMemory:  pluginca,
+		ReadWriter:      configauditreport.NewReadWriter(&objectResolver),
+		RbacReadWriter:  rbacassessment.NewReadWriter(&objectResolver),
+		InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
+		BuildInfo:       buildInfo,
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 

@@ -54,7 +54,7 @@ var _ = BeforeSuite(func() {
 
 	By("bootstrapping test environment")
 	testEnv = &envtest.Environment{
-		CRDDirectoryPaths:     []string{filepath.Join("..","..", "..", "deploy", "crd")},
+		CRDDirectoryPaths:     []string{filepath.Join("..", "..", "..", "deploy", "crd")},
 		ErrorIfCRDPathMissing: true,
 	}
 
@@ -131,13 +131,15 @@ var _ = BeforeSuite(func() {
 		Commit:  "commit",
 		Date:    "12/12/2020",
 	}
-	pluginca, pluginContext, err := plugins.NewResolver().WithBuildInfo(buildInfo).
+	pluginca, _, err := plugins.NewResolver().WithBuildInfo(buildInfo).
 		WithNamespace(config.Namespace).
 		WithServiceAccountName(config.ServiceAccount).
 		WithConfig(trivyOperatorConfig).
 		WithClient(managerClient).
 		WithObjectResolver(&objectResolver).
 		GetConfigAuditPlugin()
+
+	Expect(err).ToNot(HaveOccurred())
 
 	err = (&ca.ResourceController{
 		Logger:          ctrl.Log.WithName("resourcecontroller"),

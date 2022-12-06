@@ -60,7 +60,11 @@ var _ = Describe("Workload controller", func() {
 		func(workload client.Object, workloadResourceFile string) {
 			Expect(loadResource(workload, path.Join(testdataResourceDir, workloadResourceFile))).Should(Succeed())
 			workload.SetNamespace(WorkloadNamespace)
-			Expect(k8sClient.Create(ctx, workload)).Should(Succeed())
+
+			// We'll need to retry creating resource
+			Eventually(func() error {
+				return k8sClient.Create(ctx, workload)
+			}, timeout, interval).Should(Succeed())
 		},
 		Entry("Should create a scan Job for CronJob", &batchv1.CronJob{}, "cronjob.yaml"),
 		Entry("Should create a scan Job for DaemonSet", &appsv1.DaemonSet{}, "daemonset.yaml"),

@@ -214,6 +214,13 @@ spec:
                     type: string
                 type: object
                 x-kubernetes-preserve-unknown-fields: true
+              summary:
+                properties:
+                  failCount:
+                    type: integer
+                  passCount:
+                    type: integer
+                type: object
               summaryReport:
                 description: SummaryReport represents a kubernetes scan report with
                   consolidated findings
@@ -237,13 +244,6 @@ spec:
                     type: string
                 type: object
                 x-kubernetes-preserve-unknown-fields: true
-              totalCounts:
-                properties:
-                  failCount:
-                    type: integer
-                  passCount:
-                    type: integer
-                type: object
               updateTimestamp:
                 format: date-time
                 type: string

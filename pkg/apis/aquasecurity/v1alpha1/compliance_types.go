@@ -6,11 +6,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-type ClusterComplianceSummary struct {
-	PassCount int `json:"passCount"`
-	FailCount int `json:"failCount"`
-}
-
 //+kubebuilder:object:root=true
 //+kubebuilder:resource:scope=Cluster,shortName={compliance}
 //+kubebuilder:subresource:status
@@ -77,7 +72,7 @@ type ClusterComplianceReportList struct {
 }
 
 type ReportStatus struct {
-	TotalCounts TotalCounts `json:"totalCounts,omitempty"`
+	Summary ComplianceSummary `json:"summary,omitempty"`
 
 	UpdateTimestamp metav1.Time `json:"updateTimestamp"`
 	// +kubebuilder:validation:Optional
@@ -88,7 +83,7 @@ type ReportStatus struct {
 	SummaryReport *SummaryReport `json:"summaryReport,omitempty"`
 }
 
-type TotalCounts struct {
+type ComplianceSummary struct {
 	FailCount int `json:"failCount,omitempty"`
 	PassCount int `json:"passCount,omitempty"`
 }
@@ -249,7 +244,7 @@ func FromDetailReport(sr *report.ComplianceReport) *ComplianceReport {
 	}
 }
 
-func TotalsCheckCount(sr *report.ComplianceReport) TotalCounts {
+func TotalsCheckCount(sr *report.ComplianceReport) ComplianceSummary {
 	var passCount int
 	var failCount int
 	for _, sr := range sr.Results {
@@ -259,7 +254,7 @@ func TotalsCheckCount(sr *report.ComplianceReport) TotalCounts {
 		}
 		failCount++
 	}
-	return TotalCounts{
+	return ComplianceSummary{
 		PassCount: passCount,
 		FailCount: failCount,
 	}

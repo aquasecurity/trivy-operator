@@ -71,7 +71,7 @@ var _ = Describe("Workload controller", func() {
 		Entry("Should create a scan Job for StatefulSet", &appsv1.StatefulSet{}, "statefulset.yaml"),
 	)
 
-	DescribeTable("When creating workload", Serial,
+	DescribeTable("On Vulnerability reconcile loop", Serial,
 		func(expectedScanJobResourceFile string) {
 			expectedJob := &batchv1.Job{}
 			Expect(loadResource(expectedJob, path.Join(testdataResourceDir, expectedScanJobResourceFile))).Should(Succeed())
@@ -96,7 +96,7 @@ var _ = Describe("Workload controller", func() {
 		Entry("Should create a scan Job for StatefulSet", "statefulset-expected-scan.yaml"),
 	)
 
-	DescribeTable("When creating resource", Serial,
+	DescribeTable("On ConfigAudit reconcile loop", Serial,
 		func(expectedConfigAuditReportResourceFile string) {
 			expectedConfigAuditReport := &v1alpha1.ConfigAuditReport{}
 			Expect(loadResource(expectedConfigAuditReport, path.Join(testdataResourceDir, expectedConfigAuditReportResourceFile))).Should(Succeed())

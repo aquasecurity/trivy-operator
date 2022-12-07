@@ -56,22 +56,22 @@ var _ = Describe("Workload controller", func() {
 	}
 	var testdataResourceDir = path.Join("testdata", "fixture")
 
-	DescribeTable("When setting up the env", Serial,
+	DescribeTable("On deploying workloads",
 		func(workload client.Object, workloadResourceFile string) {
 			Expect(loadResource(workload, path.Join(testdataResourceDir, workloadResourceFile))).Should(Succeed())
 			workload.SetNamespace(WorkloadNamespace)
 			Expect(k8sClient.Create(ctx, workload)).Should(Succeed())
 		},
-		Entry("Should create a scan Job for CronJob", &batchv1.CronJob{}, "cronjob.yaml"),
-		Entry("Should create a scan Job for DaemonSet", &appsv1.DaemonSet{}, "daemonset.yaml"),
-		Entry("Should create a scan Job for Job", &batchv1.Job{}, "job.yaml"),
-		Entry("Should create a scan Job for Pod", &corev1.Pod{}, "pod.yaml"),
-		Entry("Should create a scan Job for ReplicaSet", &appsv1.ReplicaSet{}, "replicaset.yaml"),
-		Entry("Should create a scan Job for ReplicationController", &corev1.ReplicationController{}, "replicationcontroller.yaml"),
-		Entry("Should create a scan Job for StatefulSet", &appsv1.StatefulSet{}, "statefulset.yaml"),
+		Entry("Should create a CronJob resource", &batchv1.CronJob{}, "cronjob.yaml"),
+		Entry("Should create a DaemonSet resource", &appsv1.DaemonSet{}, "daemonset.yaml"),
+		Entry("Should create a Job resource", &batchv1.Job{}, "job.yaml"),
+		Entry("Should create a Pod resource", &corev1.Pod{}, "pod.yaml"),
+		Entry("Should create a ReplicaSet resource", &appsv1.ReplicaSet{}, "replicaset.yaml"),
+		Entry("Should create a ReplicationController resource", &corev1.ReplicationController{}, "replicationcontroller.yaml"),
+		Entry("Should create a StatefulSet resource", &appsv1.StatefulSet{}, "statefulset.yaml"),
 	)
 
-	DescribeTable("On Vulnerability reconcile loop", Serial,
+	DescribeTable("On Vulnerability reconcile loop",
 		func(expectedScanJobResourceFile string) {
 			expectedJob := &batchv1.Job{}
 			Expect(loadResource(expectedJob, path.Join(testdataResourceDir, expectedScanJobResourceFile))).Should(Succeed())
@@ -96,7 +96,7 @@ var _ = Describe("Workload controller", func() {
 		Entry("Should create a scan Job for StatefulSet", "statefulset-expected-scan.yaml"),
 	)
 
-	DescribeTable("On ConfigAudit reconcile loop", Serial,
+	DescribeTable("On ConfigAudit reconcile loop",
 		func(expectedConfigAuditReportResourceFile string) {
 			expectedConfigAuditReport := &v1alpha1.ConfigAuditReport{}
 			Expect(loadResource(expectedConfigAuditReport, path.Join(testdataResourceDir, expectedConfigAuditReportResourceFile))).Should(Succeed())

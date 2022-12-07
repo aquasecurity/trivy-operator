@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/aquasecurity/defsec v0.82.6
-	github.com/aquasecurity/trivy v0.34.0
+	github.com/aquasecurity/trivy v0.35.0
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/davecgh/go-spew v1.1.1
@@ -31,21 +31,22 @@ require (
 )
 
 require (
-	github.com/aquasecurity/go-dep-parser v0.0.0-20221024082335-60502daef4ba // indirect
+	github.com/aquasecurity/go-dep-parser v0.0.0-20221114145626-35ef808901e8 // indirect
 	github.com/aquasecurity/table v1.8.0 // indirect
 	github.com/aquasecurity/tml v0.6.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
+	github.com/masahiro331/go-xfs-filesystem v0.0.0-20221127135739-051c25f1becd // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/samber/lo v1.28.2 // indirect
+	github.com/samber/lo v1.33.0 // indirect
 	github.com/spdx/tools-golang v0.3.0 // indirect
 	github.com/tchap/go-patricia/v2 v2.3.1 // indirect
 	github.com/xlab/treeprint v1.1.0 // indirect
 	golang.org/x/mod v0.6.0 // indirect
-	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
+	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 

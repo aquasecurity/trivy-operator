@@ -165,16 +165,19 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 
 		if err = (&vcontroller.WorkloadController{
-			Logger:                  ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
-			Config:                  operatorConfig,
-			ConfigData:              trivyOperatorConfig,
-			Client:                  mgr.GetClient(),
-			ObjectResolver:          objectResolver,
-			LimitChecker:            limitChecker,
-			SecretsReader:           secretsReader,
-			Plugin:                  plugin,
-			PluginContext:           pluginContext,
-			Cache:                   gcache.New(1).LRU().Build(),
+			Logger:         ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
+			Config:         operatorConfig,
+			ConfigData:     trivyOperatorConfig,
+			Client:         mgr.GetClient(),
+			ObjectResolver: objectResolver,
+			LimitChecker:   limitChecker,
+			SecretsReader:  secretsReader,
+			Plugin:         plugin,
+			PluginContext:  pluginContext,
+			ServerHealthChecker: vcontroller.NewTrivyServerChecker(
+				operatorConfig.TrivyServerHealthCheckCacheExpiration,
+				gcache.New(1).LRU().Build(),
+				vcontroller.NewHttpChecker()),
 			VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(&objectResolver),
 			ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(&objectResolver),
 		}).SetupWithManager(mgr); err != nil {

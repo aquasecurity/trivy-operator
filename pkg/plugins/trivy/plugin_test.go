@@ -59,7 +59,7 @@ func TestConfig_GetImageRef(t *testing.T) {
 			name: "Should return error",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"trivy.tag": "0.9.0-rc",
+					"trivy.tag": "0.8.0",
 				},
 			}},
 			expectedError: "property trivy.repository not set",
@@ -78,10 +78,10 @@ func TestConfig_GetImageRef(t *testing.T) {
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
 					"trivy.repository": "gcr.io/aquasecurity/trivy",
-					"trivy.tag":        "0.9.0-rc",
+					"trivy.tag":        "0.8.0",
 				},
 			}},
-			expectedImageRef: "gcr.io/aquasecurity/trivy:0.9.0-rc",
+			expectedImageRef: "gcr.io/aquasecurity/trivy:0.8.0",
 		},
 	}
 

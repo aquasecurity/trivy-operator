@@ -70,7 +70,7 @@ operator:
   # builtInTrivyServer The flag enable the usage of built-in trivy server in cluster ,its also override the following trivy params with built-in values
   # trivy.mode = ClientServer and serverURL = http://<serverServiceName>.<trivy operator namespace>:4975
   builtInTrivyServer: false
-  
+
   # trivyServerHealthCheckCacheExpiration The flag to set the interval for trivy server health cache before it invalidate
   trivyServerHealthCheckCacheExpiration: 10h
 

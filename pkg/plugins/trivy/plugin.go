@@ -1514,12 +1514,12 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 
 	trivyServerURL, err := config.GetServerURL()
 	if err != nil {
-			return corev1.PodSpec{}, nil, err
+		return corev1.PodSpec{}, nil, err
 	}
 
 	encodedTrivyServerURL, err := url.Parse(trivyServerURL)
 	if err != nil {
-			return corev1.PodSpec{}, nil, err
+		return corev1.PodSpec{}, nil, err
 	}
 
 	trivyConfigName := trivyoperator.GetPluginConfigMapName(Plugin)
@@ -2036,16 +2036,16 @@ func constructEnvVarSourceFromConfigMap(envName, configName, configKey string) (
 
 func constructEnvVarSourceFromSecret(envName, secretName, secretKey string) (res corev1.EnvVar) {
 	res = corev1.EnvVar{
-			Name: envName,
-			ValueFrom: &corev1.EnvVarSource{
-					SecretKeyRef: &corev1.SecretKeySelector{
-							LocalObjectReference: corev1.LocalObjectReference{
-									Name: secretName,
-							},
-							Key:      secretKey,
-							Optional: pointer.BoolPtr(true),
-					},
+		Name: envName,
+		ValueFrom: &corev1.EnvVarSource{
+			SecretKeyRef: &corev1.SecretKeySelector{
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: secretName,
+				},
+				Key:      secretKey,
+				Optional: pointer.BoolPtr(true),
 			},
+		},
 	}
 	return
 }

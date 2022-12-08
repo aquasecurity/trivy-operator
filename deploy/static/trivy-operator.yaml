@@ -2107,4 +2107,3 @@ spec:
   selector:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-

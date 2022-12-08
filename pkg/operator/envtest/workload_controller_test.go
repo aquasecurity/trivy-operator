@@ -6,16 +6,16 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"path"
-	"time"
-
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"path"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"time"
 )
 
 var _ = Describe("Workload controller", func() {
@@ -54,6 +54,21 @@ var _ = Describe("Workload controller", func() {
 		sort.Sort(ByCheckID(ca.Report.Checks))
 		return ca
 	}
+	NormalizeUntestableRbacAssessmentReportFields := func(ca *v1alpha1.RbacAssessmentReport) *v1alpha1.RbacAssessmentReport {
+		ca.APIVersion = "aquasecurity.github.io/v1alpha1"
+		ca.Kind = "RbacAssessmentReport"
+		ca.UID = ""
+		ca.SetLabels(map[string]string{
+			"trivy-operator.resource.kind": "Role",
+			"trivy-operator.resource.name": "proxy",
+		})
+		ca.ResourceVersion = ""
+		ca.CreationTimestamp = metav1.Time{}
+		ca.ManagedFields = nil
+		ca.OwnerReferences[0].UID = ""
+		sort.Sort(ByCheckID(ca.Report.Checks))
+		return ca
+	}
 	var testdataResourceDir = path.Join("testdata", "fixture")
 
 	DescribeTable("On deploying workloads",
@@ -69,6 +84,7 @@ var _ = Describe("Workload controller", func() {
 		Entry("Should create a ReplicaSet resource", &appsv1.ReplicaSet{}, "replicaset.yaml"),
 		Entry("Should create a ReplicationController resource", &corev1.ReplicationController{}, "replicationcontroller.yaml"),
 		Entry("Should create a StatefulSet resource", &appsv1.StatefulSet{}, "statefulset.yaml"),
+		Entry("Should create a Role resource", &rbacv1.Role{}, "role.yaml"),
 	)
 
 	DescribeTable("On Vulnerability reconcile loop",
@@ -117,6 +133,25 @@ var _ = Describe("Workload controller", func() {
 		Entry("Should create a config audit report Job", "job-configauditreport-expected.yaml"),
 		Entry("Should create a config audit report Pod", "pod-configauditreport-expected.yaml"),
 		Entry("Should create a config audit report ReplicaSet", "replicaset-configauditreport-expected.yaml"),
+	)
+
+	DescribeTable("On Rbac reconcile loop",
+		func(expectedRbacAssessmentReportResourceFile string) {
+			expectedRbacAssessmentReport := &v1alpha1.RbacAssessmentReport{}
+			Expect(loadResource(expectedRbacAssessmentReport, path.Join(testdataResourceDir, expectedRbacAssessmentReportResourceFile))).Should(Succeed())
+			expectedRbacAssessmentReport.Namespace = WorkloadNamespace
+
+			caLookupKey := client.ObjectKeyFromObject(expectedRbacAssessmentReport)
+			createdRbacAssessmentReport := &v1alpha1.RbacAssessmentReport{}
+
+			// We'll need to retry getting this newly created Job, given that creation may not immediately happen.
+			Eventually(func() error {
+				return k8sClient.Get(ctx, caLookupKey, createdRbacAssessmentReport)
+			}, timeout, interval).Should(Succeed())
+			sort.Sort(ByCheckID(expectedRbacAssessmentReport.Report.Checks))
+			Expect(createdRbacAssessmentReport).Should(WithTransform(NormalizeUntestableRbacAssessmentReportFields, Equal(expectedRbacAssessmentReport)))
+		},
+		Entry("Should create a rbac assessment report ", "role-rbacassessment-expected.yaml"),
 	)
 })
 

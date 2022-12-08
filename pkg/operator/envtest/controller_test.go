@@ -6,6 +6,9 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"path"
+	"time"
+
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	appsv1 "k8s.io/api/apps/v1"
@@ -13,18 +16,16 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"path"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"time"
 )
 
 var _ = Describe("Workload controller", func() {
 
 	const (
-		WorkloadNamespace = "default"
-
-		timeout  = time.Second * 10
-		interval = time.Millisecond * 250
+		WorkloadNamespace   = "default"
+		kubeSystemNamespace = "kube-system"
+		timeout             = time.Second * 10
+		interval            = time.Millisecond * 250
 	)
 
 	NormalizeUntestableScanJobFields := func(job *batchv1.Job) *batchv1.Job {
@@ -69,12 +70,29 @@ var _ = Describe("Workload controller", func() {
 		sort.Sort(ByCheckID(ca.Report.Checks))
 		return ca
 	}
+	NormalizeUntestableInfraAssessmentReportFields := func(ca *v1alpha1.InfraAssessmentReport) *v1alpha1.InfraAssessmentReport {
+		ca.APIVersion = "aquasecurity.github.io/v1alpha1"
+		ca.Kind = "InfraAssessmentReport"
+		ca.UID = ""
+		ca.SetLabels(map[string]string{
+			"trivy-operator.resource.kind":      "Pod",
+			"trivy-operator.resource.namespace": "kube-system",
+		})
+		ca.ResourceVersion = ""
+		ca.CreationTimestamp = metav1.Time{}
+		ca.ManagedFields = nil
+		ca.OwnerReferences[0].UID = ""
+		sort.Sort(ByCheckID(ca.Report.Checks))
+		return ca
+	}
 	var testdataResourceDir = path.Join("testdata", "fixture")
 
 	DescribeTable("On deploying workloads",
 		func(workload client.Object, workloadResourceFile string) {
 			Expect(loadResource(workload, path.Join(testdataResourceDir, workloadResourceFile))).Should(Succeed())
-			workload.SetNamespace(WorkloadNamespace)
+			if workload.GetNamespace() != kubeSystemNamespace {
+				workload.SetNamespace(WorkloadNamespace)
+			}
 			Expect(k8sClient.Create(ctx, workload)).Should(Succeed())
 		},
 		Entry("Should create a CronJob resource", &batchv1.CronJob{}, "cronjob.yaml"),
@@ -85,6 +103,7 @@ var _ = Describe("Workload controller", func() {
 		Entry("Should create a ReplicationController resource", &corev1.ReplicationController{}, "replicationcontroller.yaml"),
 		Entry("Should create a StatefulSet resource", &appsv1.StatefulSet{}, "statefulset.yaml"),
 		Entry("Should create a Role resource", &rbacv1.Role{}, "role.yaml"),
+		Entry("Should create a api-server resource", &corev1.Pod{}, "api-server.yaml"),
 	)
 
 	DescribeTable("On Vulnerability reconcile loop",
@@ -152,6 +171,25 @@ var _ = Describe("Workload controller", func() {
 			Expect(createdRbacAssessmentReport).Should(WithTransform(NormalizeUntestableRbacAssessmentReportFields, Equal(expectedRbacAssessmentReport)))
 		},
 		Entry("Should create a rbac assessment report ", "role-rbacassessment-expected.yaml"),
+	)
+
+	DescribeTable("On Infra reconcile loop",
+		func(expectedInfraAssessmentReportResourceFile string) {
+			expectedInfraAssessmentReport := &v1alpha1.InfraAssessmentReport{}
+			Expect(loadResource(expectedInfraAssessmentReport, path.Join(testdataResourceDir, expectedInfraAssessmentReportResourceFile))).Should(Succeed())
+			expectedInfraAssessmentReport.Namespace = kubeSystemNamespace
+
+			caLookupKey := client.ObjectKeyFromObject(expectedInfraAssessmentReport)
+			createdInfraAssessmentReport := &v1alpha1.InfraAssessmentReport{}
+
+			// We'll need to retry getting this newly created Job, given that creation may not immediately happen.
+			Eventually(func() error {
+				return k8sClient.Get(ctx, caLookupKey, createdInfraAssessmentReport)
+			}, timeout, interval).Should(Succeed())
+			sort.Sort(ByCheckID(expectedInfraAssessmentReport.Report.Checks))
+			Expect(createdInfraAssessmentReport).Should(WithTransform(NormalizeUntestableInfraAssessmentReportFields, Equal(expectedInfraAssessmentReport)))
+		},
+		Entry("Should create a infra assessment report ", "api-server-infraassessmentreport-expected.yaml"),
 	)
 })
 

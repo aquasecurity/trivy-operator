@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-SCRIPT_ROOT=./..
+SCRIPT_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
 
 CRD_DIR=$SCRIPT_ROOT/deploy/crd
 HELM_DIR=$SCRIPT_ROOT/deploy/helm

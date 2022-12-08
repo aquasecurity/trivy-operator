@@ -452,6 +452,8 @@ func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client
 		switch mode {
 		case Standalone:
 			podSpec, secrets, err = p.getPodSpecForStandaloneFSMode(ctx, config, workload, securityContext)
+		case ClientServer:
+			podSpec, secrets, err = p.getPodSpecForClientServerFSMode(ctx, config, workload, securityContext)
 		default:
 			return corev1.PodSpec{}, nil, fmt.Errorf("unrecognized trivy mode %q for command %q", mode, command)
 		}
@@ -1454,7 +1456,7 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			Command: []string{
 				SharedVolumeLocationOfTrivy,
 			},
-			Args:            p.getFSScanningArgs(ctx),
+			Args:            p.getFSScanningArgs(ctx, Standalone, ""),
 			Resources:       resourceRequirements,
 			SecurityContext: securityContext,
 			VolumeMounts:    volumeMounts,
@@ -1480,7 +1482,204 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 	return podSpec, secrets, nil
 }
 
-func (p *plugin) getFSScanningArgs(ctx trivyoperator.PluginContext) []string {
+// FileSystem scan option with ClientServer mode.
+// The only difference is that instead of scanning the resource by name,
+// We scanning the resource place on a specific file system location using the following command.
+//
+//	trivy --quiet fs  --server TRIVY_SERVER  --format json --ignore-unfixed  file/system/location
+func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Config,
+	workload client.Object, securityContext *corev1.SecurityContext) (corev1.PodSpec, []*corev1.Secret, error) {
+	var secrets []*corev1.Secret
+	spec, err := kube.GetPodSpec(workload)
+	if err != nil {
+		return corev1.PodSpec{}, nil, err
+	}
+	pullPolicy := corev1.PullIfNotPresent
+	// nodeName to schedule scan job explicitly on specific node.
+	var nodeName string
+	if !ctx.GetTrivyOperatorConfig().VulnerabilityScanJobsInSameNamespace() {
+		// get nodeName from running pods.
+		nodeName, err = p.objectResolver.GetNodeName(context.Background(), workload)
+		if err != nil {
+			return corev1.PodSpec{}, nil, fmt.Errorf("failed resolving node name for workload %q: %w",
+				workload.GetNamespace()+"/"+workload.GetName(), err)
+		}
+		pullPolicy = corev1.PullNever
+	}
+
+	trivyImageRef, err := config.GetImageRef()
+	if err != nil {
+		return corev1.PodSpec{}, nil, err
+	}
+
+	trivyServerURL, err := config.GetServerURL()
+	if err != nil {
+		return corev1.PodSpec{}, nil, err
+	}
+
+	encodedTrivyServerURL, err := url.Parse(trivyServerURL)
+	if err != nil {
+		return corev1.PodSpec{}, nil, err
+	}
+
+	trivyConfigName := trivyoperator.GetPluginConfigMapName(Plugin)
+
+	requirements, err := config.GetResourceRequirements()
+	if err != nil {
+		return corev1.PodSpec{}, nil, err
+	}
+
+	volumeMounts := []corev1.VolumeMount{
+		{
+			Name:      FsSharedVolumeName,
+			ReadOnly:  false,
+			MountPath: "/var/trivyoperator",
+		},
+		{
+			Name:      tmpVolumeName,
+			MountPath: "/tmp",
+			ReadOnly:  false,
+		},
+	}
+
+	initContainerCopyBinary := corev1.Container{
+		Name:                     p.idGenerator.GenerateID(),
+		Image:                    trivyImageRef,
+		ImagePullPolicy:          corev1.PullIfNotPresent,
+		TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
+		Command: []string{
+			"cp",
+			"-v",
+			"/usr/local/bin/trivy",
+			SharedVolumeLocationOfTrivy,
+		},
+		Resources:       requirements,
+		SecurityContext: securityContext,
+		VolumeMounts:    volumeMounts,
+	}
+
+	var containers []corev1.Container
+
+	volumes := []corev1.Volume{
+		{
+			Name: FsSharedVolumeName,
+			VolumeSource: corev1.VolumeSource{
+				EmptyDir: &corev1.EmptyDirVolumeSource{
+					Medium: corev1.StorageMediumDefault,
+				},
+			},
+		},
+		{
+			Name: tmpVolumeName,
+			VolumeSource: corev1.VolumeSource{
+				EmptyDir: &corev1.EmptyDirVolumeSource{
+					Medium: corev1.StorageMediumDefault,
+				},
+			},
+		},
+	}
+	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
+	volumes = append(volumes, getScanResultVolume())
+
+	//TODO Move this to function and refactor the code to use it
+	if config.IgnoreFileExists() {
+		volumes = append(volumes, corev1.Volume{
+			Name: ignoreFileVolumeName,
+			VolumeSource: corev1.VolumeSource{
+				ConfigMap: &corev1.ConfigMapVolumeSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: trivyConfigName,
+					},
+					Items: []corev1.KeyToPath{
+						{
+							Key:  keyTrivyIgnoreFile,
+							Path: ".trivyignore",
+						},
+					},
+				},
+			},
+		})
+
+		volumeMounts = append(volumeMounts, corev1.VolumeMount{
+			Name:      ignoreFileVolumeName,
+			MountPath: "/tmp/trivy/.trivyignore",
+			SubPath:   ".trivyignore",
+		})
+	}
+
+	for _, c := range getContainers(spec) {
+		env := []corev1.EnvVar{
+			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, keyTrivySeverity),
+			constructEnvVarSourceFromConfigMap("TRIVY_SKIP_FILES", trivyConfigName, keyTrivySkipFiles),
+			constructEnvVarSourceFromConfigMap("TRIVY_SKIP_DIRS", trivyConfigName, keyTrivySkipDirs),
+			constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
+			constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
+			constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
+			constructEnvVarSourceFromConfigMap("TRIVY_TOKEN_HEADER", trivyConfigName, keyTrivyServerTokenHeader),
+			constructEnvVarSourceFromSecret("TRIVY_TOKEN", trivyConfigName, keyTrivyServerToken),
+			constructEnvVarSourceFromSecret("TRIVY_CUSTOM_HEADERS", trivyConfigName, keyTrivyServerCustomHeaders),
+		}
+		if config.IgnoreFileExists() {
+			env = append(env, corev1.EnvVar{
+				Name:  "TRIVY_IGNOREFILE",
+				Value: "/tmp/trivy/.trivyignore",
+			})
+		}
+		if config.IgnoreUnfixed() {
+			env = append(env, constructEnvVarSourceFromConfigMap("TRIVY_IGNORE_UNFIXED",
+				trivyConfigName, keyTrivyIgnoreUnfixed))
+		}
+
+		if config.OfflineScan() {
+			env = append(env, constructEnvVarSourceFromConfigMap("TRIVY_OFFLINE_SCAN",
+				trivyConfigName, keyTrivyOfflineScan))
+		}
+
+		env, err = p.appendTrivyInsecureEnv(config, c.Image, env)
+		if err != nil {
+			return corev1.PodSpec{}, nil, err
+		}
+
+		resourceRequirements, err := config.GetResourceRequirements()
+		if err != nil {
+			return corev1.PodSpec{}, nil, err
+		}
+		containers = append(containers, corev1.Container{
+			Name:                     c.Name,
+			Image:                    c.Image,
+			ImagePullPolicy:          pullPolicy,
+			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
+			Env:                      env,
+			Command: []string{
+				SharedVolumeLocationOfTrivy,
+			},
+			Args:            p.getFSScanningArgs(ctx, ClientServer, encodedTrivyServerURL.String()),
+			Resources:       resourceRequirements,
+			SecurityContext: securityContext,
+			VolumeMounts:    volumeMounts,
+		})
+	}
+
+	podSpec := corev1.PodSpec{
+		Affinity:                     trivyoperator.LinuxNodeAffinity(),
+		RestartPolicy:                corev1.RestartPolicyNever,
+		ServiceAccountName:           ctx.GetServiceAccountName(),
+		AutomountServiceAccountToken: pointer.Bool(getAutomountServiceAccountToken(ctx)),
+		Volumes:                      volumes,
+		InitContainers:               []corev1.Container{initContainerCopyBinary},
+		Containers:                   containers,
+		SecurityContext:              &corev1.PodSecurityContext{},
+	}
+
+	if !ctx.GetTrivyOperatorConfig().VulnerabilityScanJobsInSameNamespace() {
+		// schedule scan job explicitly on specific node.
+		podSpec.NodeName = nodeName
+	}
+
+	return podSpec, secrets, nil
+}
+
+func (p *plugin) getFSScanningArgs(ctx trivyoperator.PluginContext, mode Mode, trivyServerURL string) []string {
 	args := []string{
 		"--cache-dir",
 		"/var/trivyoperator/trivy-db",
@@ -1492,6 +1691,9 @@ func (p *plugin) getFSScanningArgs(ctx trivyoperator.PluginContext) []string {
 		"--format",
 		"json",
 		"/",
+	}
+	if mode == ClientServer {
+		args = append(args, "--server", trivyServerURL)
 	}
 	slow := p.trivySlow(ctx)
 	if len(slow) > 0 {
@@ -1825,6 +2027,22 @@ func constructEnvVarSourceFromConfigMap(envName, configName, configKey string) (
 					Name: configName,
 				},
 				Key:      configKey,
+				Optional: pointer.BoolPtr(true),
+			},
+		},
+	}
+	return
+}
+
+func constructEnvVarSourceFromSecret(envName, secretName, secretKey string) (res corev1.EnvVar) {
+	res = corev1.EnvVar{
+		Name: envName,
+		ValueFrom: &corev1.EnvVarSource{
+			SecretKeyRef: &corev1.SecretKeySelector{
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: secretName,
+				},
+				Key:      secretKey,
 				Optional: pointer.BoolPtr(true),
 			},
 		},

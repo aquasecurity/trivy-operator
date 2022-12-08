@@ -3675,6 +3675,283 @@ CVE-2019-1543`,
 				NodeName:        "kind-control-pane",
 			},
 		},
+		{
+			name: "Trivy fs scan command in ClientServer mode",
+			trivyOperatorConfig: map[string]string{
+				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
+				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+				trivyoperator.KeyScanJobcompressLogs:          "true",
+			},
+			config: map[string]string{
+				"trivy.repository":                "docker.io/aquasec/trivy",
+				"trivy.tag":                       "0.35.0",
+				"trivy.mode":                      string(trivy.ClientServer),
+				"trivy.serverURL":                 "http://trivy.trivy:4954",
+				"trivy.command":                   string(trivy.Filesystem),
+				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.resources.requests.cpu":    "100m",
+				"trivy.resources.requests.memory": "100M",
+				"trivy.resources.limits.cpu":      "500m",
+				"trivy.resources.limits.memory":   "500M",
+			},
+			workloadSpec: &corev1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Pod",
+					APIVersion: "v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "nginx",
+					Namespace: "prod-ns",
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  "nginx",
+							Image: "nginx:1.9.1",
+						},
+					},
+					NodeName: "kind-control-pane",
+				}},
+			expectedJobSpec: corev1.PodSpec{
+				Affinity:                     trivyoperator.LinuxNodeAffinity(),
+				RestartPolicy:                corev1.RestartPolicyNever,
+				ServiceAccountName:           "trivyoperator-sa",
+				ImagePullSecrets:             []corev1.LocalObjectReference{},
+				AutomountServiceAccountToken: pointer.BoolPtr(false),
+				Volumes: []corev1.Volume{
+					{
+						Name: trivy.FsSharedVolumeName,
+						VolumeSource: corev1.VolumeSource{
+							EmptyDir: &corev1.EmptyDirVolumeSource{
+								Medium: corev1.StorageMediumDefault,
+							},
+						},
+					},
+					{
+						Name: "tmp",
+						VolumeSource: corev1.VolumeSource{
+							EmptyDir: &corev1.EmptyDirVolumeSource{
+								Medium: corev1.StorageMediumDefault,
+							},
+						},
+					},
+					getScanResultVolume(),
+				},
+				InitContainers: []corev1.Container{
+					{
+						Name:                     "00000000-0000-0000-0000-000000000001",
+						Image:                    "docker.io/aquasec/trivy:0.35.0",
+						ImagePullPolicy:          corev1.PullIfNotPresent,
+						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
+						Command: []string{
+							"cp",
+							"-v",
+							"/usr/local/bin/trivy",
+							trivy.SharedVolumeLocationOfTrivy,
+						},
+						Resources: corev1.ResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceCPU:    resource.MustParse("100m"),
+								corev1.ResourceMemory: resource.MustParse("100M"),
+							},
+							Limits: corev1.ResourceList{
+								corev1.ResourceCPU:    resource.MustParse("500m"),
+								corev1.ResourceMemory: resource.MustParse("500M"),
+							},
+						},
+						VolumeMounts: []corev1.VolumeMount{
+							{
+								Name:      trivy.FsSharedVolumeName,
+								ReadOnly:  false,
+								MountPath: "/var/trivyoperator",
+							},
+							{
+								Name:      "tmp",
+								MountPath: "/tmp",
+								ReadOnly:  false,
+							},
+						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
+						},
+					},
+				},
+				Containers: []corev1.Container{
+					{
+						Name:                     "nginx",
+						Image:                    "nginx:1.9.1",
+						ImagePullPolicy:          corev1.PullNever,
+						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
+						Env: []corev1.EnvVar{
+							{
+								Name: "TRIVY_SEVERITY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.severity",
+										Optional: pointer.BoolPtr(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_SKIP_FILES",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipFiles",
+										Optional: pointer.BoolPtr(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_SKIP_DIRS",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipDirs",
+										Optional: pointer.BoolPtr(true),
+									},
+								},
+							},
+							{
+								Name: "HTTP_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpProxy",
+										Optional: pointer.BoolPtr(true),
+									},
+								},
+							},
+							{
+								Name: "HTTPS_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpsProxy",
+										Optional: pointer.BoolPtr(true),
+									},
+								},
+							},
+							{
+								Name: "NO_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.noProxy",
+										Optional: pointer.BoolPtr(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_TOKEN_HEADER",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.serverTokenHeader",
+										Optional: pointer.BoolPtr(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_TOKEN",
+								ValueFrom: &corev1.EnvVarSource{
+									SecretKeyRef: &corev1.SecretKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.serverToken",
+										Optional: pointer.BoolPtr(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_CUSTOM_HEADERS",
+								ValueFrom: &corev1.EnvVarSource{
+									SecretKeyRef: &corev1.SecretKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.serverCustomHeaders",
+										Optional: pointer.BoolPtr(true),
+									},
+								},
+							},
+						},
+						Command: []string{
+							trivy.SharedVolumeLocationOfTrivy,
+						},
+						Args: []string{
+							"--cache-dir",
+							"/var/trivyoperator/trivy-db",
+							"--quiet",
+							"fs",
+							"--security-checks",
+							"vuln,secret",
+							"--skip-update",
+							"--format",
+							"json",
+							"/",
+							"--server",
+							"http://trivy.trivy:4954",
+							"--slow",
+						},
+						Resources: corev1.ResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceCPU:    resource.MustParse("100m"),
+								corev1.ResourceMemory: resource.MustParse("100M"),
+							},
+							Limits: corev1.ResourceList{
+								corev1.ResourceCPU:    resource.MustParse("500m"),
+								corev1.ResourceMemory: resource.MustParse("500M"),
+							},
+						},
+						VolumeMounts: []corev1.VolumeMount{
+							{
+								Name:      trivy.FsSharedVolumeName,
+								ReadOnly:  false,
+								MountPath: "/var/trivyoperator",
+							},
+							{
+								Name:      "tmp",
+								MountPath: "/tmp",
+								ReadOnly:  false,
+							},
+							getScanResultVolumeMount(),
+						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.BoolPtr(false),
+							AllowPrivilegeEscalation: pointer.BoolPtr(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.BoolPtr(true),
+						},
+					},
+				},
+				SecurityContext: &corev1.PodSecurityContext{},
+				NodeName:        "kind-control-pane",
+			},
+		},
 	}
 
 	for _, tc := range testCases {

@@ -3,8 +3,6 @@ package operator
 import (
 	"context"
 	"fmt"
-	"strconv"
-
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
@@ -21,6 +19,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 	vcontroller "github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/webhook"
+	"github.com/bluele/gcache"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -29,6 +28,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
+	"strconv"
 )
 
 var (
@@ -165,15 +165,19 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 
 		if err = (&vcontroller.WorkloadController{
-			Logger:                  ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
-			Config:                  operatorConfig,
-			ConfigData:              trivyOperatorConfig,
-			Client:                  mgr.GetClient(),
-			ObjectResolver:          objectResolver,
-			LimitChecker:            limitChecker,
-			SecretsReader:           secretsReader,
-			Plugin:                  plugin,
-			PluginContext:           pluginContext,
+			Logger:         ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
+			Config:         operatorConfig,
+			ConfigData:     trivyOperatorConfig,
+			Client:         mgr.GetClient(),
+			ObjectResolver: objectResolver,
+			LimitChecker:   limitChecker,
+			SecretsReader:  secretsReader,
+			Plugin:         plugin,
+			PluginContext:  pluginContext,
+			ServerHealthChecker: vcontroller.NewTrivyServerChecker(
+				operatorConfig.TrivyServerHealthCheckCacheExpiration,
+				gcache.New(1).LRU().Build(),
+				vcontroller.NewHttpChecker()),
 			VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(&objectResolver),
 			ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(&objectResolver),
 		}).SetupWithManager(mgr); err != nil {

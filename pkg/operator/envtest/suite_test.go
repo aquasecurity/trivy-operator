@@ -83,9 +83,10 @@ var _ = BeforeSuite(func() {
 	Expect(err).ToNot(HaveOccurred())
 
 	config := etc.Config{
-		Namespace:               "default",
-		TargetNamespaces:        "default",
-		ConcurrentScanJobsLimit: 10,
+		Namespace:                    "default",
+		TargetNamespaces:             "default",
+		ConcurrentScanJobsLimit:      10,
+		RbacAssessmentScannerEnabled: true,
 	}
 
 	trivyOperatorConfig := trivyoperator.GetDefaultConfig()

@@ -191,6 +191,23 @@ var _ = Describe("Workload controller", func() {
 		},
 		Entry("Should create a infra assessment report ", "api-server-infraassessmentreport-expected.yaml"),
 	)
+	DescribeTable("On ttl reconcile loop",
+		func(report client.Object, reportFile string) {
+			Expect(loadResource(report, path.Join(testdataResourceDir, reportFile))).Should(Succeed())
+			if report.GetNamespace() != kubeSystemNamespace {
+				report.SetNamespace(WorkloadNamespace)
+			}
+			Expect(k8sClient.Create(ctx, report)).Should(Succeed())
+
+			caLookupKey := client.ObjectKeyFromObject(report)
+			createdVulnerabilityReport := &v1alpha1.VulnerabilityReport{}
+			// We'll need to retry getting this newly created Job, given that creation may not immediately happen.
+			Eventually(func() error {
+				return k8sClient.Get(ctx, caLookupKey, createdVulnerabilityReport)
+			}, timeout, interval).ShouldNot(Succeed())
+		},
+		Entry("Should delete report", &v1alpha1.VulnerabilityReport{}, "vulnerability-ttl.yaml"),
+	)
 })
 
 type ByCheckID []v1alpha1.Check

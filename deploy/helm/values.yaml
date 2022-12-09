@@ -22,6 +22,9 @@ targetWorkloads: "pod,replicaset,replicationcontroller,statefulset,daemonset,cro
 nameOverride: ""
 fullnameOverride: ""
 
+# choose to install custom resource definition used by the operator
+installCRDs: true
+
 operator:
   # namespace to install the operator, defaults to the .Release.Namespace
   namespace: ""

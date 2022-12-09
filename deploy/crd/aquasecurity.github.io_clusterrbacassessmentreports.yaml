@@ -1,3 +1,4 @@
+{{- if .Values.installCRDs }}
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -170,3 +171,4 @@ spec:
     served: true
     storage: true
     subresources: {}
+{{- end }}

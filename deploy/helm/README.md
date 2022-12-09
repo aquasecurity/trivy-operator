@@ -30,6 +30,10 @@ except `trivy-system`:
 
 You can configure Trivy-Operator to control it's behavior and adapt it to your needs. Aspects of the operator machinery are configured using environment variables on the operator Pod, while aspects of the scanning behavior are controlled by ConfigMaps and Secrets.
 
+| NAME                                                         | DEFAULT                | DESCRIPTION                                                                                                                                                                                                  |
+|--------------------------------------------------------------|------------------------|--------------------------------------------------------------------------------------------------------------------|
+| `installCRDs`                                                | true                    | choose to install custom resource definition used by operator |
+
 ## Operator Configuration
 
 | NAME                                                         | DEFAULT                | DESCRIPTION                                                                                                                                                                                                  |

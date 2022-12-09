@@ -14,8 +14,10 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	ca "github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
+	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/operator"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins"
@@ -154,6 +156,14 @@ var _ = BeforeSuite(func() {
 		RbacReadWriter:  rbacassessment.NewReadWriter(&objectResolver),
 		InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
 		BuildInfo:       buildInfo,
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	err = (&operator.TTLReportReconciler{
+		Logger: ctrl.Log.WithName("reconciler").WithName("ttlreport"),
+		Config: config,
+		Client: k8sClient,
+		Clock:  ext.NewSystemClock(),
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 

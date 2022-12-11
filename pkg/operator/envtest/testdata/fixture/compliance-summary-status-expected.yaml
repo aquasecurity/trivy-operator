@@ -3,14 +3,14 @@ summary:
   failCount: 1
   passCount: 1
 summaryReport:
-  id: '0001'
+  id: "0001"
   title: nsa-summary
   controlCheck:
-  - id: '1.0'
-    name: Non-root containers
-    severity: MEDIUM
-    totalFail: 8
-  - id: '1.1'
-    name: Immutable container file systems
-    severity: LOW
-    totalFail: 0
+    - id: "1.0"
+      name: Non-root containers
+      severity: MEDIUM
+      totalFail: 8
+    - id: "1.1"
+      name: Immutable container file systems
+      severity: LOW
+      totalFail: 0

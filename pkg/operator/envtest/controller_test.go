@@ -1,8 +1,8 @@
 package operator_test
 
 import (
-	"encoding/json"
-	"fmt"
+	//"encoding/json"
+	//"fmt"
 	"os"
 	"sort"
 
@@ -23,7 +23,7 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-var _ = Describe("Workload controller", Ordered, func() {
+var _ = Describe("Workload controller", func() {
 
 	const (
 		WorkloadNamespace   = "default"
@@ -234,17 +234,15 @@ var _ = Describe("Workload controller", Ordered, func() {
 			var status v1alpha1.ReportStatus
 			Expect(loadComplainceStatus(&status, path.Join(testdataResourceDir, expectedStatusFile))).Should(Succeed())
 			if createdClusterReport.Status.DetailReport != nil {
-				for _, result := range createdClusterReport.Status.DetailReport.Results {
+				for _, result := range status.DetailReport.Results {
 					sort.Sort(ByComplianceCheckID(result.Checks))
 				}
 			}
-			b,_:=json.Marshal(createdClusterReport.Status)
-			fmt.Println(string(b))
 			Expect(&createdClusterReport.Status).Should(WithTransform(NormalizeUntestableStatusReportFields, Equal(&status)))
 		},
 
-		//	Entry("Should create a compliance detail", &v1alpha1.ClusterComplianceReport{}, "compliance-detail.yaml", "compliance-detail-status-expected.yaml"),
-		Entry("Should update a compliance status", &v1alpha1.ClusterComplianceReport{}, "compliance-summary.yaml", "compliance-summary-status-expected.yaml"),
+		Entry("Should update a compliance detail status", &v1alpha1.ClusterComplianceReport{}, "compliance-detail.yaml", "compliance-detail-status-expected.yaml"),
+		Entry("Should update a compliance summary status", &v1alpha1.ClusterComplianceReport{}, "compliance-summary.yaml", "compliance-summary-status-expected.yaml"),
 	)
 })
 

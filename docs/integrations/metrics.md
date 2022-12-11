@@ -60,6 +60,7 @@ A report summary series exposes the count of checks of each status reported in a
 
 ```shell
 trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Fail",title="nsa"} 12
+trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 17
 ```
 
 ## Vulnerability ID

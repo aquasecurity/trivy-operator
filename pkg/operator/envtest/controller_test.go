@@ -1,6 +1,9 @@
 package operator_test
 
 import (
+	//"encoding/json"
+	//"fmt"
+	"os"
 	"sort"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -17,6 +20,7 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/yaml"
 )
 
 var _ = Describe("Workload controller", func() {
@@ -28,63 +32,6 @@ var _ = Describe("Workload controller", func() {
 		interval            = time.Millisecond * 250
 	)
 
-	NormalizeUntestableScanJobFields := func(job *batchv1.Job) *batchv1.Job {
-		job.APIVersion = "batch/v1"
-		job.Kind = string(kube.KindJob)
-		job.UID = ""
-		job.ResourceVersion = ""
-		job.CreationTimestamp = metav1.Time{}
-		job.ManagedFields = nil
-		job.Spec.Selector.MatchLabels["controller-uid"] = "<CONTROLLER-UID>"
-		job.Spec.Template.Labels["controller-uid"] = "<CONTROLLER-UID>"
-		for i := range job.Spec.Template.Spec.InitContainers {
-			job.Spec.Template.Spec.InitContainers[i].Name = "<INIT-CONTAINER-NAME>"
-		}
-		return job
-	}
-
-	NormalizeUntestableConfigAuditReportFields := func(ca *v1alpha1.ConfigAuditReport) *v1alpha1.ConfigAuditReport {
-		ca.APIVersion = "aquasecurity.github.io/v1alpha1"
-		ca.Kind = "ConfigAuditReport"
-		ca.UID = ""
-		ca.ResourceVersion = ""
-		ca.CreationTimestamp = metav1.Time{}
-		ca.ManagedFields = nil
-		ca.OwnerReferences[0].UID = ""
-		ca.Report.UpdateTimestamp = metav1.Time{}
-		sort.Sort(ByCheckID(ca.Report.Checks))
-		return ca
-	}
-	NormalizeUntestableRbacAssessmentReportFields := func(ca *v1alpha1.RbacAssessmentReport) *v1alpha1.RbacAssessmentReport {
-		ca.APIVersion = "aquasecurity.github.io/v1alpha1"
-		ca.Kind = "RbacAssessmentReport"
-		ca.UID = ""
-		ca.SetLabels(map[string]string{
-			"trivy-operator.resource.kind": "Role",
-			"trivy-operator.resource.name": "proxy",
-		})
-		ca.ResourceVersion = ""
-		ca.CreationTimestamp = metav1.Time{}
-		ca.ManagedFields = nil
-		ca.OwnerReferences[0].UID = ""
-		sort.Sort(ByCheckID(ca.Report.Checks))
-		return ca
-	}
-	NormalizeUntestableInfraAssessmentReportFields := func(ca *v1alpha1.InfraAssessmentReport) *v1alpha1.InfraAssessmentReport {
-		ca.APIVersion = "aquasecurity.github.io/v1alpha1"
-		ca.Kind = "InfraAssessmentReport"
-		ca.UID = ""
-		ca.SetLabels(map[string]string{
-			"trivy-operator.resource.kind":      "Pod",
-			"trivy-operator.resource.namespace": "kube-system",
-		})
-		ca.ResourceVersion = ""
-		ca.CreationTimestamp = metav1.Time{}
-		ca.ManagedFields = nil
-		ca.OwnerReferences[0].UID = ""
-		sort.Sort(ByCheckID(ca.Report.Checks))
-		return ca
-	}
 	var testdataResourceDir = path.Join("testdata", "fixture")
 
 	DescribeTable("On deploying workloads",
@@ -106,6 +53,20 @@ var _ = Describe("Workload controller", func() {
 		Entry("Should create a api-server resource", &corev1.Pod{}, "api-server.yaml"),
 	)
 
+	NormalizeUntestableScanJobFields := func(job *batchv1.Job) *batchv1.Job {
+		job.APIVersion = "batch/v1"
+		job.Kind = string(kube.KindJob)
+		job.UID = ""
+		job.ResourceVersion = ""
+		job.CreationTimestamp = metav1.Time{}
+		job.ManagedFields = nil
+		job.Spec.Selector.MatchLabels["controller-uid"] = "<CONTROLLER-UID>"
+		job.Spec.Template.Labels["controller-uid"] = "<CONTROLLER-UID>"
+		for i := range job.Spec.Template.Spec.InitContainers {
+			job.Spec.Template.Spec.InitContainers[i].Name = "<INIT-CONTAINER-NAME>"
+		}
+		return job
+	}
 	DescribeTable("On Vulnerability reconcile loop",
 		func(expectedScanJobResourceFile string) {
 			expectedJob := &batchv1.Job{}
@@ -131,6 +92,18 @@ var _ = Describe("Workload controller", func() {
 		Entry("Should create a scan Job for StatefulSet", "statefulset-expected-scan.yaml"),
 	)
 
+	NormalizeUntestableConfigAuditReportFields := func(ca *v1alpha1.ConfigAuditReport) *v1alpha1.ConfigAuditReport {
+		ca.APIVersion = "aquasecurity.github.io/v1alpha1"
+		ca.Kind = "ConfigAuditReport"
+		ca.UID = ""
+		ca.ResourceVersion = ""
+		ca.CreationTimestamp = metav1.Time{}
+		ca.ManagedFields = nil
+		ca.OwnerReferences[0].UID = ""
+		ca.Report.UpdateTimestamp = metav1.Time{}
+		sort.Sort(ByCheckID(ca.Report.Checks))
+		return ca
+	}
 	DescribeTable("On ConfigAudit reconcile loop",
 		func(expectedConfigAuditReportResourceFile string) {
 			expectedConfigAuditReport := &v1alpha1.ConfigAuditReport{}
@@ -154,6 +127,21 @@ var _ = Describe("Workload controller", func() {
 		Entry("Should create a config audit report ReplicaSet", "replicaset-configauditreport-expected.yaml"),
 	)
 
+	NormalizeUntestableRbacAssessmentReportFields := func(ca *v1alpha1.RbacAssessmentReport) *v1alpha1.RbacAssessmentReport {
+		ca.APIVersion = "aquasecurity.github.io/v1alpha1"
+		ca.Kind = "RbacAssessmentReport"
+		ca.UID = ""
+		ca.SetLabels(map[string]string{
+			"trivy-operator.resource.kind": "Role",
+			"trivy-operator.resource.name": "proxy",
+		})
+		ca.ResourceVersion = ""
+		ca.CreationTimestamp = metav1.Time{}
+		ca.ManagedFields = nil
+		ca.OwnerReferences[0].UID = ""
+		sort.Sort(ByCheckID(ca.Report.Checks))
+		return ca
+	}
 	DescribeTable("On Rbac reconcile loop",
 		func(expectedRbacAssessmentReportResourceFile string) {
 			expectedRbacAssessmentReport := &v1alpha1.RbacAssessmentReport{}
@@ -173,6 +161,21 @@ var _ = Describe("Workload controller", func() {
 		Entry("Should create a rbac assessment report ", "role-rbacassessment-expected.yaml"),
 	)
 
+	NormalizeUntestableInfraAssessmentReportFields := func(ca *v1alpha1.InfraAssessmentReport) *v1alpha1.InfraAssessmentReport {
+		ca.APIVersion = "aquasecurity.github.io/v1alpha1"
+		ca.Kind = "InfraAssessmentReport"
+		ca.UID = ""
+		ca.SetLabels(map[string]string{
+			"trivy-operator.resource.kind":      "Pod",
+			"trivy-operator.resource.namespace": "kube-system",
+		})
+		ca.ResourceVersion = ""
+		ca.CreationTimestamp = metav1.Time{}
+		ca.ManagedFields = nil
+		ca.OwnerReferences[0].UID = ""
+		sort.Sort(ByCheckID(ca.Report.Checks))
+		return ca
+	}
 	DescribeTable("On Infra reconcile loop",
 		func(expectedInfraAssessmentReportResourceFile string) {
 			expectedInfraAssessmentReport := &v1alpha1.InfraAssessmentReport{}
@@ -191,6 +194,7 @@ var _ = Describe("Workload controller", func() {
 		},
 		Entry("Should create a infra assessment report ", "api-server-infraassessmentreport-expected.yaml"),
 	)
+
 	DescribeTable("On ttl reconcile loop",
 		func(report client.Object, reportFile string) {
 			Expect(loadResource(report, path.Join(testdataResourceDir, reportFile))).Should(Succeed())
@@ -208,6 +212,38 @@ var _ = Describe("Workload controller", func() {
 		},
 		Entry("Should delete report", &v1alpha1.VulnerabilityReport{}, "vulnerability-ttl.yaml"),
 	)
+	NormalizeUntestableStatusReportFields := func(ca *v1alpha1.ReportStatus) *v1alpha1.ReportStatus {
+		ca.UpdateTimestamp = metav1.Time{}
+		if ca.DetailReport != nil {
+			for _, result := range ca.DetailReport.Results {
+				sort.Sort(ByComplianceCheckID(result.Checks))
+			}
+		}
+		return ca
+	}
+	DescribeTable("On compliance reconcile loop",
+		func(report client.Object, reportFile string, expectedStatusFile string) {
+			Expect(loadResource(report, path.Join(testdataResourceDir, reportFile))).Should(Succeed())
+			Expect(k8sClient.Create(ctx, report)).Should(Succeed())
+			time.Sleep(time.Second * 3)
+			caLookupKey := client.ObjectKeyFromObject(report)
+			createdClusterReport := &v1alpha1.ClusterComplianceReport{}
+			Eventually(func() error {
+				return k8sClient.Get(ctx, caLookupKey, createdClusterReport)
+			}, timeout, interval).Should(Succeed())
+			var status v1alpha1.ReportStatus
+			Expect(loadComplainceStatus(&status, path.Join(testdataResourceDir, expectedStatusFile))).Should(Succeed())
+			if createdClusterReport.Status.DetailReport != nil {
+				for _, result := range status.DetailReport.Results {
+					sort.Sort(ByComplianceCheckID(result.Checks))
+				}
+			}
+			Expect(&createdClusterReport.Status).Should(WithTransform(NormalizeUntestableStatusReportFields, Equal(&status)))
+		},
+
+		Entry("Should update a compliance detail status", &v1alpha1.ClusterComplianceReport{}, "compliance-detail.yaml", "compliance-detail-status-expected.yaml"),
+		Entry("Should update a compliance summary status", &v1alpha1.ClusterComplianceReport{}, "compliance-summary.yaml", "compliance-summary-status-expected.yaml"),
+	)
 })
 
 type ByCheckID []v1alpha1.Check
@@ -215,3 +251,17 @@ type ByCheckID []v1alpha1.Check
 func (a ByCheckID) Len() int           { return len(a) }
 func (a ByCheckID) Less(i, j int) bool { return a[i].ID < a[j].ID }
 func (a ByCheckID) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+
+type ByComplianceCheckID []v1alpha1.ComplianceCheck
+
+func (a ByComplianceCheckID) Len() int           { return len(a) }
+func (a ByComplianceCheckID) Less(i, j int) bool { return a[i].ID < a[j].ID }
+func (a ByComplianceCheckID) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+
+func loadComplainceStatus(status *v1alpha1.ReportStatus, filename string) error {
+	yamlFile, err := os.ReadFile(filename)
+	if err != nil {
+		return err
+	}
+	return yaml.UnmarshalStrict(yamlFile, &status)
+}

@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/compliance"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	ca "github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
@@ -90,6 +91,8 @@ var _ = BeforeSuite(func() {
 		ConcurrentScanJobsLimit:       10,
 		RbacAssessmentScannerEnabled:  true,
 		InfraAssessmentScannerEnabled: true,
+		ClusterComplianceEnabled:      true,
+		InvokeClusterComplianceOnce:   true,
 	}
 
 	trivyOperatorConfig := trivyoperator.GetDefaultConfig()
@@ -163,6 +166,15 @@ var _ = BeforeSuite(func() {
 		Logger: ctrl.Log.WithName("reconciler").WithName("ttlreport"),
 		Config: config,
 		Client: k8sClient,
+		Clock:  ext.NewSystemClock(),
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	err = (&compliance.ClusterComplianceReportReconciler{
+		Logger: ctrl.Log.WithName("reconciler").WithName("compliance report"),
+		Client: k8sClient,
+		Config: config,
+		Mgr:    compliance.NewMgr(k8sClient),
 		Clock:  ext.NewSystemClock(),
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())

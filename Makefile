@@ -148,8 +148,6 @@ generate: controller-gen
 manifests: controller-gen
 # We must "allow dangerous types" because the API currently includes fields using floating point data types
 	$(CONTROLLER_GEN) crd:allowDangerousTypes=true paths="./pkg/apis/..." output:crd:artifacts:config=deploy/crd
-	mv deploy/crd/aquasecurity.github.io_clustercompliancedetailreports.yaml deploy/compliance
-	mv deploy/crd/aquasecurity.github.io_clustercompliancereports.yaml deploy/compliance
 	./hack/update-static.yaml.sh
 
 .PHONY: generate-all

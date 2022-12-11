@@ -58,3 +58,42 @@ func NewSeverityLabel(severity v1alpha1.Severity) SeverityLabel {
 		Label:    cases.Title(language.Und).String(string(severity)),
 	}
 }
+
+type StatusLabel struct {
+	Status Status
+	Label  string
+}
+
+type Status string
+
+const (
+	FailStatus Status = "FAIL"
+	PassStatus Status = "PASS"
+)
+
+func StatusFail() StatusLabel {
+	return StatusLabel{
+		Status: FailStatus,
+		Label:  "Fail",
+	}
+}
+func StatusPass() StatusLabel {
+	return StatusLabel{
+		Status: PassStatus,
+		Label:  "Pass",
+	}
+}
+
+func NewStatusLabel(status Status) StatusLabel {
+	m := map[Status]StatusLabel{
+		FailStatus: StatusFail(),
+		PassStatus: StatusPass(),
+	}
+	if sevLbl, ok := m[severity]; ok {
+		return sevLbl
+	}
+	return StatusLabel{
+		Status: status,
+		Label:  cases.Title(language.Und).String(string(status)),
+	}
+}

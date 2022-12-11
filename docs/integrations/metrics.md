@@ -1,4 +1,4 @@
-# Metrics 
+# Metrics
 
 `trivy-operator` exposed a `/metrics` endpoint by default  with metrics for vulnerabilities, exposed secrets,rbacassessment and configaudits.
 
@@ -54,7 +54,14 @@ trivy_resource_infraassessments{
     } 3
 ```
 
+### ClusterComplianceReport
 
+A report summary series exposes the count of checks of each status reported in a given `ClusterComplianceReport`. For example:
+
+```shell
+trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Fail",title="nsa"} 12
+trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 17
+```
 
 ## Vulnerability ID
 
@@ -66,11 +73,10 @@ trivy_vulnerability_id{
 } 1
 ```
 
-
 ## Adding Custom Label to Metrics
 
 User might wants to include custom labels to resource that can be exposed and associated with the Prometheus metrics.
-this capbility can be added by setting the following helm param. 
+this capbility can be added by setting the following helm param.
 
 Example:
 

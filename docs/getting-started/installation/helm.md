@@ -4,7 +4,7 @@
 YAML manifests called Helm [charts].
 
 To address shortcomings of [static YAML manifests](./kubectl.md) we provide the Helm chart to deploy the Trivy-Operator.
-The Helm chart supports all [Install Modes](./../configuration.md#install-modes).
+The Helm chart supports all [Install Modes](./configuration.md#install-modes).
 
 As an example, let's install the operator in the `trivy-system` namespace and configure it to select all namespaces,
 except `kube-system` and `trivy-system`:

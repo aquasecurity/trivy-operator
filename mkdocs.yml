@@ -8,38 +8,39 @@ edit_uri: ""
 copyright: Copyright 2019-2022 Aqua Security Software Ltd.
 
 nav:
-  - Home: index.md
   - Getting Started:
-      - Overview: operator/index.md
+      - Home: index.md
       - Installation:
-          - kubectl: operator/installation/kubectl.md
-          - Helm: operator/installation/helm.md
-          - Operator Lifecycle Manager: operator/installation/olm.md
-          - Upgrade: operator/installation/upgrade.md
-      - Quick Start: operator/quick-start.md
-      - Configuration: operator/configuration.md
-      - Troubleshooting: operator/troubleshooting.md
-      - Settings: settings.md
+          - kubectl: getting-started/installation/kubectl.md
+          - Helm: getting-started/installation/helm.md
+          - Operator Lifecycle Manager: getting-started/installation/olm.md
+          - Upgrade: getting-started/installation/upgrade.md
+          - Overview: getting-started/installation/index.md
+          - Configuration: getting-started/installation/configuration.md
+          - Troubleshooting: getting-started/installation/troubleshooting.md
+          - Settings: settings.md
+      - Quick Start:
+          - Guide: getting-started/quick-start.md  
+  - Tutorials:
+      - Writing Custom Configuration Audit Policies: tutorials/writing-custom-configuration-audit-policies.md
+      - Manage Access to Security Reports: tutorials/manage_access_to_security_reports.md
+      - Using the Trivy Operator addon in microk8s: tutorials/microk8s.md
+      - Operator Access to Private Registries: tutorials/private-registries.md
+      - Integrations:
+          - Metrics: tutorials/integrations/metrics.md
+          - Lens Extension: tutorials/integrations/lens.md
+          - Webhook Integration: integrations/webhook.md
   - Docs:
       - Vulnerability Scanning:
-          - Overview: vulnerability-scanning/index.md
-          - Trivy Scanner: vulnerability-scanning/trivy.md
-          - Private Registries: vulnerability-scanning/private-registries.md
-          - Managed Registries: vulnerability-scanning/managed-registries.md
+          - Overview: docs/vulnerability-scanning/index.md
+          - Trivy Scanner: docs/vulnerability-scanning/trivy.md
+          - Private Registries: docs/vulnerability-scanning/private-registries.md
+          - Managed Registries: docs/vulnerability-scanning/managed-registries.md
       - Configuration Auditing:
           - Overview: configuration-auditing/index.md
           - Built-in Configuration Audit Policies: configuration-auditing/built-in-policies.md
       - Complaince Report:
           - NSA ,Kubernetes Hardening Guidance: compliance/nsa-1.0.md
-      - Integrations:
-          - Metrics: integrations/metrics.md
-          - Lens Extension: integrations/lens.md
-          - Webhook Integration: integrations/webhook.md
-      - Tutorials:
-          - Writing Custom Configuration Audit Policies: tutorials/writing-custom-configuration-audit-policies.md
-          - Manage Access to Security Reports: tutorials/manage_access_to_security_reports.md
-          - Operator Access to Private Registries: tutorials/private-registries.md
-          - Using the Trivy Operator addon in microk8s: tutorials/microk8s.md
       - Custom Resource Definitions:
           - Overview: crds/index.md
           - VulnerabilityReport: crds/vulnerability-report.md

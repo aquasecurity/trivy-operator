@@ -203,6 +203,6 @@ system:controller:generic-garbage-collector  generic-garbage-collector  ServiceA
 system:controller:namespace-controller       namespace-controller       ServiceAccount  kube-system
 ```
 
-[CRD]: ../crds/index.md
+[CRD]: ../docs/crds/index.md
 [RBAC]: https://kubernetes.io/docs/reference/access-authn-authz/rbac/
 [who-can]: https://github.com/aquasecurity/kubectl-who-can

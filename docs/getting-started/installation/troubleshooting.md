@@ -11,7 +11,7 @@ In some cases you might want to refer to [Starboard's Design documents](https://
 
 ## Installation
 
-Make sure that the latest version of the Trivy Operator is installed. For this, have a look at the installation [options.](./installation/helm.md)
+Make sure that the latest version of the Trivy Operator is installed. For this, have a look at the installation [options.](./helm.md)
 
 For instance, if your are using the Helm deployment, you need to check the Helm Chart version deployed to your cluster. You can check the Helm Chart version with the following command:
 ```

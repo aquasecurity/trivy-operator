@@ -35,11 +35,11 @@ with new plugin's configuration.
 
 ## What's Next?
 
-- Install the operator and follow the [Getting Started](./quick-start.md) guide.
+- Install the operator and follow the [Getting Started](../quick-start.md) guide.
 
-[vulnerabilityreports]: ./../crds/vulnerability-report.md
-[configauditreports]: ./../crds/configaudit-report.md
-[clustercompliancereports]: ./../crds/clustercompliance-report.md
-[clustercompliancedetailreports]: ./../crds/clustercompliancedetail-report.md
+[vulnerabilityreports]: ./../../docs/crds/vulnerability-report.md
+[configauditreports]: ./../../docs/crds/configaudit-report.md
+[clustercompliancereports]: ./../../docs/crds/clustercompliance-report.md
+[clustercompliancedetailreports]: ./../../docs/crds/clustercompliancedetail-report.md
 
 [k8s-garbage-collection]: https://kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/

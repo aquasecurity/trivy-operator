@@ -29,7 +29,7 @@ nav:
       - Integrations:
           - Metrics: tutorials/integrations/metrics.md
           - Lens Extension: tutorials/integrations/lens.md
-          - Webhook Integration: integrations/webhook.md
+          - Webhook Integration: tutorials/integrations/webhook.md
   - Docs:
       - Vulnerability Scanning:
           - Overview: docs/vulnerability-scanning/index.md
@@ -37,18 +37,18 @@ nav:
           - Private Registries: docs/vulnerability-scanning/private-registries.md
           - Managed Registries: docs/vulnerability-scanning/managed-registries.md
       - Configuration Auditing:
-          - Overview: configuration-auditing/index.md
-          - Built-in Configuration Audit Policies: configuration-auditing/built-in-policies.md
+          - Overview: docs/configuration-auditing/index.md
+          - Built-in Configuration Audit Policies: docs/configuration-auditing/built-in-policies.md
       - Complaince Report:
-          - NSA ,Kubernetes Hardening Guidance: compliance/nsa-1.0.md
+          - NSA ,Kubernetes Hardening Guidance: docs/compliance/nsa-1.0.md
       - Custom Resource Definitions:
-          - Overview: crds/index.md
-          - VulnerabilityReport: crds/vulnerability-report.md
-          - ConfigAuditReport: crds/configaudit-report.md
-          - ExposedSecretReport: crds/exposedsecret-report.md
-          - RbacAssessmentReport: crds/rbacassessment-report.md
-          - InfraAssessmentReport: crds/infraassessment-report.md
-          - ClusterComplianceReport: crds/clustercompliance-report.md
+          - Overview: docs/crds/index.md
+          - VulnerabilityReport: docs/crds/vulnerability-report.md
+          - ConfigAuditReport: docs/crds/configaudit-report.md
+          - ExposedSecretReport: docs/crds/exposedsecret-report.md
+          - RbacAssessmentReport: docs/crds/rbacassessment-report.md
+          - InfraAssessmentReport: docs/crds/infraassessment-report.md
+          - ClusterComplianceReport: docs/crds/clustercompliance-report.md
   - Frequently Asked Questions: faq.md
 
 theme:

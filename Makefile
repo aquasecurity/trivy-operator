@@ -104,7 +104,7 @@ kind-load-images: \
 
 ## Runs MkDocs development server to preview the documentation page
 mkdocs-serve:
-	$(DOCKER) build -t $(MKDOCS_IMAGE) -f build/mkdocs-material/Dockerfile build/trivy-operator
+	$(DOCKER) build -t $(MKDOCS_IMAGE) -f build/mkdocs-material/Dockerfile bin
 	$(DOCKER) run --name mkdocs-serve --rm -v $(PWD):/docs -p $(MKDOCS_PORT):8000 $(MKDOCS_IMAGE)
 
 $(GOBIN)/labeler:

@@ -11,11 +11,11 @@ nav:
   - Getting Started:
       - Home: index.md
       - Installation:
+          - Overview: getting-started/installation/index.md
           - kubectl: getting-started/installation/kubectl.md
           - Helm: getting-started/installation/helm.md
           - Operator Lifecycle Manager: getting-started/installation/olm.md
           - Upgrade: getting-started/installation/upgrade.md
-          - Overview: getting-started/installation/index.md
           - Configuration: getting-started/installation/configuration.md
           - Troubleshooting: getting-started/installation/troubleshooting.md
           - Settings: settings.md

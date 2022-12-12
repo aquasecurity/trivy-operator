@@ -6,7 +6,7 @@ This operator automatically updates security report resources in response to wor
 cluster - for example, initiating a vulnerability scan and configuration audit when a new Pod is started.
 
 <figure>
-  <img src="../images/operator/trivy-operator-workloads.png" />
+  <img src="../../images/operator/trivy-operator-workloads.png" />
   <figcaption>Workload reconcilers discover K8s controllers, manage scan jobs, and create VulnerabilityReport and ConfigAuditReport objects.</figcaption>
 </figure>
 
@@ -25,7 +25,7 @@ If hashes are not equal then affected ConfigAuditReport objects are deleted, whi
 with new plugin's configuration.
 
 <figure>
-  <img src="../images/operator/trivy-operator-config.png" />
+  <img src="../../images/operator/trivy-operator-config.png" />
   <figurecaption>Plugin configuration reconciler deletes ConfigAuditReports whenever the configuration changes.</figurecaption>
 </figure>
 

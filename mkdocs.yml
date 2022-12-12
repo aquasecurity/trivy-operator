@@ -20,7 +20,7 @@ nav:
           - Troubleshooting: getting-started/installation/troubleshooting.md
           - Settings: settings.md
       - Quick Start:
-          - Guide: getting-started/quick-start.md  
+          - Guide: getting-started/quick-start.md
   - Tutorials:
       - Writing Custom Configuration Audit Policies: tutorials/writing-custom-configuration-audit-policies.md
       - Manage Access to Security Reports: tutorials/manage_access_to_security_reports.md

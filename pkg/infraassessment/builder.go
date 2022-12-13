@@ -118,7 +118,7 @@ func (b *ReportBuilder) GetReport() (v1alpha1.InfraAssessmentReport, error) {
 	// additional RBAC permissions are not required when the OwnerReferencesPermissionsEnforcement
 	// is enabled.
 	// See https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#ownerreferencespermissionenforcement
-	report.OwnerReferences[0].BlockOwnerDeletion = pointer.BoolPtr(false)
+	report.OwnerReferences[0].BlockOwnerDeletion = pointer.Bool(false)
 	return report, nil
 }
 

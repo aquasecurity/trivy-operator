@@ -103,6 +103,9 @@ data:
   trivy.slow: {{ .Values.trivy.slow | quote }}
   trivy.dbRepository: {{ .Values.trivy.dbRepository | quote }}
   trivy.command: {{ .Values.trivy.command | quote }}
+  {{- if .Values.trivy.skipDirs }}
+  trivy.skipDirs: {{ .Values.trivy.skipDirs | quote }}
+  {{- end }}
   {{- if .Values.trivy.dbRepositoryInsecure }}
   trivy.dbRepositoryInsecure: {{ .Values.trivy.dbRepositoryInsecure | quote }}
   {{- end }}

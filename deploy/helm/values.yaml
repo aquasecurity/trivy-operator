@@ -108,7 +108,7 @@ image:
 service:
   metricsPort: 80
 
-# Prometheus ServiceMonitor configuration -- to install the trivy operator with the ServiceMonitor 
+# Prometheus ServiceMonitor configuration -- to install the trivy operator with the ServiceMonitor
 # you must have Prometheus already installed and running
 serviceMonitor:
   # enabled determines whether a serviceMonitor should be deployed
@@ -247,6 +247,8 @@ trivy:
   # vulnerabilities reported by Trivy. Set to true to enable it.
   #
   ignoreUnfixed: false
+  # a comma separated list of directories for Trivy to skip
+  skipDirs:
 
   # offlineScan is the flag to enable the offline scan functionality in Trivy
   # This will prevent outgoing HTTP requests, e.g. to search.maven.org

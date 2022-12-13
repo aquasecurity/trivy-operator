@@ -4,7 +4,7 @@ Trivy Operator allows you to send reports externally to a webhook as they get pr
 
 The latter use case can be fulfilled by using a SOAR tool [Postee](https://github.com/aquasecurity/postee). Out of the box, Postee offers a variety of integrations with other third party services such as ServiceNow, Slack, AWS Security Hub and many more.  
 
-![img.png](../images/webhook-integration.png)
+![img.png](../../images/webhook-integration.png)
 
 You can enable the Webhook integration as follows:
 

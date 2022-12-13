@@ -11,7 +11,7 @@ In some cases you might want to refer to [Starboard's Design documents](https://
 
 ## Installation
 
-Make sure that the latest version of the Trivy Operator is installed. For this, have a look at the installation [options.](./installation/helm.md)
+Make sure that the latest version of the Trivy Operator is installed. For this, have a look at the installation [options.](./helm.md)
 
 For instance, if your are using the Helm deployment, you need to check the Helm Chart version deployed to your cluster. You can check the Helm Chart version with the following command:
 ```
@@ -103,9 +103,9 @@ system:kube-controller-manager               system:kube-controller-manager  Use
 
 If the `ClusterRoleBinding` does not exist, Trivy currently cannot monitor any namespace outside of the `trivy-system` namespace.
 
-For instance, if you are using the [Helm Chart](./installation/helm.md), you want to make sure to set the `targetNamespace` to the namespace that you want the Operator to monitor.
+For instance, if you are using the [Helm Chart](./helm.md), you want to make sure to set the `targetNamespace` to the namespace that you want the Operator to monitor.
 
 The operator also could not be configured to scan the workload you are expecting. Check to make sure `OPERATOR_TARGET_WORKLOADS` is set correctly in your configuration. This allows you to specify which workload types to be scanned. 
 
-For example, by default in the [Helm Chart](./installation/helm.md) values, the following Kubernetes workloads are configured to be scanned
+For example, by default in the [Helm Chart](./helm.md) values, the following Kubernetes workloads are configured to be scanned
 `"pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job"`.

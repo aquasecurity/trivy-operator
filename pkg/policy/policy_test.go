@@ -313,7 +313,7 @@ deny[res] {
 					Template: corev1.PodTemplateSpec{
 						Spec: corev1.PodSpec{
 							SecurityContext: &corev1.PodSecurityContext{
-								RunAsNonRoot: pointer.BoolPtr(true),
+								RunAsNonRoot: pointer.Bool(true),
 							},
 							Containers: []corev1.Container{
 								{
@@ -451,7 +451,7 @@ warn[res] {
 					Template: corev1.PodTemplateSpec{
 						Spec: corev1.PodSpec{
 							SecurityContext: &corev1.PodSecurityContext{
-								RunAsNonRoot: pointer.BoolPtr(true),
+								RunAsNonRoot: pointer.Bool(true),
 							},
 							Containers: []corev1.Container{
 								{
@@ -547,7 +547,7 @@ warn[res] {
 					Template: corev1.PodTemplateSpec{
 						Spec: corev1.PodSpec{
 							SecurityContext: &corev1.PodSecurityContext{
-								RunAsNonRoot: pointer.BoolPtr(true),
+								RunAsNonRoot: pointer.Bool(true),
 							},
 							Containers: []corev1.Container{
 								{

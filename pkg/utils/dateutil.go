@@ -36,7 +36,7 @@ func IsTTLExpired(ttl time.Duration, creationTime time.Time, clock ext.Clock) (b
 
 func DurationSecondsPtr(d time.Duration) *int64 {
 	if d > 0 {
-		return pointer.Int64Ptr(int64(d.Seconds()))
+		return pointer.Int64(int64(d.Seconds()))
 	}
 	return nil
 }

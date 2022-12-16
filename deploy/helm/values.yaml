@@ -319,8 +319,8 @@ trivy:
   #
   supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
 
-  # command. Either `image` or `filesystem` scanning, depending on the target type required for the scan.
-  # For 'filesystem' scanning, ensure that the `trivyOperator.scanJobPodTemplateContainerSecurityContext` is configured
+  # command. One of `image`, `filesystem` or `rootfs` scanning, depending on the target type required for the scan.
+  # For 'filesystem' and `rootfs` scanning, ensure that the `trivyOperator.scanJobPodTemplateContainerSecurityContext` is configured
   # to run as the root user (runAsUser = 0).
   command: image
   # serverUser this param is the server user to be used to download db from private registry

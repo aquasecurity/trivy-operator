@@ -21,8 +21,8 @@ Navigate to the section `Trivy.command`. The default will be:
 
 ```
 trivy:
-# command. Either `image` or `filesystem` scanning, depending on the target type required for the scan.
-  # For 'filesystem' scanning, ensure that the `trivyOperator.scanJobPodTemplateContainerSecurityContext` is configured
+# command. One of `image`, `filesystem` or `rootfs` scanning, depending on the target type required for the scan.
+  # For 'filesystem' and `rootfs` scanning, ensure that the `trivyOperator.scanJobPodTemplateContainerSecurityContext` is configured
   # to run as the root user (runAsUser = 0).
   command: image
 ```

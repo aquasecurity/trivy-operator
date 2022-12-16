@@ -299,7 +299,7 @@ func TestConfig_GetCommand(t *testing.T) {
 					"trivy.command": "ls",
 				},
 			}},
-			expectedError: "invalid value (ls) of trivy.command; allowed values (image, filesystem)",
+			expectedError: "invalid value (ls) of trivy.command; allowed values (image, filesystem, rootfs)",
 		},
 	}
 	for _, tc := range testCases {

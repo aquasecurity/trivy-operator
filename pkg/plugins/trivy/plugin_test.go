@@ -293,6 +293,15 @@ func TestConfig_GetCommand(t *testing.T) {
 			expectedCommand: trivy.Filesystem,
 		},
 		{
+			name: "Should return rootfs",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.command": "rootfs",
+				},
+			}},
+			expectedCommand: trivy.Rootfs,
+		},
+		{
 			name: "Should return error when value is not allowed",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{

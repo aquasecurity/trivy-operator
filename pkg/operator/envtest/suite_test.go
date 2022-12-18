@@ -130,6 +130,8 @@ var _ = BeforeSuite(func() {
 		PluginContext:           pluginContext,
 		VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(&objectResolver),
 		ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(&objectResolver),
+		SubmitScanJobChan:       make(chan controller.ScanJobRequest, config.ConcurrentScanJobsLimit),
+		ResultScanJobChan:       make(chan controller.ScanJobResult, config.ConcurrentScanJobsLimit),
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 

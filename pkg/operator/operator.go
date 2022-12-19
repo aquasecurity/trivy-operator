@@ -180,6 +180,8 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				vcontroller.NewHttpChecker()),
 			VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(&objectResolver),
 			ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(&objectResolver),
+			SubmitScanJobChan:       make(chan vcontroller.ScanJobRequest, operatorConfig.ConcurrentScanJobsLimit),
+			ResultScanJobChan:       make(chan vcontroller.ScanJobResult, operatorConfig.ConcurrentScanJobsLimit),
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup vulnerabilityreport reconciler: %w", err)
 		}

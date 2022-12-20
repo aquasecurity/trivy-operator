@@ -101,6 +101,7 @@ type Command string
 const (
 	Filesystem Command = "filesystem"
 	Image      Command = "image"
+	Rootfs     Command = "rootfs"
 )
 
 type AdditionalFields struct {
@@ -195,9 +196,11 @@ func (c Config) GetCommand() (Command, error) {
 		return Image, nil
 	case Filesystem:
 		return Filesystem, nil
+	case Rootfs:
+		return Rootfs, nil
 	}
-	return "", fmt.Errorf("invalid value (%s) of %s; allowed values (%s, %s)",
-		value, keyTrivyCommand, Image, Filesystem)
+	return "", fmt.Errorf("invalid value (%s) of %s; allowed values (%s, %s, %s)",
+		value, keyTrivyCommand, Image, Filesystem, Rootfs)
 }
 
 func (c Config) GetServerURL() (string, error) {
@@ -449,12 +452,12 @@ func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client
 			return corev1.PodSpec{}, nil, fmt.Errorf("unrecognized trivy mode %q for command %q", mode, command)
 		}
 	}
-	if command == Filesystem {
+	if command == Filesystem || command == Rootfs {
 		switch mode {
 		case Standalone:
-			podSpec, secrets, err = p.getPodSpecForStandaloneFSMode(ctx, config, workload, securityContext)
+			podSpec, secrets, err = p.getPodSpecForStandaloneFSMode(ctx, command, config, workload, securityContext)
 		case ClientServer:
-			podSpec, secrets, err = p.getPodSpecForClientServerFSMode(ctx, config, workload, securityContext)
+			podSpec, secrets, err = p.getPodSpecForClientServerFSMode(ctx, command, config, workload, securityContext)
 		default:
 			return corev1.PodSpec{}, nil, fmt.Errorf("unrecognized trivy mode %q for command %q", mode, command)
 		}
@@ -1277,7 +1280,7 @@ func getScanResultVolumeMount() corev1.VolumeMount {
 // We scanning the resource place on a specific file system location using the following command.
 //
 //	trivy --quiet fs  --format json --ignore-unfixed  file/system/location
-func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Config,
+func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, command Command, config Config,
 	workload client.Object, securityContext *corev1.SecurityContext) (corev1.PodSpec, []*corev1.Secret, error) {
 	var secrets []*corev1.Secret
 	spec, err := kube.GetPodSpec(workload)
@@ -1457,7 +1460,7 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			Command: []string{
 				SharedVolumeLocationOfTrivy,
 			},
-			Args:            p.getFSScanningArgs(ctx, Standalone, ""),
+			Args:            p.getFSScanningArgs(ctx, command, Standalone, ""),
 			Resources:       resourceRequirements,
 			SecurityContext: securityContext,
 			VolumeMounts:    volumeMounts,
@@ -1488,7 +1491,7 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 // We scanning the resource place on a specific file system location using the following command.
 //
 //	trivy --quiet fs  --server TRIVY_SERVER  --format json --ignore-unfixed  file/system/location
-func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Config,
+func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, command Command, config Config,
 	workload client.Object, securityContext *corev1.SecurityContext) (corev1.PodSpec, []*corev1.Secret, error) {
 	var secrets []*corev1.Secret
 	spec, err := kube.GetPodSpec(workload)
@@ -1654,7 +1657,7 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 			Command: []string{
 				SharedVolumeLocationOfTrivy,
 			},
-			Args:            p.getFSScanningArgs(ctx, ClientServer, encodedTrivyServerURL.String()),
+			Args:            p.getFSScanningArgs(ctx, command, ClientServer, encodedTrivyServerURL.String()),
 			Resources:       resourceRequirements,
 			SecurityContext: securityContext,
 			VolumeMounts:    volumeMounts,
@@ -1680,12 +1683,12 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 	return podSpec, secrets, nil
 }
 
-func (p *plugin) getFSScanningArgs(ctx trivyoperator.PluginContext, mode Mode, trivyServerURL string) []string {
+func (p *plugin) getFSScanningArgs(ctx trivyoperator.PluginContext, command Command, mode Mode, trivyServerURL string) []string {
 	args := []string{
 		"--cache-dir",
 		"/var/trivyoperator/trivy-db",
 		"--quiet",
-		"fs",
+		string(command),
 		"--security-checks",
 		getSecurityChecks(ctx),
 		"--skip-update",
@@ -1777,7 +1780,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 		return vulnReport, secretReport, err
 	}
 	compressedLogs := ctx.GetTrivyOperatorConfig().CompressLogs()
-	if compressedLogs && cmd != Filesystem {
+	if compressedLogs && cmd != Filesystem && cmd != Rootfs {
 		var errCompress error
 		logsReader, errCompress = utils.ReadCompressData(logsReader)
 		if errCompress != nil {

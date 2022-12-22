@@ -263,7 +263,7 @@ type CompatibleMgr interface {
 }
 
 type CompatibleObjectMapper struct {
-	mapper meta.RESTMapper
+	kindObjectMap map[string]string
 }
 
 type ObjectResolver struct {
@@ -279,39 +279,40 @@ func NewObjectResolver(c client.Client, cm CompatibleMgr) ObjectResolver {
 // it dynamically fetches the compatible k8s objects (group/api/kind) by resource from the cluster and store it in kind vs k8s object mapping
 // It will enable the operator to support old and new API resources based on cluster version support
 func InitCompatibleMgr(restMapper meta.RESTMapper) (CompatibleMgr, error) {
-	return &CompatibleObjectMapper{mapper: restMapper}, nil
+	kindObjectMap := make(map[string]string)
+	for _, resource := range getCompatibleResources() {
+		gvk, err := restMapper.KindFor(schema.GroupVersionResource{Resource: resource})
+		if err != nil {
+			return nil, err
+		}
+		kindObjectMap[gvk.Kind] = gvk.String()
+	}
+	return &CompatibleObjectMapper{kindObjectMap: kindObjectMap}, nil
 }
 
-// return supported object api per k8s version
-func supportedObjectsByK8sKind(api string) (client.Object, error) {
-	var resource client.Object
+// return a map of supported object api per k8s version
+func supportedObjectsByK8sKind(api string) client.Object {
 	switch api {
 	case apiBatchV1beta1CronJob:
-		resource = &batchv1beta1.CronJob{}
+		return &batchv1beta1.CronJob{}
 	case apiBatchV1CronJob:
-		resource = &batchv1.CronJob{}
+		return &batchv1.CronJob{}
 	default:
-		return nil, fmt.Errorf("api %s is not suooprted compatibale resource", api)
+		return nil
 	}
-	return resource, nil
 }
 
-func getCompatibleResources() map[Kind]string {
-	return map[Kind]string{KindCronJob: cronJobResource}
+func getCompatibleResources() []string {
+	return []string{cronJobResource}
 }
 
+// GetSupportedObjectByKind accept kind and return the supported object (group/api/kind) of the cluster
 func (o *CompatibleObjectMapper) GetSupportedObjectByKind(kind Kind, defaultObject client.Object) client.Object {
-	var obj client.Object
-	resource := getCompatibleResources()[kind]
-	gvk, err := o.mapper.KindFor(schema.GroupVersionResource{Resource: resource})
-	if err != nil {
+	api, ok := o.kindObjectMap[string(kind)]
+	if !ok {
 		return defaultObject
 	}
-	obj, err = supportedObjectsByK8sKind(gvk.String())
-	if err != nil {
-		return defaultObject
-	}
-	return obj
+	return supportedObjectsByK8sKind(api)
 }
 
 func (o *ObjectResolver) ObjectFromObjectRef(ctx context.Context, ref ObjectRef) (client.Object, error) {

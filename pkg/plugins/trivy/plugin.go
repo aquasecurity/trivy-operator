@@ -1864,7 +1864,7 @@ func getVulnerabilitiesFromScanResult(report ScanResult, addFields AdditionalFie
 		if addFields.Description {
 			vulnerability.Description = sr.Description
 		}
-		if addFields.Links {
+		if addFields.Links && sr.References != nil {
 			vulnerability.Links = sr.References
 		}
 		if addFields.CVSS {

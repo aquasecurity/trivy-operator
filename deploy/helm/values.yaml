@@ -359,12 +359,14 @@ securityContext:
       - ALL
 
 #volumeMounts:
+# Example:
 #  - mountPath: /tmp
 #    name: tmp-data
 #    readOnly: false
 
 
 #volumes:
+# Example:
 #  - name: tmp-data
 #    emptyDir: {}
 

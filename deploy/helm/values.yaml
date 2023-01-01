@@ -364,7 +364,6 @@ securityContext:
 #    name: tmp-data
 #    readOnly: false
 
-
 #volumes:
 # Example:
 #  - name: tmp-data

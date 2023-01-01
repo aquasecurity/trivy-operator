@@ -4,7 +4,16 @@ The ClusterComplianceReport is a cluster-scoped resource, which represents the l
 The report spec defines a mapping between pre-defined compliance control check ids to security scanners check ids.
 Currently, only `config-audit` security scanners are supported.
 
-The NSA compliance report is composed of two parts:
+## Built in reports
+
+The following reports are available out of the box:
+
+| Compliance | Name for command | More info
+--- | --- | ---
+NSA, CISA Kubernetes Hardening Guidance v1.2 | `nsa` | [Link](https://media.defense.gov/2022/Aug/29/2003066362/-1/-1/0/CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.PDF)
+CIS Benchmark for Kubernetes v1.23 | `cis` | [Link](https://www.cisecurity.org/benchmark/kubernetes)
+
+### The compliance report structure:
 
 - `spec:` represents the compliance control checks specification, check details, and the mapping to the security scanner
   (this part is defined by the user)
@@ -12,6 +21,10 @@ The NSA compliance report is composed of two parts:
   scanners reports (this part is output by trivy-operator)
 
 The following shows a sample ClusterComplianceReport NSA specification associated with the `cluster` in summary format:
+
+<details>
+
+<summary>NSA, CISA Kubernetes Hardening Guidance v1.2</summary>
 
 ```yaml
 apiVersion: aquasecurity.github.io/v1alpha1
@@ -1316,6 +1329,1258 @@ status:
     failCount: 12
     passCount: 15
   updateTimestamp: "2022-12-05T08:43:10Z"
-
-
 ```
+
+</details>
+
+
+<details>
+
+<summary>Kubernetes CIS Benchmark 1.23</summary>
+
+```json
+{
+    "apiVersion": "aquasecurity.github.io/v1alpha1",
+    "kind": "ClusterComplianceReport",
+    "metadata": {
+        "creationTimestamp": "2023-01-01T10:27:01Z",
+        "generation": 1,
+        "labels": {
+            "app.kubernetes.io/instance": "trivy-operator",
+            "app.kubernetes.io/managed-by": "kubectl",
+            "app.kubernetes.io/name": "trivy-operator",
+            "app.kubernetes.io/version": "0.10.0-rc2"
+        },
+        "name": "cis",
+        "resourceVersion": "8985",
+        "uid": "698f0de6-16dd-410c-b102-9cb068bc5c0d"
+    },
+    "spec": {
+        "compliance": {
+            "controls": [
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0001"
+                        }
+                    ],
+                    "description": "Disable anonymous requests to the API server",
+                    "id": "1.2.1",
+                    "name": "Ensure that the --anonymous-auth argument is set to false",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0002"
+                        }
+                    ],
+                    "description": "Do not use token based authentication.",
+                    "id": "1.2.2",
+                    "name": "Ensure that the --token-auth-file parameter is not set",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0003"
+                        }
+                    ],
+                    "description": "This admission controller rejects all net-new usage of the Service field externalIPs.",
+                    "id": "1.2.3",
+                    "name": "Ensure that the --DenyServiceExternalIPs is not set",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0004"
+                        }
+                    ],
+                    "description": "Use https for kubelet connections.",
+                    "id": "1.2.4",
+                    "name": "Ensure that the --kubelet-https argument is set to true",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0005"
+                        }
+                    ],
+                    "description": "Enable certificate based kubelet authentication.",
+                    "id": "1.2.5",
+                    "name": "Ensure that the --kubelet-client-certificate and --kubelet-client-key arguments are set as appropriate",
+                    "severity": "HIGH"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0006"
+                        }
+                    ],
+                    "description": "Verify kubelets certificate before establishing connection.",
+                    "id": "1.2.6",
+                    "name": "Ensure that the --kubelet-certificate-authority argument is set as appropriate",
+                    "severity": "HIGH"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0007"
+                        }
+                    ],
+                    "description": "Do not always authorize all requests.",
+                    "id": "1.2.7",
+                    "name": "Ensure that the --authorization-mode argument is not set to AlwaysAllow",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0008"
+                        }
+                    ],
+                    "description": "Restrict kubelet nodes to reading only objects associated with them.",
+                    "id": "1.2.8",
+                    "name": "Ensure that the --authorization-mode argument includes Node",
+                    "severity": "HIGH"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0009"
+                        }
+                    ],
+                    "description": "Turn on Role Based Access Control.",
+                    "id": "1.2.9",
+                    "name": "Ensure that the --authorization-mode argument includes RBAC",
+                    "severity": "HIGH"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0010"
+                        }
+                    ],
+                    "description": "Limit the rate at which the API server accepts requests.",
+                    "id": "1.2.10",
+                    "name": "Ensure that the admission control plugin EventRateLimit is set",
+                    "severity": "HIGH"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0011"
+                        }
+                    ],
+                    "description": "Do not allow all requests",
+                    "id": "1.2.11",
+                    "name": "Ensure that the admission control plugin AlwaysAdmit is not set",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0012"
+                        }
+                    ],
+                    "description": "Always pull images",
+                    "id": "1.2.12",
+                    "name": "Ensure that the admission control plugin AlwaysPullImages is set",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0013"
+                        }
+                    ],
+                    "description": "The SecurityContextDeny admission controller can be used to deny pods which make use of some SecurityContext fields which could allow for privilege escalation in the cluster. This should be used where PodSecurityPolicy is not in place within the cluster.",
+                    "id": "1.2.13",
+                    "name": "Ensure that the admission control plugin SecurityContextDeny is set if PodSecurityPolicy is not used",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0014"
+                        }
+                    ],
+                    "description": "Automate service accounts management.",
+                    "id": "1.2.14",
+                    "name": "Ensure that the admission control plugin ServiceAccount is set",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0015"
+                        }
+                    ],
+                    "description": "Reject creating objects in a namespace that is undergoing termination.",
+                    "id": "1.2.15",
+                    "name": "Ensure that the admission control plugin NamespaceLifecycle is set",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0016"
+                        }
+                    ],
+                    "description": "Limit the Node and Pod objects that a kubelet could modify.",
+                    "id": "1.2.16",
+                    "name": "Ensure that the admission control plugin NodeRestriction is set",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0017"
+                        }
+                    ],
+                    "description": "Do not disable the secure port",
+                    "id": "1.2.17",
+                    "name": "Ensure that the --secure-port argument is not set to 0",
+                    "severity": "HIGH"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0018"
+                        }
+                    ],
+                    "description": "Disable profiling, if not needed.",
+                    "id": "1.2.18",
+                    "name": "Ensure that the --profiling argument is set to false",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0019"
+                        }
+                    ],
+                    "description": "Enable auditing on the Kubernetes API Server and set the desired audit log path.",
+                    "id": "1.2.19",
+                    "name": "Ensure that the --audit-log-path argument is set",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0020"
+                        }
+                    ],
+                    "description": "Retain the logs for at least 30 days or as appropriate.",
+                    "id": "1.2.20",
+                    "name": "Ensure that the --audit-log-maxage argument is set to 30 or as appropriate",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0021"
+                        }
+                    ],
+                    "description": "Retain 10 or an appropriate number of old log file.",
+                    "id": "1.2.21",
+                    "name": "Ensure that the --audit-log-maxbackup argument is set to 10 or as appropriate",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0022"
+                        }
+                    ],
+                    "description": "Rotate log files on reaching 100 MB or as appropriate.",
+                    "id": "1.2.22",
+                    "name": "Ensure that the --audit-log-maxsize argument is set to 100 or as appropriate",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0024"
+                        }
+                    ],
+                    "description": "Validate service account before validating token.",
+                    "id": "1.2.24",
+                    "name": "Ensure that the --service-account-lookup argument is set to true",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0025"
+                        }
+                    ],
+                    "description": "Explicitly set a service account public key file for service accounts on the apiserver.",
+                    "id": "1.2.25",
+                    "name": "Ensure that the --service-account-key-file argument is set as appropriate",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0026"
+                        }
+                    ],
+                    "description": "etcd should be configured to make use of TLS encryption for client connections.",
+                    "id": "1.2.26",
+                    "name": "Ensure that the --etcd-certfile and --etcd-keyfile arguments are set as appropriate",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0027"
+                        }
+                    ],
+                    "description": "Setup TLS connection on the API server.",
+                    "id": "1.2.27",
+                    "name": "Ensure that the --tls-cert-file and --tls-private-key-file arguments are set as appropriate",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0028"
+                        }
+                    ],
+                    "description": "Setup TLS connection on the API server.",
+                    "id": "1.2.28",
+                    "name": "Ensure that the --client-ca-file argument is set appropriate",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0029"
+                        }
+                    ],
+                    "description": "etcd should be configured to make use of TLS encryption for client connections.",
+                    "id": "1.2.29",
+                    "name": "Ensure that the --etcd-cafile argument is set as appropriate",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0030"
+                        }
+                    ],
+                    "description": "Encrypt etcd key-value store.",
+                    "id": "1.2.30",
+                    "name": "Ensure that the --encryption-provider-config argument is set as appropriate",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0033"
+                        }
+                    ],
+                    "description": "Activate garbage collector on pod termination, as appropriate.",
+                    "id": "1.3.1",
+                    "name": "Ensure that the --terminated-pod-gc-threshold argument is set as appropriate",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0035"
+                        }
+                    ],
+                    "description": "Use individual service account credentials for each controller.",
+                    "id": "1.3.3",
+                    "name": "Ensure that the --use-service-account-credentials argument is set to true",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0036"
+                        }
+                    ],
+                    "description": "Explicitly set a service account private key file for service accounts on the controller manager.",
+                    "id": "1.3.4",
+                    "name": "Ensure that the --service-account-private-key-file argument is set as appropriate",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0037"
+                        }
+                    ],
+                    "description": "Allow pods to verify the API servers serving certificate before establishing connections.",
+                    "id": "1.3.5",
+                    "name": "Ensure that the --root-ca-file argument is set as appropriate",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0038"
+                        }
+                    ],
+                    "description": "Enable kubelet server certificate rotation on controller-manager.",
+                    "id": "1.3.6",
+                    "name": "Ensure that the RotateKubeletServerCertificate argument is set to true",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0039"
+                        }
+                    ],
+                    "description": "Do not bind the scheduler service to non-loopback insecure addresses.",
+                    "id": "1.3.7",
+                    "name": "Ensure that the --bind-address argument is set to 127.0.0.1",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0034"
+                        }
+                    ],
+                    "description": "Disable profiling, if not needed.",
+                    "id": "1.4.1",
+                    "name": "Ensure that the --profiling argument is set to false",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0041"
+                        }
+                    ],
+                    "description": "Do not bind the scheduler service to non-loopback insecure addresses.",
+                    "id": "1.4.2",
+                    "name": "Ensure that the --bind-address argument is set to 127.0.0.1",
+                    "severity": "CRITICAL"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0042"
+                        }
+                    ],
+                    "description": "Configure TLS encryption for the etcd service.",
+                    "id": "2.1",
+                    "name": "Ensure that the --cert-file and --key-file arguments are set as appropriate",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0043"
+                        }
+                    ],
+                    "description": "Enable client authentication on etcd service.",
+                    "id": "2.2",
+                    "name": "Ensure that the --client-cert-auth argument is set to true",
+                    "severity": "CRITICAL"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0044"
+                        }
+                    ],
+                    "description": "Do not use self-signed certificates for TLS.",
+                    "id": "2.3",
+                    "name": "Ensure that the --auto-tls argument is not set to true",
+                    "severity": "CRITICAL"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0045"
+                        }
+                    ],
+                    "description": "etcd should be configured to make use of TLS encryption for peer connections.",
+                    "id": "2.4",
+                    "name": "Ensure that the --peer-cert-file and --peer-key-file arguments are set as appropriate",
+                    "severity": "CRITICAL"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0046"
+                        }
+                    ],
+                    "description": "etcd should be configured for peer authentication.",
+                    "id": "2.5",
+                    "name": "Ensure that the --peer-client-cert-auth argument is set to true",
+                    "severity": "CRITICAL"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KCV-0047"
+                        }
+                    ],
+                    "description": "Do not use self-signed certificates for TLS.",
+                    "id": "2.6",
+                    "name": "Ensure that the --peer-auto-tls argument is not set to true",
+                    "severity": "HIGH"
+                },
+                {
+                    "description": "Kubernetes provides the option to use client certificates for user authentication. However as there is no way to revoke these certificates when a user leaves an organization or loses their credential, they are not suitable for this purpose.",
+                    "id": "3.1.1",
+                    "name": "Client certificate authentication should not be used for users (Manual)",
+                    "severity": "HIGH"
+                },
+                {
+                    "description": "Kubernetes can audit the details of requests made to the API server. The --audit- policy-file flag must be set for this logging to be enabled.",
+                    "id": "3.2.1",
+                    "name": "Ensure that a minimal audit policy is created (Manual)",
+                    "severity": "HIGH"
+                },
+                {
+                    "description": "Ensure that the audit policy created for the cluster covers key security concerns.",
+                    "id": "3.2.2",
+                    "name": "Ensure that the audit policy covers key security concerns (Manual)",
+                    "severity": "HIGH"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0111"
+                        }
+                    ],
+                    "description": "The RBAC role cluster-admin provides wide-ranging powers over the environment and should be used only where and when needed.",
+                    "id": "5.1.1",
+                    "name": "Ensure that the cluster-admin role is only used where required",
+                    "severity": "HIGH"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0041"
+                        }
+                    ],
+                    "description": "The Kubernetes API stores secrets, which may be service account tokens for the Kubernetes API or credentials used by workloads in the cluster",
+                    "id": "5.1.2",
+                    "name": "Minimize access to secrets",
+                    "severity": "HIGH"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0044"
+                        },
+                        {
+                            "id": "AVD-KSV-0045"
+                        },
+                        {
+                            "id": "AVD-KSV-0046"
+                        }
+                    ],
+                    "description": "Kubernetes Roles and ClusterRoles provide access to resources based on sets of objects and actions that can be taken on those objects. It is possible to set either of these to be the wildcard \"*\" which matches all items",
+                    "id": "5.1.3",
+                    "name": "Minimize wildcard use in Roles and ClusterRoles",
+                    "severity": "HIGH"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0036"
+                        }
+                    ],
+                    "description": "Service accounts tokens should not be mounted in pods except where the workload running in the pod explicitly needs to communicate with the API server",
+                    "id": "5.1.6",
+                    "name": "Ensure that Service Account Tokens are only mounted where necessary",
+                    "severity": "HIGH"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0043"
+                        }
+                    ],
+                    "description": "Cluster roles and roles with the impersonate, bind or escalate permissions should not be granted unless strictly required",
+                    "id": "5.1.8",
+                    "name": "Limit use of the Bind, Impersonate and Escalate permissions in the Kubernetes cluster",
+                    "severity": "HIGH"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0017"
+                        }
+                    ],
+                    "description": "Do not generally permit containers to be run with the securityContext.privileged flag set to true.",
+                    "id": "5.2.2",
+                    "name": "Minimize the admission of privileged containers",
+                    "severity": "HIGH"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0010"
+                        }
+                    ],
+                    "description": "Do not generally permit containers to be run with the hostPID flag set to true.",
+                    "id": "5.2.3",
+                    "name": "Minimize the admission of containers wishing to share the host process ID namespace",
+                    "severity": "HIGH"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0008"
+                        }
+                    ],
+                    "description": "Do not generally permit containers to be run with the hostIPC flag set to true.",
+                    "id": "5.2.4",
+                    "name": "Minimize the admission of containers wishing to share the host IPC namespace",
+                    "severity": "HIGH"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0009"
+                        }
+                    ],
+                    "description": "Do not generally permit containers to be run with the hostNetwork flag set to true.",
+                    "id": "5.2.5",
+                    "name": "Minimize the admission of containers wishing to share the host network namespace",
+                    "severity": "HIGH"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0001"
+                        }
+                    ],
+                    "description": "Do not generally permit containers to be run with the allowPrivilegeEscalation flag set to true",
+                    "id": "5.2.6",
+                    "name": "Minimize the admission of containers with allowPrivilegeEscalation",
+                    "severity": "HIGH"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0012"
+                        }
+                    ],
+                    "description": "Do not generally permit containers to be run as the root user.",
+                    "id": "5.2.7",
+                    "name": "Minimize the admission of root containers",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0022"
+                        }
+                    ],
+                    "description": "Do not generally permit containers with the potentially dangerous NET_RAW capability.",
+                    "id": "5.2.8",
+                    "name": "Minimize the admission of containers with the NET_RAW capability",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0004"
+                        }
+                    ],
+                    "description": "Do not generally permit containers with capabilities assigned beyond the default set.",
+                    "id": "5.2.9",
+                    "name": "Minimize the admission of containers with added capabilities",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0003"
+                        }
+                    ],
+                    "description": "Do not generally permit containers with capabilities",
+                    "id": "5.2.10",
+                    "name": "Minimize the admission of containers with capabilities assigned",
+                    "severity": "LOW"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0103"
+                        }
+                    ],
+                    "description": "Do not generally permit containers with capabilities",
+                    "id": "5.2.11",
+                    "name": "Minimize the admission of containers with capabilities assigned",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0023"
+                        }
+                    ],
+                    "description": "Do not generally admit containers which make use of hostPath volumes.",
+                    "id": "5.2.12",
+                    "name": "Minimize the admission of HostPath volumes",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0024"
+                        }
+                    ],
+                    "description": "Do not generally permit containers which require the use of HostPorts.",
+                    "id": "5.2.13",
+                    "name": "Minimize the admission of containers which use HostPorts",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "description": "There are a variety of CNI plugins available for Kubernetes. If the CNI in use does not support Network Policies it may not be possible to effectively restrict traffic in the cluster.",
+                    "id": "5.3.1",
+                    "name": "Ensure that the CNI in use supports Network Policies (Manual)",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0038"
+                        }
+                    ],
+                    "description": "Use network policies to isolate traffic in your cluster network.",
+                    "id": "5.3.2",
+                    "name": "Ensure that all Namespaces have Network Policies defined",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "description": "Kubernetes supports mounting secrets as data volumes or as environment variables. Minimize the use of environment variable secrets.",
+                    "id": "5.4.1",
+                    "name": "Prefer using secrets as files over secrets as environment variables (Manual)",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "description": "Consider the use of an external secrets storage and management system, instead of using Kubernetes Secrets directly, if you have more complex secret management needs.",
+                    "id": "5.4.2",
+                    "name": "Consider external secret storage (Manual)",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "description": "Configure Image Provenance for your deployment.",
+                    "id": "5.5.1",
+                    "name": "Configure Image Provenance using ImagePolicyWebhook admission controller (Manual)",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "description": "Use namespaces to isolate your Kubernetes objects.",
+                    "id": "5.7.1",
+                    "name": "Create administrative boundaries between resources using namespaces (Manual)",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0104"
+                        }
+                    ],
+                    "description": "Enable docker/default seccomp profile in your pod definitions.",
+                    "id": "5.7.2",
+                    "name": "Ensure that the seccomp profile is set to docker/default in your pod definitions",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0021"
+                        },
+                        {
+                            "id": "AVD-KSV-0020"
+                        },
+                        {
+                            "id": "AVD-KSV-0005"
+                        },
+                        {
+                            "id": "AVD-KSV-0025"
+                        },
+                        {
+                            "id": "AVD-KSV-0104"
+                        },
+                        {
+                            "id": "AVD-KSV-0030"
+                        }
+                    ],
+                    "description": "Apply Security Context to Your Pods and Containers",
+                    "id": "5.7.3",
+                    "name": "Apply Security Context to Your Pods and Containers",
+                    "severity": "HIGH"
+                },
+                {
+                    "checks": [
+                        {
+                            "id": "AVD-KSV-0110"
+                        }
+                    ],
+                    "description": "Kubernetes provides a default namespace, where objects are placed if no namespace is specified for them",
+                    "id": "5.7.4",
+                    "name": "The default namespace should not be used",
+                    "severity": "MEDIUM"
+                }
+            ],
+            "description": "CIS Kubernetes Benchmarks",
+            "id": "cis",
+            "relatedResources": [
+                "https://www.cisecurity.org/benchmark/kubernetes"
+            ],
+            "title": "CIS Kubernetes Benchmarks v1.23",
+            "version": "1.0"
+        },
+        "cron": "** ** *",
+        "reportType": "summary"
+    },
+    "status": {
+        "summary": {
+            "failCount": 24,
+            "passCount": 48
+        },
+        "summaryReport": {
+            "controlCheck": [
+                {
+                    "id": "1.2.1",
+                    "name": "Ensure that the --anonymous-auth argument is set to false",
+                    "severity": "MEDIUM",
+                    "totalFail": 1
+                },
+                {
+                    "id": "1.2.2",
+                    "name": "Ensure that the --token-auth-file parameter is not set",
+                    "severity": "LOW",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.2.3",
+                    "name": "Ensure that the --DenyServiceExternalIPs is not set",
+                    "severity": "LOW",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.2.4",
+                    "name": "Ensure that the --kubelet-https argument is set to true",
+                    "severity": "LOW",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.2.5",
+                    "name": "Ensure that the --kubelet-client-certificate and --kubelet-client-key arguments are set as appropriate",
+                    "severity": "HIGH",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.2.6",
+                    "name": "Ensure that the --kubelet-certificate-authority argument is set as appropriate",
+                    "severity": "HIGH",
+                    "totalFail": 1
+                },
+                {
+                    "id": "1.2.7",
+                    "name": "Ensure that the --authorization-mode argument is not set to AlwaysAllow",
+                    "severity": "LOW",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.2.8",
+                    "name": "Ensure that the --authorization-mode argument includes Node",
+                    "severity": "HIGH",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.2.9",
+                    "name": "Ensure that the --authorization-mode argument includes RBAC",
+                    "severity": "HIGH",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.2.10",
+                    "name": "Ensure that the admission control plugin EventRateLimit is set",
+                    "severity": "HIGH",
+                    "totalFail": 1
+                },
+                {
+                    "id": "1.2.11",
+                    "name": "Ensure that the admission control plugin AlwaysAdmit is not set",
+                    "severity": "LOW",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.2.12",
+                    "name": "Ensure that the admission control plugin AlwaysPullImages is set",
+                    "severity": "MEDIUM",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.2.13",
+                    "name": "Ensure that the admission control plugin SecurityContextDeny is set if PodSecurityPolicy is not used",
+                    "severity": "MEDIUM",
+                    "totalFail": 1
+                },
+                {
+                    "id": "1.2.14",
+                    "name": "Ensure that the admission control plugin ServiceAccount is set",
+                    "severity": "LOW",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.2.15",
+                    "name": "Ensure that the admission control plugin NamespaceLifecycle is set",
+                    "severity": "LOW",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.2.16",
+                    "name": "Ensure that the admission control plugin NodeRestriction is set",
+                    "severity": "LOW",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.2.17",
+                    "name": "Ensure that the --secure-port argument is not set to 0",
+                    "severity": "HIGH",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.2.18",
+                    "name": "Ensure that the --profiling argument is set to false",
+                    "severity": "LOW",
+                    "totalFail": 1
+                },
+                {
+                    "id": "1.2.19",
+                    "name": "Ensure that the --audit-log-path argument is set",
+                    "severity": "LOW",
+                    "totalFail": 1
+                },
+                {
+                    "id": "1.2.20",
+                    "name": "Ensure that the --audit-log-maxage argument is set to 30 or as appropriate",
+                    "severity": "LOW",
+                    "totalFail": 1
+                },
+                {
+                    "id": "1.2.21",
+                    "name": "Ensure that the --audit-log-maxbackup argument is set to 10 or as appropriate",
+                    "severity": "LOW",
+                    "totalFail": 1
+                },
+                {
+                    "id": "1.2.22",
+                    "name": "Ensure that the --audit-log-maxsize argument is set to 100 or as appropriate",
+                    "severity": "LOW",
+                    "totalFail": 1
+                },
+                {
+                    "id": "1.2.24",
+                    "name": "Ensure that the --service-account-lookup argument is set to true",
+                    "severity": "LOW",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.2.25",
+                    "name": "Ensure that the --service-account-key-file argument is set as appropriate",
+                    "severity": "LOW",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.2.26",
+                    "name": "Ensure that the --etcd-certfile and --etcd-keyfile arguments are set as appropriate",
+                    "severity": "LOW",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.2.27",
+                    "name": "Ensure that the --tls-cert-file and --tls-private-key-file arguments are set as appropriate",
+                    "severity": "MEDIUM",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.2.28",
+                    "name": "Ensure that the --client-ca-file argument is set appropriate",
+                    "severity": "LOW",
+                    "totalFail": 1
+                },
+                {
+                    "id": "1.2.29",
+                    "name": "Ensure that the --etcd-cafile argument is set as appropriate",
+                    "severity": "LOW",
+                    "totalFail": 1
+                },
+                {
+                    "id": "1.2.30",
+                    "name": "Ensure that the --encryption-provider-config argument is set as appropriate",
+                    "severity": "LOW",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.3.1",
+                    "name": "Ensure that the --terminated-pod-gc-threshold argument is set as appropriate",
+                    "severity": "MEDIUM",
+                    "totalFail": 1
+                },
+                {
+                    "id": "1.3.3",
+                    "name": "Ensure that the --use-service-account-credentials argument is set to true",
+                    "severity": "MEDIUM",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.3.4",
+                    "name": "Ensure that the --service-account-private-key-file argument is set as appropriate",
+                    "severity": "MEDIUM",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.3.5",
+                    "name": "Ensure that the --root-ca-file argument is set as appropriate",
+                    "severity": "MEDIUM",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.3.6",
+                    "name": "Ensure that the RotateKubeletServerCertificate argument is set to true",
+                    "severity": "MEDIUM",
+                    "totalFail": 1
+                },
+                {
+                    "id": "1.3.7",
+                    "name": "Ensure that the --bind-address argument is set to 127.0.0.1",
+                    "severity": "LOW",
+                    "totalFail": 0
+                },
+                {
+                    "id": "1.4.1",
+                    "name": "Ensure that the --profiling argument is set to false",
+                    "severity": "MEDIUM",
+                    "totalFail": 1
+                },
+                {
+                    "id": "1.4.2",
+                    "name": "Ensure that the --bind-address argument is set to 127.0.0.1",
+                    "severity": "CRITICAL",
+                    "totalFail": 0
+                },
+                {
+                    "id": "2.1",
+                    "name": "Ensure that the --cert-file and --key-file arguments are set as appropriate",
+                    "severity": "MEDIUM",
+                    "totalFail": 0
+                },
+                {
+                    "id": "2.2",
+                    "name": "Ensure that the --client-cert-auth argument is set to true",
+                    "severity": "CRITICAL",
+                    "totalFail": 0
+                },
+                {
+                    "id": "2.3",
+                    "name": "Ensure that the --auto-tls argument is not set to true",
+                    "severity": "CRITICAL",
+                    "totalFail": 0
+                },
+                {
+                    "id": "2.4",
+                    "name": "Ensure that the --peer-cert-file and --peer-key-file arguments are set as appropriate",
+                    "severity": "CRITICAL",
+                    "totalFail": 0
+                },
+                {
+                    "id": "2.5",
+                    "name": "Ensure that the --peer-client-cert-auth argument is set to true",
+                    "severity": "CRITICAL",
+                    "totalFail": 0
+                },
+                {
+                    "id": "2.6",
+                    "name": "Ensure that the --peer-auto-tls argument is not set to true",
+                    "severity": "HIGH",
+                    "totalFail": 0
+                },
+                {
+                    "id": "3.1.1",
+                    "name": "Client certificate authentication should not be used for users (Manual)",
+                    "severity": "HIGH"
+                },
+                {
+                    "id": "3.2.1",
+                    "name": "Ensure that a minimal audit policy is created (Manual)",
+                    "severity": "HIGH"
+                },
+                {
+                    "id": "3.2.2",
+                    "name": "Ensure that the audit policy covers key security concerns (Manual)",
+                    "severity": "HIGH"
+                },
+                {
+                    "id": "5.1.1",
+                    "name": "Ensure that the cluster-admin role is only used where required",
+                    "severity": "HIGH",
+                    "totalFail": 0
+                },
+                {
+                    "id": "5.1.2",
+                    "name": "Minimize access to secrets",
+                    "severity": "HIGH",
+                    "totalFail": 0
+                },
+                {
+                    "id": "5.1.3",
+                    "name": "Minimize wildcard use in Roles and ClusterRoles",
+                    "severity": "HIGH",
+                    "totalFail": 0
+                },
+                {
+                    "id": "5.1.6",
+                    "name": "Ensure that Service Account Tokens are only mounted where necessary",
+                    "severity": "HIGH",
+                    "totalFail": 1
+                },
+                {
+                    "id": "5.1.8",
+                    "name": "Limit use of the Bind, Impersonate and Escalate permissions in the Kubernetes cluster",
+                    "severity": "HIGH",
+                    "totalFail": 0
+                },
+                {
+                    "id": "5.2.2",
+                    "name": "Minimize the admission of privileged containers",
+                    "severity": "HIGH",
+                    "totalFail": 1
+                },
+                {
+                    "id": "5.2.3",
+                    "name": "Minimize the admission of containers wishing to share the host process ID namespace",
+                    "severity": "HIGH",
+                    "totalFail": 0
+                },
+                {
+                    "id": "5.2.4",
+                    "name": "Minimize the admission of containers wishing to share the host IPC namespace",
+                    "severity": "HIGH",
+                    "totalFail": 0
+                },
+                {
+                    "id": "5.2.5",
+                    "name": "Minimize the admission of containers wishing to share the host network namespace",
+                    "severity": "HIGH",
+                    "totalFail": 6
+                },
+                {
+                    "id": "5.2.6",
+                    "name": "Minimize the admission of containers with allowPrivilegeEscalation",
+                    "severity": "HIGH",
+                    "totalFail": 9
+                },
+                {
+                    "id": "5.2.7",
+                    "name": "Minimize the admission of root containers",
+                    "severity": "MEDIUM",
+                    "totalFail": 10
+                },
+                {
+                    "id": "5.2.8",
+                    "name": "Minimize the admission of containers with the NET_RAW capability",
+                    "severity": "MEDIUM",
+                    "totalFail": 2
+                },
+                {
+                    "id": "5.2.9",
+                    "name": "Minimize the admission of containers with added capabilities",
+                    "severity": "LOW",
+                    "totalFail": 0
+                },
+                {
+                    "id": "5.2.10",
+                    "name": "Minimize the admission of containers with capabilities assigned",
+                    "severity": "LOW",
+                    "totalFail": 9
+                },
+                {
+                    "id": "5.2.11",
+                    "name": "Minimize the admission of containers with capabilities assigned",
+                    "severity": "MEDIUM",
+                    "totalFail": 0
+                },
+                {
+                    "id": "5.2.12",
+                    "name": "Minimize the admission of HostPath volumes",
+                    "severity": "MEDIUM",
+                    "totalFail": 6
+                },
+                {
+                    "id": "5.2.13",
+                    "name": "Minimize the admission of containers which use HostPorts",
+                    "severity": "MEDIUM",
+                    "totalFail": 0
+                },
+                {
+                    "id": "5.3.1",
+                    "name": "Ensure that the CNI in use supports Network Policies (Manual)",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "id": "5.3.2",
+                    "name": "Ensure that all Namespaces have Network Policies defined",
+                    "severity": "MEDIUM",
+                    "totalFail": 0
+                },
+                {
+                    "id": "5.4.1",
+                    "name": "Prefer using secrets as files over secrets as environment variables (Manual)",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "id": "5.4.2",
+                    "name": "Consider external secret storage (Manual)",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "id": "5.5.1",
+                    "name": "Configure Image Provenance using ImagePolicyWebhook admission controller (Manual)",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "id": "5.7.1",
+                    "name": "Create administrative boundaries between resources using namespaces (Manual)",
+                    "severity": "MEDIUM"
+                },
+                {
+                    "id": "5.7.2",
+                    "name": "Ensure that the seccomp profile is set to docker/default in your pod definitions",
+                    "severity": "MEDIUM",
+                    "totalFail": 0
+                },
+                {
+                    "id": "5.7.3",
+                    "name": "Apply Security Context to Your Pods and Containers",
+                    "severity": "HIGH",
+                    "totalFail": 30
+                },
+                {
+                    "id": "5.7.4",
+                    "name": "The default namespace should not be used",
+                    "severity": "MEDIUM",
+                    "totalFail": 3
+                }
+            ],
+            "id": "cis",
+            "title": "CIS Kubernetes Benchmarks v1.23"
+        },
+        "updateTimestamp": "2023-01-01T10:28:00Z"
+    }
+}
+```
+
+</details>

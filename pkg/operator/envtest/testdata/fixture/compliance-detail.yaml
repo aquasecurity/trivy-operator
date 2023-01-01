@@ -12,7 +12,7 @@ spec:
   cron: "* * * * *"
   reportType: all
   compliance:
-    id: "0001"
+    id: "nsa-all"
     title: nsa-all
     description: National Security Agency - Kubernetes Hardening Guidance
     relatedResources:

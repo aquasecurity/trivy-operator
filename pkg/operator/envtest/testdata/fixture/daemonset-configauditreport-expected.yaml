@@ -149,6 +149,15 @@ report:
       severity: MEDIUM
       success: false
       title: Process can elevate its own privileges
+    - category: Kubernetes Security Check
+      checkID: KSV110
+      description: ensure that default namespace should not be used
+      messages:
+        - DaemonSet 'fluentd-elasticsearch' should not be set with 'default'
+          namespace
+      severity: LOW
+      success: false
+      title: The default namespace should not be used
   scanner:
     name: Trivy
     vendor: Aqua Security
@@ -156,5 +165,5 @@ report:
   summary:
     criticalCount: 0
     highCount: 0
-    lowCount: 10
+    lowCount: 11
     mediumCount: 2

@@ -12,8 +12,8 @@ spec:
   cron: "0 */6 * * *"
   reportType: "summary" # 'summary' or 'all'
   compliance:
-    id: "0001"
-    title: nsa
+    id: nsa
+    title: National Security Agency - Kubernetes Hardening Guidance v1.0
     description: National Security Agency - Kubernetes Hardening Guidance
     relatedResources : 
       - https://www.nsa.gov/Press-Room/News-Highlights/Article/Article/2716980/nsa-cisa-release-kubernetes-hardening-guidance/

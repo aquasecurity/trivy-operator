@@ -358,13 +358,13 @@ securityContext:
     drop:
       - ALL
 
-#volumeMounts:
+# volumeMounts:
 # Example:
 #  - mountPath: /tmp
 #    name: tmp-data
 #    readOnly: false
 
-#volumes:
+# volumes:
 # Example:
 #  - name: tmp-data
 #    emptyDir: {}

@@ -3,7 +3,7 @@ summary:
   failCount: 1
   passCount: 1
 summaryReport:
-  id: "0001"
+  id: "nsa-summary"
   title: nsa-summary
   controlCheck:
     - id: "1.0"

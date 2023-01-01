@@ -54,7 +54,7 @@ func TestGenerateComplianceReport(t *testing.T) {
 			Spec: v1alpha1.ReportSpec{
 				ReportFormat: "summary",
 				Complaince: v1alpha1.Complaince{
-					ID:    "1.0",
+					ID:    "nsa",
 					Title: "nsa",
 					Controls: []v1alpha1.Control{
 						{
@@ -98,7 +98,7 @@ func TestGenerateComplianceReport(t *testing.T) {
 			},
 		}, reportType: "summary", wantStatus: &v1alpha1.ReportStatus{
 			SummaryReport: &v1alpha1.SummaryReport{
-				ID:    "1.0",
+				ID:    "nsa",
 				Title: "nsa",
 				SummaryControls: []v1alpha1.ControlCheckSummary{
 					{
@@ -152,7 +152,7 @@ func TestGenerateComplianceReport(t *testing.T) {
 			Spec: v1alpha1.ReportSpec{
 				ReportFormat: "all",
 				Complaince: v1alpha1.Complaince{
-					ID:    "1.0",
+					ID:    "nsa",
 					Title: "nsa",
 					Controls: []v1alpha1.Control{
 						{
@@ -196,7 +196,7 @@ func TestGenerateComplianceReport(t *testing.T) {
 			},
 		}, reportType: "all", wantStatus: &v1alpha1.ReportStatus{
 			DetailReport: &v1alpha1.ComplianceReport{
-				ID:    "1.0",
+				ID:    "nsa",
 				Title: "nsa",
 				Results: []*v1alpha1.ControlCheckResult{
 					{

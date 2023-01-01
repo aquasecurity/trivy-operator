@@ -3,7 +3,7 @@ summary:
   failCount: 1
   passCount: 1
 detailReport:
-  id: "0001"
+  id: "nsa-all"
   title: nsa-all
   description: National Security Agency - Kubernetes Hardening Guidance
   version: "1.0"

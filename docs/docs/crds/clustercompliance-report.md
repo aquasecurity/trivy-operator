@@ -13,7 +13,7 @@ The following reports are available out of the box:
 NSA, CISA Kubernetes Hardening Guidance v1.2 | `nsa` | [Link](https://media.defense.gov/2022/Aug/29/2003066362/-1/-1/0/CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.PDF)
 CIS Benchmark for Kubernetes v1.23 | `cis` | [Link](https://www.cisecurity.org/benchmark/kubernetes)
 
-### The compliance report structure:
+### The compliance report structure
 
 - `spec:` represents the compliance control checks specification, check details, and the mapping to the security scanner
   (this part is defined by the user)
@@ -1333,7 +1333,6 @@ status:
 
 </details>
 
-
 <details>
 
 <summary>Kubernetes CIS Benchmark 1.23</summary>
@@ -1349,7 +1348,7 @@ status:
             "app.kubernetes.io/instance": "trivy-operator",
             "app.kubernetes.io/managed-by": "kubectl",
             "app.kubernetes.io/name": "trivy-operator",
-            "app.kubernetes.io/version": "0.10.0-rc2"
+            "app.kubernetes.io/version": "0.10.0-rc3"
         },
         "name": "cis",
         "resourceVersion": "8985",

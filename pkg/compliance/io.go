@@ -54,16 +54,16 @@ func (w *cm) createComplianceReport(ctx context.Context, reportSpec v1alpha1.Rep
 	reportStatus.UpdateTimestamp = metav1.NewTime(ext.NewSystemClock().Now())
 	r := v1alpha1.ClusterComplianceReport{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: strings.ToLower(reportSpec.Complaince.Title),
+			Name: strings.ToLower(reportSpec.Complaince.ID),
 		},
 		Status: reportStatus,
 	}
 	var existing v1alpha1.ClusterComplianceReport
 	err := w.client.Get(ctx, types.NamespacedName{
-		Name: strings.ToLower(reportSpec.Complaince.Title),
+		Name: strings.ToLower(reportSpec.Complaince.ID),
 	}, &existing)
 	if err != nil {
-		return nil, fmt.Errorf("compliance crd with name %s is missing", reportSpec.Complaince.Title)
+		return nil, fmt.Errorf("compliance crd with name %s is missing", reportSpec.Complaince.ID)
 	}
 	copied := existing.DeepCopy()
 	copied.Labels = r.Labels

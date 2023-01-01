@@ -12,7 +12,7 @@ spec:
   cron: "0 */6 * * *"
   reportType: "summary" # 'summary' or 'all'
   compliance:
-    id: k8s-nsa
+    id: nsa
     title: National Security Agency - Kubernetes Hardening Guidance v1.0
     description: National Security Agency - Kubernetes Hardening Guidance
     relatedResources : 

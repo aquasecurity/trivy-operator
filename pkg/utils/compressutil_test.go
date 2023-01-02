@@ -65,8 +65,8 @@ func TestIllegalChar(t *testing.T) {
 		name     string
 		dataPath string
 	}{
-		{name: "illegalchar before", dataPath: "illegal_char_before.txt"},
-		{name: "illegalchar before after", dataPath: "illegal_char_after.txt"},
+		{name: "base64 illegal char before", dataPath: "illegal_char_before.txt"},
+		{name: "base64 illegal char after", dataPath: "illegal_char_after.txt"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -25,7 +25,7 @@ func base64Decode(encodedReader io.Reader) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return base64.StdEncoding.DecodeString(string(encodedBytes))
+	return base64.StdEncoding.DecodeString(string(bytes.TrimSpace(encodedBytes)))
 }
 
 func ReadCompressData(encodedReader io.ReadCloser) (io.ReadCloser, error) {

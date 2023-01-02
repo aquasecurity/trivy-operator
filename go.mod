@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/aquasecurity/defsec v0.82.7-0.20221229120130-2bc18528da1c
-	github.com/aquasecurity/trivy v0.35.0
+	github.com/aquasecurity/trivy v0.36.0
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/davecgh/go-spew v1.1.1
@@ -31,17 +31,17 @@ require (
 )
 
 require (
-	github.com/aquasecurity/go-dep-parser v0.0.0-20221114145626-35ef808901e8 // indirect
+	github.com/aquasecurity/go-dep-parser v0.0.0-20221229114138-e380bc98c4ea // indirect
 	github.com/aquasecurity/table v1.8.0 // indirect
 	github.com/aquasecurity/tml v0.6.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
-	github.com/masahiro331/go-xfs-filesystem v0.0.0-20221127135739-051c25f1becd // indirect
+	github.com/masahiro331/go-xfs-filesystem v0.0.0-20221225060805-c02764233454 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/samber/lo v1.33.0 // indirect
+	github.com/samber/lo v1.36.0 // indirect
 	github.com/spdx/tools-golang v0.3.0 // indirect
 	github.com/tchap/go-patricia/v2 v2.3.1 // indirect
 	github.com/xlab/treeprint v1.1.0 // indirect
@@ -60,14 +60,14 @@ require (
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/alecthomas/chroma v0.10.0 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
-	github.com/aquasecurity/trivy-db v0.0.0-20220828183925-77efaf3c20af
+	github.com/aquasecurity/trivy-db v0.0.0-20221227141502-af78ecb7db4c
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/dlclark/regexp2 v1.4.0 // indirect
 	github.com/emicklei/go-restful/v3 v3.8.0 // indirect
 	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
-	github.com/fsnotify/fsnotify v1.5.4 // indirect
+	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect
 	github.com/go-git/go-billy/v5 v5.3.1 // indirect
@@ -117,9 +117,9 @@ require (
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/yashtewari/glob-intersection v0.1.0 // indirect
 	github.com/zclconf/go-cty v1.10.0 // indirect
-	go.uber.org/atomic v1.9.0 // indirect
-	go.uber.org/zap v1.23.0 // indirect
-	golang.org/x/crypto v0.1.0 // indirect
+	go.uber.org/atomic v1.10.0 // indirect
+	go.uber.org/zap v1.24.0 // indirect
+	golang.org/x/crypto v0.3.0 // indirect
 	golang.org/x/exp v0.0.0-20221109205753-fc8884afc316
 	golang.org/x/oauth2 v0.1.0 // indirect
 	golang.org/x/sys v0.3.0 // indirect

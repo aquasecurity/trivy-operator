@@ -1348,7 +1348,7 @@ status:
             "app.kubernetes.io/instance": "trivy-operator",
             "app.kubernetes.io/managed-by": "kubectl",
             "app.kubernetes.io/name": "trivy-operator",
-            "app.kubernetes.io/version": "0.10.0"
+            "app.kubernetes.io/version": "0.10.1"
         },
         "name": "cis",
         "resourceVersion": "8985",

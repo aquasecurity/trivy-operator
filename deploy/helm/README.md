@@ -1,4 +1,4 @@
-# Trivy-Operator 
+# Trivy-Operator
 
 Kubernetes-native security toolkit helm chart installation
 
@@ -16,6 +16,7 @@ Install the operator in the `trivy-system` namespace and configure it to select 
 except `trivy-system`:
 
 1. Install the chart from the Aqua chart repository:
+
    ```
    helm install trivy-operator aqua/trivy-operator \
      --namespace trivy-system \
@@ -23,8 +24,8 @@ except `trivy-system`:
      --set="trivy.ignoreUnfixed=true" \
      --version {{ var.chart_version }}
    ```
-   There are many values in the chart that can be set to configure Trivy-Operator.
 
+   There are many values in the chart that can be set to configure Trivy-Operator.
 
 ## Configuration
 
@@ -59,15 +60,13 @@ You can configure Trivy-Operator to control it's behavior and adapt it to your n
 | `OPERATOR_LEADER_ELECTION_ID`                                | `trivy-operator-lock`  | The name of the resource lock for leader election                                                                                                                                                            |
 | `OPERATOR_EXPOSED_SECRET_SCANNER_ENABLED`                    | `true`                 | The flag to enable exposed secret scanner                                                                                                                                                                    |
 | `OPERATOR_WEBHOOK_BROADCAST_URL`                             | `""`                   | The flag to enable operator reports to be sent to a webhook endpoint. "" means that this feature is disabled                                                                                                 |
-| `OPERATOR_BUILT_IN_TRIVY_SERVER`                             | `false`                | The flag enable the usage of built-in trivy server in cluster ,its also overwrite the following trivy params with built-in values trivy.mode = ClientServer and serverURL = http://[server Service Name].[trivy Operator Namespace]:4975
+| `OPERATOR_BUILT_IN_TRIVY_SERVER`                             | `false`                | The flag enable the usage of built-in trivy server in cluster ,its also overwrite the following trivy params with built-in values trivy.mode = ClientServer and serverURL = <http://[server> Service Name].[trivy Operator Namespace]:4975
 | `TRIVY_SERVER_HEALTH_CHECK_CACHE_EXPIRATION`                 | `10h`                  | The flag to set the interval for trivy server health cache before it invalidate
 | `OPERATOR_WEBHOOK_BROADCAST_TIMEOUT`                         | `30s`                  | The flag to set operator webhook timeouts, if webhook broadcast is enabled                                                                                                                                   |
 | `OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES`               | `{}`                   | The flag to provide information about names of the secrets for different namespaces to use them for authentication in private registries if there are no imagePullSecrets in Service Accounts and/or in Pod's Spec                                                                                                                                   |
 | `OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT`              | `false`                | The flag to enable merging rbac finding with config-audit report
 
-
 The values of the `OPERATOR_NAMESPACE` and `OPERATOR_TARGET_NAMESPACES` determine the install mode, which in turn determines the multitenancy support of the operator.
-
 
 | MODE| OPERATOR_NAMESPACE | OPERATOR_TARGET_NAMESPACES | DESCRIPTION|
 |---|---|---|---|
@@ -75,7 +74,6 @@ The values of the `OPERATOR_NAMESPACE` and `OPERATOR_TARGET_NAMESPACES` determin
 | SingleNamespace| `operators`| `foo`| The operator can be configured to watch for events in a single namespace that the operator is not deployed in. |
 | MultiNamespace| `operators`| `foo,bar,baz`| The operator can be configured to watch for events in more than one namespace.                                 |
 | AllNamespaces| `operators`| (blank string)| The operator can be configured to watch for events in all namespaces.|
-
 
 ## Scanning configuration
 
@@ -95,14 +93,12 @@ The values of the `OPERATOR_NAMESPACE` and `OPERATOR_TARGET_NAMESPACES` determin
 |`report.recordFailedChecksOnly`| `"true"`| this flag is to record only failed checks on misconfiguration reports (config-audit and rbac assessment)
 | `skipResourceByLabels`| N/A| One-line comma-separated labels keys which trivy-operator will skip scanning on resources with matching labels. Example: `test,transient`|
 
-
-
 ## Trivy Configuration
 
 | CONFIGMAP KEY                         | DEFAULT                            | DESCRIPTION                                                                                                                                                                                                                                                                                                                                                                           |
 |---------------------------------------|------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `trivy.repository`                    | `ghcr.io/aquasecurity/trivy`       | Repository of the Trivy image                                                                                                                                                                                                                                                                                                                                                         |
-| `trivy.tag`                           | `0.35.0`                           | Version of the Trivy image
+| `trivy.tag`                           | `0.36.0`                           | Version of the Trivy image
 | `trivy.imagePullSecret`               | N/A                                | imagePullSecret is the secret name to be used when pulling trivy image from private registries example: `reg-secret`. It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace.                                                                                                                                                                                                                                                                                    |
 | `trivy.dbRepository`                  | `ghcr.io/aquasecurity/trivy-db`    | External OCI Registry to download the vulnerability database                                                                                                                                                                                                                                                                                                                          |
 | `trivy.dbRepositoryInsecure`          | `false`                            | The Flag to enable insecure connection for downloading trivy-db via proxy (air-gaped env)                                                                                                                                                                                                                                                                                             |
@@ -137,7 +133,6 @@ The values of the `OPERATOR_NAMESPACE` and `OPERATOR_TARGET_NAMESPACES` determin
 | `trivy.serverToken`| The token to authenticate Trivy client with Trivy server. Only applicable in `ClientServer` mode.|
 | `trivy.serverCustomHeaders`| A comma separated list of custom HTTP headers sent by Trivy client to Trivy server. Only applicable in `ClientServer` mode.|
 
-
 ## Install as Helm dependency
 
 There are cases, when potential chart developers want to add the operator as dependency. An example would be the creation of an umbrella chart for an application, which depends on 3d-party charts.
@@ -166,5 +161,3 @@ You have to manually delete custom resource definitions created by the `helm ins
     kubectl delete crd clusterrbacassessmentreports.aquasecurity.github.io
     ```
 
-[Helm]: https://helm.sh/
-[charts]: https://helm.sh/docs/topics/charts/

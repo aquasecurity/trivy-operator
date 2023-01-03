@@ -160,4 +160,3 @@ You have to manually delete custom resource definitions created by the `helm ins
     kubectl delete crd infraassessmentreports.aquasecurity.github.io
     kubectl delete crd clusterrbacassessmentreports.aquasecurity.github.io
     ```
-

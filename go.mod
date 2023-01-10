@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/aquasecurity/defsec v0.82.7-0.20221229120130-2bc18528da1c
-	github.com/aquasecurity/trivy v0.36.0
+	github.com/aquasecurity/trivy v0.36.1
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/davecgh/go-spew v1.1.1
@@ -31,7 +31,7 @@ require (
 )
 
 require (
-	github.com/aquasecurity/go-dep-parser v0.0.0-20221229114138-e380bc98c4ea // indirect
+	github.com/aquasecurity/go-dep-parser v0.0.0-20230105081339-fe9e63bf16bf // indirect
 	github.com/aquasecurity/table v1.8.0 // indirect
 	github.com/aquasecurity/tml v0.6.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
@@ -94,7 +94,7 @@ require (
 	github.com/liamg/jfather v0.0.7 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/matryer/is v1.4.0 // indirect
-	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
+	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect

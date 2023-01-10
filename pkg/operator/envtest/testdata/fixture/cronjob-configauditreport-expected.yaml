@@ -4,8 +4,8 @@ kind: ConfigAuditReport
 metadata:
   generation: 1
   labels:
-    plugin-config-hash: 659b7b9c46
-    resource-spec-hash: 6d6758cbf6
+    plugin-config-hash: <HASH>
+    resource-spec-hash: <HASH>
     trivy-operator.resource.kind: CronJob
     trivy-operator.resource.name: hello
     trivy-operator.resource.namespace: default

@@ -4,8 +4,8 @@ kind: ConfigAuditReport
 metadata:
   generation: 1
   labels:
-    plugin-config-hash: 659b7b9c46
-    resource-spec-hash: 5d8d7b684d
+    plugin-config-hash: <HASH>
+    resource-spec-hash: <HASH>
     trivy-operator.resource.kind: ReplicaSet
     trivy-operator.resource.name: wordpress-84bbf6f4dd
     trivy-operator.resource.namespace: default

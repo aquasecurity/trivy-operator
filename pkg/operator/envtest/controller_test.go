@@ -62,6 +62,8 @@ var _ = Describe("Workload controller", func() {
 		job.ManagedFields = nil
 		job.Spec.Selector.MatchLabels["controller-uid"] = "<CONTROLLER-UID>"
 		job.Spec.Template.Labels["controller-uid"] = "<CONTROLLER-UID>"
+		job.Spec.Template.Labels["resource-spec-hash"] = "<HASH>"
+		job.Labels["resource-spec-hash"] = "<HASH>"
 		for i := range job.Spec.Template.Spec.InitContainers {
 			job.Spec.Template.Spec.InitContainers[i].Name = "<INIT-CONTAINER-NAME>"
 		}
@@ -100,10 +102,14 @@ var _ = Describe("Workload controller", func() {
 		ca.CreationTimestamp = metav1.Time{}
 		ca.ManagedFields = nil
 		ca.OwnerReferences[0].UID = ""
+
+		ca.Labels["plugin-config-hash"] = "<HASH>"
+		ca.Labels["resource-spec-hash"] = "<HASH>"
 		ca.Report.UpdateTimestamp = metav1.Time{}
 		sort.Sort(ByCheckID(ca.Report.Checks))
 		return ca
 	}
+
 	DescribeTable("On ConfigAudit reconcile loop",
 		func(expectedConfigAuditReportResourceFile string) {
 			expectedConfigAuditReport := &v1alpha1.ConfigAuditReport{}

@@ -47,12 +47,12 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr1.Namespace = "default"
 			vr1.Name = "replicaset-nginx-6d4cf56db6-nginx"
 			vr1.Labels = labels.Set{
-				trivyoperator.LabelResourceKind: "ReplicaSet",
-				trivyoperator.LabelResourceName: "nginx-6d4cf56db6-nginx",
+				trivyoperator.LabelResourceKind:  "ReplicaSet",
+				trivyoperator.LabelResourceName:  "nginx-6d4cf56db6-nginx",
 				trivyoperator.LabelContainerName: "nginx",
-				"tier": "tier-1",
-				"owner": "team-a",
-				"app.kubernetes.io/name": "my_name"}
+				"tier":                           "tier-1",
+				"owner":                          "team-a",
+				"app.kubernetes.io/name":         "my_name"}
 			vr1.Report.Registry.Server = "index.docker.io"
 			vr1.Report.Artifact.Repository = "library/nginx"
 			vr1.Report.Artifact.Tag = "1.16"
@@ -66,8 +66,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr2.Namespace = "some-ns"
 			vr2.Name = "replicaset-app-d327abe3c4-proxy"
 			vr2.Labels = labels.Set{
-				trivyoperator.LabelResourceKind: "ReplicaSet",
-				trivyoperator.LabelResourceName: "app-d327abe3c4-proxy",
+				trivyoperator.LabelResourceKind:  "ReplicaSet",
+				trivyoperator.LabelResourceName:  "app-d327abe3c4-proxy",
 				trivyoperator.LabelContainerName: "oauth2-proxy"}
 			vr2.Report.Registry.Server = "quay.io"
 			vr2.Report.Artifact.Repository = "oauth2-proxy/oauth2-proxy"
@@ -92,8 +92,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr3.Namespace = "ingress-nginx"
 			vr3.Name = "daemonset-ingress-nginx-controller-controller"
 			vr3.Labels = labels.Set{
-				trivyoperator.LabelResourceKind: "DaemonSet",
-				trivyoperator.LabelResourceName: "ingress-nginx-controller-controller",
+				trivyoperator.LabelResourceKind:  "DaemonSet",
+				trivyoperator.LabelResourceName:  "ingress-nginx-controller-controller",
 				trivyoperator.LabelContainerName: "ingress-nginx"}
 			vr3.Report.Registry.Server = "k8s.gcr.io"
 			vr3.Report.Artifact.Repository = "ingress-nginx/controller"
@@ -283,8 +283,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr1.Namespace = "default"
 			vr1.Name = "replicaset-nginx-6d4cf56db6-nginx"
 			vr1.Labels = labels.Set{
-				trivyoperator.LabelResourceKind: "ReplicaSet",
-				trivyoperator.LabelResourceName: "nginx-6d4cf56db6-nginx",
+				trivyoperator.LabelResourceKind:  "ReplicaSet",
+				trivyoperator.LabelResourceName:  "nginx-6d4cf56db6-nginx",
 				trivyoperator.LabelContainerName: "nginx"}
 			vr1.Report.Registry.Server = "index.docker.io"
 			vr1.Report.Artifact.Repository = "library/nginx"
@@ -295,8 +295,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr2.Namespace = "some-ns"
 			vr2.Name = "replicaset-app-d327abe3c4-proxy"
 			vr2.Labels = labels.Set{
-				trivyoperator.LabelResourceKind: "ReplicaSet",
-				trivyoperator.LabelResourceName: "app-d327abe3c4-proxy",
+				trivyoperator.LabelResourceKind:  "ReplicaSet",
+				trivyoperator.LabelResourceName:  "app-d327abe3c4-proxy",
 				trivyoperator.LabelContainerName: "oauth2-proxy"}
 			vr2.Report.Registry.Server = "quay.io"
 			vr2.Report.Artifact.Repository = "oauth2-proxy/oauth2-proxy"
@@ -308,8 +308,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr3.Namespace = "ingress-nginx"
 			vr3.Name = "daemonset-ingress-nginx-controller-controller"
 			vr3.Labels = labels.Set{
-				trivyoperator.LabelResourceKind: "DaemonSet",
-				trivyoperator.LabelResourceName: "ingress-nginx-controller-controller",
+				trivyoperator.LabelResourceKind:  "DaemonSet",
+				trivyoperator.LabelResourceName:  "ingress-nginx-controller-controller",
 				trivyoperator.LabelContainerName: "ingress-nginx"}
 			vr3.Report.Registry.Server = "k8s.gcr.io"
 			vr3.Report.Artifact.Repository = "ingress-nginx/controller"

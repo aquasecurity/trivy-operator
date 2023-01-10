@@ -3,8 +3,8 @@ kind: ConfigAuditReport
 metadata:
   generation: 1
   labels:
-    plugin-config-hash: 659b7b9c46
-    resource-spec-hash: 74d655b5b6
+    plugin-config-hash: <HASH>
+    resource-spec-hash: <HASH>
     trivy-operator.resource.kind: Job
     trivy-operator.resource.name: pi
     trivy-operator.resource.namespace: default

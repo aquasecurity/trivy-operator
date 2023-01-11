@@ -55,6 +55,7 @@ const (
 	KindClusterRole              Kind = "ClusterRole"
 	KindClusterRoleBindings      Kind = "ClusterRoleBinding"
 	KindCustomResourceDefinition Kind = "CustomResourceDefinition"
+	KindNode                     Kind = "Node"
 )
 
 const (

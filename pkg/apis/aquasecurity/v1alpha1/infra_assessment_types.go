@@ -21,6 +21,33 @@ type InfraAssessmentSummary struct {
 }
 
 //+kubebuilder:object:root=true
+//+kubebuilder:resource:scope=Cluster,shortName={clusterinfraassessment}
+//+kubebuilder:printcolumn:name="Scanner",type=string,JSONPath=`.report.scanner.name`,description="The name of the infra assessement scanner"
+//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"
+//+kubebuilder:printcolumn:name="Critical",type=integer,JSONPath=`.report.summary.criticalCount`,priority=1,description="The number of failed checks with critical severity"
+//+kubebuilder:printcolumn:name="High",type=integer,JSONPath=`.report.summary.highCount`,priority=1,description="The number of failed checks with high severity"
+//+kubebuilder:printcolumn:name="Medium",type=integer,JSONPath=`.report.summary.mediumCount`,priority=1,description="The number of failed checks with medium severity"
+//+kubebuilder:printcolumn:name="Low",type=integer,JSONPath=`.report.summary.lowCount`,priority=1,description="The number of failed checks with low severity"
+
+// ClusterInfraAssessmentReport is a specification for the ClusterInfraAssessmentReport resource.
+type ClusterInfraAssessmentReport struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	Report InfraAssessmentReportData `json:"report"`
+}
+
+//+kubebuilder:object:root=true
+
+// ClusterInfraAssessmentReportList is a list of ClusterInfraAssessmentRepor resources.
+type ClusterInfraAssessmentReportList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	Items []ClusterInfraAssessmentReport `json:"items"`
+}
+
+//+kubebuilder:object:root=true
 //+kubebuilder:resource:shortName={infraassessment,infraassessments}
 //+kubebuilder:printcolumn:name="Scanner",type=string,JSONPath=`.report.scanner.name`,description="The name of the infra assessment scanner"
 //+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"

@@ -24,6 +24,10 @@ type Reader interface {
 	// FindReportByOwner returns a v1alpha1.InfraAssessmentReport owned by the given
 	// kube.ObjectRef or nil if the report is not found.
 	FindReportByOwner(ctx context.Context, owner kube.ObjectRef) (interface{}, error)
+
+	// FindClusterReportByOwner returns a v1alpha1.ClusterConfigAuditReport owned by the given
+	// kube.ObjectRef or nil if the report is not found.
+	FindClusterReportByOwner(ctx context.Context, owner kube.ObjectRef) (interface{}, error)
 }
 
 type ReadWriter interface {
@@ -73,6 +77,24 @@ func (r *readWriter) FindReportByOwner(ctx context.Context, owner kube.ObjectRef
 		return nil, err
 	}
 
+	if len(list.Items) > 0 {
+		return &list.DeepCopy().Items[0], nil
+	}
+	return nil, nil
+}
+
+
+func (r *readWriter) FindClusterReportByOwner(ctx context.Context, owner kube.ObjectRef) (interface{}, error) {
+	var list v1alpha1.ClusterInfraAssessmentReportList
+
+	labels := client.MatchingLabels(kube.ObjectRefToLabels(owner))
+
+	err := r.List(ctx, &list, labels)
+	if err != nil {
+		return nil, err
+	}
+
+	// Only one config audit per specific workload exists on the cluster
 	if len(list.Items) > 0 {
 		return &list.DeepCopy().Items[0], nil
 	}

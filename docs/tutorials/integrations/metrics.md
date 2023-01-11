@@ -10,8 +10,7 @@ A report summary series exposes the count of checks of each status reported in a
 
 ```shell
 trivy_image_vulnerabilities{
-    container_name="coredns",image_digest="",image_registry="index.docker.io",image_repository="rancher/coredns-coredns",image_tag="1.8.3",name="replicaset-coredns-6488c6fcc6-coredns",namespace="kube-system",resource_kind="ReplicaSet",resource_name="coredns-6488c6fcc6-coredns",
-    severity="High"
+    container_name="coredns",image_digest="",image_registry="index.docker.io",image_repository="rancher/coredns-coredns",image_tag="1.8.3",name="replicaset-coredns-6488c6fcc6-coredns",namespace="kube-system",resource_kind="ReplicaSet",resource_name="coredns-6488c6fcc6-coredns",severity="High"
     } 10
 ```
 
@@ -21,7 +20,7 @@ A report summary series exposes the count of checks of each status reported in a
 
 ```shell
 trivy_resource_configaudits{
-    name="daemonset-svclb-traefik",namespace="kube-system",severity="High"
+    name="daemonset-svclb-traefik",namespace="kube-system",resource_kind="DaemonSet",resource_name="svclb-traefik",severity="High"
     } 2
 ```
 
@@ -31,7 +30,7 @@ A report summary series exposes the count of checks of each status reported in a
 
 ```shell
 trivy_role_rbacassessments{
-    name="role-6fbccbcb9d",namespace="kube-system",severity="Medium"
+    name="role-6fbccbcb9d",namespace="kube-system",resource_kind="Role",resource_name="6fbccbcb9d",severity="Medium"
     } 1
 ```
 
@@ -51,7 +50,7 @@ A report summary series exposes the count of checks of each status reported in a
 
 ```shell
 trivy_resource_infraassessments{
-    name="pod-kube-controller-manager-minikube",namespace="kube-system",severity="Low"
+    name="pod-kube-controller-manager-minikube",namespace="kube-system",resource_kind="Pod",resource_name="kube-controller-manager-minikube",severity="Low"
     } 3
 ```
 
@@ -70,7 +69,7 @@ Exposing vulnerability ID on metrics by settting the EnvVar: `OPERATOR_METRICS_V
 
 ```shell
 trivy_vulnerability_id{
-    class="os-pkgs",container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16.1",installed_version="5.3.28+dfsg1-0.5",name="replicaset-nginx-deployment-559d658b74-nginx",namespace="default",package_type="debian",resource="libdb5.3",resource_kind="ReplicaSet",resource_name="nginx-deployment-559d658b74-nginx",severity="Critical",vuln_id="CVE-2019-8457"
+    class="os-pkgs",container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16.1",installed_version="5.3.28+dfsg1-0.5",name="replicaset-nginx-deployment-559d658b74-nginx",namespace="default",package_type="debian",resource="libdb5.3",resource_kind="ReplicaSet",resource_name="nginx-deployment-559d658b74",severity="Critical",vuln_id="CVE-2019-8457"
 } 1
 ```
 
@@ -86,5 +85,5 @@ Example:
 `k8s_label_` prefix wil be added to custom label
 
 ```shell
-trivy_resource_configaudits{k8s_label_owner="platform",name="daemonset-svclb-traefik",namespace="kube-system",severity="Critical"} 2
+trivy_resource_configaudits{k8s_label_owner="platform",name="daemonset-svclb-traefik",namespace="kube-system",resource_kind="DaemonSet",resource_name="svclb-traefik",severity="Critical"} 2
 ```

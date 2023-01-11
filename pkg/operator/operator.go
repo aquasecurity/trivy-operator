@@ -263,7 +263,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 		if operatorConfig.InfraAssessmentScannerEnabled {
 			limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
-			if err = (&controller.NodeInfoCollectorReconciler{
+			if err = (&controller.NodeReconciler{
 				Logger:          ctrl.Log.WithName("node-collectorontroller"),
 				Config:          operatorConfig,
 				ConfigData:      trivyOperatorConfig,

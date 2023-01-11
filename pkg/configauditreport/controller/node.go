@@ -29,7 +29,7 @@ import (
 // NodeInfoCollectorReconciler reconciles corev1.Node and corev1.Job objects
 // to collect cluster nodes information (fileSystem permission and process arguments)
 // the node information will be evaluated by the complaince control checks per relevant reports, examples: cis-benchmark and nsa
-type NodeInfoCollectorReconciler struct {
+type NodeReconciler struct {
 	logr.Logger
 	etc.Config
 	trivyoperator.ConfigData
@@ -41,14 +41,14 @@ type NodeInfoCollectorReconciler struct {
 	trivyoperator.BuildInfo
 }
 
-func (r *NodeInfoCollectorReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *NodeReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&corev1.Node{}, builder.WithPredicates(IsLinuxNode)).
 		Owns(&v1alpha1.ClusterInfraAssessmentReport{}).
 		Complete(r.reconcileNodes())
 }
 
-func (r *NodeInfoCollectorReconciler) reconcileNodes() reconcile.Func {
+func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 	return func(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 		log := r.Logger.WithValues("node", req.NamespacedName)
 
@@ -117,7 +117,7 @@ func (r *NodeInfoCollectorReconciler) reconcileNodes() reconcile.Func {
 	}
 }
 
-func (r *NodeInfoCollectorReconciler) hasNodeCollectorJob(ctx context.Context, node *corev1.Node) (bool, *batchv1.Job, error) {
+func (r *NodeReconciler) hasNodeCollectorJob(ctx context.Context, node *corev1.Node) (bool, *batchv1.Job, error) {
 	jobName := r.getNodeCollectorName(node)
 	job := &batchv1.Job{}
 	err := r.Client.Get(ctx, client.ObjectKey{Namespace: r.Config.Namespace, Name: jobName}, job)
@@ -130,11 +130,11 @@ func (r *NodeInfoCollectorReconciler) hasNodeCollectorJob(ctx context.Context, n
 	return true, job, nil
 }
 
-func (r *NodeInfoCollectorReconciler) getNodeCollectorName(node *corev1.Node) string {
+func (r *NodeReconciler) getNodeCollectorName(node *corev1.Node) string {
 	return "node-collector-" + kube.ComputeHash(node.Name)
 }
 
-func (r *NodeInfoCollectorReconciler) hasReport(ctx context.Context, node *corev1.Node) (bool, error) {
+func (r *NodeReconciler) hasReport(ctx context.Context, node *corev1.Node) (bool, error) {
 	report, err := r.InfraReadWriter.FindClusterReportByOwner(ctx, kube.ObjectRef{Kind: kube.KindNode, Name: node.Name})
 	if err != nil {
 		return false, err

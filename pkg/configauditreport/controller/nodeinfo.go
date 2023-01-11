@@ -78,7 +78,7 @@ func (r *NodeInfoCollectorReconciler) reconcileNodes() reconcile.Func {
 		log.V(1).Info("Checking whether Node info collector job have been scheduled")
 		_, job, err := r.hasNodeCollectorJob(ctx, node)
 		if err != nil {
-			return ctrl.Result{}, fmt.Errorf("checking whether scan job has been scheduled: %w", err)
+			return ctrl.Result{}, fmt.Errorf("checking whether node collector job has been scheduled: %w", err)
 		}
 		if job != nil {
 			log.V(1).Info("Node info collector job have been scheduled",
@@ -90,10 +90,10 @@ func (r *NodeInfoCollectorReconciler) reconcileNodes() reconcile.Func {
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		log.V(1).Info("Checking scan jobs limit", "count", jobsCount, "limit", r.ConcurrentScanJobsLimit)
+		log.V(1).Info("Checking node collector jobs limit", "count", jobsCount, "limit", r.ConcurrentScanJobsLimit)
 
 		if limitExceeded {
-			log.V(1).Info("Pushing back scan job", "count", jobsCount, "retryAfter", r.ScanJobRetryAfter)
+			log.V(1).Info("Pushing back node collector job", "count", jobsCount, "retryAfter", r.ScanJobRetryAfter)
 			return ctrl.Result{RequeueAfter: r.Config.ScanJobRetryAfter}, nil
 		}
 		cluster, err := k8s.GetCluster()
@@ -118,7 +118,7 @@ func (r *NodeInfoCollectorReconciler) reconcileNodes() reconcile.Func {
 }
 
 func (r *NodeInfoCollectorReconciler) hasNodeCollectorJob(ctx context.Context, node *corev1.Node) (bool, *batchv1.Job, error) {
-	jobName := r.getScanJobName(node)
+	jobName := r.getNodeCollectorName(node)
 	job := &batchv1.Job{}
 	err := r.Client.Get(ctx, client.ObjectKey{Namespace: r.Config.Namespace, Name: jobName}, job)
 	if err != nil {
@@ -130,7 +130,7 @@ func (r *NodeInfoCollectorReconciler) hasNodeCollectorJob(ctx context.Context, n
 	return true, job, nil
 }
 
-func (r *NodeInfoCollectorReconciler) getScanJobName(node *corev1.Node) string {
+func (r *NodeInfoCollectorReconciler) getNodeCollectorName(node *corev1.Node) string {
 	return "node-collector-" + kube.ComputeHash(node.Name)
 }
 

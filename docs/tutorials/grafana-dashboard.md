@@ -30,7 +30,7 @@ Our Prometheus installation needs to be slightly customised to discover ServiceM
 ```
 prometheus:
   prometheusSpec:
-    serviceMonitorSelectorNilUsesHelmValues: true
+    serviceMonitorSelectorNilUsesHelmValues: false
     serviceMonitorSelector: {}
     serviceMonitorNamespaceSelector: {}
 ```

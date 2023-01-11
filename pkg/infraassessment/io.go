@@ -83,7 +83,6 @@ func (r *readWriter) FindReportByOwner(ctx context.Context, owner kube.ObjectRef
 	return nil, nil
 }
 
-
 func (r *readWriter) FindClusterReportByOwner(ctx context.Context, owner kube.ObjectRef) (interface{}, error) {
 	var list v1alpha1.ClusterInfraAssessmentReportList
 

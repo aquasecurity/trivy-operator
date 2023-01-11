@@ -10,7 +10,8 @@ A report summary series exposes the count of checks of each status reported in a
 
 ```shell
 trivy_image_vulnerabilities{
-    image_digest="",image_registry="index.docker.io",image_repository="rancher/coredns-coredns",image_tag="1.8.3",name="replicaset-coredns-6488c6fcc6-coredns",namespace="kube-system",severity="High"
+    container_name="coredns",image_digest="",image_registry="index.docker.io",image_repository="rancher/coredns-coredns",image_tag="1.8.3",name="replicaset-coredns-6488c6fcc6-coredns",namespace="kube-system",resource_kind="ReplicaSet",resource_name="coredns-6488c6fcc6-coredns",
+    severity="High"
     } 10
 ```
 
@@ -40,7 +41,7 @@ A report summary series exposes the count of checks of each status reported in a
 
 ```shell
 trivy_image_exposedsecrets{
-    image_digest="",image_registry="index.docker.io",image_repository="josedonizetti/trivy",image_tag="secrettest",name="pod-tt-reg-test",namespace="default",severity="Critical"
+    container_name="trivy",image_digest="",image_registry="index.docker.io",image_repository="josedonizetti/trivy",image_tag="secrettest",name="pod-tt-reg-test",namespace="default",resource_kind="Pod",resource_name="tt-reg-test",severity="Critical"
     } 1
 ```
 
@@ -69,7 +70,7 @@ Exposing vulnerability ID on metrics by settting the EnvVar: `OPERATOR_METRICS_V
 
 ```shell
 trivy_vulnerability_id{
-    class="os-pkgs",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16.1",installed_version="5.3.28+dfsg1-0.5",name="replicaset-nginx-deployment-559d658b74-nginx",namespace="default",package_type="debian",resource="libdb5.3",severity="Critical",vuln_id="CVE-2019-8457"
+    class="os-pkgs",container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16.1",installed_version="5.3.28+dfsg1-0.5",name="replicaset-nginx-deployment-559d658b74-nginx",namespace="default",package_type="debian",resource="libdb5.3",resource_kind="ReplicaSet",resource_name="nginx-deployment-559d658b74-nginx",severity="Critical",vuln_id="CVE-2019-8457"
 } 1
 ```
 

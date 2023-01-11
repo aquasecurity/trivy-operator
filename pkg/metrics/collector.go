@@ -236,18 +236,24 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 	configAuditLabels := []string{
 		namespace,
 		name,
+		resource_kind,
+		resource_name,
 		severity,
 	}
 	configAuditLabels = append(configAuditLabels, dynamicLabels...)
 	rbacAssessmentLabels := []string{
 		namespace,
 		name,
+		resource_kind,
+		resource_name,
 		severity,
 	}
 	rbacAssessmentLabels = append(rbacAssessmentLabels, dynamicLabels...)
 	infraAssessmentLabels := []string{
 		namespace,
 		name,
+		resource_kind,
+		resource_name,
 		severity,
 	}
 	infraAssessmentLabels = append(infraAssessmentLabels, dynamicLabels...)
@@ -477,11 +483,13 @@ func (c *ResourcesMetricsCollector) collectConfigAuditReports(ctx context.Contex
 		for _, r := range reports.Items {
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
+			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
+			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
 			for i, label := range c.GetReportResourceLabels() {
-				labelValues[i+3] = r.Labels[label]
+				labelValues[i+5] = r.Labels[label]
 			}
 			for severity, countFn := range c.configAuditSeverities {
-				labelValues[2] = severity
+				labelValues[4] = severity
 				count := countFn(r.Report.Summary)
 				metrics <- prometheus.MustNewConstMetric(c.configAuditDesc, prometheus.GaugeValue, float64(count), labelValues...)
 			}
@@ -500,10 +508,12 @@ func (c *ResourcesMetricsCollector) collectRbacAssessmentReports(ctx context.Con
 		for _, r := range reports.Items {
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
+			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
+			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
 			for i, label := range c.GetReportResourceLabels() {
-				labelValues[i+3] = r.Labels[label]
+				labelValues[i+5] = r.Labels[label]
 			}
-			c.populateRbacAssessmentValues(labelValues, c.rbacAssessmentDesc, r.Report.Summary, metrics, 2)
+			c.populateRbacAssessmentValues(labelValues, c.rbacAssessmentDesc, r.Report.Summary, metrics, 4)
 		}
 	}
 }
@@ -519,10 +529,12 @@ func (c *ResourcesMetricsCollector) collectInfraAssessmentReports(ctx context.Co
 		for _, r := range reports.Items {
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
+			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
+			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
 			for i, label := range c.GetReportResourceLabels() {
-				labelValues[i+3] = r.Labels[label]
+				labelValues[i+5] = r.Labels[label]
 			}
-			c.populateInfraAssessmentValues(labelValues, c.infraAssessmentDesc, r.Report.Summary, metrics, 2)
+			c.populateInfraAssessmentValues(labelValues, c.infraAssessmentDesc, r.Report.Summary, metrics, 4)
 		}
 	}
 }
@@ -536,10 +548,12 @@ func (c *ResourcesMetricsCollector) collectClusterRbacAssessmentReports(ctx cont
 	}
 	for _, r := range reports.Items {
 		labelValues[0] = r.Name
+		labelValues[1] = r.Labels[trivyoperator.LabelResourceKind]
+		labelValues[2] = r.Labels[trivyoperator.LabelResourceName]
 		for i, label := range c.GetReportResourceLabels() {
-			labelValues[i+2] = r.Labels[label]
+			labelValues[i+4] = r.Labels[label]
 		}
-		c.populateRbacAssessmentValues(labelValues, c.clusterRbacAssessmentDesc, r.Report.Summary, metrics, 1)
+		c.populateRbacAssessmentValues(labelValues, c.clusterRbacAssessmentDesc, r.Report.Summary, metrics, 3)
 	}
 }
 
@@ -554,7 +568,7 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceReports(ctx context.
 		labelValues[0] = r.Spec.Complaince.Title
 		labelValues[1] = r.Spec.Complaince.Description
 		for i, label := range c.GetReportResourceLabels() {
-			labelValues[i+2] = r.Labels[label]
+			labelValues[i+3] = r.Labels[label]
 		}
 		c.populateComplianceValues(labelValues, c.complianceDesc, r.Status.Summary, metrics, 2)
 	}

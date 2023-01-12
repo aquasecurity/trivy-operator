@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.ARCHITECT_BOT_GITHUB_REPO_SYNC_TOKEN }}
       - run: |
           # Fetch tags from upstream repo
           git fetch https://github.com/aquasecurity/trivy-operator --tags

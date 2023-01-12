@@ -13,11 +13,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-      - name: Sync trivy-operator from upstream
-        uses: giantswarm/subtree-util@v0.2.0
-        with:
-          target_github_token: ${{ secrets.ISSUE_AUTOMATION }}
-          target_repository: giantswarm/trivy-operator-app
-          target_path: helm/trivy-operator/charts/trivy-operator
-          source_path: deploy/helm
+      - run: |
+          # Fetch tags from upstream repo
+          git fetch https://github.com/aquasecurity/trivy-operator --tags
+          # Remove release candidates local tags
+          git tag -d $(git tag -l | grep "\-rc")
+          git push --tags

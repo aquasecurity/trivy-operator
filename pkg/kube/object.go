@@ -259,11 +259,11 @@ var ErrUnSupportedKind = errors.New("unsupported workload kind")
 // CompatibleMgr provide k8s compatible objects (group/api/kind) capabilities
 type CompatibleMgr interface {
 	// GetSupportedObjectByKind get specific k8s compatible object (group/api/kind) by kind
-	GetSupportedObjectByKind(kind Kind) client.Object
+	GetSupportedObjectByKind(kind Kind, defaultObject client.Object) client.Object
 }
 
 type CompatibleObjectMapper struct {
-	kindObjectMap map[string]client.Object
+	kindObjectMap map[string]string
 }
 
 type ObjectResolver struct {
@@ -279,33 +279,27 @@ func NewObjectResolver(c client.Client, cm CompatibleMgr) ObjectResolver {
 // it dynamically fetches the compatible k8s objects (group/api/kind) by resource from the cluster and store it in kind vs k8s object mapping
 // It will enable the operator to support old and new API resources based on cluster version support
 func InitCompatibleMgr(restMapper meta.RESTMapper) (CompatibleMgr, error) {
-	kindObjectMap := make(map[string]client.Object)
+	kindObjectMap := make(map[string]string)
 	for _, resource := range getCompatibleResources() {
 		gvk, err := restMapper.KindFor(schema.GroupVersionResource{Resource: resource})
 		if err != nil {
 			return nil, err
 		}
-		err = supportedObjectsByK8sKind(gvk.String(), gvk.Kind, kindObjectMap)
-		if err != nil {
-			return nil, err
-		}
+		kindObjectMap[gvk.Kind] = gvk.String()
 	}
 	return &CompatibleObjectMapper{kindObjectMap: kindObjectMap}, nil
 }
 
 // return a map of supported object api per k8s version
-func supportedObjectsByK8sKind(api string, kind string, kindObjectMap map[string]client.Object) error {
-	var resource client.Object
+func supportedObjectsByK8sKind(api string) client.Object {
 	switch api {
 	case apiBatchV1beta1CronJob:
-		resource = &batchv1beta1.CronJob{}
+		return &batchv1beta1.CronJob{}
 	case apiBatchV1CronJob:
-		resource = &batchv1.CronJob{}
+		return &batchv1.CronJob{}
 	default:
-		return fmt.Errorf("api %s is not suooprted compatibale resource", api)
+		return nil
 	}
-	kindObjectMap[kind] = resource
-	return nil
 }
 
 func getCompatibleResources() []string {
@@ -313,8 +307,12 @@ func getCompatibleResources() []string {
 }
 
 // GetSupportedObjectByKind accept kind and return the supported object (group/api/kind) of the cluster
-func (o *CompatibleObjectMapper) GetSupportedObjectByKind(kind Kind) client.Object {
-	return o.kindObjectMap[string(kind)]
+func (o *CompatibleObjectMapper) GetSupportedObjectByKind(kind Kind, defaultObject client.Object) client.Object {
+	api, ok := o.kindObjectMap[string(kind)]
+	if !ok {
+		return defaultObject
+	}
+	return supportedObjectsByK8sKind(api)
 }
 
 func (o *ObjectResolver) ObjectFromObjectRef(ctx context.Context, ref ObjectRef) (client.Object, error) {
@@ -333,7 +331,7 @@ func (o *ObjectResolver) ObjectFromObjectRef(ctx context.Context, ref ObjectRef)
 	case KindDaemonSet:
 		obj = &appsv1.DaemonSet{}
 	case KindCronJob:
-		obj = o.CompatibleMgr.GetSupportedObjectByKind(KindCronJob)
+		obj = o.CompatibleMgr.GetSupportedObjectByKind(KindCronJob, &batchv1.CronJob{})
 	case KindJob:
 		obj = &batchv1.Job{}
 	case KindService:
@@ -501,7 +499,7 @@ func (o *ObjectResolver) CronJobByJob(ctx context.Context, job *batchv1.Job) (cl
 	if controller.Kind != "CronJob" {
 		return nil, fmt.Errorf("pod %q is controlled by a %q, want CronJob", job.Name, controller.Kind)
 	}
-	cj := o.CompatibleMgr.GetSupportedObjectByKind(KindCronJob)
+	cj := o.CompatibleMgr.GetSupportedObjectByKind(KindCronJob, &batchv1.CronJob{})
 	err := o.Client.Get(ctx, client.ObjectKey{Namespace: job.Namespace, Name: controller.Name}, cj)
 	if err != nil {
 		return nil, err
@@ -687,7 +685,7 @@ func (r *Resource) GetWorkloadResource(kind string, object client.Object, resolv
 	case "daemonset":
 		*r = Resource{Kind: KindDaemonSet, ForObject: &appsv1.DaemonSet{}, OwnsObject: object}
 	case "cronjob":
-		*r = Resource{Kind: KindCronJob, ForObject: resolver.GetSupportedObjectByKind(KindCronJob), OwnsObject: object}
+		*r = Resource{Kind: KindCronJob, ForObject: resolver.GetSupportedObjectByKind(KindCronJob, &batchv1.CronJob{}), OwnsObject: object}
 	case "job":
 		*r = Resource{Kind: KindJob, ForObject: &batchv1.Job{}, OwnsObject: object}
 	default:

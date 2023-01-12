@@ -212,7 +212,7 @@ func (b *DeploymentBuilder) Build() *appsv1.Deployment {
 			Namespace: b.namespace,
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: pointer.Int32Ptr(1),
+			Replicas: pointer.Int32(1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"app": b.name,

@@ -21,7 +21,7 @@ var (
 	trivyScanner = v1alpha1.Scanner{
 		Name:    v1alpha1.ScannerNameTrivy,
 		Vendor:  "Aqua Security",
-		Version: "0.35.0",
+		Version: "0.36.0",
 	}
 	builtInScanner = v1alpha1.Scanner{
 		Name:    v1alpha1.ScannerNameTrivy,
@@ -75,8 +75,8 @@ func (m *vulnerabilityReportMatcher) Match(actual interface{}) (bool, error) {
 				Kind:               gvk.Kind,
 				Name:               m.owner.GetName(),
 				UID:                m.owner.GetUID(),
-				Controller:         pointer.BoolPtr(true),
-				BlockOwnerDeletion: pointer.BoolPtr(false),
+				Controller:         pointer.Bool(true),
+				BlockOwnerDeletion: pointer.Bool(false),
 			}),
 		}),
 		"Report": MatchFields(IgnoreExtras, Fields{
@@ -165,8 +165,8 @@ func (m *configAuditReportMatcher) Match(actual interface{}) (bool, error) {
 				Kind:               gvk.Kind,
 				Name:               m.owner.GetName(),
 				UID:                m.owner.GetUID(),
-				Controller:         pointer.BoolPtr(true),
-				BlockOwnerDeletion: pointer.BoolPtr(false),
+				Controller:         pointer.Bool(true),
+				BlockOwnerDeletion: pointer.Bool(false),
 			}),
 		}),
 		"Report": MatchFields(IgnoreExtras, Fields{

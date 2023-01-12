@@ -108,7 +108,8 @@ image:
 service:
   metricsPort: 80
 
-# Prometheus ServiceMonitor configuration
+# Prometheus ServiceMonitor configuration -- to install the trivy operator with the ServiceMonitor
+# you must have Prometheus already installed and running
 serviceMonitor:
   # enabled determines whether a serviceMonitor should be deployed
   enabled: false
@@ -194,7 +195,7 @@ trivy:
   # repository of the Trivy image
   repository: ghcr.io/aquasecurity/trivy
   # tag version of the Trivy image
-  tag: 0.35.0
+  tag: 0.36.0
   # imagePullSecret is the secret name to be used when pulling trivy image from private registries example : reg-secret
   # It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace
   # imagePullSecret:
@@ -246,6 +247,8 @@ trivy:
   # vulnerabilities reported by Trivy. Set to true to enable it.
   #
   ignoreUnfixed: false
+  # a comma separated list of directories for Trivy to skip
+  skipDirs:
 
   # offlineScan is the flag to enable the offline scan functionality in Trivy
   # This will prevent outgoing HTTP requests, e.g. to search.maven.org
@@ -316,8 +319,8 @@ trivy:
   #
   supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
 
-  # command. Either `image` or `filesystem` scanning, depending on the target type required for the scan.
-  # For 'filesystem' scanning, ensure that the `trivyOperator.scanJobPodTemplateContainerSecurityContext` is configured
+  # command. One of `image`, `filesystem` or `rootfs` scanning, depending on the target type required for the scan.
+  # For 'filesystem' and `rootfs` scanning, ensure that the `trivyOperator.scanJobPodTemplateContainerSecurityContext` is configured
   # to run as the root user (runAsUser = 0).
   command: image
   # serverUser this param is the server user to be used to download db from private registry
@@ -354,6 +357,17 @@ securityContext:
   capabilities:
     drop:
       - ALL
+
+# volumeMounts:
+# Example:
+#  - mountPath: /tmp
+#    name: tmp-data
+#    readOnly: false
+
+# volumes:
+# Example:
+#  - name: tmp-data
+#    emptyDir: {}
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

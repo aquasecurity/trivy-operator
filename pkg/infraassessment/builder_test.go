@@ -47,8 +47,8 @@ func TestReportBuilder(t *testing.T) {
 						APIVersion:         "apps/v1",
 						Kind:               "ReplicaSet",
 						Name:               "some-owner",
-						Controller:         pointer.BoolPtr(true),
-						BlockOwnerDeletion: pointer.BoolPtr(false),
+						Controller:         pointer.Bool(true),
+						BlockOwnerDeletion: pointer.Bool(false),
 					},
 				},
 				Labels: map[string]string{

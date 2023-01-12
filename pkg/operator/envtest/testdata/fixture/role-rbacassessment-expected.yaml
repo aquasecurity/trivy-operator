@@ -1,0 +1,36 @@
+apiVersion: aquasecurity.github.io/v1alpha1
+kind: RbacAssessmentReport
+metadata:
+  annotations:
+  generation: 1
+  labels:
+    trivy-operator.resource.name: proxy
+    trivy-operator.resource.kind: Role
+  name: role-proxy
+  namespace: default
+  ownerReferences:
+    - apiVersion: rbac.authorization.k8s.io/v1
+      blockOwnerDeletion: false
+      controller: true
+      kind: Role
+      name: proxy
+      uid:
+report:
+  checks:
+    - category: Kubernetes Security Check
+      checkID: KSV041
+      description: Check whether role permits managing secrets
+      messages:
+        - Role permits management of secret(s)
+      severity: CRITICAL
+      success: false
+      title: Do not allow management of secrets
+  scanner:
+    name: Trivy
+    vendor: Aqua Security
+    version: version
+  summary:
+    criticalCount: 1
+    highCount: 0
+    lowCount: 0
+    mediumCount: 0

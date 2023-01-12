@@ -4,8 +4,8 @@ kind: ConfigAuditReport
 metadata:
   generation: 1
   labels:
-    plugin-config-hash: 659b7b9c46
-    resource-spec-hash: 6d6758cbf6
+    plugin-config-hash: <HASH>
+    resource-spec-hash: <HASH>
     trivy-operator.resource.kind: CronJob
     trivy-operator.resource.name: hello
     trivy-operator.resource.namespace: default
@@ -141,6 +141,15 @@ report:
       severity: LOW
       success: false
       title: Memory not limited
+    - category: Kubernetes Security Check
+      checkID: KSV110
+      description: ensure that default namespace should not be used
+      messages:
+        - CronJob 'hello' should not be set with 'default'
+          namespace
+      severity: LOW
+      success: false
+      title: The default namespace should not be used
   scanner:
     name: Trivy
     vendor: Aqua Security
@@ -148,5 +157,5 @@ report:
   summary:
     criticalCount: 0
     highCount: 0
-    lowCount: 10
+    lowCount: 11
     mediumCount: 2

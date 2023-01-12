@@ -7,6 +7,7 @@ import (
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -20,6 +21,7 @@ import (
 type ClusterComplianceReportReconciler struct {
 	logr.Logger
 	client.Client
+	etc.Config
 	Mgr
 	ext.Clock
 }
@@ -31,7 +33,6 @@ type ClusterComplianceReportReconciler struct {
 func (r *ClusterComplianceReportReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	if err := ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.ClusterComplianceReport{}).
-		Owns(&v1alpha1.ClusterComplianceDetailReport{}).
 		Complete(r.reconcileComplianceReport()); err != nil {
 		return err
 	}
@@ -61,12 +62,15 @@ func (r *ClusterComplianceReportReconciler) generateComplianceReport(ctx context
 		if err != nil {
 			return fmt.Errorf("failed to check report cron expression %w", err)
 		}
-		if utils.DurationExceeded(durationToNextGeneration) {
+		if utils.DurationExceeded(durationToNextGeneration) || r.Config.InvokeClusterComplianceOnce {
 			err = r.Mgr.GenerateComplianceReport(ctx, report.Spec)
 			if err != nil {
 				log.Error(err, "failed to generate compliance report")
 			}
 			return err
+		}
+		if r.Config.InvokeClusterComplianceOnce { // for demo or testing purposes
+			return nil
 		}
 		log.V(1).Info("RequeueAfter", "durationToNextGeneration", durationToNextGeneration)
 		ctrlResult.RequeueAfter = durationToNextGeneration

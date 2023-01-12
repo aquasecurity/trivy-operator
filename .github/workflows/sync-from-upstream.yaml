@@ -1,6 +1,9 @@
 name: Sync from upstream
 
 on:
+  push:
+    branches:
+      - 'main' # Run at every sync
   schedule:
     - cron: '0 7 */7 * *' # At 07:00 on every 7th day-of-month
 
@@ -17,5 +20,5 @@ jobs:
           # Fetch tags from upstream repo
           git fetch https://github.com/aquasecurity/trivy-operator --tags
           # Remove release candidates local tags
-          git tag -d $(git tag -l | grep "\-rc")
+          git tag -d $(git tag -l | grep -E "\-rc|\-beta")
           git push --tags

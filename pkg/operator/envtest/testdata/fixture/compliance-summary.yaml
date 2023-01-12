@@ -1,0 +1,33 @@
+---
+apiVersion: aquasecurity.github.io/v1alpha1
+kind: ClusterComplianceReport
+metadata:
+  name: nsa-summary
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: 0.9.0-rc
+    app.kubernetes.io/managed-by: kubectl
+spec:
+  cron: "* * * * *"
+  reportType: summary
+  compliance:
+    id: "nsa-summary"
+    title: nsa-summary
+    description: National Security Agency - Kubernetes Hardening Guidance
+    relatedResources:
+      - https://www.nsa.gov/Press-Room/News-Highlights/Article/Article/2716980/nsa-cisa-release-kubernetes-hardening-guidance/
+    version: "1.0"
+    controls:
+      - name: Non-root containers
+        description: Check that container is not running as root
+        id: "1.0"
+        checks:
+          - id: AVD-KSV-0020
+        severity: MEDIUM
+      - name: Immutable container file systems
+        description: Check that container root file system is immutable
+        id: "1.1"
+        checks:
+          - id: AVD-KSV-0050
+        severity: LOW

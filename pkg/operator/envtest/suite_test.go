@@ -11,11 +11,14 @@ import (
 	"testing"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/compliance"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	ca "github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
+	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/operator"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins"
@@ -83,9 +86,13 @@ var _ = BeforeSuite(func() {
 	Expect(err).ToNot(HaveOccurred())
 
 	config := etc.Config{
-		Namespace:               "default",
-		TargetNamespaces:        "default",
-		ConcurrentScanJobsLimit: 10,
+		Namespace:                     "default",
+		TargetNamespaces:              "default",
+		ConcurrentScanJobsLimit:       10,
+		RbacAssessmentScannerEnabled:  true,
+		InfraAssessmentScannerEnabled: true,
+		ClusterComplianceEnabled:      true,
+		InvokeClusterComplianceOnce:   true,
 	}
 
 	trivyOperatorConfig := trivyoperator.GetDefaultConfig()
@@ -123,6 +130,8 @@ var _ = BeforeSuite(func() {
 		PluginContext:           pluginContext,
 		VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(&objectResolver),
 		ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(&objectResolver),
+		SubmitScanJobChan:       make(chan controller.ScanJobRequest, config.ConcurrentScanJobsLimit),
+		ResultScanJobChan:       make(chan controller.ScanJobResult, config.ConcurrentScanJobsLimit),
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
@@ -152,6 +161,23 @@ var _ = BeforeSuite(func() {
 		RbacReadWriter:  rbacassessment.NewReadWriter(&objectResolver),
 		InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
 		BuildInfo:       buildInfo,
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	err = (&operator.TTLReportReconciler{
+		Logger: ctrl.Log.WithName("reconciler").WithName("ttlreport"),
+		Config: config,
+		Client: k8sClient,
+		Clock:  ext.NewSystemClock(),
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	err = (&compliance.ClusterComplianceReportReconciler{
+		Logger: ctrl.Log.WithName("reconciler").WithName("compliance report"),
+		Client: k8sClient,
+		Config: config,
+		Mgr:    compliance.NewMgr(k8sClient),
+		Clock:  ext.NewSystemClock(),
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 

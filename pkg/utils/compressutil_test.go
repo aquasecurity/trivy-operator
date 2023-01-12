@@ -3,10 +3,12 @@ package utils
 import (
 	"encoding/base64"
 	"encoding/hex"
-	"github.com/stretchr/testify/assert"
 	"io"
+	"os"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBase64Decode(t *testing.T) {
@@ -56,4 +58,25 @@ func mustDecodeHex(t *testing.T, s string) []byte {
 		assert.Error(t, err)
 	}
 	return b
+}
+
+func TestIllegalChar(t *testing.T) {
+	tests := []struct {
+		name     string
+		dataPath string
+	}{
+		{name: "base64 illegal char before", dataPath: "illegal_char_before.txt"},
+		{name: "base64 illegal char after", dataPath: "illegal_char_after.txt"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			f, err := os.Open("./testdata/fixture/" + tt.dataPath)
+			assert.NoError(t, err)
+			defer f.Close()
+			b, err := base64Decode(f)
+			assert.NoError(t, err)
+			_, err = decompressBzip2(b)
+			assert.NoError(t, err)
+		})
+	}
 }

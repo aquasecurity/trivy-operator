@@ -1,6 +1,0 @@
----
-name: nsa
-description: National Security Agency - Kubernetes Hardening Guidance
-version: "1.0"
-cron: "* * * * *"
-controls:

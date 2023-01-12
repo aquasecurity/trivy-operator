@@ -8,22 +8,22 @@ on:
     branches:
       - main
     paths-ignore:
-      - '.github/ISSUE_TEMPLATE/*.md'
-      - '*.md'
-      - 'docs/**'
-      - 'mkdocs.yml'
-      - 'LICENSE'
-      - 'NOTICE'
+      - ".github/ISSUE_TEMPLATE/*.md"
+      - "*.md"
+      - "docs/**"
+      - "mkdocs.yml"
+      - "LICENSE"
+      - "NOTICE"
   pull_request:
     branches:
       - main
     paths-ignore:
-      - '.github/ISSUE_TEMPLATE/*.md'
-      - '*.md'
-      - 'docs/**'
-      - 'mkdocs.yml'
-      - 'LICENSE'
-      - 'NOTICE'
+      - ".github/ISSUE_TEMPLATE/*.md"
+      - "*.md"
+      - "docs/**"
+      - "mkdocs.yml"
+      - "LICENSE"
+      - "NOTICE"
 
 env:
   GO_VERSION: "1.19.1"
@@ -134,7 +134,7 @@ jobs:
         with:
           files: ./itest/trivy-operator/coverage.txt
   test-helm-chart:
-    if: "false"  # TODO It's broken on a release candidate PRs because it's using container image that has not been released yet.
+    if: "false" # TODO It's broken on a release candidate PRs because it's using container image that has not been released yet.
     name: Test Helm Chart
     needs:
       - itest-trivy-operator
@@ -145,18 +145,18 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install Helm
-        uses: azure/setup-helm@f382f75448129b3be48f8121b9857be18d815a82  # v1.1
+        uses: azure/setup-helm@5119fcb9089d432beecbf79bb2c7915207344b78 # v1.1
         with:
           version: v3.5.0
       - name: Set up python
-        uses: actions/setup-python@13ae5bb136fac2878aff31522b9efb785519f984  # v2.3.0
+        uses: actions/setup-python@5ccb29d8773c3f3f653e1705f474dfaa8a06a912 # v2.3.0
         with:
           python-version: 3.7
       - name: Setup Chart Linting
         id: lint
-        uses: helm/chart-testing-action@afea100a513515fbd68b0e72a7bb0ae34cb62aec  # v2.1.0
+        uses: helm/chart-testing-action@afea100a513515fbd68b0e72a7bb0ae34cb62aec # v2.1.0
       - name: Setup Kubernetes cluster (KIND)
-        uses: helm/kind-action@9e8295d178de23cbfbd8fa16cf844eec1d773a07  # v1.2.0
+        uses: helm/kind-action@d8ccf8fb623ce1bb360ae2f45f323d9d5c5e9f00 # v1.2.0
         with:
           version: ${{ env.KIND_VERSION }}
           image: ${{ env.KIND_IMAGE }}

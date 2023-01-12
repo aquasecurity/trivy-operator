@@ -1,0 +1,113 @@
+---
+summary:
+  failCount: 1
+  passCount: 1
+detailReport:
+  id: "nsa-all"
+  title: nsa-all
+  description: National Security Agency - Kubernetes Hardening Guidance
+  version: "1.0"
+  relatedVersion:
+    - https://www.nsa.gov/Press-Room/News-Highlights/Article/Article/2716980/nsa-cisa-release-kubernetes-hardening-guidance/
+  results:
+    - id: "1.0"
+      name: Non-root containers
+      description: Check that container is not running as root
+      severity: MEDIUM
+      checks:
+        - checkID: AVD-KSV-0020
+          target: default/cronjob-hello
+          title: Runs with low user ID
+          description: Force the container to run with user ID > 10000 to avoid conflicts
+            with the host’s user table.
+          severity: LOW
+          category: Kubernetes Security Check
+          messages:
+            - Force the container to run with user ID > 10000 to avoid conflicts
+              with the host’s user table.
+          success: false
+        - checkID: AVD-KSV-0020
+          target: default/daemonset-fluentd-elasticsearch
+          title: Runs with low user ID
+          description: Force the container to run with user ID > 10000 to avoid conflicts
+            with the host’s user table.
+          severity: LOW
+          category: Kubernetes Security Check
+          messages:
+            - Force the container to run with user ID > 10000 to avoid conflicts
+              with the host’s user table.
+          success: false
+        - checkID: AVD-KSV-0020
+          target: default/job-pi
+          title: Runs with low user ID
+          description: Force the container to run with user ID > 10000 to avoid conflicts
+            with the host’s user table.
+          severity: LOW
+          category: Kubernetes Security Check
+          messages:
+            - Force the container to run with user ID > 10000 to avoid conflicts
+              with the host’s user table.
+          success: false
+        - checkID: AVD-KSV-0020
+          target: default/pod-my-pod
+          title: Runs with low user ID
+          description: Force the container to run with user ID > 10000 to avoid conflicts
+            with the host’s user table.
+          severity: LOW
+          category: Kubernetes Security Check
+          messages:
+            - Force the container to run with user ID > 10000 to avoid conflicts
+              with the host’s user table.
+          success: false
+        - checkID: AVD-KSV-0020
+          target: default/replicaset-wordpress-84bbf6f4dd
+          title: Runs with low user ID
+          description: Force the container to run with user ID > 10000 to avoid conflicts
+            with the host’s user table.
+          severity: LOW
+          category: Kubernetes Security Check
+          messages:
+            - Force the container to run with user ID > 10000 to avoid conflicts
+              with the host’s user table.
+          success: false
+        - checkID: AVD-KSV-0020
+          target: default/replicationcontroller-nginx
+          title: Runs with low user ID
+          description: Force the container to run with user ID > 10000 to avoid conflicts
+            with the host’s user table.
+          severity: LOW
+          category: Kubernetes Security Check
+          messages:
+            - Force the container to run with user ID > 10000 to avoid conflicts
+              with the host’s user table.
+          success: false
+        - checkID: AVD-KSV-0020
+          target: default/statefulset-web
+          title: Runs with low user ID
+          description: Force the container to run with user ID > 10000 to avoid conflicts
+            with the host’s user table.
+          severity: LOW
+          category: Kubernetes Security Check
+          messages:
+            - Force the container to run with user ID > 10000 to avoid conflicts
+              with the host’s user table.
+          success: false
+        - checkID: AVD-KSV-0020
+          target: kube-system/pod-my-pod-kube-apiserver
+          title: Runs with low user ID
+          description: Force the container to run with user ID > 10000 to avoid conflicts
+            with the host’s user table.
+          severity: LOW
+          category: Kubernetes Security Check
+          messages:
+            - Force the container to run with user ID > 10000 to avoid conflicts
+              with the host’s user table.
+          success: false
+    - id: "1.1"
+      name: Immutable container file systems
+      description: Check that container root file system is immutable
+      severity: LOW
+      checks:
+        - checkID: ""
+          severity: ""
+          success: true

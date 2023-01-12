@@ -10,7 +10,7 @@ A report summary series exposes the count of checks of each status reported in a
 
 ```shell
 trivy_image_vulnerabilities{
-    container_name="coredns",image_digest="",image_registry="index.docker.io",image_repository="rancher/coredns-coredns",image_tag="1.8.3",name="replicaset-coredns-6488c6fcc6-coredns",namespace="kube-system",resource_kind="ReplicaSet",resource_name="coredns-6488c6fcc6-coredns",severity="High"
+    container_name="coredns",image_digest="",image_registry="index.docker.io",image_repository="rancher/coredns-coredns",image_tag="1.8.3",name="replicaset-coredns-6488c6fcc6-coredns",namespace="kube-system",resource_kind="ReplicaSet",resource_name="coredns-6488c6fcc6",severity="High"
     } 10
 ```
 

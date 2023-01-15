@@ -14,6 +14,9 @@ type Writer interface {
 
 	// WriteReport creates or updates the given v1alpha1.InfraAssessmentReport instance.
 	WriteReport(ctx context.Context, report v1alpha1.InfraAssessmentReport) error
+
+	// WriteClusterReport creates or updates the given v1alpha1.ClusterConfigAuditReport instance.
+	WriteClusterReport(ctx context.Context, report v1alpha1.ClusterInfraAssessmentReport) error
 }
 
 // Reader is the interface that wraps methods for finding v1alpha1.ConfigAuditReport
@@ -65,6 +68,27 @@ func (r *readWriter) WriteReport(ctx context.Context, report v1alpha1.InfraAsses
 	if errors.IsNotFound(err) {
 		return r.Create(ctx, &report)
 	}
+	return err
+}
+
+func (r *readWriter) WriteClusterReport(ctx context.Context, report v1alpha1.ClusterInfraAssessmentReport) error {
+	var existing v1alpha1.ClusterInfraAssessmentReport
+	err := r.Get(ctx, types.NamespacedName{
+		Name: report.Name,
+	}, &existing)
+
+	if err == nil {
+		copied := existing.DeepCopy()
+		copied.Labels = report.Labels
+		copied.Report = report.Report
+
+		return r.Update(ctx, copied)
+	}
+
+	if errors.IsNotFound(err) {
+		return r.Create(ctx, &report)
+	}
+
 	return err
 }
 

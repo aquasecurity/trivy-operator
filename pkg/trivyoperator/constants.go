@@ -28,6 +28,7 @@ const (
 	LabelPluginConfigHash  = "plugin-config-hash"
 
 	LabelVulnerabilityReportScanner = "vulnerabilityReport.scanner"
+	LabelNodeInfoCollector          = "node-info.collector"
 
 	LabelK8SAppManagedBy = "app.kubernetes.io/managed-by"
 	AppTrivyOperator     = "trivy-operator"

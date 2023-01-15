@@ -111,6 +111,13 @@ var IsVulnerabilityReportScan = predicate.NewPredicateFuncs(func(obj client.Obje
 	return false
 })
 
+var IsNodeInfoCollector = predicate.NewPredicateFuncs(func(obj client.Object) bool {
+	if _, ok := obj.GetLabels()[trivyoperator.LabelNodeInfoCollector]; ok {
+		return true
+	}
+	return false
+})
+
 var IsLinuxNode = predicate.NewPredicateFuncs(func(obj client.Object) bool {
 	if os, exists := obj.GetLabels()[corev1.LabelOSStable]; exists && os == "linux" {
 		return true

@@ -171,11 +171,11 @@ func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
 			return err
 		}
 		return writer.WriteClusterReport(ctx, report)
-	} else {
-		report, err := b.GetReport()
-		if err != nil {
-			return err
-		}
-		return writer.WriteReport(ctx, report)
 	}
+	report, err := b.GetReport()
+	if err != nil {
+		return err
+	}
+	return writer.WriteReport(ctx, report)
+
 }

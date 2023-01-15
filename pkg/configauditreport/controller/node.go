@@ -100,13 +100,20 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 		if err != nil {
 			return ctrl.Result{}, nil
 		}
-		coll := j.NewCollector(cluster)
 		on, err := r.GetOperatorNamespace()
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("preparing job: %w", err)
 		}
+		coll := j.NewCollector(cluster,
+			j.WithJobTemplateName(j.NodeCollectorName),
+			j.WithJobNamespace(on),
+			j.WithJobLabels(map[string]string{
+				trivyoperator.LabelNodeInfoCollector: "Trivy",
+				trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
+			}))
+
 		log.V(1).Info("Scheduling Node collector job")
-		_, err = coll.Apply(ctx, j.ContainerName, node.Name, on)
+		_, err = coll.Apply(ctx, node.Name)
 		if err != nil {
 			if errors.IsAlreadyExists(err) {
 				return ctrl.Result{}, nil

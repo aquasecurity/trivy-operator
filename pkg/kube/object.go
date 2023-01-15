@@ -96,7 +96,7 @@ func IsWorkload(kind string) bool {
 // TODO Use discovery client to have a generic implementation.
 func IsClusterScopedKind(kind string) bool {
 	switch kind {
-	case string(KindClusterRole), string(KindClusterRoleBindings), string(KindCustomResourceDefinition):
+	case string(KindClusterRole), string(KindClusterRoleBindings), string(KindCustomResourceDefinition), string(KindNode):
 		return true
 	default:
 		return false

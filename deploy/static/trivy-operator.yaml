@@ -2100,6 +2100,14 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
   - pods
   verbs:
   - get
@@ -2212,6 +2220,18 @@ rules:
   - aquasecurity.github.io
   resources:
   - clusterconfigauditreports
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aquasecurity.github.io
+  resources:
+  - clusterinfraassessmentreports
   verbs:
   - create
   - delete

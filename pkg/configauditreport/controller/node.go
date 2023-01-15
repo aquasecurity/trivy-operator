@@ -41,6 +41,9 @@ type NodeReconciler struct {
 	trivyoperator.BuildInfo
 }
 
+//+kubebuilder:rbac:groups="",resources=nodes,verbs=get;list;watch
+//+kubebuilder:rbac:groups=aquasecurity.github.io,resources=clusterinfraassessmentreports,verbs=get;list;watch;create;update;patch;delete
+
 func (r *NodeReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&corev1.Node{}, builder.WithPredicates(IsLinuxNode)).

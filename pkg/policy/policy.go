@@ -170,7 +170,7 @@ func (p *Policies) rbacDisabled(rbacEnable bool, kind string) bool {
 }
 
 // Eval evaluates Rego policies with Kubernetes resource client.Object as input.
-func (p *Policies) Eval(ctx context.Context, resource client.Object) (scan.Results, error) {
+func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[]byte) (scan.Results, error) {
 	if resource == nil {
 		return nil, fmt.Errorf("resource must not be nil")
 	}
@@ -194,9 +194,17 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object) (scan.Resul
 			return nil, err
 		}
 	}
-	inputResource, err := json.Marshal(resource)
+	var inputResource []byte
 	if err != nil {
 		return nil, err
+	}
+	if len(inputs) > 0 {
+		inputResource = inputs[0]
+	} else {
+		inputResource, err = json.Marshal(resource)
+		if err != nil {
+			return nil, err
+		}
 	}
 	// add input files
 	err = createPolicyInputFS(memfs, inputFolder, []string{string(inputResource)}, yamlExt)

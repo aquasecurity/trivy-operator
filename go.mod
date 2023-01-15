@@ -2,7 +2,9 @@ module github.com/aquasecurity/trivy-operator
 
 go 1.19
 
-replace github.com/aquasecurity/trivy-kubernetes => github.com/chen-keinan/trivy-kubernetes v0.3.1-0.20230111141925-7c794b62455d
+replace github.com/aquasecurity/defsec => github.com/chen-keinan/defsec v0.15.3-0.20230105125508-9a8093be901a
+
+replace github.com/aquasecurity/trivy-kubernetes => github.com/chen-keinan/trivy-kubernetes v0.3.1-0.20230115112645-49e23f6d86d6
 
 require (
 	github.com/aquasecurity/defsec v0.82.7-0.20230120014503-046ee90ace59

@@ -213,6 +213,8 @@ func ComputeSpecHash(obj client.Object) (string, error) {
 		return ComputeHash(obj), nil
 	case *corev1.ResourceQuota:
 		return ComputeHash(obj), nil
+	case *corev1.Node:
+		return ComputeHash(obj), nil
 	case *corev1.LimitRange:
 		return ComputeHash(obj), nil
 	case *rbacv1.ClusterRole:

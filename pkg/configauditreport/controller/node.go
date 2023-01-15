@@ -65,7 +65,7 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 		}
 
 		log.V(1).Info("Checking whether cluster Infra assessments report exists")
-		hasReport, err := r.hasReport(ctx, node)
+		hasReport, err := hasInfraReport(ctx, node, r.InfraReadWriter)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("checking whether report exists: %w", err)
 		}
@@ -110,6 +110,8 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 			j.WithJobLabels(map[string]string{
 				trivyoperator.LabelNodeInfoCollector: "Trivy",
 				trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
+				trivyoperator.LabelResourceKind:      node.Kind,
+				trivyoperator.LabelResourceName:      node.Name,
 			}))
 
 		log.V(1).Info("Scheduling Node collector job")
@@ -139,12 +141,4 @@ func (r *NodeReconciler) hasNodeCollectorJob(ctx context.Context, node *corev1.N
 
 func (r *NodeReconciler) getNodeCollectorName(node *corev1.Node) string {
 	return "node-collector-" + kube.ComputeHash(node.Name)
-}
-
-func (r *NodeReconciler) hasReport(ctx context.Context, node *corev1.Node) (bool, error) {
-	report, err := r.InfraReadWriter.FindClusterReportByOwner(ctx, kube.ObjectRef{Kind: kube.KindNode, Name: node.Name})
-	if err != nil {
-		return false, err
-	}
-	return report != nil, nil
 }

@@ -264,13 +264,26 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		if operatorConfig.InfraAssessmentScannerEnabled {
 			limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
 			if err = (&controller.NodeReconciler{
-				Logger:          ctrl.Log.WithName("node-collectorontroller"),
+				Logger:          ctrl.Log.WithName("node-reconciler"),
 				Config:          operatorConfig,
 				ConfigData:      trivyOperatorConfig,
 				ObjectResolver:  objectResolver,
 				PluginContext:   pluginContext,
 				PluginInMemory:  plugin,
 				LimitChecker:    limitChecker,
+				InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
+				BuildInfo:       buildInfo,
+			}).SetupWithManager(mgr); err != nil {
+				return fmt.Errorf("unable to setup node collector controller: %w", err)
+			}
+			if err = (&controller.NodeCollectorJobController{
+				Logger:          ctrl.Log.WithName("node-collectorontroller"),
+				Config:          operatorConfig,
+				ConfigData:      trivyOperatorConfig,
+				ObjectResolver:  objectResolver,
+				LogsReader:      logsReader,
+				PluginContext:   pluginContext,
+				PluginInMemory:  plugin,
 				InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
 				BuildInfo:       buildInfo,
 			}).SetupWithManager(mgr); err != nil {

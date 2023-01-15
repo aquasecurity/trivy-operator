@@ -14,7 +14,6 @@ import (
 
 	"github.com/aquasecurity/defsec/pkg/scan"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
@@ -25,7 +24,6 @@ import (
 	networkingv1 "k8s.io/api/networking/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -216,7 +214,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			log.V(1).Info("Configuration audit report exists")
 			return ctrl.Result{}, nil
 		}
-		misConfigData, err := r.evaluate(ctx, policies, resource)
+		misConfigData, err := evaluate(ctx, policies, resource, r.BuildInfo, r.ConfigData, r.Config)
 		if err != nil {
 			if err.Error() == policy.PoliciesNotFoundError {
 				return ctrl.Result{}, nil
@@ -330,65 +328,17 @@ type Misconfiguration struct {
 	infraAssessmentReportData v1alpha1.InfraAssessmentReportData
 }
 
-func (r *ResourceController) evaluate(ctx context.Context, policies *policy.Policies, resource client.Object) (Misconfiguration, error) {
-	misconfiguration := Misconfiguration{}
-	results, err := policies.Eval(ctx, resource)
-	if err != nil {
-		return Misconfiguration{}, err
-	}
-	infraChecks := make([]v1alpha1.Check, 0)
-	checks := make([]v1alpha1.Check, 0)
-	for _, result := range results {
-		id := policies.GetResultID(result)
-
-		// record only misconfig failed checks
-		if r.ConfigData.ReportRecordFailedChecksOnly() && result.Status() == scan.StatusPassed {
-			continue
-		}
-		if infraCheck(id) {
-			if strings.HasPrefix(id, "N/A") {
-				continue
-			}
-			if k8sCoreComponent(resource) {
-				infraChecks = append(infraChecks, getCheck(result, id))
-			}
-			continue
-		}
-		checks = append(checks, getCheck(result, id))
-	}
-	kind := resource.GetObjectKind().GroupVersionKind().Kind
-	if kube.IsRoleTypes(kube.Kind(kind)) && !r.MergeRbacFindingWithConfigAudit {
-		misconfiguration.rbacAssessmentReportData = v1alpha1.RbacAssessmentReportData{
-			Scanner: r.scanner(),
-			Summary: v1alpha1.RbacAssessmentSummaryFromChecks(checks),
-			Checks:  checks,
-		}
-		return misconfiguration, nil
-	}
-	misconfiguration.configAuditReportData = v1alpha1.ConfigAuditReportData{
-		UpdateTimestamp: metav1.NewTime(ext.NewSystemClock().Now()),
-		Scanner:         r.scanner(),
-		Summary:         v1alpha1.ConfigAuditSummaryFromChecks(checks),
-		Checks:          checks,
-	}
-	misconfiguration.infraAssessmentReportData = v1alpha1.InfraAssessmentReportData{
-		Scanner: r.scanner(),
-		Summary: v1alpha1.InfraAssessmentSummaryFromChecks(infraChecks),
-		Checks:  infraChecks,
-	}
-	return misconfiguration, nil
-}
-
 func infraCheck(id string) bool {
 	return (strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV"))
 }
 
 func k8sCoreComponent(resource client.Object) bool {
-	return resource.GetNamespace() == kube.KubeSystemNamespace &&
-		(strings.Contains(resource.GetName(), "kube-apiserver") ||
-			strings.Contains(resource.GetName(), "kube-controller-manager") ||
-			strings.Contains(resource.GetName(), "kube-scheduler") ||
-			strings.Contains(resource.GetName(), "etcd"))
+	return resource.GetObjectKind().GroupVersionKind().Kind == string(kube.KindNode) ||
+		(resource.GetNamespace() == kube.KubeSystemNamespace &&
+			(strings.Contains(resource.GetName(), "kube-apiserver") ||
+				strings.Contains(resource.GetName(), "kube-controller-manager") ||
+				strings.Contains(resource.GetName(), "kube-scheduler") ||
+				strings.Contains(resource.GetName(), "etcd")))
 }
 
 func getCheck(result scan.Result, id string) v1alpha1.Check {
@@ -401,14 +351,6 @@ func getCheck(result scan.Result, id string) v1alpha1.Check {
 
 		Success:  result.Status() == scan.StatusPassed,
 		Messages: []string{result.Description()},
-	}
-}
-
-func (r *ResourceController) scanner() v1alpha1.Scanner {
-	return v1alpha1.Scanner{
-		Name:    v1alpha1.ScannerNameTrivy,
-		Vendor:  "Aqua Security",
-		Version: r.BuildInfo.Version,
 	}
 }
 

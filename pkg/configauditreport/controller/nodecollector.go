@@ -102,7 +102,7 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 		return fmt.Errorf("getting node from cache: %w", err)
 	}
 
-	hasReport, err := r.hasReport(ctx, node)
+	hasReport, err := hasInfraReport(ctx, node, r.InfraReadWriter)
 	if err != nil {
 		return err
 	}
@@ -137,29 +137,32 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 	if err != nil {
 		return fmt.Errorf("getting policies: %w", err)
 	}
-	resourceHash, err := kube.ComputeSpecHash(resource)
+	resourceHash, err := kube.ComputeSpecHash(node)
 	if err != nil {
-		return ctrl.Result{}, fmt.Errorf("computing spec hash: %w", err)
+		return fmt.Errorf("computing spec hash: %w", err)
 	}
 
-	policiesHash, err := policies.Hash(string(resourceKind))
+	policiesHash, err := policies.Hash(string(kube.KindNode))
 	if err != nil {
-		return ctrl.Result{}, fmt.Errorf("computing policies hash: %w", err)
+		return fmt.Errorf("computing policies hash: %w", err)
 	}
-
 	resourceLabelsToInclude := r.GetReportResourceLabels()
-
-	log.V(1).Info("Checking whether configuration audit report exists")
-	hasReport, err := r.hasReport(ctx, resourceRef, resourceHash, policiesHash)
+	misConfigData, err := evaluate(ctx, policies, node, r.BuildInfo, r.ConfigData, r.Config, nodeInfo)
 	if err != nil {
-		return fmt.Errorf("checking whether configuration audit report exists: %w", err)
+		return fmt.Errorf("failed to evaluate policies on Node : %w", err)
 	}
-
-	if hasReport {
-		log.V(1).Info("Configuration audit report exists")
-		return ctrl.Result{}, nil
+	infraReportBuilder := infraassessment.NewReportBuilder(r.Client.Scheme()).
+		Controller(node).
+		ResourceSpecHash(resourceHash).
+		PluginConfigHash(policiesHash).
+		ResourceLabelsToInclude(resourceLabelsToInclude).
+		Data(misConfigData.infraAssessmentReportData)
+	if r.Config.ScannerReportTTL != nil {
+		infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
 	}
-	misConfigData, err := r.evaluate(ctx, policies, resource)
+	if err := infraReportBuilder.Write(ctx, r.InfraReadWriter); err != nil {
+		return err
+	}
 	log.V(1).Info("Deleting complete scan job", "owner", job)
 	return r.deleteJob(ctx, job)
 }
@@ -198,12 +201,4 @@ func (r *NodeCollectorJobController) deleteJob(ctx context.Context, job *batchv1
 		return fmt.Errorf("deleting job: %w", err)
 	}
 	return nil
-}
-
-func (r *NodeCollectorJobController) hasReport(ctx context.Context, node *corev1.Node) (bool, error) {
-	report, err := r.InfraReadWriter.FindClusterReportByOwner(ctx, kube.ObjectRef{Kind: kube.KindNode, Name: node.Name})
-	if err != nil {
-		return false, err
-	}
-	return report != nil, nil
 }

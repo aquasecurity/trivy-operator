@@ -113,6 +113,15 @@ func misconfigReportToTrivyResults(cli client.Client, ctx context.Context) ([]tt
 		results := reportsToResults(ia.Report.Checks, ia.Name, ia.Namespace)
 		resultsArray = append(resultsArray, results)
 	}
+	ciaObjList := &v1alpha1.ClusterInfraAssessmentReportList{}
+	err = cli.List(ctx, ciaObjList)
+	if err != nil {
+		return nil, err
+	}
+	for _, cia := range ciaObjList.Items {
+		results := reportsToResults(cia.Report.Checks, cia.Name, cia.Namespace)
+		resultsArray = append(resultsArray, results)
+	}
 	return resultsArray, nil
 }
 

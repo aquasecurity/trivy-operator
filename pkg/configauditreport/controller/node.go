@@ -106,6 +106,7 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 		}
 		coll := j.NewCollector(cluster,
 			j.WithJobTemplateName(j.NodeCollectorName),
+			j.WithName(r.getNodeCollectorName(node)),
 			j.WithJobNamespace(on),
 			j.WithJobLabels(map[string]string{
 				trivyoperator.LabelNodeInfoCollector: "Trivy",

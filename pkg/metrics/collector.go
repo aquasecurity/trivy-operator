@@ -19,6 +19,9 @@ import (
 const (
 	namespace         = "namespace"
 	name              = "name"
+	resource_kind     = "resource_kind"
+	resource_name     = "resource_name"
+	container_name    = "container_name"
 	image_registry    = "image_registry"
 	image_repository  = "image_repository"
 	image_tag         = "image_tag"
@@ -189,6 +192,9 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 	imageVulnLabels := []string{
 		namespace,
 		name,
+		resource_kind,
+		resource_name,
+		container_name,
 		image_registry,
 		image_repository,
 		image_tag,
@@ -199,6 +205,9 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 	vulnIdLabels := []string{
 		namespace,
 		name,
+		resource_kind,
+		resource_name,
+		container_name,
 		image_registry,
 		image_repository,
 		image_tag,
@@ -214,6 +223,9 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 	exposedSecretLabels := []string{
 		namespace,
 		name,
+		resource_kind,
+		resource_name,
+		container_name,
 		image_registry,
 		image_repository,
 		image_tag,
@@ -224,18 +236,24 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 	configAuditLabels := []string{
 		namespace,
 		name,
+		resource_kind,
+		resource_name,
 		severity,
 	}
 	configAuditLabels = append(configAuditLabels, dynamicLabels...)
 	rbacAssessmentLabels := []string{
 		namespace,
 		name,
+		resource_kind,
+		resource_name,
 		severity,
 	}
 	rbacAssessmentLabels = append(rbacAssessmentLabels, dynamicLabels...)
 	infraAssessmentLabels := []string{
 		namespace,
 		name,
+		resource_kind,
+		resource_name,
 		severity,
 	}
 	infraAssessmentLabels = append(infraAssessmentLabels, dynamicLabels...)
@@ -364,15 +382,18 @@ func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Conte
 		for _, r := range reports.Items {
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
-			labelValues[2] = r.Report.Registry.Server
-			labelValues[3] = r.Report.Artifact.Repository
-			labelValues[4] = r.Report.Artifact.Tag
-			labelValues[5] = r.Report.Artifact.Digest
+			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
+			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			labelValues[4] = r.Labels[trivyoperator.LabelContainerName]
+			labelValues[5] = r.Report.Registry.Server
+			labelValues[6] = r.Report.Artifact.Repository
+			labelValues[7] = r.Report.Artifact.Tag
+			labelValues[8] = r.Report.Artifact.Digest
 			for i, label := range c.GetReportResourceLabels() {
-				labelValues[i+7] = r.Labels[label]
+				labelValues[i+10] = r.Labels[label]
 			}
 			for severity, countFn := range c.imageVulnSeverities {
-				labelValues[6] = severity
+				labelValues[9] = severity
 				count := countFn(r.Report.Summary)
 				metrics <- prometheus.MustNewConstMetric(c.imageVulnDesc, prometheus.GaugeValue, float64(count), labelValues...)
 			}
@@ -392,12 +413,15 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 			if c.Config.MetricsVulnerabilityId {
 				vulnLabelValues[0] = r.Namespace
 				vulnLabelValues[1] = r.Name
-				vulnLabelValues[2] = r.Report.Registry.Server
-				vulnLabelValues[3] = r.Report.Artifact.Repository
-				vulnLabelValues[4] = r.Report.Artifact.Tag
-				vulnLabelValues[5] = r.Report.Artifact.Digest
+				vulnLabelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
+				vulnLabelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+				vulnLabelValues[4] = r.Labels[trivyoperator.LabelContainerName]
+				vulnLabelValues[5] = r.Report.Registry.Server
+				vulnLabelValues[6] = r.Report.Artifact.Repository
+				vulnLabelValues[7] = r.Report.Artifact.Tag
+				vulnLabelValues[8] = r.Report.Artifact.Digest
 				for i, label := range c.GetReportResourceLabels() {
-					vulnLabelValues[i+8] = r.Labels[label]
+					vulnLabelValues[i+15] = r.Labels[label]
 				}
 				var vulnList = make(map[string]bool)
 				for _, vuln := range r.Report.Vulnerabilities {
@@ -405,12 +429,12 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 						continue
 					}
 					vulnList[vuln.VulnerabilityID] = true
-					vulnLabelValues[6] = vuln.InstalledVersion
-					vulnLabelValues[7] = vuln.Resource
-					vulnLabelValues[8] = NewSeverityLabel(vuln.Severity).Label
-					vulnLabelValues[9] = vuln.PackageType
-					vulnLabelValues[10] = vuln.Class
-					vulnLabelValues[11] = vuln.VulnerabilityID
+					vulnLabelValues[9] = vuln.InstalledVersion
+					vulnLabelValues[10] = vuln.Resource
+					vulnLabelValues[11] = NewSeverityLabel(vuln.Severity).Label
+					vulnLabelValues[12] = vuln.PackageType
+					vulnLabelValues[13] = vuln.Class
+					vulnLabelValues[14] = vuln.VulnerabilityID
 					metrics <- prometheus.MustNewConstMetric(c.vulnIdDesc, prometheus.GaugeValue, float64(1), vulnLabelValues...)
 				}
 			}
@@ -429,15 +453,18 @@ func (c ResourcesMetricsCollector) collectExposedSecretsReports(ctx context.Cont
 		for _, r := range reports.Items {
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
-			labelValues[2] = r.Report.Registry.Server
-			labelValues[3] = r.Report.Artifact.Repository
-			labelValues[4] = r.Report.Artifact.Tag
-			labelValues[5] = r.Report.Artifact.Digest
+			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
+			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			labelValues[4] = r.Labels[trivyoperator.LabelContainerName]
+			labelValues[5] = r.Report.Registry.Server
+			labelValues[6] = r.Report.Artifact.Repository
+			labelValues[7] = r.Report.Artifact.Tag
+			labelValues[8] = r.Report.Artifact.Digest
 			for i, label := range c.GetReportResourceLabels() {
-				labelValues[i+7] = r.Labels[label]
+				labelValues[i+10] = r.Labels[label]
 			}
 			for severity, countFn := range c.exposedSecretSeverities {
-				labelValues[6] = severity
+				labelValues[9] = severity
 				count := countFn(r.Report.Summary)
 				metrics <- prometheus.MustNewConstMetric(c.exposedSecretDesc, prometheus.GaugeValue, float64(count), labelValues...)
 			}
@@ -456,11 +483,13 @@ func (c *ResourcesMetricsCollector) collectConfigAuditReports(ctx context.Contex
 		for _, r := range reports.Items {
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
+			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
+			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
 			for i, label := range c.GetReportResourceLabels() {
-				labelValues[i+3] = r.Labels[label]
+				labelValues[i+5] = r.Labels[label]
 			}
 			for severity, countFn := range c.configAuditSeverities {
-				labelValues[2] = severity
+				labelValues[4] = severity
 				count := countFn(r.Report.Summary)
 				metrics <- prometheus.MustNewConstMetric(c.configAuditDesc, prometheus.GaugeValue, float64(count), labelValues...)
 			}
@@ -479,10 +508,12 @@ func (c *ResourcesMetricsCollector) collectRbacAssessmentReports(ctx context.Con
 		for _, r := range reports.Items {
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
+			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
+			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
 			for i, label := range c.GetReportResourceLabels() {
-				labelValues[i+3] = r.Labels[label]
+				labelValues[i+5] = r.Labels[label]
 			}
-			c.populateRbacAssessmentValues(labelValues, c.rbacAssessmentDesc, r.Report.Summary, metrics, 2)
+			c.populateRbacAssessmentValues(labelValues, c.rbacAssessmentDesc, r.Report.Summary, metrics, 4)
 		}
 	}
 }
@@ -498,10 +529,12 @@ func (c *ResourcesMetricsCollector) collectInfraAssessmentReports(ctx context.Co
 		for _, r := range reports.Items {
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
+			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
+			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
 			for i, label := range c.GetReportResourceLabels() {
-				labelValues[i+3] = r.Labels[label]
+				labelValues[i+5] = r.Labels[label]
 			}
-			c.populateInfraAssessmentValues(labelValues, c.infraAssessmentDesc, r.Report.Summary, metrics, 2)
+			c.populateInfraAssessmentValues(labelValues, c.infraAssessmentDesc, r.Report.Summary, metrics, 4)
 		}
 	}
 }
@@ -515,10 +548,12 @@ func (c *ResourcesMetricsCollector) collectClusterRbacAssessmentReports(ctx cont
 	}
 	for _, r := range reports.Items {
 		labelValues[0] = r.Name
+		labelValues[1] = r.Labels[trivyoperator.LabelResourceKind]
+		labelValues[2] = r.Labels[trivyoperator.LabelResourceName]
 		for i, label := range c.GetReportResourceLabels() {
-			labelValues[i+2] = r.Labels[label]
+			labelValues[i+4] = r.Labels[label]
 		}
-		c.populateRbacAssessmentValues(labelValues, c.clusterRbacAssessmentDesc, r.Report.Summary, metrics, 1)
+		c.populateRbacAssessmentValues(labelValues, c.clusterRbacAssessmentDesc, r.Report.Summary, metrics, 3)
 	}
 }
 
@@ -533,7 +568,7 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceReports(ctx context.
 		labelValues[0] = r.Spec.Complaince.Title
 		labelValues[1] = r.Spec.Complaince.Description
 		for i, label := range c.GetReportResourceLabels() {
-			labelValues[i+2] = r.Labels[label]
+			labelValues[i+3] = r.Labels[label]
 		}
 		c.populateComplianceValues(labelValues, c.complianceDesc, r.Status.Summary, metrics, 2)
 	}

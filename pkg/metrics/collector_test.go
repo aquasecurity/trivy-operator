@@ -46,7 +46,13 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr1 := &v1alpha1.VulnerabilityReport{}
 			vr1.Namespace = "default"
 			vr1.Name = "replicaset-nginx-6d4cf56db6-nginx"
-			vr1.Labels = labels.Set{"tier": "tier-1", "owner": "team-a", "app.kubernetes.io/name": "my_name"}
+			vr1.Labels = labels.Set{
+				trivyoperator.LabelResourceKind:  "ReplicaSet",
+				trivyoperator.LabelResourceName:  "nginx-6d4cf56db6",
+				trivyoperator.LabelContainerName: "nginx",
+				"tier":                           "tier-1",
+				"owner":                          "team-a",
+				"app.kubernetes.io/name":         "my_name"}
 			vr1.Report.Registry.Server = "index.docker.io"
 			vr1.Report.Artifact.Repository = "library/nginx"
 			vr1.Report.Artifact.Tag = "1.16"
@@ -59,6 +65,10 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr2 := &v1alpha1.VulnerabilityReport{}
 			vr2.Namespace = "some-ns"
 			vr2.Name = "replicaset-app-d327abe3c4-proxy"
+			vr2.Labels = labels.Set{
+				trivyoperator.LabelResourceKind:  "ReplicaSet",
+				trivyoperator.LabelResourceName:  "app-d327abe3c4",
+				trivyoperator.LabelContainerName: "proxy"}
 			vr2.Report.Registry.Server = "quay.io"
 			vr2.Report.Artifact.Repository = "oauth2-proxy/oauth2-proxy"
 			vr2.Report.Artifact.Tag = "v7.2.1"
@@ -81,6 +91,10 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr3 := &v1alpha1.VulnerabilityReport{}
 			vr3.Namespace = "ingress-nginx"
 			vr3.Name = "daemonset-ingress-nginx-controller-controller"
+			vr3.Labels = labels.Set{
+				trivyoperator.LabelResourceKind:  "DaemonSet",
+				trivyoperator.LabelResourceName:  "ingress-nginx-controller",
+				trivyoperator.LabelContainerName: "controller"}
 			vr3.Report.Registry.Server = "k8s.gcr.io"
 			vr3.Report.Artifact.Repository = "ingress-nginx/controller"
 			vr3.Report.Artifact.Digest = "sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8"
@@ -96,23 +110,23 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 
 		It("should produce correct metrics with cluster scope", func() {
 			const expected = `
-        # HELP trivy_image_vulnerabilities Number of container image vulnerabilities
-        # TYPE trivy_image_vulnerabilities gauge
-        trivy_image_vulnerabilities{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Critical"} 2
-        trivy_image_vulnerabilities{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="High"} 0
-        trivy_image_vulnerabilities{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Low"} 0
-        trivy_image_vulnerabilities{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Medium"} 0
-        trivy_image_vulnerabilities{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Unknown"} 0
-        trivy_image_vulnerabilities{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Critical"} 4
-        trivy_image_vulnerabilities{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High"} 7
-        trivy_image_vulnerabilities{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Low"} 0
-        trivy_image_vulnerabilities{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Medium"} 0
-        trivy_image_vulnerabilities{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Unknown"} 0
-        trivy_image_vulnerabilities{image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Critical"} 1
-        trivy_image_vulnerabilities{image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="High"} 0
-        trivy_image_vulnerabilities{image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Low"} 0
-        trivy_image_vulnerabilities{image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Medium"} 0
-        trivy_image_vulnerabilities{image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Unknown"} 0
+		# HELP trivy_image_vulnerabilities Number of container image vulnerabilities
+		# TYPE trivy_image_vulnerabilities gauge
+		trivy_image_vulnerabilities{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical"} 2
+		trivy_image_vulnerabilities{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="High"} 0
+		trivy_image_vulnerabilities{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Low"} 0
+		trivy_image_vulnerabilities{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Medium"} 0
+		trivy_image_vulnerabilities{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Unknown"} 0
+		trivy_image_vulnerabilities{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical"} 4
+		trivy_image_vulnerabilities{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High"} 7
+		trivy_image_vulnerabilities{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Low"} 0
+		trivy_image_vulnerabilities{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Medium"} 0
+		trivy_image_vulnerabilities{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Unknown"} 0
+		trivy_image_vulnerabilities{container_name="controller",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="Critical"} 1
+		trivy_image_vulnerabilities{container_name="controller",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="High"} 0
+		trivy_image_vulnerabilities{container_name="controller",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="Low"} 0
+		trivy_image_vulnerabilities{container_name="controller",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="Medium"} 0
+		trivy_image_vulnerabilities{container_name="controller",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="Unknown"} 0
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_image_vulnerabilities")).
 				To(Succeed())
@@ -122,17 +136,17 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			collector.TargetNamespaces = "default,some-ns"
 			const expected = `
 		# HELP trivy_image_vulnerabilities Number of container image vulnerabilities
-        # TYPE trivy_image_vulnerabilities gauge
-        trivy_image_vulnerabilities{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Critical"} 2
-        trivy_image_vulnerabilities{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="High"} 0
-        trivy_image_vulnerabilities{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Low"} 0
-        trivy_image_vulnerabilities{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Medium"} 0
-        trivy_image_vulnerabilities{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Unknown"} 0
-        trivy_image_vulnerabilities{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Critical"} 4
-        trivy_image_vulnerabilities{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High"} 7
-        trivy_image_vulnerabilities{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Low"} 0
-        trivy_image_vulnerabilities{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Medium"} 0
-        trivy_image_vulnerabilities{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Unknown"} 0
+		# TYPE trivy_image_vulnerabilities gauge
+		trivy_image_vulnerabilities{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical"} 2
+		trivy_image_vulnerabilities{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="High"} 0
+		trivy_image_vulnerabilities{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Low"} 0
+		trivy_image_vulnerabilities{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Medium"} 0
+		trivy_image_vulnerabilities{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Unknown"} 0
+		trivy_image_vulnerabilities{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical"} 4
+		trivy_image_vulnerabilities{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High"} 7
+		trivy_image_vulnerabilities{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Low"} 0
+		trivy_image_vulnerabilities{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Medium"} 0
+		trivy_image_vulnerabilities{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Unknown"} 0
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_image_vulnerabilities")).
 				To(Succeed())
@@ -140,22 +154,22 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		It("should produce correct metrics with cluster scope with MetricsVulnerabilityId option enabled", func() {
 			collector.Config.MetricsVulnerabilityId = true
 			const expected = `
-		        # HELP trivy_vulnerability_id Number of container image vulnerabilities group by vulnerability id
-		        # TYPE trivy_vulnerability_id gauge
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",installed_version="2.28-10",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",package_type="debian",resource="libc-bin",severity="Critical",vuln_id="CVE-VR1-CRITICAL-1"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",installed_version="1.19.7",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",package_type="debian",resource="dppkg",severity="Critical",vuln_id="CVE-VR1-CRITICAL-2"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="zlib",severity="Critical",vuln_id="CVE-VR2-CRITICAL-1"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.34.1-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="ssl_client",severity="Critical",vuln_id="CVE-VR2-CRITICAL-2"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="zlib",severity="Critical",vuln_id="CVE-VR2-CRITICAL-3"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.1.1l-r7",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="libssl1.1",severity="Critical",vuln_id="CVE-VR2-CRITICAL-4"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v1.9.0",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/prometheus/client_golang",severity="High",vuln_id="CVE-VR2-HIGH-1"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.0.0-20210711020723-a769d52b0f97",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/x/crypto",severity="High",vuln_id="CVE-VR2-HIGH-2"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.0.0-20210226172049-e18ecbb05110",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/x/net",severity="High",vuln_id="CVE-VR2-HIGH-3"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.3.3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/x/text",severity="High",vuln_id="CVE-VR2-HIGH-4"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="zlib",severity="High",vuln_id="CVE-VR2-HIGH-5"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.34.1-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="busybox",severity="High",vuln_id="CVE-VR2-HIGH-6"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.1.1l-r7",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="libssl1.1",severity="High",vuln_id="CVE-VR2-HIGH-7"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",installed_version="1.19.7",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",package_type="debian",resource="dppkg",severity="Critical",vuln_id="CVE-VR3-CRITICAL-1"} 1
+		# HELP trivy_vulnerability_id Number of container image vulnerabilities group by vulnerability id
+		# TYPE trivy_vulnerability_id gauge
+		trivy_vulnerability_id{class="os-pkgs",container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",installed_version="2.28-10",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",package_type="debian",resource="libc-bin",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical",vuln_id="CVE-VR1-CRITICAL-1"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",installed_version="1.19.7",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",package_type="debian",resource="dppkg",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical",vuln_id="CVE-VR1-CRITICAL-2"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="zlib",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical",vuln_id="CVE-VR2-CRITICAL-1"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.34.1-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="ssl_client",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical",vuln_id="CVE-VR2-CRITICAL-2"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="zlib",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical",vuln_id="CVE-VR2-CRITICAL-3"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.1.1l-r7",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="libssl1.1",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical",vuln_id="CVE-VR2-CRITICAL-4"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v1.9.0",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/prometheus/client_golang",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-1"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.0.0-20210711020723-a769d52b0f97",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/x/crypto",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-2"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.0.0-20210226172049-e18ecbb05110",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/x/net",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-3"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.3.3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/x/text",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-4"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="zlib",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-5"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.34.1-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="busybox",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-6"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.1.1l-r7",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="libssl1.1",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-7"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="controller",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",installed_version="1.19.7",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",package_type="debian",resource="dppkg",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="Critical",vuln_id="CVE-VR3-CRITICAL-1"} 1
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_vulnerability_id")).
 				To(Succeed())
@@ -164,22 +178,47 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			collector.Config.MetricsVulnerabilityId = true
 			collector.TargetNamespaces = "default,some-ns"
 			const expected = `
-		        # HELP trivy_vulnerability_id Number of container image vulnerabilities group by vulnerability id
-		        # TYPE trivy_vulnerability_id gauge
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",installed_version="2.28-10",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",package_type="debian",resource="libc-bin",severity="Critical",vuln_id="CVE-VR1-CRITICAL-1"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",installed_version="1.19.7",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",package_type="debian",resource="dppkg",severity="Critical",vuln_id="CVE-VR1-CRITICAL-2"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="zlib",severity="Critical",vuln_id="CVE-VR2-CRITICAL-1"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.34.1-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="ssl_client",severity="Critical",vuln_id="CVE-VR2-CRITICAL-2"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="zlib",severity="Critical",vuln_id="CVE-VR2-CRITICAL-3"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.1.1l-r7",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="libssl1.1",severity="Critical",vuln_id="CVE-VR2-CRITICAL-4"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v1.9.0",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/prometheus/client_golang",severity="High",vuln_id="CVE-VR2-HIGH-1"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.0.0-20210711020723-a769d52b0f97",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/x/crypto",severity="High",vuln_id="CVE-VR2-HIGH-2"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.0.0-20210226172049-e18ecbb05110",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/x/net",severity="High",vuln_id="CVE-VR2-HIGH-3"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.3.3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/x/text",severity="High",vuln_id="CVE-VR2-HIGH-4"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="zlib",severity="High",vuln_id="CVE-VR2-HIGH-5"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.34.1-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="busybox",severity="High",vuln_id="CVE-VR2-HIGH-6"} 1
-				trivy_vulnerability_id{class="os-pkgs",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.1.1l-r7",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="libssl1.1",severity="High",vuln_id="CVE-VR2-HIGH-7"} 1
-
+		# HELP trivy_vulnerability_id Number of container image vulnerabilities group by vulnerability id
+		# TYPE trivy_vulnerability_id gauge
+		trivy_vulnerability_id{class="os-pkgs",container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",installed_version="2.28-10",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",package_type="debian",resource="libc-bin",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical",vuln_id="CVE-VR1-CRITICAL-1"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",installed_version="1.19.7",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",package_type="debian",resource="dppkg",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical",vuln_id="CVE-VR1-CRITICAL-2"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="zlib",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical",vuln_id="CVE-VR2-CRITICAL-1"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.34.1-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="ssl_client",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical",vuln_id="CVE-VR2-CRITICAL-2"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="zlib",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical",vuln_id="CVE-VR2-CRITICAL-3"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.1.1l-r7",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="libssl1.1",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical",vuln_id="CVE-VR2-CRITICAL-4"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v1.9.0",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/prometheus/client_golang",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-1"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.0.0-20210711020723-a769d52b0f97",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/x/crypto",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-2"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.0.0-20210226172049-e18ecbb05110",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/x/net",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-3"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.3.3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/x/text",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-4"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="zlib",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-5"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.34.1-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="busybox",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-6"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.1.1l-r7",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="libssl1.1",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-7"} 1
+		`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_vulnerability_id")).
+				To(Succeed())
+		})
+		It("should produce correct metrics with MetricsVulnerabilityId option enabled and configured labels included using the correct prefix", func() {
+			collector.Config.MetricsVulnerabilityId = true
+			collector.Set(trivyoperator.KeyReportResourceLabels, "tier,ssot")
+			collector.Set(trivyoperator.KeyMetricsResourceLabelsPrefix, "custom_prefix_")
+			collector.metricDescriptors = buildMetricDescriptors(collector.ConfigData) // Force rebuild metricDescriptors again
+			const expected = `
+		# HELP trivy_vulnerability_id Number of container image vulnerabilities group by vulnerability id
+		# TYPE trivy_vulnerability_id gauge
+		trivy_vulnerability_id{class="os-pkgs",container_name="nginx",custom_prefix_ssot="",custom_prefix_tier="tier-1",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",installed_version="2.28-10",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",package_type="debian",resource="libc-bin",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical",vuln_id="CVE-VR1-CRITICAL-1"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="nginx",custom_prefix_ssot="",custom_prefix_tier="tier-1",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",installed_version="1.19.7",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",package_type="debian",resource="dppkg",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical",vuln_id="CVE-VR1-CRITICAL-2"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="zlib",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical",vuln_id="CVE-VR2-CRITICAL-1"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.34.1-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="ssl_client",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical",vuln_id="CVE-VR2-CRITICAL-2"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="zlib",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical",vuln_id="CVE-VR2-CRITICAL-3"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.1.1l-r7",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="libssl1.1",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical",vuln_id="CVE-VR2-CRITICAL-4"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v1.9.0",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/prometheus/client_golang",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-1"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.0.0-20210711020723-a769d52b0f97",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/x/crypto",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-2"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.0.0-20210226172049-e18ecbb05110",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/x/net",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-3"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="v0.3.3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="golang.org/x/text",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-4"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.2.11-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="zlib",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-5"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.34.1-r3",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="busybox",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-6"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="proxy",custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",installed_version="1.1.1l-r7",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",package_type="debian",resource="libssl1.1",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High",vuln_id="CVE-VR2-HIGH-7"} 1
+		trivy_vulnerability_id{class="os-pkgs",container_name="controller",custom_prefix_ssot="",custom_prefix_tier="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",installed_version="1.19.7",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",package_type="debian",resource="dppkg",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="Critical",vuln_id="CVE-VR3-CRITICAL-1"} 1
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_vulnerability_id")).
 				To(Succeed())
@@ -189,24 +228,24 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			collector.Set(trivyoperator.KeyMetricsResourceLabelsPrefix, "custom_prefix_")
 			collector.metricDescriptors = buildMetricDescriptors(collector.ConfigData) // Force rebuild metricDescriptors again
 			const expected = `
-				# HELP trivy_image_vulnerabilities Number of container image vulnerabilities
-				# TYPE trivy_image_vulnerabilities gauge
-				trivy_image_vulnerabilities{custom_prefix_ssot="",custom_prefix_tier="tier-1",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Critical"} 2
-				trivy_image_vulnerabilities{custom_prefix_ssot="",custom_prefix_tier="tier-1",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="High"} 0
-				trivy_image_vulnerabilities{custom_prefix_ssot="",custom_prefix_tier="tier-1",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Low"} 0
-				trivy_image_vulnerabilities{custom_prefix_ssot="",custom_prefix_tier="tier-1",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Medium"} 0
-				trivy_image_vulnerabilities{custom_prefix_ssot="",custom_prefix_tier="tier-1",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Unknown"} 0
-				trivy_image_vulnerabilities{custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Critical"} 4
-				trivy_image_vulnerabilities{custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High"} 7
-				trivy_image_vulnerabilities{custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Low"} 0
-				trivy_image_vulnerabilities{custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Medium"} 0
-				trivy_image_vulnerabilities{custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Unknown"} 0
-				trivy_image_vulnerabilities{custom_prefix_ssot="",custom_prefix_tier="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Critical"} 1
-				trivy_image_vulnerabilities{custom_prefix_ssot="",custom_prefix_tier="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="High"} 0
-				trivy_image_vulnerabilities{custom_prefix_ssot="",custom_prefix_tier="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Low"} 0
-				trivy_image_vulnerabilities{custom_prefix_ssot="",custom_prefix_tier="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Medium"} 0
-				trivy_image_vulnerabilities{custom_prefix_ssot="",custom_prefix_tier="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Unknown"} 0
-				`
+		# HELP trivy_image_vulnerabilities Number of container image vulnerabilities
+		# TYPE trivy_image_vulnerabilities gauge
+		trivy_image_vulnerabilities{container_name="nginx",custom_prefix_ssot="",custom_prefix_tier="tier-1",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical"} 2
+		trivy_image_vulnerabilities{container_name="nginx",custom_prefix_ssot="",custom_prefix_tier="tier-1",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="High"} 0
+		trivy_image_vulnerabilities{container_name="nginx",custom_prefix_ssot="",custom_prefix_tier="tier-1",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Low"} 0
+		trivy_image_vulnerabilities{container_name="nginx",custom_prefix_ssot="",custom_prefix_tier="tier-1",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Medium"} 0
+		trivy_image_vulnerabilities{container_name="nginx",custom_prefix_ssot="",custom_prefix_tier="tier-1",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Unknown"} 0
+		trivy_image_vulnerabilities{container_name="proxy",custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical"} 4
+		trivy_image_vulnerabilities{container_name="proxy",custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High"} 7
+		trivy_image_vulnerabilities{container_name="proxy",custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Low"} 0
+		trivy_image_vulnerabilities{container_name="proxy",custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Medium"} 0
+		trivy_image_vulnerabilities{container_name="proxy",custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Unknown"} 0
+		trivy_image_vulnerabilities{container_name="controller",custom_prefix_ssot="",custom_prefix_tier="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="Critical"} 1
+		trivy_image_vulnerabilities{container_name="controller",custom_prefix_ssot="",custom_prefix_tier="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="High"} 0
+		trivy_image_vulnerabilities{container_name="controller",custom_prefix_ssot="",custom_prefix_tier="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="Low"} 0
+		trivy_image_vulnerabilities{container_name="controller",custom_prefix_ssot="",custom_prefix_tier="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="Medium"} 0
+		trivy_image_vulnerabilities{container_name="controller",custom_prefix_ssot="",custom_prefix_tier="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="Unknown"} 0
+		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_image_vulnerabilities")).
 				To(Succeed())
 		})
@@ -215,24 +254,24 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			collector.Set(trivyoperator.KeyMetricsResourceLabelsPrefix, "custom_prefix_")
 			collector.metricDescriptors = buildMetricDescriptors(collector.ConfigData) // Force rebuild metricDescriptors again
 			const expected = `
-				# HELP trivy_image_vulnerabilities Number of container image vulnerabilities
-				# TYPE trivy_image_vulnerabilities gauge
-				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="my_name",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Critical"} 2
-				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="my_name",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="High"} 0
-				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="my_name",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Low"} 0
-				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="my_name",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Medium"} 0
-				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="my_name",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Unknown"} 0
-				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Critical"} 4
-				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High"} 7
-				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Low"} 0
-				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Medium"} 0
-				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Unknown"} 0
-				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Critical"} 1
-				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="High"} 0
-				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Low"} 0
-				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Medium"} 0
-				trivy_image_vulnerabilities{custom_prefix_app_kubernetes_io_name="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Unknown"} 0
-				`
+		# HELP trivy_image_vulnerabilities Number of container image vulnerabilities
+		# TYPE trivy_image_vulnerabilities gauge
+		trivy_image_vulnerabilities{container_name="nginx",custom_prefix_app_kubernetes_io_name="my_name",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical"} 2
+		trivy_image_vulnerabilities{container_name="nginx",custom_prefix_app_kubernetes_io_name="my_name",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="High"} 0
+		trivy_image_vulnerabilities{container_name="nginx",custom_prefix_app_kubernetes_io_name="my_name",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Low"} 0
+		trivy_image_vulnerabilities{container_name="nginx",custom_prefix_app_kubernetes_io_name="my_name",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Medium"} 0
+		trivy_image_vulnerabilities{container_name="nginx",custom_prefix_app_kubernetes_io_name="my_name",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Unknown"} 0
+		trivy_image_vulnerabilities{container_name="proxy",custom_prefix_app_kubernetes_io_name="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical"} 4
+		trivy_image_vulnerabilities{container_name="proxy",custom_prefix_app_kubernetes_io_name="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High"} 7
+		trivy_image_vulnerabilities{container_name="proxy",custom_prefix_app_kubernetes_io_name="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Low"} 0
+		trivy_image_vulnerabilities{container_name="proxy",custom_prefix_app_kubernetes_io_name="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Medium"} 0
+		trivy_image_vulnerabilities{container_name="proxy",custom_prefix_app_kubernetes_io_name="",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Unknown"} 0
+		trivy_image_vulnerabilities{container_name="controller",custom_prefix_app_kubernetes_io_name="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="Critical"} 1
+		trivy_image_vulnerabilities{container_name="controller",custom_prefix_app_kubernetes_io_name="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="High"} 0
+		trivy_image_vulnerabilities{container_name="controller",custom_prefix_app_kubernetes_io_name="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="Low"} 0
+		trivy_image_vulnerabilities{container_name="controller",custom_prefix_app_kubernetes_io_name="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="Medium"} 0
+		trivy_image_vulnerabilities{container_name="controller",custom_prefix_app_kubernetes_io_name="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="Unknown"} 0
+		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_image_vulnerabilities")).
 				To(Succeed())
 		})
@@ -243,6 +282,10 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr1 := &v1alpha1.ExposedSecretReport{}
 			vr1.Namespace = "default"
 			vr1.Name = "replicaset-nginx-6d4cf56db6-nginx"
+			vr1.Labels = labels.Set{
+				trivyoperator.LabelResourceKind:  "ReplicaSet",
+				trivyoperator.LabelResourceName:  "nginx-6d4cf56db6",
+				trivyoperator.LabelContainerName: "nginx"}
 			vr1.Report.Registry.Server = "index.docker.io"
 			vr1.Report.Artifact.Repository = "library/nginx"
 			vr1.Report.Artifact.Tag = "1.16"
@@ -251,6 +294,10 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr2 := &v1alpha1.ExposedSecretReport{}
 			vr2.Namespace = "some-ns"
 			vr2.Name = "replicaset-app-d327abe3c4-proxy"
+			vr2.Labels = labels.Set{
+				trivyoperator.LabelResourceKind:  "ReplicaSet",
+				trivyoperator.LabelResourceName:  "app-d327abe3c4",
+				trivyoperator.LabelContainerName: "proxy"}
 			vr2.Report.Registry.Server = "quay.io"
 			vr2.Report.Artifact.Repository = "oauth2-proxy/oauth2-proxy"
 			vr2.Report.Artifact.Tag = "v7.2.1"
@@ -260,6 +307,10 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr3 := &v1alpha1.ExposedSecretReport{}
 			vr3.Namespace = "ingress-nginx"
 			vr3.Name = "daemonset-ingress-nginx-controller-controller"
+			vr3.Labels = labels.Set{
+				trivyoperator.LabelResourceKind:  "DaemonSet",
+				trivyoperator.LabelResourceName:  "ingress-nginx-controller",
+				trivyoperator.LabelContainerName: "controller"}
 			vr3.Report.Registry.Server = "k8s.gcr.io"
 			vr3.Report.Artifact.Repository = "ingress-nginx/controller"
 			vr3.Report.Artifact.Digest = "sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8"
@@ -273,18 +324,18 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			const expected = `
         # HELP trivy_image_exposedsecrets Number of image exposed secrets
         # TYPE trivy_image_exposedsecrets gauge
-        trivy_image_exposedsecrets{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Critical"} 2
-        trivy_image_exposedsecrets{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="High"} 0
-        trivy_image_exposedsecrets{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Low"} 0
-        trivy_image_exposedsecrets{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Medium"} 0
-        trivy_image_exposedsecrets{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Critical"} 4
-        trivy_image_exposedsecrets{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High"} 7
-        trivy_image_exposedsecrets{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Low"} 0
-        trivy_image_exposedsecrets{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Medium"} 0
-        trivy_image_exposedsecrets{image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Critical"} 0
-        trivy_image_exposedsecrets{image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="High"} 0
-        trivy_image_exposedsecrets{image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Low"} 0
-        trivy_image_exposedsecrets{image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",severity="Medium"} 0
+        trivy_image_exposedsecrets{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical"} 2
+        trivy_image_exposedsecrets{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="High"} 0
+        trivy_image_exposedsecrets{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Low"} 0
+        trivy_image_exposedsecrets{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Medium"} 0
+        trivy_image_exposedsecrets{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical"} 4
+        trivy_image_exposedsecrets{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High"} 7
+        trivy_image_exposedsecrets{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Low"} 0
+        trivy_image_exposedsecrets{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Medium"} 0
+        trivy_image_exposedsecrets{container_name="controller",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="Critical"} 0
+        trivy_image_exposedsecrets{container_name="controller",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="High"} 0
+        trivy_image_exposedsecrets{container_name="controller",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="Low"} 0
+        trivy_image_exposedsecrets{container_name="controller",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="Medium"} 0
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_image_exposedsecrets")).
 				To(Succeed())
@@ -295,14 +346,14 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			const expected = `
         # HELP trivy_image_exposedsecrets Number of image exposed secrets
         # TYPE trivy_image_exposedsecrets gauge
-        trivy_image_exposedsecrets{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Critical"} 2
-        trivy_image_exposedsecrets{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="High"} 0
-        trivy_image_exposedsecrets{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Low"} 0
-        trivy_image_exposedsecrets{image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",severity="Medium"} 0
-        trivy_image_exposedsecrets{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Critical"} 4
-        trivy_image_exposedsecrets{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="High"} 7
-        trivy_image_exposedsecrets{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Low"} 0
-        trivy_image_exposedsecrets{image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",severity="Medium"} 0
+        trivy_image_exposedsecrets{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical"} 2
+        trivy_image_exposedsecrets{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="High"} 0
+        trivy_image_exposedsecrets{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Low"} 0
+        trivy_image_exposedsecrets{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Medium"} 0
+        trivy_image_exposedsecrets{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical"} 4
+        trivy_image_exposedsecrets{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High"} 7
+        trivy_image_exposedsecrets{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Low"} 0
+        trivy_image_exposedsecrets{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Medium"} 0
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_image_exposedsecrets")).
 				To(Succeed())
@@ -314,17 +365,26 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car1 := &v1alpha1.ConfigAuditReport{}
 			car1.Namespace = "default"
 			car1.Name = "replicaset-nginx-6d4cf56db6"
+			car1.Labels = labels.Set{
+				trivyoperator.LabelResourceKind: "ReplicaSet",
+				trivyoperator.LabelResourceName: "nginx-6d4cf56db6"}
 			car1.Report.Summary.CriticalCount = 2
 			car1.Report.Summary.LowCount = 9
 
 			car2 := &v1alpha1.ConfigAuditReport{}
 			car2.Namespace = "some-ns"
 			car2.Name = "configmap-test"
+			car2.Labels = labels.Set{
+				trivyoperator.LabelResourceKind: "ConfigMap",
+				trivyoperator.LabelResourceName: "test"}
 			car2.Report.Summary.LowCount = 1
 
 			car3 := &v1alpha1.ConfigAuditReport{}
 			car3.Namespace = "vault-system"
 			car3.Name = "replicaset-vault-agent-injector-65fd65bfb8"
+			car3.Labels = labels.Set{
+				trivyoperator.LabelResourceKind: "ReplicaSet",
+				trivyoperator.LabelResourceName: "vault-agent-injector-65fd65bfb8"}
 			car3.Report.Summary.MediumCount = 4
 			car3.Report.Summary.LowCount = 7
 
@@ -337,18 +397,18 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			const expected = `
         # HELP trivy_resource_configaudits Number of failing resource configuration auditing checks
         # TYPE trivy_resource_configaudits gauge
-        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",severity="Critical"} 0
-        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",severity="High"} 0
-        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",severity="Low"} 1
-        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",severity="Medium"} 0
-        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",severity="Critical"} 2
-        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",severity="High"} 0
-        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",severity="Low"} 9
-        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",severity="Medium"} 0
-        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",severity="Critical"} 0
-        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",severity="High"} 0
-        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",severity="Low"} 7
-        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",severity="Medium"} 4
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",severity="Critical"} 0
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",severity="High"} 0
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",severity="Low"} 1
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",severity="Medium"} 0
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical"} 2
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="High"} 0
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Low"} 9
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Medium"} 0
+        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",severity="Critical"} 0
+        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",severity="High"} 0
+        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",severity="Low"} 7
+        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",severity="Medium"} 4
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_resource_configaudits")).
 				To(Succeed())
@@ -359,14 +419,14 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			const expected = `
         # HELP trivy_resource_configaudits Number of failing resource configuration auditing checks
         # TYPE trivy_resource_configaudits gauge
-        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",severity="Critical"} 0
-        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",severity="High"} 0
-        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",severity="Low"} 1
-        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",severity="Medium"} 0
-        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",severity="Critical"} 2
-        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",severity="High"} 0
-        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",severity="Low"} 9
-        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",severity="Medium"} 0
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",severity="Critical"} 0
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",severity="High"} 0
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",severity="Low"} 1
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",severity="Medium"} 0
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical"} 2
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="High"} 0
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Low"} 9
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Medium"} 0
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_resource_configaudits")).
 				To(Succeed())
@@ -378,6 +438,9 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car1 := &v1alpha1.InfraAssessmentReport{}
 			car1.Namespace = "kube-system"
 			car1.Name = "pod-kube-apiserver-minikube-6d4cf56db6"
+			car1.Labels = labels.Set{
+				trivyoperator.LabelResourceKind: "Pod",
+				trivyoperator.LabelResourceName: "kube-apiserver-minikube-6d4cf56db6"}
 			car1.Report.Summary.CriticalCount = 2
 			car1.Report.Summary.LowCount = 9
 
@@ -388,12 +451,12 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 
 		It("should produce infra assessment metrics on kube-system namespace", func() {
 			const expected = `
-      # HELP trivy_resource_infraassessments Number of failing k8s infra assessment checks
-      # TYPE trivy_resource_infraassessments gauge
-      trivy_resource_infraassessments{name="pod-kube-apiserver-minikube-6d4cf56db6",namespace="kube-system",severity="Critical"} 2
-	  trivy_resource_infraassessments{name="pod-kube-apiserver-minikube-6d4cf56db6",namespace="kube-system",severity="High"} 0
-      trivy_resource_infraassessments{name="pod-kube-apiserver-minikube-6d4cf56db6",namespace="kube-system",severity="Low"} 9
-      trivy_resource_infraassessments{name="pod-kube-apiserver-minikube-6d4cf56db6",namespace="kube-system",severity="Medium"} 0
+		# HELP trivy_resource_infraassessments Number of failing k8s infra assessment checks
+		# TYPE trivy_resource_infraassessments gauge
+		trivy_resource_infraassessments{name="pod-kube-apiserver-minikube-6d4cf56db6",namespace="kube-system",resource_kind="Pod",resource_name="kube-apiserver-minikube-6d4cf56db6",severity="Critical"} 2
+		trivy_resource_infraassessments{name="pod-kube-apiserver-minikube-6d4cf56db6",namespace="kube-system",resource_kind="Pod",resource_name="kube-apiserver-minikube-6d4cf56db6",severity="High"} 0
+		trivy_resource_infraassessments{name="pod-kube-apiserver-minikube-6d4cf56db6",namespace="kube-system",resource_kind="Pod",resource_name="kube-apiserver-minikube-6d4cf56db6",severity="Low"} 9
+		trivy_resource_infraassessments{name="pod-kube-apiserver-minikube-6d4cf56db6",namespace="kube-system",resource_kind="Pod",resource_name="kube-apiserver-minikube-6d4cf56db6",severity="Medium"} 0
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_resource_infraassessments")).
 				To(Succeed())
@@ -405,17 +468,26 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car1 := &v1alpha1.RbacAssessmentReport{}
 			car1.Namespace = "default"
 			car1.Name = "role-admin-6d4cf56db6"
+			car1.Labels = labels.Set{
+				trivyoperator.LabelResourceKind: "Role",
+				trivyoperator.LabelResourceName: "admin-6d4cf56db6"}
 			car1.Report.Summary.CriticalCount = 2
 			car1.Report.Summary.LowCount = 9
 
 			car2 := &v1alpha1.RbacAssessmentReport{}
 			car2.Namespace = "some-ns"
 			car2.Name = "role-write-test"
+			car2.Labels = labels.Set{
+				trivyoperator.LabelResourceKind: "Role",
+				trivyoperator.LabelResourceName: "write-test"}
 			car2.Report.Summary.LowCount = 1
 
 			car3 := &v1alpha1.RbacAssessmentReport{}
 			car3.Namespace = "vault-system"
 			car3.Name = "role-read-65fd65bfb8"
+			car3.Labels = labels.Set{
+				trivyoperator.LabelResourceKind: "Role",
+				trivyoperator.LabelResourceName: "read-65fd65bfb8"}
 			car3.Report.Summary.MediumCount = 4
 			car3.Report.Summary.LowCount = 7
 
@@ -426,20 +498,20 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 
 		It("should produce correct rbac assessment metrics with cluster scope", func() {
 			const expected = `
-      # HELP trivy_role_rbacassessments Number of rbac risky role assessment checks
-      # TYPE trivy_role_rbacassessments gauge
-      trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",severity="Critical"} 2
-      trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",severity="High"} 0
-      trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",severity="Low"} 9
-      trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",severity="Medium"} 0
-      trivy_role_rbacassessments{name="role-read-65fd65bfb8",namespace="vault-system",severity="Critical"} 0
-      trivy_role_rbacassessments{name="role-read-65fd65bfb8",namespace="vault-system",severity="High"} 0
-      trivy_role_rbacassessments{name="role-read-65fd65bfb8",namespace="vault-system",severity="Low"} 7
-      trivy_role_rbacassessments{name="role-read-65fd65bfb8",namespace="vault-system",severity="Medium"} 4
-      trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",severity="Critical"} 0
-      trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",severity="High"} 0
-      trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",severity="Low"} 1
-      trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",severity="Medium"} 0
+		# HELP trivy_role_rbacassessments Number of rbac risky role assessment checks
+		# TYPE trivy_role_rbacassessments gauge
+		trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",resource_kind="Role",resource_name="admin-6d4cf56db6",severity="Critical"} 2
+		trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",resource_kind="Role",resource_name="admin-6d4cf56db6",severity="High"} 0
+		trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",resource_kind="Role",resource_name="admin-6d4cf56db6",severity="Low"} 9
+		trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",resource_kind="Role",resource_name="admin-6d4cf56db6",severity="Medium"} 0
+		trivy_role_rbacassessments{name="role-read-65fd65bfb8",namespace="vault-system",resource_kind="Role",resource_name="read-65fd65bfb8",severity="Critical"} 0
+		trivy_role_rbacassessments{name="role-read-65fd65bfb8",namespace="vault-system",resource_kind="Role",resource_name="read-65fd65bfb8",severity="High"} 0
+		trivy_role_rbacassessments{name="role-read-65fd65bfb8",namespace="vault-system",resource_kind="Role",resource_name="read-65fd65bfb8",severity="Low"} 7
+		trivy_role_rbacassessments{name="role-read-65fd65bfb8",namespace="vault-system",resource_kind="Role",resource_name="read-65fd65bfb8",severity="Medium"} 4
+		trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",resource_kind="Role",resource_name="write-test",severity="Critical"} 0
+		trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",resource_kind="Role",resource_name="write-test",severity="High"} 0
+		trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",resource_kind="Role",resource_name="write-test",severity="Low"} 1
+		trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",resource_kind="Role",resource_name="write-test",severity="Medium"} 0
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_role_rbacassessments")).
 				To(Succeed())
@@ -448,16 +520,16 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		It("should produce correct rbac assessment metrics from target namespaces", func() {
 			collector.TargetNamespaces = "default,some-ns"
 			const expected = `
-      # HELP trivy_role_rbacassessments Number of rbac risky role assessment checks
-      # TYPE trivy_role_rbacassessments gauge
-      trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",severity="Critical"} 2
-      trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",severity="High"} 0
-      trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",severity="Low"} 9
-      trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",severity="Medium"} 0
-      trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",severity="Critical"} 0
-      trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",severity="High"} 0
-      trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",severity="Low"} 1
-      trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",severity="Medium"} 0
+		# HELP trivy_role_rbacassessments Number of rbac risky role assessment checks
+		# TYPE trivy_role_rbacassessments gauge
+		trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",resource_kind="Role",resource_name="admin-6d4cf56db6",severity="Critical"} 2
+		trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",resource_kind="Role",resource_name="admin-6d4cf56db6",severity="High"} 0
+		trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",resource_kind="Role",resource_name="admin-6d4cf56db6",severity="Low"} 9
+		trivy_role_rbacassessments{name="role-admin-6d4cf56db6",namespace="default",resource_kind="Role",resource_name="admin-6d4cf56db6",severity="Medium"} 0
+		trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",resource_kind="Role",resource_name="write-test",severity="Critical"} 0
+		trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",resource_kind="Role",resource_name="write-test",severity="High"} 0
+		trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",resource_kind="Role",resource_name="write-test",severity="Low"} 1
+		trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",resource_kind="Role",resource_name="write-test",severity="Medium"} 0
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_role_rbacassessments")).
 				To(Succeed())
@@ -467,15 +539,24 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		BeforeEach(func() {
 			car1 := &v1alpha1.ClusterRbacAssessmentReport{}
 			car1.Name = "cluster_role-admin-6d4cf56db6"
+			car1.Labels = labels.Set{
+				trivyoperator.LabelResourceKind: "ClusterRole",
+				trivyoperator.LabelResourceName: "admin-6d4cf56db6"}
 			car1.Report.Summary.CriticalCount = 2
 			car1.Report.Summary.LowCount = 9
 
 			car2 := &v1alpha1.ClusterRbacAssessmentReport{}
 			car2.Name = "cluster_role-write-test"
+			car2.Labels = labels.Set{
+				trivyoperator.LabelResourceKind: "ClusterRole",
+				trivyoperator.LabelResourceName: "write-test"}
 			car2.Report.Summary.LowCount = 1
 
 			car3 := &v1alpha1.ClusterRbacAssessmentReport{}
 			car3.Name = "cluster_role-read-65fd65bfb8"
+			car3.Labels = labels.Set{
+				trivyoperator.LabelResourceKind: "ClusterRole",
+				trivyoperator.LabelResourceName: "read-65fd65bfb8"}
 			car3.Report.Summary.MediumCount = 4
 			car3.Report.Summary.LowCount = 7
 
@@ -486,20 +567,20 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 
 		It("should produce correct cluster rbac assessment metrics", func() {
 			const expected = `
-      # HELP trivy_clusterrole_clusterrbacassessments Number of rbac risky cluster role assessment checks
-      # TYPE trivy_clusterrole_clusterrbacassessments gauge
-      trivy_clusterrole_clusterrbacassessments{name="cluster_role-admin-6d4cf56db6",severity="Critical"} 2
-      trivy_clusterrole_clusterrbacassessments{name="cluster_role-admin-6d4cf56db6",severity="High"} 0
-      trivy_clusterrole_clusterrbacassessments{name="cluster_role-admin-6d4cf56db6",severity="Low"} 9
-      trivy_clusterrole_clusterrbacassessments{name="cluster_role-admin-6d4cf56db6",severity="Medium"} 0
-      trivy_clusterrole_clusterrbacassessments{name="cluster_role-read-65fd65bfb8",severity="Critical"} 0
-      trivy_clusterrole_clusterrbacassessments{name="cluster_role-read-65fd65bfb8",severity="High"} 0
-      trivy_clusterrole_clusterrbacassessments{name="cluster_role-read-65fd65bfb8",severity="Low"} 7
-      trivy_clusterrole_clusterrbacassessments{name="cluster_role-read-65fd65bfb8",severity="Medium"} 4
-      trivy_clusterrole_clusterrbacassessments{name="cluster_role-write-test",severity="Critical"} 0
-      trivy_clusterrole_clusterrbacassessments{name="cluster_role-write-test",severity="High"} 0
-      trivy_clusterrole_clusterrbacassessments{name="cluster_role-write-test",severity="Low"} 1
-      trivy_clusterrole_clusterrbacassessments{name="cluster_role-write-test",severity="Medium"} 0
+		# HELP trivy_clusterrole_clusterrbacassessments Number of rbac risky cluster role assessment checks
+		# TYPE trivy_clusterrole_clusterrbacassessments gauge
+		trivy_clusterrole_clusterrbacassessments{name="cluster_role-admin-6d4cf56db6",resource_kind="ClusterRole",resource_name="admin-6d4cf56db6",severity="Critical"} 2
+		trivy_clusterrole_clusterrbacassessments{name="cluster_role-admin-6d4cf56db6",resource_kind="ClusterRole",resource_name="admin-6d4cf56db6",severity="High"} 0
+		trivy_clusterrole_clusterrbacassessments{name="cluster_role-admin-6d4cf56db6",resource_kind="ClusterRole",resource_name="admin-6d4cf56db6",severity="Low"} 9
+		trivy_clusterrole_clusterrbacassessments{name="cluster_role-admin-6d4cf56db6",resource_kind="ClusterRole",resource_name="admin-6d4cf56db6",severity="Medium"} 0
+		trivy_clusterrole_clusterrbacassessments{name="cluster_role-read-65fd65bfb8",resource_kind="ClusterRole",resource_name="read-65fd65bfb8",severity="Critical"} 0
+		trivy_clusterrole_clusterrbacassessments{name="cluster_role-read-65fd65bfb8",resource_kind="ClusterRole",resource_name="read-65fd65bfb8",severity="High"} 0
+		trivy_clusterrole_clusterrbacassessments{name="cluster_role-read-65fd65bfb8",resource_kind="ClusterRole",resource_name="read-65fd65bfb8",severity="Low"} 7
+		trivy_clusterrole_clusterrbacassessments{name="cluster_role-read-65fd65bfb8",resource_kind="ClusterRole",resource_name="read-65fd65bfb8",severity="Medium"} 4
+		trivy_clusterrole_clusterrbacassessments{name="cluster_role-write-test",resource_kind="ClusterRole",resource_name="write-test",severity="Critical"} 0
+		trivy_clusterrole_clusterrbacassessments{name="cluster_role-write-test",resource_kind="ClusterRole",resource_name="write-test",severity="High"} 0
+		trivy_clusterrole_clusterrbacassessments{name="cluster_role-write-test",resource_kind="ClusterRole",resource_name="write-test",severity="Low"} 1
+		trivy_clusterrole_clusterrbacassessments{name="cluster_role-write-test",resource_kind="ClusterRole",resource_name="write-test",severity="Medium"} 0
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_clusterrole_clusterrbacassessments")).
 				To(Succeed())
@@ -521,10 +602,10 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 
 		It("should produce correct cluster rbac assessment metrics", func() {
 			const expected = `
-      # HELP trivy_cluster_compliance cluster compliance report
-	  # TYPE trivy_cluster_compliance gauge
-	  trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Fail",title="nsa"} 12
-	  trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 15
+		# HELP trivy_cluster_compliance cluster compliance report
+		# TYPE trivy_cluster_compliance gauge
+		trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Fail",title="nsa"} 12
+		trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 15
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_cluster_compliance")).
 				To(Succeed())

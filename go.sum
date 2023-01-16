@@ -102,6 +102,21 @@ github.com/cespare/xxhash v1.1.0/go.mod h1:XrSqR1VqqWfGrhpAt58auRo0WTKS1nRRg3ghf
 github.com/cespare/xxhash/v2 v2.1.1/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/cespare/xxhash/v2 v2.1.2 h1:YRXhKfTDauu4ajMg1TPgFO5jnlC2HCbmLXMcTG5cbYE=
 github.com/cespare/xxhash/v2 v2.1.2/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+github.com/chen-keinan/defsec v0.15.3-0.20230105125508-9a8093be901a h1:lxp+J+vEGe+lvBIW8lbBhFlGbu+qiob3Ty1FBbS0wPE=
+github.com/chen-keinan/defsec v0.15.3-0.20230105125508-9a8093be901a/go.mod h1:aX3TcsZB+IA1j9AXMzxrCJQ74WcEnoO1L2TkW1vKgsA=
+<<<<<<< HEAD
+github.com/chen-keinan/trivy-kubernetes v0.3.1-0.20230115112645-49e23f6d86d6 h1:672HIukvIm/aDrKItax8tRNzNC8+lWcp4PVdHiiAydY=
+github.com/chen-keinan/trivy-kubernetes v0.3.1-0.20230115112645-49e23f6d86d6/go.mod h1:ydCI4D9Tc5kU/4Clqj+zVNXeS4hQYLrvE7HilMycRQk=
+>>>>>>> ca483e2 (feat: node info collector)
+=======
+github.com/chen-keinan/trivy-kubernetes v0.3.1-0.20230116063537-5fc3892320f0 h1:ZY1OLQ+8pQCMttQfBJhP18dyPVdYCR5i5rxuCh35p9I=
+github.com/chen-keinan/trivy-kubernetes v0.3.1-0.20230116063537-5fc3892320f0/go.mod h1:ydCI4D9Tc5kU/4Clqj+zVNXeS4hQYLrvE7HilMycRQk=
+>>>>>>> 7c90b95 (feat: node info collector)
+>>>>>>> df1ba1d (feat: node info collector)
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
 github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=
 github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1/go.mod h1:Q3SI9o4m/ZMnBNeIyt5eFwwo7qiLfzFZmjNmxjkiQlU=

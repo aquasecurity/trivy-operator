@@ -1,0 +1,28 @@
+apiVersion: aquasecurity.github.io/v1alpha1
+kind: VulnerabilityReport
+metadata:
+  annotations:
+    trivy-operator.aquasecurity.github.io/report-ttl: 24h0m0s
+  generation: 1
+  labels:
+    trivy-operator.container.name: nginx
+    trivy-operator.resource.kind: ReplicaSet
+  name: replicaset-nginx-deployment-68cbcc8ccf-nginx
+report:
+  artifact:
+    repository: library/nginx
+    tag: 1.14.2
+  registry:
+    server: index.docker.io
+  scanner:
+    name: Trivy
+    vendor: Aqua Security
+    version: 0.36.0
+  summary:
+    criticalCount: 58
+    highCount: 113
+    lowCount: 163
+    mediumCount: 102
+    noneCount: 0
+    unknownCount: 7
+ 

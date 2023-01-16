@@ -132,41 +132,7 @@ var _ = Describe("Workload controller", func() {
 		Entry("Should create a config audit report Pod", "pod-configauditreport-expected.yaml"),
 		Entry("Should create a config audit report ReplicaSet", "replicaset-configauditreport-expected.yaml"),
 	)
-
-	NormalizeUntestableRbacAssessmentReportFields := func(ca *v1alpha1.RbacAssessmentReport) *v1alpha1.RbacAssessmentReport {
-		ca.APIVersion = "aquasecurity.github.io/v1alpha1"
-		ca.Kind = "RbacAssessmentReport"
-		ca.UID = ""
-		ca.SetLabels(map[string]string{
-			"trivy-operator.resource.kind": "Role",
-			"trivy-operator.resource.name": "proxy",
-		})
-		ca.ResourceVersion = ""
-		ca.CreationTimestamp = metav1.Time{}
-		ca.ManagedFields = nil
-		ca.OwnerReferences[0].UID = ""
-		sort.Sort(ByCheckID(ca.Report.Checks))
-		return ca
-	}
-	DescribeTable("On Rbac reconcile loop",
-		func(expectedRbacAssessmentReportResourceFile string) {
-			expectedRbacAssessmentReport := &v1alpha1.RbacAssessmentReport{}
-			Expect(loadResource(expectedRbacAssessmentReport, path.Join(testdataResourceDir, expectedRbacAssessmentReportResourceFile))).Should(Succeed())
-			expectedRbacAssessmentReport.Namespace = WorkloadNamespace
-
-			caLookupKey := client.ObjectKeyFromObject(expectedRbacAssessmentReport)
-			createdRbacAssessmentReport := &v1alpha1.RbacAssessmentReport{}
-
-			// We'll need to retry getting this newly created Job, given that creation may not immediately happen.
-			Eventually(func() error {
-				return k8sClient.Get(ctx, caLookupKey, createdRbacAssessmentReport)
-			}, timeout, interval).Should(Succeed())
-			sort.Sort(ByCheckID(expectedRbacAssessmentReport.Report.Checks))
-			Expect(createdRbacAssessmentReport).Should(WithTransform(NormalizeUntestableRbacAssessmentReportFields, Equal(expectedRbacAssessmentReport)))
-		},
-		Entry("Should create a rbac assessment report ", "role-rbacassessment-expected.yaml"),
-	)
-
+	
 	NormalizeUntestableInfraAssessmentReportFields := func(ca *v1alpha1.InfraAssessmentReport) *v1alpha1.InfraAssessmentReport {
 		ca.APIVersion = "aquasecurity.github.io/v1alpha1"
 		ca.Kind = "InfraAssessmentReport"

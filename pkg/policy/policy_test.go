@@ -2,10 +2,8 @@ package policy_test
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"sort"
 	"strings"
 	"testing"
@@ -18,7 +16,6 @@ import (
 	. "github.com/onsi/gomega"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/pointer"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -701,42 +698,6 @@ deny[res] {
 				},
 			},
 		},
-		{
-			name: "Should eval warn role rule with built in policies",
-			resource: &rbacv1.Role{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Role",
-					APIVersion: "rbacv1",
-				},
-				Rules: []rbacv1.PolicyRule{
-					{
-						APIGroups: []string{"*"},
-						Verbs:     []string{"get"},
-						Resources: []string{"secrets"}},
-				},
-			},
-			useBuiltInPolicies: true,
-			policies:           map[string]string{},
-			results:            getBuildInResults(t, "./testdata/fixture/builtin_role_result.json"),
-		},
-		{
-			name: "Should eval return error no policies found",
-			resource: &rbacv1.Role{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Role",
-					APIVersion: "rbacv1",
-				},
-				Rules: []rbacv1.PolicyRule{
-					{
-						APIGroups: []string{"*"},
-						Verbs:     []string{"get"},
-						Resources: []string{"secrets"}},
-				},
-			},
-			useBuiltInPolicies: false,
-			policies:           map[string]string{},
-			expectedError:      policy.PoliciesNotFoundError,
-		},
 	}
 
 	for _, tc := range testCases {
@@ -1049,20 +1010,6 @@ func getPolicyResults(results scan.Results) Results {
 		}
 		pr := Result{Metadata: Metadata{ID: id, Title: result.Rule().Summary, Severity: v1alpha1.Severity(result.Severity()), Type: "Kubernetes Security Check", Description: result.Rule().Explanation}, Success: result.Status() == scan.StatusPassed, Messages: msgs}
 		prs = append(prs, pr)
-	}
-	sort.Sort(resultSort(prs))
-	return prs
-}
-
-func getBuildInResults(t *testing.T, filePath string) Results {
-	var prs Results
-	b, err := os.ReadFile(filePath)
-	if err != nil {
-		t.Error(err)
-	}
-	err = json.Unmarshal(b, &prs)
-	if err != nil {
-		t.Error(err)
 	}
 	sort.Sort(resultSort(prs))
 	return prs

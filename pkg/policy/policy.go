@@ -11,8 +11,6 @@ import (
 
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 
-	"github.com/aquasecurity/defsec/pkg/scanners"
-	"github.com/aquasecurity/defsec/pkg/scanners/rbac"
 	"github.com/go-logr/logr"
 	"github.com/liamg/memoryfs"
 
@@ -205,7 +203,7 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object) (scan.Resul
 	if err != nil {
 		return nil, err
 	}
-	scanner := scannerByType(resourceKind, getScannerOptions(hasExternalPolicies, p.cac.GetUseBuiltinRegoPolicies(), policiesFolder))
+	scanner := kubernetes.NewScanner(getScannerOptions(hasExternalPolicies, p.cac.GetUseBuiltinRegoPolicies(), policiesFolder)...)
 	scanResult, err := scanner.ScanFS(ctx, memfs, inputFolder)
 	if err != nil {
 		return nil, err
@@ -224,13 +222,6 @@ func (r *Policies) GetResultID(result scan.Result) string {
 		id = result.Rule().Aliases[0]
 	}
 	return id
-}
-
-func scannerByType(resourceKind string, scannerOptions []options.ScannerOption) scanners.FSScanner {
-	if resourceKind == "Role" || resourceKind == "ClusterRole" {
-		return rbac.NewScanner(scannerOptions...)
-	}
-	return kubernetes.NewScanner(scannerOptions...)
 }
 
 func getScannerOptions(hasExternalPolicies bool, useDefaultPolicies bool, policiesFolder string) []options.ScannerOption {

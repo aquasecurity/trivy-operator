@@ -2,5 +2,5 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestSuite
 testDirs:
-  - tests/e2e/workload-image
+  - tests/e2e
 timeout: 120

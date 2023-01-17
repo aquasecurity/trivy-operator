@@ -12,248 +12,249 @@ spec:
     listKind: ClusterComplianceReportList
     plural: clustercompliancereports
     shortNames:
-    - compliance
+      - compliance
     singular: clustercompliancereport
   scope: Cluster
   versions:
-  - additionalPrinterColumns:
-    - description: The age of the report
-      jsonPath: .metadata.creationTimestamp
-      name: Age
-      type: date
-    - description: The number of checks that failed
-      jsonPath: .status.totalCounts.failCount
-      name: Fail
-      priority: 1
-      type: integer
-    - description: The number of checks that passed
-      jsonPath: .status.totalCounts.passCount
-      name: Pass
-      priority: 1
-      type: integer
-    name: v1alpha1
-    schema:
-      openAPIV3Schema:
-        description: ClusterComplianceReport is a specification for the ClusterComplianceReport
-          resource.
-        properties:
-          apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
-            type: string
-          kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
-            type: string
-          metadata:
-            type: object
-          spec:
-            description: ReportSpec represent the compliance specification
-            properties:
-              compliance:
-                properties:
-                  controls:
-                    description: Control represent the cps controls data and mapping
-                      checks
-                    items:
-                      description: Control represent the cps controls data and mapping
-                        checks
-                      properties:
-                        checks:
-                          items:
-                            description: SpecCheck represent the scanner who perform
-                              the control check
-                            properties:
-                              id:
-                                description: id define the check id as produced by
-                                  scanner
-                                type: string
-                            required:
-                            - id
-                            type: object
-                          type: array
-                        defaultStatus:
-                          description: define the default value for check status in
-                            case resource not found
-                          enum:
-                          - PASS
-                          - WARN
-                          - FAIL
-                          type: string
-                        description:
-                          type: string
-                        id:
-                          description: id define the control check id
-                          type: string
-                        name:
-                          type: string
-                        severity:
-                          description: define the severity of the control
-                          enum:
-                          - CRITICAL
-                          - HIGH
-                          - MEDIUM
-                          - LOW
-                          - UNKNOWN
-                          type: string
-                      required:
-                      - id
-                      - name
-                      - severity
-                      type: object
-                    type: array
-                  description:
-                    type: string
-                  id:
-                    type: string
-                  relatedResources:
-                    items:
-                      type: string
-                    type: array
-                  title:
-                    type: string
-                  version:
-                    type: string
-                required:
-                - controls
-                - description
-                - id
-                - relatedResources
-                - title
-                - version
-                type: object
-              cron:
-                description: cron define the intervals for report generation
-                pattern: ^(((([\*]{1}){1})|((\*\/){0,1}(([0-9]{1}){1}|(([1-5]{1}){1}([0-9]{1}){1}){1})))
-                  ((([\*]{1}){1})|((\*\/){0,1}(([0-9]{1}){1}|(([1]{1}){1}([0-9]{1}){1}){1}|([2]{1}){1}([0-3]{1}){1})))
-                  ((([\*]{1}){1})|((\*\/){0,1}(([1-9]{1}){1}|(([1-2]{1}){1}([0-9]{1}){1}){1}|([3]{1}){1}([0-1]{1}){1})))
-                  ((([\*]{1}){1})|((\*\/){0,1}(([1-9]{1}){1}|(([1-2]{1}){1}([0-9]{1}){1}){1}|([3]{1}){1}([0-1]{1}){1}))|(jan|feb|mar|apr|may|jun|jul|aug|sep|okt|nov|dec))
-                  ((([\*]{1}){1})|((\*\/){0,1}(([0-7]{1}){1}))|(sun|mon|tue|wed|thu|fri|sat)))$
-                type: string
-              reportType:
-                enum:
-                - summary
-                - all
-                type: string
-            required:
-            - compliance
-            - cron
-            - reportType
-            type: object
-          status:
-            properties:
-              detailReport:
-                description: ComplianceReport represents a kubernetes scan report
-                properties:
-                  description:
-                    type: string
-                  id:
-                    type: string
-                  relatedVersion:
-                    items:
-                      type: string
-                    type: array
-                  results:
-                    items:
-                      properties:
-                        checks:
-                          items:
-                            description: ComplianceCheck provides the result of conducting
-                              a single compliance step.
-                            properties:
-                              category:
-                                type: string
-                              checkID:
-                                type: string
-                              description:
-                                type: string
-                              messages:
-                                items:
+    - additionalPrinterColumns:
+        - description: The age of the report
+          jsonPath: .metadata.creationTimestamp
+          name: Age
+          type: date
+        - description: The number of checks that failed
+          jsonPath: .status.totalCounts.failCount
+          name: Fail
+          priority: 1
+          type: integer
+        - description: The number of checks that passed
+          jsonPath: .status.totalCounts.passCount
+          name: Pass
+          priority: 1
+          type: integer
+      name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          description: ClusterComplianceReport is a specification for the
+            ClusterComplianceReport resource.
+          properties:
+            apiVersion:
+              description: "APIVersion defines the versioned schema of this representation of
+                an object. Servers should convert recognized schemas to the
+                latest internal value, and may reject unrecognized values. More
+                info:
+                https://git.k8s.io/community/contributors/devel/sig-architectur\
+                e/api-conventions.md#resources"
+              type: string
+            kind:
+              description: "Kind is a string value representing the REST resource this object
+                represents. Servers may infer this from the endpoint the client
+                submits requests to. Cannot be updated. In CamelCase. More info:
+                https://git.k8s.io/community/contributors/devel/sig-architectur\
+                e/api-conventions.md#types-kinds"
+              type: string
+            metadata:
+              type: object
+            spec:
+              description: ReportSpec represent the compliance specification
+              properties:
+                compliance:
+                  properties:
+                    controls:
+                      description: Control represent the cps controls data and mapping checks
+                      items:
+                        description: Control represent the cps controls data and mapping checks
+                        properties:
+                          checks:
+                            items:
+                              description: SpecCheck represent the scanner who perform the control check
+                              properties:
+                                id:
+                                  description: id define the check id as produced by scanner
                                   type: string
-                                type: array
-                              remediation:
-                                description: Remediation provides description or links
-                                  to external resources to remediate failing check.
-                                type: string
-                              severity:
-                                description: Severity level of a vulnerability or
-                                  a configuration audit check.
-                                type: string
-                              success:
-                                type: boolean
-                              target:
-                                type: string
-                              title:
-                                type: string
-                            required:
-                            - checkID
-                            - severity
-                            - success
-                            type: object
-                          type: array
-                        description:
-                          type: string
-                        id:
-                          type: string
-                        name:
-                          type: string
-                        severity:
-                          type: string
-                        status:
-                          type: string
-                      required:
-                      - checks
-                      type: object
-                    type: array
-                  title:
-                    type: string
-                  version:
-                    type: string
-                type: object
-                x-kubernetes-preserve-unknown-fields: true
-              summary:
-                properties:
-                  failCount:
-                    type: integer
-                  passCount:
-                    type: integer
-                type: object
-              summaryReport:
-                description: SummaryReport represents a kubernetes scan report with
-                  consolidated findings
-                properties:
-                  controlCheck:
-                    items:
-                      properties:
-                        id:
-                          type: string
-                        name:
-                          type: string
-                        severity:
-                          type: string
-                        totalFail:
-                          type: integer
-                      type: object
-                    type: array
-                  id:
-                    type: string
-                  title:
-                    type: string
-                type: object
-                x-kubernetes-preserve-unknown-fields: true
-              updateTimestamp:
-                format: date-time
-                type: string
-            required:
-            - updateTimestamp
-            type: object
-        type: object
-    served: true
-    storage: true
-    subresources:
-      status: {}
+                              required:
+                                - id
+                              type: object
+                            type: array
+                          defaultStatus:
+                            description: define the default value for check status in case resource not
+                              found
+                            enum:
+                              - PASS
+                              - WARN
+                              - FAIL
+                            type: string
+                          description:
+                            type: string
+                          id:
+                            description: id define the control check id
+                            type: string
+                          name:
+                            type: string
+                          severity:
+                            description: define the severity of the control
+                            enum:
+                              - CRITICAL
+                              - HIGH
+                              - MEDIUM
+                              - LOW
+                              - UNKNOWN
+                            type: string
+                        required:
+                          - id
+                          - name
+                          - severity
+                        type: object
+                      type: array
+                    description:
+                      type: string
+                    id:
+                      type: string
+                    relatedResources:
+                      items:
+                        type: string
+                      type: array
+                    title:
+                      type: string
+                    version:
+                      type: string
+                  required:
+                    - controls
+                    - description
+                    - id
+                    - relatedResources
+                    - title
+                    - version
+                  type: object
+                cron:
+                  description: cron define the intervals for report generation
+                  pattern: ^(((([\*]{1}){1})|((\*\/){0,1}(([0-9]{1}){1}|(([1-5]{1}){1}([0-9]{1}){1}){1})))
+                    ((([\*]{1}){1})|((\*\/){0,1}(([0-9]{1}){1}|(([1]{1}){1}([0-9]{1}){1}){1}|([2]{1}){1}([0-3]{1}){1})))
+                    ((([\*]{1}){1})|((\*\/){0,1}(([1-9]{1}){1}|(([1-2]{1}){1}([0-9]{1}){1}){1}|([3]{1}){1}([0-1]{1}){1})))
+                    ((([\*]{1}){1})|((\*\/){0,1}(([1-9]{1}){1}|(([1-2]{1}){1}([0-9]{1}){1}){1}|([3]{1}){1}([0-1]{1}){1}))|(jan|feb|mar|apr|may|jun|jul|aug|sep|okt|nov|dec))
+                    ((([\*]{1}){1})|((\*\/){0,1}(([0-7]{1}){1}))|(sun|mon|tue|wed|thu|fri|sat)))$
+                  type: string
+                reportType:
+                  enum:
+                    - summary
+                    - all
+                  type: string
+              required:
+                - compliance
+                - cron
+                - reportType
+              type: object
+            status:
+              properties:
+                detailReport:
+                  description: ComplianceReport represents a kubernetes scan report
+                  properties:
+                    description:
+                      type: string
+                    id:
+                      type: string
+                    relatedVersion:
+                      items:
+                        type: string
+                      type: array
+                    results:
+                      items:
+                        properties:
+                          checks:
+                            items:
+                              description: ComplianceCheck provides the result of conducting a single
+                                compliance step.
+                              properties:
+                                category:
+                                  type: string
+                                checkID:
+                                  type: string
+                                description:
+                                  type: string
+                                messages:
+                                  items:
+                                    type: string
+                                  type: array
+                                remediation:
+                                  description: Remediation provides description or links to external resources to
+                                    remediate failing check.
+                                  type: string
+                                severity:
+                                  description: Severity level of a vulnerability or a configuration audit check.
+                                  type: string
+                                success:
+                                  type: boolean
+                                target:
+                                  type: string
+                                title:
+                                  type: string
+                              required:
+                                - checkID
+                                - severity
+                                - success
+                              type: object
+                            type: array
+                          description:
+                            type: string
+                          id:
+                            type: string
+                          name:
+                            type: string
+                          severity:
+                            type: string
+                          status:
+                            type: string
+                        required:
+                          - checks
+                        type: object
+                      type: array
+                    title:
+                      type: string
+                    version:
+                      type: string
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                summary:
+                  properties:
+                    failCount:
+                      type: integer
+                    passCount:
+                      type: integer
+                  type: object
+                summaryReport:
+                  description: SummaryReport represents a kubernetes scan report with consolidated
+                    findings
+                  properties:
+                    controlCheck:
+                      items:
+                        properties:
+                          id:
+                            type: string
+                          name:
+                            type: string
+                          severity:
+                            type: string
+                          totalFail:
+                            type: integer
+                        type: object
+                      type: array
+                    id:
+                      type: string
+                    title:
+                      type: string
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                updateTimestamp:
+                  format: date-time
+                  type: string
+              required:
+                - updateTimestamp
+              type: object
+          type: object
+      served: true
+      storage: true
+      subresources:
+        status: {}
+
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -269,164 +270,165 @@ spec:
     listKind: ClusterConfigAuditReportList
     plural: clusterconfigauditreports
     shortNames:
-    - clusterconfigaudit
+      - clusterconfigaudit
     singular: clusterconfigauditreport
   scope: Cluster
   versions:
-  - additionalPrinterColumns:
-    - description: The name of the config audit scanner
-      jsonPath: .report.scanner.name
-      name: Scanner
-      type: string
-    - description: The age of the report
-      jsonPath: .metadata.creationTimestamp
-      name: Age
-      type: date
-    - description: The number of failed checks with critical severity
-      jsonPath: .report.summary.criticalCount
-      name: Critical
-      priority: 1
-      type: integer
-    - description: The number of failed checks with high severity
-      jsonPath: .report.summary.highCount
-      name: High
-      priority: 1
-      type: integer
-    - description: The number of failed checks with medium severity
-      jsonPath: .report.summary.mediumCount
-      name: Medium
-      priority: 1
-      type: integer
-    - description: The number of failed checks with low severity
-      jsonPath: .report.summary.lowCount
-      name: Low
-      priority: 1
-      type: integer
-    name: v1alpha1
-    schema:
-      openAPIV3Schema:
-        description: ClusterConfigAuditReport is a specification for the ClusterConfigAuditReport
-          resource.
-        properties:
-          apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
-            type: string
-          kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
-            type: string
-          metadata:
-            type: object
-          report:
-            properties:
-              checks:
-                description: Checks provides results of conducting audit steps.
-                items:
-                  description: Check provides the result of conducting a single audit
-                    step.
-                  properties:
-                    category:
-                      type: string
-                    checkID:
-                      type: string
-                    description:
-                      type: string
-                    messages:
-                      items:
+    - additionalPrinterColumns:
+        - description: The name of the config audit scanner
+          jsonPath: .report.scanner.name
+          name: Scanner
+          type: string
+        - description: The age of the report
+          jsonPath: .metadata.creationTimestamp
+          name: Age
+          type: date
+        - description: The number of failed checks with critical severity
+          jsonPath: .report.summary.criticalCount
+          name: Critical
+          priority: 1
+          type: integer
+        - description: The number of failed checks with high severity
+          jsonPath: .report.summary.highCount
+          name: High
+          priority: 1
+          type: integer
+        - description: The number of failed checks with medium severity
+          jsonPath: .report.summary.mediumCount
+          name: Medium
+          priority: 1
+          type: integer
+        - description: The number of failed checks with low severity
+          jsonPath: .report.summary.lowCount
+          name: Low
+          priority: 1
+          type: integer
+      name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          description: ClusterConfigAuditReport is a specification for the
+            ClusterConfigAuditReport resource.
+          properties:
+            apiVersion:
+              description: "APIVersion defines the versioned schema of this representation of
+                an object. Servers should convert recognized schemas to the
+                latest internal value, and may reject unrecognized values. More
+                info:
+                https://git.k8s.io/community/contributors/devel/sig-architectur\
+                e/api-conventions.md#resources"
+              type: string
+            kind:
+              description: "Kind is a string value representing the REST resource this object
+                represents. Servers may infer this from the endpoint the client
+                submits requests to. Cannot be updated. In CamelCase. More info:
+                https://git.k8s.io/community/contributors/devel/sig-architectur\
+                e/api-conventions.md#types-kinds"
+              type: string
+            metadata:
+              type: object
+            report:
+              properties:
+                checks:
+                  description: Checks provides results of conducting audit steps.
+                  items:
+                    description: Check provides the result of conducting a single audit step.
+                    properties:
+                      category:
                         type: string
-                      type: array
-                    remediation:
-                      description: Remediation provides description or links to external
-                        resources to remediate failing check.
-                      type: string
-                    scope:
-                      description: Scope indicates the section of config that was
-                        audited.
-                      properties:
-                        type:
-                          description: Type indicates type of this scope, e.g. Container,
-                            ConfigMapKey or JSONPath.
+                      checkID:
+                        type: string
+                      description:
+                        type: string
+                      messages:
+                        items:
                           type: string
-                        value:
-                          description: Value indicates value of this scope that depends
-                            on Type, e.g. container name, ConfigMap key or JSONPath
-                            expression
-                          type: string
-                      required:
-                      - type
-                      - value
-                      type: object
-                    severity:
-                      description: Severity level of a vulnerability or a configuration
-                        audit check.
+                        type: array
+                      remediation:
+                        description: Remediation provides description or links to external resources to
+                          remediate failing check.
+                        type: string
+                      scope:
+                        description: Scope indicates the section of config that was audited.
+                        properties:
+                          type:
+                            description: Type indicates type of this scope, e.g. Container, ConfigMapKey or
+                              JSONPath.
+                            type: string
+                          value:
+                            description: Value indicates value of this scope that depends on Type, e.g.
+                              container name, ConfigMap key or JSONPath
+                              expression
+                            type: string
+                        required:
+                          - type
+                          - value
+                        type: object
+                      severity:
+                        description: Severity level of a vulnerability or a configuration audit check.
+                        type: string
+                      success:
+                        type: boolean
+                      title:
+                        type: string
+                    required:
+                      - checkID
+                      - severity
+                      - success
+                    type: object
+                  type: array
+                scanner:
+                  description: Scanner is the spec for a scanner generating a security assessment
+                    report.
+                  properties:
+                    name:
+                      description: Name the name of the scanner.
                       type: string
-                    success:
-                      type: boolean
-                    title:
+                    vendor:
+                      description: Vendor the name of the vendor providing the scanner.
+                      type: string
+                    version:
+                      description: Version the version of the scanner.
                       type: string
                   required:
-                  - checkID
-                  - severity
-                  - success
+                    - name
+                    - vendor
+                    - version
                   type: object
-                type: array
-              scanner:
-                description: Scanner is the spec for a scanner generating a security
-                  assessment report.
-                properties:
-                  name:
-                    description: Name the name of the scanner.
-                    type: string
-                  vendor:
-                    description: Vendor the name of the vendor providing the scanner.
-                    type: string
-                  version:
-                    description: Version the version of the scanner.
-                    type: string
-                required:
-                - name
-                - vendor
-                - version
-                type: object
-              summary:
-                description: ConfigAuditSummary counts failed checks by severity.
-                properties:
-                  criticalCount:
-                    description: CriticalCount is the number of failed checks with
-                      critical severity.
-                    type: integer
-                  highCount:
-                    description: HighCount is the number of failed checks with high
-                      severity.
-                    type: integer
-                  lowCount:
-                    description: LowCount is the number of failed check with low severity.
-                    type: integer
-                  mediumCount:
-                    description: MediumCount is the number of failed checks with medium
-                      severity.
-                    type: integer
-                required:
-                - criticalCount
-                - highCount
-                - lowCount
-                - mediumCount
-                type: object
-              updateTimestamp:
-                format: date-time
-                type: string
-            required:
-            - checks
-            type: object
-        required:
-        - report
-        type: object
-    served: true
-    storage: true
-    subresources: {}
+                summary:
+                  description: ConfigAuditSummary counts failed checks by severity.
+                  properties:
+                    criticalCount:
+                      description: CriticalCount is the number of failed checks with critical
+                        severity.
+                      type: integer
+                    highCount:
+                      description: HighCount is the number of failed checks with high severity.
+                      type: integer
+                    lowCount:
+                      description: LowCount is the number of failed check with low severity.
+                      type: integer
+                    mediumCount:
+                      description: MediumCount is the number of failed checks with medium severity.
+                      type: integer
+                  required:
+                    - criticalCount
+                    - highCount
+                    - lowCount
+                    - mediumCount
+                  type: object
+                updateTimestamp:
+                  format: date-time
+                  type: string
+              required:
+                - checks
+              type: object
+          required:
+            - report
+          type: object
+      served: true
+      storage: true
+      subresources: {}
+
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -442,163 +444,164 @@ spec:
     listKind: ClusterInfraAssessmentReportList
     plural: clusterinfraassessmentreports
     shortNames:
-    - clusterinfraassessment
+      - clusterinfraassessment
     singular: clusterinfraassessmentreport
   scope: Cluster
   versions:
-  - additionalPrinterColumns:
-    - description: The name of the infra assessement scanner
-      jsonPath: .report.scanner.name
-      name: Scanner
-      type: string
-    - description: The age of the report
-      jsonPath: .metadata.creationTimestamp
-      name: Age
-      type: date
-    - description: The number of failed checks with critical severity
-      jsonPath: .report.summary.criticalCount
-      name: Critical
-      priority: 1
-      type: integer
-    - description: The number of failed checks with high severity
-      jsonPath: .report.summary.highCount
-      name: High
-      priority: 1
-      type: integer
-    - description: The number of failed checks with medium severity
-      jsonPath: .report.summary.mediumCount
-      name: Medium
-      priority: 1
-      type: integer
-    - description: The number of failed checks with low severity
-      jsonPath: .report.summary.lowCount
-      name: Low
-      priority: 1
-      type: integer
-    name: v1alpha1
-    schema:
-      openAPIV3Schema:
-        description: ClusterInfraAssessmentReport is a specification for the ClusterInfraAssessmentReport
-          resource.
-        properties:
-          apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
-            type: string
-          kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
-            type: string
-          metadata:
-            type: object
-          report:
-            properties:
-              checks:
-                description: Checks provides results of conducting audit steps.
-                items:
-                  description: Check provides the result of conducting a single audit
-                    step.
-                  properties:
-                    category:
-                      type: string
-                    checkID:
-                      type: string
-                    description:
-                      type: string
-                    messages:
-                      items:
+    - additionalPrinterColumns:
+        - description: The name of the infra assessement scanner
+          jsonPath: .report.scanner.name
+          name: Scanner
+          type: string
+        - description: The age of the report
+          jsonPath: .metadata.creationTimestamp
+          name: Age
+          type: date
+        - description: The number of failed checks with critical severity
+          jsonPath: .report.summary.criticalCount
+          name: Critical
+          priority: 1
+          type: integer
+        - description: The number of failed checks with high severity
+          jsonPath: .report.summary.highCount
+          name: High
+          priority: 1
+          type: integer
+        - description: The number of failed checks with medium severity
+          jsonPath: .report.summary.mediumCount
+          name: Medium
+          priority: 1
+          type: integer
+        - description: The number of failed checks with low severity
+          jsonPath: .report.summary.lowCount
+          name: Low
+          priority: 1
+          type: integer
+      name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          description: ClusterInfraAssessmentReport is a specification for the
+            ClusterInfraAssessmentReport resource.
+          properties:
+            apiVersion:
+              description: "APIVersion defines the versioned schema of this representation of
+                an object. Servers should convert recognized schemas to the
+                latest internal value, and may reject unrecognized values. More
+                info:
+                https://git.k8s.io/community/contributors/devel/sig-architectur\
+                e/api-conventions.md#resources"
+              type: string
+            kind:
+              description: "Kind is a string value representing the REST resource this object
+                represents. Servers may infer this from the endpoint the client
+                submits requests to. Cannot be updated. In CamelCase. More info:
+                https://git.k8s.io/community/contributors/devel/sig-architectur\
+                e/api-conventions.md#types-kinds"
+              type: string
+            metadata:
+              type: object
+            report:
+              properties:
+                checks:
+                  description: Checks provides results of conducting audit steps.
+                  items:
+                    description: Check provides the result of conducting a single audit step.
+                    properties:
+                      category:
                         type: string
-                      type: array
-                    remediation:
-                      description: Remediation provides description or links to external
-                        resources to remediate failing check.
-                      type: string
-                    scope:
-                      description: Scope indicates the section of config that was
-                        audited.
-                      properties:
-                        type:
-                          description: Type indicates type of this scope, e.g. Container,
-                            ConfigMapKey or JSONPath.
+                      checkID:
+                        type: string
+                      description:
+                        type: string
+                      messages:
+                        items:
                           type: string
-                        value:
-                          description: Value indicates value of this scope that depends
-                            on Type, e.g. container name, ConfigMap key or JSONPath
-                            expression
-                          type: string
-                      required:
-                      - type
-                      - value
-                      type: object
-                    severity:
-                      description: Severity level of a vulnerability or a configuration
-                        audit check.
+                        type: array
+                      remediation:
+                        description: Remediation provides description or links to external resources to
+                          remediate failing check.
+                        type: string
+                      scope:
+                        description: Scope indicates the section of config that was audited.
+                        properties:
+                          type:
+                            description: Type indicates type of this scope, e.g. Container, ConfigMapKey or
+                              JSONPath.
+                            type: string
+                          value:
+                            description: Value indicates value of this scope that depends on Type, e.g.
+                              container name, ConfigMap key or JSONPath
+                              expression
+                            type: string
+                        required:
+                          - type
+                          - value
+                        type: object
+                      severity:
+                        description: Severity level of a vulnerability or a configuration audit check.
+                        type: string
+                      success:
+                        type: boolean
+                      title:
+                        type: string
+                    required:
+                      - checkID
+                      - severity
+                      - success
+                    type: object
+                  type: array
+                scanner:
+                  description: Scanner is the spec for a scanner generating a security assessment
+                    report.
+                  properties:
+                    name:
+                      description: Name the name of the scanner.
                       type: string
-                    success:
-                      type: boolean
-                    title:
+                    vendor:
+                      description: Vendor the name of the vendor providing the scanner.
+                      type: string
+                    version:
+                      description: Version the version of the scanner.
                       type: string
                   required:
-                  - checkID
-                  - severity
-                  - success
+                    - name
+                    - vendor
+                    - version
                   type: object
-                type: array
-              scanner:
-                description: Scanner is the spec for a scanner generating a security
-                  assessment report.
-                properties:
-                  name:
-                    description: Name the name of the scanner.
-                    type: string
-                  vendor:
-                    description: Vendor the name of the vendor providing the scanner.
-                    type: string
-                  version:
-                    description: Version the version of the scanner.
-                    type: string
-                required:
-                - name
-                - vendor
-                - version
-                type: object
-              summary:
-                description: InfraAssessmentSummary counts failed checks by severity.
-                properties:
-                  criticalCount:
-                    description: CriticalCount is the number of failed checks with
-                      critical severity.
-                    type: integer
-                  highCount:
-                    description: HighCount is the number of failed checks with high
-                      severity.
-                    type: integer
-                  lowCount:
-                    description: LowCount is the number of failed check with low severity.
-                    type: integer
-                  mediumCount:
-                    description: MediumCount is the number of failed checks with medium
-                      severity.
-                    type: integer
-                required:
-                - criticalCount
-                - highCount
-                - lowCount
-                - mediumCount
-                type: object
-            required:
-            - checks
-            - scanner
-            - summary
-            type: object
-        required:
-        - report
-        type: object
-    served: true
-    storage: true
-    subresources: {}
+                summary:
+                  description: InfraAssessmentSummary counts failed checks by severity.
+                  properties:
+                    criticalCount:
+                      description: CriticalCount is the number of failed checks with critical
+                        severity.
+                      type: integer
+                    highCount:
+                      description: HighCount is the number of failed checks with high severity.
+                      type: integer
+                    lowCount:
+                      description: LowCount is the number of failed check with low severity.
+                      type: integer
+                    mediumCount:
+                      description: MediumCount is the number of failed checks with medium severity.
+                      type: integer
+                  required:
+                    - criticalCount
+                    - highCount
+                    - lowCount
+                    - mediumCount
+                  type: object
+              required:
+                - checks
+                - scanner
+                - summary
+              type: object
+          required:
+            - report
+          type: object
+      served: true
+      storage: true
+      subresources: {}
+
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -614,163 +617,164 @@ spec:
     listKind: ClusterRbacAssessmentReportList
     plural: clusterrbacassessmentreports
     shortNames:
-    - clusterrbacassessmentreport
+      - clusterrbacassessmentreport
     singular: clusterrbacassessmentreport
   scope: Cluster
   versions:
-  - additionalPrinterColumns:
-    - description: The name of the rbac assessment scanner
-      jsonPath: .report.scanner.name
-      name: Scanner
-      type: string
-    - description: The age of the report
-      jsonPath: .metadata.creationTimestamp
-      name: Age
-      type: date
-    - description: The number of failed checks with critical severity
-      jsonPath: .report.summary.criticalCount
-      name: Critical
-      priority: 1
-      type: integer
-    - description: The number of failed checks with high severity
-      jsonPath: .report.summary.highCount
-      name: High
-      priority: 1
-      type: integer
-    - description: The number of failed checks with medium severity
-      jsonPath: .report.summary.mediumCount
-      name: Medium
-      priority: 1
-      type: integer
-    - description: The number of failed checks with low severity
-      jsonPath: .report.summary.lowCount
-      name: Low
-      priority: 1
-      type: integer
-    name: v1alpha1
-    schema:
-      openAPIV3Schema:
-        description: ClusterRbacAssessmentReport is a specification for the ClusterRbacAssessmentReport
-          resource.
-        properties:
-          apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
-            type: string
-          kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
-            type: string
-          metadata:
-            type: object
-          report:
-            properties:
-              checks:
-                description: Checks provides results of conducting audit steps.
-                items:
-                  description: Check provides the result of conducting a single audit
-                    step.
-                  properties:
-                    category:
-                      type: string
-                    checkID:
-                      type: string
-                    description:
-                      type: string
-                    messages:
-                      items:
+    - additionalPrinterColumns:
+        - description: The name of the rbac assessment scanner
+          jsonPath: .report.scanner.name
+          name: Scanner
+          type: string
+        - description: The age of the report
+          jsonPath: .metadata.creationTimestamp
+          name: Age
+          type: date
+        - description: The number of failed checks with critical severity
+          jsonPath: .report.summary.criticalCount
+          name: Critical
+          priority: 1
+          type: integer
+        - description: The number of failed checks with high severity
+          jsonPath: .report.summary.highCount
+          name: High
+          priority: 1
+          type: integer
+        - description: The number of failed checks with medium severity
+          jsonPath: .report.summary.mediumCount
+          name: Medium
+          priority: 1
+          type: integer
+        - description: The number of failed checks with low severity
+          jsonPath: .report.summary.lowCount
+          name: Low
+          priority: 1
+          type: integer
+      name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          description: ClusterRbacAssessmentReport is a specification for the
+            ClusterRbacAssessmentReport resource.
+          properties:
+            apiVersion:
+              description: "APIVersion defines the versioned schema of this representation of
+                an object. Servers should convert recognized schemas to the
+                latest internal value, and may reject unrecognized values. More
+                info:
+                https://git.k8s.io/community/contributors/devel/sig-architectur\
+                e/api-conventions.md#resources"
+              type: string
+            kind:
+              description: "Kind is a string value representing the REST resource this object
+                represents. Servers may infer this from the endpoint the client
+                submits requests to. Cannot be updated. In CamelCase. More info:
+                https://git.k8s.io/community/contributors/devel/sig-architectur\
+                e/api-conventions.md#types-kinds"
+              type: string
+            metadata:
+              type: object
+            report:
+              properties:
+                checks:
+                  description: Checks provides results of conducting audit steps.
+                  items:
+                    description: Check provides the result of conducting a single audit step.
+                    properties:
+                      category:
                         type: string
-                      type: array
-                    remediation:
-                      description: Remediation provides description or links to external
-                        resources to remediate failing check.
-                      type: string
-                    scope:
-                      description: Scope indicates the section of config that was
-                        audited.
-                      properties:
-                        type:
-                          description: Type indicates type of this scope, e.g. Container,
-                            ConfigMapKey or JSONPath.
+                      checkID:
+                        type: string
+                      description:
+                        type: string
+                      messages:
+                        items:
                           type: string
-                        value:
-                          description: Value indicates value of this scope that depends
-                            on Type, e.g. container name, ConfigMap key or JSONPath
-                            expression
-                          type: string
-                      required:
-                      - type
-                      - value
-                      type: object
-                    severity:
-                      description: Severity level of a vulnerability or a configuration
-                        audit check.
+                        type: array
+                      remediation:
+                        description: Remediation provides description or links to external resources to
+                          remediate failing check.
+                        type: string
+                      scope:
+                        description: Scope indicates the section of config that was audited.
+                        properties:
+                          type:
+                            description: Type indicates type of this scope, e.g. Container, ConfigMapKey or
+                              JSONPath.
+                            type: string
+                          value:
+                            description: Value indicates value of this scope that depends on Type, e.g.
+                              container name, ConfigMap key or JSONPath
+                              expression
+                            type: string
+                        required:
+                          - type
+                          - value
+                        type: object
+                      severity:
+                        description: Severity level of a vulnerability or a configuration audit check.
+                        type: string
+                      success:
+                        type: boolean
+                      title:
+                        type: string
+                    required:
+                      - checkID
+                      - severity
+                      - success
+                    type: object
+                  type: array
+                scanner:
+                  description: Scanner is the spec for a scanner generating a security assessment
+                    report.
+                  properties:
+                    name:
+                      description: Name the name of the scanner.
                       type: string
-                    success:
-                      type: boolean
-                    title:
+                    vendor:
+                      description: Vendor the name of the vendor providing the scanner.
+                      type: string
+                    version:
+                      description: Version the version of the scanner.
                       type: string
                   required:
-                  - checkID
-                  - severity
-                  - success
+                    - name
+                    - vendor
+                    - version
                   type: object
-                type: array
-              scanner:
-                description: Scanner is the spec for a scanner generating a security
-                  assessment report.
-                properties:
-                  name:
-                    description: Name the name of the scanner.
-                    type: string
-                  vendor:
-                    description: Vendor the name of the vendor providing the scanner.
-                    type: string
-                  version:
-                    description: Version the version of the scanner.
-                    type: string
-                required:
-                - name
-                - vendor
-                - version
-                type: object
-              summary:
-                description: RbacAssessmentSummary counts failed checks by severity.
-                properties:
-                  criticalCount:
-                    description: CriticalCount is the number of failed checks with
-                      critical severity.
-                    type: integer
-                  highCount:
-                    description: HighCount is the number of failed checks with high
-                      severity.
-                    type: integer
-                  lowCount:
-                    description: LowCount is the number of failed check with low severity.
-                    type: integer
-                  mediumCount:
-                    description: MediumCount is the number of failed checks with medium
-                      severity.
-                    type: integer
-                required:
-                - criticalCount
-                - highCount
-                - lowCount
-                - mediumCount
-                type: object
-            required:
-            - checks
-            - scanner
-            - summary
-            type: object
-        required:
-        - report
-        type: object
-    served: true
-    storage: true
-    subresources: {}
+                summary:
+                  description: RbacAssessmentSummary counts failed checks by severity.
+                  properties:
+                    criticalCount:
+                      description: CriticalCount is the number of failed checks with critical
+                        severity.
+                      type: integer
+                    highCount:
+                      description: HighCount is the number of failed checks with high severity.
+                      type: integer
+                    lowCount:
+                      description: LowCount is the number of failed check with low severity.
+                      type: integer
+                    mediumCount:
+                      description: MediumCount is the number of failed checks with medium severity.
+                      type: integer
+                  required:
+                    - criticalCount
+                    - highCount
+                    - lowCount
+                    - mediumCount
+                  type: object
+              required:
+                - checks
+                - scanner
+                - summary
+              type: object
+          required:
+            - report
+          type: object
+      served: true
+      storage: true
+      subresources: {}
+
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -786,165 +790,166 @@ spec:
     listKind: ConfigAuditReportList
     plural: configauditreports
     shortNames:
-    - configaudit
-    - configaudits
+      - configaudit
+      - configaudits
     singular: configauditreport
   scope: Namespaced
   versions:
-  - additionalPrinterColumns:
-    - description: The name of the config audit scanner
-      jsonPath: .report.scanner.name
-      name: Scanner
-      type: string
-    - description: The age of the report
-      jsonPath: .metadata.creationTimestamp
-      name: Age
-      type: date
-    - description: The number of failed checks with critical severity
-      jsonPath: .report.summary.criticalCount
-      name: Critical
-      priority: 1
-      type: integer
-    - description: The number of failed checks with high severity
-      jsonPath: .report.summary.highCount
-      name: High
-      priority: 1
-      type: integer
-    - description: The number of failed checks with medium severity
-      jsonPath: .report.summary.mediumCount
-      name: Medium
-      priority: 1
-      type: integer
-    - description: The number of failed checks with low severity
-      jsonPath: .report.summary.lowCount
-      name: Low
-      priority: 1
-      type: integer
-    name: v1alpha1
-    schema:
-      openAPIV3Schema:
-        description: ConfigAuditReport is a specification for the ConfigAuditReport
-          resource.
-        properties:
-          apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
-            type: string
-          kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
-            type: string
-          metadata:
-            type: object
-          report:
-            properties:
-              checks:
-                description: Checks provides results of conducting audit steps.
-                items:
-                  description: Check provides the result of conducting a single audit
-                    step.
-                  properties:
-                    category:
-                      type: string
-                    checkID:
-                      type: string
-                    description:
-                      type: string
-                    messages:
-                      items:
+    - additionalPrinterColumns:
+        - description: The name of the config audit scanner
+          jsonPath: .report.scanner.name
+          name: Scanner
+          type: string
+        - description: The age of the report
+          jsonPath: .metadata.creationTimestamp
+          name: Age
+          type: date
+        - description: The number of failed checks with critical severity
+          jsonPath: .report.summary.criticalCount
+          name: Critical
+          priority: 1
+          type: integer
+        - description: The number of failed checks with high severity
+          jsonPath: .report.summary.highCount
+          name: High
+          priority: 1
+          type: integer
+        - description: The number of failed checks with medium severity
+          jsonPath: .report.summary.mediumCount
+          name: Medium
+          priority: 1
+          type: integer
+        - description: The number of failed checks with low severity
+          jsonPath: .report.summary.lowCount
+          name: Low
+          priority: 1
+          type: integer
+      name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          description: ConfigAuditReport is a specification for the ConfigAuditReport
+            resource.
+          properties:
+            apiVersion:
+              description: "APIVersion defines the versioned schema of this representation of
+                an object. Servers should convert recognized schemas to the
+                latest internal value, and may reject unrecognized values. More
+                info:
+                https://git.k8s.io/community/contributors/devel/sig-architectur\
+                e/api-conventions.md#resources"
+              type: string
+            kind:
+              description: "Kind is a string value representing the REST resource this object
+                represents. Servers may infer this from the endpoint the client
+                submits requests to. Cannot be updated. In CamelCase. More info:
+                https://git.k8s.io/community/contributors/devel/sig-architectur\
+                e/api-conventions.md#types-kinds"
+              type: string
+            metadata:
+              type: object
+            report:
+              properties:
+                checks:
+                  description: Checks provides results of conducting audit steps.
+                  items:
+                    description: Check provides the result of conducting a single audit step.
+                    properties:
+                      category:
                         type: string
-                      type: array
-                    remediation:
-                      description: Remediation provides description or links to external
-                        resources to remediate failing check.
-                      type: string
-                    scope:
-                      description: Scope indicates the section of config that was
-                        audited.
-                      properties:
-                        type:
-                          description: Type indicates type of this scope, e.g. Container,
-                            ConfigMapKey or JSONPath.
+                      checkID:
+                        type: string
+                      description:
+                        type: string
+                      messages:
+                        items:
                           type: string
-                        value:
-                          description: Value indicates value of this scope that depends
-                            on Type, e.g. container name, ConfigMap key or JSONPath
-                            expression
-                          type: string
-                      required:
-                      - type
-                      - value
-                      type: object
-                    severity:
-                      description: Severity level of a vulnerability or a configuration
-                        audit check.
+                        type: array
+                      remediation:
+                        description: Remediation provides description or links to external resources to
+                          remediate failing check.
+                        type: string
+                      scope:
+                        description: Scope indicates the section of config that was audited.
+                        properties:
+                          type:
+                            description: Type indicates type of this scope, e.g. Container, ConfigMapKey or
+                              JSONPath.
+                            type: string
+                          value:
+                            description: Value indicates value of this scope that depends on Type, e.g.
+                              container name, ConfigMap key or JSONPath
+                              expression
+                            type: string
+                        required:
+                          - type
+                          - value
+                        type: object
+                      severity:
+                        description: Severity level of a vulnerability or a configuration audit check.
+                        type: string
+                      success:
+                        type: boolean
+                      title:
+                        type: string
+                    required:
+                      - checkID
+                      - severity
+                      - success
+                    type: object
+                  type: array
+                scanner:
+                  description: Scanner is the spec for a scanner generating a security assessment
+                    report.
+                  properties:
+                    name:
+                      description: Name the name of the scanner.
                       type: string
-                    success:
-                      type: boolean
-                    title:
+                    vendor:
+                      description: Vendor the name of the vendor providing the scanner.
+                      type: string
+                    version:
+                      description: Version the version of the scanner.
                       type: string
                   required:
-                  - checkID
-                  - severity
-                  - success
+                    - name
+                    - vendor
+                    - version
                   type: object
-                type: array
-              scanner:
-                description: Scanner is the spec for a scanner generating a security
-                  assessment report.
-                properties:
-                  name:
-                    description: Name the name of the scanner.
-                    type: string
-                  vendor:
-                    description: Vendor the name of the vendor providing the scanner.
-                    type: string
-                  version:
-                    description: Version the version of the scanner.
-                    type: string
-                required:
-                - name
-                - vendor
-                - version
-                type: object
-              summary:
-                description: ConfigAuditSummary counts failed checks by severity.
-                properties:
-                  criticalCount:
-                    description: CriticalCount is the number of failed checks with
-                      critical severity.
-                    type: integer
-                  highCount:
-                    description: HighCount is the number of failed checks with high
-                      severity.
-                    type: integer
-                  lowCount:
-                    description: LowCount is the number of failed check with low severity.
-                    type: integer
-                  mediumCount:
-                    description: MediumCount is the number of failed checks with medium
-                      severity.
-                    type: integer
-                required:
-                - criticalCount
-                - highCount
-                - lowCount
-                - mediumCount
-                type: object
-              updateTimestamp:
-                format: date-time
-                type: string
-            required:
-            - checks
-            type: object
-        required:
-        - report
-        type: object
-    served: true
-    storage: true
-    subresources: {}
+                summary:
+                  description: ConfigAuditSummary counts failed checks by severity.
+                  properties:
+                    criticalCount:
+                      description: CriticalCount is the number of failed checks with critical
+                        severity.
+                      type: integer
+                    highCount:
+                      description: HighCount is the number of failed checks with high severity.
+                      type: integer
+                    lowCount:
+                      description: LowCount is the number of failed check with low severity.
+                      type: integer
+                    mediumCount:
+                      description: MediumCount is the number of failed checks with medium severity.
+                      type: integer
+                  required:
+                    - criticalCount
+                    - highCount
+                    - lowCount
+                    - mediumCount
+                  type: object
+                updateTimestamp:
+                  format: date-time
+                  type: string
+              required:
+                - checks
+              type: object
+          required:
+            - report
+          type: object
+      served: true
+      storage: true
+      subresources: {}
+
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -960,197 +965,197 @@ spec:
     listKind: ExposedSecretReportList
     plural: exposedsecretreports
     shortNames:
-    - exposedsecret
-    - exposedsecrets
+      - exposedsecret
+      - exposedsecrets
     singular: exposedsecretreport
   scope: Namespaced
   versions:
-  - additionalPrinterColumns:
-    - description: The name of image repository
-      jsonPath: .report.artifact.repository
-      name: Repository
-      type: string
-    - description: The name of image tag
-      jsonPath: .report.artifact.tag
-      name: Tag
-      type: string
-    - description: The name of the exposed secret scanner
-      jsonPath: .report.scanner.name
-      name: Scanner
-      type: string
-    - description: The age of the report
-      jsonPath: .metadata.creationTimestamp
-      name: Age
-      type: date
-    - description: The number of critical exposed secrets
-      jsonPath: .report.summary.criticalCount
-      name: Critical
-      priority: 1
-      type: integer
-    - description: The number of high exposed secrets
-      jsonPath: .report.summary.highCount
-      name: High
-      priority: 1
-      type: integer
-    - description: The number of medium exposed secrets
-      jsonPath: .report.summary.mediumCount
-      name: Medium
-      priority: 1
-      type: integer
-    - description: The number of low exposed secrets
-      jsonPath: .report.summary.lowCount
-      name: Low
-      priority: 1
-      type: integer
-    name: v1alpha1
-    schema:
-      openAPIV3Schema:
-        description: ExposedSecretReport summarizes exposed secrets in plaintext files
-          built into container images.
-        properties:
-          apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
-            type: string
-          kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
-            type: string
-          metadata:
-            type: object
-          report:
-            description: Report is the actual exposed secret report data.
-            properties:
-              artifact:
-                description: Artifact represents a standalone, executable package
-                  of software that includes everything needed to run an application.
-                properties:
-                  digest:
-                    description: Digest is a unique and immutable identifier of an
-                      Artifact.
-                    type: string
-                  mimeType:
-                    description: MimeType represents a type and format of an Artifact.
-                    type: string
-                  repository:
-                    description: Repository is the name of the repository in the Artifact
-                      registry.
-                    type: string
-                  tag:
-                    description: Tag is a mutable, human-readable string used to identify
-                      an Artifact.
-                    type: string
-                type: object
-              registry:
-                description: Registry is the registry the Artifact was pulled from.
-                properties:
-                  server:
-                    description: Server the FQDN of registry server.
-                    type: string
-                type: object
-              scanner:
-                description: Scanner is the scanner that generated this report.
-                properties:
-                  name:
-                    description: Name the name of the scanner.
-                    type: string
-                  vendor:
-                    description: Vendor the name of the vendor providing the scanner.
-                    type: string
-                  version:
-                    description: Version the version of the scanner.
-                    type: string
-                required:
-                - name
-                - vendor
-                - version
-                type: object
-              secrets:
-                description: Exposed secrets is a list of passwords, api keys, tokens
-                  and others items found in the Artifact.
-                items:
-                  description: ExposedSecret is the spec for a exposed secret record.
+    - additionalPrinterColumns:
+        - description: The name of image repository
+          jsonPath: .report.artifact.repository
+          name: Repository
+          type: string
+        - description: The name of image tag
+          jsonPath: .report.artifact.tag
+          name: Tag
+          type: string
+        - description: The name of the exposed secret scanner
+          jsonPath: .report.scanner.name
+          name: Scanner
+          type: string
+        - description: The age of the report
+          jsonPath: .metadata.creationTimestamp
+          name: Age
+          type: date
+        - description: The number of critical exposed secrets
+          jsonPath: .report.summary.criticalCount
+          name: Critical
+          priority: 1
+          type: integer
+        - description: The number of high exposed secrets
+          jsonPath: .report.summary.highCount
+          name: High
+          priority: 1
+          type: integer
+        - description: The number of medium exposed secrets
+          jsonPath: .report.summary.mediumCount
+          name: Medium
+          priority: 1
+          type: integer
+        - description: The number of low exposed secrets
+          jsonPath: .report.summary.lowCount
+          name: Low
+          priority: 1
+          type: integer
+      name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          description: ExposedSecretReport summarizes exposed secrets in plaintext files
+            built into container images.
+          properties:
+            apiVersion:
+              description: "APIVersion defines the versioned schema of this representation of
+                an object. Servers should convert recognized schemas to the
+                latest internal value, and may reject unrecognized values. More
+                info:
+                https://git.k8s.io/community/contributors/devel/sig-architectur\
+                e/api-conventions.md#resources"
+              type: string
+            kind:
+              description: "Kind is a string value representing the REST resource this object
+                represents. Servers may infer this from the endpoint the client
+                submits requests to. Cannot be updated. In CamelCase. More info:
+                https://git.k8s.io/community/contributors/devel/sig-architectur\
+                e/api-conventions.md#types-kinds"
+              type: string
+            metadata:
+              type: object
+            report:
+              description: Report is the actual exposed secret report data.
+              properties:
+                artifact:
+                  description: Artifact represents a standalone, executable package of software
+                    that includes everything needed to run an application.
                   properties:
-                    category:
+                    digest:
+                      description: Digest is a unique and immutable identifier of an Artifact.
                       type: string
-                    match:
-                      description: Match where the exposed rule matched.
+                    mimeType:
+                      description: MimeType represents a type and format of an Artifact.
                       type: string
-                    ruleID:
-                      description: RuleID is rule the identifier.
+                    repository:
+                      description: Repository is the name of the repository in the Artifact registry.
                       type: string
-                    severity:
-                      description: Severity level of a vulnerability or a configuration
-                        audit check.
-                      enum:
-                      - CRITICAL
-                      - HIGH
-                      - MEDIUM
-                      - LOW
+                    tag:
+                      description: Tag is a mutable, human-readable string used to identify an
+                        Artifact.
                       type: string
-                    target:
-                      description: Target is where the exposed secret was found.
+                  type: object
+                registry:
+                  description: Registry is the registry the Artifact was pulled from.
+                  properties:
+                    server:
+                      description: Server the FQDN of registry server.
                       type: string
-                    title:
+                  type: object
+                scanner:
+                  description: Scanner is the scanner that generated this report.
+                  properties:
+                    name:
+                      description: Name the name of the scanner.
+                      type: string
+                    vendor:
+                      description: Vendor the name of the vendor providing the scanner.
+                      type: string
+                    version:
+                      description: Version the version of the scanner.
                       type: string
                   required:
-                  - category
-                  - match
-                  - ruleID
-                  - severity
-                  - target
-                  - title
+                    - name
+                    - vendor
+                    - version
                   type: object
-                type: array
-              summary:
-                description: Summary is the exposed secrets counts grouped by Severity.
-                properties:
-                  criticalCount:
-                    description: CriticalCount is the number of exposed secrets with
-                      Critical Severity.
-                    minimum: 0
-                    type: integer
-                  highCount:
-                    description: HighCount is the number of exposed secrets with High
-                      Severity.
-                    minimum: 0
-                    type: integer
-                  lowCount:
-                    description: LowCount is the number of exposed secrets with Low
-                      Severity.
-                    minimum: 0
-                    type: integer
-                  mediumCount:
-                    description: MediumCount is the number of exposed secrets with
-                      Medium Severity.
-                    minimum: 0
-                    type: integer
-                required:
-                - criticalCount
-                - highCount
-                - lowCount
-                - mediumCount
-                type: object
-              updateTimestamp:
-                description: UpdateTimestamp is a timestamp representing the server
-                  time in UTC when this report was updated.
-                format: date-time
-                type: string
-            required:
-            - artifact
-            - scanner
-            - secrets
-            - summary
-            - updateTimestamp
-            type: object
-        required:
-        - report
-        type: object
-    served: true
-    storage: true
-    subresources: {}
+                secrets:
+                  description: Exposed secrets is a list of passwords, api keys, tokens and others
+                    items found in the Artifact.
+                  items:
+                    description: ExposedSecret is the spec for a exposed secret record.
+                    properties:
+                      category:
+                        type: string
+                      match:
+                        description: Match where the exposed rule matched.
+                        type: string
+                      ruleID:
+                        description: RuleID is rule the identifier.
+                        type: string
+                      severity:
+                        description: Severity level of a vulnerability or a configuration audit check.
+                        enum:
+                          - CRITICAL
+                          - HIGH
+                          - MEDIUM
+                          - LOW
+                        type: string
+                      target:
+                        description: Target is where the exposed secret was found.
+                        type: string
+                      title:
+                        type: string
+                    required:
+                      - category
+                      - match
+                      - ruleID
+                      - severity
+                      - target
+                      - title
+                    type: object
+                  type: array
+                summary:
+                  description: Summary is the exposed secrets counts grouped by Severity.
+                  properties:
+                    criticalCount:
+                      description: CriticalCount is the number of exposed secrets with Critical
+                        Severity.
+                      minimum: 0
+                      type: integer
+                    highCount:
+                      description: HighCount is the number of exposed secrets with High Severity.
+                      minimum: 0
+                      type: integer
+                    lowCount:
+                      description: LowCount is the number of exposed secrets with Low Severity.
+                      minimum: 0
+                      type: integer
+                    mediumCount:
+                      description: MediumCount is the number of exposed secrets with Medium Severity.
+                      minimum: 0
+                      type: integer
+                  required:
+                    - criticalCount
+                    - highCount
+                    - lowCount
+                    - mediumCount
+                  type: object
+                updateTimestamp:
+                  description: UpdateTimestamp is a timestamp representing the server time in UTC
+                    when this report was updated.
+                  format: date-time
+                  type: string
+              required:
+                - artifact
+                - scanner
+                - secrets
+                - summary
+                - updateTimestamp
+              type: object
+          required:
+            - report
+          type: object
+      served: true
+      storage: true
+      subresources: {}
+
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -1166,164 +1171,165 @@ spec:
     listKind: InfraAssessmentReportList
     plural: infraassessmentreports
     shortNames:
-    - infraassessment
-    - infraassessments
+      - infraassessment
+      - infraassessments
     singular: infraassessmentreport
   scope: Namespaced
   versions:
-  - additionalPrinterColumns:
-    - description: The name of the infra assessment scanner
-      jsonPath: .report.scanner.name
-      name: Scanner
-      type: string
-    - description: The age of the report
-      jsonPath: .metadata.creationTimestamp
-      name: Age
-      type: date
-    - description: The number of failed checks with critical severity
-      jsonPath: .report.summary.criticalCount
-      name: Critical
-      priority: 1
-      type: integer
-    - description: The number of failed checks with high severity
-      jsonPath: .report.summary.highCount
-      name: High
-      priority: 1
-      type: integer
-    - description: The number of failed checks with medium severity
-      jsonPath: .report.summary.mediumCount
-      name: Medium
-      priority: 1
-      type: integer
-    - description: The number of failed checks with low severity
-      jsonPath: .report.summary.lowCount
-      name: Low
-      priority: 1
-      type: integer
-    name: v1alpha1
-    schema:
-      openAPIV3Schema:
-        description: InfraAssessmentReport is a specification for the InfraAssessmentReport
-          resource.
-        properties:
-          apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
-            type: string
-          kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
-            type: string
-          metadata:
-            type: object
-          report:
-            properties:
-              checks:
-                description: Checks provides results of conducting audit steps.
-                items:
-                  description: Check provides the result of conducting a single audit
-                    step.
-                  properties:
-                    category:
-                      type: string
-                    checkID:
-                      type: string
-                    description:
-                      type: string
-                    messages:
-                      items:
+    - additionalPrinterColumns:
+        - description: The name of the infra assessment scanner
+          jsonPath: .report.scanner.name
+          name: Scanner
+          type: string
+        - description: The age of the report
+          jsonPath: .metadata.creationTimestamp
+          name: Age
+          type: date
+        - description: The number of failed checks with critical severity
+          jsonPath: .report.summary.criticalCount
+          name: Critical
+          priority: 1
+          type: integer
+        - description: The number of failed checks with high severity
+          jsonPath: .report.summary.highCount
+          name: High
+          priority: 1
+          type: integer
+        - description: The number of failed checks with medium severity
+          jsonPath: .report.summary.mediumCount
+          name: Medium
+          priority: 1
+          type: integer
+        - description: The number of failed checks with low severity
+          jsonPath: .report.summary.lowCount
+          name: Low
+          priority: 1
+          type: integer
+      name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          description: InfraAssessmentReport is a specification for the
+            InfraAssessmentReport resource.
+          properties:
+            apiVersion:
+              description: "APIVersion defines the versioned schema of this representation of
+                an object. Servers should convert recognized schemas to the
+                latest internal value, and may reject unrecognized values. More
+                info:
+                https://git.k8s.io/community/contributors/devel/sig-architectur\
+                e/api-conventions.md#resources"
+              type: string
+            kind:
+              description: "Kind is a string value representing the REST resource this object
+                represents. Servers may infer this from the endpoint the client
+                submits requests to. Cannot be updated. In CamelCase. More info:
+                https://git.k8s.io/community/contributors/devel/sig-architectur\
+                e/api-conventions.md#types-kinds"
+              type: string
+            metadata:
+              type: object
+            report:
+              properties:
+                checks:
+                  description: Checks provides results of conducting audit steps.
+                  items:
+                    description: Check provides the result of conducting a single audit step.
+                    properties:
+                      category:
                         type: string
-                      type: array
-                    remediation:
-                      description: Remediation provides description or links to external
-                        resources to remediate failing check.
-                      type: string
-                    scope:
-                      description: Scope indicates the section of config that was
-                        audited.
-                      properties:
-                        type:
-                          description: Type indicates type of this scope, e.g. Container,
-                            ConfigMapKey or JSONPath.
+                      checkID:
+                        type: string
+                      description:
+                        type: string
+                      messages:
+                        items:
                           type: string
-                        value:
-                          description: Value indicates value of this scope that depends
-                            on Type, e.g. container name, ConfigMap key or JSONPath
-                            expression
-                          type: string
-                      required:
-                      - type
-                      - value
-                      type: object
-                    severity:
-                      description: Severity level of a vulnerability or a configuration
-                        audit check.
+                        type: array
+                      remediation:
+                        description: Remediation provides description or links to external resources to
+                          remediate failing check.
+                        type: string
+                      scope:
+                        description: Scope indicates the section of config that was audited.
+                        properties:
+                          type:
+                            description: Type indicates type of this scope, e.g. Container, ConfigMapKey or
+                              JSONPath.
+                            type: string
+                          value:
+                            description: Value indicates value of this scope that depends on Type, e.g.
+                              container name, ConfigMap key or JSONPath
+                              expression
+                            type: string
+                        required:
+                          - type
+                          - value
+                        type: object
+                      severity:
+                        description: Severity level of a vulnerability or a configuration audit check.
+                        type: string
+                      success:
+                        type: boolean
+                      title:
+                        type: string
+                    required:
+                      - checkID
+                      - severity
+                      - success
+                    type: object
+                  type: array
+                scanner:
+                  description: Scanner is the spec for a scanner generating a security assessment
+                    report.
+                  properties:
+                    name:
+                      description: Name the name of the scanner.
                       type: string
-                    success:
-                      type: boolean
-                    title:
+                    vendor:
+                      description: Vendor the name of the vendor providing the scanner.
+                      type: string
+                    version:
+                      description: Version the version of the scanner.
                       type: string
                   required:
-                  - checkID
-                  - severity
-                  - success
+                    - name
+                    - vendor
+                    - version
                   type: object
-                type: array
-              scanner:
-                description: Scanner is the spec for a scanner generating a security
-                  assessment report.
-                properties:
-                  name:
-                    description: Name the name of the scanner.
-                    type: string
-                  vendor:
-                    description: Vendor the name of the vendor providing the scanner.
-                    type: string
-                  version:
-                    description: Version the version of the scanner.
-                    type: string
-                required:
-                - name
-                - vendor
-                - version
-                type: object
-              summary:
-                description: InfraAssessmentSummary counts failed checks by severity.
-                properties:
-                  criticalCount:
-                    description: CriticalCount is the number of failed checks with
-                      critical severity.
-                    type: integer
-                  highCount:
-                    description: HighCount is the number of failed checks with high
-                      severity.
-                    type: integer
-                  lowCount:
-                    description: LowCount is the number of failed check with low severity.
-                    type: integer
-                  mediumCount:
-                    description: MediumCount is the number of failed checks with medium
-                      severity.
-                    type: integer
-                required:
-                - criticalCount
-                - highCount
-                - lowCount
-                - mediumCount
-                type: object
-            required:
-            - checks
-            - scanner
-            - summary
-            type: object
-        required:
-        - report
-        type: object
-    served: true
-    storage: true
-    subresources: {}
+                summary:
+                  description: InfraAssessmentSummary counts failed checks by severity.
+                  properties:
+                    criticalCount:
+                      description: CriticalCount is the number of failed checks with critical
+                        severity.
+                      type: integer
+                    highCount:
+                      description: HighCount is the number of failed checks with high severity.
+                      type: integer
+                    lowCount:
+                      description: LowCount is the number of failed check with low severity.
+                      type: integer
+                    mediumCount:
+                      description: MediumCount is the number of failed checks with medium severity.
+                      type: integer
+                  required:
+                    - criticalCount
+                    - highCount
+                    - lowCount
+                    - mediumCount
+                  type: object
+              required:
+                - checks
+                - scanner
+                - summary
+              type: object
+          required:
+            - report
+          type: object
+      served: true
+      storage: true
+      subresources: {}
+
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -1339,164 +1345,165 @@ spec:
     listKind: RbacAssessmentReportList
     plural: rbacassessmentreports
     shortNames:
-    - rbacassessment
-    - rbacassessments
+      - rbacassessment
+      - rbacassessments
     singular: rbacassessmentreport
   scope: Namespaced
   versions:
-  - additionalPrinterColumns:
-    - description: The name of the rbac assessment scanner
-      jsonPath: .report.scanner.name
-      name: Scanner
-      type: string
-    - description: The age of the report
-      jsonPath: .metadata.creationTimestamp
-      name: Age
-      type: date
-    - description: The number of failed checks with critical severity
-      jsonPath: .report.summary.criticalCount
-      name: Critical
-      priority: 1
-      type: integer
-    - description: The number of failed checks with high severity
-      jsonPath: .report.summary.highCount
-      name: High
-      priority: 1
-      type: integer
-    - description: The number of failed checks with medium severity
-      jsonPath: .report.summary.mediumCount
-      name: Medium
-      priority: 1
-      type: integer
-    - description: The number of failed checks with low severity
-      jsonPath: .report.summary.lowCount
-      name: Low
-      priority: 1
-      type: integer
-    name: v1alpha1
-    schema:
-      openAPIV3Schema:
-        description: RbacAssessmentReport is a specification for the RbacAssessmentReport
-          resource.
-        properties:
-          apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
-            type: string
-          kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
-            type: string
-          metadata:
-            type: object
-          report:
-            properties:
-              checks:
-                description: Checks provides results of conducting audit steps.
-                items:
-                  description: Check provides the result of conducting a single audit
-                    step.
-                  properties:
-                    category:
-                      type: string
-                    checkID:
-                      type: string
-                    description:
-                      type: string
-                    messages:
-                      items:
+    - additionalPrinterColumns:
+        - description: The name of the rbac assessment scanner
+          jsonPath: .report.scanner.name
+          name: Scanner
+          type: string
+        - description: The age of the report
+          jsonPath: .metadata.creationTimestamp
+          name: Age
+          type: date
+        - description: The number of failed checks with critical severity
+          jsonPath: .report.summary.criticalCount
+          name: Critical
+          priority: 1
+          type: integer
+        - description: The number of failed checks with high severity
+          jsonPath: .report.summary.highCount
+          name: High
+          priority: 1
+          type: integer
+        - description: The number of failed checks with medium severity
+          jsonPath: .report.summary.mediumCount
+          name: Medium
+          priority: 1
+          type: integer
+        - description: The number of failed checks with low severity
+          jsonPath: .report.summary.lowCount
+          name: Low
+          priority: 1
+          type: integer
+      name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          description: RbacAssessmentReport is a specification for the
+            RbacAssessmentReport resource.
+          properties:
+            apiVersion:
+              description: "APIVersion defines the versioned schema of this representation of
+                an object. Servers should convert recognized schemas to the
+                latest internal value, and may reject unrecognized values. More
+                info:
+                https://git.k8s.io/community/contributors/devel/sig-architectur\
+                e/api-conventions.md#resources"
+              type: string
+            kind:
+              description: "Kind is a string value representing the REST resource this object
+                represents. Servers may infer this from the endpoint the client
+                submits requests to. Cannot be updated. In CamelCase. More info:
+                https://git.k8s.io/community/contributors/devel/sig-architectur\
+                e/api-conventions.md#types-kinds"
+              type: string
+            metadata:
+              type: object
+            report:
+              properties:
+                checks:
+                  description: Checks provides results of conducting audit steps.
+                  items:
+                    description: Check provides the result of conducting a single audit step.
+                    properties:
+                      category:
                         type: string
-                      type: array
-                    remediation:
-                      description: Remediation provides description or links to external
-                        resources to remediate failing check.
-                      type: string
-                    scope:
-                      description: Scope indicates the section of config that was
-                        audited.
-                      properties:
-                        type:
-                          description: Type indicates type of this scope, e.g. Container,
-                            ConfigMapKey or JSONPath.
+                      checkID:
+                        type: string
+                      description:
+                        type: string
+                      messages:
+                        items:
                           type: string
-                        value:
-                          description: Value indicates value of this scope that depends
-                            on Type, e.g. container name, ConfigMap key or JSONPath
-                            expression
-                          type: string
-                      required:
-                      - type
-                      - value
-                      type: object
-                    severity:
-                      description: Severity level of a vulnerability or a configuration
-                        audit check.
+                        type: array
+                      remediation:
+                        description: Remediation provides description or links to external resources to
+                          remediate failing check.
+                        type: string
+                      scope:
+                        description: Scope indicates the section of config that was audited.
+                        properties:
+                          type:
+                            description: Type indicates type of this scope, e.g. Container, ConfigMapKey or
+                              JSONPath.
+                            type: string
+                          value:
+                            description: Value indicates value of this scope that depends on Type, e.g.
+                              container name, ConfigMap key or JSONPath
+                              expression
+                            type: string
+                        required:
+                          - type
+                          - value
+                        type: object
+                      severity:
+                        description: Severity level of a vulnerability or a configuration audit check.
+                        type: string
+                      success:
+                        type: boolean
+                      title:
+                        type: string
+                    required:
+                      - checkID
+                      - severity
+                      - success
+                    type: object
+                  type: array
+                scanner:
+                  description: Scanner is the spec for a scanner generating a security assessment
+                    report.
+                  properties:
+                    name:
+                      description: Name the name of the scanner.
                       type: string
-                    success:
-                      type: boolean
-                    title:
+                    vendor:
+                      description: Vendor the name of the vendor providing the scanner.
+                      type: string
+                    version:
+                      description: Version the version of the scanner.
                       type: string
                   required:
-                  - checkID
-                  - severity
-                  - success
+                    - name
+                    - vendor
+                    - version
                   type: object
-                type: array
-              scanner:
-                description: Scanner is the spec for a scanner generating a security
-                  assessment report.
-                properties:
-                  name:
-                    description: Name the name of the scanner.
-                    type: string
-                  vendor:
-                    description: Vendor the name of the vendor providing the scanner.
-                    type: string
-                  version:
-                    description: Version the version of the scanner.
-                    type: string
-                required:
-                - name
-                - vendor
-                - version
-                type: object
-              summary:
-                description: RbacAssessmentSummary counts failed checks by severity.
-                properties:
-                  criticalCount:
-                    description: CriticalCount is the number of failed checks with
-                      critical severity.
-                    type: integer
-                  highCount:
-                    description: HighCount is the number of failed checks with high
-                      severity.
-                    type: integer
-                  lowCount:
-                    description: LowCount is the number of failed check with low severity.
-                    type: integer
-                  mediumCount:
-                    description: MediumCount is the number of failed checks with medium
-                      severity.
-                    type: integer
-                required:
-                - criticalCount
-                - highCount
-                - lowCount
-                - mediumCount
-                type: object
-            required:
-            - checks
-            - scanner
-            - summary
-            type: object
-        required:
-        - report
-        type: object
-    served: true
-    storage: true
-    subresources: {}
+                summary:
+                  description: RbacAssessmentSummary counts failed checks by severity.
+                  properties:
+                    criticalCount:
+                      description: CriticalCount is the number of failed checks with critical
+                        severity.
+                      type: integer
+                    highCount:
+                      description: HighCount is the number of failed checks with high severity.
+                      type: integer
+                    lowCount:
+                      description: LowCount is the number of failed check with low severity.
+                      type: integer
+                    mediumCount:
+                      description: MediumCount is the number of failed checks with medium severity.
+                      type: integer
+                  required:
+                    - criticalCount
+                    - highCount
+                    - lowCount
+                    - mediumCount
+                  type: object
+              required:
+                - checks
+                - scanner
+                - summary
+              type: object
+          required:
+            - report
+          type: object
+      served: true
+      storage: true
+      subresources: {}
+
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -1512,249 +1519,247 @@ spec:
     listKind: VulnerabilityReportList
     plural: vulnerabilityreports
     shortNames:
-    - vuln
-    - vulns
+      - vuln
+      - vulns
     singular: vulnerabilityreport
   scope: Namespaced
   versions:
-  - additionalPrinterColumns:
-    - description: The name of image repository
-      jsonPath: .report.artifact.repository
-      name: Repository
-      type: string
-    - description: The name of image tag
-      jsonPath: .report.artifact.tag
-      name: Tag
-      type: string
-    - description: The name of the vulnerability scanner
-      jsonPath: .report.scanner.name
-      name: Scanner
-      type: string
-    - description: The age of the report
-      jsonPath: .metadata.creationTimestamp
-      name: Age
-      type: date
-    - description: The number of critical vulnerabilities
-      jsonPath: .report.summary.criticalCount
-      name: Critical
-      priority: 1
-      type: integer
-    - description: The number of high vulnerabilities
-      jsonPath: .report.summary.highCount
-      name: High
-      priority: 1
-      type: integer
-    - description: The number of medium vulnerabilities
-      jsonPath: .report.summary.mediumCount
-      name: Medium
-      priority: 1
-      type: integer
-    - description: The number of low vulnerabilities
-      jsonPath: .report.summary.lowCount
-      name: Low
-      priority: 1
-      type: integer
-    - description: The number of unknown vulnerabilities
-      jsonPath: .report.summary.unknownCount
-      name: Unknown
-      priority: 1
-      type: integer
-    name: v1alpha1
-    schema:
-      openAPIV3Schema:
-        description: VulnerabilityReport summarizes vulnerabilities in application
-          dependencies and operating system packages built into container images.
-        properties:
-          apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
-            type: string
-          kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
-            type: string
-          metadata:
-            type: object
-          report:
-            description: Report is the actual vulnerability report data.
-            properties:
-              artifact:
-                description: Artifact represents a standalone, executable package
-                  of software that includes everything needed to run an application.
-                properties:
-                  digest:
-                    description: Digest is a unique and immutable identifier of an
-                      Artifact.
-                    type: string
-                  mimeType:
-                    description: MimeType represents a type and format of an Artifact.
-                    type: string
-                  repository:
-                    description: Repository is the name of the repository in the Artifact
-                      registry.
-                    type: string
-                  tag:
-                    description: Tag is a mutable, human-readable string used to identify
-                      an Artifact.
-                    type: string
-                type: object
-              registry:
-                description: Registry is the registry the Artifact was pulled from.
-                properties:
-                  server:
-                    description: Server the FQDN of registry server.
-                    type: string
-                type: object
-              scanner:
-                description: Scanner is the scanner that generated this report.
-                properties:
-                  name:
-                    description: Name the name of the scanner.
-                    type: string
-                  vendor:
-                    description: Vendor the name of the vendor providing the scanner.
-                    type: string
-                  version:
-                    description: Version the version of the scanner.
-                    type: string
-                required:
-                - name
-                - vendor
-                - version
-                type: object
-              summary:
-                description: Summary is a summary of Vulnerability counts grouped
-                  by Severity.
-                properties:
-                  criticalCount:
-                    description: CriticalCount is the number of vulnerabilities with
-                      Critical Severity.
-                    minimum: 0
-                    type: integer
-                  highCount:
-                    description: HighCount is the number of vulnerabilities with High
-                      Severity.
-                    minimum: 0
-                    type: integer
-                  lowCount:
-                    description: LowCount is the number of vulnerabilities with Low
-                      Severity.
-                    minimum: 0
-                    type: integer
-                  mediumCount:
-                    description: MediumCount is the number of vulnerabilities with
-                      Medium Severity.
-                    minimum: 0
-                    type: integer
-                  noneCount:
-                    description: NoneCount is the number of packages without any vulnerability.
-                    minimum: 0
-                    type: integer
-                  unknownCount:
-                    description: UnknownCount is the number of vulnerabilities with
-                      unknown severity.
-                    minimum: 0
-                    type: integer
-                required:
-                - criticalCount
-                - highCount
-                - lowCount
-                - mediumCount
-                - unknownCount
-                type: object
-              updateTimestamp:
-                description: UpdateTimestamp is a timestamp representing the server
-                  time in UTC when this report was updated.
-                format: date-time
-                type: string
-              vulnerabilities:
-                description: Vulnerabilities is a list of operating system (OS) or
-                  application software Vulnerability items found in the Artifact.
-                items:
-                  description: Vulnerability is the spec for a vulnerability record.
+    - additionalPrinterColumns:
+        - description: The name of image repository
+          jsonPath: .report.artifact.repository
+          name: Repository
+          type: string
+        - description: The name of image tag
+          jsonPath: .report.artifact.tag
+          name: Tag
+          type: string
+        - description: The name of the vulnerability scanner
+          jsonPath: .report.scanner.name
+          name: Scanner
+          type: string
+        - description: The age of the report
+          jsonPath: .metadata.creationTimestamp
+          name: Age
+          type: date
+        - description: The number of critical vulnerabilities
+          jsonPath: .report.summary.criticalCount
+          name: Critical
+          priority: 1
+          type: integer
+        - description: The number of high vulnerabilities
+          jsonPath: .report.summary.highCount
+          name: High
+          priority: 1
+          type: integer
+        - description: The number of medium vulnerabilities
+          jsonPath: .report.summary.mediumCount
+          name: Medium
+          priority: 1
+          type: integer
+        - description: The number of low vulnerabilities
+          jsonPath: .report.summary.lowCount
+          name: Low
+          priority: 1
+          type: integer
+        - description: The number of unknown vulnerabilities
+          jsonPath: .report.summary.unknownCount
+          name: Unknown
+          priority: 1
+          type: integer
+      name: v1alpha1
+      schema:
+        openAPIV3Schema:
+          description: VulnerabilityReport summarizes vulnerabilities in application
+            dependencies and operating system packages built into container
+            images.
+          properties:
+            apiVersion:
+              description: "APIVersion defines the versioned schema of this representation of
+                an object. Servers should convert recognized schemas to the
+                latest internal value, and may reject unrecognized values. More
+                info:
+                https://git.k8s.io/community/contributors/devel/sig-architectur\
+                e/api-conventions.md#resources"
+              type: string
+            kind:
+              description: "Kind is a string value representing the REST resource this object
+                represents. Servers may infer this from the endpoint the client
+                submits requests to. Cannot be updated. In CamelCase. More info:
+                https://git.k8s.io/community/contributors/devel/sig-architectur\
+                e/api-conventions.md#types-kinds"
+              type: string
+            metadata:
+              type: object
+            report:
+              description: Report is the actual vulnerability report data.
+              properties:
+                artifact:
+                  description: Artifact represents a standalone, executable package of software
+                    that includes everything needed to run an application.
                   properties:
-                    class:
+                    digest:
+                      description: Digest is a unique and immutable identifier of an Artifact.
                       type: string
-                    cvss:
-                      additionalProperties:
-                        properties:
-                          V2Score:
-                            type: number
-                          V2Vector:
-                            type: string
-                          V3Score:
-                            type: number
-                          V3Vector:
-                            type: string
-                        type: object
-                      type: object
-                    cvsssource:
+                    mimeType:
+                      description: MimeType represents a type and format of an Artifact.
                       type: string
-                    description:
+                    repository:
+                      description: Repository is the name of the repository in the Artifact registry.
                       type: string
-                    fixedVersion:
-                      description: FixedVersion indicates the version of the Resource
-                        in which this vulnerability has been fixed.
+                    tag:
+                      description: Tag is a mutable, human-readable string used to identify an
+                        Artifact.
                       type: string
-                    installedVersion:
-                      description: InstalledVersion indicates the installed version
-                        of the Resource.
+                  type: object
+                registry:
+                  description: Registry is the registry the Artifact was pulled from.
+                  properties:
+                    server:
+                      description: Server the FQDN of registry server.
                       type: string
-                    links:
-                      items:
-                        type: string
-                      type: array
-                    packageType:
+                  type: object
+                scanner:
+                  description: Scanner is the scanner that generated this report.
+                  properties:
+                    name:
+                      description: Name the name of the scanner.
                       type: string
-                    primaryLink:
+                    vendor:
+                      description: Vendor the name of the vendor providing the scanner.
                       type: string
-                    resource:
-                      description: Resource is a vulnerable package, application,
-                        or library.
-                      type: string
-                    score:
-                      type: number
-                    severity:
-                      description: Severity level of a vulnerability or a configuration
-                        audit check.
-                      enum:
-                      - CRITICAL
-                      - HIGH
-                      - MEDIUM
-                      - LOW
-                      - UNKNOWN
-                      type: string
-                    target:
-                      type: string
-                    title:
-                      type: string
-                    vulnerabilityID:
-                      description: VulnerabilityID the vulnerability identifier.
+                    version:
+                      description: Version the version of the scanner.
                       type: string
                   required:
-                  - fixedVersion
-                  - installedVersion
-                  - resource
-                  - severity
-                  - title
-                  - vulnerabilityID
+                    - name
+                    - vendor
+                    - version
                   type: object
-                type: array
-            required:
-            - artifact
-            - scanner
-            - summary
-            - updateTimestamp
-            - vulnerabilities
-            type: object
-        required:
-        - report
-        type: object
-    served: true
-    storage: true
-    subresources: {}
+                summary:
+                  description: Summary is a summary of Vulnerability counts grouped by Severity.
+                  properties:
+                    criticalCount:
+                      description: CriticalCount is the number of vulnerabilities with Critical
+                        Severity.
+                      minimum: 0
+                      type: integer
+                    highCount:
+                      description: HighCount is the number of vulnerabilities with High Severity.
+                      minimum: 0
+                      type: integer
+                    lowCount:
+                      description: LowCount is the number of vulnerabilities with Low Severity.
+                      minimum: 0
+                      type: integer
+                    mediumCount:
+                      description: MediumCount is the number of vulnerabilities with Medium Severity.
+                      minimum: 0
+                      type: integer
+                    noneCount:
+                      description: NoneCount is the number of packages without any vulnerability.
+                      minimum: 0
+                      type: integer
+                    unknownCount:
+                      description: UnknownCount is the number of vulnerabilities with unknown
+                        severity.
+                      minimum: 0
+                      type: integer
+                  required:
+                    - criticalCount
+                    - highCount
+                    - lowCount
+                    - mediumCount
+                    - unknownCount
+                  type: object
+                updateTimestamp:
+                  description: UpdateTimestamp is a timestamp representing the server time in UTC
+                    when this report was updated.
+                  format: date-time
+                  type: string
+                vulnerabilities:
+                  description: Vulnerabilities is a list of operating system (OS) or application
+                    software Vulnerability items found in the Artifact.
+                  items:
+                    description: Vulnerability is the spec for a vulnerability record.
+                    properties:
+                      class:
+                        type: string
+                      cvss:
+                        additionalProperties:
+                          properties:
+                            V2Score:
+                              type: number
+                            V2Vector:
+                              type: string
+                            V3Score:
+                              type: number
+                            V3Vector:
+                              type: string
+                          type: object
+                        type: object
+                      cvsssource:
+                        type: string
+                      description:
+                        type: string
+                      fixedVersion:
+                        description: FixedVersion indicates the version of the Resource in which this
+                          vulnerability has been fixed.
+                        type: string
+                      installedVersion:
+                        description: InstalledVersion indicates the installed version of the Resource.
+                        type: string
+                      links:
+                        items:
+                          type: string
+                        type: array
+                      packageType:
+                        type: string
+                      primaryLink:
+                        type: string
+                      resource:
+                        description: Resource is a vulnerable package, application, or library.
+                        type: string
+                      score:
+                        type: number
+                      severity:
+                        description: Severity level of a vulnerability or a configuration audit check.
+                        enum:
+                          - CRITICAL
+                          - HIGH
+                          - MEDIUM
+                          - LOW
+                          - UNKNOWN
+                        type: string
+                      target:
+                        type: string
+                      title:
+                        type: string
+                      vulnerabilityID:
+                        description: VulnerabilityID the vulnerability identifier.
+                        type: string
+                    required:
+                      - fixedVersion
+                      - installedVersion
+                      - resource
+                      - severity
+                      - title
+                      - vulnerabilityID
+                    type: object
+                  type: array
+              required:
+                - artifact
+                - scanner
+                - summary
+                - updateTimestamp
+                - vulnerabilities
+              type: object
+          required:
+            - report
+          type: object
+      served: true
+      storage: true
+      subresources: {}
+
 ---
 apiVersion: v1
 kind: Namespace
@@ -1763,10 +1768,10 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.10.1"
+    app.kubernetes.io/version: 0.10.1
     app.kubernetes.io/managed-by: kubectl
+
 ---
-# Source: trivy-operator/templates/config.yaml
 apiVersion: v1
 kind: Secret
 metadata:
@@ -1775,10 +1780,10 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.10.1"
+    app.kubernetes.io/version: 0.10.1
     app.kubernetes.io/managed-by: kubectl
+
 ---
-# Source: trivy-operator/templates/config.yaml
 apiVersion: v1
 kind: Secret
 metadata:
@@ -1787,11 +1792,11 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.10.1"
+    app.kubernetes.io/version: 0.10.1
     app.kubernetes.io/managed-by: kubectl
-data:
+data: null
+
 ---
-# Source: trivy-operator/templates/config.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -1800,16 +1805,16 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.10.1"
+    app.kubernetes.io/version: 0.10.1
     app.kubernetes.io/managed-by: kubectl
 data:
-  scanJob.podTemplateContainerSecurityContext: "{\"allowPrivilegeEscalation\":false,\"capabilities\":{\"drop\":[\"ALL\"]},\"privileged\":false,\"readOnlyRootFilesystem\":true}"
+  scanJob.podTemplateContainerSecurityContext: '{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true}'
   scanJob.compressLogs: "true"
-  vulnerabilityReports.scanner: "Trivy"
-  configAuditReports.scanner: "Trivy"
+  vulnerabilityReports.scanner: Trivy
+  configAuditReports.scanner: Trivy
   report.recordFailedChecksOnly: "true"
+
 ---
-# Source: trivy-operator/templates/config.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -1818,27 +1823,27 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.10.1"
+    app.kubernetes.io/version: 0.10.1
     app.kubernetes.io/managed-by: kubectl
 data:
-  trivy.repository: "ghcr.io/aquasecurity/trivy"
-  trivy.tag: "0.36.0"
+  trivy.repository: ghcr.io/aquasecurity/trivy
+  trivy.tag: 0.36.0
   trivy.additionalVulnerabilityReportFields: ""
-  trivy.severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
+  trivy.severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
   trivy.slow: "true"
-  trivy.dbRepository: "ghcr.io/aquasecurity/trivy-db"
-  trivy.command: "image"
+  trivy.dbRepository: ghcr.io/aquasecurity/trivy-db
+  trivy.command: image
   trivy.dbRepositoryInsecure: "false"
   trivy.useBuiltinRegoPolicies: "true"
-  trivy.supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
-  trivy.timeout: "5m0s"
-  trivy.mode: "Standalone"
+  trivy.supportedConfigAuditKinds: Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota
+  trivy.timeout: 5m0s
+  trivy.mode: Standalone
   trivy.resources.requests.cpu: 100m
   trivy.resources.requests.memory: 100M
   trivy.resources.limits.cpu: 500m
   trivy.resources.limits.memory: 500M
+
 ---
-# Source: trivy-operator/templates/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -1847,7 +1852,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.10.1"
+    app.kubernetes.io/version: 0.10.1
     app.kubernetes.io/managed-by: kubectl
 spec:
   replicas: 1
@@ -1866,8 +1871,8 @@ spec:
       serviceAccountName: trivy-operator
       automountServiceAccountToken: true
       containers:
-        - name: "trivy-operator"
-          image: "ghcr.io/aquasecurity/trivy-operator:0.10.1"
+        - name: trivy-operator
+          image: ghcr.io/aquasecurity/trivy-operator:e2e
           imagePullPolicy: IfNotPresent
           env:
             - name: OPERATOR_NAMESPACE
@@ -1875,37 +1880,37 @@ spec:
             - name: OPERATOR_TARGET_NAMESPACES
               value: ""
             - name: OPERATOR_EXCLUDE_NAMESPACES
-              value: "kube-system,trivy-system"
+              value: kube-system,trivy-system
             - name: OPERATOR_TARGET_WORKLOADS
-              value: "pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job"
+              value: pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job
             - name: OPERATOR_SERVICE_ACCOUNT
-              value: "trivy-operator"
+              value: trivy-operator
             - name: OPERATOR_LOG_DEV_MODE
               value: "false"
             - name: OPERATOR_SCAN_JOB_TIMEOUT
-              value: "5m"
+              value: 5m
             - name: OPERATOR_CONCURRENT_SCAN_JOBS_LIMIT
               value: "10"
             - name: OPERATOR_SCAN_JOB_RETRY_AFTER
-              value: "30s"
+              value: 30s
             - name: OPERATOR_BATCH_DELETE_LIMIT
               value: "10"
             - name: OPERATOR_BATCH_DELETE_DELAY
-              value: "10s"
+              value: 10s
             - name: OPERATOR_METRICS_BIND_ADDRESS
-              value: ":8080"
+              value: :8080
             - name: OPERATOR_METRICS_FINDINGS_ENABLED
               value: "true"
             - name: OPERATOR_METRICS_VULN_ID_ENABLED
               value: "false"
             - name: OPERATOR_HEALTH_PROBE_BIND_ADDRESS
-              value: ":9090"
+              value: :9090
             - name: OPERATOR_VULNERABILITY_SCANNER_ENABLED
               value: "true"
             - name: OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS
               value: "true"
             - name: OPERATOR_SCANNER_REPORT_TTL
-              value: "24h"
+              value: 24h
             - name: OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED
               value: "true"
             - name: OPERATOR_RBAC_ASSESSMENT_SCANNER_ENABLED
@@ -1919,7 +1924,7 @@ spec:
             - name: OPERATOR_WEBHOOK_BROADCAST_URL
               value: ""
             - name: OPERATOR_WEBHOOK_BROADCAST_TIMEOUT
-              value: "30s"
+              value: 30s
             - name: OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES
               value: "{}"
             - name: OPERATOR_ACCESS_GLOBAL_SECRETS_SERVICE_ACCOUNTS
@@ -1927,7 +1932,7 @@ spec:
             - name: OPERATOR_BUILT_IN_TRIVY_SERVER
               value: "false"
             - name: TRIVY_SERVER_HEALTH_CHECK_CACHE_EXPIRATION
-              value: "10h"
+              value: 10h
             - name: OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT
               value: "false"
           ports:
@@ -1951,20 +1956,17 @@ spec:
             periodSeconds: 10
             successThreshold: 1
             failureThreshold: 10
-          resources:
-            {}
+          resources: {}
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-              - ALL
+                - ALL
             privileged: false
             readOnlyRootFilesystem: true
-      securityContext:
-        {}
+      securityContext: {}
+
 ---
-# Source: trivy-operator/templates/leader_election.yaml
-# permissions to do leader election.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -1973,7 +1975,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.10.1"
+    app.kubernetes.io/version: 0.10.1
     app.kubernetes.io/managed-by: kubectl
 rules:
   - apiGroups:
@@ -1990,8 +1992,8 @@ rules:
       - events
     verbs:
       - create
+
 ---
-# Source: trivy-operator/templates/leader_election.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -2000,7 +2002,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.10.1"
+    app.kubernetes.io/version: 0.10.1
     app.kubernetes.io/managed-by: kubectl
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -2010,8 +2012,8 @@ subjects:
   - kind: ServiceAccount
     name: trivy-operator
     namespace: trivy-system
+
 ---
-# Source: trivy-operator/templates/policies.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -2020,48 +2022,11 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.10.1"
+    app.kubernetes.io/version: 0.10.1
     app.kubernetes.io/managed-by: kubectl
-data:
-# example
-# policy.my_policy.kinds: Workload
-# policy.my_policy.rego: "package builtin.kubernetes.KSV008
-#
-# import data.lib.kubernetes
-# import data.lib.result
-#
-# default failHostIPC = false
-#
-# __rego_metadata__ := {
-#	 "id": "KSV008",
-#	 "avd_id": "AVD-KSV-0008",
-#	 "title": "Access to host IPC namespace",
-#	 "short_code": "no-shared-ipc-namespace",
-#	 "version": "v1.0.0",
-#	 "severity": "HIGH",
-#	 "type": "Kubernetes Security Check",
-#	 "description": "Sharing the host’s IPC namespace allows container processes to communicate with processes on the host.",
-#	 "recommended_actions": "Do not set 'spec.template.spec.hostIPC' to true.",
-#	 "url": "https://kubernetes.io/docs/concepts/security/pod-security-standards/#baseline",
-#}
-#
-# __rego_input__ := {
-#	 "combine": false,
-#	 "selector": [{"type": "kubernetes"}],
-# }
-#
-## failHostIPC is true if spec.hostIPC is set to true (on all resources)
-# failHostIPC {
-#	 kubernetes.host_ipcs[_] == true
-# }
-#
-#deny[res] {
-#	failHostIPC
-#	msg := kubernetes.format(sprintf("%s '%s' should not set 'spec.template.spec.hostIPC' to true", [kubernetes.kind, kubernetes.name]))
-#	res := result.new(msg, input.spec)
-#}"
+data: null
+
 ---
-# Source: trivy-operator/templates/rbac.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -2070,330 +2035,329 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.10.1"
+    app.kubernetes.io/version: 0.10.1
     app.kubernetes.io/managed-by: kubectl
+
 ---
-# Source: trivy-operator/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   creationTimestamp: null
   name: trivy-operator
 rules:
-- apiGroups:
-  - ""
-  resources:
-  - configmaps
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - limitranges
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - nodes
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - pods
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - pods/log
-  verbs:
-  - get
-  - list
-- apiGroups:
-  - ""
-  resources:
-  - replicationcontrollers
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - resourcequotas
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - services
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - apiextensions.k8s.io
-  resources:
-  - customresourcedefinitions
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - apps
-  resources:
-  - daemonsets
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - apps
-  resources:
-  - deployments
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - apps
-  resources:
-  - replicasets
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - apps
-  resources:
-  - statefulsets
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - clustercompliancedetailreports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - clustercompliancereports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - clustercompliancereports/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - clusterconfigauditreports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - clusterinfraassessmentreports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - clusterrbacassessmentreports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - configauditreports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - exposedsecretreports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - infraassessmentreports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - rbacassessmentreports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - vulnerabilityreports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - batch
-  resources:
-  - cronjobs
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - batch
-  resources:
-  - jobs
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - watch
-- apiGroups:
-  - networking.k8s.io
-  resources:
-  - ingresses
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - networking.k8s.io
-  resources:
-  - networkpolicies
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - rbac.authorization.k8s.io
-  resources:
-  - clusterrolebindings
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - rbac.authorization.k8s.io
-  resources:
-  - clusterroles
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - rbac.authorization.k8s.io
-  resources:
-  - rolebindings
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - rbac.authorization.k8s.io
-  resources:
-  - roles
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - secrets
-  verbs:
-  - create
-  - get
-  - update
-- apiGroups:
-  - ""
-  resources:
-  - serviceaccounts
-  verbs:
-  - get
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - limitranges
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods/log
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - ""
+    resources:
+      - replicationcontrollers
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - resourcequotas
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - apiextensions.k8s.io
+    resources:
+      - customresourcedefinitions
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - daemonsets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - replicasets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - statefulsets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - clustercompliancedetailreports
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - clustercompliancereports
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - clustercompliancereports/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - clusterconfigauditreports
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - clusterinfraassessmentreports
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - clusterrbacassessmentreports
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - configauditreports
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - exposedsecretreports
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - infraassessmentreports
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - rbacassessmentreports
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - vulnerabilityreports
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - batch
+    resources:
+      - cronjobs
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - batch
+    resources:
+      - jobs
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - networkpolicies
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - clusterrolebindings
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - clusterroles
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - rolebindings
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - roles
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - get
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts
+    verbs:
+      - get
+
 ---
-# Source: trivy-operator/templates/rbac.yaml
-# permissions for end users to view configauditreports
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -2401,7 +2365,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.10.1"
+    app.kubernetes.io/version: 0.10.1
     app.kubernetes.io/managed-by: kubectl
     rbac.authorization.k8s.io/aggregate-to-view: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
@@ -2416,9 +2380,8 @@ rules:
       - get
       - list
       - watch
+
 ---
-# Source: trivy-operator/templates/rbac.yaml
-# permissions for end users to view exposedsecretreports
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -2426,7 +2389,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.10.1"
+    app.kubernetes.io/version: 0.10.1
     app.kubernetes.io/managed-by: kubectl
     rbac.authorization.k8s.io/aggregate-to-view: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
@@ -2441,9 +2404,8 @@ rules:
       - get
       - list
       - watch
+
 ---
-# Source: trivy-operator/templates/rbac.yaml
-# permissions for end users to view vulnerabilityreports
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -2451,7 +2413,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.10.1"
+    app.kubernetes.io/version: 0.10.1
     app.kubernetes.io/managed-by: kubectl
     rbac.authorization.k8s.io/aggregate-to-view: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
@@ -2466,8 +2428,8 @@ rules:
       - get
       - list
       - watch
+
 ---
-# Source: trivy-operator/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -2475,7 +2437,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.10.1"
+    app.kubernetes.io/version: 0.10.1
     app.kubernetes.io/managed-by: kubectl
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -2485,8 +2447,8 @@ subjects:
   - kind: ServiceAccount
     name: trivy-operator
     namespace: trivy-system
+
 ---
-# Source: trivy-operator/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -2495,7 +2457,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.10.1"
+    app.kubernetes.io/version: 0.10.1
     app.kubernetes.io/managed-by: kubectl
 rules:
   - apiGroups:
@@ -2515,8 +2477,8 @@ rules:
       - create
       - get
       - delete
+
 ---
-# Source: trivy-operator/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -2525,7 +2487,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.10.1"
+    app.kubernetes.io/version: 0.10.1
     app.kubernetes.io/managed-by: kubectl
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -2535,8 +2497,8 @@ subjects:
   - kind: ServiceAccount
     name: trivy-operator
     namespace: trivy-system
+
 ---
-# Source: trivy-operator/templates/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
@@ -2545,7 +2507,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.10.1"
+    app.kubernetes.io/version: 0.10.1
     app.kubernetes.io/managed-by: kubectl
 spec:
   clusterIP: None

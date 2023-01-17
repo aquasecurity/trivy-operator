@@ -1,25 +1,15 @@
-apiVersion: apps/v1
-kind: Deployment
+---
+apiVersion: v1
+kind: Pod
 metadata:
-  name: nginx-deployment
+  name: my-pod
   labels:
+    app.kubernetes.io/name: wordpress
+    pod-template-hash: 84bbf6f4dd
     app: nginx
-    owner: chen
-    app.kubernetes.io/name: myname
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: nginx
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      imagePullSecrets:
-      - name: regcred
-      containers:
-      - name: nginx
-        image: nginx:1.14.2
-        ports:
-        - containerPort: 80
+  imagePullSecrets:
+    - name: regcred
+  containers:
+    - image: nginx:1.14.2
+      name: app

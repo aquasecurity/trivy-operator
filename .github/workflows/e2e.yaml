@@ -1,6 +1,6 @@
 ---
 # End 2 End on CRON schedule (every night) or on demand.
-name: end 2 End Testing
+name: End to End Testing
 
 on:
   workflow_dispatch: {}
@@ -14,7 +14,7 @@ env:
 permissions: {}
 
 jobs:
-  e2e:
+  e2e-testing:
     name: End to End Testing
     runs-on: ubuntu-20.04
     env:

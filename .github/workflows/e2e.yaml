@@ -65,7 +65,8 @@ jobs:
           kubectl cluster-info
           kubectl wait --for=condition=Ready nodes --all --timeout=300s
           kubectl describe node
-      - run: |
+      - name: kuttl - End to End tests
+        run: |
           mkdir -p ./bin
           curl -L https://github.com/kudobuilder/kuttl/releases/download/v0.15.0/kubectl-kuttl_0.15.0_linux_x86_64 -o ./bin/kuttl;
           chmod +x ./bin/kuttl;

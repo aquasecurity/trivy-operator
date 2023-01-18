@@ -3,4 +3,6 @@ apiVersion: kuttl.dev/v1beta1
 kind: TestSuite
 testDirs:
   - tests/e2e
+manifestDirs:
+  - tests/manifests/
 timeout: 120

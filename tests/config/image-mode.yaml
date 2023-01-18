@@ -2,7 +2,7 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestSuite
 testDirs:
-  - tests/e2e
+  - tests/e2e/image-mode
 manifestDirs:
-  - tests/manifests/
+  - tests/e2e/image-mode/manifests/
 timeout: 120

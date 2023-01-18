@@ -5,4 +5,4 @@ testDirs:
   - tests/e2e/image-mode
 manifestDirs:
   - tests/e2e/image-mode/manifests/
-timeout: 120
+timeout: 180

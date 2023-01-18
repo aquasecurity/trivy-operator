@@ -5,4 +5,4 @@ testDirs:
   - tests/e2e/client-server
 manifestDirs:
   - tests/e2e/client-server/manifests/
-timeout: 180
+timeout: 120

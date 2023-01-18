@@ -70,4 +70,4 @@ jobs:
           mkdir -p ./bin
           curl -L https://github.com/kudobuilder/kuttl/releases/download/v0.15.0/kubectl-kuttl_0.15.0_linux_x86_64 -o ./bin/kuttl;
           chmod +x ./bin/kuttl;
-          ./bin/kuttl test --start-kind=false --config tests/e2e/config/kuttl.yaml
+          ./bin/kuttl test --start-kind=false --config tests/config/kuttl.yaml

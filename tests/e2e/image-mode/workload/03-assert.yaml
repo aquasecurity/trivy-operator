@@ -1,0 +1,15 @@
+---
+apiVersion: kuttl.dev/v1beta1
+commands:
+  - script: |
+      cnt="$(kubectl get -n $NAMESPACE configauditreports.aquasecurity.github.io pod-my-pod \
+        -o=jsonpath='{.report.summary.mediumCount}')"
+      if [ $cnt -gt 0 ]
+      then
+        echo "Pass: ConfigAuditReport MediumCount ($cnt) is greater than 0"
+      else
+        echo "Fail: ConfigAuditReport MediumCount $(cnt) should be greater than 0"
+        exit 1
+      fi
+kind: TestAssert
+timeout: 30

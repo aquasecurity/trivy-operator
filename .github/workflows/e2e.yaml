@@ -78,3 +78,7 @@ jobs:
         run: |
           ./bin/kuttl test --start-kind=false --config tests/config/fs-mode.yaml
           ./tests/resources-cleanup.sh > /dev/null 2>&1
+      - name: client/server mode test
+        run: |
+          ./bin/kuttl test --start-kind=false --config tests/config/client-server.yaml
+          ./tests/resources-cleanup.sh > /dev/null 2>&1

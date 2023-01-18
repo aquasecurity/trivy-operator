@@ -15,8 +15,3 @@ report:
     name: Trivy
     vendor: Aqua Security
     version: 0.36.0
-  summary:
-    criticalCount: 58
-    highCount: 113
-    lowCount: 163
-    mediumCount: 105

@@ -1,10 +1,12 @@
 ---
 apiVersion: kuttl.dev/v1beta1
 commands:
-  - script: |
-      cnt="$(kubectl get -n $NAMESPACE vulnerabilityreports.aquasecurity.github.io pod-my-pod-app \
+  - script: >
+      cnt="$(kubectl get -n $NAMESPACE
+      vulnerabilityreports.aquasecurity.github.io pod-my-pod-app \
         -o=jsonpath='{.report.summary.criticalCount}')"
       if [ $cnt -gt 0 ]
+
       then
         echo "Pass: VulnerabilityReport CriticalCount ($cnt) is greater than 0"
       else

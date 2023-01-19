@@ -49,15 +49,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COSIGN_EXPERIMENTAL: 1
-      - name: Login to docker.io registry
-        uses: docker/login-action@v2
+      - name: Login to ghcr.io
+        uses: docker/login-action@v2.0.0
         with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Tag and push image
         run: |
-          docker tag aquasec/trivy-operator:${{ github.sha }}-amd64 aquasec/trivy-operator:e2e
-          docker push aquasec/trivy-operator:e2e
+          docker tag ghcr.io/aquasecurity/trivy-operator:${{ github.sha }}-amd64 ghcr.io/aquasecurity/trivy-operator:e2e
+          docker push ghcr.io/aquasecurity/trivy-operator:e2e
       - name: Setup Kubernetes cluster (KIND)
         uses: helm/kind-action@v1.4.0
       - name: Test connection to Kubernetes cluster

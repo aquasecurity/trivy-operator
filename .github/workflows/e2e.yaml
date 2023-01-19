@@ -56,8 +56,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Tag and push image
         run: |
-          docker tag ghcr.io/aquasecurity/trivy-operator:${{ github.sha }}-amd64 ghcr.io/aquasecurity/trivy-operator:e2e
-          docker push ghcr.io/aquasecurity/trivy-operator:e2e
+          docker tag ghcr.io/aquasecurity/trivy-operator:${{ github.sha }}-amd64 ghcr.io/aquasecurity/trivy-operator:nightly
+          docker push ghcr.io/aquasecurity/trivy-operator:nightly
       - name: Setup Kubernetes cluster (KIND)
         uses: helm/kind-action@v1.4.0
       - name: Test connection to Kubernetes cluster

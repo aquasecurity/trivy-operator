@@ -1709,7 +1709,7 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: trivy-operator
-          image: ghcr.io/aquasecurity/trivy-operator:e2e
+          image: ghcr.io/aquasecurity/trivy-operator:nightly
           imagePullPolicy: IfNotPresent
           env:
             - name: OPERATOR_NAMESPACE

@@ -36,7 +36,7 @@ changelog:
       - ^release
 dockers:
   - image_templates:
-      - docker.io/aquasec/trivy-operator:{{ .Version }}-amd64
+      - ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-amd64
     use: buildx
     goos: linux
     dockerfile: build/trivy-operator/Dockerfile
@@ -56,6 +56,6 @@ dockers:
         .Version }}/
       - --platform=linux/amd64
 docker_manifests:
-  - name_template: aquasec/trivy-operator:{{ .Version }}
+  - name_template: ghcr.io/aquasecurity/trivy-operator:{{ .Version }}
     image_templates:
-      - aquasec/trivy-operator:{{ .Version }}-amd64
+      - ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-amd64

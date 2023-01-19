@@ -39,6 +39,9 @@ The Trivy operator automatically updates security reports in response to workloa
 <img src="docs/images/trivy-operator-overview.png" alt="Trivy-operator Overview"/>
 </p>
 
+_Please [star ⭐](https://github.com/aquasecurity/trivy-operator/stargazers) the repo if you want us to continue developing and improving trivy-operator! 😀_
+
+
 # Status
 
 Although we are trying to keep new releases backward compatible with previous versions, this project is still incubating,

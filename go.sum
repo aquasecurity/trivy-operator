@@ -68,8 +68,13 @@ github.com/anmitsu/go-shlex v0.0.0-20161002113705-648efa622239/go.mod h1:2FmKhYU
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/apparentlymart/go-textseg/v13 v13.0.0 h1:Y+KvPE1NYz0xl601PVImeQfFyEy6iT90AvPUL1NNfNw=
 github.com/apparentlymart/go-textseg/v13 v13.0.0/go.mod h1:ZK2fH7c4NqDTLtiYLvIkEghdlcqw7yxLeM89kiTRPUo=
+<<<<<<< HEAD
 github.com/aquasecurity/defsec v0.82.7-0.20230120014503-046ee90ace59 h1:03Sb8/AX5zWuSE6OIOk0eWoCgYkFuYIbUTw4+NGDfu8=
 github.com/aquasecurity/defsec v0.82.7-0.20230120014503-046ee90ace59/go.mod h1:f/acz2sBQzfTcnaPxSjVnkRhCQ9hUbC6qwQCaHQwrFc=
+=======
+github.com/aquasecurity/defsec v0.82.7-0.20230112034408-a093ce4c39a3 h1:LYJ72VJK60IhGXrzrBPoL3IYNGvyrZyXEbm0n2dvjNg=
+github.com/aquasecurity/defsec v0.82.7-0.20230112034408-a093ce4c39a3/go.mod h1:f/acz2sBQzfTcnaPxSjVnkRhCQ9hUbC6qwQCaHQwrFc=
+>>>>>>> 422f1fe (feat: add node info resource)
 github.com/aquasecurity/go-dep-parser v0.0.0-20230105081339-fe9e63bf16bf h1:r7OsibIkchbBlbRd0HhyHnL8GkELo8WrHu2wRAx8a9M=
 github.com/aquasecurity/go-dep-parser v0.0.0-20230105081339-fe9e63bf16bf/go.mod h1:sVaiFgCEAOD3REZ8yamINqBf+BKiV/jt60DhG2rvKEo=
 github.com/aquasecurity/table v1.8.0 h1:9ntpSwrUfjrM6/YviArlx/ZBGd6ix8W+MtojQcM7tv0=
@@ -103,6 +108,7 @@ github.com/cespare/xxhash/v2 v2.1.1/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XL
 github.com/cespare/xxhash/v2 v2.1.2 h1:YRXhKfTDauu4ajMg1TPgFO5jnlC2HCbmLXMcTG5cbYE=
 github.com/cespare/xxhash/v2 v2.1.2/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 =======
@@ -113,6 +119,8 @@ github.com/chen-keinan/trivy-kubernetes v0.3.1-0.20230115112645-49e23f6d86d6 h1:
 github.com/chen-keinan/trivy-kubernetes v0.3.1-0.20230115112645-49e23f6d86d6/go.mod h1:ydCI4D9Tc5kU/4Clqj+zVNXeS4hQYLrvE7HilMycRQk=
 >>>>>>> ca483e2 (feat: node info collector)
 =======
+=======
+>>>>>>> 4b94a9b (feat: add node info resource)
 github.com/chen-keinan/trivy-kubernetes v0.3.1-0.20230116063537-5fc3892320f0 h1:ZY1OLQ+8pQCMttQfBJhP18dyPVdYCR5i5rxuCh35p9I=
 github.com/chen-keinan/trivy-kubernetes v0.3.1-0.20230116063537-5fc3892320f0/go.mod h1:ydCI4D9Tc5kU/4Clqj+zVNXeS4hQYLrvE7HilMycRQk=
 >>>>>>> 7c90b95 (feat: node info collector)

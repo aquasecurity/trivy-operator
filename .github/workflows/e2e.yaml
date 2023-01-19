@@ -9,9 +9,8 @@ on:
 
 env:
   GO_VERSION: "1.19.1"
-
-# Disable permissions granted to the GITHUB_TOKEN for all the available scopes.
-permissions: {}
+permissions:
+    packages: write
 
 jobs:
   e2e-testing:

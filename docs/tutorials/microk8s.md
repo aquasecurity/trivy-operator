@@ -43,7 +43,7 @@ A list of addons is provided below.
 
 This tutorial will showcase how to install and then remove the Trivy Operator addon.
 
-## Prerequisits
+## Prerequisites
 
 You need to have microk8s installed. In our case, we have set up kubectl to use the microk8s cluster. You can find different guides, depending on your operating system, on the [microk8s website.](https://microk8s.io/tutorials)
 
@@ -113,7 +113,7 @@ If you have any container images running in your microk8s cluster, Trivy will st
 
 ## Cleaning up
 
-Remvoing the Trivy Operator from your cluster is as easy as installing it. Simply run:
+Removing the Trivy Operator from your cluster is as easy as installing it. Simply run:
 ```
 microk8s disable trivy
 ```

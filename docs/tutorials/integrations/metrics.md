@@ -65,7 +65,7 @@ trivy_cluster_compliance{description="National Security Agency - Kubernetes Hard
 
 ## Vulnerability ID
 
-Exposing vulnerability ID on metrics by settting the EnvVar: `OPERATOR_METRICS_VULN_ID_ENABLED" envDefault:"false"`
+Exposing vulnerability ID on metrics by setting the EnvVar: `OPERATOR_METRICS_VULN_ID_ENABLED" envDefault:"false"`
 
 ```shell
 trivy_vulnerability_id{
@@ -76,13 +76,13 @@ trivy_vulnerability_id{
 ## Adding Custom Label to Metrics
 
 User might wants to include custom labels to resource that can be exposed and associated with the Prometheus metrics.
-this capbility can be added by setting the following helm param.
+this capability can be added by setting the following helm param.
 
 Example:
 
 `--set="trivyOperator.reportResourceLabels": "owner"`
 
-`k8s_label_` prefix wil be added to custom label
+`k8s_label_` prefix will be added to custom label
 
 ```shell
 trivy_resource_configaudits{k8s_label_owner="platform",name="daemonset-svclb-traefik",namespace="kube-system",resource_kind="DaemonSet",resource_name="svclb-traefik",severity="Critical"} 2

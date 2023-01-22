@@ -9,7 +9,7 @@ In this tutorial, we showcase how you can access the metrics from your Trivy Ope
 
 ### Installing Prometheus and Grafana
 
-Prometheus and Grafana can easily be installed throught the kube-prometheus-stack [Helm Chart.](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack)
+Prometheus and Grafana can easily be installed through the kube-prometheus-stack [Helm Chart.](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack)
 
 First, create a `monitoring` namespace in which we can install the Prometheus & Grafana resources:
 ```
@@ -35,7 +35,7 @@ prometheus:
     serviceMonitorNamespaceSelector: {}
 ```
 
-If you are working on a more complext installation or you would like the Helm Chart to connect with other applications such as Promtail or other monitoring tools, the values.yaml file is a good place to set up those configuration.
+If you are working on a more complex installation or you would like the Helm Chart to connect with other applications such as Promtail or other monitoring tools, the values.yaml file is a good place to set up those configuration.
 
 Next, install the Helm Chart:
 ```
@@ -133,7 +133,7 @@ Open the Prometheus Dashboard at 'localhost:9090' through the port-forwarding do
 
 At this point, navigate to: `Status` < `Targets` -- and make sure that the Trivy endpoint is healthy and Prometheus can scrape its metrics.
 
-Next, head back to 'Graph' -- http://localhost:9090/graph. Here you can already query certain metrics from the Trivy Operator. The query langiage used is basic PromQL.
+Next, head back to 'Graph' -- http://localhost:9090/graph. Here you can already query certain metrics from the Trivy Operator. The query language used is basic PromQL.
 There are lots of guides online that can give you inspiration. Try for instance the following queries:
 
 Total vulnerabilities found in your cluster:

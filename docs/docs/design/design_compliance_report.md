@@ -10,8 +10,8 @@ example : NSA - Kubernetes Hardening Guidance
 ### TL;DR;
 
 - A cluster compliance resource ,nsa-1.0.yaml (example below), with spec definition only will be deployed to kubernetes cluster upon startup
-- the spec definition wil include the control check , cron expression for periodical generation, and it's mapping to scanners (kube-bench and audit-config)
-- a new cluster compliance reconcile loop wil be introduced to track this cluster compliance resource 
+- the spec definition will include the control check , cron expression for periodical generation, and it's mapping to scanners (kube-bench and audit-config)
+- a new cluster compliance reconcile loop will be introduced to track this cluster compliance resource 
 - when the cluster spec is reconcile  it check if cron expression match current time , if so it generates a compliance report and update the status section with report data
 - if cron expression do not match the event will be requeue until next generation time 
 - Two new CRDs will be introduced :
@@ -763,7 +763,7 @@ to support the following tracked resources kind by NSA plugin with (get,list and
 | Audit policy file                                                                             | check that policy is configure                                                                          | Node                                                                        | Kube-bench  | 3.2.1 Ensure that a minimal audit policy is created                                                                           |
 | Audit log path                                                                                | check that log path is configure                                                                        | Node                                                                        | Kube-bench  | 1.2.22 Ensure that the --audit-log-path argument is set                                                                       |
 | Audit log max age                                                                             | check audit log aging                                                                                   | Node                                                                        | Kube-bench  | 1.2.23 Ensure that the --audit-log-maxage argument is set to 30 or as appropriate                                             |~~
-| service mesh usage                                                                            | check service mesh is used in cluster                                                                   | Node                                                                        | Kube-bench  | Add Logic to kube-bench check service mesh existenace                                                                         |
+| service mesh usage                                                                            | check service mesh is used in cluster                                                                   | Node                                                                        | Kube-bench  | Add Logic to kube-bench check service mesh existence                                                                         |
 
 
 ## Open Items

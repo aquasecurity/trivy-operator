@@ -20,5 +20,5 @@ jobs:
           # Fetch tags from upstream repo
           git fetch https://github.com/aquasecurity/trivy-operator --tags
           # Remove release candidates local tags
-          git tag -d $(git tag -l | grep -E "\-rc|\-beta")
+          git tag -d $(git tag -l | grep -E "\-rc|\-beta|\-dev|\-chart")
           git push --tags

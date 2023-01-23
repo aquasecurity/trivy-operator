@@ -5498,6 +5498,87 @@ func TestGetContainers(t *testing.T) {
 	}
 }
 
+func TestGetMitigationMessage(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
+		mitigations := []trivy.Mitigation{}
+		registry := v1alpha1.Registry{}
+		artifact := v1alpha1.Artifact{}
+		vulnerability := v1alpha1.Vulnerability{}
+		if result, err := trivy.GetMitigationMessage(mitigations, registry, artifact, vulnerability); assert.NoError(t, err) {
+			assert.Equal(t, "", result)
+		}
+	})
+
+	t.Run("true", func(t *testing.T) {
+		mitigations := []trivy.Mitigation{
+			{
+				Message: "Message for false",
+				Matcher: "false",
+			},
+			{
+				Message: "Message for true",
+				Matcher: "true",
+			},
+		}
+		registry := v1alpha1.Registry{}
+		artifact := v1alpha1.Artifact{}
+		vulnerability := v1alpha1.Vulnerability{}
+		if result, err := trivy.GetMitigationMessage(mitigations, registry, artifact, vulnerability); assert.NoError(t, err) {
+			assert.Equal(t, "Message for true", result)
+		}
+	})
+
+	t.Run("all", func(t *testing.T) {
+		mitigations := []trivy.Mitigation{
+			{
+				Message: "Message",
+				Matcher: `
+					RegistryServer == 'ghcr.io' &&
+					ArtifactRepository == 'aquasecurity/trivy-operator' &&
+					VulnerabilityID == 'CVE-0' && 
+					Resource == 'Resource' &&
+					Severity == 'HIGH' &&
+					Target == 'Target' &&
+					Class == 'Class' &&
+					PackageType == 'PackageType' &&
+					CVSSScore == 10.0 &&
+					CVSSAV == 'N' &&
+					CVSSAC == 'L' &&
+					CVSSPR == 'N' &&
+					CVSSUI == 'N' &&
+					CVSSS == 'C' &&
+					CVSSC == 'H' &&
+					CVSSI == 'H' &&
+					CVSSA == 'H'
+				`,
+			},
+		}
+		registry := v1alpha1.Registry{
+			Server: "ghcr.io",
+		}
+		artifact := v1alpha1.Artifact{
+			Repository: "aquasecurity/trivy-operator",
+		}
+		vulnerability := v1alpha1.Vulnerability{
+			VulnerabilityID: "CVE-0",
+			Resource:        "Resource",
+			Severity:        v1alpha1.SeverityHigh,
+			Target:          "Target",
+			Class:           "Class",
+			PackageType:     "PackageType",
+			CVSS: dbtypes.VendorCVSS{
+				"nvd": dbtypes.CVSS{
+					V3Score:  10.0,
+					V3Vector: "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+				},
+			},
+		}
+		if result, err := trivy.GetMitigationMessage(mitigations, registry, artifact, vulnerability); assert.NoError(t, err) {
+			assert.Equal(t, "Message", result)
+		}
+	})
+}
+
 func getReportAsString(fixture string) string {
 	f, err := os.Open("./testdata/fixture/" + fixture)
 	if err != nil {

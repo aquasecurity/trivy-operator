@@ -11,6 +11,8 @@ require (
 	github.com/dsnet/compress v0.0.1
 	github.com/emirpasic/gods v1.18.1
 	github.com/go-logr/logr v1.2.3
+	github.com/goark/go-cvss v1.3.0
+	github.com/google/cel-go v0.12.5
 	github.com/google/go-containerregistry v0.12.1
 	github.com/google/uuid v1.3.0
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
@@ -31,10 +33,12 @@ require (
 )
 
 require (
+	github.com/antlr/antlr4/runtime/Go/antlr v1.4.10 // indirect
 	github.com/aquasecurity/go-dep-parser v0.0.0-20230105081339-fe9e63bf16bf // indirect
 	github.com/aquasecurity/table v1.8.0 // indirect
 	github.com/aquasecurity/tml v0.6.1 // indirect
 	github.com/fatih/color v1.13.0 // indirect
+	github.com/goark/errs v1.1.0 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/masahiro331/go-xfs-filesystem v0.0.0-20221225060805-c02764233454 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
@@ -43,10 +47,12 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/samber/lo v1.36.0 // indirect
 	github.com/spdx/tools-golang v0.3.0 // indirect
+	github.com/stoewer/go-strcase v1.2.0 // indirect
 	github.com/tchap/go-patricia/v2 v2.3.1 // indirect
 	github.com/xlab/treeprint v1.1.0 // indirect
 	golang.org/x/mod v0.7.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
+	google.golang.org/genproto v0.0.0-20221024183307-1bc688fe9f3e // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 

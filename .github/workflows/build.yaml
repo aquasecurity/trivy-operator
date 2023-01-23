@@ -57,7 +57,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Verify Go code
-        uses: golangci/golangci-lint-action@v3.3.1
+        uses: golangci/golangci-lint-action@v3.4.0
         with:
           args: --verbose
           version: latest

@@ -2,7 +2,6 @@ Trivy has a native [Kubernetes Operator](operator) which continuously scans your
 
 > Trivy Operator is based on existing Aqua OSS project - [Starboard], and shares some of the design, principles and code with it. Existing content that relates to Starboard Operator might also be relevant for Trivy Operator. To learn more about the transition from Starboard to Trivy, see the [announcement discussion](https://github.com/aquasecurity/starboard/discussions/1173).
 
-<figure>
-  <img src="./images/operator/trivy-operator-workloads.png" />
-  <figcaption>Workload reconcilers discover K8s controllers, manage scan jobs, and create VulnerabilityReport and ConfigAuditReport objects.</figcaption>
-</figure>
+### What's next?
+
+To try out the Trivy Operator, head over to the [Quick Start Guide.](./getting-started/quick-start.md)

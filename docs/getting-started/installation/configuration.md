@@ -2,6 +2,85 @@
 
 You can configure Trivy-Operator to control it's behavior and adapt it to your needs. Aspects of the operator machinery are configured using environment variables on the operator Pod, while aspects of the scanning behavior are controlled by ConfigMaps and Secrets.
 
+# Operator Configuration Settings
+
+Trivy Operator read configuration settings from ConfigMaps, as well as Secrets that holds
+confidential settings (such as a GitHub token). Trivy-Operator plugins read configuration and secret data from ConfigMaps
+and Secrets named after the plugin. For example, Trivy configuration is stored in the ConfigMap and Secret named
+`trivy-operator-trivy-config`.
+
+You can change the default settings with `kubectl patch` or `kubectl edit` commands. For example, by default Trivy
+displays vulnerabilities with all severity levels (`UNKNOWN`, `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`). However, you can
+display only `HIGH` and `CRITICAL` vulnerabilities by patching the `trivy.severity` value in the `trivy-operator-trivy-config`
+ConfigMap:
+
+```
+TRIVY_OPERATOR_NAMESPACE=<your trivy operator namespace>
+```
+```
+kubectl patch cm trivy-operator-trivy-config -n $TRIVY_OPERATOR_NAMESPACE \
+  --type merge \
+  -p "$(cat <<EOF
+{
+  "data": {
+    "trivy.severity": "HIGH,CRITICAL"
+  }
+}
+EOF
+)"
+```
+
+To set the GitHub token used by Trivy add the `trivy.githubToken` value to the `trivy-operator-trivy-config` Secret:
+
+```
+TRIVY_OPERATOR_NAMESPACE=<your trivy opersator namespace>
+GITHUB_TOKEN=<your token>
+```
+```
+kubectl patch secret trivy-operator-trivy-config -n $TRIVY_OPERATOR_NAMESPACE \
+  --type merge \
+  -p "$(cat <<EOF
+{
+  "data": {
+    "trivy.githubToken": "$(echo -n $GITHUB_TOKEN | base64)"
+  }
+}
+EOF
+)"
+```
+
+The following table lists available settings with their default values. Check plugins' documentation to see
+configuration settings for common use cases. For example, switch Trivy from [Standalone] to [ClientServer] mode.
+
+| CONFIGMAP KEY                                                        | DEFAULT                               | DESCRIPTION                                                                                                                                                                                                                         |
+|------------------------------------------------|---------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `vulnerabilityReports.scanner`                                       | `Trivy`                               | The name of the plugin that generates vulnerability reports. Either `Trivy` or `Aqua`.                                                                                                                                              |
+| `vulnerabilityReports.scanJobsInSameNamespace`                       | `"false"`                             | Whether to run vulnerability scan jobs in same namespace of workload. Set `"true"` to enable.                                                                                                                                       |
+| `configAuditReports.scanner`                                         | `Trivy`                               | The name of the plugin that generates config audit reports.                                                                                                                                                                         |
+| `scanJob.tolerations`                                                | N/A                                   | JSON representation of the [tolerations] to be applied to the scanner pods so that they can run on nodes with matching taints. Example: `'[{"key":"key1", "operator":"Equal", "value":"value1", "effect":"NoSchedule"}]'`           |
+| `scanJob.nodeSelector`                                                | N/A                                   | JSON representation of the [nodeSelector] to be applied to the scanner pods so that they can run on nodes with matching labels. Example: `'{"example.com/node-type":"worker", "cpu-type": "sandylake"}'`           |
+| `scanJob.annotations`                                                 | N/A                                   | One-line comma-separated representation of the annotations which the user wants the scanner pods to be annotated with. Example: `foo=bar,env=stage` will annotate the scanner pods with the annotations `foo: bar` and `env: stage` |
+| `scanJob.templateLabel`                                               | N/A                                   | One-line comma-separated representation of the template labels which the user wants the scanner pods to be labeled with. Example: `foo=bar,env=stage` will labeled the scanner pods with the labels `foo: bar` and `env: stage`     |
+| `scanJob.podTemplatePodSecurityContext`                               | N/A                                   | One-line JSON representation of the template securityContext which the user wants the scanner pods to be secured with. Example: `{"RunAsUser": 1000, "RunAsGroup": 1000, "RunAsNonRoot": true}`                |
+| `scanJob.podTemplateContainerSecurityContext`                         | N/A| One-line JSON representation of the template securityContext which the user wants the scanner containers (and their initContainers) to be amended with. Example: `{"allowPrivilegeEscalation": false, "capabilities": { "drop": ["ALL"]},"privileged": false, "readOnlyRootFilesystem": true }`|
+| `compliance.failEntriesLimit`                                         | `"10"`                                | Limit the number of fail entries per control check in the cluster compliance detail report.                                                                                                                                         |
+| `scanJob.compressLogs       `                                       | `"true"`                              | Control whether scanjob output should be compressed                                                                                                                                    |
+
+!!! tip
+    You can delete a configuration key.For example, the following `kubectl patch` command deletes the `trivy.httpProxy` key:
+    ```
+    TRIVY_OPERATOR_NAMESPACE=<your trivy operator namespace>
+    ```
+    ```
+    kubectl patch cm trivy-operator-trivy-config -n $TRIVY_OPERATOR_NAMESPACE \
+      --type json \
+      -p '[{"op": "remove", "path": "/data/trivy.httpProxy"}]'
+    ```
+
+[ClientServer]: ../../docs/vulnerability-scanning/trivy.md#clientserver
+[tolerations]: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration
+
+
 # Operator Configuration
 
 | NAME                                                         | DEFAULT                | DESCRIPTION                                                                                                                                                                                                  |
@@ -117,3 +196,29 @@ kubectl patch cm trivy-operator-trivy-config -n trivy-system \
 
 
 [prometheus]: https://github.com/prometheus
+
+## Configuring the Trivy Operator Helm Chart
+
+The values outlined above are set through the [values.yaml](https://github.com/aquasecurity/trivy-operator/blob/main/deploy/helm/values.yaml) file in the [Trivy Operator Helm Chart.](https://github.com/aquasecurity/trivy-operator/tree/main/deploy/helm)
+If you wish to make any changes to the Helm Chart, please create a new values.yaml file locally and adapt the configuration that you want to change.
+
+For instance, if you want to install the Trivy Operator with `ignoreunfixed` set to true, you would write the following fields into your values.yaml file:
+
+```
+trivy:
+  ignoreUnfixed: true
+```
+
+Note: Make sure that you are not setting the values but also within the field of the operator that the value applies to e.g. in the above example `ignoreUnfixed` is a field in `trivy`/
+
+Once you have defined the values.yaml file, you can install the Helm Chart withe you specific configuration:
+
+```
+helm install trivy-operator aqua/trivy-operator \
+  --namespace trivy-system \
+  --create-namespace \
+  --values values.yaml
+```
+
+Please refer to the Helm [installation guide](./helm.md) for the exact command.
+

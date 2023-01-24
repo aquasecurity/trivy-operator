@@ -26,4 +26,13 @@ Kubernetes workload by containers is to mitigate the risk of exceeding the etcd
 request payload limit. By default, the payload of each Kubernetes object stored
 etcd is subject to 1.5 MiB.
 
+## How can you export reporst from within the Kubernetes cluster?
 
+The Trivy Operator is a Kubernetes-based tool. Meaning, it does not provide a platform out of the box through which you could export and download security reports.
+The Trivy Operator creates the Kubernetes CRD as report for each security scan and stores it inside your Kubernetes cluster. You can then either query reports directly from within your cluster or use other tools in the CNCF ecosystem or enterprise tools to access the reports.
+
+Have a look at our [tutorial on using Prometheus and Grafana](../tutorials/grafana-dashboard.md) with our Grafana Dashboard to access the Trivy Operator report metrics. 
+
+## How can you configure the report format for trivy-operator? For example to convert to CSV or Serif formats.
+
+The only way is to use an external tool to convert it to csv from yaml/json or you could try to leverage the integration with postee sending it to an external system (mail, webhook and etc).

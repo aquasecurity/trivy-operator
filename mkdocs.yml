@@ -18,19 +18,16 @@ nav:
           - Upgrade: getting-started/installation/upgrade.md
           - Configuration: getting-started/installation/configuration.md
           - Troubleshooting: getting-started/installation/troubleshooting.md
-          - Settings: settings.md
       - Quick Start:
           - Guide: getting-started/quick-start.md
+      - FAQs:
+          - Frequently Asked Questions: getting-started/faq.md
   - Tutorials:
       - Writing Custom Configuration Audit Policies: tutorials/writing-custom-configuration-audit-policies.md
       - Manage Access to Security Reports: tutorials/manage_access_to_security_reports.md
       - Using the Trivy Operator addon in microk8s: tutorials/microk8s.md
       - Operator Access to Private Registries: tutorials/private-registries.md
       - Trivy Operator Dashboard in Grafana: tutorials/grafana-dashboard.md
-      - Integrations:
-          - Metrics: tutorials/integrations/metrics.md
-          - Lens Extension: tutorials/integrations/lens.md
-          - Webhook Integration: tutorials/integrations/webhook.md
   - Docs:
       - Vulnerability Scanning:
           - Overview: docs/vulnerability-scanning/index.md
@@ -50,7 +47,11 @@ nav:
           - RbacAssessmentReport: docs/crds/rbacassessment-report.md
           - InfraAssessmentReport: docs/crds/infraassessment-report.md
           - ClusterComplianceReport: docs/crds/clustercompliance-report.md
-  - Frequently Asked Questions: faq.md
+      - Integrations:
+          - Metrics: docs/integrations/metrics.md
+          - Lens Extension: docs/integrations/lens.md
+          - Webhook Integration: docs/integrations/webhook.md
+  - Contributing: contributing/index.md
 
 theme:
   name: material

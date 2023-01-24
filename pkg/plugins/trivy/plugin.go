@@ -12,11 +12,8 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/aquasecurity/trivy-db/pkg/types"
-	"github.com/goark/go-cvss/v3/metric"
-	"gopkg.in/yaml.v2"
 
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
-	"github.com/google/cel-go/cel"
 	containerimage "github.com/google/go-containerregistry/pkg/name"
 
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
@@ -32,16 +29,11 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/pointer"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 const (
 	// Plugin the name of this plugin.
 	Plugin = "Trivy"
-)
-
-var (
-	setupLog = log.Log.WithName("operator")
 )
 
 const (
@@ -87,8 +79,6 @@ const (
 	keyTrivyServerToken         = "trivy.serverToken"
 	keyTrivyServerCustomHeaders = "trivy.serverCustomHeaders"
 
-	keyMitigations = "trivy.mitigations"
-
 	keyResourcesRequestsCPU    = "trivy.resources.requests.cpu"
 	keyResourcesRequestsMemory = "trivy.resources.requests.memory"
 	keyResourcesLimitsCPU      = "trivy.resources.limits.cpu"
@@ -121,11 +111,6 @@ type AdditionalFields struct {
 	Target      bool
 	Class       bool
 	PackageType bool
-}
-
-type Mitigation struct {
-	Message string `yaml:"message"`
-	Matcher string `yaml:"matcher"`
 }
 
 // Config defines configuration params for this plugin.
@@ -1803,13 +1788,6 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 		}
 	}
 
-	mitigations := []Mitigation{}
-	if raw, ok := config.Data[keyMitigations]; ok && raw != "" {
-		if err := yaml.UnmarshalStrict([]byte(raw), &mitigations); err != nil {
-			setupLog.Error(err, "Unable to unmarshall mitigations")
-		}
-	}
-
 	var reports ScanReport
 	err = json.NewDecoder(logsReader).Decode(&reports)
 	if err != nil {
@@ -1831,15 +1809,6 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 		return vulnReport, secretReport, err
 	}
 
-	for i := range vulnerabilities {
-		vulnerability := vulnerabilities[i]
-		if mitigationMessage, err := GetMitigationMessage(mitigations, registry, artifact, vulnerability); err != nil {
-			setupLog.Error(err, "Unable to check mitigation")
-		} else if mitigationMessage != "" {
-			vulnerabilities[i].Mitigation = mitigationMessage
-		}
-	}
-
 	trivyImageRef, err := config.GetImageRef()
 	if err != nil {
 		return vulnReport, secretReport, err
@@ -1859,7 +1828,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 			},
 			Registry:        registry,
 			Artifact:        artifact,
-			Summary:         p.vulnerabilitySummary(vulnerabilities),
+			Summary:         VulnerabilitySummary(vulnerabilities),
 			Vulnerabilities: vulnerabilities,
 		}, v1alpha1.ExposedSecretReportData{
 			UpdateTimestamp: metav1.NewTime(p.clock.Now()),
@@ -1870,7 +1839,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 			},
 			Registry: registry,
 			Artifact: artifact,
-			Summary:  p.secretSummary(secrets),
+			Summary:  ExposedSecretSummary(secrets),
 			Secrets:  secrets,
 		}, nil
 
@@ -1951,7 +1920,7 @@ func (p *plugin) NewConfigForConfigAudit(ctx trivyoperator.PluginContext) (confi
 	return p.getConfig(ctx)
 }
 
-func (p *plugin) vulnerabilitySummary(vulnerabilities []v1alpha1.Vulnerability) v1alpha1.VulnerabilitySummary {
+func VulnerabilitySummary(vulnerabilities []v1alpha1.Vulnerability) v1alpha1.VulnerabilitySummary {
 	var vs v1alpha1.VulnerabilitySummary
 	for _, v := range vulnerabilities {
 		if v.Mitigation != "" {
@@ -1974,7 +1943,7 @@ func (p *plugin) vulnerabilitySummary(vulnerabilities []v1alpha1.Vulnerability) 
 	return vs
 }
 
-func (p *plugin) secretSummary(secrets []v1alpha1.ExposedSecret) v1alpha1.ExposedSecretSummary {
+func ExposedSecretSummary(secrets []v1alpha1.ExposedSecret) v1alpha1.ExposedSecretSummary {
 	var s v1alpha1.ExposedSecretSummary
 	for _, v := range secrets {
 		switch v.Severity {
@@ -2143,118 +2112,4 @@ func getSecurityChecks(ctx trivyoperator.PluginContext) string {
 	}
 
 	return strings.Join(securityChecks, ",")
-}
-
-func GetMitigationMessage(mitigations []Mitigation, registry v1alpha1.Registry, artifact v1alpha1.Artifact, vulnerability v1alpha1.Vulnerability) (string, error) {
-	env, err := cel.NewEnv(
-		cel.Variable("RegistryServer", cel.StringType),
-		cel.Variable("ArtifactRepository", cel.StringType),
-		cel.Variable("VulnerabilityID", cel.StringType),
-		cel.Variable("Resource", cel.StringType),
-		cel.Variable("Severity", cel.StringType),
-		cel.Variable("Target", cel.StringType),
-		cel.Variable("Class", cel.StringType),
-		cel.Variable("PackageType", cel.StringType),
-		cel.Variable("CVSSScore", cel.DoubleType),
-		cel.Variable("CVSSAV", cel.StringType),
-		cel.Variable("CVSSAC", cel.StringType),
-		cel.Variable("CVSSPR", cel.StringType),
-		cel.Variable("CVSSUI", cel.StringType),
-		cel.Variable("CVSSS", cel.StringType),
-		cel.Variable("CVSSC", cel.StringType),
-		cel.Variable("CVSSI", cel.StringType),
-		cel.Variable("CVSSA", cel.StringType),
-	)
-	if err != nil {
-		return "", err
-	}
-
-	for _, mitigation := range mitigations {
-		ast, issues := env.Compile(mitigation.Matcher)
-		if issues != nil && issues.Err() != nil {
-			return "", issues.Err()
-		}
-		prg, err := env.Program(ast)
-		if err != nil {
-			return "", err
-		}
-
-		cvss := GetCvssV3(vulnerability.CVSS)
-		cvssScorePointer := GetScoreFromCVSS(cvss)
-		cvssScore := 0.0
-		if cvssScorePointer != nil {
-			cvssScore = *cvssScorePointer
-		}
-
-		cvssVectorPointer := GetVectorFromCVSS(cvss)
-		var cvssBaseMetricPointer *metric.Base
-		if cvssVectorPointer != nil {
-			bm, err := metric.NewBase().Decode(*cvssVectorPointer)
-			if err == nil && bm.Ver != metric.VUnknown {
-				cvssBaseMetricPointer = bm
-			}
-		}
-		cvssAV := ""
-		if cvssBaseMetricPointer != nil {
-			cvssAV = cvssBaseMetricPointer.AV.String()
-		}
-		cvssAC := ""
-		if cvssBaseMetricPointer != nil {
-			cvssAC = cvssBaseMetricPointer.AC.String()
-		}
-		cvssPR := ""
-		if cvssBaseMetricPointer != nil {
-			cvssPR = cvssBaseMetricPointer.PR.String()
-		}
-		cvssUI := ""
-		if cvssBaseMetricPointer != nil {
-			cvssUI = cvssBaseMetricPointer.UI.String()
-		}
-
-		cvssS := ""
-		if cvssBaseMetricPointer != nil {
-			cvssS = cvssBaseMetricPointer.S.String()
-		}
-		cvssC := ""
-		if cvssBaseMetricPointer != nil {
-			cvssC = cvssBaseMetricPointer.C.String()
-		}
-		cvssI := ""
-		if cvssBaseMetricPointer != nil {
-			cvssI = cvssBaseMetricPointer.I.String()
-		}
-		cvssA := ""
-		if cvssBaseMetricPointer != nil {
-			cvssA = cvssBaseMetricPointer.A.String()
-		}
-
-		envMap := map[string]interface{}{
-			"RegistryServer":     registry.Server,
-			"ArtifactRepository": artifact.Repository,
-			"VulnerabilityID":    vulnerability.VulnerabilityID,
-			"Resource":           vulnerability.Resource,
-			"Severity":           string(vulnerability.Severity),
-			"Target":             vulnerability.Target,
-			"Class":              vulnerability.Class,
-			"PackageType":        vulnerability.PackageType,
-			"CVSSScore":          cvssScore,
-			"CVSSAV":             cvssAV,
-			"CVSSAC":             cvssAC,
-			"CVSSPR":             cvssPR,
-			"CVSSUI":             cvssUI,
-			"CVSSS":              cvssS,
-			"CVSSC":              cvssC,
-			"CVSSI":              cvssI,
-			"CVSSA":              cvssA,
-		}
-		out, _, err := prg.Eval(envMap)
-		if err != nil {
-			return "", err
-		}
-		if out.Value() == true {
-			return mitigation.Message, nil
-		}
-	}
-
-	return "", nil
 }

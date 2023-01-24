@@ -21,9 +21,9 @@ require (
 	github.com/stretchr/testify v1.8.1
 	go.uber.org/multierr v1.9.0
 	golang.org/x/net v0.5.0
-	k8s.io/api v0.26.0
+	k8s.io/api v0.26.1
 	k8s.io/apiextensions-apiserver v0.26.0
-	k8s.io/apimachinery v0.26.0
+	k8s.io/apimachinery v0.26.1
 	k8s.io/client-go v0.26.0
 	k8s.io/utils v0.0.0-20221128185143-99ec85e7a448
 	sigs.k8s.io/controller-runtime v0.14.1

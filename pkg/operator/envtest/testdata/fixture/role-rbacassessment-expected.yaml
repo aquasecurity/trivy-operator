@@ -25,6 +25,14 @@ report:
       severity: CRITICAL
       success: false
       title: Do not allow management of secrets
+    - category: Kubernetes Security Check
+      checkID: KSV110
+      description: ensure that default namespace should not be used
+      messages:
+        - Role 'proxy' should not be set with 'default' namespace
+      severity: LOW
+      success: false
+      title: The default namespace should not be used
   scanner:
     name: Trivy
     vendor: Aqua Security
@@ -32,5 +40,5 @@ report:
   summary:
     criticalCount: 1
     highCount: 0
-    lowCount: 0
+    lowCount: 1
     mediumCount: 0

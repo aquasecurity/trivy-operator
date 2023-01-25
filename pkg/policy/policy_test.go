@@ -748,7 +748,12 @@ deny[res] {
 				g.Expect(err).To(MatchError(tc.expectedError))
 			} else {
 				g.Expect(err).ToNot(HaveOccurred())
-				g.Expect(getPolicyResults(checks)).To(Equal(tc.results))
+				results := getPolicyResults(checks)
+				r, _ := json.Marshal(results)
+				rr, _ := json.Marshal(tc.results)
+				fmt.Println(string(r))
+				fmt.Println(string(rr))
+				g.Expect(results).To(Equal(tc.results))
 			}
 		})
 	}

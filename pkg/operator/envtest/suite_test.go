@@ -2,6 +2,7 @@ package operator_test
 
 import (
 	"os"
+	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -60,7 +61,7 @@ var _ = BeforeSuite(func() {
 		CRDDirectoryPaths:     []string{filepath.Join("..", "..", "..", "deploy", "crd")},
 		ErrorIfCRDPathMissing: true,
 	}
-
+	testEnv.ControlPlaneStartTimeout = 60 * time.Second
 	var err error
 	// cfg is defined in this file globally.
 	cfg, err = testEnv.Start()

@@ -34,8 +34,7 @@ type Vulnerability struct {
 }
 
 type CVSS struct {
-	V3Score  *float64 `json:"V3Score,omitempty"`
-	V3Vector *string  `json:"V3Vector,omitempty"`
+	V3Score *float64 `json:"V3Score,omitempty"`
 }
 
 type Layer struct {

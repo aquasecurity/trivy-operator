@@ -1388,11 +1388,6 @@ spec:
       name: Unknown
       priority: 1
       type: integer
-    - description: The number of mitigated vulnerabilities
-      jsonPath: .report.summary.mitigatedCount
-      name: Mitigated
-      priority: 1
-      type: integer
     name: v1alpha1
     schema:
       openAPIV3Schema:
@@ -1482,11 +1477,6 @@ spec:
                       Medium Severity.
                     minimum: 0
                     type: integer
-                  mitigatedCount:
-                    description: MitigatedCount is the number of vulnerabilities marked
-                      as mitigated.
-                    minimum: 0
-                    type: integer
                   noneCount:
                     description: NoneCount is the number of packages without any vulnerability.
                     minimum: 0
@@ -1545,8 +1535,6 @@ spec:
                       items:
                         type: string
                       type: array
-                    mitigation:
-                      type: string
                     packageType:
                       type: string
                     primaryLink:

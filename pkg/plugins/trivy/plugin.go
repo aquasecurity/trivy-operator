@@ -55,6 +55,7 @@ const (
 	keyTrivyOfflineScan                         = "trivy.offlineScan"
 	keyTrivyTimeout                             = "trivy.timeout"
 	keyTrivyIgnoreFile                          = "trivy.ignoreFile"
+	keyTrivyIgnorePolicy                        = "trivy.ignorePolicy"
 	keyTrivyInsecureRegistryPrefix              = "trivy.insecureRegistry."
 	keyTrivyNonSslRegistryPrefix                = "trivy.nonSslRegistry."
 	keyTrivyMirrorPrefix                        = "trivy.registry.mirror."
@@ -280,6 +281,11 @@ func (c Config) IgnoreFileExists() bool {
 	return ok
 }
 
+func (c Config) IgnorePolicyExists() bool {
+	_, ok := c.Data[keyTrivyIgnorePolicy]
+	return ok
+}
+
 func (c Config) IgnoreUnfixed() bool {
 	_, ok := c.Data[keyTrivyIgnoreUnfixed]
 	return ok
@@ -482,6 +488,7 @@ func (p *plugin) newSecretWithAggregateImagePullCredentials(obj client.Object, s
 const (
 	tmpVolumeName               = "tmp"
 	ignoreFileVolumeName        = "ignorefile"
+	ignorePolicyVolumeName      = "ignorepolicy"
 	scanResultVolumeName        = "scanresult"
 	FsSharedVolumeName          = "trivyoperator"
 	SharedVolumeLocationOfTrivy = "/var/trivyoperator/trivy"
@@ -605,6 +612,30 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 			SubPath:   ".trivyignore",
 		})
 	}
+	if config.IgnorePolicyExists() {
+		volumes = append(volumes, corev1.Volume{
+			Name: ignorePolicyVolumeName,
+			VolumeSource: corev1.VolumeSource{
+				ConfigMap: &corev1.ConfigMapVolumeSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: trivyConfigName,
+					},
+					Items: []corev1.KeyToPath{
+						{
+							Key:  keyTrivyIgnorePolicy,
+							Path: "policy.rego",
+						},
+					},
+				},
+			},
+		})
+
+		volumeMounts = append(volumeMounts, corev1.VolumeMount{
+			Name:      ignorePolicyVolumeName,
+			MountPath: "/etc/trivy/policy.rego",
+			SubPath:   "policy.rego",
+		})
+	}
 
 	for _, c := range getContainers(spec) {
 		env := []corev1.EnvVar{
@@ -722,6 +753,12 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_IGNOREFILE",
 				Value: "/etc/trivy/.trivyignore",
+			})
+		}
+		if config.IgnorePolicyExists() {
+			env = append(env, corev1.EnvVar{
+				Name:  "TRIVY_IGNORE_POLICY",
+				Value: "/etc/trivy/policy.rego",
 			})
 		}
 
@@ -1146,6 +1183,35 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 				Value: "/etc/trivy/.trivyignore",
 			})
 		}
+		if config.IgnorePolicyExists() {
+			volumes = append(volumes, corev1.Volume{
+				Name: ignorePolicyVolumeName,
+				VolumeSource: corev1.VolumeSource{
+					ConfigMap: &corev1.ConfigMapVolumeSource{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: trivyConfigName,
+						},
+						Items: []corev1.KeyToPath{
+							{
+								Key:  keyTrivyIgnorePolicy,
+								Path: "policy.rego",
+							},
+						},
+					},
+				},
+			})
+
+			volumeMounts = append(volumeMounts, corev1.VolumeMount{
+				Name:      ignorePolicyVolumeName,
+				MountPath: "/etc/trivy/policy.rego",
+				SubPath:   "policy.rego",
+			})
+
+			env = append(env, corev1.EnvVar{
+				Name:  "TRIVY_IGNORE_POLICY",
+				Value: "/etc/trivy/policy.rego",
+			})
+		}
 
 		requirements, err := config.GetResourceRequirements()
 		if err != nil {
@@ -1416,6 +1482,30 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			SubPath:   ".trivyignore",
 		})
 	}
+	if config.IgnorePolicyExists() {
+		volumes = append(volumes, corev1.Volume{
+			Name: ignorePolicyVolumeName,
+			VolumeSource: corev1.VolumeSource{
+				ConfigMap: &corev1.ConfigMapVolumeSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: trivyConfigName,
+					},
+					Items: []corev1.KeyToPath{
+						{
+							Key:  keyTrivyIgnorePolicy,
+							Path: "policy.rego",
+						},
+					},
+				},
+			},
+		})
+
+		volumeMounts = append(volumeMounts, corev1.VolumeMount{
+			Name:      ignorePolicyVolumeName,
+			MountPath: "/tmp/trivy/policy.rego",
+			SubPath:   "policy.rego",
+		})
+	}
 
 	for _, c := range getContainers(spec) {
 		env := []corev1.EnvVar{
@@ -1430,6 +1520,12 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_IGNOREFILE",
 				Value: "/tmp/trivy/.trivyignore",
+			})
+		}
+		if config.IgnorePolicyExists() {
+			env = append(env, corev1.EnvVar{
+				Name:  "TRIVY_IGNORE_POLICY",
+				Value: "/tmp/trivy/policy.rego",
 			})
 		}
 		if config.IgnoreUnfixed() {
@@ -1610,6 +1706,30 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 			SubPath:   ".trivyignore",
 		})
 	}
+	if config.IgnorePolicyExists() {
+		volumes = append(volumes, corev1.Volume{
+			Name: ignorePolicyVolumeName,
+			VolumeSource: corev1.VolumeSource{
+				ConfigMap: &corev1.ConfigMapVolumeSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: trivyConfigName,
+					},
+					Items: []corev1.KeyToPath{
+						{
+							Key:  keyTrivyIgnorePolicy,
+							Path: "policy.rego",
+						},
+					},
+				},
+			},
+		})
+
+		volumeMounts = append(volumeMounts, corev1.VolumeMount{
+			Name:      ignorePolicyVolumeName,
+			MountPath: "/tmp/trivy/policy.rego",
+			SubPath:   "policy.rego",
+		})
+	}
 
 	for _, c := range getContainers(spec) {
 		env := []corev1.EnvVar{
@@ -1627,6 +1747,12 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_IGNOREFILE",
 				Value: "/tmp/trivy/.trivyignore",
+			})
+		}
+		if config.IgnorePolicyExists() {
+			env = append(env, corev1.EnvVar{
+				Name:  "TRIVY_IGNORE_POLICY",
+				Value: "/tmp/trivy/policy.rego",
 			})
 		}
 		if config.IgnoreUnfixed() {
@@ -1828,7 +1954,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 			},
 			Registry:        registry,
 			Artifact:        artifact,
-			Summary:         VulnerabilitySummary(vulnerabilities),
+			Summary:         p.vulnerabilitySummary(vulnerabilities),
 			Vulnerabilities: vulnerabilities,
 		}, v1alpha1.ExposedSecretReportData{
 			UpdateTimestamp: metav1.NewTime(p.clock.Now()),
@@ -1839,7 +1965,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 			},
 			Registry: registry,
 			Artifact: artifact,
-			Summary:  ExposedSecretSummary(secrets),
+			Summary:  p.secretSummary(secrets),
 			Secrets:  secrets,
 		}, nil
 
@@ -1920,13 +2046,9 @@ func (p *plugin) NewConfigForConfigAudit(ctx trivyoperator.PluginContext) (confi
 	return p.getConfig(ctx)
 }
 
-func VulnerabilitySummary(vulnerabilities []v1alpha1.Vulnerability) v1alpha1.VulnerabilitySummary {
+func (p *plugin) vulnerabilitySummary(vulnerabilities []v1alpha1.Vulnerability) v1alpha1.VulnerabilitySummary {
 	var vs v1alpha1.VulnerabilitySummary
 	for _, v := range vulnerabilities {
-		if v.Mitigation != "" {
-			vs.MitigatedCount++
-			continue
-		}
 		switch v.Severity {
 		case v1alpha1.SeverityCritical:
 			vs.CriticalCount++
@@ -1943,7 +2065,7 @@ func VulnerabilitySummary(vulnerabilities []v1alpha1.Vulnerability) v1alpha1.Vul
 	return vs
 }
 
-func ExposedSecretSummary(secrets []v1alpha1.ExposedSecret) v1alpha1.ExposedSecretSummary {
+func (p *plugin) secretSummary(secrets []v1alpha1.ExposedSecret) v1alpha1.ExposedSecretSummary {
 	var s v1alpha1.ExposedSecretSummary
 	for _, v := range secrets {
 		switch v.Severity {
@@ -1987,11 +2109,7 @@ func GetCvssV3(findingCvss types.VendorCVSS) map[string]*CVSS {
 		if cvss.V3Score != 0.0 {
 			v3Score = pointer.Float64(cvss.V3Score)
 		}
-		var v3Vector *string
-		if cvss.V3Vector != "" {
-			v3Vector = pointer.String(cvss.V3Vector)
-		}
-		cvssV3[string(vendor)] = &CVSS{v3Score, v3Vector}
+		cvssV3[string(vendor)] = &CVSS{v3Score}
 	}
 	return cvssV3
 }
@@ -2012,24 +2130,6 @@ func GetScoreFromCVSS(CVSSs map[string]*CVSS) *float64 {
 	}
 
 	return nvdScore
-}
-
-func GetVectorFromCVSS(CVSSs map[string]*CVSS) *string {
-	var nvdVector, vendorVector *string
-
-	for name, cvss := range CVSSs {
-		if name == "nvd" {
-			nvdVector = cvss.V3Vector
-		} else {
-			vendorVector = cvss.V3Vector
-		}
-	}
-
-	if vendorVector != nil {
-		return vendorVector
-	}
-
-	return nvdVector
 }
 
 func GetMirroredImage(image string, mirrors map[string]string) (string, error) {

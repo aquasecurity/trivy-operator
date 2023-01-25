@@ -2,16 +2,10 @@ module github.com/aquasecurity/trivy-operator
 
 go 1.19
 
-replace github.com/aquasecurity/trivy-kubernetes => github.com/chen-keinan/trivy-kubernetes v0.3.1-0.20230116063537-5fc3892320f0
-
 require (
-<<<<<<< HEAD
 	github.com/aquasecurity/defsec v0.82.7-0.20230120014503-046ee90ace59
-=======
-	github.com/aquasecurity/defsec v0.82.7-0.20230112034408-a093ce4c39a3
->>>>>>> 422f1fe (feat: add node info resource)
 	github.com/aquasecurity/trivy v0.36.1
-	github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20221021174315-8d74450b4506
+	github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20230124152305-a266786d8ded
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/davecgh/go-spew v1.1.1
@@ -65,7 +59,7 @@ require (
 	golang.org/x/mod v0.7.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/cli-runtime v0.26.0 // indirect
+	k8s.io/cli-runtime v0.26.1 // indirect
 	sigs.k8s.io/kustomize/api v0.12.1 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.13.9 // indirect
 )

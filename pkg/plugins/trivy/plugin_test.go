@@ -5798,6 +5798,86 @@ func TestGetContainers(t *testing.T) {
 	}
 }
 
+func TestPlugin_FindIgnorePolicyKey(t *testing.T) {
+	workload := &appsv1.ReplicaSet{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "name-01234abcd",
+			Namespace: "namespace",
+		},
+	}
+	testCases := []struct {
+		name        string
+		configData  map[string]string
+		expectedKey string
+	}{
+		{
+			name: "empty",
+			configData: map[string]string{
+				"other": "",
+			},
+			expectedKey: "",
+		},
+		{
+			name: "fallback",
+			configData: map[string]string{
+				"other":              "",
+				"trivy.ignorePolicy": "",
+			},
+			expectedKey: "trivy.ignorePolicy",
+		},
+		{
+			name: "fallback namespace",
+			configData: map[string]string{
+				"other":                        "",
+				"trivy.ignorePolicy":           "",
+				"trivy.ignorePolicy.namespace": "",
+			},
+			expectedKey: "trivy.ignorePolicy.namespace",
+		},
+		{
+			name: "fallback namespace workload",
+			configData: map[string]string{
+				"other":                               "",
+				"trivy.ignorePolicy":                  "",
+				"trivy.ignorePolicy.namespace":        "",
+				"trivy.ignorePolicy.namespace.name-*": "",
+			},
+			expectedKey: "trivy.ignorePolicy.namespace.name-*",
+		},
+		{
+			name: "fallback namespace other-workload",
+			configData: map[string]string{
+				"other":                        "",
+				"trivy.ignorePolicy":           "",
+				"trivy.ignorePolicy.namespace": "",
+				"trivy.ignorePolicy.namespace.name-other-*": "",
+			},
+			expectedKey: "trivy.ignorePolicy.namespace",
+		},
+		{
+			name: "fallback other-namespace other-workload",
+			configData: map[string]string{
+				"other":                              "",
+				"trivy.ignorePolicy":                 "",
+				"trivy.ignorePolicy.namespace-other": "",
+				"trivy.ignorePolicy.namespace-other.name-other-*": "",
+			},
+			expectedKey: "trivy.ignorePolicy",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			config := trivy.Config{
+				trivyoperator.PluginConfig{
+					Data: tc.configData,
+				},
+			}
+			assert.Equal(t, tc.expectedKey, config.FindIgnorePolicyKey(workload))
+		})
+	}
+}
+
 func getReportAsString(fixture string) string {
 	f, err := os.Open("./testdata/fixture/" + fixture)
 	if err != nil {

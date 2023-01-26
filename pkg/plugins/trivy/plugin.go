@@ -301,6 +301,63 @@ func (c Config) FindIgnorePolicyKey(workload client.Object) string {
 	return ""
 }
 
+func (c Config) GenerateIgnoreFileVolumeIfAvailable(trivyConfigName string) (*corev1.Volume, *corev1.VolumeMount) {
+	if !c.IgnoreFileExists() {
+		return nil, nil
+	}
+	volume := corev1.Volume{
+		Name: ignoreFileVolumeName,
+		VolumeSource: corev1.VolumeSource{
+			ConfigMap: &corev1.ConfigMapVolumeSource{
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: trivyConfigName,
+				},
+				Items: []corev1.KeyToPath{
+					{
+						Key:  keyTrivyIgnoreFile,
+						Path: ignoreFileName,
+					},
+				},
+			},
+		},
+	}
+	volumeMount := corev1.VolumeMount{
+		Name:      ignoreFileVolumeName,
+		MountPath: ignoreFileMountPath,
+		SubPath:   ignoreFileName,
+	}
+	return &volume, &volumeMount
+}
+
+func (c Config) GenerateIgnorePolicyVolumeIfAvailable(trivyConfigName string, workload client.Object) (*corev1.Volume, *corev1.VolumeMount) {
+	ignorePolicyKey := c.FindIgnorePolicyKey(workload)
+	if ignorePolicyKey == "" {
+		return nil, nil
+	}
+	volume := corev1.Volume{
+		Name: ignorePolicyVolumeName,
+		VolumeSource: corev1.VolumeSource{
+			ConfigMap: &corev1.ConfigMapVolumeSource{
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: trivyConfigName,
+				},
+				Items: []corev1.KeyToPath{
+					{
+						Key:  c.FindIgnorePolicyKey(workload),
+						Path: ignorePolicyName,
+					},
+				},
+			},
+		},
+	}
+	volumeMounts := corev1.VolumeMount{
+		Name:      ignorePolicyVolumeName,
+		MountPath: ignorePolicyMountPath,
+		SubPath:   ignorePolicyName,
+	}
+	return &volume, &volumeMounts
+}
+
 func (c Config) IgnoreUnfixed() bool {
 	_, ok := c.Data[keyTrivyIgnoreUnfixed]
 	return ok
@@ -503,7 +560,11 @@ func (p *plugin) newSecretWithAggregateImagePullCredentials(obj client.Object, s
 const (
 	tmpVolumeName               = "tmp"
 	ignoreFileVolumeName        = "ignorefile"
+	ignoreFileName              = ".trivyignore"
+	ignoreFileMountPath         = "/etc/trivy/" + ignoreFileName
 	ignorePolicyVolumeName      = "ignorepolicy"
+	ignorePolicyName            = "policy.rego"
+	ignorePolicyMountPath       = "/etc/trivy/" + ignorePolicyName
 	scanResultVolumeName        = "scanresult"
 	FsSharedVolumeName          = "trivyoperator"
 	SharedVolumeLocationOfTrivy = "/var/trivyoperator/trivy"
@@ -602,53 +663,13 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
 	volumes = append(volumes, getScanResultVolume())
 
-	if config.IgnoreFileExists() {
-		volumes = append(volumes, corev1.Volume{
-			Name: ignoreFileVolumeName,
-			VolumeSource: corev1.VolumeSource{
-				ConfigMap: &corev1.ConfigMapVolumeSource{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: trivyConfigName,
-					},
-					Items: []corev1.KeyToPath{
-						{
-							Key:  keyTrivyIgnoreFile,
-							Path: ".trivyignore",
-						},
-					},
-				},
-			},
-		})
-
-		volumeMounts = append(volumeMounts, corev1.VolumeMount{
-			Name:      ignoreFileVolumeName,
-			MountPath: "/etc/trivy/.trivyignore",
-			SubPath:   ".trivyignore",
-		})
+	if volume, volumeMount := config.GenerateIgnoreFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
 	}
-	if config.FindIgnorePolicyKey(workload) != "" {
-		volumes = append(volumes, corev1.Volume{
-			Name: ignorePolicyVolumeName,
-			VolumeSource: corev1.VolumeSource{
-				ConfigMap: &corev1.ConfigMapVolumeSource{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: trivyConfigName,
-					},
-					Items: []corev1.KeyToPath{
-						{
-							Key:  config.FindIgnorePolicyKey(workload),
-							Path: "policy.rego",
-						},
-					},
-				},
-			},
-		})
-
-		volumeMounts = append(volumeMounts, corev1.VolumeMount{
-			Name:      ignorePolicyVolumeName,
-			MountPath: "/etc/trivy/policy.rego",
-			SubPath:   "policy.rego",
-		})
+	if volume, volumeMount := config.GenerateIgnorePolicyVolumeIfAvailable(trivyConfigName, workload); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
 	for _, c := range getContainers(spec) {
@@ -766,13 +787,13 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 		if config.IgnoreFileExists() {
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_IGNOREFILE",
-				Value: "/etc/trivy/.trivyignore",
+				Value: ignoreFileMountPath,
 			})
 		}
 		if config.FindIgnorePolicyKey(workload) != "" {
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_IGNORE_POLICY",
-				Value: "/etc/trivy/policy.rego",
+				Value: ignorePolicyMountPath,
 			})
 		}
 
@@ -1125,6 +1146,19 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			},
 		}
 
+		if config.IgnoreFileExists() {
+			env = append(env, corev1.EnvVar{
+				Name:  "TRIVY_IGNOREFILE",
+				Value: ignoreFileMountPath,
+			})
+		}
+		if config.FindIgnorePolicyKey(workload) != "" {
+			env = append(env, corev1.EnvVar{
+				Name:  "TRIVY_IGNORE_POLICY",
+				Value: ignorePolicyMountPath,
+			})
+		}
+
 		if _, ok := credentials[container.Name]; ok && secret != nil {
 			registryUsernameKey := fmt.Sprintf("%s.username", container.Name)
 			registryPasswordKey := fmt.Sprintf("%s.password", container.Name)
@@ -1169,62 +1203,13 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			})
 		}
 
-		if config.IgnoreFileExists() {
-			volumes = append(volumes, corev1.Volume{
-				Name: ignoreFileVolumeName,
-				VolumeSource: corev1.VolumeSource{
-					ConfigMap: &corev1.ConfigMapVolumeSource{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Items: []corev1.KeyToPath{
-							{
-								Key:  keyTrivyIgnoreFile,
-								Path: ".trivyignore",
-							},
-						},
-					},
-				},
-			})
-			volumeMounts = append(volumeMounts, corev1.VolumeMount{
-				Name:      ignoreFileVolumeName,
-				MountPath: "/etc/trivy/.trivyignore",
-				SubPath:   ".trivyignore",
-			})
-
-			env = append(env, corev1.EnvVar{
-				Name:  "TRIVY_IGNOREFILE",
-				Value: "/etc/trivy/.trivyignore",
-			})
+		if volume, volumeMount := config.GenerateIgnoreFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+			volumes = append(volumes, *volume)
+			volumeMounts = append(volumeMounts, *volumeMount)
 		}
-		if config.FindIgnorePolicyKey(workload) != "" {
-			volumes = append(volumes, corev1.Volume{
-				Name: ignorePolicyVolumeName,
-				VolumeSource: corev1.VolumeSource{
-					ConfigMap: &corev1.ConfigMapVolumeSource{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Items: []corev1.KeyToPath{
-							{
-								Key:  config.FindIgnorePolicyKey(workload),
-								Path: "policy.rego",
-							},
-						},
-					},
-				},
-			})
-
-			volumeMounts = append(volumeMounts, corev1.VolumeMount{
-				Name:      ignorePolicyVolumeName,
-				MountPath: "/etc/trivy/policy.rego",
-				SubPath:   "policy.rego",
-			})
-
-			env = append(env, corev1.EnvVar{
-				Name:  "TRIVY_IGNORE_POLICY",
-				Value: "/etc/trivy/policy.rego",
-			})
+		if volume, volumeMount := config.GenerateIgnorePolicyVolumeIfAvailable(trivyConfigName, workload); volume != nil && volumeMount != nil {
+			volumes = append(volumes, *volume)
+			volumeMounts = append(volumeMounts, *volumeMount)
 		}
 
 		requirements, err := config.GetResourceRequirements()
@@ -1471,54 +1456,13 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
 	volumes = append(volumes, getScanResultVolume())
 
-	//TODO Move this to function and refactor the code to use it
-	if config.IgnoreFileExists() {
-		volumes = append(volumes, corev1.Volume{
-			Name: ignoreFileVolumeName,
-			VolumeSource: corev1.VolumeSource{
-				ConfigMap: &corev1.ConfigMapVolumeSource{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: trivyConfigName,
-					},
-					Items: []corev1.KeyToPath{
-						{
-							Key:  keyTrivyIgnoreFile,
-							Path: ".trivyignore",
-						},
-					},
-				},
-			},
-		})
-
-		volumeMounts = append(volumeMounts, corev1.VolumeMount{
-			Name:      ignoreFileVolumeName,
-			MountPath: "/tmp/trivy/.trivyignore",
-			SubPath:   ".trivyignore",
-		})
+	if volume, volumeMount := config.GenerateIgnoreFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
 	}
-	if config.FindIgnorePolicyKey(workload) != "" {
-		volumes = append(volumes, corev1.Volume{
-			Name: ignorePolicyVolumeName,
-			VolumeSource: corev1.VolumeSource{
-				ConfigMap: &corev1.ConfigMapVolumeSource{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: trivyConfigName,
-					},
-					Items: []corev1.KeyToPath{
-						{
-							Key:  config.FindIgnorePolicyKey(workload),
-							Path: "policy.rego",
-						},
-					},
-				},
-			},
-		})
-
-		volumeMounts = append(volumeMounts, corev1.VolumeMount{
-			Name:      ignorePolicyVolumeName,
-			MountPath: "/tmp/trivy/policy.rego",
-			SubPath:   "policy.rego",
-		})
+	if volume, volumeMount := config.GenerateIgnorePolicyVolumeIfAvailable(trivyConfigName, workload); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
 	for _, c := range getContainers(spec) {
@@ -1533,13 +1477,13 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 		if config.IgnoreFileExists() {
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_IGNOREFILE",
-				Value: "/tmp/trivy/.trivyignore",
+				Value: ignoreFileMountPath,
 			})
 		}
 		if config.FindIgnorePolicyKey(workload) != "" {
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_IGNORE_POLICY",
-				Value: "/tmp/trivy/policy.rego",
+				Value: ignorePolicyMountPath,
 			})
 		}
 		if config.IgnoreUnfixed() {
@@ -1695,54 +1639,13 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
 	volumes = append(volumes, getScanResultVolume())
 
-	//TODO Move this to function and refactor the code to use it
-	if config.IgnoreFileExists() {
-		volumes = append(volumes, corev1.Volume{
-			Name: ignoreFileVolumeName,
-			VolumeSource: corev1.VolumeSource{
-				ConfigMap: &corev1.ConfigMapVolumeSource{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: trivyConfigName,
-					},
-					Items: []corev1.KeyToPath{
-						{
-							Key:  keyTrivyIgnoreFile,
-							Path: ".trivyignore",
-						},
-					},
-				},
-			},
-		})
-
-		volumeMounts = append(volumeMounts, corev1.VolumeMount{
-			Name:      ignoreFileVolumeName,
-			MountPath: "/tmp/trivy/.trivyignore",
-			SubPath:   ".trivyignore",
-		})
+	if volume, volumeMount := config.GenerateIgnoreFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
 	}
-	if config.FindIgnorePolicyKey(workload) != "" {
-		volumes = append(volumes, corev1.Volume{
-			Name: ignorePolicyVolumeName,
-			VolumeSource: corev1.VolumeSource{
-				ConfigMap: &corev1.ConfigMapVolumeSource{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: trivyConfigName,
-					},
-					Items: []corev1.KeyToPath{
-						{
-							Key:  config.FindIgnorePolicyKey(workload),
-							Path: "policy.rego",
-						},
-					},
-				},
-			},
-		})
-
-		volumeMounts = append(volumeMounts, corev1.VolumeMount{
-			Name:      ignorePolicyVolumeName,
-			MountPath: "/tmp/trivy/policy.rego",
-			SubPath:   "policy.rego",
-		})
+	if volume, volumeMount := config.GenerateIgnorePolicyVolumeIfAvailable(trivyConfigName, workload); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
 	for _, c := range getContainers(spec) {
@@ -1760,13 +1663,13 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 		if config.IgnoreFileExists() {
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_IGNOREFILE",
-				Value: "/tmp/trivy/.trivyignore",
+				Value: ignoreFileMountPath,
 			})
 		}
 		if config.FindIgnorePolicyKey(workload) != "" {
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_IGNORE_POLICY",
-				Value: "/tmp/trivy/policy.rego",
+				Value: ignorePolicyMountPath,
 			})
 		}
 		if config.IgnoreUnfixed() {

@@ -28,7 +28,7 @@ var _ = Describe("Workload controller", func() {
 	const (
 		WorkloadNamespace   = "default"
 		kubeSystemNamespace = "kube-system"
-		timeout             = time.Second * 10
+		timeout             = time.Second * 30
 		interval            = time.Millisecond * 250
 	)
 

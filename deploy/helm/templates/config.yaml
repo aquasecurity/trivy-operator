@@ -126,6 +126,12 @@ data:
   trivy.ignoreFile: |
 {{- . | trim | nindent 4 }}
   {{- end }}
+{{- range $k, $v := .Values.trivy }}
+  {{- if hasPrefix "ignorePolicy" $k }}
+  trivy.{{- $k }}: |
+{{- $v | trim | nindent 4 }}
+  {{- end }}
+{{- end }}
   {{- if .Values.operator.builtInTrivyServer }}
   trivy.serverURL: {{ printf "http://%s.%s:%s" .Values.trivy.serverServiceName (include "trivy-operator.namespace" .) "4954"  | quote }}
   trivy.mode: "ClientServer"

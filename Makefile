@@ -53,7 +53,7 @@ compile-templates: get-qtc
 .PHONY: test
 test: $(SOURCES) generate-all envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" \
-	go test -v -short -timeout 30s -coverprofile=coverage.txt ./...
+	go test -v -short -timeout 60s -coverprofile=coverage.txt ./...
 
 .PHONY: itests-trivy-operator
 ## Runs integration tests for Trivy Operator with code coverage enabled

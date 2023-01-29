@@ -66,7 +66,7 @@ func (r *TTLReportReconciler) reconcileReport(reportType client.Object) reconcil
 	}
 }
 
-func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespacedName types.NamespacedName, reportType client.Object) (ctrl.Result, error) {
+func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespacedName types.NamespacedName, reportType client.Object, arr ...string) (ctrl.Result, error) {
 	log := r.Logger.WithValues("report", namespacedName)
 
 	err := r.Client.Get(ctx, namespacedName, reportType)
@@ -87,9 +87,8 @@ func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespa
 		return ctrl.Result{}, fmt.Errorf("failed parsing %v with value %v %w", v1alpha1.TTLReportAnnotation, ttlReportAnnotationStr, err)
 	}
 	ttlExpired, durationToTTLExpiration := utils.IsTTLExpired(reportTTLTime, reportType.GetCreationTimestamp().Time, r.Clock)
-	applicable := r.applicableForDeletion(reportType)
 
-	if ttlExpired && applicable {
+	if ttlExpired && r.applicableForDeletion(reportType) {
 		log.V(1).Info("Removing report with expired TTL or Historical")
 		err := r.Client.Delete(ctx, reportType, &client.DeleteOptions{})
 		if err != nil && !errors.IsNotFound(err) {

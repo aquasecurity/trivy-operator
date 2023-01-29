@@ -207,11 +207,13 @@ var _ = Describe("Workload controller", func() {
 			if report.GetNamespace() != kubeSystemNamespace {
 				report.SetNamespace(WorkloadNamespace)
 			}
-			Expect(loadResource(cm, path.Join(testdataResourceDir, cmFile))).Should(Succeed())
-			if cm.GetNamespace() != kubeSystemNamespace {
-				cm.SetNamespace(WorkloadNamespace)
+			if cm != nil {
+				Expect(loadResource(cm, path.Join(testdataResourceDir, cmFile))).Should(Succeed())
+				if cm.GetNamespace() != kubeSystemNamespace {
+					cm.SetNamespace(WorkloadNamespace)
+				}
+				Expect(k8sClient.Create(ctx, cm)).Should(Succeed())
 			}
-			Expect(k8sClient.Create(ctx, cm)).Should(Succeed())
 			Expect(k8sClient.Create(ctx, report)).Should(Succeed())
 
 			caLookupKey := client.ObjectKeyFromObject(report)
@@ -221,7 +223,9 @@ var _ = Describe("Workload controller", func() {
 				return k8sClient.Get(ctx, caLookupKey, createdVulnerabilityReport)
 			}, timeout, interval).ShouldNot(Succeed())
 		},
-		Entry("Should delete report", &v1alpha1.VulnerabilityReport{}, "vulnerability-ttl.yaml", &corev1.ConfigMap{}, "policy.yaml"),
+		Entry("Should delete vulnerability report", &v1alpha1.VulnerabilityReport{}, "vulnerability-ttl.yaml", nil, ""),
+		Entry("Should delete config audit report", &v1alpha1.ConfigAuditReport{}, "config-audit-ttl-historical.yaml", nil, ""),
+		Entry("Should delete config audit report", &v1alpha1.ConfigAuditReport{}, "config-audit-ttl.yaml", &corev1.ConfigMap{}, "policy.yaml"),
 	)
 	NormalizeUntestableStatusReportFields := func(ca *v1alpha1.ReportStatus) *v1alpha1.ReportStatus {
 		ca.UpdateTimestamp = metav1.Time{}

@@ -47,7 +47,7 @@ Lastly, we can deploy the operator inside our cluster with referencing our new `
 helm upgrade --install trivy-operator aqua/trivy-operator \
   --namespace trivy-system \
   --create-namespace \
-  --version 0.10.1
+  --version 0.10.2
   --values ./values.yaml
 ```
 
@@ -57,7 +57,7 @@ Alternatively, it is possible to set the values directly through Helm instead of
 helm upgrade --install trivy-operator aqua/trivy-operator \
   --namespace trivy-system \
   --create-namespace \
-  --version 0.10.1
+  --version 0.10.2
   --set="trivy.command=fs"
   --set="trivyOperator.scanJobPodTemplateContainerSecurityContext.runAsUser=0"
 ```
@@ -230,7 +230,7 @@ Lastly, we can deploy the operator inside our cluster with referencing our new `
 helm upgrade --install trivy-operator aqua/trivy-operator \
   --namespace trivy-system \
   --create-namespace \
-  --version 0.10.1
+  --version 0.10.2
   --values ./values.yaml
 ```
 
@@ -240,7 +240,7 @@ Alternatively, it is possible to set the values directly through Helm instead of
 helm upgrade --install trivy-operator aqua/trivy-operator \
   --namespace trivy-system \
   --create-namespace \
-  --version 0.10.1
+  --version 0.10.2
   --set-json='operator.privateRegistryScanSecretsNames={"app":"dockerconfigjson-github-com"}'
 ```
 

@@ -6,7 +6,8 @@ import (
 )
 
 const (
-	TTLReportAnnotation = "trivy-operator.aquasecurity.github.io/report-ttl"
+	TTLReportAnnotation        = "trivy-operator.aquasecurity.github.io/report-ttl"
+	HistoricalReportAnnotation = "trivy-operator.aquasecurity.github.io/report-historical"
 )
 
 // Severity level of a vulnerability or a configuration audit check.

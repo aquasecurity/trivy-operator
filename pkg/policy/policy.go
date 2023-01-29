@@ -133,19 +133,23 @@ func (p *Policies) ModulePolicyByKind(kind string) ([]string, error) {
 }
 
 // Applicable check if policies exist either built in or via policies configmap
-func (p *Policies) Applicable(resource client.Object) (bool, string, error) {
-	resourceKind := resource.GetObjectKind().GroupVersionKind().Kind
-	if resourceKind == "" {
-		return false, "", errors.New("resource kind must not be blank")
-	}
-	policies, err := p.PoliciesByKind(resourceKind)
+func (p *Policies) Applicable(resourceKind string) (bool, string, error) {
+	HasExternalPolicies, err := p.ExternalPoliciesApplicable(resourceKind)
 	if err != nil {
 		return false, "", err
 	}
-	if len(policies) == 0 && !p.cac.GetUseBuiltinRegoPolicies() {
-		return false, fmt.Sprintf("no policies found for kind %s", resource.GetObjectKind().GroupVersionKind().Kind), nil
+	if !HasExternalPolicies && !p.cac.GetUseBuiltinRegoPolicies() {
+		return false, fmt.Sprintf("no policies found for kind %s", resourceKind), nil
 	}
 	return true, "", nil
+}
+
+func (p *Policies) ExternalPoliciesApplicable(resourceKind string) (bool, error) {
+	policies, err := p.PoliciesByKind(resourceKind)
+	if err != nil {
+		return false, err
+	}
+	return len(policies) > 0, nil
 }
 
 // SupportedKind scan policies supported for this kind

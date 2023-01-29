@@ -1,0 +1,59 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trivy-operator-policies-config
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+data:
+  library.kubernetes.rego:
+    "package lib.kubernetes\n\ndefault is_gatekeeper = false\n\nis_gatekeeper
+    {\n\thas_field(input, \"review\")\n\thas_field(input.review, \"object\")\n}\n\nobject
+    = input {\n\tnot is_gatekeeper\n}\n\nobject = input.review.object {\n\tis_gatekeeper\n}\n\nformat(msg)
+    = gatekeeper_format {\n\tis_gatekeeper\n\tgatekeeper_format = {\"msg\": msg}\n}\n\nformat(msg)
+    = msg {\n\tnot is_gatekeeper\n}\n\nname = object.metadata.name\n\ndefault namespace
+    = \"default\"\n\nnamespace = object.metadata.namespace\n\n#annotations = object.metadata.annotations\n\nkind
+    = object.kind\n\nis_pod {\n\tkind = \"Pod\"\n}\n\nis_cronjob {\n\tkind = \"CronJob\"\n}\n\ndefault
+    is_controller = false\n\nis_controller {\n\tkind = \"Deployment\"\n}\n\nis_controller
+    {\n\tkind = \"StatefulSet\"\n}\n\nis_controller {\n\tkind = \"DaemonSet\"\n}\n\nis_controller
+    {\n\tkind = \"ReplicaSet\"\n}\n\nis_controller {\n\tkind = \"ReplicationController\"\n}\n\nis_controller
+    {\n\tkind = \"Job\"\n}\n\nsplit_image(image) = [image, \"latest\"] {\n\tnot contains(image,
+    \":\")\n}\n\nsplit_image(image) = [image_name, tag] {\n\t[image_name, tag] = split(image,
+    \":\")\n}\n\npod_containers(pod) = all_containers {\n\tkeys = {\"containers\",
+    \"initContainers\"}\n\tall_containers = [c | keys[k]; c = pod.spec[k][_]]\n}\n\ncontainers[container]
+    {\n\tpods[pod]\n\tall_containers = pod_containers(pod)\n\tcontainer = all_containers[_]\n}\n\ncontainers[container]
+    {\n\tall_containers = pod_containers(object)\n\tcontainer = all_containers[_]\n}\n\npods[pod]
+    {\n\tis_pod\n\tpod = object\n}\n\npods[pod] {\n\tis_controller\n\tpod = object.spec.template\n}\n\npods[pod]
+    {\n\tis_cronjob\n\tpod = object.spec.jobTemplate.spec.template\n}\n\nvolumes[volume]
+    {\n\tpods[pod]\n\tvolume = pod.spec.volumes[_]\n}\n\ndropped_capability(container,
+    cap) {\n\tcontainer.securityContext.capabilities.drop[_] == cap\n}\n\nadded_capability(container,
+    cap) {\n\tcontainer.securityContext.capabilities.add[_] == cap\n}\n\nhas_field(obj,
+    field) {\n\tobj[field]\n}\n\nno_read_only_filesystem(c) {\n\tnot has_field(c,
+    \"securityContext\")\n}\n\nno_read_only_filesystem(c) {\n\thas_field(c, \"securityContext\")\n\tnot
+    has_field(c.securityContext, \"readOnlyRootFilesystem\")\n}\n\npriviledge_escalation_allowed(c)
+    {\n\tnot has_field(c, \"securityContext\")\n}\n\npriviledge_escalation_allowed(c)
+    {\n\thas_field(c, \"securityContext\")\n\thas_field(c.securityContext, \"allowPrivilegeEscalation\")\n}\n\nannotations[annotation]
+    {\n\tpods[pod]\n\tannotation = pod.metadata.annotations\n}\n\nhost_ipcs[host_ipc]
+    {\n\tpods[pod]\n\thost_ipc = pod.spec.hostIPC\n}\n\nhost_networks[host_network]
+    {\n\tpods[pod]\n\thost_network = pod.spec.hostNetwork\n}\n\nhost_pids[host_pid]
+    {\n\tpods[pod]\n\thost_pid = pod.spec.hostPID\n}\n\nhost_aliases[host_alias] {\n\tpods[pod]\n\thost_alias
+    = pod.spec\n}\n"
+  library.utils.rego: "package lib.utils\n\nhas_key(x, k) {\n\t_ = x[k]\n}\n"
+  policy.1_host_ipc.kinds: Workload
+  policy.1_host_ipc.rego:
+    "package appshield.kubernetes.KSV008\n\nimport data.lib.kubernetes\n\ndefault
+    failHostIPC = false\n\n__rego_metadata__ := {\n\t\"id\": \"KSV008\",\n\t\"avd_id\":
+    \"AVD-KSV-0008\",\n\t\"title\": \"Access to host IPC namespace\",\n\t\"short_code\":
+    \"no-shared-ipc-namespace\",\n\t\"version\": \"v1.0.0\",\n\t\"severity\": \"HIGH\",\n\t\"type\":
+    \"Kubernetes Security Check\",\n\t\"description\": \"Sharing the host’s IPC namespace
+    allows container processes to communicate with processes on the host.\",\n\t\"recommended_actions\":
+    \"Do not set 'spec.template.spec.hostIPC' to true.\",\n\t\"url\": \"https://kubernetes.io/docs/concepts/security/pod-security-standards/#baseline\",\n}\n\n__rego_input__
+    := {\n\t\"combine\": false,\n\t\"selector\": [{\"type\": \"kubernetes\"}],\n}\n\n#
+    failHostIPC is true if spec.hostIPC is set to true (on all resources)\nfailHostIPC
+    {\n\tkubernetes.host_ipcs[_] == true\n}\n\ndeny[res] {\n\tfailHostIPC\n\n\tmsg
+    := kubernetes.format(sprintf(\"%s '%s' should not set 'spec.template.spec.hostIPC'
+    to true\", [kubernetes.kind, kubernetes.name]))\n\n\tres := {\n\t\t\"msg\": msg,\n\t\t\"id\":
+    __rego_metadata__.id,\n\t\t\"title\": __rego_metadata__.title,\n\t\t\"severity\":
+    __rego_metadata__.severity,\n\t\t\"type\": __rego_metadata__.type,\n\t}\n}\n"
+  

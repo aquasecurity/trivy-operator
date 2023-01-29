@@ -202,11 +202,16 @@ var _ = Describe("Workload controller", func() {
 	)
 
 	DescribeTable("On ttl reconcile loop",
-		func(report client.Object, reportFile string) {
+		func(report client.Object, reportFile string, cm client.Object, cmFile string) {
 			Expect(loadResource(report, path.Join(testdataResourceDir, reportFile))).Should(Succeed())
 			if report.GetNamespace() != kubeSystemNamespace {
 				report.SetNamespace(WorkloadNamespace)
 			}
+			Expect(loadResource(cm, path.Join(testdataResourceDir, cmFile))).Should(Succeed())
+			if cm.GetNamespace() != kubeSystemNamespace {
+				cm.SetNamespace(WorkloadNamespace)
+			}
+			Expect(k8sClient.Create(ctx, cm)).Should(Succeed())
 			Expect(k8sClient.Create(ctx, report)).Should(Succeed())
 
 			caLookupKey := client.ObjectKeyFromObject(report)
@@ -216,7 +221,7 @@ var _ = Describe("Workload controller", func() {
 				return k8sClient.Get(ctx, caLookupKey, createdVulnerabilityReport)
 			}, timeout, interval).ShouldNot(Succeed())
 		},
-		Entry("Should delete report", &v1alpha1.VulnerabilityReport{}, "vulnerability-ttl.yaml"),
+		Entry("Should delete report", &v1alpha1.VulnerabilityReport{}, "vulnerability-ttl.yaml", &corev1.ConfigMap{}, "policy.yaml"),
 	)
 	NormalizeUntestableStatusReportFields := func(ca *v1alpha1.ReportStatus) *v1alpha1.ReportStatus {
 		ca.UpdateTimestamp = metav1.Time{}

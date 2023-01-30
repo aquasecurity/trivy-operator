@@ -122,7 +122,56 @@ func (b *ReportBuilder) GetReport() (v1alpha1.InfraAssessmentReport, error) {
 	return report, nil
 }
 
+func (b *ReportBuilder) GetClusterReport() (v1alpha1.ClusterInfraAssessmentReport, error) {
+	labelsSet := make(labels.Set)
+	objectLabels := b.controller.GetLabels()
+	for _, labelToInclude := range b.resourceLabelsToInclude {
+		if value, ok := objectLabels[labelToInclude]; ok {
+			labelsSet[labelToInclude] = value
+		}
+	}
+	if b.resourceSpecHash != "" {
+		labelsSet[trivyoperator.LabelResourceSpecHash] = b.resourceSpecHash
+	}
+	if b.pluginConfigHash != "" {
+		labelsSet[trivyoperator.LabelPluginConfigHash] = b.pluginConfigHash
+	}
+
+	report := v1alpha1.ClusterInfraAssessmentReport{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   b.reportName(),
+			Labels: labelsSet,
+		},
+		Report: b.data,
+	}
+	err := kube.ObjectToObjectMeta(b.controller, &report.ObjectMeta)
+	if err != nil {
+		return v1alpha1.ClusterInfraAssessmentReport{}, err
+	}
+	err = controllerutil.SetControllerReference(b.controller, &report, b.scheme)
+	if err != nil {
+		return v1alpha1.ClusterInfraAssessmentReport{}, fmt.Errorf("setting controller reference: %w", err)
+	}
+	// The OwnerReferencesPermissionsEnforcement admission controller protects the
+	// access to metadata.ownerReferences[x].blockOwnerDeletion of an object, so
+	// that only users with "update" permission to the finalizers subresource of the
+	// referenced owner can change it.
+	// We set metadata.ownerReferences[x].blockOwnerDeletion to false so that
+	// additional RBAC permissions are not required when the OwnerReferencesPermissionsEnforcement
+	// is enabled.
+	// See https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#ownerreferencespermissionenforcement
+	report.OwnerReferences[0].BlockOwnerDeletion = pointer.Bool(false)
+	return report, nil
+}
+
 func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
+	if kube.IsClusterScopedKind(b.controller.GetObjectKind().GroupVersionKind().Kind) {
+		report, err := b.GetClusterReport()
+		if err != nil {
+			return err
+		}
+		return writer.WriteClusterReport(ctx, report)
+	}
 	report, err := b.GetReport()
 	if err != nil {
 		return err

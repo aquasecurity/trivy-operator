@@ -4,6 +4,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.9.2
+  creationTimestamp: null
   name: clustercompliancereports.aquasecurity.github.io
 spec:
   group: aquasecurity.github.io
@@ -1880,7 +1881,7 @@ spec:
             - name: OPERATOR_TARGET_NAMESPACES
               value: ""
             - name: OPERATOR_EXCLUDE_NAMESPACES
-              value: kube-system,trivy-system
+              value: ""
             - name: OPERATOR_TARGET_WORKLOADS
               value: pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job
             - name: OPERATOR_SERVICE_ACCOUNT

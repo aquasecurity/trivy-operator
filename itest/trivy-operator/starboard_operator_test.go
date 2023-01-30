@@ -5,7 +5,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 )
 
-var _ = Describe("Starboard Operator", func() {
+var _ = Describe("Trivy Operator", func() {
 
 	// TODO Refactor to run this container in a separate test suite
 	Describe("Vulnerability Scanner", VulnerabilityScannerBehavior(&inputs))

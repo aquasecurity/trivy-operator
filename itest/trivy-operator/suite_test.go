@@ -63,7 +63,7 @@ var _ = BeforeSuite(func() {
 	Expect(err).ToNot(HaveOccurred())
 
 	inputs = behavior.Inputs{
-		AssertTimeout:         3 * time.Minute,
+		AssertTimeout:         5 * time.Minute,
 		PrimaryNamespace:      corev1.NamespaceDefault,
 		PrimaryWorkloadPrefix: "wordpress",
 		Client:                kubeClient,

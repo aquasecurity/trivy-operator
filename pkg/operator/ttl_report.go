@@ -3,7 +3,6 @@ package operator
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
@@ -88,7 +87,7 @@ func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespa
 	}
 	ttlExpired, durationToTTLExpiration := utils.IsTTLExpired(reportTTLTime, reportType.GetCreationTimestamp().Time, r.Clock)
 
-	if ttlExpired && r.applicableForDeletion(reportType) {
+	if ttlExpired && r.applicableForDeletion(reportType, ttlReportAnnotationStr) {
 		log.V(1).Info("Removing report with expired TTL or Historical")
 		err := r.Client.Delete(ctx, reportType, &client.DeleteOptions{})
 		if err != nil && !errors.IsNotFound(err) {
@@ -104,20 +103,12 @@ func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespa
 	return ctrl.Result{RequeueAfter: durationToTTLExpiration}, nil
 }
 
-func (r *TTLReportReconciler) applicableForDeletion(report client.Object) bool {
+func (r *TTLReportReconciler) applicableForDeletion(report client.Object, ttlReportAnnotationStr string) bool {
 	reportKind := report.GetObjectKind().GroupVersionKind().Kind
 	if reportKind == "VulnerabilityReport" || reportKind == "ExposedSecretReport" {
 		return true
 	}
-	historicalReportAnnotationStr, ok := report.GetAnnotations()[v1alpha1.HistoricalReportAnnotation]
-	if !ok {
-		historicalReportAnnotationStr = "true" // keep backward compatibale for reports without historical annotation
-	}
-	historical, err := strconv.ParseBool(historicalReportAnnotationStr)
-	if err != nil {
-		return false
-	}
-	if historical {
+	if ttlReportAnnotationStr == "0h0m0s" { // check if it marked as historical report
 		return true
 	}
 	resourceKind, ok := report.GetLabels()[trivyoperator.LabelResourceKind]

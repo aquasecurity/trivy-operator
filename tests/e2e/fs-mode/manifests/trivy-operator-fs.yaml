@@ -1881,7 +1881,7 @@ spec:
             - name: OPERATOR_TARGET_NAMESPACES
               value: ""
             - name: OPERATOR_EXCLUDE_NAMESPACES
-              value: ""
+              value: "trivy-system,kube-system,kube-public,local-path-storage,kube-node-lease"
             - name: OPERATOR_TARGET_WORKLOADS
               value: pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job
             - name: OPERATOR_SERVICE_ACCOUNT

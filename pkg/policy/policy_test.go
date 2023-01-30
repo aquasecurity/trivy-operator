@@ -217,7 +217,7 @@ deny[res] {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			ready, _, err := policy.NewPolicies(tc.data, testConfig{builtInPolicies: false}, log).Applicable(tc.resource)
+			ready, _, err := policy.NewPolicies(tc.data, testConfig{builtInPolicies: false}, log).Applicable(tc.resource.GetObjectKind().GroupVersionKind().Kind)
 			g.Expect(err).ToNot(HaveOccurred())
 			g.Expect(ready).To(Equal(tc.expected))
 		})

@@ -1,9 +1,10 @@
 ---
 apiVersion: aquasecurity.github.io/v1alpha1
-kind: VulnerabilityReport
+kind: ConfigAuditReport
 metadata:
   annotations:
     trivy-operator.aquasecurity.github.io/report-ttl: 0h0m0s
+    trivy-operator.aquasecurity.github.io/report-historical: true
   creationTimestamp: 2022-12-08T15:50:37Z
   generation: 1
   labels:
@@ -24,32 +25,22 @@ metadata:
       uid: 1136b574-9f3f-49af-adaf-ba35d78ea57b
   uid: 66e3e613-9655-4330-aee7-45e283be2339
 report:
-  artifact:
-    repository: coredns/coredns
-    tag: v1.8.0
-  registry:
-    server: k8s.gcr.io
+  checks:
+    - category: Kubernetes Security Check
+      checkID: KSV110
+      description: ensure that default namespace should not be used
+      messages:
+        - Service 'kubernetes' should not be set with 'default' namespace
+      severity: LOW
+      success: false
+      title: The default namespace should not be used
   scanner:
     name: Trivy
     vendor: Aqua Security
-    version: 0.35.0
+    version: dev
   summary:
     criticalCount: 0
-    highCount: 12
-    lowCount: 0
-    mediumCount: 6
-    noneCount: 0
-    unknownCount: 9
-  updateTimestamp: 2022-12-08T15:50:37Z
-  vulnerabilities:
-    - fixedVersion: 1.3.2
-      installedVersion: v1.3.1
-      links: []
-      primaryLink: https://avd.aquasec.com/nvd/cve-2021-3121
-      resource: github.com/gogo/protobuf
-      score: 8.6
-      severity: HIGH
-      target: ""
-      title: "gogo/protobuf: plugin/unmarshal/unmarshal.go lacks certain index
-        validation"
-      vulnerabilityID: CVE-2021-3121
+    highCount: 0
+    lowCount: 1
+    mediumCount: 0
+  updateTimestamp: 2023-01-29T19:01:44Z

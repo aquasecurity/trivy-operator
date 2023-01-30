@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+	control "github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
@@ -24,7 +27,9 @@ import (
 type TTLReportReconciler struct {
 	logr.Logger
 	etc.Config
+	trivyoperator.PluginContext
 	client.Client
+	configauditreport.PluginInMemory
 	ext.Clock
 }
 
@@ -60,7 +65,7 @@ func (r *TTLReportReconciler) reconcileReport(reportType client.Object) reconcil
 	}
 }
 
-func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespacedName types.NamespacedName, reportType client.Object) (ctrl.Result, error) {
+func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespacedName types.NamespacedName, reportType client.Object, arr ...string) (ctrl.Result, error) {
 	log := r.Logger.WithValues("report", namespacedName)
 
 	err := r.Client.Get(ctx, namespacedName, reportType)
@@ -71,20 +76,19 @@ func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespa
 		}
 		return ctrl.Result{}, fmt.Errorf("getting report from cache: %w", err)
 	}
-
 	ttlReportAnnotationStr, ok := reportType.GetAnnotations()[v1alpha1.TTLReportAnnotation]
 	if !ok {
 		log.V(1).Info("Ignoring report without TTL set")
 		return ctrl.Result{}, nil
 	}
-
 	reportTTLTime, err := time.ParseDuration(ttlReportAnnotationStr)
 	if err != nil {
 		return ctrl.Result{}, fmt.Errorf("failed parsing %v with value %v %w", v1alpha1.TTLReportAnnotation, ttlReportAnnotationStr, err)
 	}
 	ttlExpired, durationToTTLExpiration := utils.IsTTLExpired(reportTTLTime, reportType.GetCreationTimestamp().Time, r.Clock)
-	if ttlExpired {
-		log.V(1).Info("Removing report with expired TTL")
+
+	if ttlExpired && r.applicableForDeletion(reportType, ttlReportAnnotationStr) {
+		log.V(1).Info("Removing report with expired TTL or Historical")
 		err := r.Client.Delete(ctx, reportType, &client.DeleteOptions{})
 		if err != nil && !errors.IsNotFound(err) {
 			return ctrl.Result{}, err
@@ -93,5 +97,43 @@ func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespa
 		return ctrl.Result{}, nil
 	}
 	log.V(1).Info("RequeueAfter", "durationToTTLExpiration", durationToTTLExpiration)
+	if ttlExpired {
+		durationToTTLExpiration = reportTTLTime
+	}
 	return ctrl.Result{RequeueAfter: durationToTTLExpiration}, nil
+}
+
+func (r *TTLReportReconciler) applicableForDeletion(report client.Object, ttlReportAnnotationStr string) bool {
+	reportKind := report.GetObjectKind().GroupVersionKind().Kind
+	if reportKind == "VulnerabilityReport" || reportKind == "ExposedSecretReport" {
+		return true
+	}
+	if ttlReportAnnotationStr == "0h0m0s" { // check if it marked as historical report
+		return true
+	}
+	resourceKind, ok := report.GetLabels()[trivyoperator.LabelResourceKind]
+	if !ok {
+		return false
+	}
+	policiesHash, ok := report.GetLabels()[trivyoperator.LabelPluginConfigHash]
+	if !ok {
+		return false
+	}
+	cac, err := r.NewConfigForConfigAudit(r.PluginContext)
+	if err != nil {
+		return false
+	}
+	policies, err := control.Policies(context.Background(), r.Config, r.Client, cac, r.Logger)
+	if err != nil {
+		return false
+	}
+	applicable, err := policies.ExternalPoliciesApplicable(resourceKind)
+	if err != nil {
+		return false
+	}
+	currentPoliciesHash, err := policies.Hash(resourceKind)
+	if err != nil {
+		return false
+	}
+	return applicable && (currentPoliciesHash != policiesHash)
 }

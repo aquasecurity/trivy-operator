@@ -21,7 +21,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func policies(ctx context.Context, config etc.Config, c client.Client, cac configauditreport.ConfigAuditConfig, log logr.Logger) (*policy.Policies, error) {
+func Policies(ctx context.Context, config etc.Config, c client.Client, cac configauditreport.ConfigAuditConfig, log logr.Logger) (*policy.Policies, error) {
 	cm := &corev1.ConfigMap{}
 
 	err := c.Get(ctx, client.ObjectKey{

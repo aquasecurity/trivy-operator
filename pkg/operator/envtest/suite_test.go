@@ -166,10 +166,12 @@ var _ = BeforeSuite(func() {
 	Expect(err).ToNot(HaveOccurred())
 
 	err = (&operator.TTLReportReconciler{
-		Logger: ctrl.Log.WithName("reconciler").WithName("ttlreport"),
-		Config: config,
-		Client: k8sClient,
-		Clock:  ext.NewSystemClock(),
+		Logger:         ctrl.Log.WithName("reconciler").WithName("ttlreport"),
+		Config:         config,
+		Client:         k8sClient,
+		PluginContext:  pluginContext,
+		PluginInMemory: pluginca,
+		Clock:          ext.NewSystemClock(),
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 

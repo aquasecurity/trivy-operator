@@ -165,7 +165,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		policies, err := policies(ctx, r.Config, r.Client, cac, r.Logger)
+		policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
 		}
@@ -180,7 +180,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 				"kind", resource.GetObjectKind())
 			return ctrl.Result{}, nil
 		}
-		applicable, reason, err := policies.Applicable(resource)
+		applicable, reason, err := policies.Applicable(resource.GetObjectKind().GroupVersionKind().Kind)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("checking whether plugin is applicable: %w", err)
 		}

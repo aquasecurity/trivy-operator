@@ -133,7 +133,7 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 	if err != nil {
 		return err
 	}
-	policies, err := policies(ctx, r.Config, r.Client, cac, r.Logger)
+	policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger)
 	if err != nil {
 		return fmt.Errorf("getting policies: %w", err)
 	}

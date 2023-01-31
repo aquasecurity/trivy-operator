@@ -6,12 +6,12 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-//+kubebuilder:object:root=true
-//+kubebuilder:resource:scope=Cluster,shortName={compliance}
-//+kubebuilder:subresource:status
-//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"
-//+kubebuilder:printcolumn:name="Fail",type=integer,JSONPath=`.status.totalCounts.failCount`,priority=1,description="The number of checks that failed"
-//+kubebuilder:printcolumn:name="Pass",type=integer,JSONPath=`.status.totalCounts.passCount`,priority=1,description="The number of checks that passed"
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:scope=Cluster,shortName={compliance}
+// +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"
+// +kubebuilder:printcolumn:name="Fail",type=integer,JSONPath=`.status.totalCounts.failCount`,priority=1,description="The number of checks that failed"
+// +kubebuilder:printcolumn:name="Pass",type=integer,JSONPath=`.status.totalCounts.passCount`,priority=1,description="The number of checks that passed"
 
 // ClusterComplianceReport is a specification for the ClusterComplianceReport resource.
 type ClusterComplianceReport struct {
@@ -24,9 +24,9 @@ type ClusterComplianceReport struct {
 // ReportSpec represent the compliance specification
 type ReportSpec struct {
 	// cron define the intervals for report generation
-	//+kubebuilder:validation:Pattern=`^(((([\*]{1}){1})|((\*\/){0,1}(([0-9]{1}){1}|(([1-5]{1}){1}([0-9]{1}){1}){1}))) ((([\*]{1}){1})|((\*\/){0,1}(([0-9]{1}){1}|(([1]{1}){1}([0-9]{1}){1}){1}|([2]{1}){1}([0-3]{1}){1}))) ((([\*]{1}){1})|((\*\/){0,1}(([1-9]{1}){1}|(([1-2]{1}){1}([0-9]{1}){1}){1}|([3]{1}){1}([0-1]{1}){1}))) ((([\*]{1}){1})|((\*\/){0,1}(([1-9]{1}){1}|(([1-2]{1}){1}([0-9]{1}){1}){1}|([3]{1}){1}([0-1]{1}){1}))|(jan|feb|mar|apr|may|jun|jul|aug|sep|okt|nov|dec)) ((([\*]{1}){1})|((\*\/){0,1}(([0-7]{1}){1}))|(sun|mon|tue|wed|thu|fri|sat)))$`
+	// +kubebuilder:validation:Pattern=`^(((([\*]{1}){1})|((\*\/){0,1}(([0-9]{1}){1}|(([1-5]{1}){1}([0-9]{1}){1}){1}))) ((([\*]{1}){1})|((\*\/){0,1}(([0-9]{1}){1}|(([1]{1}){1}([0-9]{1}){1}){1}|([2]{1}){1}([0-3]{1}){1}))) ((([\*]{1}){1})|((\*\/){0,1}(([1-9]{1}){1}|(([1-2]{1}){1}([0-9]{1}){1}){1}|([3]{1}){1}([0-1]{1}){1}))) ((([\*]{1}){1})|((\*\/){0,1}(([1-9]{1}){1}|(([1-2]{1}){1}([0-9]{1}){1}){1}|([3]{1}){1}([0-1]{1}){1}))|(jan|feb|mar|apr|may|jun|jul|aug|sep|okt|nov|dec)) ((([\*]{1}){1})|((\*\/){0,1}(([0-7]{1}){1}))|(sun|mon|tue|wed|thu|fri|sat)))$`
 	Cron string `json:"cron"`
-	//+kubebuilder:validation:Enum={summary,all}
+	// +kubebuilder:validation:Enum={summary,all}
 	ReportFormat ReportType `json:"reportType"`
 	Complaince   Complaince `json:"compliance"`
 }
@@ -49,10 +49,10 @@ type Control struct {
 	Description string      `json:"description,omitempty"`
 	Checks      []SpecCheck `json:"checks,omitempty"`
 	// define the severity of the control
-	//+kubebuilder:validation:Enum={CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN}
+	// +kubebuilder:validation:Enum={CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN}
 	Severity Severity `json:"severity"`
 	// define the default value for check status in case resource not found
-	//+kubebuilder:validation:Enum={PASS,WARN,FAIL}
+	// +kubebuilder:validation:Enum={PASS,WARN,FAIL}
 	DefaultStatus ControlStatus `json:"defaultStatus,omitempty"`
 }
 
@@ -62,7 +62,7 @@ type SpecCheck struct {
 	ID string `json:"id"`
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // ClusterComplianceReportList is a list of compliance kinds.
 type ClusterComplianceReportList struct {
@@ -200,7 +200,7 @@ func FromSummaryReport(sr *report.SummaryReport) *SummaryReport {
 	}
 }
 
-// FromSummaryReport map data from trivy summary report to crd summary report
+// FromDetailReport map data from trivy summary report to crd summary report
 func FromDetailReport(sr *report.ComplianceReport) *ComplianceReport {
 	controlResults := make([]*ControlCheckResult, 0)
 	for _, sr := range sr.Results {

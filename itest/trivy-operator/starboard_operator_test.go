@@ -14,6 +14,6 @@ var _ = Describe("Trivy Operator", func() {
 	Describe("Configuration Checker", ConfigurationCheckerBehavior(&inputs))
 
 	// TODO Refactor to run this container in a separate test suite
-	//Describe("CIS Kubernetes Benchmark", CISKubernetesBenchmarkBehavior(&inputs))
+	// Describe("CIS Kubernetes Benchmark", CISKubernetesBenchmarkBehavior(&inputs))
 
 })

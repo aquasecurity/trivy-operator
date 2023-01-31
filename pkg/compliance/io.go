@@ -39,7 +39,7 @@ func (w *cm) GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportS
 	if err != nil {
 		return err
 	}
-	//generate cluster compliance report
+	// generate cluster compliance report
 	updatedReport, err := w.createComplianceReport(ctx, spec, status)
 	if err != nil {
 		return err

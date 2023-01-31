@@ -480,13 +480,13 @@ spec:
         description: Ensure that the kubelet service file has permissions of 600 or more
           restrictive.
         checks:
-          - id: AVD-KSV-0069
+          - id: AVD-KCV-0069
         severity: HIGH
       - id: 4.1.2
         name: Ensure that the kubelet service file ownership is set to root:root
         description: Ensure that the kubelet service file ownership is set to root:root
         checks:
-          - id: AVD-KSV-0070
+          - id: AVD-KCV-0070
         severity: HIGH
       - id: 4.1.3
         name: If proxy kubeconfig file exists ensure permissions are set to 600 or more
@@ -495,14 +495,14 @@ spec:
           kubeconfig file, ensure that the proxy kubeconfig file has permissions
           of 600 or more restrictive
         checks:
-          - id: AVD-KSV-0071
+          - id: AVD-KCV-0071
         severity: HIGH
       - id: 4.1.4
         name: If proxy kubeconfig file exists ensure ownership is set to root:root
         description: If kube-proxy is running, ensure that the file ownership of its
           kubeconfig file is set to root:root
         checks:
-          - id: AVD-KSV-0072
+          - id: AVD-KCV-0072
         severity: HIGH
       - id: 4.1.5
         name: Ensure that the --kubeconfig kubelet.conf file permissions are set to 600
@@ -510,14 +510,14 @@ spec:
         description: Ensure that the kubelet.conf file has permissions of 600 or more
           restrictive
         checks:
-          - id: AVD-KSV-0073
+          - id: AVD-KCV-0073
         severity: HIGH
       - id: 4.1.6
         name: Ensure that the --kubeconfig kubelet.conf file ownership is set to
           root:root
         description: Ensure that the kubelet.conf file ownership is set to root:root
         checks:
-          - id: AVD-KSV-0074
+          - id: AVD-KCV-0074
         severity: HIGH
       - id: 4.1.7
         name: Ensure that the certificate authorities file permissions are set to 600 or
@@ -525,7 +525,7 @@ spec:
         description: Ensure that the certificate authorities file has permissions of 600
           or more restrictive
         checks:
-          - id: AVD-KSV-0075
+          - id: AVD-KCV-0075
         severity: CRITICAL
       - id: 4.1.8
         name: Ensure that the client certificate authorities file ownership is set to
@@ -533,7 +533,7 @@ spec:
         description: Ensure that the certificate authorities file ownership is set to
           root:root
         checks:
-          - id: AVD-KSV-0076
+          - id: AVD-KCV-0076
         severity: CRITICAL
       - id: 4.1.9
         name: If the kubelet config.yaml configuration file is being used validate
@@ -542,7 +542,7 @@ spec:
           --config argument, that file has permissions of 600 or more
           restrictive
         checks:
-          - id: AVD-KSV-0077
+          - id: AVD-KCV-0077
         severity: HIGH
       - id: 4.1.10
         name: If the kubelet config.yaml configuration file is being used validate file
@@ -550,57 +550,57 @@ spec:
         description: Ensure that if the kubelet refers to a configuration file with the
           --config argument, that file is owned by root:root
         checks:
-          - id: AVD-KSV-0078
+          - id: AVD-KCV-0078
         severity: HIGH
       - id: 4.2.1
         name: Ensure that the --anonymous-auth argument is set to false
         description: Disable anonymous requests to the Kubelet server
         checks:
-          - id: AVD-KSV-0079
+          - id: AVD-KCV-0079
         severity: CRITICAL
       - id: 4.2.2
         name: Ensure that the --authorization-mode argument is not set to AlwaysAllow
         description: Do not allow all requests. Enable explicit authorization
         checks:
-          - id: AVD-KSV-0080
+          - id: AVD-KCV-0080
         severity: CRITICAL
       - id: 4.2.3
         name: Ensure that the --client-ca-file argument is set as appropriate
         description: Enable Kubelet authentication using certificates
         checks:
-          - id: AVD-KSV-0081
+          - id: AVD-KCV-0081
         severity: CRITICAL
       - id: 4.2.4
         name: Verify that the --read-only-port argument is set to 0
         description: Disable the read-only port
         checks:
-          - id: AVD-KSV-0082
+          - id: AVD-KCV-0082
         severity: HIGH
       - id: 4.2.5
         name: Ensure that the --streaming-connection-idle-timeout argument is not set to
           0
         description: Do not disable timeouts on streaming connections
         checks:
-          - id: AVD-KSV-0085
+          - id: AVD-KCV-0085
         severity: HIGH
       - id: 4.2.6
         name: Ensure that the --protect-kernel-defaults argument is set to true
         description: Protect tuned kernel parameters from overriding kubelet default
           kernel parameter values
         checks:
-          - id: AVD-KSV-0083
+          - id: AVD-KCV-0083
         severity: HIGH
       - id: 4.2.7
         name: Ensure that the --make-iptables-util-chains argument is set to true
         description: Allow Kubelet to manage iptables
         checks:
-          - id: AVD-KSV-0084
+          - id: AVD-KCV-0084
         severity: HIGH
       - id: 4.2.8
         name: Ensure that the --hostname-override argument is not set
         description: Do not override node hostnames
         checks:
-          - id: AVD-KSV-0086
+          - id: AVD-KCV-0086
         severity: HIGH
       - id: 4.2.9
         name: Ensure that the --event-qps argument is set to 0 or a level which ensures
@@ -609,34 +609,34 @@ spec:
           flag on the Kubelet can be used to limit the rate at which events are
           gathered
         checks:
-          - id: AVD-KSV-0087
+          - id: AVD-KCV-0087
         severity: HIGH
       - id: 4.2.10
         name: Ensure that the --tls-cert-file and --tls-private-key-file arguments are
           set as appropriate
         description: Setup TLS connection on the Kubelets
         checks:
-          - id: AVD-KSV-0088
-          - id: AVD-KSV-0089
+          - id: AVD-KCV-0088
+          - id: AVD-KCV-0089
         severity: CRITICAL
       - id: 4.2.11
         name: Ensure that the --rotate-certificates argument is not set to false
         description: Enable kubelet client certificate rotation
         checks:
-          - id: AVD-KSV-0090
+          - id: AVD-KCV-0090
         severity: CRITICAL
       - id: 4.2.12
         name: Verify that the RotateKubeletServerCertificate argument is set to true
         description: Enable kubelet server certificate rotation
         checks:
-          - id: AVD-KSV-0091
+          - id: AVD-KCV-0091
         severity: CRITICAL
       - id: 4.2.13
         name: Ensure that the Kubelet only makes use of Strong Cryptographic Ciphers
         description: Ensure that the Kubelet is configured to only use strong
           cryptographic ciphers
         checks:
-          - id: AVD-KSV-0092
+          - id: AVD-KCV-0092
         severity: CRITICAL
       - id: 5.1.1
         name: Ensure that the cluster-admin role is only used where required

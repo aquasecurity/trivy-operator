@@ -70,6 +70,9 @@ jobs:
           mkdir -p ./bin
           curl -L https://github.com/kudobuilder/kuttl/releases/download/v0.15.0/kubectl-kuttl_0.15.0_linux_x86_64 -o ./bin/kuttl;
           chmod +x ./bin/kuttl;
+      - name: Generated Test Manifests
+        run: |
+          make generated-test-manifests
       - name: Image scan mode test
         run: |
           ./bin/kuttl test --start-kind=false --config tests/config/image-mode.yaml

@@ -24,7 +24,7 @@ type WebhookReconciler struct {
 	client.Client
 }
 
-//+kubebuilder:rbac:groups=aquasecurity.github.io,resources=vulnerabilityreports,verbs=get;list;watch;delete
+// +kubebuilder:rbac:groups=aquasecurity.github.io,resources=vulnerabilityreports,verbs=get;list;watch;delete
 
 func (r *WebhookReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	installModePredicate, err := predicate.InstallModePredicate(r.Config)

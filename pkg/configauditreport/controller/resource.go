@@ -47,30 +47,30 @@ type ResourceController struct {
 	trivyoperator.BuildInfo
 }
 
-//+kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
-//+kubebuilder:rbac:groups=apps,resources=replicasets,verbs=get;list;watch
-//+kubebuilder:rbac:groups="",resources=replicationcontrollers,verbs=get;list;watch
-//+kubebuilder:rbac:groups=apps,resources=statefulsets,verbs=get;list;watch
-//+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch
-//+kubebuilder:rbac:groups=batch,resources=cronjobs,verbs=get;list;watch
-//+kubebuilder:rbac:groups=batch,resources=jobs,verbs=get;list;watch
-//+kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch
-//+kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch
-//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=roles,verbs=get;list;watch
-//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=rolebindings,verbs=get;list;watch
-//+kubebuilder:rbac:groups=networking.k8s.io,resources=networkpolicies,verbs=get;list;watch
-//+kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses,verbs=get;list;watch
-//+kubebuilder:rbac:groups="",resources=resourcequotas,verbs=get;list;watch
-//+kubebuilder:rbac:groups="",resources=limitranges,verbs=get;list;watch
-//+kubebuilder:rbac:groups=aquasecurity.github.io,resources=configauditreports,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=aquasecurity.github.io,resources=rbacassessmentreports,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=aquasecurity.github.io,resources=infraassessmentreports,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
+// +kubebuilder:rbac:groups=apps,resources=replicasets,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=replicationcontrollers,verbs=get;list;watch
+// +kubebuilder:rbac:groups=apps,resources=statefulsets,verbs=get;list;watch
+// +kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch
+// +kubebuilder:rbac:groups=batch,resources=cronjobs,verbs=get;list;watch
+// +kubebuilder:rbac:groups=batch,resources=jobs,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch
+// +kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=roles,verbs=get;list;watch
+// +kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=rolebindings,verbs=get;list;watch
+// +kubebuilder:rbac:groups=networking.k8s.io,resources=networkpolicies,verbs=get;list;watch
+// +kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=resourcequotas,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=limitranges,verbs=get;list;watch
+// +kubebuilder:rbac:groups=aquasecurity.github.io,resources=configauditreports,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aquasecurity.github.io,resources=rbacassessmentreports,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aquasecurity.github.io,resources=infraassessmentreports,verbs=get;list;watch;create;update;patch;delete
 
-//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterroles,verbs=get;list;watch
-//+kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterrolebindings,verbs=get;list;watch
-//+kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinitions,verbs=get;list;watch
-//+kubebuilder:rbac:groups=aquasecurity.github.io,resources=clusterconfigauditreports,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=aquasecurity.github.io,resources=clusterrbacassessmentreports,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterroles,verbs=get;list;watch
+// +kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterrolebindings,verbs=get;list;watch
+// +kubebuilder:rbac:groups=apiextensions.k8s.io,resources=customresourcedefinitions,verbs=get;list;watch
+// +kubebuilder:rbac:groups=aquasecurity.github.io,resources=clusterconfigauditreports,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=aquasecurity.github.io,resources=clusterrbacassessmentreports,verbs=get;list;watch;create;update;patch;delete
 
 func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 	installModePredicate, err := predicate.InstallModePredicate(r.Config)

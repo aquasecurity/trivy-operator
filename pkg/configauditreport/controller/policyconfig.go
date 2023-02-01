@@ -38,7 +38,7 @@ type PolicyConfigController struct {
 }
 
 // Controller for trivy-operator-policies-config in the operator namespace; must be cluster scoped even with namespace predicate
-//+kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch
 
 func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 

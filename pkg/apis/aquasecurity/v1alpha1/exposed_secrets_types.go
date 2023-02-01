@@ -7,19 +7,19 @@ import (
 // ExposedSecretSummary is a summary of ExposedSecret counts grouped by Severity.
 type ExposedSecretSummary struct {
 	// CriticalCount is the number of exposed secrets with Critical Severity.
-	//+kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Minimum=0
 	CriticalCount int `json:"criticalCount"`
 
 	// HighCount is the number of exposed secrets with High Severity.
-	//+kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Minimum=0
 	HighCount int `json:"highCount"`
 
 	// MediumCount is the number of exposed secrets with Medium Severity.
-	//+kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Minimum=0
 	MediumCount int `json:"mediumCount"`
 
 	// LowCount is the number of exposed secrets with Low Severity.
-	//+kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Minimum=0
 	LowCount int `json:"lowCount"`
 }
 
@@ -33,22 +33,22 @@ type ExposedSecret struct {
 
 	Title    string `json:"title"`
 	Category string `json:"category"`
-	//+kubebuilder:validation:Enum={CRITICAL,HIGH,MEDIUM,LOW}
+	// +kubebuilder:validation:Enum={CRITICAL,HIGH,MEDIUM,LOW}
 	Severity Severity `json:"severity"`
 	// Match where the exposed rule matched.
 	Match string `json:"match"`
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:resource:shortName={exposedsecret,exposedsecrets}
-//+kubebuilder:printcolumn:name="Repository",type=string,JSONPath=`.report.artifact.repository`,description="The name of image repository"
-//+kubebuilder:printcolumn:name="Tag",type=string,JSONPath=`.report.artifact.tag`,description="The name of image tag"
-//+kubebuilder:printcolumn:name="Scanner",type=string,JSONPath=`.report.scanner.name`,description="The name of the exposed secret scanner"
-//+kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"
-//+kubebuilder:printcolumn:name="Critical",type=integer,JSONPath=`.report.summary.criticalCount`,priority=1,description="The number of critical exposed secrets"
-//+kubebuilder:printcolumn:name="High",type=integer,JSONPath=`.report.summary.highCount`,priority=1,description="The number of high exposed secrets"
-//+kubebuilder:printcolumn:name="Medium",type=integer,JSONPath=`.report.summary.mediumCount`,priority=1,description="The number of medium exposed secrets"
-//+kubebuilder:printcolumn:name="Low",type=integer,JSONPath=`.report.summary.lowCount`,priority=1,description="The number of low exposed secrets"
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:shortName={exposedsecret,exposedsecrets}
+// +kubebuilder:printcolumn:name="Repository",type=string,JSONPath=`.report.artifact.repository`,description="The name of image repository"
+// +kubebuilder:printcolumn:name="Tag",type=string,JSONPath=`.report.artifact.tag`,description="The name of image tag"
+// +kubebuilder:printcolumn:name="Scanner",type=string,JSONPath=`.report.scanner.name`,description="The name of the exposed secret scanner"
+// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"
+// +kubebuilder:printcolumn:name="Critical",type=integer,JSONPath=`.report.summary.criticalCount`,priority=1,description="The number of critical exposed secrets"
+// +kubebuilder:printcolumn:name="High",type=integer,JSONPath=`.report.summary.highCount`,priority=1,description="The number of high exposed secrets"
+// +kubebuilder:printcolumn:name="Medium",type=integer,JSONPath=`.report.summary.mediumCount`,priority=1,description="The number of medium exposed secrets"
+// +kubebuilder:printcolumn:name="Low",type=integer,JSONPath=`.report.summary.lowCount`,priority=1,description="The number of low exposed secrets"
 
 // ExposedSecretReport summarizes exposed secrets in plaintext files built into container images.
 type ExposedSecretReport struct {
@@ -73,7 +73,7 @@ type ExposedSecretReportData struct {
 	Scanner Scanner `json:"scanner"`
 
 	// Registry is the registry the Artifact was pulled from.
-	//+optional
+	// +optional
 	Registry Registry `json:"registry"`
 
 	// Artifact represents a standalone, executable package of software that includes everything needed to
@@ -87,7 +87,7 @@ type ExposedSecretReportData struct {
 	Secrets []ExposedSecret `json:"secrets"`
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // ExposedSecretReportList is a list of ExposedSecretReport resources.
 type ExposedSecretReportList struct {

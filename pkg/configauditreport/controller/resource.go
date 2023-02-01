@@ -85,9 +85,11 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		if err = resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, r.ObjectResolver); err != nil {
 			return err
 		}
-		if err = r.buildControlMgr(mgr, resource, installModePredicate).
-			Owns(&v1alpha1.InfraAssessmentReport{}).
-			Complete(r.reconcileResource(resource.Kind)); err != nil {
+		builder := r.buildControlMgr(mgr, resource, installModePredicate)
+		if r.Config.InfraAssessmentScannerEnabled {
+			builder.Owns(&v1alpha1.InfraAssessmentReport{})
+		}
+		if err = builder.Complete(r.reconcileResource(resource.Kind)); err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", resource.Kind, err)
 		}
 	}

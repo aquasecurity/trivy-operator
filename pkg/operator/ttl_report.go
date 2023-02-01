@@ -40,7 +40,9 @@ func (r *TTLReportReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		{ForObject: &v1alpha1.ConfigAuditReport{}},
 		{ForObject: &v1alpha1.ExposedSecretReport{}},
 		{ForObject: &v1alpha1.RbacAssessmentReport{}},
-		{ForObject: &v1alpha1.InfraAssessmentReport{}},
+	}
+	if r.Config.InfraAssessmentScannerEnabled {
+		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.InfraAssessmentReport{}})
 	}
 	installModePredicate, err := predicate.InstallModePredicate(r.Config)
 	if err != nil {

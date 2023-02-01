@@ -3,7 +3,7 @@ package operator
 import (
 	"context"
 	"fmt"
-	"github.com/aquasecurity/trivy-operator/pkg/compliance"
+	"github.com/aquasecurity/trivy-operator/pkg/compliance"pkg/operator/ttl_report.go
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"

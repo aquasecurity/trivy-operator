@@ -26,7 +26,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-// NodeInfoCollectorReconciler reconciles corev1.Node and corev1.Job objects
+//	NodeReconciler reconciles corev1.Node and corev1.Job objects
+//
 // to collect cluster nodes information (fileSystem permission and process arguments)
 // the node information will be evaluated by the complaince control checks per relevant reports, examples: cis-benchmark and nsa
 type NodeReconciler struct {
@@ -41,8 +42,8 @@ type NodeReconciler struct {
 	trivyoperator.BuildInfo
 }
 
-//+kubebuilder:rbac:groups="",resources=nodes,verbs=get;list;watch
-//+kubebuilder:rbac:groups=aquasecurity.github.io,resources=clusterinfraassessmentreports,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups="",resources=nodes,verbs=get;list;watch
+// +kubebuilder:rbac:groups=aquasecurity.github.io,resources=clusterinfraassessmentreports,verbs=get;list;watch;create;update;patch;delete
 
 func (r *NodeReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).

@@ -619,7 +619,7 @@ func (o *ObjectResolver) GetNodeName(ctx context.Context, obj client.Object) (st
 
 // TODO: Figure out if cluster-wide access to deployments can be avoided
 // See: https://github.com/aquasecurity/trivy-operator/issues/373 for background
-//+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch
+// +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch
 
 func (o *ObjectResolver) IsActiveReplicaSet(ctx context.Context, workloadObj client.Object, controller *metav1.OwnerReference) (bool, error) {
 	if controller != nil && controller.Kind == string(KindDeployment) {

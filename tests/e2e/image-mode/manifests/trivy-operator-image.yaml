@@ -1769,7 +1769,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: 0.11.0-rc2
+    app.kubernetes.io/version: 0.11.0-rc3
     app.kubernetes.io/managed-by: kubectl
 
 ---
@@ -1781,7 +1781,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: 0.11.0-rc2
+    app.kubernetes.io/version: 0.11.0-rc3
     app.kubernetes.io/managed-by: kubectl
 
 ---
@@ -1793,7 +1793,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: 0.11.0-rc2
+    app.kubernetes.io/version: 0.11.0-rc3
     app.kubernetes.io/managed-by: kubectl
 data: null
 
@@ -1806,7 +1806,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: 0.11.0-rc2
+    app.kubernetes.io/version: 0.11.0-rc3
     app.kubernetes.io/managed-by: kubectl
 data:
   scanJob.podTemplateContainerSecurityContext: '{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true}'
@@ -1824,7 +1824,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: 0.11.0-rc2
+    app.kubernetes.io/version: 0.11.0-rc3
     app.kubernetes.io/managed-by: kubectl
 data:
   trivy.repository: ghcr.io/aquasecurity/trivy
@@ -1853,7 +1853,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: 0.11.0-rc2
+    app.kubernetes.io/version: 0.11.0-rc3
     app.kubernetes.io/managed-by: kubectl
 spec:
   replicas: 1
@@ -1976,7 +1976,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: 0.11.0-rc2
+    app.kubernetes.io/version: 0.11.0-rc3
     app.kubernetes.io/managed-by: kubectl
 rules:
   - apiGroups:
@@ -2003,7 +2003,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: 0.11.0-rc2
+    app.kubernetes.io/version: 0.11.0-rc3
     app.kubernetes.io/managed-by: kubectl
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -2023,7 +2023,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: 0.11.0-rc2
+    app.kubernetes.io/version: 0.11.0-rc3
     app.kubernetes.io/managed-by: kubectl
 data: null
 
@@ -2036,7 +2036,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: 0.11.0-rc2
+    app.kubernetes.io/version: 0.11.0-rc3
     app.kubernetes.io/managed-by: kubectl
 
 ---
@@ -2366,7 +2366,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: 0.11.0-rc2
+    app.kubernetes.io/version: 0.11.0-rc3
     app.kubernetes.io/managed-by: kubectl
     rbac.authorization.k8s.io/aggregate-to-view: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
@@ -2390,7 +2390,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: 0.11.0-rc2
+    app.kubernetes.io/version: 0.11.0-rc3
     app.kubernetes.io/managed-by: kubectl
     rbac.authorization.k8s.io/aggregate-to-view: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
@@ -2414,7 +2414,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: 0.11.0-rc2
+    app.kubernetes.io/version: 0.11.0-rc3
     app.kubernetes.io/managed-by: kubectl
     rbac.authorization.k8s.io/aggregate-to-view: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
@@ -2438,7 +2438,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: 0.11.0-rc2
+    app.kubernetes.io/version: 0.11.0-rc3
     app.kubernetes.io/managed-by: kubectl
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -2458,7 +2458,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: 0.11.0-rc2
+    app.kubernetes.io/version: 0.11.0-rc3
     app.kubernetes.io/managed-by: kubectl
 rules:
   - apiGroups:
@@ -2488,7 +2488,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: 0.11.0-rc2
+    app.kubernetes.io/version: 0.11.0-rc3
     app.kubernetes.io/managed-by: kubectl
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -2508,7 +2508,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: 0.11.0-rc2
+    app.kubernetes.io/version: 0.11.0-rc3
     app.kubernetes.io/managed-by: kubectl
 spec:
   clusterIP: None

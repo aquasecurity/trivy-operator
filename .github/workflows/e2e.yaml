@@ -73,15 +73,19 @@ jobs:
       - name: Generated Test Manifests
         run: |
           make generated-test-manifests
-      - name: Image scan mode test
+      - name: Image scan mode producing vulnerability reoport test
         run: |
           ./bin/kuttl test --start-kind=false --config tests/config/image-mode.yaml
           ./tests/resources-cleanup.sh > /dev/null 2>&1
-      - name: fs scan mode test
+      - name: fs scan mode producing vulnerability reoport test
         run: |
           ./bin/kuttl test --start-kind=false --config tests/config/fs-mode.yaml
           ./tests/resources-cleanup.sh > /dev/null 2>&1
-      - name: client/server mode test
+      - name: client/server mode producing vulnerability reoport test
         run: |
           ./bin/kuttl test --start-kind=false --config tests/config/client-server.yaml
+          ./tests/resources-cleanup.sh > /dev/null 2>&1
+      - name: Node collector producing cluster infra assessment reoport test
+        run: |
+          ./bin/kuttl test --start-kind=false --config tests/config/node-collector.yaml
           ./tests/resources-cleanup.sh > /dev/null 2>&1

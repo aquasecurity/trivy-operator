@@ -77,10 +77,12 @@ func evaluate(ctx context.Context, policies *policy.Policies, resource client.Ob
 		Summary:         v1alpha1.ConfigAuditSummaryFromChecks(checks),
 		Checks:          checks,
 	}
-	misconfiguration.infraAssessmentReportData = v1alpha1.InfraAssessmentReportData{
-		Scanner: scanner(bi),
-		Summary: v1alpha1.InfraAssessmentSummaryFromChecks(infraChecks),
-		Checks:  infraChecks,
+	if c.InfraAssessmentScannerEnabled {
+		misconfiguration.infraAssessmentReportData = v1alpha1.InfraAssessmentReportData{
+			Scanner: scanner(bi),
+			Summary: v1alpha1.InfraAssessmentSummaryFromChecks(infraChecks),
+			Checks:  infraChecks,
+		}
 	}
 	return misconfiguration, nil
 }

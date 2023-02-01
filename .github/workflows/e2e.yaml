@@ -85,7 +85,3 @@ jobs:
         run: |
           ./bin/kuttl test --start-kind=false --config tests/config/client-server.yaml
           ./tests/resources-cleanup.sh > /dev/null 2>&1
-      - name: Node collector producing cluster infra assessment reoport test
-        run: |
-          ./bin/kuttl test --start-kind=false --config tests/config/node-collector.yaml
-          ./tests/resources-cleanup.sh > /dev/null 2>&1

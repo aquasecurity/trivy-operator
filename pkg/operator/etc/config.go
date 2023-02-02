@@ -90,18 +90,6 @@ func (c Config) GetPrivateRegistryScanSecretsNames() (map[string]string, error) 
 	return secretsInfoMap, nil
 }
 
-func (c Config) GetGlobalPrivateRegistryScanSecretsNames() (map[string]string, error) {
-	globalPrivateRegistryScanSecretsNames := c.GlobalPrivateRegistryScanSecretsNames
-	secretsInfoMap := map[string]string{}
-	if globalPrivateRegistryScanSecretsNames != "" {
-		err := json.Unmarshal([]byte(globalPrivateRegistryScanSecretsNames), &secretsInfoMap)
-		if err != nil {
-			return nil, fmt.Errorf("failed parsing incorrectly formatted information about namespaces and secrets: %s", globalPrivateRegistryScanSecretsNames)
-		}
-	}
-	return secretsInfoMap, nil
-}
-
 func (c Config) GetTargetWorkloads() []string {
 	workloads := c.TargetWorkloads
 	if workloads != "" {

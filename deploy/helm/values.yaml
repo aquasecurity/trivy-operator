@@ -93,10 +93,6 @@ operator:
   # privateRegistryScanSecretsNames is map of namespace:secrets, secrets are comma seperated which can be used to authenticate in private registries in case if there no imagePullSecrets provided example : {"mynamespace":"mySecrets,anotherSecret"}
   privateRegistryScanSecretsNames: {}
   
-  # globalPrivateRegistryScanSecretsNames is map of namespace:secrets, secrets are comma seperated which can be used to authenticate in private registries in case if there no imagePullSecrets provided example : {"mynamespace":"mySecrets,anotherSecret"}
-  # the main use case is openshift where a secret is define in a global level example secrests which define in namespace: openshift-config
-  globalPrivateRegistryScanSecretsNames: {}
-  
   # mergeRbacFindingWithConfigAudit the flag to enable merging rbac finding with config-audit report
   mergeRbacFindingWithConfigAudit: false
 

@@ -109,7 +109,7 @@ const (
 type SecretsReader interface {
 	ListByLocalObjectReferences(ctx context.Context, refs []corev1.LocalObjectReference, ns string) ([]corev1.Secret, error)
 	ListImagePullSecretsByPodSpec(ctx context.Context, spec corev1.PodSpec, ns string) ([]corev1.Secret, error)
-	CredentialsByWorkloadAndEnv(ctx context.Context, workload client.Object, secretsInfo map[string]string) (map[string]docker.Auth, error)
+	CredentialsByWorkloadAndEnv(ctx context.Context, workload client.Object, secretsInfo ...map[string]string) (map[string]docker.Auth, error)
 }
 
 // NewSecretsReader constructs a new SecretsReader which is using the client
@@ -176,22 +176,24 @@ func (r *secretsReader) ListImagePullSecretsByPodSpec(ctx context.Context, spec 
 func (r *secretsReader) GetSecretsFromEnv(ctx context.Context, secretsInfo map[string]string) ([]corev1.Secret, error) {
 	secretsFromEnv := make([]corev1.Secret, 0)
 
-	for ns, secretName := range secretsInfo {
-		var secretFromEnv corev1.Secret
-		err := r.client.Get(ctx, client.ObjectKey{Name: secretName, Namespace: ns}, &secretFromEnv)
-
-		if err != nil {
-			if k8sapierror.IsNotFound(err) {
-				continue
+	for ns, secretNames := range secretsInfo {
+		secretNamesValues := strings.Split(secretNames, ",")
+		for _, secretName := range secretNamesValues {
+			var secretFromEnv corev1.Secret
+			err := r.client.Get(ctx, client.ObjectKey{Name: strings.TrimSpace(secretName), Namespace: strings.TrimSpace(ns)}, &secretFromEnv)
+			if err != nil {
+				if k8sapierror.IsNotFound(err) {
+					continue
+				}
+				return nil, fmt.Errorf("getting secret by name: %s/%s: %w", ns, secretName, err)
 			}
-			return nil, fmt.Errorf("getting secret by name: %s/%s: %w", ns, secretName, err)
+			secretsFromEnv = append(secretsFromEnv, secretFromEnv)
 		}
-		secretsFromEnv = append(secretsFromEnv, secretFromEnv)
 	}
 	return secretsFromEnv, nil
 }
 
-func (r *secretsReader) CredentialsByWorkloadAndEnv(ctx context.Context, workload client.Object, secretsInfo map[string]string) (map[string]docker.Auth, error) {
+func (r *secretsReader) CredentialsByWorkloadAndEnv(ctx context.Context, workload client.Object, secretsInfoArr ...map[string]string) (map[string]docker.Auth, error) {
 	spec, err := GetPodSpec(workload)
 	if err != nil {
 		return nil, fmt.Errorf("getting Pod template: %w", err)
@@ -200,11 +202,15 @@ func (r *secretsReader) CredentialsByWorkloadAndEnv(ctx context.Context, workloa
 	if err != nil {
 		return nil, err
 	}
-	secretsFromEnv, err := r.GetSecretsFromEnv(ctx, secretsInfo)
-	if err != nil {
-		return nil, err
+	secretsFromEnvArr := make([]corev1.Secret, 0)
+	for _, secretsInfo := range secretsInfoArr {
+		secretsFromEnv, err := r.GetSecretsFromEnv(ctx, secretsInfo)
+		if err != nil {
+			return nil, err
+		}
+		secretsFromEnvArr = append(secretsFromEnvArr, secretsFromEnv...)
 	}
-	imagePullSecrets = append(imagePullSecrets, secretsFromEnv...)
+	imagePullSecrets = append(imagePullSecrets, secretsFromEnvArr...)
 
 	return MapContainerNamesToDockerAuths(GetContainerImagesFromPodSpec(spec), imagePullSecrets)
 }

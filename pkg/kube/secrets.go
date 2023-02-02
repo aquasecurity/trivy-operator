@@ -206,7 +206,6 @@ func (r *secretsReader) CredentialsByWorkloadAndEnv(ctx context.Context, workloa
 	if err != nil {
 		return nil, err
 	}
-
 	imagePullSecrets = append(imagePullSecrets, secretsFromEnv...)
 
 	return MapContainerNamesToDockerAuths(GetContainerImagesFromPodSpec(spec), imagePullSecrets)

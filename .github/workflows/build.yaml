@@ -73,10 +73,6 @@ jobs:
         uses: azure/setup-helm@5119fcb9089d432beecbf79bb2c7915207344b78 # v1.1
         with:
           version: v3.5.0
-      - name: Set up python
-        uses: actions/setup-python@d27e3f3d7c64b4bbf8e4abfb9b63b83e846e0435 # v2.3.0
-        with:
-          python-version: 3.7
       - name: Setup Chart Linting
         id: lint
         uses: helm/chart-testing-action@afea100a513515fbd68b0e72a7bb0ae34cb62aec # v2.1.0

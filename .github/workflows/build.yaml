@@ -69,6 +69,15 @@ jobs:
         run: go mod vendor
       - name: Verify all generated
         run: make verify-generated
+      - name: Install Helm
+        uses: azure/setup-helm@5119fcb9089d432beecbf79bb2c7915207344b78 # v1.1
+        with:
+          version: v3.5.0
+      - name: Setup Chart Linting
+        id: lint
+        uses: helm/chart-testing-action@afea100a513515fbd68b0e72a7bb0ae34cb62aec # v2.1.0
+      - name: Run chart-lint
+        run: ct lint --validate-maintainers=false --charts deploy/helm
   tests:
     name: Run tests
     runs-on: ubuntu-20.04
@@ -133,32 +142,3 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           files: ./itest/trivy-operator/coverage.txt
-  test-helm-chart:
-    if: "false" # TODO It's broken on a release candidate PRs because it's using container image that has not been released yet.
-    name: Test Helm Chart
-    needs:
-      - itest-trivy-operator
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Install Helm
-        uses: azure/setup-helm@5119fcb9089d432beecbf79bb2c7915207344b78 # v1.1
-        with:
-          version: v3.5.0
-      - name: Set up python
-        uses: actions/setup-python@d27e3f3d7c64b4bbf8e4abfb9b63b83e846e0435 # v2.3.0
-        with:
-          python-version: 3.7
-      - name: Setup Chart Linting
-        id: lint
-        uses: helm/chart-testing-action@afea100a513515fbd68b0e72a7bb0ae34cb62aec # v2.1.0
-      - name: Setup Kubernetes cluster (KIND)
-        uses: helm/kind-action@d8ccf8fb623ce1bb360ae2f45f323d9d5c5e9f00 # v1.2.0
-        with:
-          version: ${{ env.KIND_VERSION }}
-          image: ${{ env.KIND_IMAGE }}
-      - name: Run chart-testing
-        run: ct lint-and-install --validate-maintainers=false --charts deploy/helm

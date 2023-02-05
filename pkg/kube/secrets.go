@@ -176,17 +176,19 @@ func (r *secretsReader) ListImagePullSecretsByPodSpec(ctx context.Context, spec 
 func (r *secretsReader) GetSecretsFromEnv(ctx context.Context, secretsInfo map[string]string) ([]corev1.Secret, error) {
 	secretsFromEnv := make([]corev1.Secret, 0)
 
-	for ns, secretName := range secretsInfo {
-		var secretFromEnv corev1.Secret
-		err := r.client.Get(ctx, client.ObjectKey{Name: secretName, Namespace: ns}, &secretFromEnv)
-
-		if err != nil {
-			if k8sapierror.IsNotFound(err) {
-				continue
+	for ns, secretNames := range secretsInfo {
+		secretNamesValues := strings.Split(secretNames, ",")
+		for _, secretName := range secretNamesValues {
+			var secretFromEnv corev1.Secret
+			err := r.client.Get(ctx, client.ObjectKey{Name: strings.TrimSpace(secretName), Namespace: strings.TrimSpace(ns)}, &secretFromEnv)
+			if err != nil {
+				if k8sapierror.IsNotFound(err) {
+					continue
+				}
+				return nil, fmt.Errorf("getting secret by name: %s/%s: %w", ns, secretName, err)
 			}
-			return nil, fmt.Errorf("getting secret by name: %s/%s: %w", ns, secretName, err)
+			secretsFromEnv = append(secretsFromEnv, secretFromEnv)
 		}
-		secretsFromEnv = append(secretsFromEnv, secretFromEnv)
 	}
 	return secretsFromEnv, nil
 }

@@ -201,24 +201,27 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 
 		if operatorConfig.ScannerReportTTL != nil {
-			plugin, pluginContext, err := plugins.NewResolver().WithBuildInfo(buildInfo).
-				WithNamespace(operatorNamespace).
-				WithServiceAccountName(operatorConfig.ServiceAccount).
-				WithConfig(trivyOperatorConfig).
-				WithClient(mgr.GetClient()).
-				WithObjectResolver(&objectResolver).
-				GetConfigAuditPlugin()
-			if err != nil {
-				return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
+			ttlReconciler := &TTLReportReconciler{
+				Logger: ctrl.Log.WithName("reconciler").WithName("ttlreport"),
+				Config: operatorConfig,
+				Client: mgr.GetClient(),
+				Clock:  ext.NewSystemClock(),
 			}
-			if err = (&TTLReportReconciler{
-				Logger:         ctrl.Log.WithName("reconciler").WithName("ttlreport"),
-				Config:         operatorConfig,
-				PluginInMemory: plugin,
-				PluginContext:  pluginContext,
-				Client:         mgr.GetClient(),
-				Clock:          ext.NewSystemClock(),
-			}).SetupWithManager(mgr); err != nil {
+			if operatorConfig.ConfigAuditScannerEnabled {
+				plugin, pluginContextCofig, err := plugins.NewResolver().WithBuildInfo(buildInfo).
+					WithNamespace(operatorNamespace).
+					WithServiceAccountName(operatorConfig.ServiceAccount).
+					WithConfig(trivyOperatorConfig).
+					WithClient(mgr.GetClient()).
+					WithObjectResolver(&objectResolver).
+					GetConfigAuditPlugin()
+				if err != nil {
+					return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
+				}
+				ttlReconciler.PluginContext = pluginContextCofig
+				ttlReconciler.PluginInMemory = plugin
+			}
+			if err = ttlReconciler.SetupWithManager(mgr); err != nil {
 				return fmt.Errorf("unable to setup TTLreport reconciler: %w", err)
 			}
 		}

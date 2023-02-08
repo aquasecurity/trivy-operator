@@ -113,6 +113,9 @@ func (r *TTLReportReconciler) applicableForDeletion(report client.Object, ttlRep
 	if ttlReportAnnotationStr == "0h0m0s" { // check if it marked as historical report
 		return true
 	}
+	if !r.Config.ConfigAuditScannerEnabled {
+		return false
+	}
 	resourceKind, ok := report.GetLabels()[trivyoperator.LabelResourceKind]
 	if !ok {
 		return false

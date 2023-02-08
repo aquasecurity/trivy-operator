@@ -59,7 +59,7 @@ jobs:
           docker tag ghcr.io/aquasecurity/trivy-operator:${{ github.sha }}-amd64 ghcr.io/aquasecurity/trivy-operator:nightly
           docker push ghcr.io/aquasecurity/trivy-operator:nightly
       - name: Setup Kubernetes cluster (KIND)
-        uses: helm/kind-action@v1.4.0
+        uses: helm/kind-action@v1.5.0
       - name: Test connection to Kubernetes cluster
         run: |
           kubectl cluster-info

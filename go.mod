@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/aquasecurity/defsec v0.82.7-0.20230120014503-046ee90ace59
 	github.com/aquasecurity/trivy v0.36.1
-	github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20230124152305-a266786d8ded
+	github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20230209095552-ecd3100a103f
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/davecgh/go-spew v1.1.1
@@ -148,7 +148,7 @@ require (
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	k8s.io/component-base v0.26.1 // indirect
-	k8s.io/klog/v2 v2.80.1 // indirect
+	k8s.io/klog/v2 v2.90.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280 // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3 // indirect

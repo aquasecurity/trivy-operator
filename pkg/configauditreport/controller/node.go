@@ -116,6 +116,7 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 			j.WithJobTemplateName(j.NodeCollectorName),
 			j.WithName(r.getNodeCollectorName(node)),
 			j.WithJobNamespace(on),
+			j.WithServiceAccount(r.ServiceAccount),
 			j.WithJobTolerations(jobTolerations),
 			j.WithJobLabels(map[string]string{
 				trivyoperator.LabelNodeInfoCollector: "Trivy",

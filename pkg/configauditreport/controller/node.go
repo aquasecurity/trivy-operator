@@ -108,10 +108,15 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("preparing job: %w", err)
 		}
+		jobTolerations, err := r.GetScanJobTolerations()
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("getting job tolerations: %w", err)
+		}
 		coll := j.NewCollector(cluster,
 			j.WithJobTemplateName(j.NodeCollectorName),
 			j.WithName(r.getNodeCollectorName(node)),
 			j.WithJobNamespace(on),
+			j.WithJobTolerations(jobTolerations),
 			j.WithJobLabels(map[string]string{
 				trivyoperator.LabelNodeInfoCollector: "Trivy",
 				trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,

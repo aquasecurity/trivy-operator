@@ -68,6 +68,7 @@ To change the target namespace from all namespaces to the `default` namespace ed
 | `metrics.resourceLabelsPrefix`| `k8s_label`| Prefix that will be prepended to the labels names indicated in `report.ResourceLabels` when including them in the Prometheus metrics|
 |`report.recordFailedChecksOnly`| `"true"`| this flag is to record only failed checks on misconfiguration reports (config-audit and rbac assessment)
 | `skipResourceByLabels`| N/A| One-line comma-separated labels keys which trivy-operator will skip scanning on resources with matching labels. Example: `test,transient`|
+| `node.collector.imageRef`             | ghcr.io/aquasecurity/node-collector:0.0.5                | The imageRef use for node-collector job .                                                                                                                                                                                                                                                                                                               |
 
 ## Example - patch ConfigMap
 

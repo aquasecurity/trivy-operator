@@ -71,6 +71,7 @@ const (
 	KeyReportRecordFailedChecksOnly        = "report.recordFailedChecksOnly"
 	KeyMetricsResourceLabelsPrefix         = "metrics.resourceLabelsPrefix"
 	KeyTrivyServerURL                      = "trivy.serverURL"
+	KeyNodeCollectorImageRef               = "node.collector.imageRef"
 )
 
 // ConfigData holds Trivy-operator configuration settings as a set of key-value
@@ -90,8 +91,9 @@ func GetDefaultConfig() ConfigData {
 		keyVulnerabilityReportsScanner:  "Trivy",
 		keyConfigAuditReportsScanner:    "Trivy",
 		KeyScanJobcompressLogs:          "true",
-		"compliance.failEntriesLimit":   "10",
+		keyComplianceFailEntriesLimit:   "10",
 		KeyReportRecordFailedChecksOnly: "true",
+		KeyNodeCollectorImageRef:        "ghcr.io/aquasecurity/node-collector:0.0.5",
 	}
 }
 
@@ -263,6 +265,10 @@ func (c ConfigData) GetMetricsResourceLabelsPrefix() string {
 
 func (c ConfigData) ReportRecordFailedChecksOnly() bool {
 	return c.getBoolKey(KeyReportRecordFailedChecksOnly)
+}
+
+func (c ConfigData) NodeCollectorImageRef() string {
+	return c[KeyNodeCollectorImageRef]
 }
 
 func (c ConfigData) GeTrivyServerURL() string {

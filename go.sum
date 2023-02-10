@@ -80,8 +80,8 @@ github.com/aquasecurity/trivy v0.36.1 h1:us206bak5Nn3OD28fqtF8REuX/8/SxtMyrw6pxc
 github.com/aquasecurity/trivy v0.36.1/go.mod h1:Ks5KGacvQr1R22PzQa2smp5qO5ZhisZoS2kgD0zT7pc=
 github.com/aquasecurity/trivy-db v0.0.0-20221227141502-af78ecb7db4c h1:CgJiXxVxgFOQ4btP97LEYqEHnx++FRpf2IJEXJV+xHs=
 github.com/aquasecurity/trivy-db v0.0.0-20221227141502-af78ecb7db4c/go.mod h1:/nULgnDeq/JMPMVwE1dmf4kWlYn++7VrM3O2naj4BHA=
-github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20230209141105-56c8d8bd50ed h1:UuG6SK8MhCvP7ueYshhzYz3fF6K6U6m839rmrrYtyZE=
-github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20230209141105-56c8d8bd50ed/go.mod h1:IyM3AXCiY6J8DJiQEJDsDWnMzvFFWyMMo6jIC0/KbDk=
+github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20230210062334-34b25faa788b h1:VB5SRpYl9Cuq9HG+SMwO4QRWo2JPxRcRWYS1mBXZy9A=
+github.com/aquasecurity/trivy-kubernetes v0.3.1-0.20230210062334-34b25faa788b/go.mod h1:IyM3AXCiY6J8DJiQEJDsDWnMzvFFWyMMo6jIC0/KbDk=
 github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0 h1:jfIu9sQUG6Ig+0+Ap1h4unLjW6YQJpKZVmUzxsD4E/Q=
 github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0/go.mod h1:t2tdKJDJF9BV14lnkjHmOQgcvEKgtqs5a1N3LNdJhGE=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 h1:0CwZNZbxp69SHPdPJAN/hZIm0C4OItdklCFmMRWYpio=

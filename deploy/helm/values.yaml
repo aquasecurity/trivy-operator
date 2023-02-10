@@ -403,3 +403,9 @@ priorityClassName: ""
 
   # automountServiceAccountToken the flag to enable automount for service account token
 automountServiceAccountToken: true
+
+nodeCollector:
+  # repository of the node-collector image
+  repository: ghcr.io/aquasecurity/node-collector
+  # tag version of the node-collector image
+  tag: 0.0.5

@@ -101,7 +101,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	}
 	// The only reason we're using kubernetes.Clientset is that we need it to read Pod logs,
 	// which is not supported by the client returned by the ctrl.Manager.
-	kubeClientset, err := kubernetes.NewForConfig(kubeConfig)
+	clientSet, err := kubernetes.NewForConfig(kubeConfig)
 	if err != nil {
 		return fmt.Errorf("constructing kube client: %w", err)
 	}
@@ -120,7 +120,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		return err
 	}
 
-	configManager := trivyoperator.NewConfigManager(kubeClientset, operatorNamespace)
+	configManager := trivyoperator.NewConfigManager(clientSet, operatorNamespace)
 	err = configManager.EnsureDefault(context.Background())
 	if err != nil {
 		return err
@@ -139,7 +139,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		return err
 	}
 	limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
-	logsReader := kube.NewLogsReader(kubeClientset)
+	logsReader := kube.NewLogsReader(clientSet)
 	secretsReader := kube.NewSecretsReader(mgr.GetClient())
 
 	if operatorConfig.VulnerabilityScannerEnabled || operatorConfig.ExposedSecretScannerEnabled {

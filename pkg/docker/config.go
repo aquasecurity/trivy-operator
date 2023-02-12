@@ -116,13 +116,12 @@ func GetServerFromImageRef(imageRef string) (string, error) {
 // In ~/.docker/config.json auth keys can be specified as URLs or host names.
 // For the sake of comparison we need to normalize the registry identifier.
 func GetServerFromDockerAuthKey(key string) (string, error) {
-	absoluteURL := key
 
 	if !(strings.HasPrefix(key, "http://") || strings.HasPrefix(key, "https://")) {
-		absoluteURL = "https://" + absoluteURL
+		key = fmt.Sprintf("https://%s", key)
 	}
 
-	parsed, err := url.Parse(absoluteURL)
+	parsed, err := url.Parse(key)
 	if err != nil {
 		return "", err
 	}

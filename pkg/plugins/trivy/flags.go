@@ -4,7 +4,7 @@ import (
 	"github.com/Masterminds/semver"
 )
 
-func validVersion(currentTag string, contraint string) bool {
+func compareTagVersion(currentTag string, contraint string) bool {
 	c, err := semver.NewConstraint(contraint)
 	if err != nil {
 		return false
@@ -25,7 +25,7 @@ func Slow(c Config) string {
 		return ""
 	}
 	// support backward competability with older tags
-	if !validVersion(tag, ">= 0.35.0") {
+	if compareTagVersion(tag, "< 0.35.0") {
 		return ""
 	}
 	if c.GetSlow() {
@@ -41,7 +41,7 @@ func Scanners(c Config) string {
 		return "--scanners"
 	}
 	// support backward competability with older tags
-	if validVersion(tag, "< 0.37.0") {
+	if compareTagVersion(tag, "< 0.37.0") {
 		return "--security-checks"
 	}
 	return "--scanners"
@@ -54,7 +54,7 @@ func SkipDBUpdate(c Config) string {
 		return "--skip-db-update"
 	}
 	// support backward competability with older tags
-	if !validVersion(tag, ">= 0.37.0") {
+	if compareTagVersion(tag, "< 0.37.0") {
 		return "--skip-update"
 	}
 	return "--skip-db-update"

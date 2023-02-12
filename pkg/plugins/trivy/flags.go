@@ -41,7 +41,7 @@ func Scanners(c Config) string {
 		return "--scanners"
 	}
 	// support backward competability with older tags
-	if !validVersion(tag, ">= 0.37.0") {
+	if validVersion(tag, "< 0.37.0") {
 		return "--security-checks"
 	}
 	return "--scanners"

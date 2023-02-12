@@ -205,7 +205,6 @@ func TestGetSlow(t *testing.T) {
 			name: "slow param set to true",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"trivy.tag":  "0.35.0",
 					"trivy.slow": "true",
 				},
 			}},
@@ -215,7 +214,6 @@ func TestGetSlow(t *testing.T) {
 			name: "slow param set to false",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"trivy.tag":  "0.35.0",
 					"trivy.slow": "false",
 				},
 			}},
@@ -225,29 +223,15 @@ func TestGetSlow(t *testing.T) {
 			name: "slow param set to no valid value",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"trivy.tag":  "0.35.0",
 					"trivy.slow": "false2",
 				},
 			}},
 			want: true,
 		},
 		{
-			name: "slow param set to true and trivy tag is less then 0.35.0",
+			name: "slow param set to no  value",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
-				Data: map[string]string{
-					"trivy.slow": "true",
-					"trivy.tag":  "0.33.0",
-				},
-			}},
-			want: false,
-		},
-		{
-			name: "slow param set to true and trivy tag is bigger then 0.35.0",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
-				Data: map[string]string{
-					"trivy.slow": "true",
-					"trivy.tag":  "0.36.0",
-				},
+				Data: map[string]string{},
 			}},
 			want: true,
 		},

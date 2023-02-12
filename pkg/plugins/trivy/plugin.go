@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Masterminds/semver"
 	"github.com/aquasecurity/trivy-db/pkg/types"
 
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
@@ -152,12 +151,21 @@ func (c Config) GetImageRef() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	tag, err := c.GetRequiredData(keyTrivyImageTag)
+	tag, err := c.GetImageTag()
 	if err != nil {
 		return "", err
 	}
 
 	return fmt.Sprintf("%s:%s", repository, tag), nil
+}
+
+// GetImageTag returns upstream Trivy container image tag.
+func (c Config) GetImageTag() (string, error) {
+	tag, err := c.GetRequiredData(keyTrivyImageTag)
+	if err != nil {
+		return "", err
+	}
+	return tag, nil
 }
 
 func (c Config) GetImagePullSecret() []corev1.LocalObjectReference {
@@ -235,38 +243,15 @@ func (c Config) GetUseBuiltinRegoPolicies() bool {
 }
 
 func (c Config) GetSlow() bool {
-	tag, err := c.GetRequiredData(keyTrivyImageTag)
-	if err != nil {
-		return false
-	}
-	// support backward competability with older tags
-	if !validVersion(tag, ">= 0.35.0") {
-		return false
-	}
 	val, ok := c.Data[keyTrivySlow]
 	if !ok {
 		return true
 	}
-
 	boolVal, err := strconv.ParseBool(val)
 	if err != nil {
 		return true
 	}
 	return boolVal
-}
-
-func validVersion(currentTag string, contraint string) bool {
-	c, err := semver.NewConstraint(contraint)
-	if err != nil {
-		return false
-	}
-
-	v, err := semver.NewVersion(currentTag)
-	if err != nil {
-		return false
-	}
-	// Check if the version meets the constraints. The a variable will be true.
-	return c.Check(v)
 }
 
 func (c Config) GetSupportedConfigAuditKinds() []string {
@@ -1260,13 +1245,14 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 		"trivy",
 	}
 	compressLogs := ctx.GetTrivyOperatorConfig().CompressLogs()
-	slow := p.trivySlow(ctx)
+	slow := Slow(ctx)
+	scanners := Scanners(ctx)
 	if mode == ClientServer {
 		if !compressLogs {
 			args := []string{
 				"--quiet",
 				"image",
-				"--security-checks",
+				scanners,
 				getSecurityChecks(ctx),
 				"--format",
 				"json",
@@ -1279,18 +1265,18 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 			}
 			return command, args
 		}
-		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' --security-checks %s --quiet --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, getSecurityChecks(ctx), trivyServerURL, resultFileName, resultFileName)}
+		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s --quiet --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), trivyServerURL, resultFileName, resultFileName)}
 	}
-
+	skipUpdate := SkipDBUpdate(ctx)
 	if !compressLogs {
 		args := []string{
 			"--cache-dir",
 			"/tmp/trivy/.cache",
 			"--quiet",
 			"image",
-			"--security-checks",
+			scanners,
 			getSecurityChecks(ctx),
-			"--skip-update",
+			skipUpdate,
 			"--format",
 			"json",
 			imageRef,
@@ -1300,18 +1286,7 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 		}
 		return command, args
 	}
-	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' --security-checks %s --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, getSecurityChecks(ctx), resultFileName, resultFileName)}
-}
-
-func (p *plugin) trivySlow(ctx trivyoperator.PluginContext) string {
-	config, err := p.newConfigFrom(ctx)
-	if err != nil {
-		return ""
-	}
-	if config.GetSlow() {
-		return "--slow"
-	}
-	return ""
+	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), skipUpdate, resultFileName, resultFileName)}
 }
 
 func getAutomountServiceAccountToken(ctx trivyoperator.PluginContext) bool {
@@ -1727,14 +1702,16 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 }
 
 func (p *plugin) getFSScanningArgs(ctx trivyoperator.PluginContext, command Command, mode Mode, trivyServerURL string) []string {
+	scanners := Scanners(ctx)
+	skipUpdate := SkipDBUpdate(ctx)
 	args := []string{
 		"--cache-dir",
 		"/var/trivyoperator/trivy-db",
 		"--quiet",
 		string(command),
-		"--security-checks",
+		scanners,
 		getSecurityChecks(ctx),
-		"--skip-update",
+		skipUpdate,
 		"--format",
 		"json",
 		"/",
@@ -1742,7 +1719,7 @@ func (p *plugin) getFSScanningArgs(ctx trivyoperator.PluginContext, command Comm
 	if mode == ClientServer {
 		args = append(args, "--server", trivyServerURL)
 	}
-	slow := p.trivySlow(ctx)
+	slow := Slow(ctx)
 	if len(slow) > 0 {
 		args = append(args, slow)
 	}

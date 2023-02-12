@@ -2,7 +2,6 @@ package trivy
 
 import (
 	"github.com/Masterminds/semver"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 func validVersion(currentTag string, contraint string) bool {
@@ -19,20 +18,8 @@ func validVersion(currentTag string, contraint string) bool {
 	return c.Check(v)
 }
 
-func GetConfig(ctx trivyoperator.PluginContext) (Config, error) {
-	pluginConfig, err := ctx.GetConfig()
-	if err != nil {
-		return Config{}, err
-	}
-	return Config{PluginConfig: pluginConfig}, nil
-}
-
 // Slow determine if to use the slow flag (improve memory footprint)
-func Slow(ctx trivyoperator.PluginContext) string {
-	c, err := GetConfig(ctx)
-	if err != nil {
-		return ""
-	}
+func Slow(c Config) string {
 	tag, err := c.GetImageTag()
 	if err != nil {
 		return ""
@@ -48,11 +35,7 @@ func Slow(ctx trivyoperator.PluginContext) string {
 }
 
 // Scanners use scanners flag
-func Scanners(ctx trivyoperator.PluginContext) string {
-	c, err := GetConfig(ctx)
-	if err != nil {
-		return "--scanners"
-	}
+func Scanners(c Config) string {
 	tag, err := c.GetImageTag()
 	if err != nil {
 		return "--scanners"
@@ -65,11 +48,7 @@ func Scanners(ctx trivyoperator.PluginContext) string {
 }
 
 // SkipDBUpdate skip update flag
-func SkipDBUpdate(ctx trivyoperator.PluginContext) string {
-	c, err := GetConfig(ctx)
-	if err != nil {
-		return "--skip-db-update"
-	}
+func SkipDBUpdate(c Config) string {
 	tag, err := c.GetImageTag()
 	if err != nil {
 		return "--skip-db-update"

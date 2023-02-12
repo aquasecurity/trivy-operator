@@ -1245,8 +1245,12 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 		"trivy",
 	}
 	compressLogs := ctx.GetTrivyOperatorConfig().CompressLogs()
-	slow := Slow(ctx)
-	scanners := Scanners(ctx)
+	c, err := p.getConfig(ctx)
+	if err != nil {
+		return []string{}, []string{}
+	}
+	slow := Slow(c)
+	scanners := Scanners(c)
 	if mode == ClientServer {
 		if !compressLogs {
 			args := []string{
@@ -1267,7 +1271,7 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 		}
 		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s --quiet --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), trivyServerURL, resultFileName, resultFileName)}
 	}
-	skipUpdate := SkipDBUpdate(ctx)
+	skipUpdate := SkipDBUpdate(c)
 	if !compressLogs {
 		args := []string{
 			"--cache-dir",
@@ -1702,8 +1706,12 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 }
 
 func (p *plugin) getFSScanningArgs(ctx trivyoperator.PluginContext, command Command, mode Mode, trivyServerURL string) []string {
-	scanners := Scanners(ctx)
-	skipUpdate := SkipDBUpdate(ctx)
+	c, err := p.getConfig(ctx)
+	if err != nil {
+		return []string{}
+	}
+	scanners := Scanners(c)
+	skipUpdate := SkipDBUpdate(c)
 	args := []string{
 		"--cache-dir",
 		"/var/trivyoperator/trivy-db",
@@ -1719,7 +1727,7 @@ func (p *plugin) getFSScanningArgs(ctx trivyoperator.PluginContext, command Comm
 	if mode == ClientServer {
 		args = append(args, "--server", trivyServerURL)
 	}
-	slow := Slow(ctx)
+	slow := Slow(c)
 	if len(slow) > 0 {
 		args = append(args, slow)
 	}

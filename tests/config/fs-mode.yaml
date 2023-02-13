@@ -1,8 +1,9 @@
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestSuite
+commands:
+  - command: helm install trivy-operator ./deploy/helm --namespace trivy-system --create-namespace --set="trivy.command=filesystem" --set="trivyOperator.scanJobPodTemplateContainerSecurityContext.runAsUser=0" --set="image.tag=e2e" --set="excludeNamespaces=kube-system"
 testDirs:
   - tests/e2e/fs-mode
-manifestDirs:
-  - tests/e2e/fs-mode/manifests/
-timeout: 120
+timeout: 240
+kindNodeCache: true

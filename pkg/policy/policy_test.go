@@ -1168,3 +1168,7 @@ func (tc testConfig) GetUseBuiltinRegoPolicies() bool {
 func (tc testConfig) GetSupportedConfigAuditKinds() []string {
 	return utils.MapKinds(strings.Split(trivy.SupportedConfigAuditKinds, ","))
 }
+
+func (tc testConfig) GetSeverity() string {
+	return trivy.KeyTrivySeverity
+}

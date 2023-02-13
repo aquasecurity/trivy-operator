@@ -2,7 +2,8 @@
 apiVersion: kuttl.dev/v1beta1
 commands:
   - script: >
-      cnt="$(kubectl get clusterinfraassessmentreports node-kind-control-plane \
+      cnt="$(kubectl get clusterinfraassessmentreports node-kind-control-plane
+      \
         -o=jsonpath='{.report.summary.highCount}')"
       if [ $cnt -gt 0 ]
 
@@ -14,5 +15,3 @@ commands:
       fi
 kind: TestAssert
 timeout: 30
-
-#chart-testing-control-plane \

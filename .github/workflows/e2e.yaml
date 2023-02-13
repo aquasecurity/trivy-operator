@@ -1,18 +1,17 @@
 ---
-# End 2 End on CRON schedule (every night) or on demand.
 name: End to End Testing
 on:
   workflow_dispatch: {}
   schedule:
-    - cron: "0 0 * * *"
+    - cron: 0 0 * * *
 env:
-  GO_VERSION: "1.19.1"
+  GO_VERSION: 1.19.1
 jobs:
   e2e-testing:
     name: End to End Testing
     runs-on: ubuntu-20.04
     env:
-      DOCKER_CLI_EXPERIMENTAL: "enabled"
+      DOCKER_CLI_EXPERIMENTAL: enabled
     permissions:
       contents: write
       id-token: write
@@ -56,35 +55,47 @@ jobs:
           kubectl wait --for=condition=Ready nodes --all --timeout=300s
           kubectl describe node
       - name: Load operator image to cluster
-        run: |
-          docker tag ghcr.io/aquasecurity/trivy-operator:${{ github.sha }}-amd64 ghcr.io/aquasecurity/trivy-operator:e2e
+        run: >
+          docker tag ghcr.io/aquasecurity/trivy-operator:${{ github.sha }}-amd64
+          ghcr.io/aquasecurity/trivy-operator:e2e
+
           docker save -o trivy-operator.tar ghcr.io/aquasecurity/trivy-operator:e2e
+
           kind load image-archive trivy-operator.tar
       - name: Init E2E tests (Install kuttl & helm)
-        run: |
+        run: >
           mkdir -p ./bin
+
           curl -L https://github.com/kudobuilder/kuttl/releases/download/v0.15.0/kubectl-kuttl_0.15.0_linux_x86_64 -o ./bin/kuttl;
+
           chmod +x ./bin/kuttl;
+
           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+
           chmod 700 get_helm.sh
+
           ./get_helm.sh
       - name: Image scan mode producing vulnerability reoport test
-        run: |
+        run: >
           ./bin/kuttl test --start-kind=false --config tests/config/image-mode.yaml
+
           ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: Files System scan mode producing vulnerability reoport test
         run: |
           ./bin/kuttl test --start-kind=false --config tests/config/fs-mode.yaml
           ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: Client/server mode producing vulnerability reoport test
-        run: |
-          ./bin/kuttl test --start-kind=false --config tests/config/client-server.yaml
+        run: >
+          ./bin/kuttl test --start-kind=false --config
+          tests/config/client-server.yaml
+
           ./tests/resources-cleanup.sh > /dev/null 2>&1
-      - name: Node scan producing clusterinfraassessmentreport # no need to cleanup resources before this step 
-        run: |
-          ./bin/kuttl test --start-kind=false --config tests/config/node-collector.yaml
-          ./tests/resources-cleanup.sh > /dev/null 2>&1    
+      - name: Node scan producing clusterinfraassessmentreport
+        run: >
+          ./bin/kuttl test --start-kind=false --config
+          tests/config/node-collector.yaml
+
+          ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: Delete kind cluster
         run: |
           kind delete cluster
-      

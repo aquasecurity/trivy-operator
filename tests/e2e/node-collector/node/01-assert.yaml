@@ -2,8 +2,8 @@
 apiVersion: kuttl.dev/v1beta1
 commands:
   - script: >
-      cnt="$(kubectl get -n $NAMESPACE
-      clusterinfraassessmentreports.aquasecurity.github.io node-kind-control-plane \
+      cnt="$(kubectl get clusterinfraassessmentreports node-kind-control-plane
+      \
         -o=jsonpath='{.report.summary.highCount}')"
       if [ $cnt -gt 0 ]
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-kubectl delete namespace trivy-system
+helm uninstall trivy-operator  -n trivy-system
 kubectl delete crd vulnerabilityreports.aquasecurity.github.io
 kubectl delete crd configauditreports.aquasecurity.github.io
 kubectl delete crd clusterconfigauditreports.aquasecurity.github.io

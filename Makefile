@@ -140,10 +140,6 @@ $(ENVTEST): $(LOCALBIN)
 verify-generated: generate-all
 	./hack/verify-generated.sh
 
-.PHONY: generated-test-manifests
-generated-test-manifests:
-	./tests/generate-manifests.sh
-
 .PHONY: generate
 generate: controller-gen
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./pkg/..." +rbac:roleName=trivy-operator output:rbac:artifacts:config=deploy/helm/generated

@@ -1,8 +1,11 @@
 ---
 apiVersion: kuttl.dev/v1beta1
 kind: TestSuite
+commands:
+  - command: helm install trivy-operator ./deploy/helm --namespace trivy-system
+      --create-namespace --set="image.tag=e2e"
+      --set="excludeNamespaces=kube-system"
 testDirs:
   - tests/e2e/image-mode
-manifestDirs:
-  - tests/e2e/image-mode/manifests/
-timeout: 120
+timeout: 240
+kindNodeCache: true

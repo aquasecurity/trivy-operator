@@ -45,6 +45,10 @@ func evaluate(ctx context.Context, policies *policy.Policies, resource client.Ob
 	infraChecks := make([]v1alpha1.Check, 0)
 	checks := make([]v1alpha1.Check, 0)
 	for _, result := range results {
+		if !policies.HasSeverity(result) {
+			continue
+		}
+
 		id := policies.GetResultID(result)
 
 		// record only misconfig failed checks

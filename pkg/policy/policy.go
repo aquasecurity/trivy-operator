@@ -236,6 +236,10 @@ func (r *Policies) GetResultID(result scan.Result) string {
 	return id
 }
 
+func (r *Policies) HasSeverity(result scan.Result) bool {
+	return strings.Contains(r.cac.GetSeverity(), string(result.Rule().Severity))
+}
+
 func getScannerOptions(hasExternalPolicies bool, useDefaultPolicies bool, policiesFolder string) []options.ScannerOption {
 	optionsArray := []options.ScannerOption{options.ScannerWithEmbeddedPolicies(useDefaultPolicies)}
 	if hasExternalPolicies {

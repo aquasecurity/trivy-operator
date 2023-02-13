@@ -1,43 +1,34 @@
 ---
-# This workflow is triggered on push or pull request for the main branch.
-# It runs tests and various checks to validate that the proposed changes
-# will not introduce any regression after merging the code to the main branch.
 name: Build
 on:
   push:
     branches:
       - main
     paths-ignore:
-      - ".github/ISSUE_TEMPLATE/*.md"
+      - .github/ISSUE_TEMPLATE/*.md
       - "*.md"
-      - "docs/**"
-      - "mkdocs.yml"
-      - "LICENSE"
-      - "NOTICE"
+      - docs/**
+      - mkdocs.yml
+      - LICENSE
+      - NOTICE
   pull_request:
     branches:
       - main
     paths-ignore:
-      - ".github/ISSUE_TEMPLATE/*.md"
+      - .github/ISSUE_TEMPLATE/*.md
       - "*.md"
-      - "docs/**"
-      - "mkdocs.yml"
-      - "LICENSE"
-      - "NOTICE"
-
+      - docs/**
+      - mkdocs.yml
+      - LICENSE
+      - NOTICE
 env:
-  GO_VERSION: "1.19.1"
-  KIND_VERSION: "v0.11.1"
-  KIND_IMAGE: "kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6"
-
-# Disable permissions granted to the GITHUB_TOKEN for all the available scopes.
+  GO_VERSION: 1.19.1
+  KIND_VERSION: v0.11.1
+  KIND_IMAGE: kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6
 permissions: {}
-
-# Cancel any in-flight jobs for the same PR branch so there's only one active at a time.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   verify-code:
     name: Verify code
@@ -70,12 +61,12 @@ jobs:
       - name: Verify all generated
         run: make verify-generated
       - name: Install Helm
-        uses: azure/setup-helm@5119fcb9089d432beecbf79bb2c7915207344b78 # v1.1
+        uses: azure/setup-helm@5119fcb9089d432beecbf79bb2c7915207344b78
         with:
           version: v3.5.0
       - name: Setup Chart Linting
         id: lint
-        uses: helm/chart-testing-action@afea100a513515fbd68b0e72a7bb0ae34cb62aec # v2.1.0
+        uses: helm/chart-testing-action@afea100a513515fbd68b0e72a7bb0ae34cb62aec
       - name: Run chart-lint
         run: ct lint --validate-maintainers=false --charts deploy/helm
   tests:
@@ -101,7 +92,7 @@ jobs:
         with:
           files: ./coverage.txt
   itest-trivy-operator:
-    name: Run integration tests 
+    name: Run integration tests
     needs:
       - tests
       - verify-code
@@ -143,92 +134,92 @@ jobs:
         with:
           files: ./itest/trivy-operator/coverage.txt
   e2e-testing:
-      name: End to End Testing
-      needs:
+    name: End to End Testing
+    needs:
       - itest-trivy-operator
-      runs-on: ubuntu-20.04
-      env:
-        DOCKER_CLI_EXPERIMENTAL: enabled
-      steps:
-        - name: Set up QEMU
-          uses: docker/setup-qemu-action@v2
-        - name: Set up Docker Buildx
-          id: buildx
-          uses: docker/setup-buildx-action@v2
-        - name: Available platforms
-          run: echo ${{ steps.buildx.outputs.platforms }}
-        - name: Setup Go
-          uses: actions/setup-go@v3
-          with:
-            go-version: ${{ env.GO_VERSION }}
-        - name: Checkout code
-          uses: actions/checkout@v3
-        - uses: actions/cache@v3
-          with:
-            path: ~/go/pkg/mod
-            key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-            restore-keys: |
-              ${{ runner.os }}-go-
-        - name: Release snapshot
-          uses: goreleaser/goreleaser-action@v4
-          with:
-            version: v1.7.0
-            args: release -f=goreleaser-e2e.yaml --snapshot --skip-publish --rm-dist
-        - name: Install kind and create cluster
-          run: |
-            curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.17.0/kind-linux-amd64
-            chmod +x ./kind
-            sudo mv ./kind /usr/local/bin/kind
-            kind create cluster
-            curl -LO https://dl.k8s.io/release/v1.26.0/bin/linux/amd64/kubectl
-            sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-        - name: Test connection to Kubernetes cluster
-          run: |
-            kubectl cluster-info
-            kubectl wait --for=condition=Ready nodes --all --timeout=300s
-            kubectl describe node
-        - name: Load operator image to cluster
-          run: >
-            docker tag ghcr.io/aquasecurity/trivy-operator:${{ github.sha }}-amd64
-            ghcr.io/aquasecurity/trivy-operator:e2e
+    runs-on: ubuntu-20.04
+    env:
+      DOCKER_CLI_EXPERIMENTAL: enabled
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Available platforms
+        run: echo ${{ steps.buildx.outputs.platforms }}
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Release snapshot
+        uses: goreleaser/goreleaser-action@v4
+        with:
+          version: v1.7.0
+          args: release -f=goreleaser-e2e.yaml --snapshot --skip-publish --rm-dist
+      - name: Install kind and create cluster
+        run: |
+          curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.17.0/kind-linux-amd64
+          chmod +x ./kind
+          sudo mv ./kind /usr/local/bin/kind
+          kind create cluster
+          curl -LO https://dl.k8s.io/release/v1.26.0/bin/linux/amd64/kubectl
+          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+      - name: Test connection to Kubernetes cluster
+        run: |
+          kubectl cluster-info
+          kubectl wait --for=condition=Ready nodes --all --timeout=300s
+          kubectl describe node
+      - name: Load operator image to cluster
+        run: >
+          docker tag ghcr.io/aquasecurity/trivy-operator:${{ github.sha }}-amd64
+          ghcr.io/aquasecurity/trivy-operator:e2e
 
-            docker save -o trivy-operator.tar ghcr.io/aquasecurity/trivy-operator:e2e
+          docker save -o trivy-operator.tar ghcr.io/aquasecurity/trivy-operator:e2e
 
-            kind load image-archive trivy-operator.tar
-        - name: Init E2E tests (Install kuttl & helm)
-          run: >
-            mkdir -p ./bin
+          kind load image-archive trivy-operator.tar
+      - name: Init E2E tests (Install kuttl & helm)
+        run: >
+          mkdir -p ./bin
 
-            curl -L https://github.com/kudobuilder/kuttl/releases/download/v0.15.0/kubectl-kuttl_0.15.0_linux_x86_64 -o ./bin/kuttl;
+          curl -L https://github.com/kudobuilder/kuttl/releases/download/v0.15.0/kubectl-kuttl_0.15.0_linux_x86_64 -o ./bin/kuttl;
 
-            chmod +x ./bin/kuttl;
+          chmod +x ./bin/kuttl;
 
-            curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
 
-            chmod 700 get_helm.sh
+          chmod 700 get_helm.sh
 
-            ./get_helm.sh
-        - name: Image scan mode producing vulnerability reoport test
-          run: >
-            ./bin/kuttl test --start-kind=false --config tests/config/image-mode.yaml
+          ./get_helm.sh
+      - name: Image scan mode producing vulnerability reoport test
+        run: >
+          ./bin/kuttl test --start-kind=false --config tests/config/image-mode.yaml
 
-            ./tests/resources-cleanup.sh > /dev/null 2>&1
-        - name: Files System scan mode producing vulnerability reoport test
-          run: |
-            ./bin/kuttl test --start-kind=false --config tests/config/fs-mode.yaml
-            ./tests/resources-cleanup.sh > /dev/null 2>&1
-        - name: Client/server mode producing vulnerability reoport test
-          run: >
-            ./bin/kuttl test --start-kind=false --config
-            tests/config/client-server.yaml
+          ./tests/resources-cleanup.sh > /dev/null 2>&1
+      - name: Files System scan mode producing vulnerability reoport test
+        run: |
+          ./bin/kuttl test --start-kind=false --config tests/config/fs-mode.yaml
+          ./tests/resources-cleanup.sh > /dev/null 2>&1
+      - name: Client/server mode producing vulnerability reoport test
+        run: >
+          ./bin/kuttl test --start-kind=false --config
+          tests/config/client-server.yaml
 
-            ./tests/resources-cleanup.sh > /dev/null 2>&1
-        - name: Node scan producing clusterinfraassessmentreport
-          run: >
-            ./bin/kuttl test --start-kind=false --config
-            tests/config/node-collector.yaml
+          ./tests/resources-cleanup.sh > /dev/null 2>&1
+      - name: Node scan producing clusterinfraassessmentreport
+        run: >
+          ./bin/kuttl test --start-kind=false --config
+          tests/config/node-collector.yaml
 
-            ./tests/resources-cleanup.sh > /dev/null 2>&1
-        - name: Delete kind cluster
-          run: |
-            kind delete cluster
+          ./tests/resources-cleanup.sh > /dev/null 2>&1
+      - name: Delete kind cluster
+        run: |
+          kind delete cluster

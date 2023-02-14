@@ -1,16 +1,16 @@
 ---
-name: ct
+name: Chart Testing
 on:
   push:
     branches:
       - main
     paths:
-      - 'deploy/**'
+      - deploy/**
   pull_request:
     branches:
       - main
     paths:
-      - 'deploy/**'
+      - deploy/**
 env:
   GO_VERSION: 1.19.1
   KIND_VERSION: v0.11.1
@@ -63,10 +63,10 @@ jobs:
           kubectl cluster-info
           kubectl wait --for=condition=Ready nodes --all --timeout=300s
           kubectl describe node
-      
       - name: Install helm and yq
         run: >
-          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          curl -fsSL -o get_helm.sh
+          https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
 
           chmod 700 get_helm.sh
       - name: update appVersion
@@ -87,6 +87,6 @@ jobs:
           python-version: 3.7
       - name: Setup Chart Linting
         id: lint
-        uses: helm/chart-testing-action@afea100a513515fbd68b0e72a7bb0ae34cb62aec # v2.1.0
+        uses: helm/chart-testing-action@afea100a513515fbd68b0e72a7bb0ae34cb62aec
       - name: Run chart-testing
         run: ct lint-and-install --validate-maintainers=false --charts deploy/helm

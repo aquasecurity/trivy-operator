@@ -91,11 +91,10 @@ jobs:
           docker save -o trivy-operator.tar ghcr.io/aquasecurity/trivy-operator:ct
 
           kind load image-archive trivy-operator.tar
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - name: Set up python
+        uses: actions/setup-python@d27e3f3d7c64b4bbf8e4abfb9b63b83e846e0435
         with:
-          python-version: '3.10' 
-      - run: python my_script.py
+          python-version: 3.7
       - name: Setup Chart Linting
         id: lint
         uses: helm/chart-testing-action@afea100a513515fbd68b0e72a7bb0ae34cb62aec # v2.1.0

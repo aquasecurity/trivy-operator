@@ -4,23 +4,13 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - .github/ISSUE_TEMPLATE/*.md
-      - "*.md"
-      - docs/**
-      - mkdocs.yml
-      - LICENSE
-      - NOTICE
+    paths:
+      - 'deploy/**'
   pull_request:
     branches:
       - main
-    paths-ignore:
-      - .github/ISSUE_TEMPLATE/*.md
-      - "*.md"
-      - docs/**
-      - mkdocs.yml
-      - LICENSE
-      - NOTICE
+    paths:
+      - 'deploy/**'
 env:
   GO_VERSION: 1.19.1
   KIND_VERSION: v0.11.1

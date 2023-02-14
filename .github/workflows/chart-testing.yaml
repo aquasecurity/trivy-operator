@@ -1,0 +1,95 @@
+---
+name: Helm
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - deploy/**
+  pull_request:
+    branches:
+      - main
+    paths:
+      - deploy/**
+env:
+  GO_VERSION: 1.19.1
+  KIND_VERSION: v0.11.1
+  KIND_IMAGE: kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6
+permissions: {}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  chart-testing:
+    name: Run chart testing
+    runs-on: ubuntu-20.04
+    env:
+      DOCKER_CLI_EXPERIMENTAL: enabled
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Available platforms
+        run: echo ${{ steps.buildx.outputs.platforms }}
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Release snapshot
+        uses: goreleaser/goreleaser-action@v4
+        with:
+          version: v1.7.0
+          args: release -f=goreleaser-e2e.yaml --snapshot --skip-publish --rm-dist
+      - name: Install kind and create cluster
+        run: |
+          curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.17.0/kind-linux-amd64
+          chmod +x ./kind
+          sudo mv ./kind /usr/local/bin/kind
+          kind create cluster
+          curl -LO https://dl.k8s.io/release/v1.26.0/bin/linux/amd64/kubectl
+          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+      - name: Test connection to Kubernetes cluster
+        run: |
+          kubectl cluster-info
+          kubectl wait --for=condition=Ready nodes --all --timeout=300s
+          kubectl describe node
+      - name: Install helm and yq
+        run: >
+          curl -fsSL -o get_helm.sh
+          https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+
+          chmod 700 get_helm.sh
+      - name: update appVersion
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq -i '.appVersion = "ct"' ./deploy/helm/Chart.yaml
+      - name: Load operator image to cluster
+        run: >
+          docker tag ghcr.io/aquasecurity/trivy-operator:${{ github.sha }}-amd64
+          ghcr.io/aquasecurity/trivy-operator:ct
+
+          docker save -o trivy-operator.tar ghcr.io/aquasecurity/trivy-operator:ct
+
+          kind load image-archive trivy-operator.tar
+      - name: Set up python
+        uses: actions/setup-python@d27e3f3d7c64b4bbf8e4abfb9b63b83e846e0435
+        with:
+          python-version: 3.7
+      - name: Setup chart-testing
+        id: lint
+        uses: helm/chart-testing-action@afea100a513515fbd68b0e72a7bb0ae34cb62aec
+      - name: Run chart-testing
+        run: ct lint-and-install --validate-maintainers=false --charts deploy/helm
+      - name: Delete kind cluster
+        run: |
+          kind delete cluster

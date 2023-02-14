@@ -31,7 +31,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	pointer "k8s.io/utils/pointer"
+	"k8s.io/utils/pointer"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
@@ -40,8 +40,6 @@ var (
 	fixedTime  = time.Now()
 	fixedClock = ext.NewFixedClock(fixedTime)
 )
-
-const defaultDBRepository = "ghcr.io/aquasecurity/trivy-db"
 
 func TestConfig_GetImageRef(t *testing.T) {
 	testCases := []struct {
@@ -331,7 +329,7 @@ func TestConfig_GetResourceRequirements(t *testing.T) {
 			config: trivy.Config{
 				PluginConfig: trivyoperator.PluginConfig{
 					Data: map[string]string{
-						"trivy.dbRepository":              defaultDBRepository,
+						"trivy.dbRepository":              trivy.DefaultDBRepository,
 						"trivy.resources.requests.cpu":    "800m",
 						"trivy.resources.requests.memory": "200M",
 						"trivy.resources.limits.cpu":      "600m",
@@ -699,13 +697,13 @@ func TestPlugin_Init(t *testing.T) {
 				ResourceVersion: "1",
 			},
 			Data: map[string]string{
-				"trivy.repository":                "ghcr.io/aquasecurity/trivy",
+				"trivy.repository":                trivy.DefaultImageRepository,
 				"trivy.tag":                       "0.35.0",
 				"trivy.severity":                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
 				"trivy.slow":                      "true",
 				"trivy.mode":                      "Standalone",
 				"trivy.timeout":                   "5m0s",
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.useBuiltinRegoPolicies":    "true",
 				"trivy.supportedConfigAuditKinds": trivy.SupportedConfigAuditKinds,
 				"trivy.resources.requests.cpu":    "100m",
@@ -824,7 +822,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 				"trivy.repository":                "docker.io/aquasec/trivy",
 				"trivy.tag":                       "0.35.0",
 				"trivy.mode":                      string(trivy.Standalone),
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -925,7 +923,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 							"--cache-dir", "/tmp/trivy/.cache",
 							"image",
 							"--download-db-only",
-							"--db-repository", defaultDBRepository,
+							"--db-repository", trivy.DefaultDBRepository,
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1100,7 +1098,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 				"trivy.tag":                          "0.35.0",
 				"trivy.mode":                         string(trivy.Standalone),
 				"trivy.insecureRegistry.pocRegistry": "poc.myregistry.harbor.com.pl",
-				"trivy.dbRepository":                 defaultDBRepository,
+				"trivy.dbRepository":                 trivy.DefaultDBRepository,
 
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
@@ -1196,7 +1194,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 							"--cache-dir", "/tmp/trivy/.cache",
 							"image",
 							"--download-db-only",
-							"--db-repository", defaultDBRepository,
+							"--db-repository", trivy.DefaultDBRepository,
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1375,7 +1373,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 				"trivy.tag":                        "0.35.0",
 				"trivy.mode":                       string(trivy.Standalone),
 				"trivy.nonSslRegistry.pocRegistry": "poc.myregistry.harbor.com.pl",
-				"trivy.dbRepository":               defaultDBRepository,
+				"trivy.dbRepository":               trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":     "100m",
 				"trivy.resources.requests.memory":  "100M",
 				"trivy.resources.limits.cpu":       "500m",
@@ -1471,7 +1469,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 							"--cache-dir", "/tmp/trivy/.cache",
 							"image",
 							"--download-db-only",
-							"--db-repository", defaultDBRepository,
+							"--db-repository", trivy.DefaultDBRepository,
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1654,7 +1652,7 @@ CVE-2018-14618
 
 # No impact in our settings
 CVE-2019-1543`,
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -1766,7 +1764,7 @@ CVE-2019-1543`,
 							"--cache-dir", "/tmp/trivy/.cache",
 							"image",
 							"--download-db-only",
-							"--db-repository", defaultDBRepository,
+							"--db-repository", trivy.DefaultDBRepository,
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1954,7 +1952,7 @@ CVE-2019-1543`,
 import data.lib.trivy
 
 default ignore = false`,
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -2066,7 +2064,7 @@ default ignore = false`,
 							"--cache-dir", "/tmp/trivy/.cache",
 							"image",
 							"--download-db-only",
-							"--db-repository", defaultDBRepository,
+							"--db-repository", trivy.DefaultDBRepository,
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2250,7 +2248,7 @@ default ignore = false`,
 				"trivy.tag":        "0.35.0",
 				"trivy.mode":       string(trivy.Standalone),
 
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -2349,7 +2347,7 @@ default ignore = false`,
 							"--cache-dir", "/tmp/trivy/.cache",
 							"image",
 							"--download-db-only",
-							"--db-repository", defaultDBRepository,
+							"--db-repository", trivy.DefaultDBRepository,
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2524,7 +2522,7 @@ default ignore = false`,
 				"trivy.tag":                       "0.35.0",
 				"trivy.mode":                      string(trivy.ClientServer),
 				"trivy.serverURL":                 "http://trivy.trivy:4954",
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -2740,7 +2738,7 @@ default ignore = false`,
 				"trivy.tag":                       "0.35.0",
 				"trivy.mode":                      string(trivy.ClientServer),
 				"trivy.serverURL":                 "http://trivy.trivy:4954",
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -2957,7 +2955,7 @@ default ignore = false`,
 				"trivy.mode":                      string(trivy.ClientServer),
 				"trivy.serverURL":                 "https://trivy.trivy:4954",
 				"trivy.serverInsecure":            "true",
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -3178,7 +3176,7 @@ default ignore = false`,
 				"trivy.mode":                       string(trivy.ClientServer),
 				"trivy.serverURL":                  "http://trivy.trivy:4954",
 				"trivy.nonSslRegistry.pocRegistry": "poc.myregistry.harbor.com.pl",
-				"trivy.dbRepository":               defaultDBRepository,
+				"trivy.dbRepository":               trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":     "100m",
 				"trivy.resources.requests.memory":  "100M",
 				"trivy.resources.limits.cpu":       "500m",
@@ -3403,7 +3401,7 @@ CVE-2018-14618
 
 # No impact in our settings
 CVE-2019-1543`,
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -3650,7 +3648,7 @@ CVE-2019-1543`,
 import data.lib.trivy
 
 default ignore = false`,
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -3892,7 +3890,7 @@ default ignore = false`,
 				"trivy.tag":                       "0.35.0",
 				"trivy.mode":                      string(trivy.Standalone),
 				"trivy.command":                   string(trivy.Filesystem),
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -4048,7 +4046,7 @@ default ignore = false`,
 							"/var/trivyoperator/trivy-db",
 							"image",
 							"--download-db-only",
-							"--db-repository", defaultDBRepository,
+							"--db-repository", trivy.DefaultDBRepository,
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -4228,7 +4226,7 @@ default ignore = false`,
 				"trivy.mode":                      string(trivy.ClientServer),
 				"trivy.serverURL":                 "http://trivy.trivy:4954",
 				"trivy.command":                   string(trivy.Filesystem),
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -4504,7 +4502,7 @@ default ignore = false`,
 				"trivy.tag":                       "0.35.0",
 				"trivy.mode":                      string(trivy.Standalone),
 				"trivy.command":                   string(trivy.Rootfs),
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -4660,7 +4658,7 @@ default ignore = false`,
 							"/var/trivyoperator/trivy-db",
 							"image",
 							"--download-db-only",
-							"--db-repository", defaultDBRepository,
+							"--db-repository", trivy.DefaultDBRepository,
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -4840,7 +4838,7 @@ default ignore = false`,
 				"trivy.mode":                      string(trivy.ClientServer),
 				"trivy.serverURL":                 "http://trivy.trivy:4954",
 				"trivy.command":                   string(trivy.Rootfs),
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -5159,7 +5157,7 @@ default ignore = false`,
 			"trivy.tag":                       "0.35.0",
 			"trivy.mode":                      string(trivy.Standalone),
 			"trivy.command":                   string(trivy.Filesystem),
-			"trivy.dbRepository":              defaultDBRepository,
+			"trivy.dbRepository":              trivy.DefaultDBRepository,
 			"trivy.resources.requests.cpu":    "100m",
 			"trivy.resources.requests.memory": "100M",
 			"trivy.resources.limits.cpu":      "500m",
@@ -5316,7 +5314,7 @@ default ignore = false`,
 						"/var/trivyoperator/trivy-db",
 						"image",
 						"--download-db-only",
-						"--db-repository", defaultDBRepository,
+						"--db-repository", trivy.DefaultDBRepository,
 					},
 					Resources: corev1.ResourceRequirements{
 						Requests: corev1.ResourceList{
@@ -5952,7 +5950,7 @@ func TestGetContainers(t *testing.T) {
 		{
 			name: "Standalone mode with image command",
 			configData: map[string]string{
-				"trivy.dbRepository": defaultDBRepository,
+				"trivy.dbRepository": trivy.DefaultDBRepository,
 				"trivy.repository":   "gcr.io/aquasec/trivy",
 				"trivy.tag":          "0.35.0",
 				"trivy.mode":         string(trivy.Standalone),
@@ -5963,7 +5961,7 @@ func TestGetContainers(t *testing.T) {
 			name: "ClientServer mode with image command",
 			configData: map[string]string{
 				"trivy.serverURL":    "http://trivy.trivy:4954",
-				"trivy.dbRepository": defaultDBRepository,
+				"trivy.dbRepository": trivy.DefaultDBRepository,
 				"trivy.repository":   "gcr.io/aquasec/trivy",
 				"trivy.tag":          "0.35.0",
 				"trivy.mode":         string(trivy.ClientServer),
@@ -5974,7 +5972,7 @@ func TestGetContainers(t *testing.T) {
 			name: "Standalone mode with filesystem command",
 			configData: map[string]string{
 				"trivy.serverURL":    "http://trivy.trivy:4954",
-				"trivy.dbRepository": defaultDBRepository,
+				"trivy.dbRepository": trivy.DefaultDBRepository,
 				"trivy.repository":   "docker.io/aquasec/trivy",
 				"trivy.tag":          "0.35.0",
 				"trivy.mode":         string(trivy.Standalone),

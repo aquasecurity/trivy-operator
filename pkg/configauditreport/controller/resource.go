@@ -331,7 +331,7 @@ type Misconfiguration struct {
 }
 
 func infraCheck(id string) bool {
-	return (strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV"))
+	return strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV")
 }
 
 func k8sCoreComponent(resource client.Object) bool {

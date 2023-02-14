@@ -220,7 +220,7 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[
 	if err != nil {
 		return nil, err
 	}
-	//special case when lib return nil for both checks and error
+	// special case when lib return nil for both checks and error
 	if scanResult == nil && err == nil {
 		return nil, fmt.Errorf("failed to run policy checks on resources")
 	}

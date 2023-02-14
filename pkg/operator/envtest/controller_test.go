@@ -1,8 +1,6 @@
 package operator_test
 
 import (
-	//"encoding/json"
-	//"fmt"
 	"os"
 	"sort"
 

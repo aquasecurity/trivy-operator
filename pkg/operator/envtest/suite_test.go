@@ -23,6 +23,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
@@ -111,11 +112,11 @@ var _ = BeforeSuite(func() {
 	Expect(err).ToNot(HaveOccurred())
 	err = pluginContext.EnsureConfig(trivyoperator.PluginConfig{
 		Data: map[string]string{
-			"trivy.repository":   "ghcr.io/aquasecurity/trivy",
+			"trivy.repository":   trivy.DefaultImageRepository,
 			"trivy.tag":          "0.35.0",
-			"trivy.mode":         "Standalone",
+			"trivy.mode":         string(trivy.Standalone),
 			"trivy.slow":         "true",
-			"trivy.dbRepository": "ghcr.io/aquasecurity/trivy-db",
+			"trivy.dbRepository": trivy.DefaultDBRepository,
 		},
 	})
 	Expect(err).ToNot(HaveOccurred())

@@ -1,5 +1,5 @@
 ---
-name: Build
+name: ct
 on:
   push:
     branches:
@@ -31,7 +31,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   chart-testing:
-    name: Run end to end testing
+    name: Run chart testing
     runs-on: ubuntu-20.04
     env:
       DOCKER_CLI_EXPERIMENTAL: enabled

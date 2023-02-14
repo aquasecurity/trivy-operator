@@ -48,6 +48,9 @@ var (
 )
 
 func TestAPIs(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping env tests")
+	}
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "VulnerabilityReport Suite")
 }

@@ -409,3 +409,4 @@ nodeCollector:
   repository: ghcr.io/aquasecurity/node-collector
   # tag version of the node-collector image
   tag: 0.0.5
+test: true

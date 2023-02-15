@@ -216,6 +216,7 @@ var _ = Describe("Workload controller", func() {
 
 			caLookupKey := client.ObjectKeyFromObject(report)
 			createdVulnerabilityReport := &v1alpha1.VulnerabilityReport{}
+			time.Sleep(2 * time.Second)
 			// We'll need to retry getting this newly created Job, given that creation may not immediately happen.
 			Eventually(func() error {
 				return k8sClient.Get(ctx, caLookupKey, createdVulnerabilityReport)

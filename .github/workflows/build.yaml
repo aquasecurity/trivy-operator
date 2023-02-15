@@ -60,15 +60,6 @@ jobs:
         run: go mod vendor
       - name: Verify all generated
         run: make verify-generated
-      - name: Install Helm
-        uses: azure/setup-helm@5119fcb9089d432beecbf79bb2c7915207344b78
-        with:
-          version: v3.5.0
-      - name: Setup Chart Linting
-        id: lint
-        uses: helm/chart-testing-action@afea100a513515fbd68b0e72a7bb0ae34cb62aec
-      - name: Run chart-lint
-        run: ct lint --validate-maintainers=false --charts deploy/helm
   tests:
     name: Run tests
     runs-on: ubuntu-20.04

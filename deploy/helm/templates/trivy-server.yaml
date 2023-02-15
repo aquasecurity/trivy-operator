@@ -46,7 +46,7 @@ spec:
             storage: 5Gi
         accessModes:
           - ReadWriteOnce
-        storageClassName: 
+        storageClassName: {{ .Values.trivy.storageClassName }}
   template:
     metadata:
       annotations:

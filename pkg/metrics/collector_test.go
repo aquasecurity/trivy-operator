@@ -13,7 +13,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 	"k8s.io/apimachinery/pkg/runtime"
-  pointer "k8s.io/utils/pointer"
+	pointer "k8s.io/utils/pointer"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
 
@@ -59,7 +59,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr1.Report.Artifact.Tag = "1.16"
 			vr1.Report.Summary.CriticalCount = 2
 			vr1.Report.Vulnerabilities = []v1alpha1.Vulnerability{
-        {InstalledVersion: "2.28-10", FixedVersion: "2.28-11", Class: "os-pkgs", PackageType: "debian", Resource: "libc-bin", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR1-CRITICAL-1", Title: "VR1 Critical vulnerability 1", Score: pointer.Float64(8.5)},
+				{InstalledVersion: "2.28-10", FixedVersion: "2.28-11", Class: "os-pkgs", PackageType: "debian", Resource: "libc-bin", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR1-CRITICAL-1", Title: "VR1 Critical vulnerability 1", Score: pointer.Float64(8.5)},
 				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR1-CRITICAL-2", Title: "VR1 Critical vulnerability 2", Score: pointer.Float64(8.3)},
 			}
 

@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/go-logr/logr"
@@ -27,11 +28,14 @@ const (
 	image_tag         = "image_tag"
 	image_digest      = "image_digest"
 	installed_version = "installed_version"
+	fixed_version     = "fixed_version"
 	resource          = "resource"
 	package_type      = "package_type"
 	class             = "class"
 	severity          = "severity"
 	vuln_id           = "vuln_id"
+	vuln_title        = "vuln_title"
+	vuln_score        = "vuln_score"
 	//compliance
 	title       = "title"
 	description = "description"
@@ -213,11 +217,14 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		image_tag,
 		image_digest,
 		installed_version,
+		fixed_version,
 		resource,
 		severity,
 		package_type,
 		class,
 		vuln_id,
+		vuln_title,
+		vuln_score,
 	}
 	vulnIdLabels = append(vulnIdLabels, dynamicLabels...)
 	exposedSecretLabels := []string{
@@ -421,7 +428,7 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 				vulnLabelValues[7] = r.Report.Artifact.Tag
 				vulnLabelValues[8] = r.Report.Artifact.Digest
 				for i, label := range c.GetReportResourceLabels() {
-					vulnLabelValues[i+15] = r.Labels[label]
+					vulnLabelValues[i+18] = r.Labels[label]
 				}
 				var vulnList = make(map[string]bool)
 				for _, vuln := range r.Report.Vulnerabilities {
@@ -430,11 +437,17 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 					}
 					vulnList[vuln.VulnerabilityID] = true
 					vulnLabelValues[9] = vuln.InstalledVersion
-					vulnLabelValues[10] = vuln.Resource
-					vulnLabelValues[11] = NewSeverityLabel(vuln.Severity).Label
-					vulnLabelValues[12] = vuln.PackageType
-					vulnLabelValues[13] = vuln.Class
-					vulnLabelValues[14] = vuln.VulnerabilityID
+					vulnLabelValues[10] = vuln.FixedVersion
+					vulnLabelValues[11] = vuln.Resource
+					vulnLabelValues[12] = NewSeverityLabel(vuln.Severity).Label
+					vulnLabelValues[13] = vuln.PackageType
+					vulnLabelValues[14] = vuln.Class
+					vulnLabelValues[15] = vuln.VulnerabilityID
+					vulnLabelValues[16] = vuln.Title
+					vulnLabelValues[17] = ""
+					if vuln.Score != nil {
+						vulnLabelValues[17] = strconv.FormatFloat(*vuln.Score, 'f', -1, 64)
+					}
 					metrics <- prometheus.MustNewConstMetric(c.vulnIdDesc, prometheus.GaugeValue, float64(1), vulnLabelValues...)
 				}
 			}

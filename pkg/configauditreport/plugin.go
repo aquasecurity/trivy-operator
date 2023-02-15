@@ -21,4 +21,7 @@ type ConfigAuditConfig interface {
 	GetUseBuiltinRegoPolicies() bool
 	// GetSupportedConfigAuditKinds list of supported kinds to be scanned by the config audit scanner
 	GetSupportedConfigAuditKinds() []string
+
+	// GetSeverity get security level
+	GetSeverity() string
 }

@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/aquasecurity/defsec/pkg/severity"
 	"path"
 	"path/filepath"
 	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 
 	"github.com/go-logr/logr"
 	"github.com/liamg/memoryfs"
@@ -234,6 +236,14 @@ func (r *Policies) GetResultID(result scan.Result) string {
 		id = result.Rule().Aliases[0]
 	}
 	return id
+}
+
+func (r *Policies) HasSeverity(resultSeverity severity.Severity) bool {
+	defaultSeverity := r.cac.GetSeverity()
+	if defaultSeverity == "" {
+		defaultSeverity = trivy.DefaultSeverity
+	}
+	return strings.Contains(defaultSeverity, string(resultSeverity))
 }
 
 func getScannerOptions(hasExternalPolicies bool, useDefaultPolicies bool, policiesFolder string) []options.ScannerOption {

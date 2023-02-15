@@ -49,7 +49,7 @@ const (
 	keyTrivyMode                                = "trivy.mode"
 	keyTrivyAdditionalVulnerabilityReportFields = "trivy.additionalVulnerabilityReportFields"
 	keyTrivyCommand                             = "trivy.command"
-	keyTrivySeverity                            = "trivy.severity"
+	KeyTrivySeverity                            = "trivy.severity"
 	keyTrivySlow                                = "trivy.slow"
 	keyTrivyIgnoreUnfixed                       = "trivy.ignoreUnfixed"
 	keyTrivyOfflineScan                         = "trivy.offlineScan"
@@ -89,6 +89,7 @@ const (
 const (
 	DefaultImageRepository = "ghcr.io/aquasecurity/trivy"
 	DefaultDBRepository    = "ghcr.io/aquasecurity/trivy-db"
+	DefaultSeverity        = "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
 )
 
 // Mode in which Trivy client operates.
@@ -243,6 +244,14 @@ func (c Config) GetUseBuiltinRegoPolicies() bool {
 		return true
 	}
 	return boolVal
+}
+
+func (c Config) GetSeverity() string {
+	val, ok := c.Data[KeyTrivySeverity]
+	if !ok {
+		return ""
+	}
+	return val
 }
 
 func (c Config) GetSlow() bool {
@@ -476,7 +485,7 @@ func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 		Data: map[string]string{
 			keyTrivyImageRepository:           DefaultImageRepository,
 			keyTrivyImageTag:                  "0.35.0",
-			keyTrivySeverity:                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
+			KeyTrivySeverity:                  DefaultSeverity,
 			keyTrivySlow:                      "true",
 			keyTrivyMode:                      string(Standalone),
 			keyTrivyTimeout:                   "5m0s",
@@ -669,7 +678,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 						LocalObjectReference: corev1.LocalObjectReference{
 							Name: trivyConfigName,
 						},
-						Key:      keyTrivySeverity,
+						Key:      KeyTrivySeverity,
 						Optional: pointer.Bool(true),
 					},
 				},
@@ -1031,7 +1040,7 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 						LocalObjectReference: corev1.LocalObjectReference{
 							Name: trivyConfigName,
 						},
-						Key:      keyTrivySeverity,
+						Key:      KeyTrivySeverity,
 						Optional: pointer.Bool(true),
 					},
 				},
@@ -1451,7 +1460,7 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 
 	for _, c := range getContainers(spec) {
 		env := []corev1.EnvVar{
-			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, keyTrivySeverity),
+			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, KeyTrivySeverity),
 			constructEnvVarSourceFromConfigMap("TRIVY_SKIP_FILES", trivyConfigName, keyTrivySkipFiles),
 			constructEnvVarSourceFromConfigMap("TRIVY_SKIP_DIRS", trivyConfigName, keyTrivySkipDirs),
 			constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
@@ -1634,7 +1643,7 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 
 	for _, c := range getContainers(spec) {
 		env := []corev1.EnvVar{
-			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, keyTrivySeverity),
+			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, KeyTrivySeverity),
 			constructEnvVarSourceFromConfigMap("TRIVY_SKIP_FILES", trivyConfigName, keyTrivySkipFiles),
 			constructEnvVarSourceFromConfigMap("TRIVY_SKIP_DIRS", trivyConfigName, keyTrivySkipDirs),
 			constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),

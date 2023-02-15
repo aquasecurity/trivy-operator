@@ -151,7 +151,7 @@ func TestConfig_GetMode(t *testing.T) {
 			name: "Should return Standalone",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"trivy.mode": "Standalone",
+					"trivy.mode": string(trivy.Standalone),
 				},
 			}},
 			expectedMode: trivy.Standalone,
@@ -160,7 +160,7 @@ func TestConfig_GetMode(t *testing.T) {
 			name: "Should return ClientServer",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"trivy.mode": "ClientServer",
+					"trivy.mode": string(trivy.ClientServer),
 				},
 			}},
 			expectedMode: trivy.ClientServer,
@@ -699,9 +699,9 @@ func TestPlugin_Init(t *testing.T) {
 			Data: map[string]string{
 				"trivy.repository":                trivy.DefaultImageRepository,
 				"trivy.tag":                       "0.35.0",
-				"trivy.severity":                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
+				"trivy.severity":                  trivy.DefaultSeverity,
 				"trivy.slow":                      "true",
-				"trivy.mode":                      "Standalone",
+				"trivy.mode":                      string(trivy.Standalone),
 				"trivy.timeout":                   "5m0s",
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.useBuiltinRegoPolicies":    "true",
@@ -729,8 +729,8 @@ func TestPlugin_Init(t *testing.T) {
 				Data: map[string]string{
 					"trivy.repository": "gcr.io/aquasecurity/trivy",
 					"trivy.tag":        "0.35.0",
-					"trivy.severity":   "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
-					"trivy.mode":       "Standalone",
+					"trivy.severity":   trivy.DefaultSeverity,
+					"trivy.mode":       string(trivy.Standalone),
 				},
 			}).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
@@ -764,8 +764,8 @@ func TestPlugin_Init(t *testing.T) {
 			Data: map[string]string{
 				"trivy.repository": "gcr.io/aquasecurity/trivy",
 				"trivy.tag":        "0.35.0",
-				"trivy.severity":   "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
-				"trivy.mode":       "Standalone",
+				"trivy.severity":   trivy.DefaultSeverity,
+				"trivy.mode":       string(trivy.Standalone),
 			},
 		}, cm)
 	})

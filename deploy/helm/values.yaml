@@ -205,6 +205,9 @@ trivy:
   # on the active mode other settings might be applicable or required.
   mode: Standalone
 
+  # storageClassName is the name of the storage class to be used for trivy server PVC
+  storageClassName: ""
+
   # additionalVulnerabilityReportFields is a comma separated list of additional fields which
   # can be added to the VulnerabilityReport. Supported parameters: Description, Links, CVSS, Target, Class and PackageType
   additionalVulnerabilityReportFields: ""

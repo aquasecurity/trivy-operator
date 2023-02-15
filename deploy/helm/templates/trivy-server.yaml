@@ -46,7 +46,7 @@ spec:
             storage: 5Gi
         accessModes:
           - ReadWriteOnce
-        storageClassName: 
+        storageClassName: {{ .Values.trivy.storageClassName }}
   template:
     metadata:
       annotations:
@@ -55,7 +55,7 @@ spec:
         app.kubernetes.io/name: trivy-server
         app.kubernetes.io/instance: trivy-server
     spec:
-      serviceAccountName: trivy-operator
+      serviceAccountName: {{ include "trivy-operator.serviceAccountName" . }}
       automountServiceAccountToken: false
       securityContext:
         fsGroup: 65534
@@ -113,4 +113,8 @@ spec:
       volumes:
         - name: tmp-data
           emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
 {{- end}}

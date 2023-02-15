@@ -69,7 +69,7 @@ Exposing vulnerability ID on metrics by setting the EnvVar: `OPERATOR_METRICS_VU
 
 ```shell
 trivy_vulnerability_id{
-    class="os-pkgs",container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16.1",installed_version="5.3.28+dfsg1-0.5",name="replicaset-nginx-deployment-559d658b74-nginx",namespace="default",package_type="debian",resource="libdb5.3",resource_kind="ReplicaSet",resource_name="nginx-deployment-559d658b74",severity="Critical",vuln_id="CVE-2019-8457"
+    class="os-pkgs",container_name="nginx",fixed_version="",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16.1",installed_version="5.3.28+dfsg1-0.5",name="replicaset-nginx-deployment-559d658b74-nginx",namespace="default",package_type="debian",resource="libdb5.3",resource_kind="ReplicaSet",resource_name="nginx-deployment-559d658b74",severity="Critical",vuln_id="CVE-2019-8457",vuln_score="7.5",vuln_title="sqlite: heap out-of-bound read in function rtreenode()"
 } 1
 ```
 

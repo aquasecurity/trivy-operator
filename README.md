@@ -5,7 +5,6 @@
 [![GitHub Release][release-img]][release]
 [![Build Action][action-build-img]][action-build]
 [![Release snapshot Action][action-release-snapshot-img]][action-release-snapshot]
-[![End to End Testing]][End to End Testing]
 [![Go Report Card][report-card-img]][report-card]
 [![License][license-img]][license]
 [![GitHub All Releases][github-all-releases-img]][release]
@@ -77,7 +76,6 @@ Join the community, and talk to us about any matter in [GitHub Discussions] or [
 [action-build]: https://github.com/aquasecurity/trivy-operator/actions/workflows/build.yaml
 [action-release-snapshot-img]: https://github.com/aquasecurity/trivy-operator/actions/workflows/release-snapshot.yaml/badge.svg
 [action-release-snapshot]: https://github.com/aquasecurity/trivy-operator/actions/workflows/release-snapshot.yaml
-[End to End Testing]: https://github.com/aquasecurity/trivy-operator/actions/workflows/e2e.yaml/badge.svg
 [cov-img]: https://codecov.io/github/aquasecurity/trivy-operator/branch/main/graph/badge.svg
 [cov]: https://codecov.io/github/aquasecurity/trivy-operator
 [report-card-img]: https://goreportcard.com/badge/github.com/aquasecurity/trivy-operator

@@ -55,7 +55,7 @@ spec:
         app.kubernetes.io/name: trivy-server
         app.kubernetes.io/instance: trivy-server
     spec:
-      serviceAccountName: trivy-operator
+      serviceAccountName: {{ include "trivy-operator.serviceAccountName" . }}
       automountServiceAccountToken: false
       securityContext:
         fsGroup: 65534

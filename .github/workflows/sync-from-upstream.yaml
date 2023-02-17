@@ -23,10 +23,9 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Update fork tags
         with:
           token: ${{ steps.generate_token.outputs.token }}
-        run: |
+      - run: |
           # Fetch tags from upstream repo
           git fetch https://github.com/aquasecurity/trivy-operator --tags
           # Remove release candidates local tags

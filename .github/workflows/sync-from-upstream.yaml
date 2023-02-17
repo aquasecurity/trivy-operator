@@ -14,9 +14,19 @@ jobs:
   sync-app-trivy-operator-repository:
     runs-on: ubuntu-latest
     steps:
+      - name: Generate token
+        id: generate_token
+        uses: tibdex/github-app-token@v1
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Checkout
         uses: actions/checkout@v3
-      - run: |
+      - name: Update fork tags
+        with:
+          token: ${{ steps.generate_token.outputs.token }}
+        run: |
           # Fetch tags from upstream repo
           git fetch https://github.com/aquasecurity/trivy-operator --tags
           # Remove release candidates local tags

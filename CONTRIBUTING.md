@@ -46,6 +46,7 @@ These guidelines will help you get started with the Trivy-operator project.
 - Tests are not required at this point as Trivy-Operator is evolving fast, but if you can include tests that will be appreciated.
 
 #### Conventional Commits
+
 It is not that strict, but we use the [Conventional commits](https://www.conventionalcommits.org) in this repository.
 Each commit message doesn't have to follow conventions as long as it is clear and descriptive since it will be squashed and merged.
 
@@ -61,6 +62,7 @@ Each commit message doesn't have to follow conventions as long as it is clear an
    git clone git@github.com:aquasecurity/trivy-operator.git
    cd trivy-operator
    ```
+
 3. Access to a Kubernetes cluster. We assume that you're using a [KIND][kind] cluster. To create a single-node KIND
    cluster, run:
 
@@ -109,7 +111,7 @@ We generally require tests to be added for all, but the most trivial of changes.
 provide guarantees about the behaviour of Trivy-operator. To verify that each Go module correctly interacts with its
 collaborators, more coarse grained integration tests might be required.
 
-### Run Tests
+### Run unit Tests
 
 To run all tests with code coverage enabled, run:
 
@@ -123,23 +125,31 @@ To open the test coverage report in your web browser, run:
 go tool cover -html=coverage.txt
 ```
 
+### Run operator envtest
+
+The operator envtest spin us partial k8s components (api-server, etcd) and test controllers for reousce, workload, ttl, rbac and more
+
+```
+make envtest
+```
+
 ### Run Integration Tests
 
 The integration tests assumes that you have a working kubernetes cluster (e.g KIND cluster) and `KUBECONFIG` environment
 variable is pointing to that cluster configuration file. For example:
 
-```
+```shell
 export KUBECONFIG=~/.kube/config
 ```
 
 To open the test coverage report in your web browser, run:
 
-```
+```shell
 go tool cover -html=itest/trivy-operator/coverage.txt
 ```
 
 To run the integration tests for Trivy-operator Operator and view the coverage report, first do the
-[prerequisite steps](#set-up-your-development-environment), and then run:
+[pre-requisite steps](#set-up-your-development-environment), and then run:
 
 ```
 OPERATOR_NAMESPACE=trivy-system \
@@ -147,6 +157,45 @@ OPERATOR_NAMESPACE=trivy-system \
   OPERATOR_LOG_DEV_MODE=true \
   make itests-trivy-operator
 go tool cover -html=itest/trivy-operator/coverage.txt
+```
+
+### Run  End to End Tests
+
+The end 2 end tests assumes that you have a working kubernetes cluster (e.g KIND cluster) and `KUBECONFIG` environment
+variable is pointing to that cluster configuration file. For example:
+
+```shell
+export KUBECONFIG=~/.kube/config
+```
+
+- install kuttl via krew [Install Guide](https://kuttl.dev/docs/cli.html)
+
+```shell
+kubectl krew install kuttl
+```
+
+- Run cluster infra assessment end to end test via node collector
+
+```shell
+kubectl kuttl test --start-kind=false  --config tests/config/node-collector.yaml
+```
+
+- Run vulnerability report generation via running trivy with image mode
+
+```shell
+kubectl kuttl test --start-kind=false  --config tests/config/image-mode.yaml
+```
+
+- Run vulnerability report generation via running trivy with filesystem mode
+
+```shell
+kubectl kuttl test --start-kind=false  --config tests/config/fs-mode.yaml
+```
+
+- Run vulnerability report generation via running trivy with client/server mode
+
+```shell
+kubectl kuttl test --start-kind=false  --config tests/config/client-server.yaml
 ```
 
 ### Code Coverage
@@ -197,10 +246,13 @@ basic development workflow. For other install modes see [Operator Multitenancy w
 ### In cluster
 
 1. Build the operator binary into the Docker image and load it from your host into KIND cluster nodes:
+
    ```
    make docker-build-trivy-operator && kind load docker-image aquasecurity/trivy-operator:dev
    ```
+
 2. Create the `trivy-operator` Deployment in the `trivy-system` namespace to run the operator's container:
+
    ```
    kubectl create -k deploy/static
    ```
@@ -214,20 +266,27 @@ kubectl delete -k deploy/static
 ### Out of cluster
 
 1. Deploy the operator in cluster:
+
    ```
    kubectl apply -f deploy/static/trivy-operator.yaml
    ```
+
 2. Scale the operator down to zero replicas:
+
    ```
    kubectl scale deployment trivy-operator \
      -n trivy-system \
      --replicas 0
    ```
+
 3. Delete pending scan jobs with:
+
    ```
    kubectl delete jobs -n trivy-system --all
    ```
+
 4. Run the main method of the operator program:
+
    ```
    OPERATOR_NAMESPACE=trivy-system \
      OPERATOR_TARGET_NAMESPACES=default \
@@ -367,6 +426,5 @@ You can find more details about testing Operators with Operator Framework [here]
 [Operator Lifecycle Manager]: https://github.com/operator-framework/operator-lifecycle-manager
 [community-operators]: https://github.com/k8s-operatorhub/community-operators
 [olm-operator-groups]: https://github.com/operator-framework/operator-lifecycle-manager/blob/master/doc/design/operatorgroups.md
-[k8s-sample-controller]: https://github.com/kubernetes/sample-controller
 [starboard-install-olm]: https://aquasecurity.github.io/starboard/latest/operator/installation/olm
 [olm-testing-operators]: https://github.com/operator-framework/community-operators/blob/master/docs/testing-operators.md

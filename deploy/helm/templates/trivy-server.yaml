@@ -58,6 +58,9 @@ spec:
         app.kubernetes.io/name: trivy-server
         app.kubernetes.io/instance: trivy-server
     spec:
+      {{- if .Values.priorityClassName }}
+      priorityClassName: {{ .Values.trivy.priorityClassName }}
+      {{- end }}
       serviceAccountName: {{ include "trivy-operator.serviceAccountName" . }}
       automountServiceAccountToken: false
       securityContext:

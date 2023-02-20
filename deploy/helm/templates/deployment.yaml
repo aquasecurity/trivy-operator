@@ -45,6 +45,8 @@ spec:
               value: {{ include "trivy-operator.serviceAccountName" . | quote }}
             - name: OPERATOR_LOG_DEV_MODE
               value: {{ .Values.operator.logDevMode | quote }}
+            - name: OPERATOR_SCAN_JOB_TTL
+              value: {{ .Values.operator.scanJobTTL | quote }}
             - name: OPERATOR_SCAN_JOB_TIMEOUT
               value: {{ .Values.operator.scanJobTimeout | quote }}
             - name: OPERATOR_CONCURRENT_SCAN_JOBS_LIMIT

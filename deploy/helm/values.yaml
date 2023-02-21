@@ -38,6 +38,9 @@ operator:
   # logDevMode the flag to enable development mode (more human-readable output, extra stack traces and logging information, etc)
   logDevMode: false
 
+  # scanJobTTL the set automatic cleanup time after the job is completed
+  scanJobTTL: ""
+
   # scanJobTimeout the length of time to wait before giving up on a scan job
   scanJobTimeout: 5m
 

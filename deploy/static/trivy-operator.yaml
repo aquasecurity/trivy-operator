@@ -1884,6 +1884,8 @@ spec:
               value: "trivy-operator"
             - name: OPERATOR_LOG_DEV_MODE
               value: "false"
+            - name: OPERATOR_SCAN_JOB_TTL
+              value: ""
             - name: OPERATOR_SCAN_JOB_TIMEOUT
               value: "5m"
             - name: OPERATOR_CONCURRENT_SCAN_JOBS_LIMIT

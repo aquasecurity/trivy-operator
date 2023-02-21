@@ -16,7 +16,7 @@ env:
 jobs:
   tests:
     name: Run tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Setup Go
         uses: actions/setup-go@v3
@@ -38,7 +38,7 @@ jobs:
     name: Run integration tests / Trivy Operator
     needs:
       - tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Setup Go
@@ -75,7 +75,7 @@ jobs:
     name: Release
     needs:
       - itest-trivy-operator
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     env:
       DOCKER_CLI_EXPERIMENTAL: "enabled"
     permissions:

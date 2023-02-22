@@ -1933,7 +1933,7 @@ func getExposedSecretsFromScanResult(report ScanResult) []v1alpha1.ExposedSecret
 
 	for _, sr := range report.Secrets {
 		secrets = append(secrets, v1alpha1.ExposedSecret{
-			Target:   sr.Target,
+			Target:   report.Target,
 			RuleID:   sr.RuleID,
 			Title:    sr.Title,
 			Severity: sr.Severity,

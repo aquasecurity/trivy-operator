@@ -5581,13 +5581,14 @@ var (
 			Tag:        "3.10.2",
 		},
 		Summary: v1alpha1.ExposedSecretSummary{
-			CriticalCount: 1,
+			CriticalCount: 3,
 			HighCount:     1,
 			MediumCount:   0,
 			LowCount:      0,
 		},
 		Secrets: []v1alpha1.ExposedSecret{
 			{
+				Target:   "/app/config/secret.yaml",
 				RuleID:   "stripe-access-token",
 				Category: "Stripe",
 				Severity: "HIGH",
@@ -5595,11 +5596,28 @@ var (
 				Match:    "publishable_key: *****",
 			},
 			{
+				Target:   "/app/config/secret.yaml",
 				RuleID:   "stripe-access-token",
 				Category: "Stripe",
 				Severity: "CRITICAL",
 				Title:    "Stripe",
 				Match:    "secret_key: *****",
+			},
+			{
+				Target:   "/etc/apt/s3auth.conf",
+				RuleID:   "aws-access-key-id",
+				Category: "AWS",
+				Severity: "CRITICAL",
+				Title:    "AWS Access Key ID",
+				Match:    "AccessKeyId = ********************",
+			},
+			{
+				Target:   "/etc/apt/s3auth.conf",
+				RuleID:   "aws-secret-access-key",
+				Category: "AWS",
+				Severity: "CRITICAL",
+				Title:    "AWS Secret Access Key",
+				Match:    "SecretAccessKey = ****************************************",
 			},
 		},
 	}

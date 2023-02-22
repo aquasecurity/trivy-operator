@@ -280,43 +280,57 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 
 	Context("ExposedSecretReport", func() {
 		BeforeEach(func() {
-			vr1 := &v1alpha1.ExposedSecretReport{}
-			vr1.Namespace = "default"
-			vr1.Name = "replicaset-nginx-6d4cf56db6-nginx"
-			vr1.Labels = labels.Set{
+			sr1 := &v1alpha1.ExposedSecretReport{}
+			sr1.Namespace = "default"
+			sr1.Name = "replicaset-nginx-6d4cf56db6-nginx"
+			sr1.Labels = labels.Set{
 				trivyoperator.LabelResourceKind:  "ReplicaSet",
 				trivyoperator.LabelResourceName:  "nginx-6d4cf56db6",
 				trivyoperator.LabelContainerName: "nginx"}
-			vr1.Report.Registry.Server = "index.docker.io"
-			vr1.Report.Artifact.Repository = "library/nginx"
-			vr1.Report.Artifact.Tag = "1.16"
-			vr1.Report.Summary.CriticalCount = 2
+			sr1.Report.Registry.Server = "index.docker.io"
+			sr1.Report.Artifact.Repository = "library/nginx"
+			sr1.Report.Artifact.Tag = "1.16"
+			sr1.Report.Summary.CriticalCount = 2
+			sr1.Report.Secrets = []v1alpha1.ExposedSecret{
+			 	{Target: "/etc/apt/s3auth.conf", Category: "AWS", RuleID: "aws-access-key-id", Title: "AWS Access Key ID", Severity: v1alpha1.SeverityCritical},
+			 	{Target: "/app/config/secret.yaml", Category: "Stripe", RuleID: "stripe-secret-token", Title: "Stripe", Severity: v1alpha1.SeverityCritical},
+			}
 
-			vr2 := &v1alpha1.ExposedSecretReport{}
-			vr2.Namespace = "some-ns"
-			vr2.Name = "replicaset-app-d327abe3c4-proxy"
-			vr2.Labels = labels.Set{
+			sr2 := &v1alpha1.ExposedSecretReport{}
+			sr2.Namespace = "some-ns"
+			sr2.Name = "replicaset-app-d327abe3c4-proxy"
+			sr2.Labels = labels.Set{
 				trivyoperator.LabelResourceKind:  "ReplicaSet",
 				trivyoperator.LabelResourceName:  "app-d327abe3c4",
 				trivyoperator.LabelContainerName: "proxy"}
-			vr2.Report.Registry.Server = "quay.io"
-			vr2.Report.Artifact.Repository = "oauth2-proxy/oauth2-proxy"
-			vr2.Report.Artifact.Tag = "v7.2.1"
-			vr2.Report.Summary.CriticalCount = 4
-			vr2.Report.Summary.HighCount = 7
+			sr2.Report.Registry.Server = "quay.io"
+			sr2.Report.Artifact.Repository = "oauth2-proxy/oauth2-proxy"
+			sr2.Report.Artifact.Tag = "v7.2.1"
+			sr2.Report.Summary.CriticalCount = 4
+			sr2.Report.Summary.HighCount = 3
+			sr2.Report.Secrets = []v1alpha1.ExposedSecret{
+				{Target: "/etc/apt/s3auth.conf", Category: "AWS", RuleID: "aws-access-key-id", Title: "AWS Access Key ID", Severity: v1alpha1.SeverityCritical},
+				{Target: "/etc/apt/s3auth.conf", Category: "AWS", RuleID: "aws-secret-access-key", Title: "AWS Secret Access Key", Severity: v1alpha1.SeverityCritical},
+				{Target: "/app/config/secret.yaml", Category: "Stripe", RuleID: "stripe-secret-token", Title: "Stripe", Severity: v1alpha1.SeverityCritical},
+				{Target: "/app/config/secret.yaml", Category: "GitHub", RuleID: "github-pat", Title: "GitHub Personal Access Token", Severity: v1alpha1.SeverityCritical},
+				{Target: "/app2/config/secret.yaml", Category: "Shopify", RuleID: "shopify-token", Title: "Shopify token", Severity: v1alpha1.SeverityHigh},
+				{Target: "/app3/config/secret.yaml", Category: "PyPI", RuleID: "pypi-upload-token", Title: "PyPI upload token", Severity: v1alpha1.SeverityHigh},
+				{Target: "/app4/config/secret.yaml", Category: "Alibaba", RuleID: "alibaba-access-key-id", Title: "Alibaba AccessKey ID", Severity: v1alpha1.SeverityHigh},
+		   }
 
-			vr3 := &v1alpha1.ExposedSecretReport{}
-			vr3.Namespace = "ingress-nginx"
-			vr3.Name = "daemonset-ingress-nginx-controller-controller"
-			vr3.Labels = labels.Set{
+			sr3 := &v1alpha1.ExposedSecretReport{}
+			sr3.Namespace = "ingress-nginx"
+			sr3.Name = "daemonset-ingress-nginx-controller-controller"
+			sr3.Labels = labels.Set{
 				trivyoperator.LabelResourceKind:  "DaemonSet",
 				trivyoperator.LabelResourceName:  "ingress-nginx-controller",
 				trivyoperator.LabelContainerName: "controller"}
-			vr3.Report.Registry.Server = "k8s.gcr.io"
-			vr3.Report.Artifact.Repository = "ingress-nginx/controller"
-			vr3.Report.Artifact.Digest = "sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8"
+			sr3.Report.Registry.Server = "k8s.gcr.io"
+			sr3.Report.Artifact.Repository = "ingress-nginx/controller"
+			sr3.Report.Artifact.Digest = "sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8"
+			sr3.Report.Secrets = []v1alpha1.ExposedSecret{}
 
-			client.WithRuntimeObjects(vr1, vr2, vr3)
+			client.WithRuntimeObjects(sr1, sr2, sr3)
 		})
 
 		AssertNoLintIssues()
@@ -330,7 +344,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
         trivy_image_exposedsecrets{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Low"} 0
         trivy_image_exposedsecrets{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Medium"} 0
         trivy_image_exposedsecrets{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical"} 4
-        trivy_image_exposedsecrets{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High"} 7
+        trivy_image_exposedsecrets{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High"} 3
         trivy_image_exposedsecrets{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Low"} 0
         trivy_image_exposedsecrets{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Medium"} 0
         trivy_image_exposedsecrets{container_name="controller",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="Critical"} 0
@@ -352,11 +366,48 @@ var _ = Describe("ResourcesMetricsCollector", func() {
         trivy_image_exposedsecrets{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Low"} 0
         trivy_image_exposedsecrets{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Medium"} 0
         trivy_image_exposedsecrets{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Critical"} 4
-        trivy_image_exposedsecrets{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High"} 7
+        trivy_image_exposedsecrets{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="High"} 3
         trivy_image_exposedsecrets{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Low"} 0
         trivy_image_exposedsecrets{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",severity="Medium"} 0
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_image_exposedsecrets")).
+				To(Succeed())
+		})
+
+		It("should produce correct metrics with cluster scope and with MetricsExposedSecretInfo option enabled", func() {
+			collector.Config.MetricsExposedSecretInfo = true
+			const expected = `
+			# HELP trivy_exposedsecrets_info Number of container image exposed secrets group by secret rule id
+			# TYPE trivy_exposedsecrets_info gauge
+			trivy_exposedsecrets_info{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",secret_category="AWS",secret_rule_id="aws-access-key-id",secret_target="/etc/apt/s3auth.conf",secret_title="AWS Access Key ID",severity="Critical"} 1
+			trivy_exposedsecrets_info{container_name="nginx",image_digest="",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",secret_category="Stripe",secret_rule_id="stripe-secret-token",secret_target="/app/config/secret.yaml",secret_title="Stripe",severity="Critical"} 1
+			trivy_exposedsecrets_info{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",secret_category="AWS",secret_rule_id="aws-access-key-id",secret_target="/etc/apt/s3auth.conf",secret_title="AWS Access Key ID",severity="Critical"} 1
+			trivy_exposedsecrets_info{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",secret_category="AWS",secret_rule_id="aws-secret-access-key",secret_target="/etc/apt/s3auth.conf",secret_title="AWS Secret Access Key",severity="Critical"} 1
+			trivy_exposedsecrets_info{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",secret_category="Alibaba",secret_rule_id="alibaba-access-key-id",secret_target="/app4/config/secret.yaml",secret_title="Alibaba AccessKey ID",severity="High"} 1
+			trivy_exposedsecrets_info{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",secret_category="GitHub",secret_rule_id="github-pat",secret_target="/app/config/secret.yaml",secret_title="GitHub Personal Access Token",severity="Critical"} 1
+			trivy_exposedsecrets_info{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",secret_category="PyPI",secret_rule_id="pypi-upload-token",secret_target="/app3/config/secret.yaml",secret_title="PyPI upload token",severity="High"} 1
+			trivy_exposedsecrets_info{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",secret_category="Shopify",secret_rule_id="shopify-token",secret_target="/app2/config/secret.yaml",secret_title="Shopify token",severity="High"} 1
+			trivy_exposedsecrets_info{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",secret_category="Stripe",secret_rule_id="stripe-secret-token",secret_target="/app/config/secret.yaml",secret_title="Stripe",severity="Critical"} 1
+			`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_exposedsecrets_info")).
+				To(Succeed())
+		})
+
+		It("should produce correct metrics from target namespaces with MetricsExposedSecretInfo option enabled", func() {
+			collector.Config.MetricsExposedSecretInfo = true
+			collector.TargetNamespaces = "some-ns"
+			const expected = `
+			# HELP trivy_exposedsecrets_info Number of container image exposed secrets group by secret rule id
+			# TYPE trivy_exposedsecrets_info gauge
+			trivy_exposedsecrets_info{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",secret_category="AWS",secret_rule_id="aws-access-key-id",secret_target="/etc/apt/s3auth.conf",secret_title="AWS Access Key ID",severity="Critical"} 1
+			trivy_exposedsecrets_info{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",secret_category="AWS",secret_rule_id="aws-secret-access-key",secret_target="/etc/apt/s3auth.conf",secret_title="AWS Secret Access Key",severity="Critical"} 1
+			trivy_exposedsecrets_info{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",secret_category="Alibaba",secret_rule_id="alibaba-access-key-id",secret_target="/app4/config/secret.yaml",secret_title="Alibaba AccessKey ID",severity="High"} 1
+			trivy_exposedsecrets_info{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",secret_category="GitHub",secret_rule_id="github-pat",secret_target="/app/config/secret.yaml",secret_title="GitHub Personal Access Token",severity="Critical"} 1
+			trivy_exposedsecrets_info{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",secret_category="PyPI",secret_rule_id="pypi-upload-token",secret_target="/app3/config/secret.yaml",secret_title="PyPI upload token",severity="High"} 1
+			trivy_exposedsecrets_info{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",secret_category="Shopify",secret_rule_id="shopify-token",secret_target="/app2/config/secret.yaml",secret_title="Shopify token",severity="High"} 1
+			trivy_exposedsecrets_info{container_name="proxy",image_digest="",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4",secret_category="Stripe",secret_rule_id="stripe-secret-token",secret_target="/app/config/secret.yaml",secret_title="Stripe",severity="Critical"} 1
+			`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_exposedsecrets_info")).
 				To(Succeed())
 		})
 	})

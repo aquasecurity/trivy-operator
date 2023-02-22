@@ -44,6 +44,16 @@ trivy_image_exposedsecrets{
     } 1
 ```
 
+### ExposedsSecretsInfo
+
+Exposes details about secrets that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_EXPOSED_SECRET_INFO_ENABLED" envDefault:"false"` . For example:
+
+```shell
+trivy_exposedsecrets_info{
+    container_name="trivy",image_digest="",image_registry="index.docker.io",image_repository="josedonizetti/trivy",image_tag="secrettest",name="pod-tt-reg-test",namespace="default",resource_kind="Pod",resource_name="tt-reg-test",secret_category="AWS",secret_rule_id="aws-access-key-id",secret_target="/etc/apt/s3auth.conf",secret_title="AWS Access Key ID",severity="Critical"
+    } 1
+```
+
 ### InfraAssessments
 
 A report summary series exposes the count of checks of each status reported in a given `InfraAssessmentsReport`. For example:

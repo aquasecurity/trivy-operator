@@ -46,13 +46,13 @@ report:
     match: 'publishable_key: *****'
     ruleID: stripe-access-token
     severity: HIGH
-    target: ""
+    target: "/app/config/secret.yaml"
     title: Stripe
   - category: Stripe
     match: 'secret_key: *****'
     ruleID: stripe-access-token
     severity: HIGH
-    target: ""
+    target: "/app/config/secret.yaml"
     title: Stripe
   summary:
     criticalCount: 0

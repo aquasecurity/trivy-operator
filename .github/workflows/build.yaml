@@ -32,7 +32,7 @@ concurrency:
 jobs:
   verify-code:
     name: Verify code
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Setup Go
         uses: actions/setup-go@v3
@@ -62,7 +62,7 @@ jobs:
         run: make verify-generated
   tests:
     name: Run tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Setup Go
         uses: actions/setup-go@v3
@@ -87,7 +87,7 @@ jobs:
     needs:
       - tests
       - verify-code
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Setup Go
         uses: actions/setup-go@v3
@@ -111,7 +111,7 @@ jobs:
     name: Run integration tests
     needs:
       - operator-envtest
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Setup Go
@@ -152,7 +152,7 @@ jobs:
     name: Run end to end testing
     needs:
       - itest-trivy-operator
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     env:
       DOCKER_CLI_EXPERIMENTAL: enabled
     steps:

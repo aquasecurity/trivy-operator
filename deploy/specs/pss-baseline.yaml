@@ -46,13 +46,13 @@ spec:
         id: '4'
         checks:
           - id: AVD-KSV-0022
-        severity: 'MEDUIM'
+        severity: 'MEDIUM'
       - name: HostPath Volumes
         description: HostPath volumes must be forbidden.
         id: '5'
         checks:
           - id: 'AVD-KSV-0023'
-        severity: 'MEDUIM'
+        severity: 'MEDIUM'
       - name: host ports
         description: hostports should be disallowed, or at minimum restricted to a known
           list.

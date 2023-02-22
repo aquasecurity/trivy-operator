@@ -35,6 +35,8 @@ The Trivy operator automatically updates security reports in response to workloa
 - Compliance reports
   - NSA, CISA Kubernetes Hardening Guidance v1.1 cybersecurity technical report is produced.
   - CIS Kubernetes Benchmark v1.23 cybersecurity technical report is produced.
+  - Kubernetes pss-baseline, Pod Security Standards
+  - Kubernetes pss-restricted, Pod Security Standards
 
 <p align="center">
 <img src="docs/images/trivy-operator-overview.png" alt="Trivy-operator Overview"/>

@@ -4,6 +4,7 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/go-logr/logr"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -542,7 +543,13 @@ func (c ResourcesMetricsCollector) collectExposedSecretsInfoReports(ctx context.
 				for i, label := range c.GetReportResourceLabels() {
 					labelValues[i+14] = r.Labels[label]
 				}
+				var secretList = make(map[string]bool)
 				for _, secret := range r.Report.Secrets {
+					secretHash := kube.ComputeHash(secret.Category + secret.RuleID + secret.Target + secret.Title + NewSeverityLabel(secret.Severity).Label)
+					if secretList[secretHash] {
+						continue
+					}
+					secretList[secretHash] = true
 					labelValues[9] = secret.Category
 					labelValues[10] = secret.RuleID
 					labelValues[11] = secret.Target

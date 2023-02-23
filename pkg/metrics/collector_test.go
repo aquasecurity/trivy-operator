@@ -310,6 +310,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			sr2.Report.Summary.HighCount = 3
 			sr2.Report.Secrets = []v1alpha1.ExposedSecret{
 				{Target: "/etc/apt/s3auth.conf", Category: "AWS", RuleID: "aws-access-key-id", Title: "AWS Access Key ID", Severity: v1alpha1.SeverityCritical},
+				{Target: "/etc/apt/s3auth.conf", Category: "AWS", RuleID: "aws-access-key-id", Title: "AWS Access Key ID", Severity: v1alpha1.SeverityCritical},
 				{Target: "/etc/apt/s3auth.conf", Category: "AWS", RuleID: "aws-secret-access-key", Title: "AWS Secret Access Key", Severity: v1alpha1.SeverityCritical},
 				{Target: "/app/config/secret.yaml", Category: "Stripe", RuleID: "stripe-secret-token", Title: "Stripe", Severity: v1alpha1.SeverityCritical},
 				{Target: "/app/config/secret.yaml", Category: "GitHub", RuleID: "github-pat", Title: "GitHub Personal Access Token", Severity: v1alpha1.SeverityCritical},

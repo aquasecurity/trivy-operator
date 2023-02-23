@@ -23,7 +23,7 @@ on:
       - NOTICE
 env:
   GO_VERSION: 1.19.1
-  KIND_VERSION: v0.11.1
+  KIND_VERSION: v0.17.0
   KIND_IMAGE: kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6
 permissions: {}
 concurrency:
@@ -182,7 +182,7 @@ jobs:
           args: release -f=goreleaser-e2e.yaml --snapshot --skip-publish --rm-dist
       - name: Install kind and create cluster
         run: |
-          curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.17.0/kind-linux-amd64
+          curl -Lo ./kind https://kind.sigs.k8s.io/dl/${{ env.KIND_VERSION }}/kind-linux-amd64
           chmod +x ./kind
           sudo mv ./kind /usr/local/bin/kind
           kind create cluster

@@ -5589,7 +5589,7 @@ var (
 		Secrets: []v1alpha1.ExposedSecret{
 			{
 				Target:   "/app/config/secret.yaml",
-				RuleID:   "stripe-access-token",
+				RuleID:   "stripe-publishable-token",
 				Category: "Stripe",
 				Severity: "HIGH",
 				Title:    "Stripe",

@@ -81,6 +81,8 @@ spec:
               value: {{ .Values.operator.configAuditScannerScanOnlyCurrentRevisions | quote }}
             - name: OPERATOR_EXPOSED_SECRET_SCANNER_ENABLED
               value: {{ .Values.operator.exposedSecretScannerEnabled | quote }}
+            - name: OPERATOR_METRICS_EXPOSED_SECRET_INFO_ENABLED
+              value: {{ .Values.operator.metricsExposedSecretInfo | quote }}
             - name: OPERATOR_WEBHOOK_BROADCAST_URL
               value: {{ .Values.operator.webhookBroadcastURL | quote }}
             - name: OPERATOR_WEBHOOK_BROADCAST_TIMEOUT

@@ -39,7 +39,7 @@
       "Class": "secret",
       "Secrets": [
         {
-          "RuleID": "stripe-access-token",
+          "RuleID": "stripe-publishable-token",
           "Category": "Stripe",
           "Severity": "HIGH",
           "Title": "Stripe",

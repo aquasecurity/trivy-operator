@@ -11,4 +11,14 @@ You can enable the Webhook integration as follows:
 1. Required: Set `OPERATOR_WEBHOOK_BROADCAST_URL` to the webhook endpoint you'd like to send the reports to.
 2. Optional: Set `OPERATOR_WEBHOOK_BROADCAST_TIMEOUT` to a time limit that suites your use case. Default is `30s`.
 
-The Webhook integration is only able to send `vulnerabilityreport` and `exposedsecretreport` type of reports.
+The Webhook integration support the following reports types:
+
+- `vulnerabilityreport`
+- `exposedsecretreport`
+- `configAuditReport`
+- `infraAssessmentReport`
+- `rbacAssessmentReport`
+- `clusterRbacAssessmentReport`
+- `clusterConfigAuditReport`
+- `clusterInfraAssessmentReport`
+- `clusterComplianceReport`

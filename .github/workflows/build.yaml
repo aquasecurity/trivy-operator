@@ -181,12 +181,18 @@ jobs:
           version: v1.7.0
           args: release -f=goreleaser-e2e.yaml --snapshot --skip-publish --rm-dist
       - name: Install kind and create cluster
-        run: |
-          curl -Lo ./kind https://kind.sigs.k8s.io/dl/${{ env.KIND_VERSION }}/kind-linux-amd64
+        run: >
+          curl -Lo ./kind https://kind.sigs.k8s.io/dl/${{ env.KIND_VERSION
+          }}/kind-linux-amd64
+
           chmod +x ./kind
+
           sudo mv ./kind /usr/local/bin/kind
+
           kind create cluster
+
           curl -LO https://dl.k8s.io/release/v1.26.0/bin/linux/amd64/kubectl
+
           sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
       - name: Test connection to Kubernetes cluster
         run: |
@@ -214,16 +220,19 @@ jobs:
           chmod 700 get_helm.sh
 
           ./get_helm.sh
-      - name: Image scan mode producing vulnerability reoport test
+      - name: Image scan mode producing vulnerability,misconfig and exposedsecrets
+          reports tests
         run: >
           ./bin/kuttl test --start-kind=false --config tests/config/image-mode.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
-      - name: Files System scan mode producing vulnerability reoport test
+      - name: Files System scan mode producing vulnerability,misconfig and
+          exposedsecrets reports tests
         run: |
           ./bin/kuttl test --start-kind=false --config tests/config/fs-mode.yaml
           ./tests/resources-cleanup.sh > /dev/null 2>&1
-      - name: Client/server mode producing vulnerability reoport test
+      - name: Client/server mode producing vulnerability,misconfig and exposedsecrets
+          reports tests
         run: >
           ./bin/kuttl test --start-kind=false --config
           tests/config/client-server.yaml

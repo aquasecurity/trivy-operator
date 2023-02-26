@@ -1,0 +1,17 @@
+---
+apiVersion: kuttl.dev/v1beta1
+commands:
+  - script: >
+      cnt="$(kubectl get -n $NAMESPACE
+      exposedsecretreports.aquasecurity.github.io pod-tt-reg-test \
+        -o=jsonpath='{.report.summary.criticalCount}')"
+      if [ $cnt -gt 0 ]
+
+      then
+        echo "Pass: ExposedSecretReport CriticalCount ($cnt) is greater than 0"
+      else
+        echo "Fail: ExposedSecretReport CriticalCount $(cnt) should be greater than 0"
+        exit 1
+      fi
+kind: TestAssert
+timeout: 30

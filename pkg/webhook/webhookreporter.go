@@ -35,7 +35,13 @@ func (r *WebhookReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	reports := []client.Object{
 		&v1alpha1.VulnerabilityReport{},
 		&v1alpha1.ExposedSecretReport{},
-		// TODO: Add more report types if needed
+		&v1alpha1.ConfigAuditReport{},
+		&v1alpha1.InfraAssessmentReport{},
+		&v1alpha1.ClusterComplianceReport{},
+		&v1alpha1.RbacAssessmentReport{},
+		&v1alpha1.ClusterRbacAssessmentReport{},
+		&v1alpha1.ClusterConfigAuditReport{},
+		&v1alpha1.ClusterInfraAssessmentReport{},
 	}
 
 	for _, reportType := range reports {

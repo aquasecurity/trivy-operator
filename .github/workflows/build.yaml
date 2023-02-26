@@ -214,16 +214,16 @@ jobs:
           chmod 700 get_helm.sh
 
           ./get_helm.sh
-      - name: Image scan mode producing vulnerability reoport test
+      - name: Image scan mode producing vulnerability,misconfig and exposedsecrets reports tests
         run: >
           ./bin/kuttl test --start-kind=false --config tests/config/image-mode.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
-      - name: Files System scan mode producing vulnerability reoport test
+      - name: Files System scan mode producing vulnerability,misconfig and exposedsecrets reports tests
         run: |
           ./bin/kuttl test --start-kind=false --config tests/config/fs-mode.yaml
           ./tests/resources-cleanup.sh > /dev/null 2>&1
-      - name: Client/server mode producing vulnerability reoport test
+      - name: Client/server mode producing vulnerability,misconfig and exposedsecrets reports tests
         run: >
           ./bin/kuttl test --start-kind=false --config
           tests/config/client-server.yaml

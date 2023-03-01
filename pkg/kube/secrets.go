@@ -79,7 +79,13 @@ func MapDockerRegistryServersToAuths(imagePullSecrets []corev1.Secret) (map[stri
 			if err != nil {
 				return nil, nil, err
 			}
-			auths[server] = auth
+			if a, ok := auths[server]; ok {
+				user := fmt.Sprintf("%s,%s", a.Username, auth.Username)
+				pass := fmt.Sprintf("%s,%s", a.Password, auth.Password)
+				auths[server] = docker.Auth{Username: user,Password: pass}
+			} else {
+				auths[server] = auth
+			}
 			if strings.HasPrefix(server, "*.") {
 				wildcardServers = append(wildcardServers, server)
 			}

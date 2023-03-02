@@ -60,7 +60,7 @@ func SkipDBUpdate(c Config) string {
 	return "--skip-db-update"
 }
 
-// MultiSecretSupport validate if trivy support multi secret support
+// MultiSecretSupport validate if trivy multi secret support
 func MultiSecretSupport(c Config) bool {
 	tag, err := c.GetImageTag()
 	if err != nil {

@@ -145,18 +145,18 @@ data:
   {{- with .Values.trivy.resources }}
     {{- with .requests }}
       {{- if .cpu }}
-  trivy.resources.requests.cpu: {{ .cpu }}
+  trivy.resources.requests.cpu: {{ .cpu | quote }}
       {{- end }}
       {{- if hasKey . "memory" }}
-  trivy.resources.requests.memory: {{ .memory }}
+  trivy.resources.requests.memory: {{ .memory | quote }}
       {{- end }}
     {{- end }}
     {{- with .limits }}
       {{- if .cpu }}
-  trivy.resources.limits.cpu: {{ .cpu }}
+  trivy.resources.limits.cpu: {{ .cpu | quote }}
       {{- end }}
       {{- if .memory }}
-  trivy.resources.limits.memory: {{ .memory }}
+  trivy.resources.limits.memory: {{ .memory | quote }}
       {{- end }}
     {{- end }}
   {{- end }}

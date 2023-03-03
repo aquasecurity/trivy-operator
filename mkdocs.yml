@@ -31,6 +31,7 @@ nav:
           - Metrics: tutorials/integrations/metrics.md
           - Lens Extension: tutorials/integrations/lens.md
           - Webhook Integration: tutorials/integrations/webhook.md
+          - Policy Reporter Integration: tutorials/integrations/policy-reporter.md
   - Docs:
       - Vulnerability Scanning:
           - Overview: docs/vulnerability-scanning/index.md

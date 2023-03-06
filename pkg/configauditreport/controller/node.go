@@ -100,6 +100,15 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 			log.V(1).Info("Pushing back node collector job", "count", jobsCount, "retryAfter", r.ScanJobRetryAfter)
 			return ctrl.Result{RequeueAfter: r.Config.ScanJobRetryAfter}, nil
 		}
+		// requeue nodes non-ready nodes
+		for _, condition := range node.Status.Conditions {
+			if condition.Type == corev1.NodeReady {
+				if !(condition.Status == corev1.ConditionTrue) {
+					log.V(1).Info("Pushing back node collector job", "count", jobsCount, "retryAfter", r.ScanJobRetryAfter)
+					return ctrl.Result{RequeueAfter: r.Config.ScanJobRetryAfter}, nil
+				}
+			}
+		}
 		cluster, err := k8s.GetCluster()
 		if err != nil {
 			return ctrl.Result{}, nil

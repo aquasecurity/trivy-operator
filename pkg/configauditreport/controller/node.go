@@ -67,7 +67,15 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 			}
 			return ctrl.Result{}, fmt.Errorf("getting node from cache: %w", err)
 		}
-
+		// requeue nodes non-ready nodes
+		for _, condition := range node.Status.Conditions {
+			if condition.Type == corev1.NodeReady {
+				if !(condition.Status == corev1.ConditionTrue) {
+					log.V(1).Info("Pushing back node collector job", "retryAfter", r.ScanJobRetryAfter)
+					return ctrl.Result{RequeueAfter: r.Config.ScanJobRetryAfter}, nil
+				}
+			}
+		}
 		log.V(1).Info("Checking whether cluster Infra assessments report exists")
 		hasReport, err := hasInfraReport(ctx, node, r.InfraReadWriter)
 		if err != nil {

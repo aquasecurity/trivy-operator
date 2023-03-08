@@ -38,6 +38,9 @@ operator:
   # logDevMode the flag to enable development mode (more human-readable output, extra stack traces and logging information, etc)
   logDevMode: false
 
+  # scanJobTTL the set automatic cleanup time after the job is completed
+  scanJobTTL: ""
+
   # scanJobTimeout the length of time to wait before giving up on a scan job
   scanJobTimeout: 5m
 
@@ -84,14 +87,19 @@ operator:
   # exposedSecretScannerEnabled the flag to enable exposed secret scanner
   exposedSecretScannerEnabled: true
 
+  # MetricsExposedSecretInfo the flag to enable metrics about exposed secrets
+  # be aware of metrics cardinality is significantly increased with this feature enabled.
+  metricsExposedSecretInfo: false
+
   # webhookBroadcastURL the flag to set reports should be sent to a webhook endpoint. "" means that the webhookBroadcastURL feature is disabled
   webhookBroadcastURL: ""
 
   # webhookBroadcastTimeout the flag to set timeout for webhook requests if webhookBroadcastURL is enabled
   webhookBroadcastTimeout: 30s
 
-  # privateRegistryScanSecretsNames is map of namespace:secrets which can be used to authenticate in private registries in case if there no imagePullSecrets provided
+  # privateRegistryScanSecretsNames is map of namespace:secrets, secrets are comma seperated which can be used to authenticate in private registries in case if there no imagePullSecrets provided example : {"mynamespace":"mySecrets,anotherSecret"}
   privateRegistryScanSecretsNames: {}
+
   # mergeRbacFindingWithConfigAudit the flag to enable merging rbac finding with config-audit report
   mergeRbacFindingWithConfigAudit: false
 
@@ -127,7 +135,7 @@ trivyOperator:
   configAuditReportsPlugin: "Trivy"
   # scanJobCompressLogs control whether scanjob output should be compressed or plain
   scanJobCompressLogs: true
-  # scanJobTolerations tolerations to be applied to the scanner pods so that they can run on nodes with matching taints
+  # scanJobTolerations tolerations to be applied to the scanner pods and node-collector so that they can run on nodes with matching taints
   scanJobTolerations: []
   # If you do want to specify tolerations, uncomment the following lines, adjust them as necessary, and remove the
   # square brackets after 'scanJobTolerations:'.
@@ -195,7 +203,7 @@ trivy:
   # repository of the Trivy image
   repository: ghcr.io/aquasecurity/trivy
   # tag version of the Trivy image
-  tag: 0.36.0
+  tag: 0.38.1
   # imagePullSecret is the secret name to be used when pulling trivy image from private registries example : reg-secret
   # It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace
   # imagePullSecret:
@@ -203,6 +211,15 @@ trivy:
   # mode is the Trivy client mode. Either Standalone or ClientServer. Depending
   # on the active mode other settings might be applicable or required.
   mode: Standalone
+
+  # storageClassName is the name of the storage class to be used for trivy server PVC
+  storageClassName: ""
+
+  # podLabels is the extra pod labels to be used for trivy server
+  podLabels:
+
+  # priorityClassName is the name of the priority class used for trivy server
+  priorityClassName: ""
 
   # additionalVulnerabilityReportFields is a comma separated list of additional fields which
   # can be added to the VulnerabilityReport. Supported parameters: Description, Links, CVSS, Target, Class and PackageType
@@ -262,6 +279,17 @@ trivy:
   # ignoreFile: |
   #   CVE-1970-0001
   #   CVE-1970-0002
+
+  # ignorePolicy can be used to tell Trivy to ignore vulnerabilities by a policy
+  # If multiple policies would match, then the most specific one has precedence over the others.
+  # See https://aquasecurity.github.io/trivy/latest/docs/vulnerability/examples/filter/#by-open-policy-agent) for more details.
+  #
+  # ignorePolicy.application.my-app-*: |
+  #   # applies to all workloads in namespace "application" with the name pattern "my-app-*"
+  # ignorePolicy.kube-system: |
+  #   # applies to all workloads in namespace "kube-system"
+  # ignorePolicy: |
+  #   # applies to all other workloads
 
   # resources resource requests and limits
   resources:
@@ -391,3 +419,9 @@ priorityClassName: ""
 
   # automountServiceAccountToken the flag to enable automount for service account token
 automountServiceAccountToken: true
+
+nodeCollector:
+  # repository of the node-collector image
+  repository: ghcr.io/aquasecurity/node-collector
+  # tag version of the node-collector image
+  tag: 0.0.5

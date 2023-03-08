@@ -29,7 +29,7 @@ trivy:
 
 By default, the command that trivy is supposed to run inside your cluster is `trivy image` for container image scanning. However, we want to change it to scan the filesystem in your nodes instead. Container images are ultimately stored as files on the node level of your cluster. This way, trivy is going to scan the files of your container images for vulnerabilities. This is a little bit of a work-around with the downside that the Trivy Operator will have to run as root. However, remember that security scanning already requires the operator to have lots of cluster privileges.
 
-Next, we will change the the `command` and the `trivyOperator.scanJobPodTemplateContainerSecurityContext`of the `values.yaml` manifest. For this, we can create a new values.yaml manifest with our desired modifiactions:
+Next, we will change the the `command` and the `trivyOperator.scanJobPodTemplateContainerSecurityContext`of the `values.yaml` manifest. For this, we can create a new values.yaml manifest with our desired modifications:
 
 ```
 trivy:
@@ -47,7 +47,7 @@ Lastly, we can deploy the operator inside our cluster with referencing our new `
 helm upgrade --install trivy-operator aqua/trivy-operator \
   --namespace trivy-system \
   --create-namespace \
-  --version 0.10.1
+  --version 0.12.0
   --values ./values.yaml
 ```
 
@@ -57,7 +57,7 @@ Alternatively, it is possible to set the values directly through Helm instead of
 helm upgrade --install trivy-operator aqua/trivy-operator \
   --namespace trivy-system \
   --create-namespace \
-  --version 0.10.1
+  --version 0.12.0
   --set="trivy.command=fs"
   --set="trivyOperator.scanJobPodTemplateContainerSecurityContext.runAsUser=0"
 ```
@@ -65,7 +65,7 @@ helm upgrade --install trivy-operator aqua/trivy-operator \
 Once installed, make sure that
 
 1. the operator is running in your cluster
-2. the operator has created a VulnerabilitReport for the container image from the private registry
+2. the operator has created a VulnerabilityReport for the container image from the private registry
 
 ```
 ❯ kubectl get deployment -n trivy-system
@@ -78,7 +78,7 @@ trivy-operator   1/1     1            1           99s
 
 Note that you might be using an ImagePullSecret already to allow pods to pull the container images from a private registry.
 
-To set-up an ImagePullSecret, we first need an access token to our private registry. For GitHub private registries, you can create a new access token under the [following link.](https://github.com/settings/tokens/new) In comparison, the official Kubernetes coumentation shows how to create the [ImagePullSecret for the DockerHub.](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+To set-up an ImagePullSecret, we first need an access token to our private registry. For GitHub private registries, you can create a new access token under the [following link.](https://github.com/settings/tokens/new) In comparison, the official Kubernetes documentation shows how to create the [ImagePullSecret for the DockerHub.](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
 
 Next, we will base64 encode the access token:
 
@@ -177,7 +177,7 @@ spec:
 
 If there are no ImagePullSecret on pod or Service Account level (for example, valid credentials are placed in container runtime configuration) you can add them in Trivy-Operator configuration.
 
-It's very similar to `Second Option`. First of all you need to create a secret. To do it, we first need an access token to our private registry. For GitHub private registries, you can create a new access token under the [following link.](https://github.com/settings/tokens/new) In comparison, the official Kubernetes coumentation shows how to create the [ImagePullSecret for the DockerHub.](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+It's very similar to `Second Option`. First of all you need to create a secret. To do it, we first need an access token to our private registry. For GitHub private registries, you can create a new access token under the [following link.](https://github.com/settings/tokens/new) In comparison, the official Kubernetes documentation shows how to create the [ImagePullSecret for the DockerHub.](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
 
 Next, we will base64 encode the access token:
 
@@ -215,7 +215,7 @@ And finally, we can apply the secret to the same namespace as our application:
 kubectl apply -f imagepullsecret.yaml -n app
 ```
 
-Next, we will change the `privateRegistryScanSecretsNames` of the `values.yaml` manifest. For this, we can create a new `values.yaml` manifest with our desired modifiactions. We need to provide desired namespace and secret name. In our example they are `app` and `dockerconfigjson-github-com` accordingly.
+Next, we will change the `privateRegistryScanSecretsNames` of the `values.yaml` manifest. For this, we can create a new `values.yaml` manifest with our desired modification. We need to provide desired namespace and secret name. In our example they are `app` and `dockerconfigjson-github-com` accordingly.
 
 ```
 operator:
@@ -230,7 +230,7 @@ Lastly, we can deploy the operator inside our cluster with referencing our new `
 helm upgrade --install trivy-operator aqua/trivy-operator \
   --namespace trivy-system \
   --create-namespace \
-  --version 0.10.1
+  --version 0.12.0
   --values ./values.yaml
 ```
 
@@ -240,7 +240,7 @@ Alternatively, it is possible to set the values directly through Helm instead of
 helm upgrade --install trivy-operator aqua/trivy-operator \
   --namespace trivy-system \
   --create-namespace \
-  --version 0.10.1
+  --version 0.12.0
   --set-json='operator.privateRegistryScanSecretsNames={"app":"dockerconfigjson-github-com"}'
 ```
 
@@ -262,4 +262,4 @@ trivy-operator   1/1     1            1           99s
 
 The last way that you could give the Trivy operator access to your private container registry is through managed registries. In this case, the container registry and your Kubernetes cluster would have to be on the same cloud provider; then you can define access to your container namespace as part of the IAM account. Once defined, trivy will already have the permissions for the registry.
 
-For additional information, please refer to the [documentation on managed registries.](https://aquasecurity.github.io/trivy-operator/v0.10.1/vulnerability-scanning/managed-registries/#amazon-elastic-container-registry-ecr)
+For additional information, please refer to the [documentation on managed registries.](https://aquasecurity.github.io/trivy-operator/v0.12.0/docs/vulnerability-scanning/managed-registries/)

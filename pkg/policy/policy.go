@@ -5,14 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/aquasecurity/defsec/pkg/severity"
 	"path"
 	"path/filepath"
 	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 
-	"github.com/aquasecurity/defsec/pkg/scanners"
-	"github.com/aquasecurity/defsec/pkg/scanners/rbac"
 	"github.com/go-logr/logr"
 	"github.com/liamg/memoryfs"
 
@@ -135,19 +135,23 @@ func (p *Policies) ModulePolicyByKind(kind string) ([]string, error) {
 }
 
 // Applicable check if policies exist either built in or via policies configmap
-func (p *Policies) Applicable(resource client.Object) (bool, string, error) {
-	resourceKind := resource.GetObjectKind().GroupVersionKind().Kind
-	if resourceKind == "" {
-		return false, "", errors.New("resource kind must not be blank")
-	}
-	policies, err := p.PoliciesByKind(resourceKind)
+func (p *Policies) Applicable(resourceKind string) (bool, string, error) {
+	HasExternalPolicies, err := p.ExternalPoliciesApplicable(resourceKind)
 	if err != nil {
 		return false, "", err
 	}
-	if len(policies) == 0 && !p.cac.GetUseBuiltinRegoPolicies() {
-		return false, fmt.Sprintf("no policies found for kind %s", resource.GetObjectKind().GroupVersionKind().Kind), nil
+	if !HasExternalPolicies && !p.cac.GetUseBuiltinRegoPolicies() {
+		return false, fmt.Sprintf("no policies found for kind %s", resourceKind), nil
 	}
 	return true, "", nil
+}
+
+func (p *Policies) ExternalPoliciesApplicable(resourceKind string) (bool, error) {
+	policies, err := p.PoliciesByKind(resourceKind)
+	if err != nil {
+		return false, err
+	}
+	return len(policies) > 0, nil
 }
 
 // SupportedKind scan policies supported for this kind
@@ -172,7 +176,7 @@ func (p *Policies) rbacDisabled(rbacEnable bool, kind string) bool {
 }
 
 // Eval evaluates Rego policies with Kubernetes resource client.Object as input.
-func (p *Policies) Eval(ctx context.Context, resource client.Object) (scan.Results, error) {
+func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[]byte) (scan.Results, error) {
 	if resource == nil {
 		return nil, fmt.Errorf("resource must not be nil")
 	}
@@ -196,21 +200,29 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object) (scan.Resul
 			return nil, err
 		}
 	}
-	inputResource, err := json.Marshal(resource)
+	var inputResource []byte
 	if err != nil {
 		return nil, err
+	}
+	if len(inputs) > 0 {
+		inputResource = inputs[0]
+	} else {
+		inputResource, err = json.Marshal(resource)
+		if err != nil {
+			return nil, err
+		}
 	}
 	// add input files
 	err = createPolicyInputFS(memfs, inputFolder, []string{string(inputResource)}, yamlExt)
 	if err != nil {
 		return nil, err
 	}
-	scanner := scannerByType(resourceKind, getScannerOptions(hasExternalPolicies, p.cac.GetUseBuiltinRegoPolicies(), policiesFolder))
+	scanner := kubernetes.NewScanner(getScannerOptions(hasExternalPolicies, p.cac.GetUseBuiltinRegoPolicies(), policiesFolder)...)
 	scanResult, err := scanner.ScanFS(ctx, memfs, inputFolder)
 	if err != nil {
 		return nil, err
 	}
-	//special case when lib return nil for both checks and error
+	// special case when lib return nil for both checks and error
 	if scanResult == nil && err == nil {
 		return nil, fmt.Errorf("failed to run policy checks on resources")
 	}
@@ -226,11 +238,12 @@ func (r *Policies) GetResultID(result scan.Result) string {
 	return id
 }
 
-func scannerByType(resourceKind string, scannerOptions []options.ScannerOption) scanners.FSScanner {
-	if resourceKind == "Role" || resourceKind == "ClusterRole" {
-		return rbac.NewScanner(scannerOptions...)
+func (r *Policies) HasSeverity(resultSeverity severity.Severity) bool {
+	defaultSeverity := r.cac.GetSeverity()
+	if defaultSeverity == "" {
+		defaultSeverity = trivy.DefaultSeverity
 	}
-	return kubernetes.NewScanner(scannerOptions...)
+	return strings.Contains(defaultSeverity, string(resultSeverity))
 }
 
 func getScannerOptions(hasExternalPolicies bool, useDefaultPolicies bool, policiesFolder string) []options.ScannerOption {

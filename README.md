@@ -32,11 +32,18 @@ The Trivy operator automatically updates security reports in response to workloa
 - Exposed Secret Scans: Automated secret scans which find and detail the location of exposed Secrets within your cluster.
 - RBAC scans: Role Based Access Control scans provide detailed information on the access rights of the different resources installed.
 - K8s core component infra assessment scan Kubernetes infra core components (etcd,apiserver,scheduler,controller-manager and etc) setting and configuration.
-- Compliance reports NSA, CISA Kubernetes Hardening Guidance v1.1 cybersecurity technical report is produced.  
+- Compliance reports
+  - NSA, CISA Kubernetes Hardening Guidance v1.1 cybersecurity technical report is produced.
+  - CIS Kubernetes Benchmark v1.23 cybersecurity technical report is produced.
+  - Kubernetes pss-baseline, Pod Security Standards
+  - Kubernetes pss-restricted, Pod Security Standards
 
 <p align="center">
 <img src="docs/images/trivy-operator-overview.png" alt="Trivy-operator Overview"/>
 </p>
+
+_Please [star ⭐](https://github.com/aquasecurity/trivy-operator/stargazers) the repo if you want us to continue developing and improving trivy-operator! 😀_
+
 
 # Status
 

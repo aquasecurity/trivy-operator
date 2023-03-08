@@ -1,0 +1,16 @@
+---
+apiVersion: aquasecurity.github.io/v1alpha1
+kind: VulnerabilityReport
+metadata:
+  annotations:
+    trivy-operator.aquasecurity.github.io/report-ttl: 24h0m0s
+  name: pod-my-pod-app
+report:
+  artifact:
+    repository: library/nginx
+    tag: 1.14.2
+  registry:
+    server: index.docker.io
+  scanner:
+    name: Trivy
+    vendor: Aqua Security

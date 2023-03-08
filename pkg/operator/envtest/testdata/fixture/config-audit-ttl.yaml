@@ -1,0 +1,45 @@
+---
+apiVersion: aquasecurity.github.io/v1alpha1
+kind: ConfigAuditReport
+metadata:
+  annotations:
+    trivy-operator.aquasecurity.github.io/report-ttl: 0h0m01
+  creationTimestamp: 2022-12-08T15:50:37Z
+  generation: 1
+  labels:
+    resource-spec-hash: 65df6ff459
+    plugin-config-hash: 659b7b9c47
+    trivy-operator.container.name: coredns
+    trivy-operator.resource.kind: ReplicaSet
+    trivy-operator.resource.name: coredns-558bd4d5dc
+    trivy-operator.resource.namespace: kube-system
+  name: replicaset-coredns-558bd4d5dc-coredns
+  namespace: kube-system
+  ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: false
+      controller: true
+      kind: ReplicaSet
+      name: coredns-558bd4d5dc
+      uid: 1136b574-9f3f-49af-adaf-ba35d78ea57b
+  uid: 66e3e613-9655-4330-aee7-45e283be2339
+report:
+  checks:
+    - category: Kubernetes Security Check
+      checkID: KSV110
+      description: ensure that default namespace should not be used
+      messages:
+        - Service 'kubernetes' should not be set with 'default' namespace
+      severity: LOW
+      success: false
+      title: The default namespace should not be used
+  scanner:
+    name: Trivy
+    vendor: Aqua Security
+    version: dev
+  summary:
+    criticalCount: 0
+    highCount: 0
+    lowCount: 1
+    mediumCount: 0
+  updateTimestamp: 2023-01-29T19:01:44Z

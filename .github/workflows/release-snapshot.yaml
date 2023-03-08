@@ -8,7 +8,7 @@ on:
     - cron: "0 0 * * *"
 
 env:
-  GO_VERSION: "1.19.1"
+  GO_VERSION: 1.19.1
 
 # Disable permissions granted to the GITHUB_TOKEN for all the available scopes.
 permissions: {}
@@ -16,7 +16,7 @@ permissions: {}
 jobs:
   release-snapshot:
     name: Release unversioned snapshot
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     env:
       DOCKER_CLI_EXPERIMENTAL: "enabled"
     permissions:
@@ -42,7 +42,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Install cosign
-        uses: sigstore/cosign-installer@v2.8.1
+        uses: sigstore/cosign-installer@v3.0.1
       - name: Release snapshot
         uses: goreleaser/goreleaser-action@v4
         with:

@@ -39,7 +39,7 @@
       "Class": "secret",
       "Secrets": [
         {
-          "RuleID": "stripe-access-token",
+          "RuleID": "stripe-publishable-token",
           "Category": "Stripe",
           "Severity": "HIGH",
           "Title": "Stripe",
@@ -55,6 +55,30 @@
           "StartLine": 4,
           "EndLine": 4,
           "Match": "secret_key: *****"
+        }
+      ]
+    },
+    {
+      "Target": "/etc/apt/s3auth.conf",
+      "Class": "secret",
+      "Secrets": [
+        {
+          "RuleID": "aws-access-key-id",
+          "Category": "AWS",
+          "Severity": "CRITICAL",
+          "Title": "AWS Access Key ID",
+          "StartLine": 1,
+          "EndLine": 1,
+          "Match": "AccessKeyId = ********************"
+        },
+        {
+          "RuleID": "aws-secret-access-key",
+          "Category": "AWS",
+          "Severity": "CRITICAL",
+          "Title": "AWS Secret Access Key",
+          "StartLine": 2,
+          "EndLine": 2,
+          "Match": "SecretAccessKey = ****************************************"
         }
       ]
     }

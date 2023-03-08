@@ -1,0 +1,61 @@
+---
+release:
+  draft: false
+  prerelease: auto
+env:
+  - GO111MODULE=on
+  - CGO_ENABLED=0
+before:
+  hooks:
+    - go mod download
+builds:
+  - id: trivy-operator
+    main: ./cmd/trivy-operator/main.go
+    binary: trivy-operator
+    goos:
+      - linux
+    goarch:
+      - amd64
+archives:
+  - name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    builds:
+      - trivy-operator
+    format_overrides:
+      - goos: windows
+        format: zip
+checksum:
+  name_template: checksums.txt
+snapshot:
+  name_template: "{{ .FullCommit }}"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - ^docs
+      - ^test
+      - ^release
+dockers:
+  - image_templates:
+      - ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-amd64
+    use: buildx
+    goos: linux
+    dockerfile: build/trivy-operator/Dockerfile
+    goarch: amd64
+    ids:
+      - trivy-operator
+    build_flag_templates:
+      - --label=org.opencontainers.image.title=trivy-operator
+      - --label=org.opencontainers.image.description=Keeps trivy-operator
+        resources updated
+      - --label=org.opencontainers.image.vendor=Aqua Security
+      - --label=org.opencontainers.image.version={{ .Version }}
+      - --label=org.opencontainers.image.created={{ .Date }}
+      - --label=org.opencontainers.image.source=https://github.com/aquasecurity/trivy-operator
+      - --label=org.opencontainers.image.revision={{ .FullCommit }}
+      - --label=org.opencontainers.image.documentation=https://aquasecurity.github.io/trivy-operator/v{{
+        .Version }}/
+      - --platform=linux/amd64
+docker_manifests:
+  - name_template: ghcr.io/aquasecurity/trivy-operator:{{ .Version }}
+    image_templates:
+      - ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-amd64

@@ -55,6 +55,7 @@ const (
 	KindClusterRole              Kind = "ClusterRole"
 	KindClusterRoleBindings      Kind = "ClusterRoleBinding"
 	KindCustomResourceDefinition Kind = "CustomResourceDefinition"
+	KindNode                     Kind = "Node"
 )
 
 const (
@@ -95,7 +96,7 @@ func IsWorkload(kind string) bool {
 // TODO Use discovery client to have a generic implementation.
 func IsClusterScopedKind(kind string) bool {
 	switch kind {
-	case string(KindClusterRole), string(KindClusterRoleBindings), string(KindCustomResourceDefinition):
+	case string(KindClusterRole), string(KindClusterRoleBindings), string(KindCustomResourceDefinition), string(KindNode):
 		return true
 	default:
 		return false
@@ -211,6 +212,8 @@ func ComputeSpecHash(obj client.Object) (string, error) {
 	case *networkingv1.Ingress:
 		return ComputeHash(obj), nil
 	case *corev1.ResourceQuota:
+		return ComputeHash(obj), nil
+	case *corev1.Node:
 		return ComputeHash(obj), nil
 	case *corev1.LimitRange:
 		return ComputeHash(obj), nil
@@ -616,7 +619,7 @@ func (o *ObjectResolver) GetNodeName(ctx context.Context, obj client.Object) (st
 
 // TODO: Figure out if cluster-wide access to deployments can be avoided
 // See: https://github.com/aquasecurity/trivy-operator/issues/373 for background
-//+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch
+// +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch
 
 func (o *ObjectResolver) IsActiveReplicaSet(ctx context.Context, workloadObj client.Object, controller *metav1.OwnerReference) (bool, error) {
 	if controller != nil && controller.Kind == string(KindDeployment) {

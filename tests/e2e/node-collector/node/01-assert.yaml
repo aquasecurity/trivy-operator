@@ -1,0 +1,17 @@
+---
+apiVersion: kuttl.dev/v1beta1
+commands:
+  - script: >
+      cnt="$(kubectl get clusterinfraassessmentreports node-kind-control-plane
+      \
+        -o=jsonpath='{.report.summary.highCount}')"
+      if [ $cnt -gt 0 ]
+
+      then
+        echo "Pass: ClusterInfraAssessmentReport HighCount ($cnt) is greater than 0"
+      else
+        echo "Fail: ClusterInfraAssessmentReport HighCount $(cnt) should be greater than 0"
+        exit 1
+      fi
+kind: TestAssert
+timeout: 30

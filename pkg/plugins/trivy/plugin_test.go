@@ -31,7 +31,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	pointer "k8s.io/utils/pointer"
+	"k8s.io/utils/pointer"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
@@ -40,8 +40,6 @@ var (
 	fixedTime  = time.Now()
 	fixedClock = ext.NewFixedClock(fixedTime)
 )
-
-const defaultDBRepository = "ghcr.io/aquasecurity/trivy-db"
 
 func TestConfig_GetImageRef(t *testing.T) {
 	testCases := []struct {
@@ -153,7 +151,7 @@ func TestConfig_GetMode(t *testing.T) {
 			name: "Should return Standalone",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"trivy.mode": "Standalone",
+					"trivy.mode": string(trivy.Standalone),
 				},
 			}},
 			expectedMode: trivy.Standalone,
@@ -162,7 +160,7 @@ func TestConfig_GetMode(t *testing.T) {
 			name: "Should return ClientServer",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"trivy.mode": "ClientServer",
+					"trivy.mode": string(trivy.ClientServer),
 				},
 			}},
 			expectedMode: trivy.ClientServer,
@@ -205,7 +203,6 @@ func TestGetSlow(t *testing.T) {
 			name: "slow param set to true",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"trivy.tag":  "0.35.0",
 					"trivy.slow": "true",
 				},
 			}},
@@ -215,7 +212,6 @@ func TestGetSlow(t *testing.T) {
 			name: "slow param set to false",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"trivy.tag":  "0.35.0",
 					"trivy.slow": "false",
 				},
 			}},
@@ -225,29 +221,15 @@ func TestGetSlow(t *testing.T) {
 			name: "slow param set to no valid value",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"trivy.tag":  "0.35.0",
 					"trivy.slow": "false2",
 				},
 			}},
 			want: true,
 		},
 		{
-			name: "slow param set to true and trivy tag is less then 0.35.0",
+			name: "slow param set to no  value",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
-				Data: map[string]string{
-					"trivy.slow": "true",
-					"trivy.tag":  "0.33.0",
-				},
-			}},
-			want: false,
-		},
-		{
-			name: "slow param set to true and trivy tag is bigger then 0.35.0",
-			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
-				Data: map[string]string{
-					"trivy.slow": "true",
-					"trivy.tag":  "0.36.0",
-				},
+				Data: map[string]string{},
 			}},
 			want: true,
 		},
@@ -347,7 +329,7 @@ func TestConfig_GetResourceRequirements(t *testing.T) {
 			config: trivy.Config{
 				PluginConfig: trivyoperator.PluginConfig{
 					Data: map[string]string{
-						"trivy.dbRepository":              defaultDBRepository,
+						"trivy.dbRepository":              trivy.DefaultDBRepository,
 						"trivy.resources.requests.cpu":    "800m",
 						"trivy.resources.requests.memory": "200M",
 						"trivy.resources.limits.cpu":      "600m",
@@ -715,13 +697,13 @@ func TestPlugin_Init(t *testing.T) {
 				ResourceVersion: "1",
 			},
 			Data: map[string]string{
-				"trivy.repository":                "ghcr.io/aquasecurity/trivy",
-				"trivy.tag":                       "0.35.0",
-				"trivy.severity":                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
+				"trivy.repository":                trivy.DefaultImageRepository,
+				"trivy.tag":                       "0.38.1",
+				"trivy.severity":                  trivy.DefaultSeverity,
 				"trivy.slow":                      "true",
-				"trivy.mode":                      "Standalone",
+				"trivy.mode":                      string(trivy.Standalone),
 				"trivy.timeout":                   "5m0s",
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.useBuiltinRegoPolicies":    "true",
 				"trivy.supportedConfigAuditKinds": trivy.SupportedConfigAuditKinds,
 				"trivy.resources.requests.cpu":    "100m",
@@ -747,8 +729,8 @@ func TestPlugin_Init(t *testing.T) {
 				Data: map[string]string{
 					"trivy.repository": "gcr.io/aquasecurity/trivy",
 					"trivy.tag":        "0.35.0",
-					"trivy.severity":   "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
-					"trivy.mode":       "Standalone",
+					"trivy.severity":   trivy.DefaultSeverity,
+					"trivy.mode":       string(trivy.Standalone),
 				},
 			}).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
@@ -782,8 +764,8 @@ func TestPlugin_Init(t *testing.T) {
 			Data: map[string]string{
 				"trivy.repository": "gcr.io/aquasecurity/trivy",
 				"trivy.tag":        "0.35.0",
-				"trivy.severity":   "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
-				"trivy.mode":       "Standalone",
+				"trivy.severity":   trivy.DefaultSeverity,
+				"trivy.mode":       string(trivy.Standalone),
 			},
 		}, cm)
 	})
@@ -840,7 +822,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 				"trivy.repository":                "docker.io/aquasec/trivy",
 				"trivy.tag":                       "0.35.0",
 				"trivy.mode":                      string(trivy.Standalone),
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -941,7 +923,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 							"--cache-dir", "/tmp/trivy/.cache",
 							"image",
 							"--download-db-only",
-							"--db-repository", defaultDBRepository,
+							"--db-repository", trivy.DefaultDBRepository,
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1116,7 +1098,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 				"trivy.tag":                          "0.35.0",
 				"trivy.mode":                         string(trivy.Standalone),
 				"trivy.insecureRegistry.pocRegistry": "poc.myregistry.harbor.com.pl",
-				"trivy.dbRepository":                 defaultDBRepository,
+				"trivy.dbRepository":                 trivy.DefaultDBRepository,
 
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
@@ -1212,7 +1194,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 							"--cache-dir", "/tmp/trivy/.cache",
 							"image",
 							"--download-db-only",
-							"--db-repository", defaultDBRepository,
+							"--db-repository", trivy.DefaultDBRepository,
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1391,7 +1373,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 				"trivy.tag":                        "0.35.0",
 				"trivy.mode":                       string(trivy.Standalone),
 				"trivy.nonSslRegistry.pocRegistry": "poc.myregistry.harbor.com.pl",
-				"trivy.dbRepository":               defaultDBRepository,
+				"trivy.dbRepository":               trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":     "100m",
 				"trivy.resources.requests.memory":  "100M",
 				"trivy.resources.limits.cpu":       "500m",
@@ -1487,7 +1469,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 							"--cache-dir", "/tmp/trivy/.cache",
 							"image",
 							"--download-db-only",
-							"--db-repository", defaultDBRepository,
+							"--db-repository", trivy.DefaultDBRepository,
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1670,7 +1652,7 @@ CVE-2018-14618
 
 # No impact in our settings
 CVE-2019-1543`,
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -1782,7 +1764,7 @@ CVE-2019-1543`,
 							"--cache-dir", "/tmp/trivy/.cache",
 							"image",
 							"--download-db-only",
-							"--db-repository", defaultDBRepository,
+							"--db-repository", trivy.DefaultDBRepository,
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1955,6 +1937,306 @@ CVE-2019-1543`,
 			},
 		},
 		{
+			name: "Standalone mode with trivy ignore policy",
+			trivyOperatorConfig: map[string]string{
+				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
+				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+				trivyoperator.KeyScanJobcompressLogs:          "true",
+			},
+			config: map[string]string{
+				"trivy.repository": "docker.io/aquasec/trivy",
+				"trivy.tag":        "0.35.0",
+				"trivy.mode":       string(trivy.Standalone),
+				"trivy.ignorePolicy": `package trivy
+
+import data.lib.trivy
+
+default ignore = false`,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
+				"trivy.resources.requests.cpu":    "100m",
+				"trivy.resources.requests.memory": "100M",
+				"trivy.resources.limits.cpu":      "500m",
+				"trivy.resources.limits.memory":   "500M",
+			},
+			workloadSpec: &corev1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Pod",
+					APIVersion: "v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "nginx",
+					Namespace: "prod-ns",
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  "nginx",
+							Image: "nginx:1.16",
+						},
+					},
+				},
+			},
+			expectedJobSpec: corev1.PodSpec{
+				Affinity:                     trivyoperator.LinuxNodeAffinity(),
+				RestartPolicy:                corev1.RestartPolicyNever,
+				ServiceAccountName:           "trivyoperator-sa",
+				ImagePullSecrets:             []corev1.LocalObjectReference{},
+				AutomountServiceAccountToken: pointer.Bool(false),
+				Volumes: []corev1.Volume{
+					tmpVolume, getScanResultVolume(),
+					{
+						Name: "ignorepolicy",
+						VolumeSource: corev1.VolumeSource{
+							ConfigMap: &corev1.ConfigMapVolumeSource{
+								LocalObjectReference: corev1.LocalObjectReference{
+									Name: "trivy-operator-trivy-config",
+								},
+								Items: []corev1.KeyToPath{
+									{
+										Key:  "trivy.ignorePolicy",
+										Path: "policy.rego",
+									},
+								},
+							},
+						},
+					},
+				},
+				InitContainers: []corev1.Container{
+					{
+						Name:                     "00000000-0000-0000-0000-000000000001",
+						Image:                    "docker.io/aquasec/trivy:0.35.0",
+						ImagePullPolicy:          corev1.PullIfNotPresent,
+						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
+						Env: []corev1.EnvVar{
+							{
+								Name: "HTTP_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpProxy",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "HTTPS_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpsProxy",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "NO_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.noProxy",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "GITHUB_TOKEN",
+								ValueFrom: &corev1.EnvVarSource{
+									SecretKeyRef: &corev1.SecretKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.githubToken",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+						},
+						Command: []string{
+							"trivy",
+						},
+						Args: []string{
+							"--cache-dir", "/tmp/trivy/.cache",
+							"image",
+							"--download-db-only",
+							"--db-repository", trivy.DefaultDBRepository,
+						},
+						Resources: corev1.ResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceCPU:    resource.MustParse("100m"),
+								corev1.ResourceMemory: resource.MustParse("100M"),
+							},
+							Limits: corev1.ResourceList{
+								corev1.ResourceCPU:    resource.MustParse("500m"),
+								corev1.ResourceMemory: resource.MustParse("500M"),
+							},
+						},
+						VolumeMounts: []corev1.VolumeMount{
+							tmpVolumeMount,
+						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.Bool(false),
+							AllowPrivilegeEscalation: pointer.Bool(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.Bool(true),
+						},
+					},
+				},
+				Containers: []corev1.Container{
+					{
+						Name:                     "nginx",
+						Image:                    "docker.io/aquasec/trivy:0.35.0",
+						ImagePullPolicy:          corev1.PullIfNotPresent,
+						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
+						Env: []corev1.EnvVar{
+							{
+								Name: "TRIVY_SEVERITY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.severity",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_IGNORE_UNFIXED",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.ignoreUnfixed",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_OFFLINE_SCAN",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.offlineScan",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							timeoutEnv,
+							{
+								Name: "TRIVY_SKIP_FILES",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipFiles",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_SKIP_DIRS",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipDirs",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "HTTP_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpProxy",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "HTTPS_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpsProxy",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "NO_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.noProxy",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name:  "TRIVY_IGNORE_POLICY",
+								Value: "/etc/trivy/policy.rego",
+							},
+						},
+						Command: []string{
+							"/bin/sh",
+						},
+						Args: []string{
+							"-c",
+							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+						},
+						Resources: corev1.ResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceCPU:    resource.MustParse("100m"),
+								corev1.ResourceMemory: resource.MustParse("100M"),
+							},
+							Limits: corev1.ResourceList{
+								corev1.ResourceCPU:    resource.MustParse("500m"),
+								corev1.ResourceMemory: resource.MustParse("500M"),
+							},
+						},
+						VolumeMounts: []corev1.VolumeMount{
+							tmpVolumeMount, getScanResultVolumeMount(),
+							{
+								Name:      "ignorepolicy",
+								MountPath: "/etc/trivy/policy.rego",
+								SubPath:   "policy.rego",
+							},
+						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.Bool(false),
+							AllowPrivilegeEscalation: pointer.Bool(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.Bool(true),
+						},
+					},
+				},
+				SecurityContext: &corev1.PodSecurityContext{},
+			},
+		},
+		{
 			name: "Standalone mode with mirror",
 			trivyOperatorConfig: map[string]string{
 				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
@@ -1966,7 +2248,7 @@ CVE-2019-1543`,
 				"trivy.tag":        "0.35.0",
 				"trivy.mode":       string(trivy.Standalone),
 
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -2065,7 +2347,7 @@ CVE-2019-1543`,
 							"--cache-dir", "/tmp/trivy/.cache",
 							"image",
 							"--download-db-only",
-							"--db-repository", defaultDBRepository,
+							"--db-repository", trivy.DefaultDBRepository,
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2240,7 +2522,7 @@ CVE-2019-1543`,
 				"trivy.tag":                       "0.35.0",
 				"trivy.mode":                      string(trivy.ClientServer),
 				"trivy.serverURL":                 "http://trivy.trivy:4954",
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -2419,7 +2701,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --cache-dir /tmp/trivy/.cache --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2456,7 +2738,7 @@ CVE-2019-1543`,
 				"trivy.tag":                       "0.35.0",
 				"trivy.mode":                      string(trivy.ClientServer),
 				"trivy.serverURL":                 "http://trivy.trivy:4954",
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -2635,7 +2917,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --cache-dir /tmp/trivy/.cache --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2673,7 +2955,7 @@ CVE-2019-1543`,
 				"trivy.mode":                      string(trivy.ClientServer),
 				"trivy.serverURL":                 "https://trivy.trivy:4954",
 				"trivy.serverInsecure":            "true",
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -2856,7 +3138,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln,secret --quiet --format json --server 'https://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln,secret --cache-dir /tmp/trivy/.cache --quiet --format json --server 'https://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2894,7 +3176,7 @@ CVE-2019-1543`,
 				"trivy.mode":                       string(trivy.ClientServer),
 				"trivy.serverURL":                  "http://trivy.trivy:4954",
 				"trivy.nonSslRegistry.pocRegistry": "poc.myregistry.harbor.com.pl",
-				"trivy.dbRepository":               defaultDBRepository,
+				"trivy.dbRepository":               trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":     "100m",
 				"trivy.resources.requests.memory":  "100M",
 				"trivy.resources.limits.cpu":       "500m",
@@ -3077,7 +3359,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln --cache-dir /tmp/trivy/.cache --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3119,7 +3401,7 @@ CVE-2018-14618
 
 # No impact in our settings
 CVE-2019-1543`,
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -3318,7 +3600,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'nginx:1.16' --security-checks secret --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'nginx:1.16' --security-checks secret --cache-dir /tmp/trivy/.cache --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3350,6 +3632,253 @@ CVE-2019-1543`,
 			},
 		},
 		{
+			name: "ClientServer mode with trivy ignore policy",
+			trivyOperatorConfig: map[string]string{
+				trivyoperator.KeyVulnerabilityScannerEnabled:  "false",
+				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
+				trivyoperator.KeyScanJobcompressLogs:          "true",
+			},
+			config: map[string]string{
+				"trivy.repository": "docker.io/aquasec/trivy",
+				"trivy.tag":        "0.35.0",
+				"trivy.mode":       string(trivy.ClientServer),
+				"trivy.serverURL":  "http://trivy.trivy:4954",
+				"trivy.ignorePolicy": `package trivy
+
+import data.lib.trivy
+
+default ignore = false`,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
+				"trivy.resources.requests.cpu":    "100m",
+				"trivy.resources.requests.memory": "100M",
+				"trivy.resources.limits.cpu":      "500m",
+				"trivy.resources.limits.memory":   "500M",
+			},
+			workloadSpec: &corev1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Pod",
+					APIVersion: "v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "nginx",
+					Namespace: "prod-ns",
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  "nginx",
+							Image: "nginx:1.16",
+						},
+					},
+				},
+			},
+			expectedJobSpec: corev1.PodSpec{
+				Affinity:                     trivyoperator.LinuxNodeAffinity(),
+				RestartPolicy:                corev1.RestartPolicyNever,
+				ServiceAccountName:           "trivyoperator-sa",
+				ImagePullSecrets:             []corev1.LocalObjectReference{},
+				AutomountServiceAccountToken: pointer.Bool(false),
+
+				Volumes: []corev1.Volume{getTmpVolume(), getScanResultVolume(),
+					{
+						Name: "ignorepolicy",
+						VolumeSource: corev1.VolumeSource{
+							ConfigMap: &corev1.ConfigMapVolumeSource{
+								LocalObjectReference: corev1.LocalObjectReference{
+									Name: "trivy-operator-trivy-config",
+								},
+								Items: []corev1.KeyToPath{
+									{
+										Key:  "trivy.ignorePolicy",
+										Path: "policy.rego",
+									},
+								},
+							},
+						},
+					},
+				},
+				Containers: []corev1.Container{
+					{
+						Name:                     "nginx",
+						Image:                    "docker.io/aquasec/trivy:0.35.0",
+						ImagePullPolicy:          corev1.PullIfNotPresent,
+						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
+						Env: []corev1.EnvVar{
+							{
+								Name: "HTTP_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpProxy",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "HTTPS_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpsProxy",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "NO_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.noProxy",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_SEVERITY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.severity",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_IGNORE_UNFIXED",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.ignoreUnfixed",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_OFFLINE_SCAN",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.offlineScan",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							timeoutEnv,
+							{
+								Name: "TRIVY_SKIP_FILES",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipFiles",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_SKIP_DIRS",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipDirs",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_TOKEN_HEADER",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.serverTokenHeader",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_TOKEN",
+								ValueFrom: &corev1.EnvVarSource{
+									SecretKeyRef: &corev1.SecretKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.serverToken",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_CUSTOM_HEADERS",
+								ValueFrom: &corev1.EnvVarSource{
+									SecretKeyRef: &corev1.SecretKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.serverCustomHeaders",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name:  "TRIVY_IGNORE_POLICY",
+								Value: "/etc/trivy/policy.rego",
+							},
+						},
+						Command: []string{
+							"/bin/sh",
+						},
+						Args: []string{
+							"-c",
+							"trivy image --slow 'nginx:1.16' --security-checks secret --cache-dir /tmp/trivy/.cache --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+						},
+						Resources: corev1.ResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceCPU:    resource.MustParse("100m"),
+								corev1.ResourceMemory: resource.MustParse("100M"),
+							},
+							Limits: corev1.ResourceList{
+								corev1.ResourceCPU:    resource.MustParse("500m"),
+								corev1.ResourceMemory: resource.MustParse("500M"),
+							},
+						},
+						VolumeMounts: []corev1.VolumeMount{getTmpVolumeMount(), getScanResultVolumeMount(),
+							{
+								Name:      "ignorepolicy",
+								MountPath: "/etc/trivy/policy.rego",
+								SubPath:   "policy.rego",
+							},
+						},
+						SecurityContext: &corev1.SecurityContext{
+							Privileged:               pointer.Bool(false),
+							AllowPrivilegeEscalation: pointer.Bool(false),
+							Capabilities: &corev1.Capabilities{
+								Drop: []corev1.Capability{"all"},
+							},
+							ReadOnlyRootFilesystem: pointer.Bool(true),
+						},
+					},
+				},
+			},
+		},
+		{
 			name: "Trivy fs scan command in Standalone mode",
 			trivyOperatorConfig: map[string]string{
 				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
@@ -3361,7 +3890,7 @@ CVE-2019-1543`,
 				"trivy.tag":                       "0.35.0",
 				"trivy.mode":                      string(trivy.Standalone),
 				"trivy.command":                   string(trivy.Filesystem),
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -3517,7 +4046,7 @@ CVE-2019-1543`,
 							"/var/trivyoperator/trivy-db",
 							"image",
 							"--download-db-only",
-							"--db-repository", defaultDBRepository,
+							"--db-repository", trivy.DefaultDBRepository,
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3697,7 +4226,7 @@ CVE-2019-1543`,
 				"trivy.mode":                      string(trivy.ClientServer),
 				"trivy.serverURL":                 "http://trivy.trivy:4954",
 				"trivy.command":                   string(trivy.Filesystem),
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -3973,7 +4502,7 @@ CVE-2019-1543`,
 				"trivy.tag":                       "0.35.0",
 				"trivy.mode":                      string(trivy.Standalone),
 				"trivy.command":                   string(trivy.Rootfs),
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -4129,7 +4658,7 @@ CVE-2019-1543`,
 							"/var/trivyoperator/trivy-db",
 							"image",
 							"--download-db-only",
-							"--db-repository", defaultDBRepository,
+							"--db-repository", trivy.DefaultDBRepository,
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -4309,7 +4838,7 @@ CVE-2019-1543`,
 				"trivy.mode":                      string(trivy.ClientServer),
 				"trivy.serverURL":                 "http://trivy.trivy:4954",
 				"trivy.command":                   string(trivy.Rootfs),
-				"trivy.dbRepository":              defaultDBRepository,
+				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -4628,7 +5157,7 @@ CVE-2019-1543`,
 			"trivy.tag":                       "0.35.0",
 			"trivy.mode":                      string(trivy.Standalone),
 			"trivy.command":                   string(trivy.Filesystem),
-			"trivy.dbRepository":              defaultDBRepository,
+			"trivy.dbRepository":              trivy.DefaultDBRepository,
 			"trivy.resources.requests.cpu":    "100m",
 			"trivy.resources.requests.memory": "100M",
 			"trivy.resources.limits.cpu":      "500m",
@@ -4785,7 +5314,7 @@ CVE-2019-1543`,
 						"/var/trivyoperator/trivy-db",
 						"image",
 						"--download-db-only",
-						"--db-repository", defaultDBRepository,
+						"--db-repository", trivy.DefaultDBRepository,
 					},
 					Resources: corev1.ResourceRequirements{
 						Requests: corev1.ResourceList{
@@ -5052,25 +5581,43 @@ var (
 			Tag:        "3.10.2",
 		},
 		Summary: v1alpha1.ExposedSecretSummary{
-			CriticalCount: 1,
+			CriticalCount: 3,
 			HighCount:     1,
 			MediumCount:   0,
 			LowCount:      0,
 		},
 		Secrets: []v1alpha1.ExposedSecret{
 			{
-				RuleID:   "stripe-access-token",
+				Target:   "/app/config/secret.yaml",
+				RuleID:   "stripe-publishable-token",
 				Category: "Stripe",
 				Severity: "HIGH",
 				Title:    "Stripe",
 				Match:    "publishable_key: *****",
 			},
 			{
+				Target:   "/app/config/secret.yaml",
 				RuleID:   "stripe-access-token",
 				Category: "Stripe",
 				Severity: "CRITICAL",
 				Title:    "Stripe",
 				Match:    "secret_key: *****",
+			},
+			{
+				Target:   "/etc/apt/s3auth.conf",
+				RuleID:   "aws-access-key-id",
+				Category: "AWS",
+				Severity: "CRITICAL",
+				Title:    "AWS Access Key ID",
+				Match:    "AccessKeyId = ********************",
+			},
+			{
+				Target:   "/etc/apt/s3auth.conf",
+				RuleID:   "aws-secret-access-key",
+				Category: "AWS",
+				Severity: "CRITICAL",
+				Title:    "AWS Secret Access Key",
+				Match:    "SecretAccessKey = ****************************************",
 			},
 		},
 	}
@@ -5421,7 +5968,7 @@ func TestGetContainers(t *testing.T) {
 		{
 			name: "Standalone mode with image command",
 			configData: map[string]string{
-				"trivy.dbRepository": defaultDBRepository,
+				"trivy.dbRepository": trivy.DefaultDBRepository,
 				"trivy.repository":   "gcr.io/aquasec/trivy",
 				"trivy.tag":          "0.35.0",
 				"trivy.mode":         string(trivy.Standalone),
@@ -5432,7 +5979,7 @@ func TestGetContainers(t *testing.T) {
 			name: "ClientServer mode with image command",
 			configData: map[string]string{
 				"trivy.serverURL":    "http://trivy.trivy:4954",
-				"trivy.dbRepository": defaultDBRepository,
+				"trivy.dbRepository": trivy.DefaultDBRepository,
 				"trivy.repository":   "gcr.io/aquasec/trivy",
 				"trivy.tag":          "0.35.0",
 				"trivy.mode":         string(trivy.ClientServer),
@@ -5443,7 +5990,7 @@ func TestGetContainers(t *testing.T) {
 			name: "Standalone mode with filesystem command",
 			configData: map[string]string{
 				"trivy.serverURL":    "http://trivy.trivy:4954",
-				"trivy.dbRepository": defaultDBRepository,
+				"trivy.dbRepository": trivy.DefaultDBRepository,
 				"trivy.repository":   "docker.io/aquasec/trivy",
 				"trivy.tag":          "0.35.0",
 				"trivy.mode":         string(trivy.Standalone),
@@ -5494,6 +6041,86 @@ func TestGetContainers(t *testing.T) {
 			sort.Strings(containers)
 
 			assert.Equal(t, expectedContainers, containers)
+		})
+	}
+}
+
+func TestPlugin_FindIgnorePolicyKey(t *testing.T) {
+	workload := &appsv1.ReplicaSet{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "name-01234abcd",
+			Namespace: "namespace",
+		},
+	}
+	testCases := []struct {
+		name        string
+		configData  map[string]string
+		expectedKey string
+	}{
+		{
+			name: "empty",
+			configData: map[string]string{
+				"other": "",
+			},
+			expectedKey: "",
+		},
+		{
+			name: "fallback",
+			configData: map[string]string{
+				"other":              "",
+				"trivy.ignorePolicy": "",
+			},
+			expectedKey: "trivy.ignorePolicy",
+		},
+		{
+			name: "fallback namespace",
+			configData: map[string]string{
+				"other":                        "",
+				"trivy.ignorePolicy":           "",
+				"trivy.ignorePolicy.namespace": "",
+			},
+			expectedKey: "trivy.ignorePolicy.namespace",
+		},
+		{
+			name: "fallback namespace workload",
+			configData: map[string]string{
+				"other":                               "",
+				"trivy.ignorePolicy":                  "",
+				"trivy.ignorePolicy.namespace":        "",
+				"trivy.ignorePolicy.namespace.name-*": "",
+			},
+			expectedKey: "trivy.ignorePolicy.namespace.name-*",
+		},
+		{
+			name: "fallback namespace other-workload",
+			configData: map[string]string{
+				"other":                        "",
+				"trivy.ignorePolicy":           "",
+				"trivy.ignorePolicy.namespace": "",
+				"trivy.ignorePolicy.namespace.name-other-*": "",
+			},
+			expectedKey: "trivy.ignorePolicy.namespace",
+		},
+		{
+			name: "fallback other-namespace other-workload",
+			configData: map[string]string{
+				"other":                              "",
+				"trivy.ignorePolicy":                 "",
+				"trivy.ignorePolicy.namespace-other": "",
+				"trivy.ignorePolicy.namespace-other.name-other-*": "",
+			},
+			expectedKey: "trivy.ignorePolicy",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			config := trivy.Config{
+				trivyoperator.PluginConfig{
+					Data: tc.configData,
+				},
+			}
+			assert.Equal(t, tc.expectedKey, config.FindIgnorePolicyKey(workload))
 		})
 	}
 }

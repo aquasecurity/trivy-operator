@@ -101,7 +101,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	}
 	// The only reason we're using kubernetes.Clientset is that we need it to read Pod logs,
 	// which is not supported by the client returned by the ctrl.Manager.
-	kubeClientset, err := kubernetes.NewForConfig(kubeConfig)
+	clientSet, err := kubernetes.NewForConfig(kubeConfig)
 	if err != nil {
 		return fmt.Errorf("constructing kube client: %w", err)
 	}
@@ -120,7 +120,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		return err
 	}
 
-	configManager := trivyoperator.NewConfigManager(kubeClientset, operatorNamespace)
+	configManager := trivyoperator.NewConfigManager(clientSet, operatorNamespace)
 	err = configManager.EnsureDefault(context.Background())
 	if err != nil {
 		return err
@@ -139,7 +139,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		return err
 	}
 	limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
-	logsReader := kube.NewLogsReader(kubeClientset)
+	logsReader := kube.NewLogsReader(clientSet)
 	secretsReader := kube.NewSecretsReader(mgr.GetClient())
 
 	if operatorConfig.VulnerabilityScannerEnabled || operatorConfig.ExposedSecretScannerEnabled {
@@ -201,12 +201,27 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 
 		if operatorConfig.ScannerReportTTL != nil {
-			if err = (&TTLReportReconciler{
+			ttlReconciler := &TTLReportReconciler{
 				Logger: ctrl.Log.WithName("reconciler").WithName("ttlreport"),
 				Config: operatorConfig,
 				Client: mgr.GetClient(),
 				Clock:  ext.NewSystemClock(),
-			}).SetupWithManager(mgr); err != nil {
+			}
+			if operatorConfig.ConfigAuditScannerEnabled {
+				plugin, pluginContextCofig, err := plugins.NewResolver().WithBuildInfo(buildInfo).
+					WithNamespace(operatorNamespace).
+					WithServiceAccountName(operatorConfig.ServiceAccount).
+					WithConfig(trivyOperatorConfig).
+					WithClient(mgr.GetClient()).
+					WithObjectResolver(&objectResolver).
+					GetConfigAuditPlugin()
+				if err != nil {
+					return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
+				}
+				ttlReconciler.PluginContext = pluginContextCofig
+				ttlReconciler.PluginInMemory = plugin
+			}
+			if err = ttlReconciler.SetupWithManager(mgr); err != nil {
 				return fmt.Errorf("unable to setup TTLreport reconciler: %w", err)
 			}
 		}
@@ -261,7 +276,35 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup resource controller: %w", err)
 		}
-
+		if operatorConfig.InfraAssessmentScannerEnabled {
+			limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
+			if err = (&controller.NodeReconciler{
+				Logger:          ctrl.Log.WithName("node-reconciler"),
+				Config:          operatorConfig,
+				ConfigData:      trivyOperatorConfig,
+				ObjectResolver:  objectResolver,
+				PluginContext:   pluginContext,
+				PluginInMemory:  plugin,
+				LimitChecker:    limitChecker,
+				InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
+				BuildInfo:       buildInfo,
+			}).SetupWithManager(mgr); err != nil {
+				return fmt.Errorf("unable to setup node collector controller: %w", err)
+			}
+			if err = (&controller.NodeCollectorJobController{
+				Logger:          ctrl.Log.WithName("node-collectorontroller"),
+				Config:          operatorConfig,
+				ConfigData:      trivyOperatorConfig,
+				ObjectResolver:  objectResolver,
+				LogsReader:      logsReader,
+				PluginContext:   pluginContext,
+				PluginInMemory:  plugin,
+				InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
+				BuildInfo:       buildInfo,
+			}).SetupWithManager(mgr); err != nil {
+				return fmt.Errorf("unable to setup node collector controller: %w", err)
+			}
+		}
 	}
 
 	if operatorConfig.ClusterComplianceEnabled {

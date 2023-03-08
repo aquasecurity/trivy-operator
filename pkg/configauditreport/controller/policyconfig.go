@@ -38,7 +38,7 @@ type PolicyConfigController struct {
 }
 
 // Controller for trivy-operator-policies-config in the operator namespace; must be cluster scoped even with namespace predicate
-//+kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch
 
 func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 
@@ -118,7 +118,7 @@ func (r *PolicyConfigController) reconcileConfig(kind kube.Kind) reconcile.Func 
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		policies, err := policies(ctx, r.Config, r.Client, cac, r.Logger)
+		policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
 		}
@@ -208,7 +208,7 @@ func (r *PolicyConfigController) reconcileClusterConfig(kind kube.Kind) reconcil
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		policies, err := policies(ctx, r.Config, r.Client, cac, r.Logger)
+		policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
 		}

@@ -17,6 +17,7 @@ type Config struct {
 	ServiceAccount                               string         `env:"OPERATOR_SERVICE_ACCOUNT" envDefault:"trivy-operator"`
 	LogDevMode                                   bool           `env:"OPERATOR_LOG_DEV_MODE" envDefault:"false"`
 	ScanJobTimeout                               time.Duration  `env:"OPERATOR_SCAN_JOB_TIMEOUT" envDefault:"5m"`
+	ScanJobTTL                                   *time.Duration `env:"OPERATOR_SCAN_JOB_TTL"`
 	ConcurrentScanJobsLimit                      int            `env:"OPERATOR_CONCURRENT_SCAN_JOBS_LIMIT" envDefault:"10"`
 	ScanJobRetryAfter                            time.Duration  `env:"OPERATOR_SCAN_JOB_RETRY_AFTER" envDefault:"30s"`
 	BatchDeleteLimit                             int            `env:"OPERATOR_BATCH_DELETE_LIMIT" envDefault:"10"`
@@ -24,6 +25,7 @@ type Config struct {
 	MetricsBindAddress                           string         `env:"OPERATOR_METRICS_BIND_ADDRESS" envDefault:":8080"`
 	MetricsFindingsEnabled                       bool           `env:"OPERATOR_METRICS_FINDINGS_ENABLED" envDefault:"true"`
 	MetricsVulnerabilityId                       bool           `env:"OPERATOR_METRICS_VULN_ID_ENABLED" envDefault:"false"`
+	MetricsExposedSecretInfo                     bool           `env:"OPERATOR_METRICS_EXPOSED_SECRET_INFO_ENABLED" envDefault:"false"`
 	HealthProbeBindAddress                       string         `env:"OPERATOR_HEALTH_PROBE_BIND_ADDRESS" envDefault:":9090"`
 	VulnerabilityScannerEnabled                  bool           `env:"OPERATOR_VULNERABILITY_SCANNER_ENABLED" envDefault:"true"`
 	VulnerabilityScannerScanOnlyCurrentRevisions bool           `env:"OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS" envDefault:"true"`

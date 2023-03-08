@@ -39,7 +39,7 @@ func (w *cm) GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportS
 	if err != nil {
 		return err
 	}
-	//generate cluster compliance report
+	// generate cluster compliance report
 	updatedReport, err := w.createComplianceReport(ctx, spec, status)
 	if err != nil {
 		return err
@@ -111,6 +111,15 @@ func misconfigReportToTrivyResults(cli client.Client, ctx context.Context) ([]tt
 	}
 	for _, ia := range iaObjList.Items {
 		results := reportsToResults(ia.Report.Checks, ia.Name, ia.Namespace)
+		resultsArray = append(resultsArray, results)
+	}
+	ciaObjList := &v1alpha1.ClusterInfraAssessmentReportList{}
+	err = cli.List(ctx, ciaObjList)
+	if err != nil {
+		return nil, err
+	}
+	for _, cia := range ciaObjList.Items {
+		results := reportsToResults(cia.Report.Checks, cia.Name, cia.Namespace)
 		resultsArray = append(resultsArray, results)
 	}
 	return resultsArray, nil

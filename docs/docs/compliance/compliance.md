@@ -65,3 +65,5 @@ The following reports are available out of the box:
 --- | --- | ---
 NSA, CISA Kubernetes Hardening Guidance v1.2 | `nsa` | [Link](https://media.defense.gov/2022/Aug/29/2003066362/-1/-1/0/CTR_KUBERNETES_HARDENING_GUIDANCE_1.2_20220829.PDF)
 CIS Benchmark for Kubernetes v1.23 | `cis` | [Link](https://www.cisecurity.org/benchmark/kubernetes)
+Kubernetes pss-restricted | `pss-restricted` | [Link](https://kubernetes.io/docs/concepts/security/pod-security-standards/#restricted)
+Kubernetes pss-baseline | `pss-baseline` | [Link](https://kubernetes.io/docs/concepts/security/pod-security-standards/#baseline)

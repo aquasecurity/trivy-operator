@@ -21,3 +21,4 @@ output/*
 *.iml
 ## yamllint logfile
 yamllint-*
+kubeconfig

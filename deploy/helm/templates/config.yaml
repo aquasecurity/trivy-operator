@@ -53,6 +53,7 @@ data:
   {{- if .Values.operator.builtInTrivyServer }}
   trivy.serverURL: {{ printf "http://%s.%s:%s" .Values.trivy.serverServiceName (include "trivy-operator.namespace" .) "4954"  | quote }}
   {{- end }}
+  node.collector.imageRef: "{{ .Values.nodeCollector.repository }}:{{ .Values.nodeCollector.tag }}"
 ---
 apiVersion: v1
 kind: Secret
@@ -126,6 +127,12 @@ data:
   trivy.ignoreFile: |
 {{- . | trim | nindent 4 }}
   {{- end }}
+{{- range $k, $v := .Values.trivy }}
+  {{- if hasPrefix "ignorePolicy" $k }}
+  trivy.{{- $k }}: |
+{{- $v | trim | nindent 4 }}
+  {{- end }}
+{{- end }}
   {{- if .Values.operator.builtInTrivyServer }}
   trivy.serverURL: {{ printf "http://%s.%s:%s" .Values.trivy.serverServiceName (include "trivy-operator.namespace" .) "4954"  | quote }}
   trivy.mode: "ClientServer"
@@ -138,18 +145,18 @@ data:
   {{- with .Values.trivy.resources }}
     {{- with .requests }}
       {{- if .cpu }}
-  trivy.resources.requests.cpu: {{ .cpu }}
+  trivy.resources.requests.cpu: {{ .cpu | quote }}
       {{- end }}
       {{- if hasKey . "memory" }}
-  trivy.resources.requests.memory: {{ .memory }}
+  trivy.resources.requests.memory: {{ .memory | quote }}
       {{- end }}
     {{- end }}
     {{- with .limits }}
       {{- if .cpu }}
-  trivy.resources.limits.cpu: {{ .cpu }}
+  trivy.resources.limits.cpu: {{ .cpu | quote }}
       {{- end }}
       {{- if .memory }}
-  trivy.resources.limits.memory: {{ .memory }}
+  trivy.resources.limits.memory: {{ .memory | quote }}
       {{- end }}
     {{- end }}
   {{- end }}
@@ -173,7 +180,7 @@ data:
   {{- if .Values.trivy.githubToken }}
   trivy.githubToken: {{ .Values.trivy.githubToken | b64enc | quote }}
   {{- end }}
-  {{- if eq .Values.trivy.mode "ClientServer" }}
+  {{- if or (eq .Values.trivy.mode "ClientServer") .Values.operator.builtInTrivyServer }}
   {{- if .Values.trivy.serverToken }}
   trivy.serverToken: {{ .Values.trivy.serverToken | b64enc | quote }}
   {{- end }}
@@ -186,11 +193,11 @@ data:
 {{- end }}
 {{- if .Values.operator.builtInTrivyServer }}
   {{- if .Values.trivy.githubToken }}
-  GITHUB_TOKEN: {{ .Values.trivy.githubToken | quote }}
+  GITHUB_TOKEN: {{ .Values.trivy.githubToken | b64enc | quote }}
   {{- end }}
   {{- if .Values.trivy.serverToken }}
-  TRIVY_TOKEN: {{ .Values.trivy.serverToken  | quote }}
+  TRIVY_TOKEN: {{ .Values.trivy.serverToken | b64enc | quote }}
   {{- end }}
-  TRIVY_USERNAME: {{ .Values.trivy.serverUser  | quote }}
-  TRIVY_PASSWORD: {{ .Values.trivy.serverPassword  | quote }}
+  TRIVY_USERNAME: {{ .Values.trivy.serverUser  | b64enc | quote }}
+  TRIVY_PASSWORD: {{ .Values.trivy.serverPassword  | b64enc | quote }}
 {{- end }}

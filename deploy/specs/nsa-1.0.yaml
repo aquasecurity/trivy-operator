@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.10.1"
+    app.kubernetes.io/version: "0.12.0"
     app.kubernetes.io/managed-by: kubectl
 spec:
   cron: "0 */6 * * *"
@@ -109,7 +109,6 @@ spec:
         description: 'Control check whether check cni plugin installed'
         id: '3.0'
         defaultStatus: 'FAIL'
-        checks:
         severity: 'CRITICAL'
       - name: Use ResourceQuota policies to limit resources
         description: 'Control check the use of ResourceQuota policy to limit aggregate resource usage within namespace'
@@ -129,7 +128,6 @@ spec:
         description: 'Control check whether control plan disable insecure port'
         id: '5.0'
         defaultStatus: 'FAIL'
-        checks:
         severity: 'CRITICAL'
       - name: Encrypt etcd communication
         description: 'Control check whether etcd communication is encrypted'
@@ -141,7 +139,6 @@ spec:
         description: 'Control check whether kube config file permissions'
         id: '6.0'
         defaultStatus: 'FAIL'
-        checks:
         severity: 'CRITICAL'
       - name: Check that encryption resource has been set
         description: 'Control checks whether encryption resource has been set'
@@ -171,7 +168,6 @@ spec:
         description: 'Control check whether audit policy is configure'
         id: '8.0'
         defaultStatus: 'FAIL'
-        checks:
         severity: 'HIGH'
       - name: Audit log path is configure
         description: 'Control check whether audit log path is configure'

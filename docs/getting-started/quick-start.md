@@ -179,7 +179,7 @@ Use `vuln` and `configaudit` as short names for `vulnerabilityreports` and `conf
 The validity period for VulnerabilityReports by setting the duration as the value of the
 `OPERATOR_SCANNER_REPORT_TTL` environment variable. The value is set to `24h` by default.
 
-The reports wil be deleted after 24 hours. When a VulnerabilityReport gets deleted Trivy-Operator will automatically rescan the resource.
+The reports will be deleted after 24 hours. When a VulnerabilityReport gets deleted Trivy-Operator will automatically rescan the resource.
 
 
 

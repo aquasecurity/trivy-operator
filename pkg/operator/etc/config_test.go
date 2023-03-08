@@ -139,3 +139,41 @@ func TestOperator_GetTargetWorkloads(t *testing.T) {
 		})
 	}
 }
+
+func TestOperator_GetPrivateRegistryScanSecretsNames(t *testing.T) {
+	testCases := []struct {
+		name                     string
+		operator                 etc.Config
+		expectedNameSpaceSecrets map[string]string
+	}{
+		{
+			name: "Should return namespace with multi secrets",
+			operator: etc.Config{
+				PrivateRegistryScanSecretsNames: "{\"mynamespace\":\"mySecrets,anotherSecret\"}",
+			},
+			expectedNameSpaceSecrets: map[string]string{"mynamespace": "mySecrets,anotherSecret"},
+		},
+		{
+			name: "Should return namespace with singlt secrets",
+			operator: etc.Config{
+				PrivateRegistryScanSecretsNames: "{\"mynamespace\":\"mySecrets\"}",
+			},
+			expectedNameSpaceSecrets: map[string]string{"mynamespace": "mySecrets"},
+		},
+		{
+			name: "Should return empty map",
+			operator: etc.Config{
+				PrivateRegistryScanSecretsNames: "{}",
+			},
+			expectedNameSpaceSecrets: map[string]string{},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			secrets, err := tc.operator.GetPrivateRegistryScanSecretsNames()
+			assert.NoError(t, err)
+			assert.Equal(t, tc.expectedNameSpaceSecrets, secrets)
+		})
+	}
+}

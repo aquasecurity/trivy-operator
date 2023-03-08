@@ -46,16 +46,22 @@ spec:
             storage: 5Gi
         accessModes:
           - ReadWriteOnce
-        storageClassName: 
+        storageClassName: {{ .Values.trivy.storageClassName }}
   template:
     metadata:
       annotations:
         checksum/config: 7fcc66ace3f98462349856795765021e7bf7a0106f28439a9f6dc74257404370
       labels:
+        {{- with .Values.trivy.podLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
         app.kubernetes.io/name: trivy-server
         app.kubernetes.io/instance: trivy-server
     spec:
-      serviceAccountName: trivy-operator
+      {{- if .Values.priorityClassName }}
+      priorityClassName: {{ .Values.trivy.priorityClassName }}
+      {{- end }}
+      serviceAccountName: {{ include "trivy-operator.serviceAccountName" . }}
       automountServiceAccountToken: false
       securityContext:
         fsGroup: 65534
@@ -113,4 +119,8 @@ spec:
       volumes:
         - name: tmp-data
           emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- . | toYaml | nindent 8 }}
+      {{- end }}
 {{- end}}

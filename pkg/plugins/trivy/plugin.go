@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 
-	"github.com/Masterminds/semver"
 	"github.com/aquasecurity/trivy-db/pkg/types"
 
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
@@ -49,12 +49,13 @@ const (
 	keyTrivyMode                                = "trivy.mode"
 	keyTrivyAdditionalVulnerabilityReportFields = "trivy.additionalVulnerabilityReportFields"
 	keyTrivyCommand                             = "trivy.command"
-	keyTrivySeverity                            = "trivy.severity"
+	KeyTrivySeverity                            = "trivy.severity"
 	keyTrivySlow                                = "trivy.slow"
 	keyTrivyIgnoreUnfixed                       = "trivy.ignoreUnfixed"
 	keyTrivyOfflineScan                         = "trivy.offlineScan"
 	keyTrivyTimeout                             = "trivy.timeout"
 	keyTrivyIgnoreFile                          = "trivy.ignoreFile"
+	keyTrivyIgnorePolicy                        = "trivy.ignorePolicy"
 	keyTrivyInsecureRegistryPrefix              = "trivy.insecureRegistry."
 	keyTrivyNonSslRegistryPrefix                = "trivy.nonSslRegistry."
 	keyTrivyMirrorPrefix                        = "trivy.registry.mirror."
@@ -85,7 +86,11 @@ const (
 	keyResourcesLimitsMemory   = "trivy.resources.limits.memory"
 )
 
-const defaultDBRepository = "ghcr.io/aquasecurity/trivy-db"
+const (
+	DefaultImageRepository = "ghcr.io/aquasecurity/trivy"
+	DefaultDBRepository    = "ghcr.io/aquasecurity/trivy-db"
+	DefaultSeverity        = "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
+)
 
 // Mode in which Trivy client operates.
 type Mode string
@@ -150,12 +155,21 @@ func (c Config) GetImageRef() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	tag, err := c.GetRequiredData(keyTrivyImageTag)
+	tag, err := c.GetImageTag()
 	if err != nil {
 		return "", err
 	}
 
 	return fmt.Sprintf("%s:%s", repository, tag), nil
+}
+
+// GetImageTag returns upstream Trivy container image tag.
+func (c Config) GetImageTag() (string, error) {
+	tag, err := c.GetRequiredData(keyTrivyImageTag)
+	if err != nil {
+		return "", err
+	}
+	return tag, nil
 }
 
 func (c Config) GetImagePullSecret() []corev1.LocalObjectReference {
@@ -232,39 +246,24 @@ func (c Config) GetUseBuiltinRegoPolicies() bool {
 	return boolVal
 }
 
+func (c Config) GetSeverity() string {
+	val, ok := c.Data[KeyTrivySeverity]
+	if !ok {
+		return ""
+	}
+	return val
+}
+
 func (c Config) GetSlow() bool {
-	tag, err := c.GetRequiredData(keyTrivyImageTag)
-	if err != nil {
-		return false
-	}
-	// support backward competability with older tags
-	if !validVersion(tag, ">= 0.35.0") {
-		return false
-	}
 	val, ok := c.Data[keyTrivySlow]
 	if !ok {
 		return true
 	}
-
 	boolVal, err := strconv.ParseBool(val)
 	if err != nil {
 		return true
 	}
 	return boolVal
-}
-
-func validVersion(currentTag string, contraint string) bool {
-	c, err := semver.NewConstraint(contraint)
-	if err != nil {
-		return false
-	}
-
-	v, err := semver.NewVersion(currentTag)
-	if err != nil {
-		return false
-	}
-	// Check if the version meets the constraints. The a variable will be true.
-	return c.Check(v)
 }
 
 func (c Config) GetSupportedConfigAuditKinds() []string {
@@ -278,6 +277,82 @@ func (c Config) GetSupportedConfigAuditKinds() []string {
 func (c Config) IgnoreFileExists() bool {
 	_, ok := c.Data[keyTrivyIgnoreFile]
 	return ok
+}
+
+func (c Config) FindIgnorePolicyKey(workload client.Object) string {
+	keysByPrecedence := []string{
+		keyTrivyIgnorePolicy + "." + workload.GetNamespace() + "." + workload.GetName(),
+		keyTrivyIgnorePolicy + "." + workload.GetNamespace(),
+		keyTrivyIgnorePolicy,
+	}
+	for _, key := range keysByPrecedence {
+		for key2 := range c.Data {
+			if key2 == keyTrivyIgnorePolicy || strings.HasPrefix(key2, keyTrivyIgnorePolicy) {
+				matched, err := filepath.Match(key2, key)
+				if err == nil && matched {
+					return key2
+				}
+			}
+		}
+	}
+	return ""
+}
+
+func (c Config) GenerateIgnoreFileVolumeIfAvailable(trivyConfigName string) (*corev1.Volume, *corev1.VolumeMount) {
+	if !c.IgnoreFileExists() {
+		return nil, nil
+	}
+	volume := corev1.Volume{
+		Name: ignoreFileVolumeName,
+		VolumeSource: corev1.VolumeSource{
+			ConfigMap: &corev1.ConfigMapVolumeSource{
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: trivyConfigName,
+				},
+				Items: []corev1.KeyToPath{
+					{
+						Key:  keyTrivyIgnoreFile,
+						Path: ignoreFileName,
+					},
+				},
+			},
+		},
+	}
+	volumeMount := corev1.VolumeMount{
+		Name:      ignoreFileVolumeName,
+		MountPath: ignoreFileMountPath,
+		SubPath:   ignoreFileName,
+	}
+	return &volume, &volumeMount
+}
+
+func (c Config) GenerateIgnorePolicyVolumeIfAvailable(trivyConfigName string, workload client.Object) (*corev1.Volume, *corev1.VolumeMount) {
+	ignorePolicyKey := c.FindIgnorePolicyKey(workload)
+	if ignorePolicyKey == "" {
+		return nil, nil
+	}
+	volume := corev1.Volume{
+		Name: ignorePolicyVolumeName,
+		VolumeSource: corev1.VolumeSource{
+			ConfigMap: &corev1.ConfigMapVolumeSource{
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: trivyConfigName,
+				},
+				Items: []corev1.KeyToPath{
+					{
+						Key:  c.FindIgnorePolicyKey(workload),
+						Path: ignorePolicyName,
+					},
+				},
+			},
+		},
+	}
+	volumeMounts := corev1.VolumeMount{
+		Name:      ignorePolicyVolumeName,
+		MountPath: ignorePolicyMountPath,
+		SubPath:   ignorePolicyName,
+	}
+	return &volume, &volumeMounts
 }
 
 func (c Config) IgnoreUnfixed() bool {
@@ -408,13 +483,13 @@ func NewTrivyConfigAuditPlugin(clock ext.Clock, idGenerator ext.IDGenerator, obj
 func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 	return ctx.EnsureConfig(trivyoperator.PluginConfig{
 		Data: map[string]string{
-			keyTrivyImageRepository:           "ghcr.io/aquasecurity/trivy",
-			keyTrivyImageTag:                  "0.35.0",
-			keyTrivySeverity:                  "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
+			keyTrivyImageRepository:           DefaultImageRepository,
+			keyTrivyImageTag:                  "0.38.1",
+			KeyTrivySeverity:                  DefaultSeverity,
 			keyTrivySlow:                      "true",
 			keyTrivyMode:                      string(Standalone),
 			keyTrivyTimeout:                   "5m0s",
-			keyTrivyDBRepository:              defaultDBRepository,
+			keyTrivyDBRepository:              DefaultDBRepository,
 			keyTrivyUseBuiltinRegoPolicies:    "true",
 			keyTrivySupportedConfigAuditKinds: SupportedConfigAuditKinds,
 			keyResourcesRequestsCPU:           "100m",
@@ -482,6 +557,11 @@ func (p *plugin) newSecretWithAggregateImagePullCredentials(obj client.Object, s
 const (
 	tmpVolumeName               = "tmp"
 	ignoreFileVolumeName        = "ignorefile"
+	ignoreFileName              = ".trivyignore"
+	ignoreFileMountPath         = "/etc/trivy/" + ignoreFileName
+	ignorePolicyVolumeName      = "ignorepolicy"
+	ignorePolicyName            = "policy.rego"
+	ignorePolicyMountPath       = "/etc/trivy/" + ignorePolicyName
 	scanResultVolumeName        = "scanresult"
 	FsSharedVolumeName          = "trivyoperator"
 	SharedVolumeLocationOfTrivy = "/var/trivyoperator/trivy"
@@ -508,7 +588,6 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
 	}
-
 	if len(credentials) > 0 {
 		secret = p.newSecretWithAggregateImagePullCredentials(workload, spec, credentials)
 		secrets = append(secrets, secret)
@@ -581,29 +660,13 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
 	volumes = append(volumes, getScanResultVolume())
 
-	if config.IgnoreFileExists() {
-		volumes = append(volumes, corev1.Volume{
-			Name: ignoreFileVolumeName,
-			VolumeSource: corev1.VolumeSource{
-				ConfigMap: &corev1.ConfigMapVolumeSource{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: trivyConfigName,
-					},
-					Items: []corev1.KeyToPath{
-						{
-							Key:  keyTrivyIgnoreFile,
-							Path: ".trivyignore",
-						},
-					},
-				},
-			},
-		})
-
-		volumeMounts = append(volumeMounts, corev1.VolumeMount{
-			Name:      ignoreFileVolumeName,
-			MountPath: "/etc/trivy/.trivyignore",
-			SubPath:   ".trivyignore",
-		})
+	if volume, volumeMount := config.GenerateIgnoreFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
+	}
+	if volume, volumeMount := config.GenerateIgnorePolicyVolumeIfAvailable(trivyConfigName, workload); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
 	for _, c := range getContainers(spec) {
@@ -615,7 +678,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 						LocalObjectReference: corev1.LocalObjectReference{
 							Name: trivyConfigName,
 						},
-						Key:      keyTrivySeverity,
+						Key:      KeyTrivySeverity,
 						Optional: pointer.Bool(true),
 					},
 				},
@@ -721,7 +784,13 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 		if config.IgnoreFileExists() {
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_IGNOREFILE",
-				Value: "/etc/trivy/.trivyignore",
+				Value: ignoreFileMountPath,
+			})
+		}
+		if config.FindIgnorePolicyKey(workload) != "" {
+			env = append(env, corev1.EnvVar{
+				Name:  "TRIVY_IGNORE_POLICY",
+				Value: ignorePolicyMountPath,
 			})
 		}
 
@@ -971,7 +1040,7 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 						LocalObjectReference: corev1.LocalObjectReference{
 							Name: trivyConfigName,
 						},
-						Key:      keyTrivySeverity,
+						Key:      KeyTrivySeverity,
 						Optional: pointer.Bool(true),
 					},
 				},
@@ -1074,6 +1143,19 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			},
 		}
 
+		if config.IgnoreFileExists() {
+			env = append(env, corev1.EnvVar{
+				Name:  "TRIVY_IGNOREFILE",
+				Value: ignoreFileMountPath,
+			})
+		}
+		if config.FindIgnorePolicyKey(workload) != "" {
+			env = append(env, corev1.EnvVar{
+				Name:  "TRIVY_IGNORE_POLICY",
+				Value: ignorePolicyMountPath,
+			})
+		}
+
 		if _, ok := credentials[container.Name]; ok && secret != nil {
 			registryUsernameKey := fmt.Sprintf("%s.username", container.Name)
 			registryPasswordKey := fmt.Sprintf("%s.password", container.Name)
@@ -1118,33 +1200,13 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			})
 		}
 
-		if config.IgnoreFileExists() {
-			volumes = append(volumes, corev1.Volume{
-				Name: ignoreFileVolumeName,
-				VolumeSource: corev1.VolumeSource{
-					ConfigMap: &corev1.ConfigMapVolumeSource{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Items: []corev1.KeyToPath{
-							{
-								Key:  keyTrivyIgnoreFile,
-								Path: ".trivyignore",
-							},
-						},
-					},
-				},
-			})
-			volumeMounts = append(volumeMounts, corev1.VolumeMount{
-				Name:      ignoreFileVolumeName,
-				MountPath: "/etc/trivy/.trivyignore",
-				SubPath:   ".trivyignore",
-			})
-
-			env = append(env, corev1.EnvVar{
-				Name:  "TRIVY_IGNOREFILE",
-				Value: "/etc/trivy/.trivyignore",
-			})
+		if volume, volumeMount := config.GenerateIgnoreFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+			volumes = append(volumes, *volume)
+			volumeMounts = append(volumeMounts, *volumeMount)
+		}
+		if volume, volumeMount := config.GenerateIgnorePolicyVolumeIfAvailable(trivyConfigName, workload); volume != nil && volumeMount != nil {
+			volumes = append(volumes, *volume)
+			volumeMounts = append(volumeMounts, *volumeMount)
 		}
 
 		requirements, err := config.GetResourceRequirements()
@@ -1195,13 +1257,20 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 		"trivy",
 	}
 	compressLogs := ctx.GetTrivyOperatorConfig().CompressLogs()
-	slow := p.trivySlow(ctx)
+	c, err := p.getConfig(ctx)
+	if err != nil {
+		return []string{}, []string{}
+	}
+	slow := Slow(c)
+	scanners := Scanners(c)
 	if mode == ClientServer {
 		if !compressLogs {
 			args := []string{
+				"--cache-dir",
+				"/tmp/trivy/.cache",
 				"--quiet",
 				"image",
-				"--security-checks",
+				scanners,
 				getSecurityChecks(ctx),
 				"--format",
 				"json",
@@ -1214,18 +1283,18 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 			}
 			return command, args
 		}
-		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' --security-checks %s --quiet --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, getSecurityChecks(ctx), trivyServerURL, resultFileName, resultFileName)}
+		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s --cache-dir /tmp/trivy/.cache --quiet --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), trivyServerURL, resultFileName, resultFileName)}
 	}
-
+	skipUpdate := SkipDBUpdate(c)
 	if !compressLogs {
 		args := []string{
 			"--cache-dir",
 			"/tmp/trivy/.cache",
 			"--quiet",
 			"image",
-			"--security-checks",
+			scanners,
 			getSecurityChecks(ctx),
-			"--skip-update",
+			skipUpdate,
 			"--format",
 			"json",
 			imageRef,
@@ -1235,18 +1304,7 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 		}
 		return command, args
 	}
-	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' --security-checks %s --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, getSecurityChecks(ctx), resultFileName, resultFileName)}
-}
-
-func (p *plugin) trivySlow(ctx trivyoperator.PluginContext) string {
-	config, err := p.newConfigFrom(ctx)
-	if err != nil {
-		return ""
-	}
-	if config.GetSlow() {
-		return "--slow"
-	}
-	return ""
+	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), skipUpdate, resultFileName, resultFileName)}
 }
 
 func getAutomountServiceAccountToken(ctx trivyoperator.PluginContext) bool {
@@ -1391,35 +1449,18 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
 	volumes = append(volumes, getScanResultVolume())
 
-	//TODO Move this to function and refactor the code to use it
-	if config.IgnoreFileExists() {
-		volumes = append(volumes, corev1.Volume{
-			Name: ignoreFileVolumeName,
-			VolumeSource: corev1.VolumeSource{
-				ConfigMap: &corev1.ConfigMapVolumeSource{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: trivyConfigName,
-					},
-					Items: []corev1.KeyToPath{
-						{
-							Key:  keyTrivyIgnoreFile,
-							Path: ".trivyignore",
-						},
-					},
-				},
-			},
-		})
-
-		volumeMounts = append(volumeMounts, corev1.VolumeMount{
-			Name:      ignoreFileVolumeName,
-			MountPath: "/tmp/trivy/.trivyignore",
-			SubPath:   ".trivyignore",
-		})
+	if volume, volumeMount := config.GenerateIgnoreFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
+	}
+	if volume, volumeMount := config.GenerateIgnorePolicyVolumeIfAvailable(trivyConfigName, workload); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
 	for _, c := range getContainers(spec) {
 		env := []corev1.EnvVar{
-			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, keyTrivySeverity),
+			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, KeyTrivySeverity),
 			constructEnvVarSourceFromConfigMap("TRIVY_SKIP_FILES", trivyConfigName, keyTrivySkipFiles),
 			constructEnvVarSourceFromConfigMap("TRIVY_SKIP_DIRS", trivyConfigName, keyTrivySkipDirs),
 			constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
@@ -1429,7 +1470,13 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 		if config.IgnoreFileExists() {
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_IGNOREFILE",
-				Value: "/tmp/trivy/.trivyignore",
+				Value: ignoreFileMountPath,
+			})
+		}
+		if config.FindIgnorePolicyKey(workload) != "" {
+			env = append(env, corev1.EnvVar{
+				Name:  "TRIVY_IGNORE_POLICY",
+				Value: ignorePolicyMountPath,
 			})
 		}
 		if config.IgnoreUnfixed() {
@@ -1585,35 +1632,18 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
 	volumes = append(volumes, getScanResultVolume())
 
-	//TODO Move this to function and refactor the code to use it
-	if config.IgnoreFileExists() {
-		volumes = append(volumes, corev1.Volume{
-			Name: ignoreFileVolumeName,
-			VolumeSource: corev1.VolumeSource{
-				ConfigMap: &corev1.ConfigMapVolumeSource{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: trivyConfigName,
-					},
-					Items: []corev1.KeyToPath{
-						{
-							Key:  keyTrivyIgnoreFile,
-							Path: ".trivyignore",
-						},
-					},
-				},
-			},
-		})
-
-		volumeMounts = append(volumeMounts, corev1.VolumeMount{
-			Name:      ignoreFileVolumeName,
-			MountPath: "/tmp/trivy/.trivyignore",
-			SubPath:   ".trivyignore",
-		})
+	if volume, volumeMount := config.GenerateIgnoreFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
+	}
+	if volume, volumeMount := config.GenerateIgnorePolicyVolumeIfAvailable(trivyConfigName, workload); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
 	for _, c := range getContainers(spec) {
 		env := []corev1.EnvVar{
-			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, keyTrivySeverity),
+			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, KeyTrivySeverity),
 			constructEnvVarSourceFromConfigMap("TRIVY_SKIP_FILES", trivyConfigName, keyTrivySkipFiles),
 			constructEnvVarSourceFromConfigMap("TRIVY_SKIP_DIRS", trivyConfigName, keyTrivySkipDirs),
 			constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
@@ -1626,7 +1656,13 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 		if config.IgnoreFileExists() {
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_IGNOREFILE",
-				Value: "/tmp/trivy/.trivyignore",
+				Value: ignoreFileMountPath,
+			})
+		}
+		if config.FindIgnorePolicyKey(workload) != "" {
+			env = append(env, corev1.EnvVar{
+				Name:  "TRIVY_IGNORE_POLICY",
+				Value: ignorePolicyMountPath,
 			})
 		}
 		if config.IgnoreUnfixed() {
@@ -1684,14 +1720,20 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 }
 
 func (p *plugin) getFSScanningArgs(ctx trivyoperator.PluginContext, command Command, mode Mode, trivyServerURL string) []string {
+	c, err := p.getConfig(ctx)
+	if err != nil {
+		return []string{}
+	}
+	scanners := Scanners(c)
+	skipUpdate := SkipDBUpdate(c)
 	args := []string{
 		"--cache-dir",
 		"/var/trivyoperator/trivy-db",
 		"--quiet",
 		string(command),
-		"--security-checks",
+		scanners,
 		getSecurityChecks(ctx),
-		"--skip-update",
+		skipUpdate,
 		"--format",
 		"json",
 		"/",
@@ -1699,7 +1741,7 @@ func (p *plugin) getFSScanningArgs(ctx trivyoperator.PluginContext, command Comm
 	if mode == ClientServer {
 		args = append(args, "--server", trivyServerURL)
 	}
-	slow := p.trivySlow(ctx)
+	slow := Slow(c)
 	if len(slow) > 0 {
 		args = append(args, slow)
 	}
@@ -1891,7 +1933,7 @@ func getExposedSecretsFromScanResult(report ScanResult) []v1alpha1.ExposedSecret
 
 	for _, sr := range report.Secrets {
 		secrets = append(secrets, v1alpha1.ExposedSecret{
-			Target:   sr.Target,
+			Target:   report.Target,
 			RuleID:   sr.RuleID,
 			Title:    sr.Title,
 			Severity: sr.Severity,

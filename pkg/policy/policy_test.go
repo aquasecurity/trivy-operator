@@ -217,7 +217,7 @@ deny[res] {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			ready, _, err := policy.NewPolicies(tc.data, testConfig{builtInPolicies: false}, log).Applicable(tc.resource)
+			ready, _, err := policy.NewPolicies(tc.data, testConfig{builtInPolicies: false}, log).Applicable(tc.resource.GetObjectKind().GroupVersionKind().Kind)
 			g.Expect(err).ToNot(HaveOccurred())
 			g.Expect(ready).To(Equal(tc.expected))
 		})
@@ -1167,4 +1167,8 @@ func (tc testConfig) GetUseBuiltinRegoPolicies() bool {
 // GetSupportedConfigAuditKinds list of supported kinds to be scanned by the config audit scanner
 func (tc testConfig) GetSupportedConfigAuditKinds() []string {
 	return utils.MapKinds(strings.Split(trivy.SupportedConfigAuditKinds, ","))
+}
+
+func (tc testConfig) GetSeverity() string {
+	return trivy.KeyTrivySeverity
 }

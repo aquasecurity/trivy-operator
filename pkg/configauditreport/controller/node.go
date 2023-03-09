@@ -120,6 +120,14 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting job tolerations: %w", err)
 		}
+		scanJobSecurityContext, err := r.GetScanJobPodSecurityContext()
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("getting scan job podSecurityContext: %w", err)
+		}
+		scanJobContainerSecurityContext, err := r.GetScanJobContainerSecurityContext()
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("getting scan job [container] securityContext: %w", err)
+		}
 		nodeCollectorImageRef := r.GetTrivyOperatorConfig().NodeCollectorImageRef()
 		coll := j.NewCollector(cluster,
 			j.WithJobTemplateName(j.NodeCollectorName),
@@ -127,6 +135,8 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 			j.WithJobNamespace(on),
 			j.WithServiceAccount(r.ServiceAccount),
 			j.WithJobTolerations(jobTolerations),
+			j.WithPodSpecSecurityContext(scanJobSecurityContext),
+			j.WithContainerSecurityContext(scanJobContainerSecurityContext),
 			j.WithImageRef(nodeCollectorImageRef),
 			j.WithJobLabels(map[string]string{
 				trivyoperator.LabelNodeInfoCollector: "Trivy",

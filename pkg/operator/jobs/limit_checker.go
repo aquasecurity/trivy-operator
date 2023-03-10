@@ -9,6 +9,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
+const ScannerName = "Trivy"
+
 type LimitChecker interface {
 	Check(ctx context.Context) (bool, int, error)
 	CheckNodes(ctx context.Context) (bool, int, error)
@@ -31,7 +33,7 @@ type checker struct {
 func (c *checker) Check(ctx context.Context) (bool, int, error) {
 	matchinglabels := client.MatchingLabels{
 		trivyoperator.LabelK8SAppManagedBy:            trivyoperator.AppTrivyOperator,
-		trivyoperator.LabelVulnerabilityReportScanner: "Trivy",
+		trivyoperator.LabelVulnerabilityReportScanner: ScannerName,
 	}
 	scanJobsCount, err := c.countJobs(ctx, matchinglabels)
 	if err != nil {
@@ -44,7 +46,7 @@ func (c *checker) Check(ctx context.Context) (bool, int, error) {
 func (c *checker) CheckNodes(ctx context.Context) (bool, int, error) {
 	matchinglabels := client.MatchingLabels{
 		trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
-		trivyoperator.LabelNodeInfoCollector: "Trivy",
+		trivyoperator.LabelNodeInfoCollector: ScannerName,
 	}
 	scanJobsCount, err := c.countJobs(ctx, matchinglabels)
 	if err != nil {

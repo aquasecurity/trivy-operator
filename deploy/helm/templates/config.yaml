@@ -163,7 +163,7 @@ data:
   {{- if .Values.operator.builtInTrivyServer }}
   TRIVY_LISTEN: "0.0.0.0:4954"
   TRIVY_CACHE_DIR: "/home/scanner/.cache/trivy"
-  TRIVY_DEBUG: "false"
+  TRIVY_DEBUG: {{ .Values.trivy.debug | quote }}
   TRIVY_SKIP_UPDATE: "false"
   TRIVY_DB_REPOSITORY: {{ .Values.trivy.dbRepository | quote }}
   {{- end }}

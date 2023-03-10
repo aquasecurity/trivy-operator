@@ -19,6 +19,7 @@ var _ = Describe("LimitChecker", func() {
 	config := etc.Config{
 		Namespace:               "trivy-operator",
 		ConcurrentScanJobsLimit: 2,
+		ConcurrentNodeCollectorLimit: 1,
 	}
 	defaultTrivyOperatorConfig := trivyoperator.GetDefaultConfig()
 
@@ -133,6 +134,64 @@ var _ = Describe("LimitChecker", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(limitExceeded).To(BeTrue())
 			Expect(jobsCount).To(Equal(3))
+		})
+
+	})
+
+		Context("When there are more node collector jobs than limit", func() {
+
+		It("Should return true", func() {
+
+			client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(
+				&batchv1.Job{ObjectMeta: metav1.ObjectMeta{
+					Name:      "logs-exporter",
+					Namespace: "trivy-operator",
+				}},
+				&batchv1.Job{ObjectMeta: metav1.ObjectMeta{
+					Name:      "node-collector-hash1",
+					Namespace: "trivy-operator",
+					Labels: map[string]string{
+						trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
+						trivyoperator.LabelNodeInfoCollector: "Trivy",
+					},
+				}},
+				&batchv1.Job{ObjectMeta: metav1.ObjectMeta{
+					Name:      "node-collector-hash2",
+					Namespace: "trivy-operator",
+					Labels: map[string]string{
+						trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
+						trivyoperator.LabelNodeInfoCollector: "Trivy",
+					},
+				}},
+				&batchv1.Job{ObjectMeta: metav1.ObjectMeta{
+					Name:      "node-collector-hash3",
+					Namespace: "trivy-operator",
+					Labels: map[string]string{
+						trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
+						trivyoperator.LabelNodeInfoCollector: "Trivy",
+					},
+				}},
+			).Build()
+
+			instance := jobs.NewLimitChecker(config, client, defaultTrivyOperatorConfig)
+			limitExceeded, jobsCount, err := instance.CheckNodes(context.TODO())
+			Expect(err).ToNot(HaveOccurred())
+			Expect(limitExceeded).To(BeTrue())
+			Expect(jobsCount).To(Equal(3))
+		})
+
+	})
+
+	Context("When there are less node collector jobs than limit", func() {
+
+		It("Should return false", func() {
+			client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects().Build()
+
+			instance := jobs.NewLimitChecker(config, client, defaultTrivyOperatorConfig)
+			limitExceeded, jobsCount, err := instance.CheckNodes(context.TODO())
+			Expect(err).ToNot(HaveOccurred())
+			Expect(limitExceeded).To(BeFalse())
+			Expect(jobsCount).To(Equal(0))
 		})
 
 	})

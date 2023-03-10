@@ -78,6 +78,9 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 		}
 
 		limitExceeded, nodeCollectorCount, err := r.LimitChecker.CheckNodes(ctx)
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("checking whether nodes has limit: %w", err)
+		}
 		if limitExceeded {
 			log.V(1).Info("Pushing back node collector", "count", nodeCollectorCount, "retryAfter", r.ScanJobRetryAfter)
 			return ctrl.Result{RequeueAfter: r.Config.ScanJobRetryAfter}, nil

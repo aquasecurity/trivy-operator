@@ -17,8 +17,8 @@ import (
 var _ = Describe("LimitChecker", func() {
 
 	config := etc.Config{
-		Namespace:               "trivy-operator",
-		ConcurrentScanJobsLimit: 2,
+		Namespace:                    "trivy-operator",
+		ConcurrentScanJobsLimit:      2,
 		ConcurrentNodeCollectorLimit: 1,
 	}
 	defaultTrivyOperatorConfig := trivyoperator.GetDefaultConfig()
@@ -36,7 +36,7 @@ var _ = Describe("LimitChecker", func() {
 					Name:      "scan-vulnerabilityreport-hash1",
 					Namespace: "trivy-operator",
 					Labels: map[string]string{
-						trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+						trivyoperator.LabelK8SAppManagedBy:            trivyoperator.AppTrivyOperator,
 						trivyoperator.LabelVulnerabilityReportScanner: "Trivy",
 					},
 				}},
@@ -44,7 +44,7 @@ var _ = Describe("LimitChecker", func() {
 					Name:      "scan-vulnerabilityreport-hash2",
 					Namespace: "trivy-operator",
 					Labels: map[string]string{
-						trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+						trivyoperator.LabelK8SAppManagedBy:            trivyoperator.AppTrivyOperator,
 						trivyoperator.LabelVulnerabilityReportScanner: "Trivy",
 					},
 				}},
@@ -52,7 +52,7 @@ var _ = Describe("LimitChecker", func() {
 					Name:      "scan-configauditreport-hash2",
 					Namespace: "trivy-operator",
 					Labels: map[string]string{
-						trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+						trivyoperator.LabelK8SAppManagedBy:            trivyoperator.AppTrivyOperator,
 						trivyoperator.LabelVulnerabilityReportScanner: "Trivy",
 					},
 				}},
@@ -79,7 +79,7 @@ var _ = Describe("LimitChecker", func() {
 					Name:      "scan-vulnerabilityreport-hash1",
 					Namespace: "trivy-operator",
 					Labels: map[string]string{
-						trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+						trivyoperator.LabelK8SAppManagedBy:            trivyoperator.AppTrivyOperator,
 						trivyoperator.LabelVulnerabilityReportScanner: "Trivy",
 					},
 				}},
@@ -106,7 +106,7 @@ var _ = Describe("LimitChecker", func() {
 					Name:      "scan-vulnerabilityreport-hash1",
 					Namespace: "default",
 					Labels: map[string]string{
-						trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+						trivyoperator.LabelK8SAppManagedBy:            trivyoperator.AppTrivyOperator,
 						trivyoperator.LabelVulnerabilityReportScanner: "Trivy",
 					},
 				}},
@@ -114,7 +114,7 @@ var _ = Describe("LimitChecker", func() {
 					Name:      "scan-vulnerabilityreport-hash2",
 					Namespace: "prod",
 					Labels: map[string]string{
-						trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+						trivyoperator.LabelK8SAppManagedBy:            trivyoperator.AppTrivyOperator,
 						trivyoperator.LabelVulnerabilityReportScanner: "Trivy",
 					},
 				}},
@@ -122,7 +122,7 @@ var _ = Describe("LimitChecker", func() {
 					Name:      "scan-configauditreport-hash3",
 					Namespace: "stage",
 					Labels: map[string]string{
-						trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+						trivyoperator.LabelK8SAppManagedBy:            trivyoperator.AppTrivyOperator,
 						trivyoperator.LabelVulnerabilityReportScanner: "Trivy",
 					},
 				}},
@@ -138,7 +138,7 @@ var _ = Describe("LimitChecker", func() {
 
 	})
 
-		Context("When there are more node collector jobs than limit", func() {
+	Context("When there are more node collector jobs than limit", func() {
 
 		It("Should return true", func() {
 

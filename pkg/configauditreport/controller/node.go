@@ -76,6 +76,13 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 				}
 			}
 		}
+
+		limitExceeded, nodeCollectorCount, err := r.LimitChecker.CheckNodes(ctx)
+		if limitExceeded {
+			log.V(1).Info("Pushing back node collector", "count", nodeCollectorCount, "retryAfter", r.ScanJobRetryAfter)
+			return ctrl.Result{RequeueAfter: r.Config.ScanJobRetryAfter}, nil
+		}
+
 		log.V(1).Info("Checking whether cluster Infra assessments report exists")
 		hasReport, err := hasInfraReport(ctx, node, r.InfraReadWriter)
 		if err != nil {

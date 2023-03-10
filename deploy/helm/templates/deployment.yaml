@@ -51,6 +51,8 @@ spec:
               value: {{ .Values.operator.scanJobTimeout | quote }}
             - name: OPERATOR_CONCURRENT_SCAN_JOBS_LIMIT
               value: {{ .Values.operator.scanJobsConcurrentLimit | quote }}
+            - name: OPERATOR_CONCURRENT_NODE_COLLECTOR_LIMIT
+              value: {{ .Values.operator.scanNodeCollectorLimit | quote }}
             - name: OPERATOR_SCAN_JOB_RETRY_AFTER
               value: {{ .Values.operator.scanJobsRetryDelay | quote }}
             - name: OPERATOR_BATCH_DELETE_LIMIT

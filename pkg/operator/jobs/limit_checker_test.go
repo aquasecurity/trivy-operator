@@ -36,6 +36,7 @@ var _ = Describe("LimitChecker", func() {
 					Namespace: "trivy-operator",
 					Labels: map[string]string{
 						trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+						trivyoperator.LabelVulnerabilityReportScanner: "Trivy",
 					},
 				}},
 				&batchv1.Job{ObjectMeta: metav1.ObjectMeta{
@@ -43,6 +44,7 @@ var _ = Describe("LimitChecker", func() {
 					Namespace: "trivy-operator",
 					Labels: map[string]string{
 						trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+						trivyoperator.LabelVulnerabilityReportScanner: "Trivy",
 					},
 				}},
 				&batchv1.Job{ObjectMeta: metav1.ObjectMeta{
@@ -50,6 +52,7 @@ var _ = Describe("LimitChecker", func() {
 					Namespace: "trivy-operator",
 					Labels: map[string]string{
 						trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+						trivyoperator.LabelVulnerabilityReportScanner: "Trivy",
 					},
 				}},
 			).Build()
@@ -76,6 +79,7 @@ var _ = Describe("LimitChecker", func() {
 					Namespace: "trivy-operator",
 					Labels: map[string]string{
 						trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+						trivyoperator.LabelVulnerabilityReportScanner: "Trivy",
 					},
 				}},
 			).Build()
@@ -102,6 +106,7 @@ var _ = Describe("LimitChecker", func() {
 					Namespace: "default",
 					Labels: map[string]string{
 						trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+						trivyoperator.LabelVulnerabilityReportScanner: "Trivy",
 					},
 				}},
 				&batchv1.Job{ObjectMeta: metav1.ObjectMeta{
@@ -109,6 +114,7 @@ var _ = Describe("LimitChecker", func() {
 					Namespace: "prod",
 					Labels: map[string]string{
 						trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+						trivyoperator.LabelVulnerabilityReportScanner: "Trivy",
 					},
 				}},
 				&batchv1.Job{ObjectMeta: metav1.ObjectMeta{
@@ -116,6 +122,7 @@ var _ = Describe("LimitChecker", func() {
 					Namespace: "stage",
 					Labels: map[string]string{
 						trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+						trivyoperator.LabelVulnerabilityReportScanner: "Trivy",
 					},
 				}},
 			).Build()

@@ -47,6 +47,9 @@ operator:
   # scanJobsConcurrentLimit the maximum number of scan jobs create by the operator
   scanJobsConcurrentLimit: 10
 
+  # scanNodeCollectorLimit the maximum number of node collector jobs create by the operator
+  scanNodeCollectorLimit: 1
+
   # scanJobsRetryDelay the duration to wait before retrying a failed scan job
   scanJobsRetryDelay: 30s
 

@@ -363,6 +363,16 @@ trivy:
   # debug One of `true` or `false`. Enables debug mode.
   debug: false
 
+  # set trivy-server resource
+  server:
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 1
+        memory: 1Gi
+
 compliance:
   # failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report
   failEntriesLimit: 10

@@ -109,13 +109,10 @@ spec:
             - mountPath: /home/scanner/.cache
               name: data
               readOnly: false
+          {{- with .Values.trivy.server }}
           resources:
-            limits:
-              cpu: 1
-              memory: 1Gi
-            requests:
-              cpu: 200m
-              memory: 512Mi
+            {{- .resources | toYaml | nindent 12 }}
+          {{- end }}
       volumes:
         - name: tmp-data
           emptyDir: {}

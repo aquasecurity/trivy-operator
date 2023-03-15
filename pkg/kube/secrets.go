@@ -13,11 +13,8 @@ import (
 
 // MapContainerNamesToDockerAuths creates the mapping from a container name to the Docker authentication
 // credentials for the specified kube.ContainerImages and image pull Secrets.
-func MapContainerNamesToDockerAuths(images ContainerImages, secrets []corev1.Secret, multiSecretSupport bool) (map[string]docker.Auth, error) {
-	auths, wildcardServers, err := MapDockerRegistryServersToAuths(secrets, multiSecretSupport)
-	if err != nil {
-		return nil, err
-	}
+func MapContainerNamesToDockerAuths(images ContainerImages, auths map[string]docker.Auth) (map[string]docker.Auth, error) {
+	wildcardServers := GetWildcardServers(auths)
 
 	mapping := make(map[string]docker.Auth)
 
@@ -53,9 +50,8 @@ func matchSubDomain(wildcardServers []string, subDomain string) string {
 
 // MapDockerRegistryServersToAuths creates the mapping from a Docker registry server
 // to the Docker authentication credentials for the specified slice of image pull Secrets.
-func MapDockerRegistryServersToAuths(imagePullSecrets []corev1.Secret, multiSecretSupport bool) (map[string]docker.Auth, []string, error) {
+func MapDockerRegistryServersToAuths(imagePullSecrets []corev1.Secret, multiSecretSupport bool) (map[string]docker.Auth, error) {
 	auths := make(map[string]docker.Auth)
-	wildcardServers := make([]string, 0)
 	for _, secret := range imagePullSecrets {
 		// Skip a deprecated secret of type "kubernetes.io/dockercfg" which contains a dockercfg file
 		// that follows the same format rules as ~/.dockercfg
@@ -72,12 +68,12 @@ func MapDockerRegistryServersToAuths(imagePullSecrets []corev1.Secret, multiSecr
 		dockerConfig := &docker.Config{}
 		err := dockerConfig.Read(data)
 		if err != nil {
-			return nil, nil, fmt.Errorf("reading %s field of %q secret: %w", corev1.DockerConfigJsonKey, secret.Namespace+"/"+secret.Name, err)
+			return nil, fmt.Errorf("reading %s field of %q secret: %w", corev1.DockerConfigJsonKey, secret.Namespace+"/"+secret.Name, err)
 		}
 		for authKey, auth := range dockerConfig.Auths {
 			server, err := docker.GetServerFromDockerAuthKey(authKey)
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
 			if a, ok := auths[server]; multiSecretSupport && ok {
 				user := fmt.Sprintf("%s,%s", a.Username, auth.Username)
@@ -86,12 +82,19 @@ func MapDockerRegistryServersToAuths(imagePullSecrets []corev1.Secret, multiSecr
 			} else {
 				auths[server] = auth
 			}
-			if strings.HasPrefix(server, "*.") {
-				wildcardServers = append(wildcardServers, server)
-			}
 		}
 	}
-	return auths, wildcardServers, nil
+	return auths, nil
+}
+
+func GetWildcardServers(auths map[string]docker.Auth) []string {
+	wildcardServers := make([]string, 0)
+	for server := range auths {
+		if strings.HasPrefix(server, "*.") {
+			wildcardServers = append(wildcardServers, server)
+		}
+	}
+	return wildcardServers
 }
 
 func AggregateImagePullSecretsData(images ContainerImages, credentials map[string]docker.Auth) map[string][]byte {
@@ -115,7 +118,7 @@ const (
 type SecretsReader interface {
 	ListByLocalObjectReferences(ctx context.Context, refs []corev1.LocalObjectReference, ns string) ([]corev1.Secret, error)
 	ListImagePullSecretsByPodSpec(ctx context.Context, spec corev1.PodSpec, ns string) ([]corev1.Secret, error)
-	CredentialsByWorkloadAndEnv(ctx context.Context, workload client.Object, secretsInfo map[string]string, multiSecretSupport bool) (map[string]docker.Auth, error)
+	CredentialsByServer(ctx context.Context, workload client.Object, secretsInfo map[string]string, multiSecretSupport bool) (map[string]docker.Auth, error)
 }
 
 // NewSecretsReader constructs a new SecretsReader which is using the client
@@ -199,7 +202,7 @@ func (r *secretsReader) GetSecretsFromEnv(ctx context.Context, secretsInfo map[s
 	return secretsFromEnv, nil
 }
 
-func (r *secretsReader) CredentialsByWorkloadAndEnv(ctx context.Context, workload client.Object, secretsInfo map[string]string, multiSecretSupport bool) (map[string]docker.Auth, error) {
+func (r *secretsReader) CredentialsByServer(ctx context.Context, workload client.Object, secretsInfo map[string]string, multiSecretSupport bool) (map[string]docker.Auth, error) {
 	spec, err := GetPodSpec(workload)
 	if err != nil {
 		return nil, fmt.Errorf("getting Pod template: %w", err)
@@ -214,5 +217,5 @@ func (r *secretsReader) CredentialsByWorkloadAndEnv(ctx context.Context, workloa
 	}
 	imagePullSecrets = append(imagePullSecrets, secretsFromEnv...)
 
-	return MapContainerNamesToDockerAuths(GetContainerImagesFromPodSpec(spec), imagePullSecrets, multiSecretSupport)
+	return MapDockerRegistryServersToAuths(imagePullSecrets, multiSecretSupport)
 }

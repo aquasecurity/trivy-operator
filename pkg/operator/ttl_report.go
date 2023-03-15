@@ -110,7 +110,7 @@ func (r *TTLReportReconciler) applicableForDeletion(report client.Object, ttlRep
 	if reportKind == "VulnerabilityReport" || reportKind == "ExposedSecretReport" {
 		return true
 	}
-	if ttlReportAnnotationStr == "0h0m0s" { // check if it marked as historical report
+	if ttlReportAnnotationStr == time.Duration(0).String() { // check if it marked as historical report
 		return true
 	}
 	if !r.Config.ConfigAuditScannerEnabled {

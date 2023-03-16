@@ -72,7 +72,10 @@ func (r *WebhookReconciler) SetupWithManager(mgr ctrl.Manager) error {
 func (r *WebhookReconciler) reconcileReport(reportType client.Object) reconcile.Func {
 	return func(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
 		log := r.Logger.WithValues("report", request.NamespacedName)
-
+		if ignoreHistoricalReport(reportType) {
+			log.V(1).Info("Ignoring historical report")
+			return ctrl.Result{}, nil
+		}
 		verb := Update
 
 		err := r.Client.Get(ctx, request.NamespacedName, reportType)
@@ -109,4 +112,15 @@ func sendReport[T any](reports T, endpoint string, timeout time.Duration) error 
 		return fmt.Errorf("failed to send reports to endpoint: %w", err)
 	}
 	return nil
+}
+
+func ignoreHistoricalReport(reportType client.Object) bool {
+	ttlReportAnnotationStr, ok := reportType.GetAnnotations()[v1alpha1.TTLReportAnnotation]
+	if !ok {
+		return false
+	}
+	if ttlReportAnnotationStr == time.Duration(0).String() { // check if it marked as historical report
+		return true
+	}
+	return false
 }

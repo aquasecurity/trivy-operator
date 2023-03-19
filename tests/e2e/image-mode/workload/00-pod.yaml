@@ -8,8 +8,6 @@ metadata:
     pod-template-hash: 84bbf6f4dd
     app: nginx
 spec:
-  imagePullSecrets:
-    - name: regcred
   containers:
     - image: nginx:1.14.2
       name: app

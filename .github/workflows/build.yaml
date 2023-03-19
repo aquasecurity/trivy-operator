@@ -236,7 +236,15 @@ jobs:
         run: >
           ./bin/kuttl test --start-kind=false --config
           tests/config/client-server.yaml
+      - name: image private registries reports tests
+        run: >
+          kubectl create namespace private kubectl create secret docker-registry
+          artcred --docker-server=https://index.docker.io/v1/
+          --docker-username=${{ secrets.DOCKERHUB_PRIVATE_USER }}
+          --docker-password=${{ secrets.DOCKERHUB_PRIVATE_PASSWORD }}
+          --docker-email=private@gmail.com -n private
 
+          ./bin/kuttl test --start-kind=false --config tests/config/tests/config/image-private-registries.yaml
           ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: Node scan producing cluster infraassessment report
         run: >

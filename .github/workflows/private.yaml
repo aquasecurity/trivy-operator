@@ -37,6 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_CLI_EXPERIMENTAL: enabled
+      PRIVATE_REPO_PASSWORD: ${{ secrets.PRIVATE_REPO_SECRET }} 
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -83,8 +84,12 @@ jobs:
           kubectl describe node
           kubectl create namespace private
 
-          echo ${{secrets.PRIVATE_REPO_SECRET}} | sed 's/./& /g'
-
+          kubectl create secret docker-registry my-registry-secret \
+            --docker-server=https://index.docker.io/v1 \
+            --docker-username=chenkeinan \
+            --docker-password=${{ env.PRIVATE_REPO_PASSWORD }}
+            --docker-email=private@gmail.com \
+            -n private
       - name: Load operator image to cluster
         run: >
           docker tag ghcr.io/aquasecurity/trivy-operator:${{ github.sha }}-amd64

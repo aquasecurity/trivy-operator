@@ -25,8 +25,6 @@ env:
   GO_VERSION: 1.19.1
   KIND_VERSION: v0.17.0
   KIND_IMAGE: kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6
-  DOCKER_USERNAME: ${{ secrets.DOCKERHUB_PRIVATE_USER }}
-  DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_PRIVATE_PASSWORD }}
 permissions: {}
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -84,10 +82,10 @@ jobs:
           kubectl describe node
           kubectl create namespace private
 
-          kubectl create secret docker-registry my-registry-secret \
+          kubectl create secret docker-registry artcred \
             --docker-server=https://index.docker.io/v1 \
             --docker-username=chenkeinan \
-            --docker-password=${{ env.PRIVATE_REPO_PASSWORD }} \
+            --docker-password=${{ env.TOKEN }} \
             --docker-email=private@gmail.com \
             -n private
       - name: Load operator image to cluster

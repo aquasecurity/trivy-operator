@@ -83,10 +83,12 @@ jobs:
           kubectl describe node
           kubectl create namespace private
 
+          echo "${{ secrets.DOCKERHUB_PRIVATE_PASSWORD }}" > ./my-docker-registry-secret.txt
+
           kubectl create secret docker-registry my-registry-secret \
             --docker-server=https://index.docker.io/v1 \
             --docker-username=chenkeinan \
-            --docker-password=${{ secrets.DOCKERHUB_PRIVATE_PASSWORD }} \
+            --docker-password=$(cat ./my-docker-registry-secret.txt) \ \
             --docker-email=private@gmail.com \
             -n private
 

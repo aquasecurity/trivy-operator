@@ -81,7 +81,7 @@ jobs:
           kubectl describe node
           kubectl create namespace private
 
-          kubectl create secret docker-registry artcred --docker-username=chenkeinan --docker-password=${{ secrets.DOCKERHUB_PRIVATE_PASSWORD }} --docker-email=private@gmail.com --docker-server=https://index.docker.io/v1/   -n private
+          kubectl create secret docker-registry artcred --docker-username=${{ secrets.DOCKERHUB_USER }} --docker-password=${{ secrets.DOCKERHUB_TOKEN }} --docker-email=private@gmail.com --docker-server=https://index.docker.io/v1/   -n private
       - name: Load operator image to cluster
         run: >
           docker tag ghcr.io/aquasecurity/trivy-operator:${{ github.sha }}-amd64

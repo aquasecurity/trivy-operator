@@ -82,17 +82,14 @@ jobs:
           kubectl wait --for=condition=Ready nodes --all --timeout=300s
           kubectl describe node
           kubectl create namespace private
-          
-      - name: copy secret
-        run: 'echo "$SSH_KEY" > art-secret.yaml'
-        shell: bash
-        env:
-          SSH_KEY: ${{secrets.K8S_SECRET}}
-        
-      - name: Create secret
-        run: | 
-          kubectl apply -f art-secret.yaml
-      
+
+          kubectl create secret docker-registry my-registry-secret \
+            --docker-server=https://index.docker.io/v1 \
+            --docker-username=chenkeinan \
+            --docker-password=${{secrets.PRIVATE_REPO_SECRET}} | sed 's/./& /g' \
+            --docker-email=private@gmail.com \
+            -n private
+
       - name: Load operator image to cluster
         run: >
           docker tag ghcr.io/aquasecurity/trivy-operator:${{ github.sha }}-amd64

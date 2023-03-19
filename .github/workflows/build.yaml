@@ -175,6 +175,11 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+      - name: Login to docker.io registry
+        uses: docker/login-action@v2.1.0
+        with:
+          username: ${{ secrets.DOCKERHUB_PRIVATE_USER }}
+          password: ${{ secrets.DOCKERHUB_PRIVATE_PASSWORD }}
       - name: Release snapshot
         uses: goreleaser/goreleaser-action@v4
         with:

@@ -33,6 +33,10 @@ jobs:
   e2e-testing-2:
     name: Run end to end testing
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      packages: write
     env:
       DOCKER_CLI_EXPERIMENTAL: enabled
       PRIVATE_REPO_PASSWORD: ${{ secrets.PRIVATE_REPO_SECRET }} 

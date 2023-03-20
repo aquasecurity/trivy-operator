@@ -2048,11 +2048,11 @@ func GetScoreFromCVSS(CVSSs map[string]*CVSS) *float64 {
 		}
 	}
 
-	if vendorScore != nil {
-		return vendorScore
+	if nvdScore != nil {
+		return nvdScore
 	}
 
-	return nvdScore
+	return vendorScore
 }
 
 func GetMirroredImage(image string, mirrors map[string]string) (string, error) {

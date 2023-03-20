@@ -61,6 +61,11 @@ jobs:
         with:
           version: v1.7.0
           args: release -f=goreleaser-e2e.yaml --snapshot --skip-publish --rm-dist
+      - name: Login to docker.io registry
+        uses: docker/login-action@v2.1.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Install kind and create cluster
         run: >
           curl -Lo ./kind https://kind.sigs.k8s.io/dl/${{ env.KIND_VERSION

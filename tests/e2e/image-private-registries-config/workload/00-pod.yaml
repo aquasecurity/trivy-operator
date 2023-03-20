@@ -9,8 +9,6 @@ metadata:
     pod-template-hash: 84bbf6f4dd
     app: nginx
 spec:
-  imagePullSecrets:
-    - name: artcred
   containers:
     - image: aquasec/private-test:1.16.1
       name: app

@@ -1,9 +1,17 @@
 ---
 name: Private Registries
 on:
-  workflow_dispatch: {}
-  schedule:
-    - cron: "0 0 * * *"
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - .github/ISSUE_TEMPLATE/*.md
+      - "*.md"
+      - docs/**
+      - mkdocs.yml
+      - LICENSE
+      - NOTICE
+
 env:
   GO_VERSION: 1.19.1
   KIND_VERSION: v0.17.0
@@ -13,7 +21,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  e2e-testing-2:
+  e2e-testing-private-registry:
     name: Run end to end testing
     runs-on: ubuntu-latest
     env:
@@ -66,8 +74,8 @@ jobs:
 
           kubectl create secret docker-registry artcred \
             --docker-server=https://index.docker.io/v1 \
-            --docker-username=${{ secrets.DOCKERHUB_PRIVATE_USER }} \
-            --docker-password=${{ secrets.DOCKER_PRIVATE_TOKEN }} \
+            --docker-username=${{ secrets.DOCKERHUB_USER }} \
+            --docker-password=${{ secrets.DOCKERHUB_TOKEN }} \
             --docker-email=private@gmail.com \
             -n private
       - name: Load operator image to cluster
@@ -91,10 +99,22 @@ jobs:
           chmod 700 get_helm.sh
 
           ./get_helm.sh
-      - name: image private registries reports tests
+      - name: image private registries via pod image pull secret tests
         run: >
 
           ./bin/kuttl test --start-kind=false --config tests/config/image-private-registries.yaml
+
+          ./tests/resources-cleanup.sh > /dev/null 2>&1
+      - name: image private registries via service account image pull secret tests
+        run: >
+
+          ./bin/kuttl test --start-kind=false --config tests/config/image-private-registries-sa.yaml
+
+          ./tests/resources-cleanup.sh > /dev/null 2>&1
+      - name: image private registries via namespace to secret config tests
+        run: >
+
+          ./bin/kuttl test --start-kind=false --config tests/config/image-private-registries-config.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: Delete kind cluster

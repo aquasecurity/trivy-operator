@@ -1,9 +1,26 @@
 ---
 name: Private
 on:
-  workflow_dispatch: {}
-  schedule:
-    - cron: "0 0 * * *"
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - .github/ISSUE_TEMPLATE/*.md
+      - "*.md"
+      - docs/**
+      - mkdocs.yml
+      - LICENSE
+      - NOTICE
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - .github/ISSUE_TEMPLATE/*.md
+      - "*.md"
+      - docs/**
+      - mkdocs.yml
+      - LICENSE
+      - NOTICE
 env:
   GO_VERSION: 1.19.1
   KIND_VERSION: v0.17.0

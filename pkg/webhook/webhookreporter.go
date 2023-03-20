@@ -27,7 +27,7 @@ type WebhookReconciler struct {
 
 const (
 	Update string = "update"
-	Delete        = "delete"
+	Delete string = "delete"
 )
 
 type WebhookBody struct {

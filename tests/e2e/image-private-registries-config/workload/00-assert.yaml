@@ -9,7 +9,7 @@ metadata:
 report:
   artifact:
     repository: aquasec/private-test
-    tag: 1.16.1
+    tag: 1.22.1
   registry:
     server: index.docker.io
   scanner:

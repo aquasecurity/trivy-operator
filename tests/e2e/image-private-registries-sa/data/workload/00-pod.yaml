@@ -10,7 +10,7 @@ metadata:
     app: nginx
 spec:
   containers:
-    - image: aquasec/private-test:1.16.1
+    - image: aquasec/private-test:1.14.2
       name: app
       imagePullPolicy: Always
   serviceAccountName: private-reg

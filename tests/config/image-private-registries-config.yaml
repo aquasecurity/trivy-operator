@@ -10,4 +10,3 @@ commands:
 testDirs:
   - tests/e2e/image-private-registries-config
 timeout: 240
-kindNodeCache: true

@@ -31,8 +31,8 @@ const (
 )
 
 type WebhookBody struct {
-	Verb   string        `json:"verb"`
-	Report client.Object `json:"report"`
+	Verb           string        `json:"verb"`
+	OperatorObject client.Object `json:"operatorObject"`
 }
 
 // +kubebuilder:rbac:groups=aquasecurity.github.io,resources=vulnerabilityreports,verbs=get;list;watch;delete
@@ -84,7 +84,7 @@ func (r *WebhookReconciler) reconcileReport(reportType client.Object) reconcile.
 			}
 		}
 
-		body.Report = reportType
+		body.OperatorObject = reportType
 		if err := sendReport(body, r.WebhookBroadcastURL, *r.WebhookBroadcastTimeout); err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to send report: %w", err)
 		}

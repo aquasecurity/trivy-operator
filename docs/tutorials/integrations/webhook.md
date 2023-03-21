@@ -10,6 +10,7 @@ You can enable the Webhook integration as follows:
 
 1. Required: Set `OPERATOR_WEBHOOK_BROADCAST_URL` to the webhook endpoint you'd like to send the reports to.
 2. Optional: Set `OPERATOR_WEBHOOK_BROADCAST_TIMEOUT` to a time limit that suites your use case. Default is `30s`.
+3. Optional: Set `OPERATOR_SEND_DELETED_REPORTS` to `true` to send webhook notifications when reports are deleted. Default is `false`.
 
 The Webhook integration support the following reports types:
 

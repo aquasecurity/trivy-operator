@@ -6673,7 +6673,7 @@ func TestGetScoreFromCVSS(t *testing.T) {
 		expectedScore *float64
 	}{
 		{
-			name: "Should return vendor score when vendor v3 score exist",
+			name: "Should return nvd score when nvd and vendor v3 score exist",
 			cvss: dbtypes.VendorCVSS{
 				"nvd": {
 					V3Score: 8.1,
@@ -6682,7 +6682,7 @@ func TestGetScoreFromCVSS(t *testing.T) {
 					V3Score: 8.3,
 				},
 			},
-			expectedScore: pointer.Float64(8.3),
+			expectedScore: pointer.Float64(8.1),
 		},
 		{
 			name: "Should return nvd score when vendor v3 score is nil",
@@ -6700,6 +6700,15 @@ func TestGetScoreFromCVSS(t *testing.T) {
 			name: "Should return nvd score when vendor doesn't exist",
 			cvss: dbtypes.VendorCVSS{
 				"nvd": {
+					V3Score: 8.1,
+				},
+			},
+			expectedScore: pointer.Float64(8.1),
+		},
+		{
+			name: "Should return vendor score when nvd doesn't exist",
+			cvss: dbtypes.VendorCVSS{
+				"redhat": {
 					V3Score: 8.1,
 				},
 			},

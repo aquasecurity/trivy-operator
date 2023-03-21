@@ -71,6 +71,7 @@ func (r *WebhookReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 func (r *WebhookReconciler) reconcileReport(reportType client.Object) reconcile.Func {
 	return func(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
+		log := r.Logger.WithValues("report", request.NamespacedName)
 
 		msg := WebhookMsg{}
 		msg.Verb = Update
@@ -78,15 +79,27 @@ func (r *WebhookReconciler) reconcileReport(reportType client.Object) reconcile.
 		err := r.Client.Get(ctx, request.NamespacedName, reportType)
 		if err != nil {
 			if errors.IsNotFound(err) {
-				msg.Verb = Delete
+				if r.WebhookSendDeletedReports {
+					msg.Verb = Delete
+				} else {
+					log.V(1).Info("Ignoring cached report that must have been deleted")
+					return ctrl.Result{}, nil
+				}
 			} else {
 				return ctrl.Result{}, fmt.Errorf("getting report from cache: %w", err)
 			}
 		}
 
 		msg.OperatorObject = reportType
-		if err := sendReport(msg, r.WebhookBroadcastURL, *r.WebhookBroadcastTimeout); err != nil {
-			return ctrl.Result{}, fmt.Errorf("failed to send report: %w", err)
+
+		if r.WebhookSendDeletedReports {
+			if err := sendReport(msg, r.WebhookBroadcastURL, *r.WebhookBroadcastTimeout); err != nil {
+				return ctrl.Result{}, fmt.Errorf("failed to send report: %w", err)
+			}
+		} else {
+			if err := sendReport(reportType, r.WebhookBroadcastURL, *r.WebhookBroadcastTimeout); err != nil {
+				return ctrl.Result{}, fmt.Errorf("failed to send report: %w", err)
+			}
 		}
 		return ctrl.Result{}, nil
 	}

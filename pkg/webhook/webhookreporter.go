@@ -71,7 +71,6 @@ func (r *WebhookReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 func (r *WebhookReconciler) reconcileReport(reportType client.Object) reconcile.Func {
 	return func(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
-		log := r.Logger.WithValues("report", request.NamespacedName)
 
 		body := WebhookBody{}
 		body.Verb = Update
@@ -79,11 +78,10 @@ func (r *WebhookReconciler) reconcileReport(reportType client.Object) reconcile.
 		err := r.Client.Get(ctx, request.NamespacedName, reportType)
 		if err != nil {
 			if errors.IsNotFound(err) {
-				log.V(1).Info("Ignoring cached report that must have been deleted")
 				body.Verb = Delete
-				//return ctrl.Result{}, nil
+			} else {
+				return ctrl.Result{}, fmt.Errorf("getting report from cache: %w", err)
 			}
-			//return ctrl.Result{}, fmt.Errorf("getting report from cache: %w", err)
 		}
 
 		body.Report = reportType

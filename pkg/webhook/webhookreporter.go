@@ -30,7 +30,7 @@ const (
 	Delete string = "delete"
 )
 
-type WebhookBody struct {
+type WebhookMsg struct {
 	Verb           string        `json:"verb"`
 	OperatorObject client.Object `json:"operatorObject"`
 }
@@ -72,20 +72,20 @@ func (r *WebhookReconciler) SetupWithManager(mgr ctrl.Manager) error {
 func (r *WebhookReconciler) reconcileReport(reportType client.Object) reconcile.Func {
 	return func(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
 
-		body := WebhookBody{}
-		body.Verb = Update
+		msg := WebhookMsg{}
+		msg.Verb = Update
 
 		err := r.Client.Get(ctx, request.NamespacedName, reportType)
 		if err != nil {
 			if errors.IsNotFound(err) {
-				body.Verb = Delete
+				msg.Verb = Delete
 			} else {
 				return ctrl.Result{}, fmt.Errorf("getting report from cache: %w", err)
 			}
 		}
 
-		body.OperatorObject = reportType
-		if err := sendReport(body, r.WebhookBroadcastURL, *r.WebhookBroadcastTimeout); err != nil {
+		msg.OperatorObject = reportType
+		if err := sendReport(msg, r.WebhookBroadcastURL, *r.WebhookBroadcastTimeout); err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to send report: %w", err)
 		}
 		return ctrl.Result{}, nil

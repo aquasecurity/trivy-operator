@@ -10,6 +10,12 @@ data:
   {{- with .Values.trivyOperator.scanJobTolerations }}
   scanJob.tolerations: {{ . | toJson | quote }}
   {{- end }}
+  {{- with .Values.nodeCollector.volumes }}
+  nodeCollector.volumes: {{ . | toJson | quote }}
+  {{- end }}
+  {{- with .Values.nodeCollector.volumeMounts }}
+  nodeCollector.volumeMounts: {{ . | toJson | quote }}
+  {{- end }}
   {{- with .Values.trivyOperator.scanJobAnnotations }}
   scanJob.annotations: {{ . | quote }}
   {{- end }}

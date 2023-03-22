@@ -199,6 +199,10 @@ trivyOperator:
   # when including them in the Prometheus metrics
   metricsResourceLabelsPrefix: "k8s_label_"
 
+  # additionalReportLables comma-separated representation of the labels which the user wants the scanner pods to be
+  # labeled with. Example: `foo=bar,env=stage` will labeled the reports with the labels `foo: bar` and `env: stage`
+  additionalReportLables: ""
+
 trivy:
   # createConfig indicates whether to create config objects
   createConfig: true

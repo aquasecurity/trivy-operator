@@ -22,7 +22,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   e2e-testing-private-registry:
-    name: Run end to end testing
+    name: Run end to end private registry testing
     runs-on: ubuntu-latest
     env:
       DOCKER_CLI_EXPERIMENTAL: enabled

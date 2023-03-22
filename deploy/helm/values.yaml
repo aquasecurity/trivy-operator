@@ -444,7 +444,7 @@ nodeCollector:
   # tag version of the node-collector image
   tag: 0.0.5
 
-  # node-collector pod volumeMounts definition for collecting config files information 
+  # node-collector pod volumeMounts definition for collecting config files information
   volumeMounts:
     - name: var-lib-etcd
       mountPath: /var/lib/etcd
@@ -476,7 +476,7 @@ nodeCollector:
     - name: opt-cni-bin
       mountPath: /opt/cni/bin/
       readOnly: true
-  # node-collector pod volumes definition for collecting config files information 
+  # node-collector pod volumes definition for collecting config files information
   volumes:
     - name: var-lib-etcd
       hostPath:

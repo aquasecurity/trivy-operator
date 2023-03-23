@@ -58,6 +58,8 @@ const (
 	keyConfigAuditReportsScanner         = "configAuditReports.scanner"
 	keyScanJobTolerations                = "scanJob.tolerations"
 	KeyScanJobcompressLogs               = "scanJob.compressLogs"
+	KeyNodeCollectorVolumes              = "nodeCollector.volumes"
+	KeyNodeCollectorVolumeMounts         = "nodeCollector.volumeMounts"
 	keyScanJobNodeSelector               = "scanJob.nodeSelector"
 	keyScanJobAnnotations                = "scanJob.annotations"
 	//nolint
@@ -156,6 +158,23 @@ func (c ConfigData) GetScanJobTolerations() ([]corev1.Toleration, error) {
 	err := json.Unmarshal([]byte(c[keyScanJobTolerations]), &scanJobTolerations)
 
 	return scanJobTolerations, err
+}
+
+func (c ConfigData) GetNodeCollectorVolumes() ([]corev1.Volume, error) {
+	var volumes []corev1.Volume
+	if c[KeyNodeCollectorVolumes] == "" {
+		return volumes, nil
+	}
+	err := json.Unmarshal([]byte(c[KeyNodeCollectorVolumes]), &volumes)
+	return volumes, err
+}
+func (c ConfigData) GetGetNodeCollectorVolumeMounts() ([]corev1.VolumeMount, error) {
+	var volumesMount []corev1.VolumeMount
+	if c[KeyNodeCollectorVolumeMounts] == "" {
+		return volumesMount, nil
+	}
+	err := json.Unmarshal([]byte(c[KeyNodeCollectorVolumeMounts]), &volumesMount)
+	return volumesMount, err
 }
 
 func (c ConfigData) GetScanJobNodeSelector() (map[string]string, error) {

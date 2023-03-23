@@ -72,7 +72,7 @@ const (
 	KeyMetricsResourceLabelsPrefix         = "metrics.resourceLabelsPrefix"
 	KeyTrivyServerURL                      = "trivy.serverURL"
 	KeyNodeCollectorImageRef               = "node.collector.imageRef"
-	KeyAdditionalReportLables              = ""
+	KeyAdditionalReportLables              = "report.additionalLables"
 )
 
 // ConfigData holds Trivy-operator configuration settings as a set of key-value

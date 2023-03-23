@@ -1928,6 +1928,8 @@ spec:
               value: ""
             - name: OPERATOR_WEBHOOK_BROADCAST_TIMEOUT
               value: "30s"
+            - name: OPERATOR_SEND_DELETED_REPORTS
+              value: "false"
             - name: OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES
               value: "{}"
             - name: OPERATOR_ACCESS_GLOBAL_SECRETS_SERVICE_ACCOUNTS

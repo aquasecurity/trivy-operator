@@ -252,7 +252,7 @@ func (c ConfigData) GetAdditionalReportLabels() (labels.Set, error) {
 	for _, annotation := range strings.Split(additionalReportLabelsStr, ",") {
 		sepByEqual := strings.Split(annotation, "=")
 		if len(sepByEqual) != 2 {
-			return labels.Set{}, fmt.Errorf("failed parsing incorrectly formatted custom scan pod template labels: %s", additionalReportLabelsStr)
+			return labels.Set{}, fmt.Errorf("failed parsing incorrectly formatted custom report labels: %s", additionalReportLabelsStr)
 		}
 		key, value := sepByEqual[0], sepByEqual[1]
 		additionalReportLablesMap[key] = value

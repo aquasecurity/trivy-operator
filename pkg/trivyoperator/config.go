@@ -74,6 +74,7 @@ const (
 	KeyMetricsResourceLabelsPrefix         = "metrics.resourceLabelsPrefix"
 	KeyTrivyServerURL                      = "trivy.serverURL"
 	KeyNodeCollectorImageRef               = "node.collector.imageRef"
+	KeyAdditionalReportLables              = "report.additionalLables"
 )
 
 // ConfigData holds Trivy-operator configuration settings as a set of key-value
@@ -258,6 +259,25 @@ func (c ConfigData) GetScanJobPodTemplateLabels() (labels.Set, error) {
 	}
 
 	return scanJobPodTemplateLabelsMap, nil
+}
+
+func (c ConfigData) GetAdditionalReportLabels() (labels.Set, error) {
+	additionalReportLabelsStr, found := c[KeyAdditionalReportLables]
+	if !found || strings.TrimSpace(additionalReportLabelsStr) == "" {
+		return labels.Set{}, nil
+	}
+
+	additionalReportLablesMap := map[string]string{}
+	for _, annotation := range strings.Split(additionalReportLabelsStr, ",") {
+		sepByEqual := strings.Split(annotation, "=")
+		if len(sepByEqual) != 2 {
+			return labels.Set{}, fmt.Errorf("failed parsing incorrectly formatted custom report labels: %s", additionalReportLabelsStr)
+		}
+		key, value := sepByEqual[0], sepByEqual[1]
+		additionalReportLablesMap[key] = value
+	}
+
+	return additionalReportLablesMap, nil
 }
 
 func (c ConfigData) GetReportResourceLabels() []string {

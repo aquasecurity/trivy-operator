@@ -205,6 +205,10 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		}
 
 		resourceLabelsToInclude := r.GetReportResourceLabels()
+		additionalCustomLabel, err := r.GetAdditionalReportLabels()
+		if err != nil {
+			return ctrl.Result{}, err
+		}
 
 		log.V(1).Info("Checking whether configuration audit report exists")
 		hasReport, err := r.hasReport(ctx, resourceRef, resourceHash, policiesHash)
@@ -231,6 +235,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 				ResourceSpecHash(resourceHash).
 				PluginConfigHash(policiesHash).
 				ResourceLabelsToInclude(resourceLabelsToInclude).
+				AdditionalReportLabels(additionalCustomLabel).
 				Data(misConfigData.configAuditReportData)
 			if r.Config.ScannerReportTTL != nil {
 				reportBuilder.ReportTTL(r.Config.ScannerReportTTL)
@@ -245,6 +250,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 					ResourceSpecHash(resourceHash).
 					PluginConfigHash(policiesHash).
 					ResourceLabelsToInclude(resourceLabelsToInclude).
+					AdditionalReportLabels(additionalCustomLabel).
 					Data(misConfigData.infraAssessmentReportData)
 				if r.Config.ScannerReportTTL != nil {
 					infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
@@ -261,6 +267,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 				ResourceSpecHash(resourceHash).
 				PluginConfigHash(policiesHash).
 				ResourceLabelsToInclude(resourceLabelsToInclude).
+				AdditionalReportLabels(additionalCustomLabel).
 				Data(misConfigData.rbacAssessmentReportData)
 			if r.Config.ScannerReportTTL != nil {
 				rbacReportBuilder.ReportTTL(r.Config.ScannerReportTTL)

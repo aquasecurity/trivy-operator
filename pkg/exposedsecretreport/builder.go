@@ -81,24 +81,24 @@ func (b *ReportBuilder) reportName() string {
 }
 
 func (b *ReportBuilder) Get() (v1alpha1.ExposedSecretReport, error) {
-	labels := map[string]string{
+	reportLabels := map[string]string{
 		trivyoperator.LabelContainerName: b.container,
 	}
 
 	// append matching resource labels by config to report
-	kube.AppendResourceLabels(b.resourceLabelsToInclude, b.controller.GetLabels(), labels)
+	kube.AppendResourceLabels(b.resourceLabelsToInclude, b.controller.GetLabels(), reportLabels)
 	// append custom labels by config to report
-	kube.AppendCustomLabels(b.additionalReportLabels, labels)
+	kube.AppendCustomLabels(b.additionalReportLabels, reportLabels)
 
 	if b.hash != "" {
-		labels[trivyoperator.LabelResourceSpecHash] = b.hash
+		reportLabels[trivyoperator.LabelResourceSpecHash] = b.hash
 	}
 
 	report := v1alpha1.ExposedSecretReport{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      b.reportName(),
 			Namespace: b.controller.GetNamespace(),
-			Labels:    labels,
+			Labels:    reportLabels,
 		},
 		Report: b.data,
 	}

@@ -1810,6 +1810,7 @@ data:
   scanJob.compressLogs: "true"
   vulnerabilityReports.scanner: "Trivy"
   configAuditReports.scanner: "Trivy"
+  compliance.failEntriesLimit: "10"
   report.recordFailedChecksOnly: "true"
   node.collector.imageRef: "ghcr.io/aquasecurity/node-collector:0.0.5"
 ---
@@ -1942,6 +1943,8 @@ spec:
               value: "10h"
             - name: OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT
               value: "false"
+            - name: OPERATOR_CLUSTER_COMPLIANCE_ENABLED
+              value: "true"
           ports:
             - name: metrics
               containerPort: 8080

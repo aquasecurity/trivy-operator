@@ -101,6 +101,8 @@ spec:
               value: {{ .Values.operator.trivyServerHealthCheckCacheExpiration | quote }}
             - name: OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT
               value: {{ .Values.operator.mergeRbacFindingWithConfigAudit | quote }}
+            - name: OPERATOR_CLUSTER_COMPLIANCE_ENABLED
+              value: {{ .Values.operator.clusterComplianceEnabled | quote }}
             {{- if gt (int .Values.operator.replicas) 1 }}
             - name: OPERATOR_LEADER_ELECTION_ENABLED
               value: "true"

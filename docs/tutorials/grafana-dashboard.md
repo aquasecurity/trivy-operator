@@ -131,6 +131,12 @@ In a new terminal, we are going to port-forward to the Trivy Operator service to
 
 Note that this operation is optional and just used to demonstrate where you can find the metrics to then query them in a better way through Prometheus and Grafana.
 
+Run the following command to remove the headless setting  `clusterIP: None` by editing `trivy-operator` service:
+
+```
+kubectl edit service trivy-operator -n trivy-system
+```
+
 Run the following command to port-forward the Trivy Operator Service:
 
 ```

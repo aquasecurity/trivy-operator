@@ -25,8 +25,8 @@ data:
   {{- with .Values.trivyOperator.scanJobPodTemplateLabels }}
   scanJob.podTemplateLabels: {{ . | quote }}
   {{- end }}
-  {{- with .Values.trivyOperator.additionalReportLables }}
-  report.additionalLables: {{ . | quote }}
+  {{- with .Values.trivyOperator.additionalReportLabels }}
+  report.additionalLabels: {{ . | quote }}
   {{- end }}
   {{- with .Values.trivyOperator.scanJobNodeSelector }}
   scanJob.nodeSelector: {{ . | toJson | quote }}

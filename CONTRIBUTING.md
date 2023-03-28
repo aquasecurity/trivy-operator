@@ -342,7 +342,7 @@ chmod +x install.sh
 
 ### Build the Catalog Image
 
-The Starboard Operator metadata is formatted in *packagemanifest* layout, so you need to place it in the directory
+The Trivy Operator metadata is formatted in *packagemanifest* layout, so you need to place it in the directory
 structure of the [community-operators] repository.
 
 ```
@@ -350,13 +350,13 @@ git clone git@github.com:k8s-operatorhub/community-operators.git
 cd community-operators
 ```
 
-Build the catalog image for OLM containing just Starboard Operator with a Dockerfile like this:
+Build the catalog image for OLM containing just Trivy Operator with a Dockerfile like this:
 
 ```
-cat << EOF > starboard.Dockerfile
+cat << EOF > trivy-operator.Dockerfile
 FROM quay.io/operator-framework/upstream-registry-builder as builder
 
-COPY operators/starboard-operator manifests
+COPY operators/trivy-operator manifests
 RUN /bin/initializer -o ./bundles.db
 
 FROM scratch
@@ -370,31 +370,31 @@ CMD ["--database", "bundles.db"]
 EOF
 ```
 
-Place the `starboard.Dockerfile` in the top-level directory of your cloned copy of the [community-operators] repository,
+Place the `trivy-operator.Dockerfile` in the top-level directory of your cloned copy of the [community-operators] repository,
 build it and push to a registry from where you can download it to your Kubernetes cluster:
 
 ```
-docker image build -f starboard.Dockerfile -t docker.io/<your account>/starboard-catalog:dev .
-docker image push docker.io/<your account>/starboard-catalog:dev
+docker image build -f trivy-operator.Dockerfile -t docker.io/<your account>/trivy-operator-catalog:dev .
+docker image push docker.io/<your account>/trivy-operator-catalog:dev
 ```
 
 ### Register the Catalog Image
 
 Create a CatalogSource instance in the `olm` namespace to reference in the Operator catalog image that contains the
-Starboard Operator:
+Trivy Operator:
 
 ```
 cat << EOF | kubectl apply -f -
 apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
 metadata:
-  name: starboard-catalog
+  name: trivy-operator-catalog
   namespace: olm
 spec:
-  publisher: Starboard Maintainers
-  displayName: Starboard Catalog
+  publisher: trivy-operator Maintainers
+  displayName: trivy-operator Catalog
   sourceType: grpc
-  image: docker.io/<your account>/starboard-catalog:dev
+  image: docker.io/<your account>/trivy-operator-catalog:dev
 EOF
 ```
 
@@ -404,17 +404,17 @@ You can delete the default catalog that OLM ships with to avoid duplicate entrie
 kubectl delete catalogsource operatorhubio-catalog -n olm
 ```
 
-Inspect the list of loaded package manifests on the system with the following command to filter for the Starboard Operator:
+Inspect the list of loaded package manifests on the system with the following command to filter for the Trivy Operator:
 
 ```console
 $ kubectl get packagemanifests
 NAME                 CATALOG             AGE
-starboard-operator   Starboard Catalog   97s
+trivy-operator   trivy-operator Catalog   97s
 ```
 
-If the Starboard Operator appears in this list, the catalog was successfully parsed and it is now available to install.
-Follow the installation instructions for [OLM][starboard-install-olm]. Make sure that the Subscription's `spec.source`
-property refers to the `starboard-catalog` source instead of `operatorhubio-catalog`.
+If the Trivy Operator appears in this list, the catalog was successfully parsed and it is now available to install.
+Follow the installation instructions for [OLM][trivy-operator-install-olm]. Make sure that the Subscription's `spec.source`
+property refers to the `trivy-operator-catalog` source instead of `operatorhubio-catalog`.
 
 You can find more details about testing Operators with Operator Framework [here][olm-testing-operators].
 
@@ -426,5 +426,5 @@ You can find more details about testing Operators with Operator Framework [here]
 [Operator Lifecycle Manager]: https://github.com/operator-framework/operator-lifecycle-manager
 [community-operators]: https://github.com/k8s-operatorhub/community-operators
 [olm-operator-groups]: https://github.com/operator-framework/operator-lifecycle-manager/blob/master/doc/design/operatorgroups.md
-[starboard-install-olm]: https://aquasecurity.github.io/starboard/latest/operator/installation/olm
+[trivy-operator-install-olm]: https://aquasecurity.github.io/trivy-operator/latest/operator/installation/olm
 [olm-testing-operators]: https://github.com/operator-framework/community-operators/blob/master/docs/testing-operators.md

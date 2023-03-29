@@ -189,7 +189,7 @@ trivyOperator:
     readOnlyRootFilesystem: true
     # For filesystem scanning, Trivy needs to run as the root user
     # runAsUser: 0
-  
+
   # scanJobPodPriorityClassName Priority class name to be set on the pods created by trivy operator jobs. This accepts a string value
   scanJobPodPriorityClassName: ""
 

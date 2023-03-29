@@ -67,6 +67,7 @@ const (
 	KeyScanJobContainerSecurityContext     = "scanJob.podTemplateContainerSecurityContext"
 	keyScanJobPodSecurityContext           = "scanJob.podTemplatePodSecurityContext"
 	keyScanJobPodTemplateLabels            = "scanJob.podTemplateLabels"
+	KeyScanJobPodPriorityClassName         = "scanJob.podPriorityClassName"
 	keyComplianceFailEntriesLimit          = "compliance.failEntriesLimit"
 	keySkipResourceByLabels                = "skipResourceByLabels"
 	KeyReportResourceLabels                = "report.resourceLabels"
@@ -259,6 +260,15 @@ func (c ConfigData) GetScanJobPodTemplateLabels() (labels.Set, error) {
 	}
 
 	return scanJobPodTemplateLabelsMap, nil
+}
+
+func (c ConfigData) GetScanJobPodPriorityClassName() (string, error) {
+	priorityClassName, found := c[KeyScanJobPodPriorityClassName]
+
+	if !found || priorityClassName == "" {
+		return "", nil
+	}
+	return priorityClassName, nil
 }
 
 func (c ConfigData) GetAdditionalReportLabels() (labels.Set, error) {

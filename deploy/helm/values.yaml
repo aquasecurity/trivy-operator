@@ -500,4 +500,6 @@ nodeCollector:
     - name: etc-kubernetes
       hostPath:
         path: /etc/kubernetes
-
+    - name: etc-cni-netd
+      hostPath:
+        path: /etc/cni/net.d/

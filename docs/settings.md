@@ -63,7 +63,7 @@ configuration settings for common use cases. For example, switch Trivy from [Sta
 | `scanJob.podTemplateContainerSecurityContext`                         | N/A| One-line JSON representation of the template securityContext which the user wants the scanner and node collector containers (and their initContainers) to be amended with. Example: `{"allowPrivilegeEscalation": false, "capabilities": { "drop": ["ALL"]},"privileged": false, "readOnlyRootFilesystem": true }`|
 | `compliance.failEntriesLimit`                                         | `"10"`                                | Limit the number of fail entries per control check in the cluster compliance detail report.                                                                                                                                         |
 | `compliance.reportType`               | `summary`                   | this flag control the type of report generated summary or all                |
-| `compliance.cron`               | `0 */6 * * *`                   | this flag control the cron interval for compliance report generation                |
+| `compliance.cron`                     | `0 */6 * * *`                   | this flag control the cron interval for compliance report generation                |
 | `scanJob.compressLogs`                                         | `"true"`                              | Control whether scanjob output should be compressed                                                                                                                                     |
 
 !!! tip

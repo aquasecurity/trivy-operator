@@ -2,7 +2,7 @@
 
 SCRIPT_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
 
-CRD_DIR=$SCRIPT_ROOT/deploy/crd
+CRD_DIR=$SCRIPT_ROOT/deploy/helm/crds
 HELM_DIR=$SCRIPT_ROOT/deploy/helm
 STATIC_DIR=$SCRIPT_ROOT/deploy/static
 

@@ -71,8 +71,9 @@ You can configure Trivy-Operator to control it's behavior and adapt it to your n
 | `OPERATOR_SEND_DELETED_REPORTS`                              | `false`                | The flag to enable sending deleted reports if webhookBroadcastURL is enabled                                                                                                                                                               |
 | `OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES`               | `{}`                   | The flag is map of namespace:secrets, secrets are comma seperated which can be used to authenticate in private registries in case if there no imagePullSecrets provided example : {"mynamespace":"mySecrets,anotherSecret"}                |
 | `OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT`              | `false`                | The flag to enable merging rbac finding with config-audit report                                                                                                                                                                           |
-| `compliance.reportType`                                               | `"summary"`                                | this flag control the type of report generated summary or all        |
+| `compliance.reportType`                                               | `"summary"`                                | this flag control the type of report generated summary or all             |
 | `compliance.cron`                                               |   `"0 */6 * * *"`                                | this flag control the cron interval for compliance report generation      |
+
 The values of the `OPERATOR_NAMESPACE` and `OPERATOR_TARGET_NAMESPACES` determine the install mode, which in turn determines the multitenancy support of the operator.
 
 | MODE| OPERATOR_NAMESPACE | OPERATOR_TARGET_NAMESPACES | DESCRIPTION|

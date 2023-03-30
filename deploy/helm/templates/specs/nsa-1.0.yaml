@@ -9,8 +9,8 @@ metadata:
     app.kubernetes.io/version: "0.12.1"
     app.kubernetes.io/managed-by: kubectl
 spec:
-  cron: "0 */6 * * *"
-  reportType: "summary" # 'summary' or 'all'
+  cron: {{ .Values.compliance.cron }}
+  reportType: {{ .Values.compliance.reportType }}
   compliance:
     id: nsa
     title: National Security Agency - Kubernetes Hardening Guidance v1.0

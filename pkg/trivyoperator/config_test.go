@@ -151,6 +151,42 @@ func TestConfigData_GetScanJobTolerations(t *testing.T) {
 	}
 }
 
+func TestConfigData_GetScanJobPodPriorityClassName(t *testing.T) {
+	testCases := []struct {
+		name     string
+		config   trivyoperator.ConfigData
+		expected string
+	}{
+		{
+			name:     "no scanJob.podPriorityClassName in ConfigData",
+			config:   trivyoperator.ConfigData{},
+			expected: "",
+		},
+		{
+			name:     "scanJob.podPriorityClassName value is not string",
+			config:   trivyoperator.ConfigData{"scanJob.podPriorityClassName": "2"},
+			expected: "2",
+		},
+		{
+			name:     "empty string value",
+			config:   trivyoperator.ConfigData{"scanJob.podPriorityClassName": ""},
+			expected: "",
+		},
+		{
+			name:     "one valid string",
+			config:   trivyoperator.ConfigData{"scanJob.podPriorityClassName": "testing"},
+			expected: "testing",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, _ := tc.config.GetScanJobPodPriorityClassName()
+			assert.Equal(t, tc.expected, got, tc.name)
+		})
+	}
+}
+
 func TestConfigData_TestConfigData_GetNodeCollectorVolumes(t *testing.T) {
 	testCases := []struct {
 		name        string

@@ -91,11 +91,11 @@ Join the community, and talk to us about any matter in [GitHub Discussions] or [
 [Slack]: https://slack.aquasec.com/
 [Open Source Work and Portfolio]: https://www.aquasec.com/products/open-source-projects/
 
-[Custom Resource Definitions]: https://aquasecurity.github.io/trivy-operator/latest/crds
+[Custom Resource Definitions]: https://aquasecurity.github.io/trivy-operator/latest/docs/crds/
 [Go module]: https://pkg.go.dev/github.com/aquasecurity/trivy-operator/pkg
 [Documentation]: https://aquasecurity.github.io/trivy-operator/latest
-[Static YAML Manifests]: https://aquasecurity.github.io/trivy-operator/latest/operator/installation/kubectl
-[getting-started-operator]: https://aquasecurity.github.io/trivy-operator/latest/operator
+[Static YAML Manifests]: https://aquasecurity.github.io/trivy-operator/latest/getting-started/installation/kubectl/
+[getting-started-operator]: https://aquasecurity.github.io/trivy-operator/latest/
 [Kubernetes operator]: https://aquasecurity.github.io/trivy-operator/latest
 
 [Lens Extension]: https://github.com/aquasecurity/trivy-operator-lens-extension

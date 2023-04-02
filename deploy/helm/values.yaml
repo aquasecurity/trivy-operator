@@ -389,6 +389,10 @@ trivy:
 compliance:
   # failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report
   failEntriesLimit: 10
+  # reportType this flag control the type of report generated (summary or all)
+  reportType: summary
+  # cron this flag control the cron interval for compliance report generation
+  cron: 0 */6 * * *
 
 rbac:
   create: true

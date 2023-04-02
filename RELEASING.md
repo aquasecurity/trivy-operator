@@ -20,7 +20,7 @@
       2. Update the `appVersion` property
    2. Update the `app.kubernetes.io/version` labels in the following files:
       1. [`deploy/static/namespace.yaml`]
-      2. [`deploy/specs/nsa-1.0.yaml`]
+      2. [`deploy/helm/templates/specs/nsa-1.0.yaml`]
    3. Update static resources from Helm chart by running the make target:
       ```
       make manifests
@@ -62,7 +62,7 @@
 [`deploy/crd/aquasecurity.github.io_rbacassessmentreports.yaml`]: ./deploy/helm/crds/rbacassessmentreports.crd.yaml
 [`deploy/crd/aquasecurity.github.io_clusterrbacassessmentreports.yaml`]: ./deploy/helm/crds/clusterrbacassessmentreports.crd.yaml
 [`deploy/static/namespace.yaml`]: ./deploy/static/namespace.yaml
-[`deploy/specs/nsa-1.0.yaml`]: ./deploy/specs/nsa-1.0.yaml
+[`deploy/helm/templates/specs/nsa-1.0.yaml`]: ./deploy/helm/templates/specs/nsa-1.0.yaml
 [`deploy/static/trivy-operator.yaml`]: ./deploy/static/trivy-operator.yaml
 [`mkdocs.yml`]: ./mkdocs.yml
 [`.github/workflows/release.yaml`]: ./.github/workflows/release.yaml

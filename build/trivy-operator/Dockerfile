@@ -1,4 +1,4 @@
-FROM alpine:20230208
+FROM alpine:20230329
 
 RUN adduser -u 10000 -D -g '' trivyoperator trivyoperator
 

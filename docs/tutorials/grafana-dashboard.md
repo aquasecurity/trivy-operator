@@ -92,7 +92,7 @@ Next, we can install the operator with the following command:
 helm install trivy-operator aqua/trivy-operator \
   --namespace trivy-system \
   --create-namespace \
-  --version 0.13.0-rc \
+  --version 0.13.0-rc2 \
   --values trivy-values.yaml
 ```
 

@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"io"
 	"log"
 	"os"
@@ -15,6 +14,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/aquasecurity/trivy-operator/pkg/docker"
 
 	dbtypes "github.com/aquasecurity/trivy-db/pkg/types"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
@@ -699,7 +700,7 @@ func TestPlugin_Init(t *testing.T) {
 			},
 			Data: map[string]string{
 				"trivy.repository":                trivy.DefaultImageRepository,
-				"trivy.tag":                       "0.38.2",
+				"trivy.tag":                       "0.39.0",
 				"trivy.severity":                  trivy.DefaultSeverity,
 				"trivy.slow":                      "true",
 				"trivy.mode":                      string(trivy.Standalone),

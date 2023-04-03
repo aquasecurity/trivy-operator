@@ -112,8 +112,7 @@ operator:
   mergeRbacFindingWithConfigAudit: false
 
 image:
-  registry: "ghcr.io"
-  repository: "aquasecurity/trivy-operator"
+  repository: "ghcr.io/aquasecurity/trivy-operator"
   # tag is an override of the image tag, which is by default set by the
   # appVersion field in Chart.yaml.
   tag: ""
@@ -217,10 +216,8 @@ trivy:
   # createConfig indicates whether to create config objects
   createConfig: true
 
-  # registry of the Trivy image
-  registry: ghcr.io
   # repository of the Trivy image
-  repository: aquasecurity/trivy
+  repository: ghcr.io/aquasecurity/trivy
   # tag version of the Trivy image
   tag: 0.39.0
   # imagePullSecret is the secret name to be used when pulling trivy image from private registries example : reg-secret
@@ -351,8 +348,8 @@ trivy:
   # Trivy client to Trivy server. Only applicable in ClientServer mode.
   #
   # serverCustomHeaders: "foo=bar"
-  dbRegistry: "ghcr.io"
-  dbRepository: "aquasecurity/trivy-db"
+
+  dbRepository: "ghcr.io/aquasecurity/trivy-db"
 
   # The Flag to enable insecure connection for downloading trivy-db via proxy (air-gaped env)
   #
@@ -456,10 +453,8 @@ priorityClassName: ""
 automountServiceAccountToken: true
 
 nodeCollector:
-  # registry of the node-collector image
-  registry: ghcr.io
   # repository of the node-collector image
-  repository: aquasecurity/node-collector
+  repository: ghcr.io/aquasecurity/node-collector
   # tag version of the node-collector image
   tag: 0.0.6
 

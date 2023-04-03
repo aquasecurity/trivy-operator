@@ -6,11 +6,11 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: 0.12.0
+    app.kubernetes.io/version: 0.13.0-rc3
     app.kubernetes.io/managed-by: kubectl
 spec:
-  cron: 0 */6 * * *
-  reportType: summary
+  cron: {{ .Values.compliance.cron }}
+  reportType: {{ .Values.compliance.reportType }}
   compliance:
     id: cis
     title: CIS Kubernetes Benchmarks v1.23

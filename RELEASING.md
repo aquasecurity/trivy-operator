@@ -20,7 +20,7 @@
       2. Update the `appVersion` property
    2. Update the `app.kubernetes.io/version` labels in the following files:
       1. [`deploy/static/namespace.yaml`]
-      2. [`deploy/specs/nsa-1.0.yaml`]
+      2. [`deploy/helm/templates/specs/nsa-1.0.yaml`]
    3. Update static resources from Helm chart by running the make target:
       ```
       make manifests
@@ -55,14 +55,14 @@
 [`deploy/helm/Chart.yaml`]: ./deploy/helm/Chart.yaml
 [`deploy/compliance/aquasecurity.github.io_clustercompliancedetailreports.yaml`]: ./deploy/compliance/clustercompliancedetailreports.crd.yaml
 [`deploy/compliance/aquasecurity.github.io_clustercompliancereports.yaml`]: ./deploy/compliance/clustercompliancereports.crd.yaml
-[`deploy/crd/aquasecurity.github.io_clusterconfigauditreports.yaml`]: ./deploy/crd/clusterconfigauditreports.crd.yaml
-[`deploy/crd/aquasecurity.github.io_configauditreports.yaml`]: ./deploy/crd/configauditreports.crd.yaml
-[`deploy/crd/aquasecurity.github.io_vulnerabilityreports.yaml`]: ./deploy/crd/vulnerabilityreports.crd.yaml
-[`deploy/crd/aquasecurity.github.io_exposedsecretreports.yaml`]: ./deploy/crd/exposedsecretreports.crd.yaml
-[`deploy/crd/aquasecurity.github.io_rbacassessmentreports.yaml`]: ./deploy/crd/rbacassessmentreports.crd.yaml
-[`deploy/crd/aquasecurity.github.io_clusterrbacassessmentreports.yaml`]: ./deploy/crd/clusterrbacassessmentreports.crd.yaml
+[`deploy/crd/aquasecurity.github.io_clusterconfigauditreports.yaml`]: ./deploy/helm/crds/clusterconfigauditreports.crd.yaml
+[`deploy/crd/aquasecurity.github.io_configauditreports.yaml`]: ./deploy/helm/crds/configauditreports.crd.yaml
+[`deploy/crd/aquasecurity.github.io_vulnerabilityreports.yaml`]: ./deploy/helm/crds/vulnerabilityreports.crd.yaml
+[`deploy/crd/aquasecurity.github.io_exposedsecretreports.yaml`]: ./deploy/helm/crds/exposedsecretreports.crd.yaml
+[`deploy/crd/aquasecurity.github.io_rbacassessmentreports.yaml`]: ./deploy/helm/crds/rbacassessmentreports.crd.yaml
+[`deploy/crd/aquasecurity.github.io_clusterrbacassessmentreports.yaml`]: ./deploy/helm/crds/clusterrbacassessmentreports.crd.yaml
 [`deploy/static/namespace.yaml`]: ./deploy/static/namespace.yaml
-[`deploy/specs/nsa-1.0.yaml`]: ./deploy/specs/nsa-1.0.yaml
+[`deploy/helm/templates/specs/nsa-1.0.yaml`]: ./deploy/helm/templates/specs/nsa-1.0.yaml
 [`deploy/static/trivy-operator.yaml`]: ./deploy/static/trivy-operator.yaml
 [`mkdocs.yml`]: ./mkdocs.yml
 [`.github/workflows/release.yaml`]: ./.github/workflows/release.yaml

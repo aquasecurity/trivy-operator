@@ -18,7 +18,7 @@ A list of addons is provided below.
     openebs              # (community) OpenEBS is the open-source storage solution for Kubernetes
     osm-edge             # (community) osm-edge is a lightweight SMI compatible service mesh for the edge-computing.
     portainer            # (community) Portainer UI for your Kubernetes cluster
-    starboard            # (community) Kubernetes-native security toolkit
+    trivy-operator       # (community) Kubernetes-native security toolkit
     traefik              # (community) traefik Ingress controller for external access
     dns                  # (core) CoreDNS
     ha-cluster           # (core) Configure high availability on the current node

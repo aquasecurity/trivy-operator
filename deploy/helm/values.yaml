@@ -47,6 +47,9 @@ operator:
   # scanJobsConcurrentLimit the maximum number of scan jobs create by the operator
   scanJobsConcurrentLimit: 10
 
+  # scanNodeCollectorLimit the maximum number of node collector jobs create by the operator
+  scanNodeCollectorLimit: 1
+
   # scanJobsRetryDelay the duration to wait before retrying a failed scan job
   scanJobsRetryDelay: 30s
 
@@ -60,6 +63,8 @@ operator:
   rbacAssessmentScannerEnabled: true
   # infraAssessmentScannerEnabled the flag to enable infra assessment scanner
   infraAssessmentScannerEnabled: true
+  # clusterComplianceEnabled the flag to enable cluster compliance scanner
+  clusterComplianceEnabled: true
   # batchDeleteLimit the maximum number of config audit reports deleted by the operator when the plugin's config has changed.
   batchDeleteLimit: 10
   # vulnerabilityScannerScanOnlyCurrentRevisions the flag to only create vulnerability scans on the current revision of a deployment.
@@ -96,6 +101,9 @@ operator:
 
   # webhookBroadcastTimeout the flag to set timeout for webhook requests if webhookBroadcastURL is enabled
   webhookBroadcastTimeout: 30s
+
+  # webhookSendDeletedReports the flag to enable sending deleted reports if webhookBroadcastURL is enabled
+  webhookSendDeletedReports: false
 
   # privateRegistryScanSecretsNames is map of namespace:secrets, secrets are comma seperated which can be used to authenticate in private registries in case if there no imagePullSecrets provided example : {"mynamespace":"mySecrets,anotherSecret"}
   privateRegistryScanSecretsNames: {}
@@ -163,14 +171,14 @@ trivyOperator:
   # labeled with. Example: `foo=bar,env=stage` will labeled the scanner pods with the labels `foo: bar` and `env: stage`
   scanJobPodTemplateLabels: ""
 
-  # scanJobPodTemplatePodSecurityContext podSecurityContext the user wants the scanner pods to be amended with.
+  # scanJobPodTemplatePodSecurityContext podSecurityContext the user wants the scanner and node collector pods to be amended with.
   # Example:
   #   RunAsUser: 10000
   #   RunAsGroup: 10000
   #   RunAsNonRoot: true
   scanJobPodTemplatePodSecurityContext: {}
 
-  # scanJobPodTemplateContainerSecurityContext SecurityContext the user wants the scanner containers (and their
+  # scanJobPodTemplateContainerSecurityContext SecurityContext the user wants the scanner and node collector containers (and their
   # initContainers) to be amended with.
   scanJobPodTemplateContainerSecurityContext:
     allowPrivilegeEscalation: false
@@ -181,6 +189,9 @@ trivyOperator:
     readOnlyRootFilesystem: true
     # For filesystem scanning, Trivy needs to run as the root user
     # runAsUser: 0
+
+  # scanJobPodPriorityClassName Priority class name to be set on the pods created by trivy operator jobs. This accepts a string value
+  scanJobPodPriorityClassName: ""
 
   # reportResourceLabels comma-separated scanned resource labels which the user wants to include in the Prometheus
   # metrics report. Example: `owner,app`
@@ -196,6 +207,11 @@ trivyOperator:
   # when including them in the Prometheus metrics
   metricsResourceLabelsPrefix: "k8s_label_"
 
+  # additionalReportLabels comma-separated representation of the labels which the user wants the scanner pods to be
+  # labeled with. Example: `foo=bar,env=stage` will labeled the reports with the labels `foo: bar` and `env: stage`
+  additionalReportLabels: ""
+
+
 trivy:
   # createConfig indicates whether to create config objects
   createConfig: true
@@ -203,7 +219,7 @@ trivy:
   # repository of the Trivy image
   repository: ghcr.io/aquasecurity/trivy
   # tag version of the Trivy image
-  tag: 0.38.1
+  tag: 0.39.0
   # imagePullSecret is the secret name to be used when pulling trivy image from private registries example : reg-secret
   # It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace
   # imagePullSecret:
@@ -357,10 +373,26 @@ trivy:
   serverPassword: ""
   # serverServiceName this param is the server service name to be used in cluster
   serverServiceName: "trivy-service"
+  # debug One of `true` or `false`. Enables debug mode.
+  debug: false
+
+  # set trivy-server resource
+  server:
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 1
+        memory: 1Gi
 
 compliance:
   # failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report
   failEntriesLimit: 10
+  # reportType this flag control the type of report generated (summary or all)
+  reportType: summary
+  # cron this flag control the cron interval for compliance report generation
+  cron: 0 */6 * * *
 
 rbac:
   create: true
@@ -424,4 +456,58 @@ nodeCollector:
   # repository of the node-collector image
   repository: ghcr.io/aquasecurity/node-collector
   # tag version of the node-collector image
-  tag: 0.0.5
+  tag: 0.0.6
+
+  # node-collector pod volumeMounts definition for collecting config files information
+  volumeMounts:
+    - name: var-lib-etcd
+      mountPath: /var/lib/etcd
+      readOnly: true
+    - name: var-lib-kubelet
+      mountPath: /var/lib/kubelet
+      readOnly: true
+    - name: var-lib-kube-scheduler
+      mountPath: /var/lib/kube-scheduler
+      readOnly: true
+    - name: var-lib-kube-controller-manager
+      mountPath: /var/lib/kube-controller-manager
+      readOnly: true
+    - name: etc-systemd
+      mountPath: /etc/systemd
+      readOnly: true
+    - name: lib-systemd
+      mountPath: /lib/systemd/
+      readOnly: true
+    - name: etc-kubernetes
+      mountPath: /etc/kubernetes
+      readOnly: true
+    - name: etc-cni-netd
+      mountPath: /etc/cni/net.d/
+      readOnly: true
+
+  # node-collector pod volumes definition for collecting config files information
+  volumes:
+    - name: var-lib-etcd
+      hostPath:
+        path: /var/lib/etcd
+    - name: var-lib-kubelet
+      hostPath:
+        path: /var/lib/kubelet
+    - name: var-lib-kube-scheduler
+      hostPath:
+        path: /var/lib/kube-scheduler
+    - name: var-lib-kube-controller-manager
+      hostPath:
+        path: /var/lib/kube-controller-manager
+    - name: etc-systemd
+      hostPath:
+        path: /etc/systemd
+    - name: lib-systemd
+      hostPath:
+        path: /lib/systemd
+    - name: etc-kubernetes
+      hostPath:
+        path: /etc/kubernetes
+    - name: etc-cni-netd
+      hostPath:
+        path: /etc/cni/net.d/

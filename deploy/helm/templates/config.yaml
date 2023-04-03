@@ -10,6 +10,12 @@ data:
   {{- with .Values.trivyOperator.scanJobTolerations }}
   scanJob.tolerations: {{ . | toJson | quote }}
   {{- end }}
+  {{- with .Values.nodeCollector.volumes }}
+  nodeCollector.volumes: {{ . | toJson | quote }}
+  {{- end }}
+  {{- with .Values.nodeCollector.volumeMounts }}
+  nodeCollector.volumeMounts: {{ . | toJson | quote }}
+  {{- end }}
   {{- with .Values.trivyOperator.scanJobAnnotations }}
   scanJob.annotations: {{ . | quote }}
   {{- end }}
@@ -19,6 +25,9 @@ data:
   {{- with .Values.trivyOperator.scanJobPodTemplateLabels }}
   scanJob.podTemplateLabels: {{ . | quote }}
   {{- end }}
+  {{- with .Values.trivyOperator.additionalReportLabels }}
+  report.additionalLabels: {{ . | quote }}
+  {{- end }}
   {{- with .Values.trivyOperator.scanJobNodeSelector }}
   scanJob.nodeSelector: {{ . | toJson | quote }}
   {{- end }}
@@ -27,6 +36,9 @@ data:
   {{- end }}
   {{- with .Values.trivyOperator.scanJobPodTemplateContainerSecurityContext }}
   scanJob.podTemplateContainerSecurityContext: {{ . | toJson | quote }}
+  {{- end }}
+  {{- with .Values.trivyOperator.scanJobPodPriorityClassName }}
+  scanJob.podPriorityClassName: {{ . | quote }}
   {{- end }}
   {{- with .Values.trivyOperator.scanJobCompressLogs }}
   scanJob.compressLogs: {{ . | toJson | quote }}
@@ -163,7 +175,7 @@ data:
   {{- if .Values.operator.builtInTrivyServer }}
   TRIVY_LISTEN: "0.0.0.0:4954"
   TRIVY_CACHE_DIR: "/home/scanner/.cache/trivy"
-  TRIVY_DEBUG: "false"
+  TRIVY_DEBUG: {{ .Values.trivy.debug | quote }}
   TRIVY_SKIP_UPDATE: "false"
   TRIVY_DB_REPOSITORY: {{ .Values.trivy.dbRepository | quote }}
   {{- end }}

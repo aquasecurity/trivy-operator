@@ -51,6 +51,8 @@ spec:
               value: {{ .Values.operator.scanJobTimeout | quote }}
             - name: OPERATOR_CONCURRENT_SCAN_JOBS_LIMIT
               value: {{ .Values.operator.scanJobsConcurrentLimit | quote }}
+            - name: OPERATOR_CONCURRENT_NODE_COLLECTOR_LIMIT
+              value: {{ .Values.operator.scanNodeCollectorLimit | quote }}
             - name: OPERATOR_SCAN_JOB_RETRY_AFTER
               value: {{ .Values.operator.scanJobsRetryDelay | quote }}
             - name: OPERATOR_BATCH_DELETE_LIMIT
@@ -87,6 +89,8 @@ spec:
               value: {{ .Values.operator.webhookBroadcastURL | quote }}
             - name: OPERATOR_WEBHOOK_BROADCAST_TIMEOUT
               value: {{ .Values.operator.webhookBroadcastTimeout | quote }}
+            - name: OPERATOR_SEND_DELETED_REPORTS
+              value: {{ .Values.operator.webhookSendDeletedReports | quote }}
             - name: OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES
               value: {{ .Values.operator.privateRegistryScanSecretsNames | toJson | quote }}
             - name: OPERATOR_ACCESS_GLOBAL_SECRETS_SERVICE_ACCOUNTS
@@ -97,6 +101,8 @@ spec:
               value: {{ .Values.operator.trivyServerHealthCheckCacheExpiration | quote }}
             - name: OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT
               value: {{ .Values.operator.mergeRbacFindingWithConfigAudit | quote }}
+            - name: OPERATOR_CLUSTER_COMPLIANCE_ENABLED
+              value: {{ .Values.operator.clusterComplianceEnabled | quote }}
             {{- if gt (int .Values.operator.replicas) 1 }}
             - name: OPERATOR_LEADER_ELECTION_ENABLED
               value: "true"

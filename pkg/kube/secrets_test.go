@@ -23,7 +23,7 @@ func TestMapDockerRegistryServersToAuths(t *testing.T) {
 	t.Run("should map Docker registry servers to Docker authentication credentials", func(t *testing.T) {
 		g := NewGomegaWithT(t)
 
-		auths, wildcardServers, err := kube.MapDockerRegistryServersToAuths([]corev1.Secret{
+		auths, err := kube.MapDockerRegistryServersToAuths([]corev1.Secret{
 			{
 				Type: corev1.SecretTypeDockerConfigJson,
 				Data: map[string][]byte{
@@ -49,6 +49,7 @@ func TestMapDockerRegistryServersToAuths(t *testing.T) {
 				},
 			},
 		}, false)
+		wildcardServers := kube.GetWildcardServers(auths)
 		g.Expect(err).ToNot(HaveOccurred())
 		assert.Equal(t, len(wildcardServers), 1)
 		g.Expect(auths).To(MatchAllKeys(Keys{
@@ -68,7 +69,7 @@ func TestMapDockerRegistryServersToAuths(t *testing.T) {
 	t.Run(`should skip secret of type "kubernetes.io/dockercfg"`, func(t *testing.T) {
 		g := NewGomegaWithT(t)
 
-		auths, wildcardServers, err := kube.MapDockerRegistryServersToAuths([]corev1.Secret{
+		auths, err := kube.MapDockerRegistryServersToAuths([]corev1.Secret{
 			{
 				Type: corev1.SecretTypeDockercfg,
 				Data: map[string][]byte{},
@@ -86,7 +87,7 @@ func TestMapDockerRegistryServersToAuths(t *testing.T) {
 				},
 			},
 		}, false)
-
+		wildcardServers := kube.GetWildcardServers(auths)
 		g.Expect(err).ToNot(HaveOccurred())
 		assert.Equal(t, len(wildcardServers), 0)
 		g.Expect(auths).To(MatchAllKeys(Keys{
@@ -116,12 +117,14 @@ func TestMapDockerRegistryServersToAuths(t *testing.T) {
 		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
 		require.NoError(t, err)
 		assert.True(t, len(foundsecret) == 2)
+		auths, err := kube.MapDockerRegistryServersToAuths(foundsecret, false)
+		require.NoError(t, err)
 
-		auths, err := kube.MapContainerNamesToDockerAuths(kube.ContainerImages{
+		mapping, err := kube.MapContainerNamesToDockerAuths(kube.ContainerImages{
 			"container-1": "quay.io/my-company/my-service:2.0",
-		}, foundsecret, false)
+		}, auths)
 		g.Expect(err).ToNot(HaveOccurred())
-		g.Expect(auths).To(MatchAllKeys(Keys{
+		g.Expect(mapping).To(MatchAllKeys(Keys{
 			"container-1": Equal(docker.Auth{
 				Auth:     "dXNlcjpBZG1pbjEyMzQ1",
 				Username: "user",
@@ -147,12 +150,14 @@ func TestMapDockerRegistryServersToAuths(t *testing.T) {
 		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
 		require.NoError(t, err)
 		assert.True(t, len(foundsecret) == 2)
+		auths, err := kube.MapDockerRegistryServersToAuths(foundsecret, true)
+		require.NoError(t, err)
 
-		auths, err := kube.MapContainerNamesToDockerAuths(kube.ContainerImages{
+		mapping, err := kube.MapContainerNamesToDockerAuths(kube.ContainerImages{
 			"container-1": "quay.io/my-company/my-service:2.0",
-		}, foundsecret, true)
+		}, auths)
 		g.Expect(err).ToNot(HaveOccurred())
-		g.Expect(auths).To(MatchAllKeys(Keys{
+		g.Expect(mapping).To(MatchAllKeys(Keys{
 			"container-1": Equal(docker.Auth{
 				Auth:     "",
 				Username: "root,user",
@@ -166,11 +171,7 @@ func TestMapContainerNamesToDockerAuths(t *testing.T) {
 	t.Run("should map container images to Docker authentication credentials", func(t *testing.T) {
 		g := NewGomegaWithT(t)
 
-		auths, err := kube.MapContainerNamesToDockerAuths(kube.ContainerImages{
-			"container-1": "docker.io/my-organization/my-app-backend:0.1.0",
-			"container-2": "my-organization/my-app-frontend:0.3.2",
-			"container-3": "quay.io/my-company/my-service:2.0",
-		}, []corev1.Secret{
+		auths, err := kube.MapDockerRegistryServersToAuths([]corev1.Secret{
 			{
 				Type: corev1.SecretTypeDockerConfigJson,
 				Data: map[string][]byte{
@@ -196,8 +197,15 @@ func TestMapContainerNamesToDockerAuths(t *testing.T) {
 				},
 			},
 		}, false)
+		require.NoError(t, err)
+
+		mapping, err := kube.MapContainerNamesToDockerAuths(kube.ContainerImages{
+			"container-1": "docker.io/my-organization/my-app-backend:0.1.0",
+			"container-2": "my-organization/my-app-frontend:0.3.2",
+			"container-3": "quay.io/my-company/my-service:2.0",
+		}, auths)
 		g.Expect(err).ToNot(HaveOccurred())
-		g.Expect(auths).To(MatchAllKeys(Keys{
+		g.Expect(mapping).To(MatchAllKeys(Keys{
 			"container-1": Equal(docker.Auth{
 				Auth:     "cm9vdDpzM2NyZXQ=",
 				Username: "root",
@@ -218,9 +226,7 @@ func TestMapContainerNamesToDockerAuths(t *testing.T) {
 	t.Run("should map container images to Docker authentication credentials where server has wildcard prefixed", func(t *testing.T) {
 		g := NewGomegaWithT(t)
 
-		auths, err := kube.MapContainerNamesToDockerAuths(kube.ContainerImages{
-			"container-1": "tes.jfrog.com/my-organization/my-app-backend:0.1.0",
-		}, []corev1.Secret{
+		auths, err := kube.MapDockerRegistryServersToAuths([]corev1.Secret{
 			{
 				Type: corev1.SecretTypeDockerConfigJson,
 				Data: map[string][]byte{
@@ -234,8 +240,13 @@ func TestMapContainerNamesToDockerAuths(t *testing.T) {
 				},
 			},
 		}, false)
+		require.NoError(t, err)
+
+		mapping, err := kube.MapContainerNamesToDockerAuths(kube.ContainerImages{
+			"container-1": "tes.jfrog.com/my-organization/my-app-backend:0.1.0",
+		}, auths)
 		g.Expect(err).ToNot(HaveOccurred())
-		g.Expect(auths).To(MatchAllKeys(Keys{
+		g.Expect(mapping).To(MatchAllKeys(Keys{
 			"container-1": Equal(docker.Auth{
 				Auth:     "cm9vdDpzM2NyZXQ=",
 				Username: "root",
@@ -335,4 +346,36 @@ func loadResource(filePath string, resource interface{}) error {
 		return nil
 	}
 	return err
+}
+
+func Test_secretsReader_CredentialsByServer(t *testing.T) {
+	t.Run("Test with service account and secret with same registry domain should map container images to Docker authentication credentials from Pod secret", func(t *testing.T) {
+
+		var secret corev1.Secret
+		err := loadResource("./testdata/fixture/secret_same_domain.json", &secret)
+		require.NoError(t, err)
+		var sa corev1.ServiceAccount
+		err = loadResource("./testdata/fixture/sa_with_image_pull_secret_same_domain.json", &sa)
+		require.NoError(t, err)
+		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(&secret).WithObjects(&sa).Build()
+		sr := kube.NewSecretsReader(client)
+		pod := corev1.Pod{
+			Spec: corev1.PodSpec{
+				Containers: []corev1.Container{
+					{
+						Image: "quay.io/nginx:1.16",
+					},
+				},
+			},
+		}
+
+		auths, err := sr.CredentialsByServer(context.Background(), &pod, map[string]string{
+			"default": "regcred",
+		}, false)
+		require.NoError(t, err)
+		assert.Equal(t, 1, len(auths))
+		assert.Equal(t, map[string]docker.Auth{
+			"quay.io": {Auth: "dXNlcjpBZG1pbjEyMzQ1", Username: "user", Password: "Admin12345"},
+		}, auths)
+	})
 }

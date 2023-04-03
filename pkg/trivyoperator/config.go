@@ -58,6 +58,8 @@ const (
 	keyConfigAuditReportsScanner         = "configAuditReports.scanner"
 	keyScanJobTolerations                = "scanJob.tolerations"
 	KeyScanJobcompressLogs               = "scanJob.compressLogs"
+	KeyNodeCollectorVolumes              = "nodeCollector.volumes"
+	KeyNodeCollectorVolumeMounts         = "nodeCollector.volumeMounts"
 	keyScanJobNodeSelector               = "scanJob.nodeSelector"
 	keyScanJobAnnotations                = "scanJob.annotations"
 	//nolint
@@ -65,6 +67,7 @@ const (
 	KeyScanJobContainerSecurityContext     = "scanJob.podTemplateContainerSecurityContext"
 	keyScanJobPodSecurityContext           = "scanJob.podTemplatePodSecurityContext"
 	keyScanJobPodTemplateLabels            = "scanJob.podTemplateLabels"
+	KeyScanJobPodPriorityClassName         = "scanJob.podPriorityClassName"
 	keyComplianceFailEntriesLimit          = "compliance.failEntriesLimit"
 	keySkipResourceByLabels                = "skipResourceByLabels"
 	KeyReportResourceLabels                = "report.resourceLabels"
@@ -72,6 +75,7 @@ const (
 	KeyMetricsResourceLabelsPrefix         = "metrics.resourceLabelsPrefix"
 	KeyTrivyServerURL                      = "trivy.serverURL"
 	KeyNodeCollectorImageRef               = "node.collector.imageRef"
+	KeyAdditionalReportLabels              = "report.additionalLabels"
 )
 
 // ConfigData holds Trivy-operator configuration settings as a set of key-value
@@ -93,7 +97,7 @@ func GetDefaultConfig() ConfigData {
 		KeyScanJobcompressLogs:          "true",
 		keyComplianceFailEntriesLimit:   "10",
 		KeyReportRecordFailedChecksOnly: "true",
-		KeyNodeCollectorImageRef:        "ghcr.io/aquasecurity/node-collector:0.0.5",
+		KeyNodeCollectorImageRef:        "ghcr.io/aquasecurity/node-collector:0.0.6",
 	}
 }
 
@@ -156,6 +160,23 @@ func (c ConfigData) GetScanJobTolerations() ([]corev1.Toleration, error) {
 	err := json.Unmarshal([]byte(c[keyScanJobTolerations]), &scanJobTolerations)
 
 	return scanJobTolerations, err
+}
+
+func (c ConfigData) GetNodeCollectorVolumes() ([]corev1.Volume, error) {
+	var volumes []corev1.Volume
+	if c[KeyNodeCollectorVolumes] == "" {
+		return volumes, nil
+	}
+	err := json.Unmarshal([]byte(c[KeyNodeCollectorVolumes]), &volumes)
+	return volumes, err
+}
+func (c ConfigData) GetGetNodeCollectorVolumeMounts() ([]corev1.VolumeMount, error) {
+	var volumesMount []corev1.VolumeMount
+	if c[KeyNodeCollectorVolumeMounts] == "" {
+		return volumesMount, nil
+	}
+	err := json.Unmarshal([]byte(c[KeyNodeCollectorVolumeMounts]), &volumesMount)
+	return volumesMount, err
 }
 
 func (c ConfigData) GetScanJobNodeSelector() (map[string]string, error) {
@@ -239,6 +260,34 @@ func (c ConfigData) GetScanJobPodTemplateLabels() (labels.Set, error) {
 	}
 
 	return scanJobPodTemplateLabelsMap, nil
+}
+
+func (c ConfigData) GetScanJobPodPriorityClassName() (string, error) {
+	priorityClassName, found := c[KeyScanJobPodPriorityClassName]
+
+	if !found || priorityClassName == "" {
+		return "", nil
+	}
+	return priorityClassName, nil
+}
+
+func (c ConfigData) GetAdditionalReportLabels() (labels.Set, error) {
+	additionalReportLabelsStr, found := c[KeyAdditionalReportLabels]
+	if !found || strings.TrimSpace(additionalReportLabelsStr) == "" {
+		return labels.Set{}, nil
+	}
+
+	additionalReportLabelsMap := map[string]string{}
+	for _, annotation := range strings.Split(additionalReportLabelsStr, ",") {
+		sepByEqual := strings.Split(annotation, "=")
+		if len(sepByEqual) != 2 {
+			return labels.Set{}, fmt.Errorf("failed parsing incorrectly formatted custom report labels: %s", additionalReportLabelsStr)
+		}
+		key, value := sepByEqual[0], sepByEqual[1]
+		additionalReportLabelsMap[key] = value
+	}
+
+	return additionalReportLabelsMap, nil
 }
 
 func (c ConfigData) GetReportResourceLabels() []string {

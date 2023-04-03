@@ -9,6 +9,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/utils/pointer"
@@ -24,6 +25,7 @@ type ReportBuilder struct {
 	data                    v1alpha1.ExposedSecretReportData
 	reportTTL               *time.Duration
 	resourceLabelsToInclude []string
+	additionalReportLabels  labels.Set
 }
 
 func NewReportBuilder(scheme *runtime.Scheme) *ReportBuilder {
@@ -62,6 +64,11 @@ func (b *ReportBuilder) ResourceLabelsToInclude(resourceLabelsToInclude []string
 	return b
 }
 
+func (b *ReportBuilder) AdditionalReportLabels(additionalReportLabels map[string]string) *ReportBuilder {
+	b.additionalReportLabels = additionalReportLabels
+	return b
+}
+
 func (b *ReportBuilder) reportName() string {
 	kind := b.controller.GetObjectKind().GroupVersionKind().Kind
 	name := b.controller.GetName()
@@ -74,26 +81,24 @@ func (b *ReportBuilder) reportName() string {
 }
 
 func (b *ReportBuilder) Get() (v1alpha1.ExposedSecretReport, error) {
-	labels := map[string]string{
+	reportLabels := map[string]string{
 		trivyoperator.LabelContainerName: b.container,
 	}
 
-	objectLabels := b.controller.GetLabels()
-	for _, labelToInclude := range b.resourceLabelsToInclude {
-		if value, ok := objectLabels[labelToInclude]; ok {
-			labels[labelToInclude] = value
-		}
-	}
+	// append matching resource labels by config to report
+	kube.AppendResourceLabels(b.resourceLabelsToInclude, b.controller.GetLabels(), reportLabels)
+	// append custom labels by config to report
+	kube.AppendCustomLabels(b.additionalReportLabels, reportLabels)
 
 	if b.hash != "" {
-		labels[trivyoperator.LabelResourceSpecHash] = b.hash
+		reportLabels[trivyoperator.LabelResourceSpecHash] = b.hash
 	}
 
 	report := v1alpha1.ExposedSecretReport{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      b.reportName(),
 			Namespace: b.controller.GetNamespace(),
-			Labels:    labels,
+			Labels:    reportLabels,
 		},
 		Report: b.data,
 	}

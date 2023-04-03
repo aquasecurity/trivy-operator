@@ -67,15 +67,7 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 			}
 			return ctrl.Result{}, fmt.Errorf("getting node from cache: %w", err)
 		}
-		// requeue nodes non-ready nodes
-		for _, condition := range node.Status.Conditions {
-			if condition.Type == corev1.NodeReady {
-				if !(condition.Status == corev1.ConditionTrue) {
-					log.V(1).Info("Pushing back node collector job", "retryAfter", r.ScanJobRetryAfter)
-					return ctrl.Result{RequeueAfter: r.Config.ScanJobRetryAfter}, nil
-				}
-			}
-		}
+
 		log.V(1).Info("Checking whether cluster Infra assessments report exists")
 		hasReport, err := hasInfraReport(ctx, node, r.InfraReadWriter)
 		if err != nil {
@@ -98,7 +90,7 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 			return ctrl.Result{}, nil
 		}
 
-		limitExceeded, jobsCount, err := r.LimitChecker.Check(ctx)
+		limitExceeded, jobsCount, err := r.LimitChecker.CheckNodes(ctx)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -120,6 +112,22 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting job tolerations: %w", err)
 		}
+		nodeCollectorVolumes, err := r.GetNodeCollectorVolumes()
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("getting node-collector volumes: %w", err)
+		}
+		nodeCollectorVolumeMounts, err := r.GetGetNodeCollectorVolumeMounts()
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("getting node-collector volumes mount: %w", err)
+		}
+		scanJobSecurityContext, err := r.GetScanJobPodSecurityContext()
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("getting scan job podSecurityContext: %w", err)
+		}
+		scanJobContainerSecurityContext, err := r.GetScanJobContainerSecurityContext()
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("getting scan job [container] securityContext: %w", err)
+		}
 		nodeCollectorImageRef := r.GetTrivyOperatorConfig().NodeCollectorImageRef()
 		coll := j.NewCollector(cluster,
 			j.WithJobTemplateName(j.NodeCollectorName),
@@ -127,7 +135,11 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 			j.WithJobNamespace(on),
 			j.WithServiceAccount(r.ServiceAccount),
 			j.WithJobTolerations(jobTolerations),
+			j.WithPodSpecSecurityContext(scanJobSecurityContext),
+			j.WithContainerSecurityContext(scanJobContainerSecurityContext),
 			j.WithImageRef(nodeCollectorImageRef),
+			j.WithVolumes(nodeCollectorVolumes),
+			j.WithVolumesMount(nodeCollectorVolumeMounts),
 			j.WithJobLabels(map[string]string{
 				trivyoperator.LabelNodeInfoCollector: "Trivy",
 				trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,

@@ -34,7 +34,7 @@ Our Prometheus installation needs to be slightly customised to discover ServiceM
 ```
 prometheus:
   prometheusSpec:
-    serviceMonitorSelectorNilUsesHelmValues: true
+    serviceMonitorSelectorNilUsesHelmValues: false
     serviceMonitorSelector: {}
     serviceMonitorNamespaceSelector: {}
 ```
@@ -92,7 +92,7 @@ Next, we can install the operator with the following command:
 helm install trivy-operator aqua/trivy-operator \
   --namespace trivy-system \
   --create-namespace \
-  --version 0.12.0 \
+  --version 0.13.0-rc3 \
   --values trivy-values.yaml
 ```
 
@@ -130,6 +130,12 @@ kubectl port-forward service/prom-grafana -n monitoring 3000:80
 In a new terminal, we are going to port-forward to the Trivy Operator service to access the metrics provided by the operator.
 
 Note that this operation is optional and just used to demonstrate where you can find the metrics to then query them in a better way through Prometheus and Grafana.
+
+Run the following command to remove the headless setting  `clusterIP: None` by editing `trivy-operator` service:
+
+```
+kubectl edit service trivy-operator -n trivy-system
+```
 
 Run the following command to port-forward the Trivy Operator Service:
 

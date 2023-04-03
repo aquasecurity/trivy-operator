@@ -5,23 +5,34 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/api/errors"
-	"net/http"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"time"
 )
 
 type WebhookReconciler struct {
 	logr.Logger
 	etc.Config
 	client.Client
+}
+
+const (
+	Update string = "update"
+	Delete string = "delete"
+)
+
+type WebhookMsg struct {
+	Verb           string        `json:"verb"`
+	OperatorObject client.Object `json:"operatorObject"`
 }
 
 // +kubebuilder:rbac:groups=aquasecurity.github.io,resources=vulnerabilityreports,verbs=get;list;watch;delete
@@ -61,20 +72,30 @@ func (r *WebhookReconciler) SetupWithManager(mgr ctrl.Manager) error {
 func (r *WebhookReconciler) reconcileReport(reportType client.Object) reconcile.Func {
 	return func(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
 		log := r.Logger.WithValues("report", request.NamespacedName)
+		if ignoreHistoricalReport(reportType) {
+			log.V(1).Info("Ignoring historical report")
+			return ctrl.Result{}, nil
+		}
+		verb := Update
 
 		err := r.Client.Get(ctx, request.NamespacedName, reportType)
 		if err != nil {
-			if errors.IsNotFound(err) {
+			if !errors.IsNotFound(err) {
+				return ctrl.Result{}, fmt.Errorf("getting report from cache: %w", err)
+			}
+			if !r.WebhookSendDeletedReports {
 				log.V(1).Info("Ignoring cached report that must have been deleted")
 				return ctrl.Result{}, nil
 			}
-			return ctrl.Result{}, fmt.Errorf("getting report from cache: %w", err)
+			verb = Delete
 		}
 
-		if err := sendReport(reportType, r.WebhookBroadcastURL, *r.WebhookBroadcastTimeout); err != nil {
-			return ctrl.Result{}, fmt.Errorf("failed to send report: %w", err)
+		if r.WebhookSendDeletedReports {
+			msg := WebhookMsg{OperatorObject: reportType, Verb: verb}
+
+			return ctrl.Result{}, sendReport(msg, r.WebhookBroadcastURL, *r.WebhookBroadcastTimeout)
 		}
-		return ctrl.Result{}, nil
+		return ctrl.Result{}, sendReport(reportType, r.WebhookBroadcastURL, *r.WebhookBroadcastTimeout)
 	}
 }
 
@@ -91,4 +112,15 @@ func sendReport[T any](reports T, endpoint string, timeout time.Duration) error 
 		return fmt.Errorf("failed to send reports to endpoint: %w", err)
 	}
 	return nil
+}
+
+func ignoreHistoricalReport(reportType client.Object) bool {
+	ttlReportAnnotationStr, ok := reportType.GetAnnotations()[v1alpha1.TTLReportAnnotation]
+	if !ok {
+		return false
+	}
+	if ttlReportAnnotationStr == time.Duration(0).String() { // check if it marked as historical report
+		return true
+	}
+	return false
 }

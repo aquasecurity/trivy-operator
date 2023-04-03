@@ -1,6 +1,7 @@
 package v1alpha1
 
 import (
+	defsecTypes "github.com/aquasecurity/defsec/pkg/types"
 	"github.com/aquasecurity/trivy/pkg/compliance/report"
 	"github.com/aquasecurity/trivy/pkg/compliance/spec"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -128,12 +129,12 @@ type ComplianceReport struct {
 }
 
 type ControlCheckResult struct {
-	ID            string             `json:"id,omitempty"`
-	Name          string             `json:"name,omitempty"`
-	Description   string             `json:"description,omitempty"`
-	DefaultStatus spec.ControlStatus `json:"status,omitempty"`
-	Severity      string             `json:"severity,omitempty"`
-	Checks        []ComplianceCheck  `json:"checks"`
+	ID            string                    `json:"id,omitempty"`
+	Name          string                    `json:"name,omitempty"`
+	Description   string                    `json:"description,omitempty"`
+	DefaultStatus defsecTypes.ControlStatus `json:"status,omitempty"`
+	Severity      string                    `json:"severity,omitempty"`
+	Checks        []ComplianceCheck         `json:"checks"`
 }
 
 // ComplianceCheck provides the result of conducting a single compliance step.
@@ -156,22 +157,22 @@ type ComplianceCheck struct {
 
 // ToComplainceSpec map data from crd compliance spec to trivy compliance spec
 func ToComplainceSpec(cSpec Complaince) spec.ComplianceSpec {
-	specControls := make([]spec.Control, 0)
+	specControls := make([]defsecTypes.Control, 0)
 	for _, control := range cSpec.Controls {
-		sChecks := make([]spec.SpecCheck, 0)
+		sChecks := make([]defsecTypes.SpecCheck, 0)
 		for _, scheck := range control.Checks {
-			sChecks = append(sChecks, spec.SpecCheck{ID: scheck.ID})
+			sChecks = append(sChecks, defsecTypes.SpecCheck{ID: scheck.ID})
 		}
-		specControls = append(specControls, spec.Control{
+		specControls = append(specControls, defsecTypes.Control{
 			ID:            control.ID,
 			Name:          control.Name,
 			Description:   control.Description,
 			Checks:        sChecks,
-			Severity:      spec.Severity(control.Severity),
-			DefaultStatus: spec.ControlStatus(control.DefaultStatus),
+			Severity:      defsecTypes.Severity(control.Severity),
+			DefaultStatus: defsecTypes.ControlStatus(control.DefaultStatus),
 		})
 	}
-	compSpec := spec.Spec{
+	compSpec := defsecTypes.Spec{
 		ID:               cSpec.ID,
 		Title:            cSpec.Title,
 		Description:      cSpec.Description,

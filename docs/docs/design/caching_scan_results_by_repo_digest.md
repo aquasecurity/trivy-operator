@@ -1,6 +1,6 @@
 # [DRAFT] Caching Scan Results by Image Reference
 
-## TL;DR;
+## TL;DR
 
 To find vulnerabilities in container images Trivy-Operator creates asynchronous
 Kubernetes (K8s) Jobs. Even though running a vulnerability scanner as a K8s
@@ -129,6 +129,5 @@ We can't use something like ownerReference since it would delete all vulnerabili
   a gate.
 * Both Trivy-Operator CLI and Trivy-Operator Operator can read and leverage ClusterVulnerabilityReports.
 
-[Standalone]: https://aquasecurity.github.io/trivy-operator/v0.12.0/integrations/vulnerability-scanners/trivy/#standalone
-[ClientServer]: https://aquasecurity.github.io/trivy-operator/v0.12.0/integrations/vulnerability-scanners/trivy/#clientserver
-[PR #879]: (https://github.com/aquasecurity/trivy-operator/pull/879)
+[Standalone]: https://aquasecurity.github.io/trivy-operator/v0.13.0-rc3/integrations/vulnerability-scanners/trivy/#standalone
+[ClientServer]: https://aquasecurity.github.io/trivy-operator/v0.13.0-rc3/integrations/vulnerability-scanners/trivy/#clientserver

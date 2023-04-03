@@ -2,7 +2,7 @@
 
 SCRIPT_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
 
-CRD_DIR=$SCRIPT_ROOT/deploy/crd
+CRD_DIR=$SCRIPT_ROOT/deploy/helm/crds
 HELM_DIR=$SCRIPT_ROOT/deploy/helm
 STATIC_DIR=$SCRIPT_ROOT/deploy/static
 
@@ -19,6 +19,7 @@ cat $CRD_DIR/* > $STATIC_DIR/trivy-operator.yaml
 ## if ns.yaml do not exist, cat namespace.yaml to trivy-operator.yaml (avoid duplicate namespace definition)
 [ ! -f $HELM_TMPDIR/trivy-operator/templates/ns.yaml ] && cat $STATIC_DIR/namespace.yaml >> $STATIC_DIR/trivy-operator.yaml
 
+cat $HELM_TMPDIR/trivy-operator/templates/specs/* > $STATIC_DIR/specs.yaml
 rm -rf $HELM_TMPDIR/trivy-operator/templates/specs
 cat $HELM_TMPDIR/trivy-operator/templates/* >> $STATIC_DIR/trivy-operator.yaml
 

@@ -484,7 +484,7 @@ func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 	return ctx.EnsureConfig(trivyoperator.PluginConfig{
 		Data: map[string]string{
 			keyTrivyImageRepository:           DefaultImageRepository,
-			keyTrivyImageTag:                  "0.38.1",
+			keyTrivyImageTag:                  "0.39.0",
 			KeyTrivySeverity:                  DefaultSeverity,
 			keyTrivySlow:                      "true",
 			keyTrivyMode:                      string(Standalone),
@@ -588,8 +588,23 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
 	}
-	if len(credentials) > 0 {
-		secret = p.newSecretWithAggregateImagePullCredentials(workload, spec, credentials)
+
+	containersSpec := getContainers(spec)
+	for i := 0; i < len(containersSpec); i++ {
+		c := &containersSpec[i]
+		optionalMirroredImage, err := GetMirroredImage(c.Image, config.GetMirrors())
+		if err != nil {
+			return corev1.PodSpec{}, nil, err
+		}
+		c.Image = optionalMirroredImage
+	}
+
+	containersCredentials, err := kube.MapContainerNamesToDockerAuths(kube.GetContainerImagesFromPodSpec(spec), credentials)
+	if err != nil {
+		return corev1.PodSpec{}, nil, err
+	}
+	if len(containersCredentials) > 0 {
+		secret = p.newSecretWithAggregateImagePullCredentials(workload, spec, containersCredentials)
 		secrets = append(secrets, secret)
 	}
 
@@ -669,7 +684,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
-	for _, c := range getContainers(spec) {
+	for _, c := range containersSpec {
 		env := []corev1.EnvVar{
 			{
 				Name: "TRIVY_SEVERITY",
@@ -802,7 +817,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 			})
 		}
 
-		if _, ok := credentials[c.Name]; ok && secret != nil {
+		if _, ok := containersCredentials[c.Name]; ok && secret != nil {
 			registryUsernameKey := fmt.Sprintf("%s.username", c.Name)
 			registryPasswordKey := fmt.Sprintf("%s.password", c.Name)
 
@@ -844,11 +859,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 			return corev1.PodSpec{}, nil, err
 		}
 
-		optionalMirroredImage, err := GetMirroredImage(c.Image, config.GetMirrors())
-		if err != nil {
-			return corev1.PodSpec{}, nil, err
-		}
-		imageRef, err := containerimage.ParseReference(optionalMirroredImage)
+		imageRef, err := containerimage.ParseReference(c.Image)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
@@ -965,8 +976,22 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 		return corev1.PodSpec{}, nil, err
 	}
 
-	if len(credentials) > 0 {
-		secret = p.newSecretWithAggregateImagePullCredentials(workload, spec, credentials)
+	containersSpec := getContainers(spec)
+	for i := 0; i < len(containersSpec); i++ {
+		c := &containersSpec[i]
+		optionalMirroredImage, err := GetMirroredImage(c.Image, config.GetMirrors())
+		if err != nil {
+			return corev1.PodSpec{}, nil, err
+		}
+		c.Image = optionalMirroredImage
+	}
+
+	containersCredentials, err := kube.MapContainerNamesToDockerAuths(kube.GetContainerImagesFromPodSpec(spec), credentials)
+	if err != nil {
+		return corev1.PodSpec{}, nil, err
+	}
+	if len(containersCredentials) > 0 {
+		secret = p.newSecretWithAggregateImagePullCredentials(workload, spec, containersCredentials)
 		secrets = append(secrets, secret)
 	}
 
@@ -995,7 +1020,7 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 	}
 	volumes = append(volumes, getScanResultVolume())
 
-	for _, container := range getContainers(spec) {
+	for _, container := range containersSpec {
 		env := []corev1.EnvVar{
 			{
 				Name: "HTTP_PROXY",
@@ -1156,7 +1181,7 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			})
 		}
 
-		if _, ok := credentials[container.Name]; ok && secret != nil {
+		if _, ok := containersCredentials[container.Name]; ok && secret != nil {
 			registryUsernameKey := fmt.Sprintf("%s.username", container.Name)
 			registryPasswordKey := fmt.Sprintf("%s.password", container.Name)
 
@@ -1214,15 +1239,11 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			return corev1.PodSpec{}, nil, err
 		}
 
-		optionalMirroredImage, err := GetMirroredImage(container.Image, config.GetMirrors())
-		if err != nil {
-			return corev1.PodSpec{}, nil, err
-		}
 		encodedTrivyServerURL, err := url.Parse(trivyServerURL)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
-		imageRef, err := containerimage.ParseReference(optionalMirroredImage)
+		imageRef, err := containerimage.ParseReference(container.Image)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
@@ -1680,6 +1701,13 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 			return corev1.PodSpec{}, nil, err
 		}
 
+		if config.GetServerInsecure() {
+			env = append(env, corev1.EnvVar{
+				Name:  "TRIVY_INSECURE",
+				Value: "true",
+			})
+		}
+
 		resourceRequirements, err := config.GetResourceRequirements()
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
@@ -2041,11 +2069,11 @@ func GetScoreFromCVSS(CVSSs map[string]*CVSS) *float64 {
 		}
 	}
 
-	if vendorScore != nil {
-		return vendorScore
+	if nvdScore != nil {
+		return nvdScore
 	}
 
-	return nvdScore
+	return vendorScore
 }
 
 func GetMirroredImage(image string, mirrors map[string]string) (string, error) {

@@ -7,9 +7,8 @@ metadata:
     app.kubernetes.io/name: wordpress
     pod-template-hash: 84bbf6f4dd
     app: nginx
+    team: rnd
 spec:
-  imagePullSecrets:
-    - name: regcred
   containers:
     - image: nginx:1.14.2
       name: app

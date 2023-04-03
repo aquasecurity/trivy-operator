@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: private-reg
+  namespace: private
+imagePullSecrets:
+  - name: artcred

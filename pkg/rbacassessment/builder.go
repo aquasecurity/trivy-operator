@@ -26,6 +26,7 @@ type ReportBuilder struct {
 	data                    v1alpha1.RbacAssessmentReportData
 	reportTTL               *time.Duration
 	resourceLabelsToInclude []string
+	additionalReportLabels  labels.Set
 }
 
 func NewReportBuilder(scheme *runtime.Scheme) *ReportBuilder {
@@ -64,6 +65,11 @@ func (b *ReportBuilder) ResourceLabelsToInclude(resourceLabelsToInclude []string
 	return b
 }
 
+func (b *ReportBuilder) AdditionalReportLabels(additionalReportLabels map[string]string) *ReportBuilder {
+	b.additionalReportLabels = additionalReportLabels
+	return b
+}
+
 func (b *ReportBuilder) reportName() string {
 	kind := b.controller.GetObjectKind().GroupVersionKind().Kind
 	name := b.controller.GetName()
@@ -76,12 +82,10 @@ func (b *ReportBuilder) reportName() string {
 
 func (b *ReportBuilder) GetClusterReport() (v1alpha1.ClusterRbacAssessmentReport, error) {
 	labelsSet := make(labels.Set)
-	objectLabels := b.controller.GetLabels()
-	for _, labelToInclude := range b.resourceLabelsToInclude {
-		if value, ok := objectLabels[labelToInclude]; ok {
-			labelsSet[labelToInclude] = value
-		}
-	}
+	// append matching resource labels by config to report
+	kube.AppendResourceLabels(b.resourceLabelsToInclude, b.controller.GetLabels(), labelsSet)
+	// append custom labels by config to report
+	kube.AppendCustomLabels(b.additionalReportLabels, labelsSet)
 	if b.resourceSpecHash != "" {
 		labelsSet[trivyoperator.LabelResourceSpecHash] = b.resourceSpecHash
 	}
@@ -118,12 +122,10 @@ func (b *ReportBuilder) GetClusterReport() (v1alpha1.ClusterRbacAssessmentReport
 
 func (b *ReportBuilder) GetReport() (v1alpha1.RbacAssessmentReport, error) {
 	labelsSet := make(labels.Set)
-	objectLabels := b.controller.GetLabels()
-	for _, labelToInclude := range b.resourceLabelsToInclude {
-		if value, ok := objectLabels[labelToInclude]; ok {
-			labelsSet[labelToInclude] = value
-		}
-	}
+	// append matching resource labels by config to report
+	kube.AppendResourceLabels(b.resourceLabelsToInclude, b.controller.GetLabels(), labelsSet)
+	// append custom labels by config to report
+	kube.AppendCustomLabels(b.additionalReportLabels, labelsSet)
 	if b.resourceSpecHash != "" {
 		labelsSet[trivyoperator.LabelResourceSpecHash] = b.resourceSpecHash
 	}

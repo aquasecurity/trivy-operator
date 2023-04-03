@@ -5,6 +5,8 @@ commands:
   - command: helm install trivy-operator ./deploy/helm --namespace trivy-system
       --create-namespace --set="image.tag=e2e"
       --set="excludeNamespaces=kube-system"
+      --set="trivyOperator.additionalReportLabels=myname=test"
+      --set="trivyOperator.reportResourceLabels=team"
 testDirs:
   - tests/e2e/image-mode
 timeout: 240

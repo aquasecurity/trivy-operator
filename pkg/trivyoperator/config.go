@@ -97,7 +97,7 @@ func GetDefaultConfig() ConfigData {
 		KeyScanJobcompressLogs:          "true",
 		keyComplianceFailEntriesLimit:   "10",
 		KeyReportRecordFailedChecksOnly: "true",
-		KeyNodeCollectorImageRef:        "ghcr.io/aquasecurity/node-collector:0.0.5",
+		KeyNodeCollectorImageRef:        "ghcr.io/aquasecurity/node-collector:0.0.6",
 	}
 }
 

@@ -456,7 +456,7 @@ nodeCollector:
   # repository of the node-collector image
   repository: ghcr.io/aquasecurity/node-collector
   # tag version of the node-collector image
-  tag: 0.0.5
+  tag: 0.0.6
 
   # node-collector pod volumeMounts definition for collecting config files information
   volumeMounts:

@@ -76,6 +76,21 @@ spec:
             readOnlyRootFilesystem: true
           args:
             - server
+          {{- if or (or .Values.trivy.httpProxy .Values.trivy.httpsProxy) .Values.trivy.noProxy }}
+          env:
+            {{- if .Values.trivy.httpProxy }}
+            - name: HTTP_PROXY
+              value: {{ .Values.trivy.httpProxy }}
+            {{- end }}
+            {{- if .Values.trivy.httpsProxy }}
+            - name: HTTPS_PROXY
+              value: {{ .Values.trivy.httpsProxy }}
+            {{- end }}
+            {{- if .Values.trivy.noProxy }}
+            - name: NO_PROXY
+              value: {{ .Values.trivy.noProxy }}
+            {{- end }}
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: trivy-operator-trivy-config

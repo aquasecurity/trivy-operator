@@ -179,6 +179,8 @@ data:
   TRIVY_SKIP_UPDATE: "false"
   TRIVY_DB_REPOSITORY: {{ .Values.trivy.dbRepository | quote }}
   {{- end }}
+{{- end }}
+{{- end }}
 ---
 {{- if not .Values.trivy.existingSecret }}
 apiVersion: v1
@@ -200,9 +202,6 @@ data:
   trivy.serverCustomHeaders: {{ .Values.trivy.serverCustomHeaders | b64enc | quote }}
   {{- end }}
   {{- end }}
-{{- end }}
-{{- end }}
-{{- end }}
 {{- if .Values.operator.builtInTrivyServer }}
   {{- if .Values.trivy.githubToken }}
   GITHUB_TOKEN: {{ .Values.trivy.githubToken | b64enc | quote }}
@@ -212,4 +211,5 @@ data:
   {{- end }}
   TRIVY_USERNAME: {{ .Values.trivy.serverUser  | b64enc | quote }}
   TRIVY_PASSWORD: {{ .Values.trivy.serverPassword  | b64enc | quote }}
+{{- end }}
 {{- end }}

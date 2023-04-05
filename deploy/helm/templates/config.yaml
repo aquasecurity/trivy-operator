@@ -85,10 +85,10 @@ metadata:
   labels:
     {{- include "trivy-operator.labels" $ | nindent 4 }}
 data:
-  trivy.repository: "{{ required ".Values.trivy.registry is required" .Values.trivy.registry }}/{{ required ".Values.trivy.repository is required" .Values.trivy.repository }}"
-  trivy.tag: {{ required ".Values.trivy.tag is required" .Values.trivy.tag | quote }}
-  {{- if .Values.trivy.imagePullSecret }}
-  trivy.imagePullSecret: {{ .Values.trivy.imagePullSecret | quote }}
+  trivy.repository: "{{ required ".Values.trivy.image.registry is required" .Values.trivy.image.registry }}/{{ required ".Values.trivy.image.repository is required" .Values.trivy.image.repository }}"
+  trivy.tag: {{ required ".Values.trivy.image.tag is required" .Values.trivy.image.tag | quote }}
+  {{- if .Values.trivy.image.imagePullSecret }}
+  trivy.imagePullSecret: {{ .Values.trivy.image.imagePullSecret | quote }}
   {{- end }}
   trivy.additionalVulnerabilityReportFields: {{ .Values.trivy.additionalVulnerabilityReportFields | quote}}
   {{- if .Values.trivy.httpProxy }}
@@ -109,7 +109,7 @@ data:
   {{- range $key, $registry := .Values.trivy.insecureRegistries }}
   trivy.insecureRegistry.{{ $key }}: {{ $registry | quote }}
   {{- end }}
-  {{- range $key, $registry := .Values.trivy.registry.mirror }}
+  {{- range $key, $registry := .Values.trivy.image.registry.mirror }}
   trivy.registry.mirror.{{ $key }}: {{ $registry | quote }}
   {{- end }}
   trivy.severity: {{ .Values.trivy.severity | quote }}

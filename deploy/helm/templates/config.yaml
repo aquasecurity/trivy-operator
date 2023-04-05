@@ -109,7 +109,7 @@ data:
   {{- range $key, $registry := .Values.trivy.insecureRegistries }}
   trivy.insecureRegistry.{{ $key }}: {{ $registry | quote }}
   {{- end }}
-  {{- range $key, $registry := .Values.trivy.image.registry.mirror }}
+  {{- range $key, $registry := .Values.trivy.registry.mirror }}
   trivy.registry.mirror.{{ $key }}: {{ $registry | quote }}
   {{- end }}
   trivy.severity: {{ .Values.trivy.severity | quote }}

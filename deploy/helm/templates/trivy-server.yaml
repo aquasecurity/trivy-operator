@@ -69,7 +69,7 @@ spec:
         runAsUser: 65534
       containers:
         - name: main
-          image: "{{ .Values.trivy.repository }}:{{ .Values.trivy.tag }}"
+          image: "{{ .Values.trivy.image.registry }}/{{ .Values.trivy.image.repository }}:{{ .Values.trivy.image.tag }}"
           imagePullPolicy: "IfNotPresent"
           securityContext:
             privileged: false

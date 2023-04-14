@@ -65,7 +65,7 @@ data:
   {{- if .Values.operator.builtInTrivyServer }}
   trivy.serverURL: {{ printf "http://%s.%s:%s" .Values.trivy.serverServiceName (include "trivy-operator.namespace" .) "4954"  | quote }}
   {{- end }}
-  node.collector.imageRef: "{{ .Values.nodeCollector.repository }}:{{ .Values.nodeCollector.tag }}"
+  node.collector.imageRef: "{{ .Values.nodeCollector.registry }}/{{ .Values.nodeCollector.repository }}:{{ .Values.nodeCollector.tag }}"
 ---
 apiVersion: v1
 kind: Secret
@@ -85,10 +85,10 @@ metadata:
   labels:
     {{- include "trivy-operator.labels" $ | nindent 4 }}
 data:
-  trivy.repository: {{ required ".Values.trivy.repository is required" .Values.trivy.repository | quote }}
-  trivy.tag: {{ required ".Values.trivy.tag is required" .Values.trivy.tag | quote }}
-  {{- if .Values.trivy.imagePullSecret }}
-  trivy.imagePullSecret: {{ .Values.trivy.imagePullSecret | quote }}
+  trivy.repository: "{{ required ".Values.trivy.image.registry is required" .Values.trivy.image.registry }}/{{ required ".Values.trivy.image.repository is required" .Values.trivy.image.repository }}"
+  trivy.tag: {{ required ".Values.trivy.image.tag is required" .Values.trivy.image.tag | quote }}
+  {{- if .Values.trivy.image.imagePullSecret }}
+  trivy.imagePullSecret: {{ .Values.trivy.image.imagePullSecret | quote }}
   {{- end }}
   trivy.additionalVulnerabilityReportFields: {{ .Values.trivy.additionalVulnerabilityReportFields | quote}}
   {{- if .Values.trivy.httpProxy }}
@@ -114,7 +114,7 @@ data:
   {{- end }}
   trivy.severity: {{ .Values.trivy.severity | quote }}
   trivy.slow: {{ .Values.trivy.slow | quote }}
-  trivy.dbRepository: {{ .Values.trivy.dbRepository | quote }}
+  trivy.dbRepository: "{{ .Values.trivy.dbRegistry }}/{{ .Values.trivy.dbRepository }}"
   trivy.command: {{ .Values.trivy.command | quote }}
   {{- if .Values.trivy.skipDirs }}
   trivy.skipDirs: {{ .Values.trivy.skipDirs | quote }}
@@ -177,7 +177,7 @@ data:
   TRIVY_CACHE_DIR: "/home/scanner/.cache/trivy"
   TRIVY_DEBUG: {{ .Values.trivy.debug | quote }}
   TRIVY_SKIP_UPDATE: "false"
-  TRIVY_DB_REPOSITORY: {{ .Values.trivy.dbRepository | quote }}
+  TRIVY_DB_REPOSITORY: "{{ .Values.trivy.dbRegistry }}/{{ .Values.trivy.dbRepository }}"
   {{- end }}
 {{- end }}
 {{- end }}

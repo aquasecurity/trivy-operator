@@ -3,7 +3,7 @@ module github.com/aquasecurity/trivy-operator
 go 1.19
 
 require (
-	github.com/aquasecurity/defsec v0.85.0
+	github.com/aquasecurity/defsec v0.86.0
 	github.com/aquasecurity/trivy v0.40.0
 	github.com/aquasecurity/trivy-kubernetes v0.4.1-0.20230413111230-522e0fca9814
 	github.com/bluele/gcache v0.0.2
@@ -61,7 +61,7 @@ require (
 	github.com/tchap/go-patricia/v2 v2.3.1 // indirect
 	github.com/xlab/treeprint v1.1.0 // indirect
 	go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5 // indirect
-	golang.org/x/mod v0.9.0 // indirect
+	golang.org/x/mod v0.10.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/cli-runtime v0.26.3 // indirect
@@ -144,7 +144,7 @@ require (
 	golang.org/x/term v0.7.0 // indirect
 	golang.org/x/text v0.9.0
 	golang.org/x/time v0.3.0 // indirect
-	golang.org/x/tools v0.7.0 // indirect
+	golang.org/x/tools v0.8.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect

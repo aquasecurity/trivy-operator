@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/aquasecurity/defsec v0.85.0
 	github.com/aquasecurity/trivy v0.40.0
-	github.com/aquasecurity/trivy-kubernetes v0.4.1-0.20230413111230-522e0fca9814
+	github.com/aquasecurity/trivy-kubernetes v0.4.1-0.20230419091002-7e427c2a4f61
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/davecgh/go-spew v1.1.1

@@ -105,6 +105,7 @@ The values of the `OPERATOR_NAMESPACE` and `OPERATOR_TARGET_NAMESPACES` determin
 |`report.recordFailedChecksOnly`| `"true"`| this flag is to record only failed checks on misconfiguration reports (config-audit and rbac assessment)
 | `skipResourceByLabels`| N/A| One-line comma-separated labels keys which trivy-operator will skip scanning on resources with matching labels. Example: `test,transient`|
 | `node.collector.imageRef`             | ghcr.io/aquasecurity/node-collector:0.0.6                | The imageRef use for node-collector job .                                                                                                                                                                                                                                                                                                               |
+| `node.collector.imagePullSecret`             | N/A                | imagePullSecret is the secret name to be used when pulling node-collector image from private registries .                                                                                                                                                                                                                                                                                                               |
 
 ## Trivy Configuration
 

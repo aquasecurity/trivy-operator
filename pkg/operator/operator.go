@@ -199,41 +199,52 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup scan job  reconciler: %w", err)
 		}
+	}
 
-		if operatorConfig.ScannerReportTTL != nil {
-			ttlReconciler := &TTLReportReconciler{
-				Logger: ctrl.Log.WithName("reconciler").WithName("ttlreport"),
-				Config: operatorConfig,
-				Client: mgr.GetClient(),
-				Clock:  ext.NewSystemClock(),
-			}
-			if operatorConfig.ConfigAuditScannerEnabled {
-				plugin, pluginContextCofig, err := plugins.NewResolver().WithBuildInfo(buildInfo).
-					WithNamespace(operatorNamespace).
-					WithServiceAccountName(operatorConfig.ServiceAccount).
-					WithConfig(trivyOperatorConfig).
-					WithClient(mgr.GetClient()).
-					WithObjectResolver(&objectResolver).
-					GetConfigAuditPlugin()
-				if err != nil {
-					return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
-				}
-				ttlReconciler.PluginContext = pluginContextCofig
-				ttlReconciler.PluginInMemory = plugin
-			}
-			if err = ttlReconciler.SetupWithManager(mgr); err != nil {
-				return fmt.Errorf("unable to setup TTLreport reconciler: %w", err)
-			}
+	if operatorConfig.ScannerReportTTL != nil {
+		_, pluginContext, err := plugins.NewResolver().
+			WithBuildInfo(buildInfo).
+			WithNamespace(operatorNamespace).
+			WithServiceAccountName(operatorConfig.ServiceAccount).
+			WithConfig(trivyOperatorConfig).
+			WithClient(mgr.GetClient()).
+			WithObjectResolver(&objectResolver).
+			GetVulnerabilityPlugin()
+		if err != nil {
+			return err
 		}
-
-		if operatorConfig.WebhookBroadcastURL != "" {
-			if err = (&webhook.WebhookReconciler{
-				Logger: ctrl.Log.WithName("reconciler").WithName("webhookreporter"),
-				Config: operatorConfig,
-				Client: mgr.GetClient(),
-			}).SetupWithManager(mgr); err != nil {
-				return fmt.Errorf("unable to setup webhookreporter: %w", err)
+		ttlReconciler := &TTLReportReconciler{
+			Logger: ctrl.Log.WithName("reconciler").WithName("ttlreport"),
+			Config: operatorConfig,
+			Client: mgr.GetClient(),
+			Clock:  ext.NewSystemClock(),
+		}
+		if operatorConfig.ConfigAuditScannerEnabled {
+			plugin, pluginContextCofig, err := plugins.NewResolver().WithBuildInfo(buildInfo).
+				WithNamespace(operatorNamespace).
+				WithServiceAccountName(operatorConfig.ServiceAccount).
+				WithConfig(trivyOperatorConfig).
+				WithClient(mgr.GetClient()).
+				WithObjectResolver(&objectResolver).
+				GetConfigAuditPlugin()
+			if err != nil {
+				return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
 			}
+			ttlReconciler.PluginContext = pluginContextCofig
+			ttlReconciler.PluginInMemory = plugin
+		}
+		if err = ttlReconciler.SetupWithManager(mgr); err != nil {
+			return fmt.Errorf("unable to setup TTLreport reconciler: %w", err)
+		}
+	}
+
+	if operatorConfig.WebhookBroadcastURL != "" {
+		if err = (&webhook.WebhookReconciler{
+			Logger: ctrl.Log.WithName("reconciler").WithName("webhookreporter"),
+			Config: operatorConfig,
+			Client: mgr.GetClient(),
+		}).SetupWithManager(mgr); err != nil {
+			return fmt.Errorf("unable to setup webhookreporter: %w", err)
 		}
 	}
 

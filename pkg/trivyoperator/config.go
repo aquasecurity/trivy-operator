@@ -166,10 +166,9 @@ func (c ConfigData) GetScanJobTolerations() ([]corev1.Toleration, error) {
 func (c ConfigData) GetNodeCollectorImagePullsecret() []corev1.LocalObjectReference {
 	imagePullSecrets := make([]corev1.LocalObjectReference, 0)
 	imagePullSecretValue := c[KeyNodeCollectorImagePullSecret]
-	if c[KeyNodeCollectorImagePullSecret] == "" {
-		return imagePullSecrets
+	if c[KeyNodeCollectorImagePullSecret] != "" {
+		imagePullSecrets = append(imagePullSecrets, corev1.LocalObjectReference{Name: imagePullSecretValue})
 	}
-	imagePullSecrets = append(imagePullSecrets, corev1.LocalObjectReference{Name: imagePullSecretValue})
 	return imagePullSecrets
 }
 

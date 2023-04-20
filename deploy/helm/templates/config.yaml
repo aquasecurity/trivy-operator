@@ -66,6 +66,9 @@ data:
   trivy.serverURL: {{ printf "http://%s.%s:%s" .Values.trivy.serverServiceName (include "trivy-operator.namespace" .) "4954"  | quote }}
   {{- end }}
   node.collector.imageRef: "{{ .Values.nodeCollector.registry }}/{{ .Values.nodeCollector.repository }}:{{ .Values.nodeCollector.tag }}"
+  {{- if .Values.nodeCollector.imagePullSecret }}
+  node.collector.imagePullSecret: "{{ .Values.nodeCollector.imagePullSecret }}"
+  {{- end }}
 ---
 apiVersion: v1
 kind: Secret

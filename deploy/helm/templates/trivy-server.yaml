@@ -67,6 +67,10 @@ spec:
         fsGroup: 65534
         runAsNonRoot: true
         runAsUser: 65534
+      {{- if .Values.trivy.image.imagePullSecret }}
+      imagePullSecrets:
+      - name:  {{ .Values.trivy.image.imagePullSecret }}
+      {{- end }}
       containers:
         - name: main
           image: "{{ .Values.trivy.image.registry }}/{{ .Values.trivy.image.repository }}:{{ .Values.trivy.image.tag }}"

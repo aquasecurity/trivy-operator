@@ -18,15 +18,6 @@ metadata:
 report:
   checks:
     - category: Kubernetes Security Check
-      checkID: KCV0029
-      description: etcd should be configured to make use of TLS encryption for client
-        connections.
-      messages:
-        - Ensure that the --etcd-cafile argument is set as appropriate
-      severity: LOW
-      success: false
-      title: Ensure that the --etcd-cafile argument is set as appropriate
-    - category: Kubernetes Security Check
       checkID: KCV0022
       description: Rotate log files on reaching 100 MB or as appropriate.
       messages:
@@ -100,14 +91,6 @@ report:
       success: false
       title: Ensure that the admission control plugin EventRateLimit is set
     - category: Kubernetes Security Check
-      checkID: KCV0028
-      description: Setup TLS connection on the API server.
-      messages:
-        - Ensure that the --client-ca-file argument is set as appropriate
-      severity: LOW
-      success: false
-      title: Ensure that the --client-ca-file argument is set as appropriate
-    - category: Kubernetes Security Check
       checkID: KCV0013
       description: The SecurityContextDeny admission controller can be used to deny
         pods which make use of some SecurityContext fields which could allow for
@@ -127,5 +110,5 @@ report:
   summary:
     criticalCount: 0
     highCount: 0
-    lowCount: 10
+    lowCount: 8
     mediumCount: 1

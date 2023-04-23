@@ -1840,8 +1840,10 @@ data:
   trivy.mode: "Standalone"
   trivy.resources.requests.cpu: "100m"
   trivy.resources.requests.memory: "100M"
+  trivy.resources.requests.ephemeral-storage: "100M"
   trivy.resources.limits.cpu: "500m"
   trivy.resources.limits.memory: "500M"
+  trivy.resources.limits.ephemeral-storage: "500M"
 ---
 # Source: trivy-operator/templates/deployment.yaml
 apiVersion: apps/v1

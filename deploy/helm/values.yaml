@@ -315,11 +315,11 @@ trivy:
     requests:
       cpu: 100m
       memory: 100M
-      ephemeral-storage: "2Gi"
+      # ephemeral-storage: "2Gi"
     limits:
       cpu: 500m
       memory: 500M
-      ephemeral-storage: "2Gi"
+      # ephemeral-storage: "2Gi"
 
   # githubToken is the GitHub access token used by Trivy to download the vulnerabilities
   # database from GitHub. Only applicable in Standalone mode.
@@ -387,11 +387,11 @@ trivy:
       requests:
         cpu: 200m
         memory: 512Mi
-        ephemeral-storage: "2Gi"
+        # ephemeral-storage: "2Gi"
       limits:
         cpu: 1
         memory: 1Gi
-        ephemeral-storage: "2Gi"
+        # ephemeral-storage: "2Gi"
 
 compliance:
   # failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report

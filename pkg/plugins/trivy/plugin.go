@@ -80,10 +80,12 @@ const (
 	keyTrivyServerToken         = "trivy.serverToken"
 	keyTrivyServerCustomHeaders = "trivy.serverCustomHeaders"
 
-	keyResourcesRequestsCPU    = "trivy.resources.requests.cpu"
-	keyResourcesRequestsMemory = "trivy.resources.requests.memory"
-	keyResourcesLimitsCPU      = "trivy.resources.limits.cpu"
-	keyResourcesLimitsMemory   = "trivy.resources.limits.memory"
+	keyResourcesRequestsCPU             = "trivy.resources.requests.cpu"
+	keyResourcesRequestsMemory          = "trivy.resources.requests.memory"
+	keyResourcesLimitsCPU               = "trivy.resources.limits.cpu"
+	keyResourcesLimitsMemory            = "trivy.resources.limits.memory"
+	keyResourcesRequestEphemeralStorage = "trivy.resources.requests.ephemeral-storage"
+	keyResourcesLimitEphemeralStorage   = "trivy.resources.limits.ephemeral-storage"
 )
 
 const (
@@ -415,12 +417,22 @@ func (c Config) GetResourceRequirements() (corev1.ResourceRequirements, error) {
 		return requirements, err
 	}
 
+	err = c.setResourceLimit(keyResourcesRequestEphemeralStorage, &requirements.Requests, corev1.ResourceEphemeralStorage)
+	if err != nil {
+		return requirements, err
+	}
+
 	err = c.setResourceLimit(keyResourcesLimitsCPU, &requirements.Limits, corev1.ResourceCPU)
 	if err != nil {
 		return requirements, err
 	}
 
 	err = c.setResourceLimit(keyResourcesLimitsMemory, &requirements.Limits, corev1.ResourceMemory)
+	if err != nil {
+		return requirements, err
+	}
+
+	err = c.setResourceLimit(keyResourcesLimitEphemeralStorage, &requirements.Limits, corev1.ResourceEphemeralStorage)
 	if err != nil {
 		return requirements, err
 	}

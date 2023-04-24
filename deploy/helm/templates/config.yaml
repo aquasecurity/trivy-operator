@@ -165,6 +165,9 @@ data:
       {{- if hasKey . "memory" }}
   trivy.resources.requests.memory: {{ .memory | quote }}
       {{- end }}
+      {{- if hasKey . "ephemeral-storage" }}
+  trivy.resources.requests.ephemeral-storage: {{ .memory | quote }}
+      {{- end }}
     {{- end }}
     {{- with .limits }}
       {{- if .cpu }}
@@ -172,6 +175,9 @@ data:
       {{- end }}
       {{- if .memory }}
   trivy.resources.limits.memory: {{ .memory | quote }}
+      {{- end }}
+      {{- if hasKey . "ephemeral-storage" }}
+  trivy.resources.limits.ephemeral-storage: {{ .memory | quote }}
       {{- end }}
     {{- end }}
   {{- end }}

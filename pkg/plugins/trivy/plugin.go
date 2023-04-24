@@ -701,126 +701,16 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 
 	for _, c := range containersSpec {
 		env := []corev1.EnvVar{
-			{
-				Name: "TRIVY_SEVERITY",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      KeyTrivySeverity,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "TRIVY_IGNORE_UNFIXED",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyIgnoreUnfixed,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "TRIVY_OFFLINE_SCAN",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyOfflineScan,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "TRIVY_JAVA_DB_REPOSITORY",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyJavaDBRepository,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "TRIVY_TIMEOUT",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyTimeout,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "TRIVY_SKIP_FILES",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivySkipFiles,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "TRIVY_SKIP_DIRS",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivySkipDirs,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "HTTP_PROXY",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyHTTPProxy,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "HTTPS_PROXY",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyHTTPSProxy,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "NO_PROXY",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyNoProxy,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
+			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, KeyTrivySeverity),
+			constructEnvVarSourceFromConfigMap("TRIVY_IGNORE_UNFIXED", trivyConfigName, keyTrivyIgnoreUnfixed),
+			constructEnvVarSourceFromConfigMap("TRIVY_OFFLINE_SCAN", trivyConfigName, keyTrivyOfflineScan),
+			constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY", trivyConfigName, keyTrivyJavaDBRepository),
+			constructEnvVarSourceFromConfigMap("TRIVY_TIMEOUT", trivyConfigName, keyTrivyTimeout),
+			constructEnvVarSourceFromConfigMap("TRIVY_SKIP_FILES", trivyConfigName, keyTrivySkipFiles),
+			constructEnvVarSourceFromConfigMap("TRIVY_SKIP_DIRS", trivyConfigName, keyTrivySkipDirs),
+			constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
+			constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
+			constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
 		}
 
 		if config.IgnoreFileExists() {
@@ -920,55 +810,12 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 
 func (p *plugin) initContainerEnvVar(trivyConfigName string, config Config) []corev1.EnvVar {
 	envs := []corev1.EnvVar{
-		{
-			Name: "HTTP_PROXY",
-			ValueFrom: &corev1.EnvVarSource{
-				ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: trivyConfigName,
-					},
-					Key:      keyTrivyHTTPProxy,
-					Optional: pointer.Bool(true),
-				},
-			},
-		},
-		{
-			Name: "HTTPS_PROXY",
-			ValueFrom: &corev1.EnvVarSource{
-				ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: trivyConfigName,
-					},
-					Key:      keyTrivyHTTPSProxy,
-					Optional: pointer.Bool(true),
-				},
-			},
-		},
-		{
-			Name: "NO_PROXY",
-			ValueFrom: &corev1.EnvVarSource{
-				ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: trivyConfigName,
-					},
-					Key:      keyTrivyNoProxy,
-					Optional: pointer.Bool(true),
-				},
-			},
-		},
-		{
-			Name: "GITHUB_TOKEN",
-			ValueFrom: &corev1.EnvVarSource{
-				SecretKeyRef: &corev1.SecretKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: trivyConfigName,
-					},
-					Key:      keyTrivyGitHubToken,
-					Optional: pointer.Bool(true),
-				},
-			},
-		},
+		constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
+		constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
+		constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
+		constructEnvVarSourceFromSecret("GITHUB_TOKEN", trivyConfigName, keyTrivyGitHubToken),
 	}
+
 	if config.GetDBRepositoryInsecure() {
 		envs = append(envs, corev1.EnvVar{
 			Name:  "TRIVY_INSECURE",
@@ -1049,162 +896,19 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 
 	for _, container := range containersSpec {
 		env := []corev1.EnvVar{
-			{
-				Name: "HTTP_PROXY",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyHTTPProxy,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "HTTPS_PROXY",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyHTTPSProxy,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "NO_PROXY",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyNoProxy,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "TRIVY_SEVERITY",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      KeyTrivySeverity,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "TRIVY_IGNORE_UNFIXED",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyIgnoreUnfixed,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "TRIVY_OFFLINE_SCAN",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyOfflineScan,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "TRIVY_JAVA_DB_REPOSITORY",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyJavaDBRepository,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "TRIVY_TIMEOUT",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyTimeout,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "TRIVY_SKIP_FILES",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivySkipFiles,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "TRIVY_SKIP_DIRS",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivySkipDirs,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "TRIVY_TOKEN_HEADER",
-				ValueFrom: &corev1.EnvVarSource{
-					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyServerTokenHeader,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "TRIVY_TOKEN",
-				ValueFrom: &corev1.EnvVarSource{
-					SecretKeyRef: &corev1.SecretKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyServerToken,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
-			{
-				Name: "TRIVY_CUSTOM_HEADERS",
-				ValueFrom: &corev1.EnvVarSource{
-					SecretKeyRef: &corev1.SecretKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: trivyConfigName,
-						},
-						Key:      keyTrivyServerCustomHeaders,
-						Optional: pointer.Bool(true),
-					},
-				},
-			},
+			constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
+			constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
+			constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
+			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, KeyTrivySeverity),
+			constructEnvVarSourceFromConfigMap("TRIVY_IGNORE_UNFIXED", trivyConfigName, keyTrivyIgnoreUnfixed),
+			constructEnvVarSourceFromConfigMap("TRIVY_OFFLINE_SCAN", trivyConfigName, keyTrivyOfflineScan),
+			constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY", trivyConfigName, keyTrivyJavaDBRepository),
+			constructEnvVarSourceFromConfigMap("TRIVY_TIMEOUT", trivyConfigName, keyTrivyTimeout),
+			constructEnvVarSourceFromConfigMap("TRIVY_SKIP_FILES", trivyConfigName, keyTrivySkipFiles),
+			constructEnvVarSourceFromConfigMap("TRIVY_SKIP_DIRS", trivyConfigName, keyTrivySkipDirs),
+			constructEnvVarSourceFromConfigMap("TRIVY_TOKEN_HEADER", trivyConfigName, keyTrivyServerTokenHeader),
+			constructEnvVarSourceFromSecret("TRIVY_TOKEN", trivyConfigName, keyTrivyServerToken),
+			constructEnvVarSourceFromSecret("TRIVY_CUSTOM_HEADERS", trivyConfigName, keyTrivyServerCustomHeaders),
 		}
 
 		if config.IgnoreFileExists() {
@@ -1526,6 +1230,7 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
 			constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
 			constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
+			constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY", trivyConfigName, keyTrivyJavaDBRepository),
 		}
 		if config.IgnoreFileExists() {
 			env = append(env, corev1.EnvVar{
@@ -1547,14 +1252,6 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 		if config.OfflineScan() {
 			env = append(env, constructEnvVarSourceFromConfigMap("TRIVY_OFFLINE_SCAN",
 				trivyConfigName, keyTrivyOfflineScan))
-		}
-
-		_, err := config.GetJavaDBRepository()
-		if err == nil {
-			env = append(env, constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY",
-				trivyConfigName, keyTrivyJavaDBRepository))
-		} else {
-			return corev1.PodSpec{}, nil, err
 		}
 
 		env, err = p.appendTrivyInsecureEnv(config, c.Image, env)
@@ -1720,6 +1417,7 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 			constructEnvVarSourceFromConfigMap("TRIVY_TOKEN_HEADER", trivyConfigName, keyTrivyServerTokenHeader),
 			constructEnvVarSourceFromSecret("TRIVY_TOKEN", trivyConfigName, keyTrivyServerToken),
 			constructEnvVarSourceFromSecret("TRIVY_CUSTOM_HEADERS", trivyConfigName, keyTrivyServerCustomHeaders),
+			constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY", trivyConfigName, keyTrivyJavaDBRepository),
 		}
 		if config.IgnoreFileExists() {
 			env = append(env, corev1.EnvVar{
@@ -1741,14 +1439,6 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 		if config.OfflineScan() {
 			env = append(env, constructEnvVarSourceFromConfigMap("TRIVY_OFFLINE_SCAN",
 				trivyConfigName, keyTrivyOfflineScan))
-		}
-
-		_, err := config.GetJavaDBRepository()
-		if err == nil {
-			env = append(env, constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY",
-				trivyConfigName, keyTrivyJavaDBRepository))
-		} else {
-			return corev1.PodSpec{}, nil, err
 		}
 
 		env, err = p.appendTrivyInsecureEnv(config, c.Image, env)
@@ -1836,18 +1526,7 @@ func (p *plugin) initContainerFSEnvVar(trivyConfigName string, config Config) []
 		constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
 		constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
 		constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
-		{
-			Name: "GITHUB_TOKEN",
-			ValueFrom: &corev1.EnvVarSource{
-				SecretKeyRef: &corev1.SecretKeySelector{
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: trivyConfigName,
-					},
-					Key:      keyTrivyGitHubToken,
-					Optional: pointer.Bool(true),
-				},
-			},
-		},
+		constructEnvVarSourceFromSecret("GITHUB_TOKEN", trivyConfigName, keyTrivyGitHubToken),
 	}
 	if config.GetDBRepositoryInsecure() {
 		envs = append(envs, corev1.EnvVar{

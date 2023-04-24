@@ -308,6 +308,58 @@ func TestConfig_GetCommand(t *testing.T) {
 	}
 }
 
+func TestVulnType(t *testing.T) {
+	testCases := []struct {
+		name       string
+		configData trivy.Config
+		want       string
+	}{
+		{
+			name: "valid vuln type os",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.vulnType": "os",
+				},
+			}},
+			want: "os",
+		},
+		{
+			name: "valid vuln type library",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.vulnType": "library",
+				},
+			}},
+			want: "library",
+		},
+		{
+			name: "empty vuln type",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.vulnType": "",
+				},
+			}},
+			want: "",
+		},
+		{
+			name: "non valid vuln type",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.vulnType": "aaa",
+				},
+			}},
+			want: "",
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.configData.GetVulnType()
+			assert.Equal(t, got, tc.want)
+
+		})
+	}
+}
+
 func TestConfig_GetResourceRequirements(t *testing.T) {
 	testCases := []struct {
 		name                 string

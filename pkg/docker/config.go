@@ -55,9 +55,21 @@ type Config struct {
 	Auths map[string]Auth `json:"auths"`
 }
 
-func (c *Config) Read(contents []byte) error {
-	if err := json.Unmarshal(contents, c); err != nil {
-		return err
+func (c *Config) Read(contents []byte, isLegacy bool) error {
+	if isLegacy {
+		// Because ~/.dockercfg contents is "auths" field in ~/.docker/config.json
+		// we can simply pass it to "Auths" field of Config
+		auths := make(map[string]Auth)
+		if err := json.Unmarshal(contents, &auths); err != nil {
+			return err
+		}
+		*c = Config{
+			Auths: auths,
+		}
+	} else {
+		if err := json.Unmarshal(contents, c); err != nil {
+			return err
+		}
 	}
 	var err error
 	c.Auths, err = decodeAuths(c.Auths)

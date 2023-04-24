@@ -72,7 +72,13 @@ func TestMapDockerRegistryServersToAuths(t *testing.T) {
 		auths, err := kube.MapDockerRegistryServersToAuths([]corev1.Secret{
 			{
 				Type: corev1.SecretTypeDockercfg,
-				Data: map[string][]byte{},
+				Data: map[string][]byte{
+					corev1.DockerConfigKey: []byte(`{
+  "quay.io": {
+	"auth": "dXNlcjpBZG1pbjEyMzQ1"
+  }
+}`),
+				},
 			},
 			{
 				Type: corev1.SecretTypeDockerConfigJson,
@@ -95,6 +101,11 @@ func TestMapDockerRegistryServersToAuths(t *testing.T) {
 				Auth:     "cm9vdDpzM2NyZXQ=",
 				Username: "root",
 				Password: "s3cret",
+			}),
+			"quay.io": Equal(docker.Auth{
+				Auth:     "dXNlcjpBZG1pbjEyMzQ1",
+				Username: "user",
+				Password: "Admin12345",
 			}),
 		}))
 	})

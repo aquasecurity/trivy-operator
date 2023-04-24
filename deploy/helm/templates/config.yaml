@@ -122,6 +122,9 @@ data:
   {{- if .Values.trivy.skipDirs }}
   trivy.skipDirs: {{ .Values.trivy.skipDirs | quote }}
   {{- end }}
+  {{- if .Values.trivy.vulnType }}
+  trivy.vulnType: {{ .Values.trivy.vulnType | quote }}
+  {{- end }}
   {{- if .Values.trivy.dbRepositoryInsecure }}
   trivy.dbRepositoryInsecure: {{ .Values.trivy.dbRepositoryInsecure | quote }}
   {{- end }}

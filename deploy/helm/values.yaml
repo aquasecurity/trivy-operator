@@ -309,7 +309,9 @@ trivy:
   #   # applies to all workloads in namespace "kube-system"
   # ignorePolicy: |
   #   # applies to all other workloads
-
+  
+  # vulnType can be used to tell Trivy to filter vulnerabilities by a pkg-type (library, os)
+  # vulnType: 
   # resources resource requests and limits
   resources:
     requests:

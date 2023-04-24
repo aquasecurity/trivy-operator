@@ -51,6 +51,7 @@ const (
 	keyTrivyCommand                             = "trivy.command"
 	KeyTrivySeverity                            = "trivy.severity"
 	keyTrivySlow                                = "trivy.slow"
+	keyTrivyVulnType                            = "trivy.vulnType"
 	keyTrivyIgnoreUnfixed                       = "trivy.ignoreUnfixed"
 	keyTrivyOfflineScan                         = "trivy.offlineScan"
 	keyTrivyTimeout                             = "trivy.timeout"
@@ -266,6 +267,14 @@ func (c Config) GetSlow() bool {
 		return true
 	}
 	return boolVal
+}
+
+func (c Config) GetVulnType() string {
+	val, ok := c.Data[keyTrivyVulnType]
+	if !ok {
+		return ""
+	}
+	return val
 }
 
 func (c Config) GetSupportedConfigAuditKinds() []string {
@@ -876,7 +885,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 			return corev1.PodSpec{}, nil, err
 		}
 		resultFileName := getUniqueScanResultFileName(c.Name)
-		cmd, args := p.getCommandAndArgs(ctx, Standalone, imageRef.String(), "", resultFileName)
+		cmd, args := p.getCommandAndArgs(ctx, Standalone, imageRef.String(), config, "", resultFileName)
 		containers = append(containers, corev1.Container{
 			Name:                     c.Name,
 			Image:                    trivyImageRef,
@@ -1260,7 +1269,7 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			return corev1.PodSpec{}, nil, err
 		}
 		resultFileName := getUniqueScanResultFileName(container.Name)
-		cmd, args := p.getCommandAndArgs(ctx, ClientServer, imageRef.String(), encodedTrivyServerURL.String(), resultFileName)
+		cmd, args := p.getCommandAndArgs(ctx, ClientServer, imageRef.String(), config, encodedTrivyServerURL.String(), resultFileName)
 		containers = append(containers, corev1.Container{
 			Name:                     container.Name,
 			Image:                    trivyImageRef,
@@ -1285,7 +1294,7 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 	}, secrets, nil
 }
 
-func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef string, trivyServerURL string, resultFileName string) ([]string, []string) {
+func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef string, config Config, trivyServerURL string, resultFileName string) ([]string, []string) {
 	command := []string{
 		"trivy",
 	}
@@ -1295,6 +1304,7 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 		return []string{}, []string{}
 	}
 	slow := Slow(c)
+	vulnType := config.GetVulnType()
 	scanners := Scanners(c)
 	if mode == ClientServer {
 		if !compressLogs {
@@ -1314,9 +1324,12 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 			if len(slow) > 0 {
 				args = append(args, slow)
 			}
+			if len(vulnType) > 0 {
+				args = append(args, []string{"--vuln-type", vulnType}...)
+			}
 			return command, args
 		}
-		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s --cache-dir /tmp/trivy/.cache --quiet --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), trivyServerURL, resultFileName, resultFileName)}
+		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s --cache-dir /tmp/trivy/.cache --quiet  --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), vulnTypeFilter(vulnType), trivyServerURL, resultFileName, resultFileName)}
 	}
 	skipUpdate := SkipDBUpdate(c)
 	if !compressLogs {
@@ -1335,9 +1348,19 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 		if len(slow) > 0 {
 			args = append(args, slow)
 		}
+		if len(vulnType) > 0 {
+			args = append(args, []string{"--vuln-type", vulnType}...)
+		}
 		return command, args
 	}
-	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), skipUpdate, resultFileName, resultFileName)}
+	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), vulnTypeFilter(vulnType), skipUpdate, resultFileName, resultFileName)}
+}
+
+func vulnTypeFilter(vulnType string) string {
+	if len(vulnType) == 0 {
+		return ""
+	}
+	return fmt.Sprintf("%s %s", "--vuln-type", vulnType)
 }
 
 func getAutomountServiceAccountToken(ctx trivyoperator.PluginContext) bool {
@@ -1540,7 +1563,7 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			Command: []string{
 				SharedVolumeLocationOfTrivy,
 			},
-			Args:            p.getFSScanningArgs(ctx, command, Standalone, ""),
+			Args:            p.getFSScanningArgs(ctx, config, command, Standalone, ""),
 			Resources:       resourceRequirements,
 			SecurityContext: securityContext,
 			VolumeMounts:    volumeMounts,
@@ -1733,7 +1756,7 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 			Command: []string{
 				SharedVolumeLocationOfTrivy,
 			},
-			Args:            p.getFSScanningArgs(ctx, command, ClientServer, encodedTrivyServerURL.String()),
+			Args:            p.getFSScanningArgs(ctx, config, command, ClientServer, encodedTrivyServerURL.String()),
 			Resources:       resourceRequirements,
 			SecurityContext: securityContext,
 			VolumeMounts:    volumeMounts,
@@ -1759,13 +1782,14 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 	return podSpec, secrets, nil
 }
 
-func (p *plugin) getFSScanningArgs(ctx trivyoperator.PluginContext, command Command, mode Mode, trivyServerURL string) []string {
+func (p *plugin) getFSScanningArgs(ctx trivyoperator.PluginContext, config Config, command Command, mode Mode, trivyServerURL string) []string {
 	c, err := p.getConfig(ctx)
 	if err != nil {
 		return []string{}
 	}
 	scanners := Scanners(c)
 	skipUpdate := SkipDBUpdate(c)
+	vulnType := config.GetVulnType()
 	args := []string{
 		"--cache-dir",
 		"/var/trivyoperator/trivy-db",
@@ -1784,6 +1808,9 @@ func (p *plugin) getFSScanningArgs(ctx trivyoperator.PluginContext, command Comm
 	slow := Slow(c)
 	if len(slow) > 0 {
 		args = append(args, slow)
+	}
+	if len(vulnType) > 0 {
+		args = append(args, []string{"--vuln-type", vulnType}...)
 	}
 	return args
 }

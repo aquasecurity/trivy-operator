@@ -118,6 +118,7 @@ data:
   trivy.severity: {{ .Values.trivy.severity | quote }}
   trivy.slow: {{ .Values.trivy.slow | quote }}
   trivy.dbRepository: "{{ .Values.trivy.dbRegistry }}/{{ .Values.trivy.dbRepository }}"
+  trivy.javaDbRepository: "{{ .Values.trivy.javaDbRegistry }}/{{ .Values.trivy.javaDbRepository }}"
   trivy.command: {{ .Values.trivy.command | quote }}
   {{- if .Values.trivy.skipDirs }}
   trivy.skipDirs: {{ .Values.trivy.skipDirs | quote }}

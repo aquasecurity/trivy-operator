@@ -69,6 +69,12 @@ spec:
                   key: trivy.offlineScan
                   name: trivy-operator-trivy-config
                   optional: true
+            - name: TRIVY_JAVA_DB_REPOSITORY
+              valueFrom:
+                configMapKeyRef:
+                  key: trivy.javaDbRepository
+                  name: trivy-operator-trivy-config
+                  optional: true
             - name: TRIVY_TIMEOUT
               valueFrom:
                 configMapKeyRef:

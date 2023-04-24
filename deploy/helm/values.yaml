@@ -212,7 +212,6 @@ trivyOperator:
   # labeled with. Example: `foo=bar,env=stage` will labeled the reports with the labels `foo: bar` and `env: stage`
   additionalReportLabels: ""
 
-
 trivy:
   # createConfig indicates whether to create config objects
   createConfig: true
@@ -355,6 +354,10 @@ trivy:
   # serverCustomHeaders: "foo=bar"
   dbRegistry: "ghcr.io"
   dbRepository: "aquasecurity/trivy-db"
+
+  # javaDbRegistry is the registry for the Java vulnerability database.
+  javaDbRegistry: "ghcr.io"
+  javaDbRepository: "aquasecurity/trivy-java-db"
 
   # The Flag to enable insecure connection for downloading trivy-db via proxy (air-gaped env)
   #

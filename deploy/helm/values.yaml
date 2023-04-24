@@ -311,7 +311,7 @@ trivy:
   
   # vulnType can be used to tell Trivy to filter vulnerabilities by a pkg-type (library, os)
   # vulnType:
-  
+
   # resources resource requests and limits
   resources:
     requests:

@@ -67,6 +67,7 @@ const (
 	keyTrivySkipFiles            = "trivy.skipFiles"
 	keyTrivySkipDirs             = "trivy.skipDirs"
 	keyTrivyDBRepository         = "trivy.dbRepository"
+	keyTrivyJavaDBRepository     = "trivy.javaDbRepository"
 	keyTrivyDBRepositoryInsecure = "trivy.dbRepositoryInsecure"
 
 	keyTrivyUseBuiltinRegoPolicies    = "trivy.useBuiltinRegoPolicies"
@@ -89,9 +90,10 @@ const (
 )
 
 const (
-	DefaultImageRepository = "ghcr.io/aquasecurity/trivy"
-	DefaultDBRepository    = "ghcr.io/aquasecurity/trivy-db"
-	DefaultSeverity        = "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
+	DefaultImageRepository  = "ghcr.io/aquasecurity/trivy"
+	DefaultDBRepository     = "ghcr.io/aquasecurity/trivy-db"
+	DefaultJavaDBRepository = "ghcr.io/aquasecurity/trivy-java-db"
+	DefaultSeverity         = "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
 )
 
 // Mode in which Trivy client operates.
@@ -502,6 +504,7 @@ func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 			keyTrivyMode:                      string(Standalone),
 			keyTrivyTimeout:                   "5m0s",
 			keyTrivyDBRepository:              DefaultDBRepository,
+			keyTrivyJavaDBRepository:          DefaultJavaDBRepository,
 			keyTrivyUseBuiltinRegoPolicies:    "true",
 			keyTrivySupportedConfigAuditKinds: SupportedConfigAuditKinds,
 			keyResourcesRequestsCPU:           "100m",
@@ -730,6 +733,18 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 							Name: trivyConfigName,
 						},
 						Key:      keyTrivyOfflineScan,
+						Optional: pointer.Bool(true),
+					},
+				},
+			},
+			{
+				Name: "TRIVY_JAVA_DB_REPOSITORY",
+				ValueFrom: &corev1.EnvVarSource{
+					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: trivyConfigName,
+						},
+						Key:      keyTrivyJavaDBRepository,
 						Optional: pointer.Bool(true),
 					},
 				},
@@ -1102,6 +1117,18 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 							Name: trivyConfigName,
 						},
 						Key:      keyTrivyOfflineScan,
+						Optional: pointer.Bool(true),
+					},
+				},
+			},
+			{
+				Name: "TRIVY_JAVA_DB_REPOSITORY",
+				ValueFrom: &corev1.EnvVarSource{
+					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: trivyConfigName,
+						},
+						Key:      keyTrivyJavaDBRepository,
 						Optional: pointer.Bool(true),
 					},
 				},
@@ -1522,6 +1549,14 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 				trivyConfigName, keyTrivyOfflineScan))
 		}
 
+		_, err := config.GetJavaDBRepository()
+		if err == nil {
+			env = append(env, constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY",
+				trivyConfigName, keyTrivyJavaDBRepository))
+		} else {
+			return corev1.PodSpec{}, nil, err
+		}
+
 		env, err = p.appendTrivyInsecureEnv(config, c.Image, env)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
@@ -1706,6 +1741,14 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 		if config.OfflineScan() {
 			env = append(env, constructEnvVarSourceFromConfigMap("TRIVY_OFFLINE_SCAN",
 				trivyConfigName, keyTrivyOfflineScan))
+		}
+
+		_, err := config.GetJavaDBRepository()
+		if err == nil {
+			env = append(env, constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY",
+				trivyConfigName, keyTrivyJavaDBRepository))
+		} else {
+			return corev1.PodSpec{}, nil, err
 		}
 
 		env, err = p.appendTrivyInsecureEnv(config, c.Image, env)

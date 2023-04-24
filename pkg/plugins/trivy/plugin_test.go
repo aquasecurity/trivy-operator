@@ -332,6 +332,7 @@ func TestConfig_GetResourceRequirements(t *testing.T) {
 				PluginConfig: trivyoperator.PluginConfig{
 					Data: map[string]string{
 						"trivy.dbRepository":              trivy.DefaultDBRepository,
+						"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 						"trivy.resources.requests.cpu":    "800m",
 						"trivy.resources.requests.memory": "200M",
 						"trivy.resources.limits.cpu":      "600m",
@@ -706,6 +707,7 @@ func TestPlugin_Init(t *testing.T) {
 				"trivy.mode":                      string(trivy.Standalone),
 				"trivy.timeout":                   "5m0s",
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 				"trivy.useBuiltinRegoPolicies":    "true",
 				"trivy.supportedConfigAuditKinds": trivy.SupportedConfigAuditKinds,
 				"trivy.resources.requests.cpu":    "100m",
@@ -826,6 +828,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 				"trivy.tag":                       "0.35.0",
 				"trivy.mode":                      string(trivy.Standalone),
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -994,6 +997,18 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 									},
 								},
 							},
+							{
+								Name: "TRIVY_JAVA_DB_REPOSITORY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.javaDbRepository",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
 							timeoutEnv,
 							{
 								Name: "TRIVY_SKIP_FILES",
@@ -1102,6 +1117,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 				"trivy.mode":                         string(trivy.Standalone),
 				"trivy.insecureRegistry.pocRegistry": "poc.myregistry.harbor.com.pl",
 				"trivy.dbRepository":                 trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":             trivy.DefaultJavaDBRepository,
 
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
@@ -1265,6 +1281,18 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 									},
 								},
 							},
+							{
+								Name: "TRIVY_JAVA_DB_REPOSITORY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.javaDbRepository",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
 							timeoutEnv,
 							{
 								Name: "TRIVY_SKIP_FILES",
@@ -1377,6 +1405,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 				"trivy.mode":                       string(trivy.Standalone),
 				"trivy.nonSslRegistry.pocRegistry": "poc.myregistry.harbor.com.pl",
 				"trivy.dbRepository":               trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":           trivy.DefaultJavaDBRepository,
 				"trivy.resources.requests.cpu":     "100m",
 				"trivy.resources.requests.memory":  "100M",
 				"trivy.resources.limits.cpu":       "500m",
@@ -1540,6 +1569,18 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 									},
 								},
 							},
+							{
+								Name: "TRIVY_JAVA_DB_REPOSITORY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.javaDbRepository",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
 							timeoutEnv,
 							{
 								Name: "TRIVY_SKIP_FILES",
@@ -1656,6 +1697,7 @@ CVE-2018-14618
 # No impact in our settings
 CVE-2019-1543`,
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -1835,6 +1877,18 @@ CVE-2019-1543`,
 									},
 								},
 							},
+							{
+								Name: "TRIVY_JAVA_DB_REPOSITORY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.javaDbRepository",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
 							timeoutEnv,
 							{
 								Name: "TRIVY_SKIP_FILES",
@@ -1956,6 +2010,7 @@ import data.lib.trivy
 
 default ignore = false`,
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -2135,6 +2190,18 @@ default ignore = false`,
 									},
 								},
 							},
+							{
+								Name: "TRIVY_JAVA_DB_REPOSITORY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.javaDbRepository",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
 							timeoutEnv,
 							{
 								Name: "TRIVY_SKIP_FILES",
@@ -2252,6 +2319,7 @@ default ignore = false`,
 				"trivy.mode":       string(trivy.Standalone),
 
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -2418,6 +2486,18 @@ default ignore = false`,
 									},
 								},
 							},
+							{
+								Name: "TRIVY_JAVA_DB_REPOSITORY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.javaDbRepository",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
 							timeoutEnv,
 							{
 								Name: "TRIVY_SKIP_FILES",
@@ -2526,6 +2606,7 @@ default ignore = false`,
 				"trivy.mode":                      string(trivy.ClientServer),
 				"trivy.serverURL":                 "http://trivy.trivy:4954",
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -2633,6 +2714,18 @@ default ignore = false`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.offlineScan",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_JAVA_DB_REPOSITORY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.javaDbRepository",
 										Optional: pointer.Bool(true),
 									},
 								},
@@ -2742,6 +2835,7 @@ default ignore = false`,
 				"trivy.mode":                      string(trivy.ClientServer),
 				"trivy.serverURL":                 "http://trivy.trivy:4954",
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -2849,6 +2943,18 @@ default ignore = false`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.offlineScan",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_JAVA_DB_REPOSITORY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.javaDbRepository",
 										Optional: pointer.Bool(true),
 									},
 								},
@@ -2959,6 +3065,7 @@ default ignore = false`,
 				"trivy.serverURL":                 "https://trivy.trivy:4954",
 				"trivy.serverInsecure":            "true",
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -3066,6 +3173,18 @@ default ignore = false`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.offlineScan",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_JAVA_DB_REPOSITORY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.javaDbRepository",
 										Optional: pointer.Bool(true),
 									},
 								},
@@ -3180,6 +3299,7 @@ default ignore = false`,
 				"trivy.serverURL":                  "http://trivy.trivy:4954",
 				"trivy.nonSslRegistry.pocRegistry": "poc.myregistry.harbor.com.pl",
 				"trivy.dbRepository":               trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":           trivy.DefaultJavaDBRepository,
 				"trivy.resources.requests.cpu":     "100m",
 				"trivy.resources.requests.memory":  "100M",
 				"trivy.resources.limits.cpu":       "500m",
@@ -3287,6 +3407,18 @@ default ignore = false`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.offlineScan",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_JAVA_DB_REPOSITORY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.javaDbRepository",
 										Optional: pointer.Bool(true),
 									},
 								},
@@ -3405,6 +3537,7 @@ CVE-2018-14618
 # No impact in our settings
 CVE-2019-1543`,
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -3532,6 +3665,18 @@ CVE-2019-1543`,
 									},
 								},
 							},
+							{
+								Name: "TRIVY_JAVA_DB_REPOSITORY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.javaDbRepository",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
 							timeoutEnv,
 							{
 								Name: "TRIVY_SKIP_FILES",
@@ -3652,6 +3797,7 @@ import data.lib.trivy
 
 default ignore = false`,
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -3779,6 +3925,18 @@ default ignore = false`,
 									},
 								},
 							},
+							{
+								Name: "TRIVY_JAVA_DB_REPOSITORY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.javaDbRepository",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
 							timeoutEnv,
 							{
 								Name: "TRIVY_SKIP_FILES",
@@ -3894,6 +4052,7 @@ default ignore = false`,
 				"trivy.mode":                      string(trivy.Standalone),
 				"trivy.command":                   string(trivy.Filesystem),
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -4162,6 +4321,18 @@ default ignore = false`,
 									},
 								},
 							},
+							{
+								Name: "TRIVY_JAVA_DB_REPOSITORY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.javaDbRepository",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
 						},
 						Command: []string{
 							trivy.SharedVolumeLocationOfTrivy,
@@ -4230,6 +4401,7 @@ default ignore = false`,
 				"trivy.serverURL":                 "http://trivy.trivy:4954",
 				"trivy.command":                   string(trivy.Filesystem),
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -4433,6 +4605,18 @@ default ignore = false`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.serverCustomHeaders",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_JAVA_DB_REPOSITORY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.javaDbRepository",
 										Optional: pointer.Bool(true),
 									},
 								},
@@ -4506,6 +4690,7 @@ default ignore = false`,
 				"trivy.mode":                      string(trivy.Standalone),
 				"trivy.command":                   string(trivy.Rootfs),
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -4774,6 +4959,18 @@ default ignore = false`,
 									},
 								},
 							},
+							{
+								Name: "TRIVY_JAVA_DB_REPOSITORY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.javaDbRepository",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
 						},
 						Command: []string{
 							trivy.SharedVolumeLocationOfTrivy,
@@ -4842,6 +5039,7 @@ default ignore = false`,
 				"trivy.serverURL":                 "http://trivy.trivy:4954",
 				"trivy.command":                   string(trivy.Rootfs),
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -5049,6 +5247,18 @@ default ignore = false`,
 									},
 								},
 							},
+							{
+								Name: "TRIVY_JAVA_DB_REPOSITORY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.javaDbRepository",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
 						},
 						Command: []string{
 							trivy.SharedVolumeLocationOfTrivy,
@@ -5118,6 +5328,7 @@ default ignore = false`,
 				"trivy.mode":       string(trivy.Standalone),
 
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -5284,6 +5495,18 @@ default ignore = false`,
 									},
 								},
 							},
+							{
+								Name: "TRIVY_JAVA_DB_REPOSITORY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.javaDbRepository",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
 							timeoutEnv,
 							{
 								Name: "TRIVY_SKIP_FILES",
@@ -5396,6 +5619,7 @@ default ignore = false`,
 				"trivy.mode":       string(trivy.Standalone),
 
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -5568,6 +5792,18 @@ default ignore = false`,
 									},
 								},
 							},
+							{
+								Name: "TRIVY_JAVA_DB_REPOSITORY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.javaDbRepository",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
 							timeoutEnv,
 							{
 								Name: "TRIVY_SKIP_FILES",
@@ -5698,6 +5934,7 @@ default ignore = false`,
 				"trivy.mode":       string(trivy.Standalone),
 
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
+				"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 				"trivy.resources.requests.cpu":    "100m",
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
@@ -5868,6 +6105,18 @@ default ignore = false`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.offlineScan",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_JAVA_DB_REPOSITORY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.javaDbRepository",
 										Optional: pointer.Bool(true),
 									},
 								},
@@ -6049,6 +6298,7 @@ default ignore = false`,
 			"trivy.mode":                      string(trivy.Standalone),
 			"trivy.command":                   string(trivy.Filesystem),
 			"trivy.dbRepository":              trivy.DefaultDBRepository,
+			"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 			"trivy.resources.requests.cpu":    "100m",
 			"trivy.resources.requests.memory": "100M",
 			"trivy.resources.limits.cpu":      "500m",
@@ -6315,6 +6565,18 @@ default ignore = false`,
 										Name: "trivy-operator-trivy-config",
 									},
 									Key:      "trivy.noProxy",
+									Optional: pointer.Bool(true),
+								},
+							},
+						},
+						{
+							Name: "TRIVY_JAVA_DB_REPOSITORY",
+							ValueFrom: &corev1.EnvVarSource{
+								ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+									LocalObjectReference: corev1.LocalObjectReference{
+										Name: "trivy-operator-trivy-config",
+									},
+									Key:      "trivy.javaDbRepository",
 									Optional: pointer.Bool(true),
 								},
 							},
@@ -6871,33 +7133,36 @@ func TestGetContainers(t *testing.T) {
 		{
 			name: "Standalone mode with image command",
 			configData: map[string]string{
-				"trivy.dbRepository": trivy.DefaultDBRepository,
-				"trivy.repository":   "gcr.io/aquasec/trivy",
-				"trivy.tag":          "0.35.0",
-				"trivy.mode":         string(trivy.Standalone),
-				"trivy.command":      string(trivy.Image),
+				"trivy.dbRepository":     trivy.DefaultDBRepository,
+				"trivy.javaDbRepository": trivy.DefaultJavaDBRepository,
+				"trivy.repository":       "gcr.io/aquasec/trivy",
+				"trivy.tag":              "0.35.0",
+				"trivy.mode":             string(trivy.Standalone),
+				"trivy.command":          string(trivy.Image),
 			},
 		},
 		{
 			name: "ClientServer mode with image command",
 			configData: map[string]string{
-				"trivy.serverURL":    "http://trivy.trivy:4954",
-				"trivy.dbRepository": trivy.DefaultDBRepository,
-				"trivy.repository":   "gcr.io/aquasec/trivy",
-				"trivy.tag":          "0.35.0",
-				"trivy.mode":         string(trivy.ClientServer),
-				"trivy.command":      string(trivy.Image),
+				"trivy.serverURL":        "http://trivy.trivy:4954",
+				"trivy.dbRepository":     trivy.DefaultDBRepository,
+				"trivy.javaDbRepository": trivy.DefaultJavaDBRepository,
+				"trivy.repository":       "gcr.io/aquasec/trivy",
+				"trivy.tag":              "0.35.0",
+				"trivy.mode":             string(trivy.ClientServer),
+				"trivy.command":          string(trivy.Image),
 			},
 		},
 		{
 			name: "Standalone mode with filesystem command",
 			configData: map[string]string{
-				"trivy.serverURL":    "http://trivy.trivy:4954",
-				"trivy.dbRepository": trivy.DefaultDBRepository,
-				"trivy.repository":   "docker.io/aquasec/trivy",
-				"trivy.tag":          "0.35.0",
-				"trivy.mode":         string(trivy.Standalone),
-				"trivy.command":      string(trivy.Filesystem),
+				"trivy.serverURL":        "http://trivy.trivy:4954",
+				"trivy.dbRepository":     trivy.DefaultDBRepository,
+				"trivy.javaDbRepository": trivy.DefaultJavaDBRepository,
+				"trivy.repository":       "docker.io/aquasec/trivy",
+				"trivy.tag":              "0.35.0",
+				"trivy.mode":             string(trivy.Standalone),
+				"trivy.command":          string(trivy.Filesystem),
 			},
 		},
 	}

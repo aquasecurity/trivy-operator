@@ -43,7 +43,7 @@ data:
   {{- with .Values.trivyOperator.scanJobCompressLogs }}
   scanJob.compressLogs: {{ . | toJson | quote }}
   {{- end }}
-  {{- if .Values.operator.vulnerabilityScannerEnabled }}
+  {{- if or .Values.operator.vulnerabilityScannerEnabled .Values.operator.exposedSecretScannerEnabled .Values.operator.scannerReportTTL }}
   vulnerabilityReports.scanner: {{ .Values.trivyOperator.vulnerabilityReportsPlugin | quote }}
   {{- end }}
   {{- if .Values.operator.configAuditScannerEnabled }}

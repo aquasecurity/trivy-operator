@@ -53,22 +53,28 @@ func matchSubDomain(wildcardServers []string, subDomain string) string {
 func MapDockerRegistryServersToAuths(imagePullSecrets []corev1.Secret, multiSecretSupport bool) (map[string]docker.Auth, error) {
 	auths := make(map[string]docker.Auth)
 	for _, secret := range imagePullSecrets {
-		// Skip a deprecated secret of type "kubernetes.io/dockercfg" which contains a dockercfg file
-		// that follows the same format rules as ~/.dockercfg
-		// See https://docs.docker.com/engine/deprecated/#support-for-legacy-dockercfg-configuration-files
-		if secret.Type != corev1.SecretTypeDockerConfigJson {
+		var data []byte
+		var hasRequiredData, isLegacy bool
+
+		switch secret.Type {
+		case corev1.SecretTypeDockerConfigJson:
+			data, hasRequiredData = secret.Data[corev1.DockerConfigJsonKey]
+		case corev1.SecretTypeDockercfg:
+			data, hasRequiredData = secret.Data[corev1.DockerConfigKey]
+			isLegacy = true
+		default:
 			continue
 		}
-		data, hasRequiredData := secret.Data[corev1.DockerConfigJsonKey]
-		// Skip a secrets of type "kubernetes.io/dockerconfigjson" which does not contain
-		// the required ".dockerconfigjson" key.
+
+		// Skip a secrets of type "kubernetes.io/dockerconfigjson" or "kubernetes.io/dockercfg" which does not contain
+		// the required ".dockerconfigjson" or ".dockercfg" key.
 		if !hasRequiredData {
 			continue
 		}
 		dockerConfig := &docker.Config{}
-		err := dockerConfig.Read(data)
+		err := dockerConfig.Read(data, isLegacy)
 		if err != nil {
-			return nil, fmt.Errorf("reading %s field of %q secret: %w", corev1.DockerConfigJsonKey, secret.Namespace+"/"+secret.Name, err)
+			return nil, fmt.Errorf("reading %s or %s field of %q secret: %w", corev1.DockerConfigJsonKey, corev1.DockerConfigKey, secret.Namespace+"/"+secret.Name, err)
 		}
 		for authKey, auth := range dockerConfig.Auths {
 			server, err := docker.GetServerFromDockerAuthKey(authKey)

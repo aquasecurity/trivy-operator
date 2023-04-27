@@ -1,0 +1,2164 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Kubernetes-native security toolkit">
+      
+      
+      
+        <link rel="canonical" href="https://aquasecurity.github.io/trivy-operator/v0.13.2/tutorials/private-registries/">
+      
+      
+        <link rel="prev" href="../microk8s/">
+      
+      
+        <link rel="next" href="../grafana-dashboard/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.1.8+insiders-4.32.6">
+    
+    
+      
+        <title>Operator Access to Private Registries - Trivy Operator</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.dc5b59cc.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#allow-the-trivy-operator-to-access-private-registries" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Trivy Operator" class="md-header__button md-logo" aria-label="Trivy Operator" data-md-component="logo">
+      
+  <img src="../../images/logo-white.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Trivy Operator
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Operator Access to Private Registries
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/aquasecurity/trivy-operator" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../writing-custom-configuration-audit-policies/" class="md-tabs__link md-tabs__link--active">
+          
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../docs/vulnerability-scanning/" class="md-tabs__link">
+          
+  
+  Docs
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../faq/" class="md-tabs__link">
+        
+  
+    
+  
+  Frequently Asked Questions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Trivy Operator" class="md-nav__button md-logo" aria-label="Trivy Operator" data-md-component="logo">
+      
+  <img src="../../images/logo-white.svg" alt="logo">
+
+    </a>
+    Trivy Operator
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/aquasecurity/trivy-operator" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_2" >
+        
+          <label class="md-nav__link" for="__nav_1_2" id="__nav_1_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Installation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/kubectl/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    kubectl
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/helm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Helm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/olm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Operator Lifecycle Manager
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/upgrade/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Upgrade
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/configuration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/troubleshooting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../settings/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3" >
+        
+          <label class="md-nav__link" for="__nav_1_3" id="__nav_1_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Quick Start
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quick-start/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../writing-custom-configuration-audit-policies/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing Custom Configuration Audit Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../manage_access_to_security_reports/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Manage Access to Security Reports
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../microk8s/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Using the Trivy Operator addon in microk8s
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    
+  
+    Operator Access to Private Registries
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Operator Access to Private Registries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#first-option-filesystem-scanning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First Option: Filesystem Scanning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#second-option-using-an-imagepullsecret-to-access-containers-from-the-private-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Second Option: Using an ImagePullSecret to access containers from the Private Registry
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#third-option-define-an-imagepullsecret-through-a-serviceaccount" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Third Option: Define an ImagePullSecret through a ServiceAccount
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fourth-option-define-secrets-through-trivy-operator-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fourth Option: Define Secrets through Trivy-Operator configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fifth-option-grant-access-through-managed-registries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fifth Option: Grant access through managed registries
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grafana-dashboard/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Trivy Operator Dashboard in Grafana
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_6" >
+        
+          <label class="md-nav__link" for="__nav_2_6" id="__nav_2_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Integrations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integrations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/metrics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/lens/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Lens Extension
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/webhook/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhook Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../integrations/policy-reporter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Policy Reporter Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Docs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Docs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Vulnerability Scanning
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Vulnerability Scanning
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/vulnerability-scanning/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/vulnerability-scanning/trivy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Trivy Scanner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/vulnerability-scanning/private-registries/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Private Registries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/vulnerability-scanning/managed-registries/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Managed Registries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Auditing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Configuration Auditing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/configuration-auditing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/configuration-auditing/built-in-policies/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Built-in Configuration Audit Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Complaince Report
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Complaince Report
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/compliance/compliance/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
+        
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Resource Definitions
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Custom Resource Definitions
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/crds/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/crds/vulnerability-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    VulnerabilityReport
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/crds/configaudit-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    ConfigAuditReport
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/crds/exposedsecret-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    ExposedSecretReport
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/crds/rbacassessment-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    RbacAssessmentReport
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/crds/infraassessment-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    InfraAssessmentReport
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docs/crds/clustercompliance-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    ClusterComplianceReport
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Frequently Asked Questions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#first-option-filesystem-scanning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First Option: Filesystem Scanning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#second-option-using-an-imagepullsecret-to-access-containers-from-the-private-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Second Option: Using an ImagePullSecret to access containers from the Private Registry
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#third-option-define-an-imagepullsecret-through-a-serviceaccount" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Third Option: Define an ImagePullSecret through a ServiceAccount
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fourth-option-define-secrets-through-trivy-operator-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fourth Option: Define Secrets through Trivy-Operator configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fifth-option-grant-access-through-managed-registries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fifth Option: Grant access through managed registries
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="allow-the-trivy-operator-to-access-private-registries">Allow the Trivy Operator to access private registries</h1>
+<p>In this tutorial, we will detail multiple ways on setting up the Trivy Operator to access and scan container images from private container registries.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>To follow this tutorial, you need the following installed on your machine:</p>
+<ul>
+<li>The Helm CLI tool</li>
+<li>kubectl and connected to a running Kubernetes cluster</li>
+<li>a container images in a private registy, running as a pod inside your cluster</li>
+</ul>
+<p>Note that we will be using a local Kubernetes KinD cluster and a private container image stored on a private GitHub repository for the examples.</p>
+<h2 id="first-option-filesystem-scanning">First Option: Filesystem Scanning</h2>
+<p>For this tutorial, we will use the <a href="https://aquasecurity.github.io/trivy-operator/latest/operator/installation/helm/">Operator Helm Chart.</a></p>
+<p>The configuration options for the Helm Chart can be found in the <a href="https://github.com/aquasecurity/trivy-operator/blob/main/deploy/helm/values.yaml">values.yaml</a> manifest.
+Navigate to the section <code>Trivy.command</code>. The default will be:</p>
+<div class="highlight"><pre><span></span><code>trivy:
+# command. One of `image`, `filesystem` or `rootfs` scanning, depending on the target type required for the scan.
+  # For &#39;filesystem&#39; and `rootfs` scanning, ensure that the `trivyOperator.scanJobPodTemplateContainerSecurityContext` is configured
+  # to run as the root user (runAsUser = 0).
+  command: image
+</code></pre></div>
+<p>By default, the command that trivy is supposed to run inside your cluster is <code>trivy image</code> for container image scanning. However, we want to change it to scan the filesystem in your nodes instead. Container images are ultimately stored as files on the node level of your cluster. This way, trivy is going to scan the files of your container images for vulnerabilities. This is a little bit of a work-around with the downside that the Trivy Operator will have to run as root. However, remember that security scanning already requires the operator to have lots of cluster privileges.</p>
+<p>Next, we will change the the <code>command</code> and the <code>trivyOperator.scanJobPodTemplateContainerSecurityContext</code>of the <code>values.yaml</code> manifest. For this, we can create a new values.yaml manifest with our desired modifications:</p>
+<div class="highlight"><pre><span></span><code>trivy:
+    command: fs
+    ignoreUnfixed: true
+trivyOperator:
+    scanJobPodTemplateContainerSecurityContext:
+        # For filesystem scanning, Trivy needs to run as the root user
+        runAsUser: 0
+</code></pre></div>
+<p>Lastly, we can deploy the operator inside our cluster with referencing our new <code>values.yaml</code> manifest to override the default values:</p>
+<div class="highlight"><pre><span></span><code>helm upgrade --install trivy-operator aqua/trivy-operator \
+  --namespace trivy-system \
+  --create-namespace \
+  --version 0.13.2
+  --values ./values.yaml
+</code></pre></div>
+<p>Alternatively, it is possible to set the values directly through Helm instead of referencing an additional <code>values.yaml</code> file:</p>
+<div class="highlight"><pre><span></span><code>helm upgrade --install trivy-operator aqua/trivy-operator \
+  --namespace trivy-system \
+  --create-namespace \
+  --version 0.13.2
+  --set=&quot;trivy.command=fs&quot;
+  --set=&quot;trivyOperator.scanJobPodTemplateContainerSecurityContext.runAsUser=0&quot;
+</code></pre></div>
+<p>Once installed, make sure that</p>
+<ol>
+<li>the operator is running in your cluster</li>
+<li>the operator has created a VulnerabilityReport for the container image from the private registry</li>
+</ol>
+<div class="highlight"><pre><span></span><code>❯ kubectl get deployment -n trivy-system
+
+NAME             READY   UP-TO-DATE   AVAILABLE   AGE
+trivy-operator   1/1     1            1           99s
+</code></pre></div>
+<h2 id="second-option-using-an-imagepullsecret-to-access-containers-from-the-private-registry">Second Option: Using an ImagePullSecret to access containers from the Private Registry</h2>
+<p>Note that you might be using an ImagePullSecret already to allow pods to pull the container images from a private registry.</p>
+<p>To set-up an ImagePullSecret, we first need an access token to our private registry. For GitHub private registries, you can create a new access token under the <a href="https://github.com/settings/tokens/new">following link.</a> In comparison, the official Kubernetes documentation shows how to create the <a href="https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/">ImagePullSecret for the DockerHub.</a></p>
+<p>Next, we will base64 encode the access token:</p>
+<div class="highlight"><pre><span></span><code>echo -n &quot;YOUR_GH_ACCOUNT_NAME:YOUR_TOKEN&quot; | base64
+</code></pre></div>
+<p>And take the output of the previous command and parse it into the following to base64 encode it again:</p>
+<div class="highlight"><pre><span></span><code>echo -n  &#39;{&quot;auths&quot;:{&quot;ghcr.io&quot;:{&quot;auth&quot;:&quot;OUTPUT&quot;}}}&#39; | base64
+</code></pre></div>
+<p>Lastly, we are going to store the output in a Kubernetes Secret YAML manifest:</p>
+<p><code>imagepullsecret.yaml</code></p>
+<div class="highlight"><pre><span></span><code>kind: Secret
+type: kubernetes.io/dockerconfigjson
+apiVersion: v1
+metadata:
+  name: dockerconfigjson-github-com
+  labels:
+    app: app-name
+data:
+  .dockerconfigjson: OUTPUT
+</code></pre></div>
+<p>Note that base64 encoding is not encryption, thust, you should not commit this file. If you are looking to store secrets in Kubernetes, have a look at e.g. <a href="https://www.vaultproject.io/use-cases/kubernetes">Hashicorp Secret Vault</a>, or with an <a href="https://youtu.be/SyRZe5YVCVk">External Secrets Operator (ESO)</a>.</p>
+<p>Make sure to reference the ImagePullSecret in your container <code>spec</code>:</p>
+<div class="highlight"><pre><span></span><code>containers:
+- name: cns-website
+  image: ghcr.io/account-name/image-id:tag
+imagePullSecrets:
+- name: dockerconfigjson-github-com
+</code></pre></div>
+<p>And finally, we can apply the secret to the same namespace as our application:</p>
+<div class="highlight"><pre><span></span><code>kubectl apply -f imagepullsecret.yaml -n app
+</code></pre></div>
+<p>If you have to modify your deployment.yaml manifest, make sure to update that as well.</p>
+<p>Once you have defined your ImagePullSecret, the Operator will have access to the container image automatically with the defaul configuration.</p>
+<h2 id="third-option-define-an-imagepullsecret-through-a-serviceaccount">Third Option: Define an ImagePullSecret through a ServiceAccount</h2>
+<p>Alternatively to defining an ImagePullSecret on the pod level, we can also define the secret through a Kubernetes Service Account. Our workload will be associated with the service account and can pull the secret from our private registry.
+Similar to the <code>Second Option</code>, once we have the key associated to our workload, the Trivy operator scan job has access to the secret and can pull the image.</p>
+<p>Again, you can have a look at the official <a href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/">Kubernetes documentation</a> for further details.</p>
+<p><code>imagepullsecret.yaml</code></p>
+<div class="highlight"><pre><span></span><code>apiVersion: v1
+kind: Secret
+metadata:
+  name: dockerconfigjson-sa-github-com
+  annotations:
+    kubernetes.io/service-account.name: cns-website
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: OUTPUT
+</code></pre></div>
+<p><code>serviceaccount.yaml</code></p>
+<div class="highlight"><pre><span></span><code>apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cns-website
+imagePullSecrets:
+- name: dockerconfigjson-sa-github-com
+</code></pre></div>
+<p><code>deployment.yaml</code>
+*or where you have defined your container</p>
+<div class="highlight"><pre><span></span><code>spec:
+    containers:
+    - name: cns-website
+      image: ghcr.io/account-name/image-id:tag
+    serviceAccountName: cns-website
+</code></pre></div>
+<h2 id="fourth-option-define-secrets-through-trivy-operator-configuration">Fourth Option: Define Secrets through Trivy-Operator configuration</h2>
+<p>If there are no ImagePullSecret on pod or Service Account level (for example, valid credentials are placed in container runtime configuration) you can add them in Trivy-Operator configuration.</p>
+<p>It's very similar to <code>Second Option</code>. First of all you need to create a secret. To do it, we first need an access token to our private registry. For GitHub private registries, you can create a new access token under the <a href="https://github.com/settings/tokens/new">following link.</a> In comparison, the official Kubernetes documentation shows how to create the <a href="https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/">ImagePullSecret for the DockerHub.</a></p>
+<p>Next, we will base64 encode the access token:</p>
+<div class="highlight"><pre><span></span><code>echo -n &quot;YOUR_GH_ACCOUNT_NAME:YOUR_TOKEN&quot; | base64
+</code></pre></div>
+<p>And take the output of the previous command and parse it into the following to base64 encode it again:</p>
+<div class="highlight"><pre><span></span><code>echo -n  &#39;{&quot;auths&quot;:{&quot;ghcr.io&quot;:{&quot;auth&quot;:&quot;OUTPUT&quot;}}}&#39; | base64
+</code></pre></div>
+<p>Lastly, we are going to store the output in a Kubernetes Secret YAML manifest:</p>
+<p><code>imagepullsecret.yaml</code></p>
+<div class="highlight"><pre><span></span><code>kind: Secret
+type: kubernetes.io/dockerconfigjson
+apiVersion: v1
+metadata:
+  name: dockerconfigjson-github-com
+  labels:
+    app: app-name
+data:
+  .dockerconfigjson: OUTPUT
+</code></pre></div>
+<p>Note that base64 encoding is not encryption, thust, you should not commit this file. If you are looking to store secrets in Kubernetes, have a look at e.g. <a href="https://www.vaultproject.io/use-cases/kubernetes">Hashicorp Secret Vault</a>, or with an <a href="https://youtu.be/SyRZe5YVCVk">External Secrets Operator (ESO)</a>.</p>
+<p>And finally, we can apply the secret to the same namespace as our application:</p>
+<div class="highlight"><pre><span></span><code>kubectl apply -f imagepullsecret.yaml -n app
+</code></pre></div>
+<p>Next, we will change the <code>privateRegistryScanSecretsNames</code> of the <code>values.yaml</code> manifest. For this, we can create a new <code>values.yaml</code> manifest with our desired modification. We need to provide desired namespace and secret name. In our example they are <code>app</code> and <code>dockerconfigjson-github-com</code> accordingly.</p>
+<div class="highlight"><pre><span></span><code>operator:
+    privateRegistryScanSecretsNames: {&quot;app&quot;:&quot;dockerconfigjson-github-com&quot;}
+</code></pre></div>
+<p>If you want you can add additional namespaces and secret names to <code>privateRegistryScanSecretsNames</code> separated by comma.</p>
+<p>Lastly, we can deploy the operator inside our cluster with referencing our new <code>values.yaml</code> manifest to override the default values:</p>
+<div class="highlight"><pre><span></span><code>helm upgrade --install trivy-operator aqua/trivy-operator \
+  --namespace trivy-system \
+  --create-namespace \
+  --version 0.13.2
+  --values ./values.yaml
+</code></pre></div>
+<p>Alternatively, it is possible to set the values directly through Helm instead of referencing an additional <code>values.yaml</code> file:</p>
+<div class="highlight"><pre><span></span><code>helm upgrade --install trivy-operator aqua/trivy-operator \
+  --namespace trivy-system \
+  --create-namespace \
+  --version 0.13.2
+  --set-json=&#39;operator.privateRegistryScanSecretsNames={&quot;app&quot;:&quot;dockerconfigjson-github-com&quot;}&#39;
+</code></pre></div>
+<p>Works only with helm 3.10+, because <code>--set-json</code> flag was added in 3.10.0. Otherwise you can use <code>values.yaml</code> instead.</p>
+<p>Once installed, make sure that</p>
+<ol>
+<li>the operator is running in your cluster</li>
+<li>the operator has created a VulnerabilitReport for the container image from the private registry</li>
+</ol>
+<div class="highlight"><pre><span></span><code>❯ kubectl get deployment -n trivy-system
+
+NAME             READY   UP-TO-DATE   AVAILABLE   AGE
+trivy-operator   1/1     1            1           99s
+</code></pre></div>
+<h2 id="fifth-option-grant-access-through-managed-registries">Fifth Option: Grant access through managed registries</h2>
+<p>The last way that you could give the Trivy operator access to your private container registry is through managed registries. In this case, the container registry and your Kubernetes cluster would have to be on the same cloud provider; then you can define access to your container namespace as part of the IAM account. Once defined, trivy will already have the permissions for the registry.</p>
+<p>For additional information, please refer to the <a href="https://aquasecurity.github.io/trivy-operator/v0.13.2/docs/vulnerability-scanning/managed-registries/">documentation on managed registries.</a></p>
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright 2019-2022 Aqua Security Software Ltd.
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections"], "search": "../../assets/javascripts/workers/search.6c7302c4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"method": "mike", "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.803ed251.min.js"></script>
+      
+    
+  </body>
+</html>

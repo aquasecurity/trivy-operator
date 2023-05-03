@@ -4,8 +4,8 @@ go 1.20
 
 require (
 	github.com/aquasecurity/defsec v0.87.0
-	github.com/aquasecurity/trivy v0.40.0
-	github.com/aquasecurity/trivy-kubernetes v0.4.1-0.20230419091002-7e427c2a4f61
+	github.com/aquasecurity/trivy v0.41.0
+	github.com/aquasecurity/trivy-kubernetes v0.4.1-0.20230420095211-019a895da295
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/davecgh/go-spew v1.1.1
@@ -32,7 +32,7 @@ require (
 )
 
 require (
-	github.com/aquasecurity/go-dep-parser v0.0.0-20230413091456-df0396537e15 // indirect
+	github.com/aquasecurity/go-dep-parser v0.0.0-20230424082450-f8baca321fbf // indirect
 	github.com/aquasecurity/table v1.8.0 // indirect
 	github.com/aquasecurity/tml v0.6.1 // indirect
 	github.com/cloudflare/circl v1.1.0 // indirect
@@ -56,7 +56,7 @@ require (
 	github.com/rogpeppe/go-internal v1.10.0 // indirect
 	github.com/samber/lo v1.37.0 // indirect
 	github.com/skeema/knownhosts v1.1.0 // indirect
-	github.com/spdx/tools-golang v0.3.1-0.20230104082527-d6f58551be3f // indirect
+	github.com/spdx/tools-golang v0.5.0 // indirect
 	github.com/spf13/cobra v1.6.1 // indirect
 	github.com/tchap/go-patricia/v2 v2.3.1 // indirect
 	github.com/xlab/treeprint v1.1.0 // indirect

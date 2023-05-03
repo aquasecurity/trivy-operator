@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    - paths:
+      - './../go.mod'
     paths-ignore:
       - .github/ISSUE_TEMPLATE/*.md
       - "*.md"
@@ -37,7 +39,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version-file: 'go.mod'
+          go-version-file: './../go.mod'
       - name: Checkout code
         uses: actions/checkout@v3
       - name: Cached Go dependencies
@@ -67,7 +69,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version-file: 'go.mod'
+          go-version-file: './../go.mod'
       - name: Checkout code
         uses: actions/checkout@v3
       - uses: actions/cache@v3
@@ -92,7 +94,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version-file: 'go.mod'
+          go-version-file: './../go.mod'
       - name: Checkout code
         uses: actions/checkout@v3
       - uses: actions/cache@v3
@@ -117,7 +119,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version-file: 'go.mod'
+          go-version-file: './../go.mod'
       - name: Checkout code
         uses: actions/checkout@v3
       - uses: actions/cache@v3
@@ -166,7 +168,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version-file: 'go.mod'
+          go-version-file: './../go.mod'
       - name: Checkout code
         uses: actions/checkout@v3
       - uses: actions/cache@v3

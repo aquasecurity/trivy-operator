@@ -33,6 +33,18 @@ func GetContainerImagesFromPodSpec(spec corev1.PodSpec) ContainerImages {
 	return images
 }
 
+// GetContainerImagesFromContainersList returns a map of container names
+// to container images from the specified corev1.Container array.
+func GetContainerImagesFromContainersList(containers []corev1.Container) ContainerImages {
+	images := ContainerImages{}
+
+	for _, container := range containers {
+		images[container.Name] = container.Image
+	}
+
+	return images
+}
+
 // GetContainerImagesFromJob returns a map of container names
 // to container images from the specified v1.Job.
 // The mapping is encoded as JSON value of the AnnotationContainerImages

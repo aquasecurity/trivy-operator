@@ -52,6 +52,40 @@ func TestGetContainerImagesFromPodSpec(t *testing.T) {
 	}, images)
 }
 
+func TestGetContainerImagesFromContainersList(t *testing.T) {
+	images := kube.GetContainerImagesFromContainersList(
+		[]corev1.Container{
+			{
+				Name:  "nginx",
+				Image: "nginx:1.16",
+			},
+			{
+				Name:  "sidecar",
+				Image: "sidecar:1.32.7",
+			},
+			{
+				Name:  "init",
+				Image: "init:1.0.0",
+			},
+			{
+				Name:  "init2",
+				Image: "init:1.0.0",
+			},
+			{
+				Name:  "debug",
+				Image: "debug:1.0.0",
+			},
+		},
+	)
+	assert.Equal(t, kube.ContainerImages{
+		"nginx":   "nginx:1.16",
+		"sidecar": "sidecar:1.32.7",
+		"init":    "init:1.0.0",
+		"init2":   "init:1.0.0",
+		"debug":   "debug:1.0.0",
+	}, images)
+}
+
 func TestGetContainerImagesFromJob(t *testing.T) {
 
 	t.Run("Should return error when annotation is not set", func(t *testing.T) {

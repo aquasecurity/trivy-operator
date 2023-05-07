@@ -38,7 +38,9 @@ spec:
       app.kubernetes.io/name: trivy-server
       app.kubernetes.io/instance: trivy-server
   volumeClaimTemplates:
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: data
       spec:
         resources:

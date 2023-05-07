@@ -6843,6 +6843,7 @@ default ignore = false`,
 			for i := 0; i < len(secrets); i++ {
 				assert.Equal(t, tc.expectedSecretsData[i], secrets[i].Data)
 			}
+
 		})
 	}
 

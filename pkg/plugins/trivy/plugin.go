@@ -570,8 +570,7 @@ func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client
 	return podSpec, secrets, err
 }
 
-func (p *plugin) newSecretWithAggregateImagePullCredentials(obj client.Object, spec corev1.PodSpec, credentials map[string]docker.Auth) *corev1.Secret {
-	containerImages := kube.GetContainerImagesFromPodSpec(spec)
+func (p *plugin) newSecretWithAggregateImagePullCredentials(obj client.Object, containerImages kube.ContainerImages, credentials map[string]docker.Auth) *corev1.Secret {
 	secretData := kube.AggregateImagePullSecretsData(containerImages, credentials)
 
 	return &corev1.Secret{
@@ -611,28 +610,29 @@ const (
 func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext) (corev1.PodSpec, []*corev1.Secret, error) {
 	var secret *corev1.Secret
 	var secrets []*corev1.Secret
+	var containersSpec []corev1.Container
 
 	spec, err := kube.GetPodSpec(workload)
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
 	}
 
-	containersSpec := getContainers(spec)
-	for i := 0; i < len(containersSpec); i++ {
-		c := &containersSpec[i]
+	for _, c := range getContainers(spec) {
 		optionalMirroredImage, err := GetMirroredImage(c.Image, config.GetMirrors())
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
 		c.Image = optionalMirroredImage
+		containersSpec = append(containersSpec, c)
 	}
 
-	containersCredentials, err := kube.MapContainerNamesToDockerAuths(kube.GetContainerImagesFromPodSpec(spec), credentials)
+	containerImages := kube.GetContainerImagesFromContainersList(containersSpec)
+	containersCredentials, err := kube.MapContainerNamesToDockerAuths(containerImages, credentials)
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
 	}
 	if len(containersCredentials) > 0 {
-		secret = p.newSecretWithAggregateImagePullCredentials(workload, spec, containersCredentials)
+		secret = p.newSecretWithAggregateImagePullCredentials(workload, containerImages, containersCredentials)
 		secrets = append(secrets, secret)
 	}
 
@@ -848,6 +848,7 @@ func (p *plugin) initContainerEnvVar(trivyConfigName string, config Config) []co
 func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext) (corev1.PodSpec, []*corev1.Secret, error) {
 	var secret *corev1.Secret
 	var secrets []*corev1.Secret
+	var containersSpec []corev1.Container
 	spec, err := kube.GetPodSpec(workload)
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
@@ -863,22 +864,22 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 		return corev1.PodSpec{}, nil, err
 	}
 
-	containersSpec := getContainers(spec)
-	for i := 0; i < len(containersSpec); i++ {
-		c := &containersSpec[i]
+	for _, c := range getContainers(spec) {
 		optionalMirroredImage, err := GetMirroredImage(c.Image, config.GetMirrors())
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
 		c.Image = optionalMirroredImage
+		containersSpec = append(containersSpec, c)
 	}
 
-	containersCredentials, err := kube.MapContainerNamesToDockerAuths(kube.GetContainerImagesFromPodSpec(spec), credentials)
+	containerImages := kube.GetContainerImagesFromContainersList(containersSpec)
+	containersCredentials, err := kube.MapContainerNamesToDockerAuths(containerImages, credentials)
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
 	}
 	if len(containersCredentials) > 0 {
-		secret = p.newSecretWithAggregateImagePullCredentials(workload, spec, containersCredentials)
+		secret = p.newSecretWithAggregateImagePullCredentials(workload, containerImages, containersCredentials)
 		secrets = append(secrets, secret)
 	}
 

@@ -103,6 +103,9 @@ data:
   {{- if .Values.trivy.serverInsecure }}
   trivy.serverInsecure: {{ .Values.trivy.serverInsecure | quote }}
   {{- end }}
+  {{- if .Values.trivy.sslCertDir }}
+  trivy.sslCertDir: {{ .Values.trivy.sslCertDir | quote }}
+  {{- end }}
   {{- if .Values.trivy.noProxy }}
   trivy.noProxy: {{ .Values.trivy.noProxy | quote }}
   {{- end }}

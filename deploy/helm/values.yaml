@@ -261,6 +261,9 @@ trivy:
   #  qaRegistry: qa.registry.aquasec.com
   #  internalRegistry: registry.registry.svc:5000
 
+  # sslCertDir can be used to override the system default locations for SSL certificate files directory
+  # sslCertDir: 
+
   # The registry to which insecure connections are allowed. There can be multiple registries with different keys.
   insecureRegistries: {}
   #  pocRegistry: poc.myregistry.harbor.com.pl

@@ -30,8 +30,8 @@ github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be/go.mod h1:ySMOLuW
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/apparentlymart/go-textseg/v13 v13.0.0 h1:Y+KvPE1NYz0xl601PVImeQfFyEy6iT90AvPUL1NNfNw=
 github.com/apparentlymart/go-textseg/v13 v13.0.0/go.mod h1:ZK2fH7c4NqDTLtiYLvIkEghdlcqw7yxLeM89kiTRPUo=
-github.com/aquasecurity/defsec v0.87.0 h1:pGBbXys+x+N2XiqJ6EuuFvYqSa0MVgRIiE+W+xNN6Zo=
-github.com/aquasecurity/defsec v0.87.0/go.mod h1:fDZzCbVsJm/uTDzxi2kjSNShCvKMD/mrBaIjLI6TQCI=
+github.com/aquasecurity/defsec v0.88.1 h1:zyQE7khEXotrtrDRaRQnAN1/OXdw5ZmttMJ04n42AQQ=
+github.com/aquasecurity/defsec v0.88.1/go.mod h1:+IF79zLDD0Lm+z+UH+cmGmIFZ8d/ZBcd8r1Xw3EDxZI=
 github.com/aquasecurity/go-dep-parser v0.0.0-20230424082450-f8baca321fbf h1:MZmenKvakITNp/0RKk6U4MrWmI2DdSYxyrFlntnkDGs=
 github.com/aquasecurity/go-dep-parser v0.0.0-20230424082450-f8baca321fbf/go.mod h1:lI+o04X85vxgx2jPji9G0tZ6AqqhVcXn8A88qimWfOM=
 github.com/aquasecurity/table v1.8.0 h1:9ntpSwrUfjrM6/YviArlx/ZBGd6ix8W+MtojQcM7tv0=

@@ -367,6 +367,7 @@ func (c Config) GenerateSslCertDirVolumeIfAvailable(trivyConfigName string) (*co
 	volumeMount := corev1.VolumeMount{
 		Name:      sslCertDirVolumeName,
 		MountPath: SslCertDir,
+		ReadOnly:  true,
 	}
 	return &volume, &volumeMount
 }

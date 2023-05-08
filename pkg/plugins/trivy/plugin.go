@@ -1032,10 +1032,6 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			volumes = append(volumes, *volume)
 			volumeMounts = append(volumeMounts, *volumeMount)
 		}
-		if volume, volumeMount := config.GenerateIgnoreFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
-			volumes = append(volumes, *volume)
-			volumeMounts = append(volumeMounts, *volumeMount)
-		}
 		if volume, volumeMount := config.GenerateIgnorePolicyVolumeIfAvailable(trivyConfigName, workload); volume != nil && volumeMount != nil {
 			volumes = append(volumes, *volume)
 			volumeMounts = append(volumeMounts, *volumeMount)

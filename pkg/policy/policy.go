@@ -247,7 +247,7 @@ func (r *Policies) HasSeverity(resultSeverity severity.Severity) bool {
 }
 
 func getScannerOptions(hasExternalPolicies bool, useDefaultPolicies bool, policiesFolder string) []options.ScannerOption {
-	optionsArray := []options.ScannerOption{options.ScannerWithEmbeddedPolicies(useDefaultPolicies), options.ScannerWithEmbeddedLibraries(useDefaultPolicies)}
+	optionsArray := []options.ScannerOption{options.ScannerWithEmbeddedPolicies(useDefaultPolicies)}
 	if hasExternalPolicies {
 		optionsArray = append(optionsArray, options.ScannerWithPolicyDirs(policiesFolder))
 		optionsArray = append(optionsArray, options.ScannerWithPolicyNamespaces(externalPoliciesNamespace))

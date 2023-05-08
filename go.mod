@@ -3,7 +3,7 @@ module github.com/aquasecurity/trivy-operator
 go 1.20
 
 require (
-	github.com/aquasecurity/defsec v0.87.0
+	github.com/aquasecurity/defsec v0.88.1
 	github.com/aquasecurity/trivy v0.41.0
 	github.com/aquasecurity/trivy-kubernetes v0.4.1-0.20230420095211-019a895da295
 	github.com/bluele/gcache v0.0.2

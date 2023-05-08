@@ -613,7 +613,7 @@ func (p *plugin) newSecretWithAggregateImagePullCredentials(obj client.Object, c
 const (
 	tmpVolumeName               = "tmp"
 	ignoreFileVolumeName        = "ignorefile"
-	sslCertDirVolumeName        = "sslCertDir"
+	sslCertDirVolumeName        = "ssl-cert-dir"
 	ignoreFileName              = ".trivyignore"
 	ignoreFileMountPath         = "/etc/trivy/" + ignoreFileName
 	ignorePolicyVolumeName      = "ignorepolicy"

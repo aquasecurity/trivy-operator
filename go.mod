@@ -18,7 +18,7 @@ require (
 	github.com/liamg/memoryfs v1.6.0
 	github.com/onsi/ginkgo/v2 v2.9.4
 	github.com/onsi/gomega v1.27.6
-	github.com/prometheus/client_golang v1.15.0
+	github.com/prometheus/client_golang v1.15.1
 	github.com/stretchr/testify v1.8.2
 	go.uber.org/multierr v1.11.0
 	golang.org/x/net v0.9.0

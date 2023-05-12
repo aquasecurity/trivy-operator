@@ -63,6 +63,7 @@ const (
 	keyTrivyHTTPProxy                           = "trivy.httpProxy"
 	keyTrivyHTTPSProxy                          = "trivy.httpsProxy"
 	keyTrivyNoProxy                             = "trivy.noProxy"
+	keyTrivySslCertDir                          = "trivy.sslCertDir"
 	// nolint:gosec // This is not a secret, but a configuration value.
 	keyTrivyGitHubToken          = "trivy.githubToken"
 	keyTrivySkipFiles            = "trivy.skipFiles"
@@ -250,6 +251,13 @@ func (c Config) GetUseBuiltinRegoPolicies() bool {
 	}
 	return boolVal
 }
+func (c Config) GetSslCertDir() string {
+	val, ok := c.Data[keyTrivySslCertDir]
+	if !ok {
+		return ""
+	}
+	return val
+}
 
 func (c Config) GetSeverity() string {
 	val, ok := c.Data[KeyTrivySeverity]
@@ -339,6 +347,27 @@ func (c Config) GenerateIgnoreFileVolumeIfAvailable(trivyConfigName string) (*co
 		Name:      ignoreFileVolumeName,
 		MountPath: ignoreFileMountPath,
 		SubPath:   ignoreFileName,
+	}
+	return &volume, &volumeMount
+}
+
+func (c Config) GenerateSslCertDirVolumeIfAvailable(trivyConfigName string) (*corev1.Volume, *corev1.VolumeMount) {
+	var sslCertDirHost string
+	if sslCertDirHost = c.GetSslCertDir(); len(sslCertDirHost) == 0 {
+		return nil, nil
+	}
+	volume := corev1.Volume{
+		Name: sslCertDirVolumeName,
+		VolumeSource: corev1.VolumeSource{
+			HostPath: &corev1.HostPathVolumeSource{
+				Path: sslCertDirHost,
+			},
+		},
+	}
+	volumeMount := corev1.VolumeMount{
+		Name:      sslCertDirVolumeName,
+		MountPath: SslCertDir,
+		ReadOnly:  true,
 	}
 	return &volume, &volumeMount
 }
@@ -584,6 +613,7 @@ func (p *plugin) newSecretWithAggregateImagePullCredentials(obj client.Object, c
 const (
 	tmpVolumeName               = "tmp"
 	ignoreFileVolumeName        = "ignorefile"
+	sslCertDirVolumeName        = "ssl-cert-dir"
 	ignoreFileName              = ".trivyignore"
 	ignoreFileMountPath         = "/etc/trivy/" + ignoreFileName
 	ignorePolicyVolumeName      = "ignorepolicy"
@@ -592,6 +622,7 @@ const (
 	scanResultVolumeName        = "scanresult"
 	FsSharedVolumeName          = "trivyoperator"
 	SharedVolumeLocationOfTrivy = "/var/trivyoperator/trivy"
+	SslCertDir                  = "/var/ssl-cert"
 )
 
 // In the Standalone mode there is the init container responsible for
@@ -711,6 +742,10 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 		volumes = append(volumes, *volume)
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
+	if volume, volumeMount := config.GenerateSslCertDirVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
+	}
 
 	for _, c := range containersSpec {
 		env := []corev1.EnvVar{
@@ -726,6 +761,12 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 			constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
 		}
 
+		if len(config.GetSslCertDir()) > 0 {
+			env = append(env, corev1.EnvVar{
+				Name:  "SSL_CERT_DIR",
+				Value: SslCertDir,
+			})
+		}
 		if config.IgnoreFileExists() {
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_IGNOREFILE",
@@ -924,7 +965,12 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			constructEnvVarSourceFromSecret("TRIVY_TOKEN", trivyConfigName, keyTrivyServerToken),
 			constructEnvVarSourceFromSecret("TRIVY_CUSTOM_HEADERS", trivyConfigName, keyTrivyServerCustomHeaders),
 		}
-
+		if len(config.GetSslCertDir()) > 0 {
+			env = append(env, corev1.EnvVar{
+				Name:  "SSL_CERT_DIR",
+				Value: SslCertDir,
+			})
+		}
 		if config.IgnoreFileExists() {
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_IGNOREFILE",
@@ -987,6 +1033,11 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			volumeMounts = append(volumeMounts, *volumeMount)
 		}
 		if volume, volumeMount := config.GenerateIgnorePolicyVolumeIfAvailable(trivyConfigName, workload); volume != nil && volumeMount != nil {
+			volumes = append(volumes, *volume)
+			volumeMounts = append(volumeMounts, *volumeMount)
+		}
+
+		if volume, volumeMount := config.GenerateSslCertDirVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
 			volumes = append(volumes, *volume)
 			volumeMounts = append(volumeMounts, *volumeMount)
 		}
@@ -1258,6 +1309,10 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 		volumes = append(volumes, *volume)
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
+	if volume, volumeMount := config.GenerateSslCertDirVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
+	}
 
 	for _, c := range getContainers(spec) {
 		env := []corev1.EnvVar{
@@ -1268,6 +1323,12 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
 			constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
 			constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY", trivyConfigName, keyTrivyJavaDBRepository),
+		}
+		if len(config.GetSslCertDir()) > 0 {
+			env = append(env, corev1.EnvVar{
+				Name:  "SSL_CERT_DIR",
+				Value: SslCertDir,
+			})
 		}
 		if config.IgnoreFileExists() {
 			env = append(env, corev1.EnvVar{
@@ -1442,6 +1503,10 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 		volumes = append(volumes, *volume)
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
+	if volume, volumeMount := config.GenerateSslCertDirVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
+	}
 
 	for _, c := range getContainers(spec) {
 		env := []corev1.EnvVar{
@@ -1455,6 +1520,12 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 			constructEnvVarSourceFromSecret("TRIVY_TOKEN", trivyConfigName, keyTrivyServerToken),
 			constructEnvVarSourceFromSecret("TRIVY_CUSTOM_HEADERS", trivyConfigName, keyTrivyServerCustomHeaders),
 			constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY", trivyConfigName, keyTrivyJavaDBRepository),
+		}
+		if len(config.GetSslCertDir()) > 0 {
+			env = append(env, corev1.EnvVar{
+				Name:  "SSL_CERT_DIR",
+				Value: SslCertDir,
+			})
 		}
 		if config.IgnoreFileExists() {
 			env = append(env, corev1.EnvVar{

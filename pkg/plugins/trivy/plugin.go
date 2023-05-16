@@ -1085,7 +1085,8 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 	command := []string{
 		"trivy",
 	}
-	compressLogs := ctx.GetTrivyOperatorConfig().CompressLogs()
+	trivyConfig := ctx.GetTrivyOperatorConfig()
+	compressLogs := trivyConfig.CompressLogs()
 	c, err := p.getConfig(ctx)
 	if err != nil {
 		return []string{}, []string{}
@@ -1096,6 +1097,11 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 	var vulnTypeFlag string
 	if len(vulnTypeArgs) == 2 {
 		vulnTypeFlag = fmt.Sprintf("%s %s ", vulnTypeArgs[0], vulnTypeArgs[1])
+	}
+	imcs := p.imageConfigSecretScanner(trivyConfig)
+	var imageconfigSecretScannerFlag string
+	if len(imcs) == 2 {
+		imageconfigSecretScannerFlag = fmt.Sprintf("%s %s ", imcs[0], imcs[1])
 	}
 	if mode == ClientServer {
 		if !compressLogs {
@@ -1118,9 +1124,12 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 			if len(vulnTypeArgs) > 0 {
 				args = append(args, vulnTypeArgs...)
 			}
+			if len(imcs) > 0 {
+				args = append(args, imcs...)
+			}
 			return command, args
 		}
-		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s--cache-dir /tmp/trivy/.cache --quiet --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), vulnTypeFlag, trivyServerURL, resultFileName, resultFileName)}
+		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, trivyServerURL, resultFileName, resultFileName)}
 	}
 	skipUpdate := SkipDBUpdate(c)
 	if !compressLogs {
@@ -1142,9 +1151,12 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 		if len(vulnTypeArgs) > 0 {
 			args = append(args, vulnTypeArgs...)
 		}
+		if len(imcs) > 0 {
+			args = append(args, imcs...)
+		}
 		return command, args
 	}
-	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s--cache-dir /tmp/trivy/.cache --quiet %s --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), vulnTypeFlag, skipUpdate, resultFileName, resultFileName)}
+	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, resultFileName, resultFileName)}
 }
 
 func (p *plugin) vulnTypeFilter(ctx trivyoperator.PluginContext) []string {
@@ -1157,6 +1169,14 @@ func (p *plugin) vulnTypeFilter(ctx trivyoperator.PluginContext) []string {
 		return []string{}
 	}
 	return []string{"--vuln-type", vulnType}
+}
+
+func (p *plugin) imageConfigSecretScanner(tc trivyoperator.ConfigData) []string {
+
+	if tc.ExposedSecretsScannerEnabled() {
+		return []string{"--image-config-scanners", "secret"}
+	}
+	return []string{}
 }
 
 func getAutomountServiceAccountToken(ctx trivyoperator.PluginContext) bool {

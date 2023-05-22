@@ -8097,7 +8097,7 @@ func TestSkipDirFileEnvVars(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := trivy.SkipFileDirEnvVars(tc.workload, tc.skipType, tc.envKey, tc.configName, tc.configKey)
+			got := trivy.ConfigWorkloadAnnotationEnvVars(tc.workload, tc.skipType, tc.envKey, tc.configName, tc.configKey)
 			assert.Equal(t, got, tc.want)
 		})
 	}

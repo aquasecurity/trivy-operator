@@ -759,7 +759,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 			constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
 			constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
 		}
-		env = append(env, skipFileDirEnvVar(workload, trivyConfigName)...)
+		env = append(env, skipFileDirEnvVars(workload, trivyConfigName)...)
 
 		if len(config.GetSslCertDir()) > 0 {
 			env = append(env, corev1.EnvVar{
@@ -963,7 +963,7 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			constructEnvVarSourceFromSecret("TRIVY_TOKEN", trivyConfigName, keyTrivyServerToken),
 			constructEnvVarSourceFromSecret("TRIVY_CUSTOM_HEADERS", trivyConfigName, keyTrivyServerCustomHeaders),
 		}
-		env = append(env, skipFileDirEnvVar(workload, trivyConfigName)...)
+		env = append(env, skipFileDirEnvVars(workload, trivyConfigName)...)
 
 		if len(config.GetSslCertDir()) > 0 {
 			env = append(env, corev1.EnvVar{
@@ -1342,7 +1342,7 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
 			constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY", trivyConfigName, keyTrivyJavaDBRepository),
 		}
-		env = append(env, skipFileDirEnvVar(workload, trivyConfigName)...)
+		env = append(env, skipFileDirEnvVars(workload, trivyConfigName)...)
 
 		if len(config.GetSslCertDir()) > 0 {
 			env = append(env, corev1.EnvVar{
@@ -1539,7 +1539,7 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 			constructEnvVarSourceFromSecret("TRIVY_CUSTOM_HEADERS", trivyConfigName, keyTrivyServerCustomHeaders),
 			constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY", trivyConfigName, keyTrivyJavaDBRepository),
 		}
-		env = append(env, skipFileDirEnvVar(workload, trivyConfigName)...)
+		env = append(env, skipFileDirEnvVars(workload, trivyConfigName)...)
 
 		if len(config.GetSslCertDir()) > 0 {
 			env = append(env, corev1.EnvVar{
@@ -2020,7 +2020,7 @@ func getSecurityChecks(ctx trivyoperator.PluginContext) string {
 	return strings.Join(securityChecks, ",")
 }
 
-func skipFileDirEnvVar(workload client.Object, trivyConfigName string) []corev1.EnvVar {
+func skipFileDirEnvVars(workload client.Object, trivyConfigName string) []corev1.EnvVar {
 	skipFileDirEnvs := make([]corev1.EnvVar, 0)
 	if value, ok := workload.GetAnnotations()[skipFilesAnnotation]; ok {
 		skipFileDirEnvs = append(skipFileDirEnvs, corev1.EnvVar{

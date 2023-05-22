@@ -39,8 +39,8 @@ const (
 const (
 	AWSECR_Image_Regex        = "^\\d+\\.dkr\\.ecr\\.(\\w+-\\w+-\\d+)\\.amazonaws\\.com\\/"
 	SupportedConfigAuditKinds = "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
-	skipDirsAnnotation        = "trivy-operator.aquasecurity.github.io/skip-dirs"
-	skipFilesAnnotation       = "trivy-operator.aquasecurity.github.io/skip-files"
+	SkipDirsAnnotation        = "trivy-operator.aquasecurity.github.io/skip-dirs"
+	SkipFilesAnnotation       = "trivy-operator.aquasecurity.github.io/skip-files"
 )
 
 const (
@@ -649,6 +649,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
 	}
+
 	for _, c := range getContainers(spec) {
 		optionalMirroredImage, err := GetMirroredImage(c.Image, config.GetMirrors())
 		if err != nil {
@@ -755,11 +756,12 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 			constructEnvVarSourceFromConfigMap("TRIVY_OFFLINE_SCAN", trivyConfigName, keyTrivyOfflineScan),
 			constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY", trivyConfigName, keyTrivyJavaDBRepository),
 			constructEnvVarSourceFromConfigMap("TRIVY_TIMEOUT", trivyConfigName, keyTrivyTimeout),
+			SkipFileDirEnvVars(workload, SkipFilesAnnotation, "TRIVY_SKIP_FILES", trivyConfigName, keyTrivySkipFiles),
+			SkipFileDirEnvVars(workload, SkipDirsAnnotation, "TRIVY_SKIP_DIRS", trivyConfigName, keyTrivySkipDirs),
 			constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
 			constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
 			constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
 		}
-		env = append(env, skipFileDirEnvVars(workload, trivyConfigName)...)
 
 		if len(config.GetSslCertDir()) > 0 {
 			env = append(env, corev1.EnvVar{
@@ -959,12 +961,12 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			constructEnvVarSourceFromConfigMap("TRIVY_OFFLINE_SCAN", trivyConfigName, keyTrivyOfflineScan),
 			constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY", trivyConfigName, keyTrivyJavaDBRepository),
 			constructEnvVarSourceFromConfigMap("TRIVY_TIMEOUT", trivyConfigName, keyTrivyTimeout),
+			SkipFileDirEnvVars(workload, SkipFilesAnnotation, "TRIVY_SKIP_FILES", trivyConfigName, keyTrivySkipFiles),
+			SkipFileDirEnvVars(workload, SkipDirsAnnotation, "TRIVY_SKIP_DIRS", trivyConfigName, keyTrivySkipDirs),
 			constructEnvVarSourceFromConfigMap("TRIVY_TOKEN_HEADER", trivyConfigName, keyTrivyServerTokenHeader),
 			constructEnvVarSourceFromSecret("TRIVY_TOKEN", trivyConfigName, keyTrivyServerToken),
 			constructEnvVarSourceFromSecret("TRIVY_CUSTOM_HEADERS", trivyConfigName, keyTrivyServerCustomHeaders),
 		}
-		env = append(env, skipFileDirEnvVars(workload, trivyConfigName)...)
-
 		if len(config.GetSslCertDir()) > 0 {
 			env = append(env, corev1.EnvVar{
 				Name:  "SSL_CERT_DIR",
@@ -1337,13 +1339,13 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 	for _, c := range getContainers(spec) {
 		env := []corev1.EnvVar{
 			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, KeyTrivySeverity),
-			constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
+			constructEnvVarSourceFromConfigMap("TRIVY_SKIP_FILES", trivyConfigName, keyTrivySkipFiles),
+			SkipFileDirEnvVars(workload, SkipFilesAnnotation, "TRIVY_SKIP_FILES", trivyConfigName, keyTrivySkipFiles),
+			SkipFileDirEnvVars(workload, SkipDirsAnnotation, "TRIVY_SKIP_DIRS", trivyConfigName, keyTrivySkipDirs),
 			constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
 			constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
 			constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY", trivyConfigName, keyTrivyJavaDBRepository),
 		}
-		env = append(env, skipFileDirEnvVars(workload, trivyConfigName)...)
-
 		if len(config.GetSslCertDir()) > 0 {
 			env = append(env, corev1.EnvVar{
 				Name:  "SSL_CERT_DIR",
@@ -1531,6 +1533,8 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 	for _, c := range getContainers(spec) {
 		env := []corev1.EnvVar{
 			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, KeyTrivySeverity),
+			SkipFileDirEnvVars(workload, SkipFilesAnnotation, "TRIVY_SKIP_FILES", trivyConfigName, keyTrivySkipFiles),
+			SkipFileDirEnvVars(workload, SkipDirsAnnotation, "TRIVY_SKIP_DIRS", trivyConfigName, keyTrivySkipDirs),
 			constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
 			constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
 			constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
@@ -1539,8 +1543,6 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 			constructEnvVarSourceFromSecret("TRIVY_CUSTOM_HEADERS", trivyConfigName, keyTrivyServerCustomHeaders),
 			constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY", trivyConfigName, keyTrivyJavaDBRepository),
 		}
-		env = append(env, skipFileDirEnvVars(workload, trivyConfigName)...)
-
 		if len(config.GetSslCertDir()) > 0 {
 			env = append(env, corev1.EnvVar{
 				Name:  "SSL_CERT_DIR",
@@ -2020,23 +2022,12 @@ func getSecurityChecks(ctx trivyoperator.PluginContext) string {
 	return strings.Join(securityChecks, ",")
 }
 
-func skipFileDirEnvVars(workload client.Object, trivyConfigName string) []corev1.EnvVar {
-	skipFileDirEnvs := make([]corev1.EnvVar, 0)
-	if value, ok := workload.GetAnnotations()[skipFilesAnnotation]; ok {
-		skipFileDirEnvs = append(skipFileDirEnvs, corev1.EnvVar{
-			Name:  "TRIVY_SKIP_FILES",
+func SkipFileDirEnvVars(workload client.Object, annotation string, envVarName string, trivyConfigName string, configKey string) corev1.EnvVar {
+	if value, ok := workload.GetAnnotations()[annotation]; ok {
+		return corev1.EnvVar{
+			Name:  envVarName,
 			Value: value,
-		})
-	} else {
-		skipFileDirEnvs = append(skipFileDirEnvs, constructEnvVarSourceFromConfigMap("TRIVY_SKIP_FILES", trivyConfigName, keyTrivySkipFiles))
+		}
 	}
-	if value, ok := workload.GetAnnotations()[skipDirsAnnotation]; ok {
-		skipFileDirEnvs = append(skipFileDirEnvs, corev1.EnvVar{
-			Name:  "TRIVY_SKIP_DIRS",
-			Value: value,
-		})
-	} else {
-		skipFileDirEnvs = append(skipFileDirEnvs, constructEnvVarSourceFromConfigMap("TRIVY_SKIP_DIRS", trivyConfigName, keyTrivySkipDirs))
-	}
-	return skipFileDirEnvs
+	return constructEnvVarSourceFromConfigMap(envVarName, trivyConfigName, configKey)
 }

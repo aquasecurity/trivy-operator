@@ -84,7 +84,7 @@ func (r *WebhookReconciler) reconcileReport(reportType client.Object) reconcile.
 			}
 			verb = Delete
 		}
-		
+
 		if ignoreHistoricalReport(reportType) {
 			log.V(1).Info("Ignoring historical report")
 			return ctrl.Result{}, nil

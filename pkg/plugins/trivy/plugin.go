@@ -39,8 +39,10 @@ const (
 const (
 	AWSECR_Image_Regex        = "^\\d+\\.dkr\\.ecr\\.(\\w+-\\w+-\\d+)\\.amazonaws\\.com\\/"
 	SupportedConfigAuditKinds = "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
-	SkipDirsAnnotation        = "trivy-operator.aquasecurity.github.io/skip-dirs"
-	SkipFilesAnnotation       = "trivy-operator.aquasecurity.github.io/skip-files"
+	// SkipDirsAnnotation annotation  example: trivy-operator.aquasecurity.github.io/skip-dirs: "/tmp,/home"
+	SkipDirsAnnotation = "trivy-operator.aquasecurity.github.io/skip-dirs"
+	// SkipFilesAnnotation example: trivy-operator.aquasecurity.github.io/skip-files: "/src/Gemfile.lock,/examplebinary"
+	SkipFilesAnnotation = "trivy-operator.aquasecurity.github.io/skip-files"
 )
 
 const (

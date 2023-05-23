@@ -7945,3 +7945,160 @@ func writeBzip2AndEncode(data []byte) (string, error) {
 	}
 	return base64.StdEncoding.EncodeToString(in.Bytes()), nil
 }
+
+func TestSkipDirFileEnvVars(t *testing.T) {
+	testCases := []struct {
+		name       string
+		configName string
+		skipType   string
+		envKey     string
+		workload   *corev1.Pod
+		configKey  string
+		want       corev1.EnvVar
+	}{
+		{
+			name:       "read skip file from annotation",
+			configName: "trivy-operator-trivy-config",
+			skipType:   trivy.SkipFilesAnnotation,
+			envKey:     "TRIVY_SKIP_FILES",
+			configKey:  "trivy.skipFiles",
+			workload: &corev1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Pod",
+					APIVersion: "v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "nginx",
+					Namespace: "prod-ns",
+					Annotations: map[string]string{
+						trivy.SkipFilesAnnotation: "/src/Gemfile.lock,/examplebinary",
+					},
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  "nginx",
+							Image: "nginx:1.16",
+						},
+					},
+				},
+			},
+			want: corev1.EnvVar{
+				Name:  "TRIVY_SKIP_FILES",
+				Value: "/src/Gemfile.lock,/examplebinary",
+			},
+		},
+		{
+			name:       "read skip file from config",
+			configName: "trivy-operator-trivy-config",
+			skipType:   trivy.SkipFilesAnnotation,
+			envKey:     "TRIVY_SKIP_FILES",
+			configKey:  "trivy.skipFiles",
+			workload: &corev1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Pod",
+					APIVersion: "v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "nginx",
+					Namespace: "prod-ns",
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  "nginx",
+							Image: "nginx:1.16",
+						},
+					},
+				},
+			},
+			want: corev1.EnvVar{
+				Name: "TRIVY_SKIP_FILES",
+				ValueFrom: &corev1.EnvVarSource{
+					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: "trivy-operator-trivy-config",
+						},
+						Key:      "trivy.skipFiles",
+						Optional: pointer.Bool(true),
+					},
+				},
+			},
+		},
+		{
+			name:       "read skip dir from annotation",
+			configName: "trivy-operator-trivy-config",
+			skipType:   trivy.SkipDirsAnnotation,
+			envKey:     "TRIVY_SKIP_DIRS",
+			configKey:  "trivy.skipDirs",
+			workload: &corev1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Pod",
+					APIVersion: "v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "nginx",
+					Namespace: "prod-ns",
+					Annotations: map[string]string{
+						trivy.SkipDirsAnnotation: "/src/",
+					},
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  "nginx",
+							Image: "nginx:1.16",
+						},
+					},
+				},
+			},
+			want: corev1.EnvVar{
+				Name:  "TRIVY_SKIP_DIRS",
+				Value: "/src/",
+			},
+		},
+		{
+			name:       "read skip dir from config",
+			configName: "trivy-operator-trivy-config",
+			skipType:   trivy.SkipDirsAnnotation,
+			envKey:     "TRIVY_SKIP_DIRS",
+			configKey:  "trivy.skipDirs",
+			workload: &corev1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Pod",
+					APIVersion: "v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "nginx",
+					Namespace: "prod-ns",
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  "nginx",
+							Image: "nginx:1.16",
+						},
+					},
+				},
+			},
+			want: corev1.EnvVar{
+				Name: "TRIVY_SKIP_DIRS",
+				ValueFrom: &corev1.EnvVarSource{
+					ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: "trivy-operator-trivy-config",
+						},
+						Key:      "trivy.skipDirs",
+						Optional: pointer.Bool(true),
+					},
+				},
+			},
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := trivy.ConfigWorkloadAnnotationEnvVars(tc.workload, tc.skipType, tc.envKey, tc.configName, tc.configKey)
+			assert.Equal(t, got, tc.want)
+		})
+	}
+}

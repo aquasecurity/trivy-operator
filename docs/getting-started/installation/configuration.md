@@ -43,7 +43,6 @@ You can configure Trivy-Operator to control it's behavior and adapt it to your n
 
 The values of the `OPERATOR_NAMESPACE` and `OPERATOR_TARGET_NAMESPACES` determine the install mode, which in turn determines the multitenancy support of the operator.
 
-
 | MODE| OPERATOR_NAMESPACE | OPERATOR_TARGET_NAMESPACES | DESCRIPTION|
 |---|---|---|---|
 | OwnNamespace| `operators`| `operators`| The operator can be configured to watch events in the namespace it is deployed in.                             |
@@ -77,7 +76,7 @@ To change the target namespace from all namespaces to the `default` namespace ed
 | `skipResourceByLabels`| N/A| One-line comma-separated labels keys which trivy-operator will skip scanning on resources with matching labels. Example: `test,transient`|
 | `node.collector.imageRef`             | ghcr.io/aquasecurity/node-collector:0.0.6                | The imageRef use for node-collector job .                                                                                                                                                                                                                                                                                                               |
 | `node.collector.imagePullSecret`             | N/A                | imagePullSecret is the secret name to be used when pulling node-collector image from private registries .                                                                                                                                                                                                                                                                 |
-| `nodeCollector.excludeNodelables`                        | `""`                      | excludeNodes comma-separated node labels that the node-collector job should exclude from scanning (example kubernetes.io/arch=arm64,team=dev)                                                                                                                                                                                                                                      |
+| `nodeCollector.excludeNodes`                        | `""`                      | excludeNodes comma-separated node labels that the node-collector job should exclude from scanning (example kubernetes.io/arch=arm64,team=dev)                                                                                                                                                                                                                                      |
 
 ## Example - patch ConfigMap
 
@@ -124,6 +123,5 @@ kubectl patch cm trivy-operator-trivy-config -n trivy-system \
 ```
 
 [tolerations]: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration
-
 
 [prometheus]: https://github.com/prometheus

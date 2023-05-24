@@ -59,7 +59,7 @@ const (
 	keyScanJobTolerations                = "scanJob.tolerations"
 	KeyScanJobcompressLogs               = "scanJob.compressLogs"
 	KeyNodeCollectorVolumes              = "nodeCollector.volumes"
-	KeyNodeCollectorExcludeNode          = "nodeCollector.excludeNode"
+	KeyNodeCollectorExcludeNodes         = "nodeCollector.excludeNodes"
 	KeyNodeCollectorVolumeMounts         = "nodeCollector.volumeMounts"
 	keyScanJobNodeSelector               = "scanJob.nodeSelector"
 	keyScanJobAnnotations                = "scanJob.annotations"
@@ -255,7 +255,7 @@ func (c ConfigData) GetScanJobAnnotations() (map[string]string, error) {
 }
 
 func (c ConfigData) GetNodeCollectorExcludeNodes() (map[string]string, error) {
-	nodeCollectorExcludeNodesStr, found := c[KeyNodeCollectorExcludeNode]
+	nodeCollectorExcludeNodesStr, found := c[KeyNodeCollectorExcludeNodes]
 	if !found || strings.TrimSpace(nodeCollectorExcludeNodesStr) == "" {
 		return map[string]string{}, nil
 	}

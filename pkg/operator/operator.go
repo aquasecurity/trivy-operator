@@ -125,12 +125,11 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	if err != nil {
 		return err
 	}
-
-	trivyOperatorConfig, err := configManager.Read(context.Background())
+	compatibleObjectMapper, err := kube.InitCompatibleMgr()
 	if err != nil {
 		return err
 	}
-	compatibleObjectMapper, err := kube.InitCompatibleMgr(mgr.GetClient().RESTMapper())
+	trivyOperatorConfig, err := configManager.Read(context.Background())
 	if err != nil {
 		return err
 	}

@@ -14,9 +14,7 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/validation"
-	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 	"strings"
@@ -282,19 +280,8 @@ func NewObjectResolver(c client.Client, cm CompatibleMgr) ObjectResolver {
 // it dynamically fetches the compatible k8s objects (group/api/kind) by resource from the cluster and store it in kind vs k8s object mapping
 // It will enable the operator to support old and new API resources based on cluster version support
 func InitCompatibleMgr() (CompatibleMgr, error) {
-	cf := genericclioptions.NewConfigFlags(true)
-	restMapper, err := cf.ToRESTMapper()
-	if err != nil {
-		return nil, err
-	}
 	kindObjectMap := make(map[string]string)
-	for _, resource := range getCompatibleResources() {
-		gvk, err := restMapper.KindFor(schema.GroupVersionResource{Resource: resource})
-		if err != nil {
-			return nil, err
-		}
-		kindObjectMap[gvk.Kind] = gvk.String()
-	}
+	kindObjectMap[string(KindCronJob)] = apiBatchV1CronJob
 	return &CompatibleObjectMapper{kindObjectMap: kindObjectMap}, nil
 }
 
@@ -308,10 +295,6 @@ func supportedObjectsByK8sKind(api string) client.Object {
 	default:
 		return nil
 	}
-}
-
-func getCompatibleResources() []string {
-	return []string{cronJobResource}
 }
 
 // GetSupportedObjectByKind accept kind and return the supported object (group/api/kind) of the cluster

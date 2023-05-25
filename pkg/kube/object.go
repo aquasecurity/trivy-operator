@@ -301,7 +301,7 @@ func supportedObjectsByK8sKind(api string) client.Object {
 	case apiBatchV1CronJob:
 		return &batchv1.CronJob{}
 	default:
-		return nil
+		return &batchv1.CronJob{}
 	}
 }
 

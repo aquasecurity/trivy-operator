@@ -259,6 +259,7 @@ func TestGenerateComplianceReport(t *testing.T) {
 			c := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).
 				WithLists(tt.configAuditList).
 				WithObjects(tt.clusterComplianceReport).
+				WithStatusSubresource(tt.clusterComplianceReport).
 				Build()
 			mgr := NewMgr(c)
 			err := mgr.GenerateComplianceReport(context.Background(), tt.clusterComplianceReport.Spec)

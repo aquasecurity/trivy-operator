@@ -84,8 +84,7 @@ var _ = BeforeSuite(func() {
 	})
 	Expect(err).ToNot(HaveOccurred())
 	managerClient := k8sManager.GetClient()
-
-	compatibleObjectMapper, err := kube.InitCompatibleMgr(managerClient.RESTMapper())
+	compatibleObjectMapper := &kube.CompatibleObjectMapper{}
 	Expect(err).ToNot(HaveOccurred())
 	objectResolver := kube.NewObjectResolver(managerClient, compatibleObjectMapper)
 	Expect(err).ToNot(HaveOccurred())

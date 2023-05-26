@@ -296,7 +296,6 @@ func InitCompatibleMgr() (CompatibleMgr, error) {
 		}
 		kindObjectMap[gvk.Kind] = gvk.String()
 	}
-	kindObjectMap[string(KindCronJob)] = apiBatchV1CronJob
 	return &CompatibleObjectMapper{kindObjectMap: kindObjectMap}, nil
 }
 

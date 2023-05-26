@@ -300,10 +300,6 @@ func InitCompatibleMgr() (CompatibleMgr, error) {
 	return &CompatibleObjectMapper{kindObjectMap: kindObjectMap}, nil
 }
 
-func getCompatibleResources() []string {
-	return []string{cronJobResource}
-}
-
 // return a map of supported object api per k8s version
 func supportedObjectsByK8sKind(api string) client.Object {
 	switch api {
@@ -314,6 +310,10 @@ func supportedObjectsByK8sKind(api string) client.Object {
 	default:
 		return nil
 	}
+}
+
+func getCompatibleResources() []string {
+	return []string{cronJobResource}
 }
 
 // GetSupportedObjectByKind accept kind and return the supported object (group/api/kind) of the cluster

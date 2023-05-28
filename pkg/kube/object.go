@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -13,13 +15,12 @@ import (
 	networkingv1 "k8s.io/api/networking/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
-	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/validation"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
-	"strings"
 )
 
 // ObjectRef is a simplified representation of a Kubernetes client.Object.
@@ -281,7 +282,12 @@ func NewObjectResolver(c client.Client, cm CompatibleMgr) ObjectResolver {
 // InitCompatibleMgr initializes a CompatibleObjectMapper who store a map the of supported kinds with it compatible Objects (group/api/kind)
 // it dynamically fetches the compatible k8s objects (group/api/kind) by resource from the cluster and store it in kind vs k8s object mapping
 // It will enable the operator to support old and new API resources based on cluster version support
-func InitCompatibleMgr(restMapper meta.RESTMapper) (CompatibleMgr, error) {
+func InitCompatibleMgr() (CompatibleMgr, error) {
+	cf := genericclioptions.NewConfigFlags(true)
+	restMapper, err := cf.ToRESTMapper()
+	if err != nil {
+		return nil, err
+	}
 	kindObjectMap := make(map[string]string)
 	for _, resource := range getCompatibleResources() {
 		gvk, err := restMapper.KindFor(schema.GroupVersionResource{Resource: resource})

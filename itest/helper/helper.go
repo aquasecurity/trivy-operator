@@ -423,6 +423,7 @@ func (h *Helper) GetActiveReplicaSetForDeployment(namespace, name string) (*apps
 	return nil, nil
 }
 
+// nolint:staticcheck
 func (h *Helper) UpdateDeploymentImage(namespace, name string) error {
 	// TODO Check kubectl set image implementation
 	return wait.PollImmediate(5*time.Second, 2*time.Minute, func() (bool, error) {

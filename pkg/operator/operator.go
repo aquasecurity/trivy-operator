@@ -3,6 +3,8 @@ package operator
 import (
 	"context"
 	"fmt"
+	"strconv"
+
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
@@ -23,12 +25,10 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
-	"strconv"
 )
 
 var (
@@ -72,13 +72,13 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		// Add support for OwnNamespace set in OPERATOR_NAMESPACE (e.g. `trivy-operator`)
 		// and OPERATOR_TARGET_NAMESPACES (e.g. `trivy-operator`).
 		setupLog.Info("Constructing client cache", "namespace", targetNamespaces[0])
-		options.Namespace = targetNamespaces[0]
+		options.Cache.Namespaces = []string{targetNamespaces[0]}
 	case etc.SingleNamespace:
 		// Add support for SingleNamespace set in OPERATOR_NAMESPACE (e.g. `trivy-operator`)
 		// and OPERATOR_TARGET_NAMESPACES (e.g. `default`).
 		cachedNamespaces := append(targetNamespaces, operatorNamespace)
 		setupLog.Info("Constructing client cache", "namespaces", cachedNamespaces)
-		options.NewCache = cache.MultiNamespacedCacheBuilder(cachedNamespaces)
+		options.Cache.Namespaces = cachedNamespaces
 	case etc.MultiNamespace:
 		// Add support for MultiNamespace set in OPERATOR_NAMESPACE (e.g. `trivy-operator`)
 		// and OPERATOR_TARGET_NAMESPACES (e.g. `default,kube-system`).
@@ -86,7 +86,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		// More: https://godoc.org/github.com/kubernetes-sigs/controller-runtime/pkg/cache#MultiNamespacedCacheBuilder
 		cachedNamespaces := append(targetNamespaces, operatorNamespace)
 		setupLog.Info("Constructing client cache", "namespaces", cachedNamespaces)
-		options.NewCache = cache.MultiNamespacedCacheBuilder(cachedNamespaces)
+		options.Cache.Namespaces = cachedNamespaces
 	case etc.AllNamespaces:
 		// Add support for AllNamespaces set in OPERATOR_NAMESPACE (e.g. `operators`)
 		// and OPERATOR_TARGET_NAMESPACES left blank.
@@ -125,12 +125,11 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	if err != nil {
 		return err
 	}
-
-	trivyOperatorConfig, err := configManager.Read(context.Background())
+	compatibleObjectMapper, err := kube.InitCompatibleMgr()
 	if err != nil {
 		return err
 	}
-	compatibleObjectMapper, err := kube.InitCompatibleMgr(mgr.GetClient().RESTMapper())
+	trivyOperatorConfig, err := configManager.Read(context.Background())
 	if err != nil {
 		return err
 	}

@@ -22,6 +22,9 @@ data:
   {{- with .Values.trivyOperator.scanJobAutomountServiceAccountToken }}
   scanJob.automountServiceAccountToken: {{ . | quote }}
   {{- end }}
+  {{- with .Values.nodeCollector.excludeNodes }}
+  nodeCollector.excludeNodes: {{ . | quote }}
+  {{- end }}
   {{- with .Values.trivyOperator.scanJobPodTemplateLabels }}
   scanJob.podTemplateLabels: {{ . | quote }}
   {{- end }}

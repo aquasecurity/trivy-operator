@@ -59,6 +59,7 @@ const (
 	keyScanJobTolerations                = "scanJob.tolerations"
 	KeyScanJobcompressLogs               = "scanJob.compressLogs"
 	KeyNodeCollectorVolumes              = "nodeCollector.volumes"
+	KeyNodeCollectorExcludeNodes         = "nodeCollector.excludeNodes"
 	KeyNodeCollectorVolumeMounts         = "nodeCollector.volumeMounts"
 	keyScanJobNodeSelector               = "scanJob.nodeSelector"
 	keyScanJobAnnotations                = "scanJob.annotations"
@@ -251,6 +252,24 @@ func (c ConfigData) GetScanJobAnnotations() (map[string]string, error) {
 	}
 
 	return scanJobAnnotationsMap, nil
+}
+
+func (c ConfigData) GetNodeCollectorExcludeNodes() (map[string]string, error) {
+	nodeCollectorExcludeNodesStr, found := c[KeyNodeCollectorExcludeNodes]
+	if !found || strings.TrimSpace(nodeCollectorExcludeNodesStr) == "" {
+		return map[string]string{}, nil
+	}
+
+	nodeCollectorExcludeNodesMap := map[string]string{}
+	for _, excludeNode := range strings.Split(nodeCollectorExcludeNodesStr, ",") {
+		sepByEqual := strings.Split(excludeNode, "=")
+		if len(sepByEqual) != 2 {
+			return map[string]string{}, fmt.Errorf("failed parsing incorrectly formatted exclude nodes values: %s", nodeCollectorExcludeNodesStr)
+		}
+		key, value := sepByEqual[0], sepByEqual[1]
+		nodeCollectorExcludeNodesMap[key] = value
+	}
+	return nodeCollectorExcludeNodesMap, nil
 }
 
 func (c ConfigData) GetScanJobPodTemplateLabels() (labels.Set, error) {

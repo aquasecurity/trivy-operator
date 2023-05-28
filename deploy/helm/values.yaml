@@ -478,7 +478,8 @@ nodeCollector:
   # imagePullSecret is the secret name to be used when pulling node-collector image from private registries example : reg-secret
   # It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace
   # imagePullSecret:
-
+  # excludeNodes comma-separated node labels that the node-collector job should exclude from scanning (example kubernetes.io/arch=arm64,team=dev)
+  excludeNodes:
   # node-collector pod volumeMounts definition for collecting config files information
   volumeMounts:
     - name: var-lib-etcd

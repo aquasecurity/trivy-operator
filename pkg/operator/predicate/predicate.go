@@ -125,6 +125,25 @@ var IsLinuxNode = predicate.NewPredicateFuncs(func(obj client.Object) bool {
 	return false
 })
 
+var ExcludeNode = func(config trivyoperator.ConfigData) (predicate.Predicate, error) {
+	excludeNodes, err := config.GetNodeCollectorExcludeNodes()
+	if err != nil {
+		return nil, err
+	}
+	return predicate.NewPredicateFuncs(func(obj client.Object) bool {
+		if len(excludeNodes) == 0 {
+			return false
+		}
+		var matchingLabels int
+		for key, val := range excludeNodes {
+			if lVal, ok := obj.GetLabels()[key]; ok && lVal == val {
+				matchingLabels++
+			}
+		}
+		return matchingLabels == len(excludeNodes)
+	}), nil
+}
+
 // IsLeaderElectionResource returns true for resources used in leader election, means resources
 // annotated with resourcelock.LeaderElectionRecordAnnotationKey.
 var IsLeaderElectionResource = predicate.NewPredicateFuncs(func(obj client.Object) bool {

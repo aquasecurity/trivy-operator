@@ -6,6 +6,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 	. "github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 
@@ -46,8 +47,13 @@ type NodeReconciler struct {
 // +kubebuilder:rbac:groups=aquasecurity.github.io,resources=clusterinfraassessmentreports,verbs=get;list;watch;create;update;patch;delete
 
 func (r *NodeReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	excludeNodePredicate, err := predicate.ExcludeNode(r.ConfigData)
+	if err != nil {
+		return err
+	}
+
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&corev1.Node{}, builder.WithPredicates(IsLinuxNode)).
+		For(&corev1.Node{}, builder.WithPredicates(IsLinuxNode, predicate.Not((excludeNodePredicate)))).
 		Owns(&v1alpha1.ClusterInfraAssessmentReport{}).
 		Complete(r.reconcileNodes())
 }

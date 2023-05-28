@@ -13,6 +13,7 @@ ConfigMap:
 ```
 TRIVY_OPERATOR_NAMESPACE=<your trivy operator namespace>
 ```
+
 ```
 kubectl patch cm trivy-operator-trivy-config -n $TRIVY_OPERATOR_NAMESPACE \
   --type merge \
@@ -32,6 +33,7 @@ To set the GitHub token used by Trivy add the `trivy.githubToken` value to the `
 TRIVY_OPERATOR_NAMESPACE=<your trivy opersator namespace>
 GITHUB_TOKEN=<your token>
 ```
+
 ```
 kubectl patch secret trivy-operator-trivy-config -n $TRIVY_OPERATOR_NAMESPACE \
   --type merge \
@@ -66,6 +68,7 @@ configuration settings for common use cases. For example, switch Trivy from [Sta
 | `compliance.reportType`               | `summary`                   | this flag control the type of report generated summary or all                |
 | `compliance.cron`                     | `0 */6 * * *`                   | this flag control the cron interval for compliance report generation                |
 | `scanJob.compressLogs`                                         | `"true"`                              | Control whether scanjob output should be compressed                                                                                                                                     |
+| `nodeCollector.excludeNodes`                        | `""`                      | excludeNodes comma-separated node labels that the node-collector job should exclude from scanning (example kubernetes.io/arch=arm64,team=dev)                                                                                                                                                                                                                                      |
 
 !!! tip
     You can delete a configuration key.For example, the following `kubectl patch` command deletes the `trivy.httpProxy` key:

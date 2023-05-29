@@ -12,7 +12,7 @@ require (
 	github.com/dsnet/compress v0.0.1
 	github.com/emirpasic/gods v1.18.1
 	github.com/go-logr/logr v1.2.4
-	github.com/google/go-containerregistry v0.15.1
+	github.com/google/go-containerregistry v0.15.2
 	github.com/google/uuid v1.3.0
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
 	github.com/liamg/memoryfs v1.6.0

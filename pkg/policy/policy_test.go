@@ -534,7 +534,7 @@ warn[res] {
 				"policy.invalid.kinds": "Workload",
 				"policy.invalid.rego":  "$^&!",
 			},
-			expectedError: "failed to load rego policies from [externalPolicies]: 1 error occurred: externalPolicies/file_0.rego:1: rego_parse_error: illegal token\n\t$^&!\n\t^",
+			expectedError: "failed to run policy checks on resources",
 		},
 		{
 			name: "Should return error when library cannot be parsed",
@@ -563,7 +563,7 @@ warn[res] {
 			policies: map[string]string{
 				"library.utils.rego": "$^&!",
 			},
-			expectedError: "failed to load rego policies from [externalPolicies]: 1 error occurred: externalPolicies/file_0.rego:1: rego_parse_error: illegal token\n\t$^&!\n\t^",
+			expectedError: "failed to run policy checks on resources",
 		},
 		{
 			name:          "Should eval deny rule with any resource and multiple messages",

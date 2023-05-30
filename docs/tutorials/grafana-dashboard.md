@@ -92,7 +92,7 @@ Next, we can install the operator with the following command:
 helm install trivy-operator aqua/trivy-operator \
   --namespace trivy-system \
   --create-namespace \
-  --version 0.13.2 \
+  --version 0.14.0-rc \
   --values trivy-values.yaml
 ```
 
@@ -143,7 +143,7 @@ Run the following command to port-forward the Trivy Operator Service:
 kubectl port-forward service/trivy-operator -n trivy-system 5000:80
 ```
 
-Once you open the 'http://localhost:5000/metrics' you should see all the metrics gathered from the operator. However, this is obviously not the prettiest way of looking at them. Thus, the next sections will show you how to query metrics through Prometheus and visualise them in Grafana.
+Once you open the '<http://localhost:5000/metrics>' you should see all the metrics gathered from the operator. However, this is obviously not the prettiest way of looking at them. Thus, the next sections will show you how to query metrics through Prometheus and visualise them in Grafana.
 
 ### Query Trivy Operator Metrics in Prometheus
 
@@ -176,7 +176,7 @@ sum(trivy_image_exposedsecrets)
 
 Lastly, we want to visualise the security issues within our cluster in a Grafana Dashboard.
 
-For this, navigate to the Grafana URL 'http://localhost:3000'.
+For this, navigate to the Grafana URL '<http://localhost:3000>'.
 
 Username: admin
 Password: prom-operator

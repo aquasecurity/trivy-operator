@@ -61,9 +61,7 @@ func (r *logsReader) getPodByJob(ctx context.Context, job *batchv1.Job) (*corev1
 	if err != nil {
 		return nil, err
 	}
-	selector := fmt.Sprintf("controller-uid=%s", refreshedJob.Spec.Selector.MatchLabels["controller-uid"])
-	podList, err := r.clientset.CoreV1().Pods(job.Namespace).List(ctx, metav1.ListOptions{
-		LabelSelector: selector})
+	podList, err := r.podListLookup(ctx, job.Namespace, refreshedJob)
 	if err != nil {
 		return nil, err
 	}
@@ -71,6 +69,23 @@ func (r *logsReader) getPodByJob(ctx context.Context, job *batchv1.Job) (*corev1
 		return &podList.Items[0], nil
 	}
 	return nil, nil
+}
+
+func (r *logsReader) podListLookup(ctx context.Context, namespace string, refreshedJob *batchv1.Job) (*corev1.PodList, error) {
+	label := "controller-uid"
+	selector := fmt.Sprintf("%s=%s", label, refreshedJob.Spec.Selector.MatchLabels[label])
+	podList, err := r.clientset.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{
+		LabelSelector: selector})
+	if err != nil {
+		return nil, err
+	}
+	if podList != nil && len(podList.Items) == 0 { // k8s controller label has changed after k8s v.1.27.x
+		label = "batch.kubernetes.io/controller-uid"
+		selector := fmt.Sprintf("%s=%s", label, refreshedJob.Spec.Selector.MatchLabels[label])
+		return r.clientset.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{
+			LabelSelector: selector})
+	}
+	return podList, nil
 }
 
 func GetTerminatedContainersStatusesByPod(pod *corev1.Pod) map[string]*corev1.ContainerStateTerminated {

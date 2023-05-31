@@ -75,7 +75,7 @@ func (r *logsReader) podListLookup(ctx context.Context, namespace string, refres
 	matchingLableKey := "controller-uid"
 	matchingLabelValue := refreshedJob.Spec.Selector.MatchLabels[matchingLableKey]
 	if len(matchingLabelValue) == 0 {
-		matchingLableKey := "batch.kubernetes.io/controller-uid"
+		matchingLableKey = "batch.kubernetes.io/controller-uid"
 		matchingLabelValue = refreshedJob.Spec.Selector.MatchLabels[matchingLableKey]
 	}
 	selector := fmt.Sprintf("%s=%s", matchingLableKey, matchingLabelValue)

@@ -175,8 +175,8 @@ data:
       {{- if hasKey . "memory" }}
   trivy.resources.requests.memory: {{ .memory | quote }}
       {{- end }}
-      {{- if hasKey . "ephemeral-storage" }}
-  trivy.resources.requests.ephemeral-storage: {{ .memory | quote }}
+      {{- if hasKey . "ephemeralStorage" }}
+  trivy.resources.requests.ephemeral-storage: {{ .ephemeralStorage | quote }}
       {{- end }}
     {{- end }}
     {{- with .limits }}
@@ -186,8 +186,8 @@ data:
       {{- if .memory }}
   trivy.resources.limits.memory: {{ .memory | quote }}
       {{- end }}
-      {{- if hasKey . "ephemeral-storage" }}
-  trivy.resources.limits.ephemeral-storage: {{ .memory | quote }}
+      {{- if hasKey . "ephemeralStorage" }}
+  trivy.resources.limits.ephemeral-storage: {{  .ephemeralStorage | quote }}
       {{- end }}
     {{- end }}
   {{- end }}

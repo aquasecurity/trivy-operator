@@ -214,8 +214,9 @@ trivyOperator:
 
   # azureWorkloadIdentity if enable azure workload identity annotation and labels wil be added to trivy-operator service account and scan job must be used with azureWorkloadIdentityClientID, azurerkloadIdentityTenantID and azureWorkloadIdentityUseAnnotation
   azureWorkloadIdentity: false
-  azureWorkloadIdentityAnnotation annotation to be added to trivy-operator service account it is required to update the values of : <tenant-id> and <client-id>
+  # azureWorkloadIdentityAnnotation annotation to be added to trivy-operator service account it is required to update the values of : <tenant-id> and <client-id>
   azureWorkloadIdentityAnnotation: {azure.workload.identity/client-id: <client-id>,azure.workload.identity/tenant-id: <tenant-id>}
+  # azureWorkloadIdentityUseLabel label to be added to trivy-operator service account
   azureWorkloadIdentityUseLabel: {azure.workload.identity/use: true}
 
 trivy:

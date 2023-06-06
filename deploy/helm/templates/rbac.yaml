@@ -8,7 +8,7 @@ metadata:
   labels:
     {{- include "trivy-operator.labels" . | nindent 4 }}
      {{- if .Values.trivyOperator.azureWorkloadIdentity}}
-     {{- with .Values.trivyOperator.azureWorkloadIdentityUseAnnotation }}
+     {{- with .Values.trivyOperator.azureWorkloadIdentityUseLabel }}
         {{- . | toYaml | nindent 4 }}
       {{- end }}
      {{- end }}

@@ -216,7 +216,7 @@ trivyOperator:
   azureWorkloadIdentity: false
   azureWorkloadIdentityAnnotation annotation to be added to trivy-operator service account it is required to update the values of : <tenant-id> and <client-id>
   azureWorkloadIdentityAnnotation: {azure.workload.identity/client-id: <client-id>,azure.workload.identity/tenant-id: <tenant-id>}
-  azureWorkloadIdentityUseAnnotation: {azure.workload.identity/use: true}
+  azureWorkloadIdentityUseLabel: {azure.workload.identity/use: true}
 
 trivy:
   # createConfig indicates whether to create config objects

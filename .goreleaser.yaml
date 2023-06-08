@@ -248,6 +248,7 @@ signs:
     certificate: "${artifact}.pem"
     args:
       - "sign-blob"
+      - "--yes"
       - "--oidc-issuer=https://token.actions.githubusercontent.com"
       - "--output-certificate=${certificate}"
       - "--output-signature=${signature}"
@@ -259,6 +260,7 @@ docker_signs:
   - cmd: cosign
     args:
       - "sign"
+      - "--yes"
       - "--oidc-issuer=https://token.actions.githubusercontent.com"
       - "${artifact}"
     artifacts: all

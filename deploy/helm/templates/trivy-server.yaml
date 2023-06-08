@@ -65,10 +65,10 @@ spec:
       {{- end }}
       serviceAccountName: {{ include "trivy-operator.serviceAccountName" . }}
       automountServiceAccountToken: false
+      {{- if .Values.trivy.server.podSecurityContext }}
       securityContext:
-        fsGroup: 65534
-        runAsNonRoot: true
-        runAsUser: 65534
+{{ toYaml .Values.trivy.server.podSecurityContext | indent 8 }}
+      {{- end }}
       {{- if .Values.trivy.image.imagePullSecret }}
       imagePullSecrets:
       - name:  {{ .Values.trivy.image.imagePullSecret }}
@@ -77,9 +77,10 @@ spec:
         - name: main
           image: "{{ .Values.trivy.image.registry }}/{{ .Values.trivy.image.repository }}:{{ .Values.trivy.image.tag }}"
           imagePullPolicy: "IfNotPresent"
+          {{- if .Values.trivy.server.securityContext }}
           securityContext:
-            privileged: false
-            readOnlyRootFilesystem: true
+{{ toYaml .Values.trivy.server.securityContext | indent 12 }}
+          {{- end }}
           args:
             - server
           {{- if or (or .Values.trivy.httpProxy .Values.trivy.httpsProxy) .Values.trivy.noProxy }}

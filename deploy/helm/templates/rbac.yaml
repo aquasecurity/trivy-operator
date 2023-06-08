@@ -7,10 +7,22 @@ metadata:
   namespace: {{ include "trivy-operator.namespace" . }}
   labels:
     {{- include "trivy-operator.labels" . | nindent 4 }}
-  {{- with .Values.serviceAccount.annotations }}
+     {{- if .Values.trivyOperator.azureWorkloadIdentity}}
+    {{- range $name, $value := .Values.trivyOperator.azureWorkloadIdentityUseLabel }}
+    {{ $name }}: {{ $value | quote }}
+    {{- end -}}
+     {{- end }}
+    {{- if or .Values.serviceAccount.annotations .Values.trivyOperator.azureWorkloadIdentity }}
   annotations:
+   {{- end }}
+   {{- with .Values.serviceAccount.annotations }}
     {{- . | toYaml | nindent 4 }}
   {{- end }}
+    {{- if .Values.trivyOperator.azureWorkloadIdentity}}
+     {{- range $name, $value := .Values.trivyOperator.azureWorkloadIdentityAnnotation }}
+    {{ $name }}: {{ $value | quote }}
+    {{- end -}}
+    {{- end }}
 {{- end }}
 
 {{- if .Values.rbac.create }}

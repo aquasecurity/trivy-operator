@@ -460,6 +460,16 @@ func TestConfigData_GetScanJobPodTemplateLabels(t *testing.T) {
 		expectError string
 	}{
 		{
+			name: "scan job template labels with additional comma at the end can be fetched successfully",
+			config: trivyoperator.ConfigData{
+				"scanJob.podTemplateLabels": "a.b=c.d/e,foo=bar,",
+			},
+			expected: labels.Set{
+				"foo": "bar",
+				"a.b": "c.d/e",
+			},
+		},
+		{
 			name: "scan job template labels can be fetched successfully",
 			config: trivyoperator.ConfigData{
 				"scanJob.podTemplateLabels": "a.b=c.d/e,foo=bar",

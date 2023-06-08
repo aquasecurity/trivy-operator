@@ -279,7 +279,8 @@ func (c ConfigData) GetScanJobPodTemplateLabels() (labels.Set, error) {
 	}
 
 	scanJobPodTemplateLabelsMap := map[string]string{}
-	for _, annotation := range strings.Split(scanJobPodTemplateLabelsStr, ",") {
+	labelParts := strings.Split(strings.TrimSuffix(scanJobPodTemplateLabelsStr, ","), ",")
+	for _, annotation := range labelParts {
 		sepByEqual := strings.Split(annotation, "=")
 		if len(sepByEqual) != 2 {
 			return labels.Set{}, fmt.Errorf("failed parsing incorrectly formatted custom scan pod template labels: %s", scanJobPodTemplateLabelsStr)

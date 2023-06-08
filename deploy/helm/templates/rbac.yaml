@@ -8,9 +8,9 @@ metadata:
   labels:
     {{- include "trivy-operator.labels" . | nindent 4 }}
      {{- if .Values.trivyOperator.azureWorkloadIdentity}}
-     {{- with .Values.trivyOperator.azureWorkloadIdentityUseLabel }}
-        {{- . | toYaml | nindent 4 }}
-      {{- end }}
+    {{- range $name, $value := .Values.trivyOperator.azureWorkloadIdentityUseLabel }}
+    {{ $name }}: {{ $value | quote }}
+    {{- end -}}
      {{- end }}
     {{- if or .Values.serviceAccount.annotations .Values.trivyOperator.azureWorkloadIdentity }}
   annotations:
@@ -19,9 +19,9 @@ metadata:
     {{- . | toYaml | nindent 4 }}
   {{- end }}
     {{- if .Values.trivyOperator.azureWorkloadIdentity}}
-      {{- with .Values.trivyOperator.azureWorkloadIdentityAnnotation }}
-        {{- . | toYaml | nindent 4 }}
-      {{- end }}
+     {{- range $name, $value := .Values.trivyOperator.azureWorkloadIdentityAnnotation }}
+    {{ $name }}: {{ $value | quote }}
+    {{- end -}}
     {{- end }}
 {{- end }}
 

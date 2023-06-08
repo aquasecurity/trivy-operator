@@ -34,7 +34,7 @@ except `kube-system` and `trivy-system`:
      --set="trivy.ignoreUnfixed=true" \
      --version {{ var.chart_version }}
    ```
-   There are many [values] in the chart that can be set to configure Trivy-Operator.
+   There are many [values] in the chart that can be set to configure Trivy-Operator. See the [Customising][customising] section for more details.
 3. Check that the `trivy-operator` Helm release is created in the `trivy-system` namespace, and it has status
    `deployed`:
    ```console
@@ -86,6 +86,44 @@ You have to manually delete custom resource definitions created by the `helm ins
     kubectl delete crd clusterconfigauditreports.aquasecurity.github.io
     ```
 
+## Customising the Helm Chart
+
+The Trivy Operator Helm Chart can be customised in the same way as other Helm Charts, by overwriting values in the `values.yaml` files.
+
+You can find all the values that can be customised in the README of [the Helm Chart on GitHub.][helm-dir]
+
+There are two ways to overwrite values in a Helm chart upon installation:
+
+**Create a custom values.yaml file with your changes and give Helm the file upon installation**
+
+   e.g. to specfy that Trivy should ignore all unfixed vulnerabilities:
+   ```yaml
+   trivy
+      ignoreUnfixed: true
+   ```
+
+   The file can be passed into Trivy with the `--values` flag in Helm:
+
+   ```yaml
+   helm install trivy-operator aqua/trivy-operator \
+      --namespace trivy-system \
+      --create-namespace \
+      --values values.yaml
+   ```
+
+**Set the values that you want to customise in the installation command**
+
+   This is done with the `--set` command in Helm:
+
+   ```yaml
+   helm install trivy-operator aqua/trivy-operator \
+      --namespace trivy-system \
+      --create-namespace \
+      --set="trivy.ignoreUnfixed=true" \
+   ```
+
 [Helm]: https://helm.sh/
 [charts]: https://helm.sh/docs/topics/charts/
 [values]: https://raw.githubusercontent.com/aquasecurity/trivy-operator/{{ git.tag }}/deploy/helm/values.yaml
+[customising]: ./#customising-the-helm-chart
+[helm-dir]: https://github.com/aquasecurity/trivy-operator/tree/main/deploy/helm

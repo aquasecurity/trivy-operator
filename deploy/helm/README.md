@@ -164,6 +164,13 @@ The values of the `OPERATOR_NAMESPACE` and `OPERATOR_TARGET_NAMESPACES` determin
 | `trivy.serverToken`         | The token to authenticate Trivy client with Trivy server. Only applicable in `ClientServer` mode.                                 |
 | `trivy.serverCustomHeaders` | A comma separated list of custom HTTP headers sent by Trivy client to Trivy server. Only applicable in `ClientServer` mode.       |
 
+
+## Metrics
+
+| NAME                                                         | DEFAULT                | DESCRIPTION                                                                                                                                                                                                                                |
+| ------------------------------------------------------------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `serviceMonitor.enabled`    | `false`                | This flag determines whether a ServiceMonitor will be deployed to scrape metrics from the scan reports for Prometheus |
+
 ## Install as Helm dependency
 
 There are cases, when potential chart developers want to add the operator as dependency. An example would be the creation of an umbrella chart for an application, which depends on 3d-party charts.

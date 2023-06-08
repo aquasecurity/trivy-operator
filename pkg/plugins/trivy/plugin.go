@@ -317,7 +317,12 @@ func (c Config) FindIgnorePolicyKey(workload client.Object) string {
 	for _, key := range keysByPrecedence {
 		for key2 := range c.Data {
 			if key2 == keyTrivyIgnorePolicy || strings.HasPrefix(key2, keyTrivyIgnorePolicy) {
-				matched, err := filepath.Match(key2, key)
+				tempKey := key2
+				if key2 != keyTrivyIgnorePolicy {
+					// replace dot with astrix for regex matching
+					tempKey = fmt.Sprintf("%s%s", keyTrivyIgnorePolicy, strings.ReplaceAll(tempKey[len(keyTrivyIgnorePolicy):], ".", "*"))
+				}
+				matched, err := filepath.Match(tempKey, key)
 				if err == nil && matched {
 					return key2
 				}

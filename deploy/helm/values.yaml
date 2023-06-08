@@ -1,185 +1,190 @@
 # Default values for the trivy-operator Helm chart, these are used to render
 # the templates into valid k8s Resources.
 
-# managedBy is similar to .Release.Service but allows to overwrite the value
+# -- managedBy is similar to .Release.Service but allows to overwrite the value
 managedBy: Helm
 
-# targetNamespace defines where you want trivy-operator to operate. By
+# -- targetNamespace defines where you want trivy-operator to operate. By
 # default, it's a blank string to select all namespaces, but you can specify
 # another namespace, or a comma separated list of namespaces.
 targetNamespaces: ""
 
-# excludeNamespaces is a comma separated list of namespaces (or glob patterns)
+# -- excludeNamespaces is a comma separated list of namespaces (or glob patterns)
 # to be excluded from scanning. Only applicable in the all namespaces install
 # mode, i.e. when the targetNamespaces values is a blank string.
 excludeNamespaces: ""
 
-# targetWorkloads is a comma seperated list of Kubernetes workload resources
+# -- targetWorkloads is a comma seperated list of Kubernetes workload resources
 # to be included in the vulnerability and config-audit scans
 # if left blank, all workload resources will be scanned
 targetWorkloads: "pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job"
 
+# -- nameOverride override operator name
 nameOverride: ""
+
+# -- fullnameOverride override operator full name
 fullnameOverride: ""
 
 operator:
-  # namespace to install the operator, defaults to the .Release.Namespace
+  # -- namespace to install the operator, defaults to the .Release.Namespace
   namespace: ""
-  # replicas the number of replicas of the operator's pod
+  # -- replicas the number of replicas of the operator's pod
   replicas: 1
 
-  # additional labels for the operator pod
+  # -- additional labels for the operator pod
   podLabels: {}
 
-  # leaderElectionId determines the name of the resource that leader election
+  # -- leaderElectionId determines the name of the resource that leader election
   # will use for holding the leader lock.
   leaderElectionId: "trivyoperator-lock"
 
-  # logDevMode the flag to enable development mode (more human-readable output, extra stack traces and logging information, etc)
+  # -- logDevMode the flag to enable development mode (more human-readable output, extra stack traces and logging information, etc)
   logDevMode: false
 
-  # scanJobTTL the set automatic cleanup time after the job is completed
+  # -- scanJobTTL the set automatic cleanup time after the job is completed
   scanJobTTL: ""
 
-  # scanJobTimeout the length of time to wait before giving up on a scan job
+  # -- scanJobTimeout the length of time to wait before giving up on a scan job
   scanJobTimeout: 5m
 
-  # scanJobsConcurrentLimit the maximum number of scan jobs create by the operator
+  # -- scanJobsConcurrentLimit the maximum number of scan jobs create by the operator
   scanJobsConcurrentLimit: 10
 
-  # scanNodeCollectorLimit the maximum number of node collector jobs create by the operator
+  # -- scanNodeCollectorLimit the maximum number of node collector jobs create by the operator
   scanNodeCollectorLimit: 1
 
-  # scanJobsRetryDelay the duration to wait before retrying a failed scan job
+  # -- scanJobsRetryDelay the duration to wait before retrying a failed scan job
   scanJobsRetryDelay: 30s
 
-  # vulnerabilityScannerEnabled the flag to enable vulnerability scanner
+  # -- the flag to enable vulnerability scanner
   vulnerabilityScannerEnabled: true
-  # scannerReportTTL the flag to set how long a report should exist. "" means that the ScannerReportTTL feature is disabled
+  # -- scannerReportTTL the flag to set how long a report should exist. "" means that the ScannerReportTTL feature is disabled
   scannerReportTTL: "24h"
-  # configAuditScannerEnabled the flag to enable configuration audit scanner
+  # -- configAuditScannerEnabled the flag to enable configuration audit scanner
   configAuditScannerEnabled: true
-  # rbacAssessmentScannerEnabled the flag to enable rbac assessment scanner
+  # -- rbacAssessmentScannerEnabled the flag to enable rbac assessment scanner
   rbacAssessmentScannerEnabled: true
-  # infraAssessmentScannerEnabled the flag to enable infra assessment scanner
+  # -- infraAssessmentScannerEnabled the flag to enable infra assessment scanner
   infraAssessmentScannerEnabled: true
-  # clusterComplianceEnabled the flag to enable cluster compliance scanner
+  # -- clusterComplianceEnabled the flag to enable cluster compliance scanner
   clusterComplianceEnabled: true
-  # batchDeleteLimit the maximum number of config audit reports deleted by the operator when the plugin's config has changed.
+  # -- batchDeleteLimit the maximum number of config audit reports deleted by the operator when the plugin's config has changed.
   batchDeleteLimit: 10
-  # vulnerabilityScannerScanOnlyCurrentRevisions the flag to only create vulnerability scans on the current revision of a deployment.
+  # -- vulnerabilityScannerScanOnlyCurrentRevisions the flag to only create vulnerability scans on the current revision of a deployment.
   vulnerabilityScannerScanOnlyCurrentRevisions: true
-  # configAuditScannerScanOnlyCurrentRevisions the flag to only create config audit scans on the current revision of a deployment.
+  # -- configAuditScannerScanOnlyCurrentRevisions the flag to only create config audit scans on the current revision of a deployment.
   configAuditScannerScanOnlyCurrentRevisions: true
-  # batchDeleteDelay the duration to wait before deleting another batch of config audit reports.
+  # -- batchDeleteDelay the duration to wait before deleting another batch of config audit reports.
   batchDeleteDelay: 10s
-  # accessGlobalSecretsAndServiceAccount The flag to enable access to global secrets/service accounts to allow `vulnerability scan job` to pull images from private registries
+  # -- accessGlobalSecretsAndServiceAccount The flag to enable access to global secrets/service accounts to allow `vulnerability scan job` to pull images from private registries
   accessGlobalSecretsAndServiceAccount: true
-  # builtInTrivyServer The flag enable the usage of built-in trivy server in cluster ,its also override the following trivy params with built-in values
+  # -- builtInTrivyServer The flag enable the usage of built-in trivy server in cluster ,its also override the following trivy params with built-in values
   # trivy.mode = ClientServer and serverURL = http://<serverServiceName>.<trivy operator namespace>:4975
   builtInTrivyServer: false
 
-  # trivyServerHealthCheckCacheExpiration The flag to set the interval for trivy server health cache before it invalidate
+  # -- trivyServerHealthCheckCacheExpiration The flag to set the interval for trivy server health cache before it invalidate
   trivyServerHealthCheckCacheExpiration: 10h
 
-  # metricsFindingsEnabled the flag to enable metrics for findings
+  # -- metricsFindingsEnabled the flag to enable metrics for findings
   metricsFindingsEnabled: true
 
-  # metricsVulnIdEnabled the flag to enable metrics about cve vulns id
+  # -- metricsVulnIdEnabled the flag to enable metrics about cve vulns id
   # be aware of metrics cardinality is significantly increased with this feature enabled.
   metricsVulnIdEnabled: false
 
-  # exposedSecretScannerEnabled the flag to enable exposed secret scanner
+  # -- exposedSecretScannerEnabled the flag to enable exposed secret scanner
   exposedSecretScannerEnabled: true
 
-  # MetricsExposedSecretInfo the flag to enable metrics about exposed secrets
+  # -- MetricsExposedSecretInfo the flag to enable metrics about exposed secrets
   # be aware of metrics cardinality is significantly increased with this feature enabled.
   metricsExposedSecretInfo: false
 
-  # webhookBroadcastURL the flag to set reports should be sent to a webhook endpoint. "" means that the webhookBroadcastURL feature is disabled
+  # -- webhookBroadcastURL the flag to set reports should be sent to a webhook endpoint. "" means that the webhookBroadcastURL feature is disabled
   webhookBroadcastURL: ""
 
-  # webhookBroadcastTimeout the flag to set timeout for webhook requests if webhookBroadcastURL is enabled
+  # -- webhookBroadcastTimeout the flag to set timeout for webhook requests if webhookBroadcastURL is enabled
   webhookBroadcastTimeout: 30s
 
-  # webhookSendDeletedReports the flag to enable sending deleted reports if webhookBroadcastURL is enabled
+  # -- webhookSendDeletedReports the flag to enable sending deleted reports if webhookBroadcastURL is enabled
   webhookSendDeletedReports: false
 
-  # privateRegistryScanSecretsNames is map of namespace:secrets, secrets are comma seperated which can be used to authenticate in private registries in case if there no imagePullSecrets provided example : {"mynamespace":"mySecrets,anotherSecret"}
+  # -- privateRegistryScanSecretsNames is map of namespace:secrets, secrets are comma seperated which can be used to authenticate in private registries in case if there no imagePullSecrets provided example : {"mynamespace":"mySecrets,anotherSecret"}
   privateRegistryScanSecretsNames: {}
 
-  # mergeRbacFindingWithConfigAudit the flag to enable merging rbac finding with config-audit report
+  # -- mergeRbacFindingWithConfigAudit the flag to enable merging rbac finding with config-audit report
   mergeRbacFindingWithConfigAudit: false
 
 image:
   registry: "ghcr.io"
   repository: "aquasecurity/trivy-operator"
-  # tag is an override of the image tag, which is by default set by the
+  # -- tag is an override of the image tag, which is by default set by the
   # appVersion field in Chart.yaml.
   tag: ""
+  # -- pullPolicy set the operator pullPolicy
   pullPolicy: IfNotPresent
+  # -- pullSecrets set the operator pullSecrets
   pullSecrets: []
 
-# service only expose a metrics endpoint for prometheus to scrape,
+# -- service only expose a metrics endpoint for prometheus to scrape,
 # trivy-operator does not have a user interface.
 service:
   metricsPort: 80
 
-# Prometheus ServiceMonitor configuration -- to install the trivy operator with the ServiceMonitor
+# -- Prometheus ServiceMonitor configuration -- to install the trivy operator with the ServiceMonitor
 # you must have Prometheus already installed and running
 serviceMonitor:
-  # enabled determines whether a serviceMonitor should be deployed
+  # -- enabled determines whether a serviceMonitor should be deployed
   enabled: false
-  # The namespace where Prometheus expects to find service monitors
+  # -- The namespace where Prometheus expects to find service monitors
   # namespace: ""
   interval: ""
-  # Additional labels for the serviceMonitor
+  # -- Additional labels for the serviceMonitor
   labels: {}
   # honorLabels: true
 
 trivyOperator:
-  # vulnerabilityReportsPlugin the name of the plugin that generates vulnerability reports `Trivy`
+  # -- vulnerabilityReportsPlugin the name of the plugin that generates vulnerability reports `Trivy`
   vulnerabilityReportsPlugin: "Trivy"
-  # configAuditReportsPlugin the name of the plugin that generates config audit reports.
+  # -- configAuditReportsPlugin the name of the plugin that generates config audit reports.
   configAuditReportsPlugin: "Trivy"
-  # scanJobCompressLogs control whether scanjob output should be compressed or plain
+  # -- scanJobCompressLogs control whether scanjob output should be compressed or plain
   scanJobCompressLogs: true
-  # scanJobTolerations tolerations to be applied to the scanner pods and node-collector so that they can run on nodes with matching taints
+  # -- scanJobTolerations tolerations to be applied to the scanner pods and node-collector so that they can run on nodes with matching taints
   scanJobTolerations: []
-  # If you do want to specify tolerations, uncomment the following lines, adjust them as necessary, and remove the
+  # -- If you do want to specify tolerations, uncomment the following lines, adjust them as necessary, and remove the
   # square brackets after 'scanJobTolerations:'.
   # - key: "key1"
   #   operator: "Equal"
   #   value: "value1"
   #   effect: "NoSchedule"
 
-  # scanJobNodeSelector nodeSelector to be applied to the scanner pods so that they can run on nodes with matching labels
+  # -- scanJobNodeSelector nodeSelector to be applied to the scanner pods so that they can run on nodes with matching labels
   scanJobNodeSelector: {}
-  # If you do want to specify nodeSelector, uncomment the following lines, adjust them as necessary, and remove the
+  # -- If you do want to specify nodeSelector, uncomment the following lines, adjust them as necessary, and remove the
   # square brackets after 'scanJobNodeSelector:'.
   #   nodeType: worker
   #   cpu: sandylake
   #   teamOwner: operators
 
-  # scanJobAutomountServiceAccountToken the flag to enable automount for service account token on scan job
+  # -- scanJobAutomountServiceAccountToken the flag to enable automount for service account token on scan job
   scanJobAutomountServiceAccountToken: false
 
-  # scanJobAnnotations comma-separated representation of the annotations which the user wants the scanner pods to be
+  # -- scanJobAnnotations comma-separated representation of the annotations which the user wants the scanner pods to be
   # annotated with. Example: `foo=bar,env=stage` will annotate the scanner pods with the annotations `foo: bar` and `env: stage`
   scanJobAnnotations: ""
 
-  # scanJobPodTemplateLabels comma-separated representation of the labels which the user wants the scanner pods to be
+  # -- scanJobPodTemplateLabels comma-separated representation of the labels which the user wants the scanner pods to be
   # labeled with. Example: `foo=bar,env=stage` will labeled the scanner pods with the labels `foo: bar` and `env: stage`
   scanJobPodTemplateLabels: ""
 
-  # scanJobPodTemplatePodSecurityContext podSecurityContext the user wants the scanner and node collector pods to be amended with.
+  # -- scanJobPodTemplatePodSecurityContext podSecurityContext the user wants the scanner and node collector pods to be amended with.
   # Example:
   #   RunAsUser: 10000
   #   RunAsGroup: 10000
   #   RunAsNonRoot: true
   scanJobPodTemplatePodSecurityContext: {}
 
-  # scanJobPodTemplateContainerSecurityContext SecurityContext the user wants the scanner and node collector containers (and their
+  # -- scanJobPodTemplateContainerSecurityContext SecurityContext the user wants the scanner and node collector containers (and their
   # initContainers) to be amended with.
   scanJobPodTemplateContainerSecurityContext:
     allowPrivilegeEscalation: false
@@ -188,127 +193,127 @@ trivyOperator:
         - ALL
     privileged: false
     readOnlyRootFilesystem: true
-    # For filesystem scanning, Trivy needs to run as the root user
+    # -- For filesystem scanning, Trivy needs to run as the root user
     # runAsUser: 0
 
-  # scanJobPodPriorityClassName Priority class name to be set on the pods created by trivy operator jobs. This accepts a string value
+  # -- scanJobPodPriorityClassName Priority class name to be set on the pods created by trivy operator jobs. This accepts a string value
   scanJobPodPriorityClassName: ""
 
-  # reportResourceLabels comma-separated scanned resource labels which the user wants to include in the Prometheus
+  # -- reportResourceLabels comma-separated scanned resource labels which the user wants to include in the Prometheus
   # metrics report. Example: `owner,app`
   reportResourceLabels: ""
 
-  # reportRecordFailedChecksOnly flag is to record only failed checks on misconfiguration reports (config-audit and rbac assessment)
+  # -- reportRecordFailedChecksOnly flag is to record only failed checks on misconfiguration reports (config-audit and rbac assessment)
   reportRecordFailedChecksOnly: true
 
-  # skipResourceByLabels  comma-separated labels keys which trivy-operator will skip scanning on resources with matching labels
+  # -- skipResourceByLabels comma-separated labels keys which trivy-operator will skip scanning on resources with matching labels
   skipResourceByLabels: ""
 
-  # metricsResourceLabelsPrefix Prefix that will be prepended to the labels names indicated in `reportResourceLabels`
+  # -- metricsResourceLabelsPrefix Prefix that will be prepended to the labels names indicated in `reportResourceLabels`
   # when including them in the Prometheus metrics
   metricsResourceLabelsPrefix: "k8s_label_"
 
-  # additionalReportLabels comma-separated representation of the labels which the user wants the scanner pods to be
+  # -- additionalReportLabels comma-separated representation of the labels which the user wants the scanner pods to be
   # labeled with. Example: `foo=bar,env=stage` will labeled the reports with the labels `foo: bar` and `env: stage`
   additionalReportLabels: ""
 
-  # azureWorkloadIdentity if enable azure workload identity annotation and labels wil be added to trivy-operator service account and scan job must be used with azureWorkloadIdentityClientID, azurerkloadIdentityTenantID and azureWorkloadIdentityUseAnnotation
+  # -- azureWorkloadIdentity if enable azure workload identity annotation and labels wil be added to trivy-operator service account and scan job must be used with azureWorkloadIdentityClientID, azurerkloadIdentityTenantID and azureWorkloadIdentityUseAnnotation
   azureWorkloadIdentity: false
-  # azureWorkloadIdentityAnnotation annotation to be added to trivy-operator service account it is required to update the values of : <tenant-id> and <client-id>
+  # -- azureWorkloadIdentityAnnotation annotation to be added to trivy-operator service account it is required to update the values of : <tenant-id> and <client-id>
   azureWorkloadIdentityAnnotation: {azure.workload.identity/client-id: client-id, azure.workload.identity/tenant-id: tenant-id}
-  # azureWorkloadIdentityUseLabel label to be added to trivy-operator service account
+  # -- azureWorkloadIdentityUseLabel label to be added to trivy-operator service account
   azureWorkloadIdentityUseLabel: {azure.workload.identity/use: true}
 
 trivy:
-  # createConfig indicates whether to create config objects
+  # -- createConfig indicates whether to create config objects
   createConfig: true
   image:
-    # registry of the Trivy image
+    # -- registry of the Trivy image
     registry: ghcr.io
-    # repository of the Trivy image
+    # -- repository of the Trivy image
     repository: aquasecurity/trivy
-    # tag version of the Trivy image
+    # -- tag version of the Trivy image
     tag: 0.42.0
-    # imagePullSecret is the secret name to be used when pulling trivy image from private registries example : reg-secret
+    # -- imagePullSecret is the secret name to be used when pulling trivy image from private registries example : reg-secret
     # It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace
     # imagePullSecret:
 
-  # mode is the Trivy client mode. Either Standalone or ClientServer. Depending
+  # -- mode is the Trivy client mode. Either Standalone or ClientServer. Depending
   # on the active mode other settings might be applicable or required.
   mode: Standalone
 
-  # storageClassName is the name of the storage class to be used for trivy server PVC
+  # -- storageClassName is the name of the storage class to be used for trivy server PVC
   storageClassName: ""
 
-  # podLabels is the extra pod labels to be used for trivy server
+  # -- podLabels is the extra pod labels to be used for trivy server
   podLabels:
 
-  # priorityClassName is the name of the priority class used for trivy server
+  # -- priorityClassName is the name of the priority class used for trivy server
   priorityClassName: ""
 
-  # additionalVulnerabilityReportFields is a comma separated list of additional fields which
+  # -- additionalVulnerabilityReportFields is a comma separated list of additional fields which
   # can be added to the VulnerabilityReport. Supported parameters: Description, Links, CVSS, Target, Class and PackageType
   additionalVulnerabilityReportFields: ""
 
-  # httpProxy is the HTTP proxy used by Trivy to download the vulnerabilities database from GitHub.
+  # -- httpProxy is the HTTP proxy used by Trivy to download the vulnerabilities database from GitHub.
   #
   # httpProxy:
 
-  # httpsProxy is the HTTPS proxy used by Trivy to download the vulnerabilities database from GitHub.
+  # -- httpsProxy is the HTTPS proxy used by Trivy to download the vulnerabilities database from GitHub.
   #
   # httpsProxy:
 
-  # noProxy is a comma separated list of IPs and domain names that are not subject to proxy settings.
+  # -- noProxy is a comma separated list of IPs and domain names that are not subject to proxy settings.
   #
   # noProxy:
 
-  # Registries without SSL. There can be multiple registries with different keys.
+  # -- Registries without SSL. There can be multiple registries with different keys.
   nonSslRegistries: {}
   #  pocRegistry: poc.myregistry.harbor.com.pl
   #  qaRegistry: qa.registry.aquasec.com
   #  internalRegistry: registry.registry.svc:5000
 
-  # sslCertDir can be used to override the system default locations for SSL certificate files directory, example: /ssl/certs
+  # -- sslCertDir can be used to override the system default locations for SSL certificate files directory, example: /ssl/certs
   # sslCertDir:
 
-  # The registry to which insecure connections are allowed. There can be multiple registries with different keys.
+  # -- The registry to which insecure connections are allowed. There can be multiple registries with different keys.
   insecureRegistries: {}
   #  pocRegistry: poc.myregistry.harbor.com.pl
   #  qaRegistry: qa.registry.aquasec.com
   #  internalRegistry: registry.registry.svc:5000
 
-  # Mirrored registries. There can be multiple registries with different keys.
+  # -- Mirrored registries. There can be multiple registries with different keys.
   # Make sure to quote registries containing dots
   registry:
     mirror: {}
     # "docker.io": docker-mirror.example.com
 
-  # severity is a comma separated list of severity levels reported by Trivy.
+  # -- severity is a comma separated list of severity levels reported by Trivy.
   severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
 
-  # slow this flag is to use less CPU/memory for scanning though it takes more time than normal scanning. It fits small-footprint
+  # -- slow this flag is to use less CPU/memory for scanning though it takes more time than normal scanning. It fits small-footprint
   slow: true
-  # ignoreUnfixed is the flag to show only fixed vulnerabilities in
+  # -- ignoreUnfixed is the flag to show only fixed vulnerabilities in
   # vulnerabilities reported by Trivy. Set to true to enable it.
   #
   ignoreUnfixed: false
-  # a comma separated list of directories for Trivy to skip
+  # -- a comma separated list of directories for Trivy to skip
   skipDirs:
 
-  # offlineScan is the flag to enable the offline scan functionality in Trivy
+  # -- offlineScan is the flag to enable the offline scan functionality in Trivy
   # This will prevent outgoing HTTP requests, e.g. to search.maven.org
   offlineScan: false
 
-  # timeout is the duration to wait for scan completion.
+  # -- timeout is the duration to wait for scan completion.
   timeout: "5m0s"
 
-  # ignoreFile can be used to tell Trivy to ignore vulnerabilities by ID (one per line)
+  # -- ignoreFile can be used to tell Trivy to ignore vulnerabilities by ID (one per line)
   #
   # ignoreFile: |
   #   CVE-1970-0001
   #   CVE-1970-0002
 
-  # ignorePolicy can be used to tell Trivy to ignore vulnerabilities by a policy
+  # -- ignorePolicy can be used to tell Trivy to ignore vulnerabilities by a policy
   # If multiple policies would match, then the most specific one has precedence over the others.
   # See https://aquasecurity.github.io/trivy/latest/docs/vulnerability/examples/filter/#by-open-policy-agent) for more details.
   #
@@ -319,10 +324,10 @@ trivy:
   # ignorePolicy: |
   #   # applies to all other workloads
 
-  # vulnType can be used to tell Trivy to filter vulnerabilities by a pkg-type (library, os)
+  # -- vulnType can be used to tell Trivy to filter vulnerabilities by a pkg-type (library, os)
   # vulnType:
 
-  # resources resource requests and limits
+  # -- resources resource requests and limits
   resources:
     requests:
       cpu: 100m
@@ -333,72 +338,72 @@ trivy:
       memory: 500M
       # ephemeralStorage: "2Gi"
 
-  # githubToken is the GitHub access token used by Trivy to download the vulnerabilities
+  # -- githubToken is the GitHub access token used by Trivy to download the vulnerabilities
   # database from GitHub. Only applicable in Standalone mode.
   #
   # githubToken: "*****"
 
-  # serverURL is the endpoint URL of the Trivy server. Required in ClientServer mode.
+  # -- serverURL is the endpoint URL of the Trivy server. Required in ClientServer mode.
   #
   # serverURL: "https://trivy.trivy:4975"
 
-  # serverInsecure is the flag to enable insecure connection to the Trivy server.
+  # -- serverInsecure is the flag to enable insecure connection to the Trivy server.
   #
   # serverInsecure: true
-  # serverToken is the token to authenticate Trivy client with Trivy server. Only
+  # -- serverToken is the token to authenticate Trivy client with Trivy server. Only
   # applicable in ClientServer mode.
   #
   # serverToken: "*****"
 
-  # existingSecret if a secret containing gitHubToken, serverToken or serverCustomHeaders has been created outside the chart (e.g external-secrets, sops, etc...).
+  # -- existingSecret if a secret containing gitHubToken, serverToken or serverCustomHeaders has been created outside the chart (e.g external-secrets, sops, etc...).
   # Keys must be at least one of the following: trivy.githubToken, trivy.serverToken, trivy.serverCustomHeaders
   # Overrides trivy.gitHubToken, trivy.serverToken, trivy.serverCustomHeaders values.
   # Note: The secret has to be named "trivy-operator-trivy-config".
   # existingSecret: true
 
-  # serverTokenHeader is the name of the HTTP header used to send the authentication
+  # -- serverTokenHeader is the name of the HTTP header used to send the authentication
   # token to Trivy server. Only application in ClientServer mode when
   # trivy.serverToken is specified.
   serverTokenHeader: "Trivy-Token"
 
-  # serverCustomHeaders is a comma separated list of custom HTTP headers sent by
+  # -- serverCustomHeaders is a comma separated list of custom HTTP headers sent by
   # Trivy client to Trivy server. Only applicable in ClientServer mode.
   #
-  # serverCustomHeaders: "foo=bar"
+  # -- serverCustomHeaders: "foo=bar"
   dbRegistry: "ghcr.io"
   dbRepository: "aquasecurity/trivy-db"
 
-  # javaDbRegistry is the registry for the Java vulnerability database.
+  # -- javaDbRegistry is the registry for the Java vulnerability database.
   javaDbRegistry: "ghcr.io"
   javaDbRepository: "aquasecurity/trivy-java-db"
 
-  # The Flag to enable insecure connection for downloading trivy-db via proxy (air-gaped env)
+  # -- The Flag to enable insecure connection for downloading trivy-db via proxy (air-gaped env)
   #
   dbRepositoryInsecure: "false"
 
-  # The Flag to enable the usage of builtin rego policies by default
+  # -- The Flag to enable the usage of builtin rego policies by default
   #
   useBuiltinRegoPolicies: "true"
 
-  # The Flag is the list of supported kinds separated by comma delimiter to be scanned by the config audit scanner
+  # -- The Flag is the list of supported kinds separated by comma delimiter to be scanned by the config audit scanner
   #
   supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
 
-  # command. One of `image`, `filesystem` or `rootfs` scanning, depending on the target type required for the scan.
+  # -- command. One of `image`, `filesystem` or `rootfs` scanning, depending on the target type required for the scan.
   # For 'filesystem' and `rootfs` scanning, ensure that the `trivyOperator.scanJobPodTemplateContainerSecurityContext` is configured
   # to run as the root user (runAsUser = 0).
   command: image
-  # serverUser this param is the server user to be used to download db from private registry
+  # -- serverUser this param is the server user to be used to download db from private registry
   serverUser: ""
-  # serverPassword this param is the server user to be used to download db from private registry
+  # -- serverPassword this param is the server user to be used to download db from private registry
   serverPassword: ""
-  # serverServiceName this param is the server service name to be used in cluster
+  # -- serverServiceName this param is the server service name to be used in cluster
   serverServiceName: "trivy-service"
-  # debug One of `true` or `false`. Enables debug mode.
+  # -- debug One of `true` or `false`. Enables debug mode.
   debug: false
 
   server:
-    # resources set trivy-server resource
+    # -- resources set trivy-server resource
     resources:
       requests:
         cpu: 200m
@@ -409,41 +414,42 @@ trivy:
         memory: 1Gi
         # ephemeral-storage: "2Gi"
 
-    # podSecurityContext set trivy-server podSecurityContext
+    # -- podSecurityContext set trivy-server podSecurityContext
     podSecurityContext:
       runAsUser: 65534
       runAsNonRoot: true
       fsGroup: 65534
 
-    # securityContext set trivy-server securityContext
+    # -- securityContext set trivy-server securityContext
     securityContext:
       privileged: false
       readOnlyRootFilesystem: true
 
 compliance:
-  # failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report
+  # -- failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report
   failEntriesLimit: 10
-  # reportType this flag control the type of report generated (summary or all)
+  # -- reportType this flag control the type of report generated (summary or all)
   reportType: summary
-  # cron this flag control the cron interval for compliance report generation
+  # -- cron this flag control the cron interval for compliance report generation
   cron: 0 */6 * * *
 
 rbac:
   create: true
 serviceAccount:
-  # Specifies whether a service account should be created.
+  # -- Specifies whether a service account should be created.
   create: true
   annotations: {}
-  # name specifies the name of the k8s Service Account. If not set and create is
+  # -- name specifies the name of the k8s Service Account. If not set and create is
   # true, a name is generated using the fullname template.
   name: ""
 
-# podAnnotations annotations added to the operator's pod
+# -- podAnnotations annotations added to the operator's pod
 podAnnotations: {}
 
 podSecurityContext: {}
   # fsGroup: 2000
 
+# -- securityContext security context
 securityContext:
   privileged: false
   allowPrivilegeEscalation: false
@@ -464,7 +470,7 @@ securityContext:
 #    emptyDir: {}
 
 resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
+  # -- We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
@@ -474,31 +480,34 @@ resources: {}
   # requests:
   #   cpu: 100m
   #   memory: 128Mi
-
+# -- nodeSelector set the operator nodeSelector
 nodeSelector: {}
 
+# -- tolerations set the operator tolerations
 tolerations: []
 
+# -- affinity set the operator affinity
 affinity: {}
 
+# -- priorityClassName set the operator priorityClassName
 priorityClassName: ""
 
-  # automountServiceAccountToken the flag to enable automount for service account token
+  # -- automountServiceAccountToken the flag to enable automount for service account token
 automountServiceAccountToken: true
 
 nodeCollector:
-  # registry of the node-collector image
+  # -- registry of the node-collector image
   registry: ghcr.io
-  # repository of the node-collector image
+  # -- repository of the node-collector image
   repository: aquasecurity/node-collector
-  # tag version of the node-collector image
+  # -- tag version of the node-collector image
   tag: 0.0.6
   # imagePullSecret is the secret name to be used when pulling node-collector image from private registries example : reg-secret
   # It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace
   # imagePullSecret:
-  # excludeNodes comma-separated node labels that the node-collector job should exclude from scanning (example kubernetes.io/arch=arm64,team=dev)
+  # -- excludeNodes comma-separated node labels that the node-collector job should exclude from scanning (example kubernetes.io/arch=arm64,team=dev)
   excludeNodes:
-  # node-collector pod volumeMounts definition for collecting config files information
+  # -- node-collector pod volumeMounts definition for collecting config files information
   volumeMounts:
     - name: var-lib-etcd
       mountPath: /var/lib/etcd
@@ -525,7 +534,7 @@ nodeCollector:
       mountPath: /etc/cni/net.d/
       readOnly: true
 
-  # node-collector pod volumes definition for collecting config files information
+  # -- node-collector pod volumes definition for collecting config files information
   volumes:
     - name: var-lib-etcd
       hostPath:

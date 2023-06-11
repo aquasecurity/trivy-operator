@@ -157,6 +157,13 @@ manifests: controller-gen
 .PHONY: generate-all
 generate-all: generate manifests
 
+.PHONY: generate-helm-docs
+generate-helm-docs:
+	HELM_BIN=$(LOCALBIN) go install github.com/norwoodj/helm-docs/cmd/helm-docs@latest
+	$(LOCALBIN)/helm-docs ./deploy
+	./hack/verify-generated.sh
+
+
 .PHONY: \
 	clean \
 	docker-build \

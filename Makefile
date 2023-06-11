@@ -125,6 +125,7 @@ $(LOCALBIN):
 
 ## Tool Binaries
 CONTROLLER_GEN ?= $(LOCALBIN)/controller-gen
+HELM_DOCS_GEN ?= $(LOCALBIN)/helm-docs
 ENVTEST ?= $(LOCALBIN)/setup-envtest
 
 ## Tool Versions
@@ -160,7 +161,7 @@ generate-all: generate manifests
 .PHONY: generate-helm-docs
 generate-helm-docs:
 	HELM_BIN=$(PWD)/bin go install github.com/norwoodj/helm-docs/cmd/helm-docs@latest
-	bin/helm-docs ./deploy
+	$(HELM_DOCS_GEN) ./deploy
 	./hack/verify-generated.sh
 
 

@@ -160,7 +160,7 @@ generate-all: generate manifests
 .PHONY: generate-helm-docs
 generate-helm-docs:
 	HELM_BIN=$(PWD)/bin go install github.com/norwoodj/helm-docs/cmd/helm-docs@latest
-	$(PWD)/bin/helm-docs ./deploy
+	bin/helm-docs ./deploy
 	./hack/verify-generated.sh
 
 

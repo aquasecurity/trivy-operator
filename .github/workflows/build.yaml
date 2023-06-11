@@ -61,7 +61,7 @@ jobs:
       - name: Verify all generated
         run: make verify-generated
       - name: Verify Generated Helm docs
-        run: make generate-helm-docs
+        run: make verify-generated-helm-docs
   tests:
     name: Run tests
     runs-on: ubuntu-latest

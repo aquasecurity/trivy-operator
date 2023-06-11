@@ -162,8 +162,10 @@ generate-all: generate manifests
 generate-helm-docs:
 	GOBIN=$(LOCALBIN) go install github.com/norwoodj/helm-docs/cmd/helm-docs@latest
 	$(HELM_DOCS_GEN) ./deploy
-	./hack/verify-generated.sh
 
+.PHONY: verify-generated-helm-docs
+verify-generated-helm-docs: generate-helm-docs
+	./hack/verify-generated.sh
 
 .PHONY: \
 	clean \

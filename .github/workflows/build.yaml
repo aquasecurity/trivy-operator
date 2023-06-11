@@ -60,6 +60,8 @@ jobs:
         run: go mod vendor
       - name: Verify all generated
         run: make verify-generated
+      - name: Verify Generated Helm docs
+        run: make generate-helm-docs
   tests:
     name: Run tests
     runs-on: ubuntu-latest

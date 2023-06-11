@@ -117,9 +117,6 @@ Keeps security report resources updated
 | trivy.timeout | string | `"5m0s"` | timeout is the duration to wait for scan completion. |
 | trivy.useBuiltinRegoPolicies | string | `"true"` | The Flag to enable the usage of builtin rego policies by default  |
 | trivyOperator.additionalReportLabels | string | `""` | additionalReportLabels comma-separated representation of the labels which the user wants the scanner pods to be labeled with. Example: `foo=bar,env=stage` will labeled the reports with the labels `foo: bar` and `env: stage` |
-| trivyOperator.azureWorkloadIdentity | bool | `false` | azureWorkloadIdentity if enable azure workload identity annotation and labels wil be added to trivy-operator service account and scan job must be used with azureWorkloadIdentityClientID, azurerkloadIdentityTenantID and azureWorkloadIdentityUseAnnotation |
-| trivyOperator.azureWorkloadIdentityAnnotation | object | `{"azure.workload.identity/client-id":"client-id","azure.workload.identity/tenant-id":"tenant-id"}` | azureWorkloadIdentityAnnotation annotation to be added to trivy-operator service account it is required to update the values of : <tenant-id> and <client-id> |
-| trivyOperator.azureWorkloadIdentityUseLabel | object | `{"azure.workload.identity/use":true}` | azureWorkloadIdentityUseLabel label to be added to trivy-operator service account |
 | trivyOperator.configAuditReportsPlugin | string | `"Trivy"` | configAuditReportsPlugin the name of the plugin that generates config audit reports. |
 | trivyOperator.metricsResourceLabelsPrefix | string | `"k8s_label_"` | metricsResourceLabelsPrefix Prefix that will be prepended to the labels names indicated in `reportResourceLabels` when including them in the Prometheus metrics |
 | trivyOperator.reportRecordFailedChecksOnly | bool | `true` | reportRecordFailedChecksOnly flag is to record only failed checks on misconfiguration reports (config-audit and rbac assessment) |

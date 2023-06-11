@@ -217,13 +217,6 @@ trivyOperator:
   # labeled with. Example: `foo=bar,env=stage` will labeled the reports with the labels `foo: bar` and `env: stage`
   additionalReportLabels: ""
 
-  # -- azureWorkloadIdentity if enable azure workload identity annotation and labels wil be added to trivy-operator service account and scan job must be used with azureWorkloadIdentityClientID, azurerkloadIdentityTenantID and azureWorkloadIdentityUseAnnotation
-  azureWorkloadIdentity: false
-  # -- azureWorkloadIdentityAnnotation annotation to be added to trivy-operator service account it is required to update the values of : <tenant-id> and <client-id>
-  azureWorkloadIdentityAnnotation: {azure.workload.identity/client-id: client-id, azure.workload.identity/tenant-id: tenant-id}
-  # -- azureWorkloadIdentityUseLabel label to be added to trivy-operator service account
-  azureWorkloadIdentityUseLabel: {azure.workload.identity/use: true}
-
 trivy:
   # -- createConfig indicates whether to create config objects
   createConfig: true

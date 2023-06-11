@@ -25,12 +25,8 @@ data:
   {{- with .Values.nodeCollector.excludeNodes }}
   nodeCollector.excludeNodes: {{ . | quote }}
   {{- end }}
-  {{- if .Values.trivyOperator.azureWorkloadIdentity }}
-  scanJob.podTemplateLabels: {{ printf "azure.workload.identity/use=true,%s" .Values.trivyOperator.scanJobPodTemplateLabels | quote }}
-  {{- else }}
   {{- with .Values.trivyOperator.scanJobPodTemplateLabels }}
   scanJob.podTemplateLabels: {{ . | quote }}
-  {{- end }}
   {{- end }}
   {{- with .Values.trivyOperator.additionalReportLabels }}
   report.additionalLabels: {{ . | quote }}

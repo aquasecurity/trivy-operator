@@ -321,6 +321,15 @@ So if modifying the operator resources, please do so by modifying the Helm
 chart, then run `make manifests` to ensure the static
 resources are up-to-date.
 
+## Update helm docs
+
+We consider the Helm chart to be the master for deploying trivy-operator.
+Since some prefer to not use Helm, we also provide helm config documentation to
+install the operator.
+
+So if modifying the operator helm params, please do so by modifying the Helm
+chart, then run `make generate-helm-docs` to ensure the helm docs are up-to-date.
+
 ## Operator Lifecycle Manager (OLM)
 
 ### Install OLM

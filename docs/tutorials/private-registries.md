@@ -47,7 +47,7 @@ Lastly, we can deploy the operator inside our cluster with referencing our new `
 helm upgrade --install trivy-operator aqua/trivy-operator \
   --namespace trivy-system \
   --create-namespace \
-  --version 0.14.0
+  --version 0.14.1-rc
   --values ./values.yaml
 ```
 
@@ -57,7 +57,7 @@ Alternatively, it is possible to set the values directly through Helm instead of
 helm upgrade --install trivy-operator aqua/trivy-operator \
   --namespace trivy-system \
   --create-namespace \
-  --version 0.14.0
+  --version 0.14.1-rc
   --set="trivy.command=fs"
   --set="trivyOperator.scanJobPodTemplateContainerSecurityContext.runAsUser=0"
 ```
@@ -230,7 +230,7 @@ Lastly, we can deploy the operator inside our cluster with referencing our new `
 helm upgrade --install trivy-operator aqua/trivy-operator \
   --namespace trivy-system \
   --create-namespace \
-  --version 0.14.0
+  --version 0.14.1-rc
   --values ./values.yaml
 ```
 
@@ -240,7 +240,7 @@ Alternatively, it is possible to set the values directly through Helm instead of
 helm upgrade --install trivy-operator aqua/trivy-operator \
   --namespace trivy-system \
   --create-namespace \
-  --version 0.14.0
+  --version 0.14.1-rc
   --set-json='operator.privateRegistryScanSecretsNames={"app":"dockerconfigjson-github-com"}'
 ```
 
@@ -262,4 +262,4 @@ trivy-operator   1/1     1            1           99s
 
 The last way that you could give the Trivy operator access to your private container registry is through managed registries. In this case, the container registry and your Kubernetes cluster would have to be on the same cloud provider; then you can define access to your container namespace as part of the IAM account. Once defined, trivy will already have the permissions for the registry.
 
-For additional information, please refer to the [documentation on managed registries.](https://aquasecurity.github.io/trivy-operator/v0.14.0/docs/vulnerability-scanning/managed-registries/)
+For additional information, please refer to the [documentation on managed registries.](https://aquasecurity.github.io/trivy-operator/v0.14.1-rc/docs/vulnerability-scanning/managed-registries/)

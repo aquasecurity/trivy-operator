@@ -1,6 +1,6 @@
 # trivy-operator
 
-![Version: 0.14.1-rc](https://img.shields.io/badge/Version-0.14.1-rc-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.14.1-rc](https://img.shields.io/badge/AppVersion-0.14.1-rc-informational?style=flat-square)
+![Version: 0.14.1-rc](https://img.shields.io/badge/Version-0.14.1--rc-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.14.1-rc](https://img.shields.io/badge/AppVersion-0.14.1--rc-informational?style=flat-square)
 
 Keeps security report resources updated
 
@@ -132,3 +132,4 @@ Keeps security report resources updated
 | trivyOperator.scanJobTolerations | list | `[]` | scanJobTolerations tolerations to be applied to the scanner pods and node-collector so that they can run on nodes with matching taints |
 | trivyOperator.skipResourceByLabels | string | `""` | skipResourceByLabels comma-separated labels keys which trivy-operator will skip scanning on resources with matching labels |
 | trivyOperator.vulnerabilityReportsPlugin | string | `"Trivy"` | vulnerabilityReportsPlugin the name of the plugin that generates vulnerability reports `Trivy` |
+

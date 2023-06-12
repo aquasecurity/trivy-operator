@@ -126,6 +126,7 @@ type AdditionalFields struct {
 	Target      bool
 	Class       bool
 	PackageType bool
+	PkgPath     bool
 }
 
 // Config defines configuration params for this plugin.
@@ -154,6 +155,8 @@ func (c Config) GetAdditionalVulnerabilityReportFields() AdditionalFields {
 			addFields.Class = true
 		case "PackageType":
 			addFields.PackageType = true
+		case "PackagePath":
+			addFields.PkgPath = true
 		}
 	}
 	return addFields
@@ -1819,6 +1822,9 @@ func getVulnerabilitiesFromScanResult(report ScanResult, addFields AdditionalFie
 		}
 		if addFields.PackageType {
 			vulnerability.PackageType = report.Type
+		}
+		if addFields.PkgPath {
+			vulnerability.PkgPath = sr.PkgPath
 		}
 
 		vulnerabilities = append(vulnerabilities, vulnerability)

@@ -64,6 +64,7 @@ type metricDescriptors struct {
 	exposedSecretLabels     []string
 	exposedSecretInfoLabels []string
 	configAuditLabels       []string
+	configAuditInfoLabels   []string
 	rbacAssessmentLabels    []string
 	infraAssessmentLabels   []string
 	complianceLabels        []string
@@ -72,6 +73,7 @@ type metricDescriptors struct {
 	imageVulnDesc             *prometheus.Desc
 	vulnIdDesc                *prometheus.Desc
 	configAuditDesc           *prometheus.Desc
+	configAuditInfoDesc       *prometheus.Desc
 	exposedSecretDesc         *prometheus.Desc
 	exposedSecretInfoDesc     *prometheus.Desc
 	rbacAssessmentDesc        *prometheus.Desc
@@ -275,6 +277,14 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		severity,
 	}
 	configAuditLabels = append(configAuditLabels, dynamicLabels...)
+	configAuditInfoLabels := []string{
+		namespace,
+		name,
+		resource_kind,
+		resource_name,
+		severity,
+	}
+	configAuditInfoLabels = append(configAuditInfoLabels, dynamicLabels...)
 	rbacAssessmentLabels := []string{
 		namespace,
 		name,
@@ -328,6 +338,12 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		configAuditLabels,
 		nil,
 	)
+	configAuditInfoDesc := prometheus.NewDesc(
+		prometheus.BuildFQName("trivy", "configaudits", "info"),
+		"Number of failing resource configuration auditing checks",
+		configAuditInfoLabels,
+		nil,
+	)
 	rbacAssessmentDesc := prometheus.NewDesc(
 		prometheus.BuildFQName("trivy", "role", "rbacassessments"),
 		"Number of rbac risky role assessment checks",
@@ -365,6 +381,7 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		exposedSecretLabels:     exposedSecretLabels,
 		exposedSecretInfoLabels: exposedSecretInfoLabels,
 		configAuditLabels:       configAuditLabels,
+		configAuditInfoLabels:   configAuditInfoLabels,
 		rbacAssessmentLabels:    rbacAssessmentLabels,
 		infraAssessmentLabels:   infraAssessmentLabels,
 		complianceLabels:        clusterComplianceLabels,
@@ -372,6 +389,7 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		imageVulnDesc:             imageVulnDesc,
 		vulnIdDesc:                vulnIdDesc,
 		configAuditDesc:           configAuditDesc,
+		configAuditInfoDesc:       configAuditInfoDesc,
 		exposedSecretDesc:         exposedSecretDesc,
 		exposedSecretInfoDesc:     exposedSecretInfoDesc,
 		rbacAssessmentDesc:        rbacAssessmentDesc,
@@ -410,6 +428,9 @@ func (c ResourcesMetricsCollector) Collect(metrics chan<- prometheus.Metric) {
 		c.collectExposedSecretsInfoReports(ctx, metrics, targetNamespaces)
 	}
 	c.collectConfigAuditReports(ctx, metrics, targetNamespaces)
+	if c.Config.MetricsConfigAuditInfo {
+		c.collectConfigAuditInfoReports(ctx, metrics, targetNamespaces)
+	}
 	c.collectRbacAssessmentReports(ctx, metrics, targetNamespaces)
 	c.collectInfraAssessmentReports(ctx, metrics, targetNamespaces)
 	c.collectClusterRbacAssessmentReports(ctx, metrics)
@@ -591,6 +612,31 @@ func (c *ResourcesMetricsCollector) collectConfigAuditReports(ctx context.Contex
 	}
 }
 
+func (c *ResourcesMetricsCollector) collectConfigAuditInfoReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
+	reports := &v1alpha1.ConfigAuditReportList{}
+	labelValues := make([]string, len(c.configAuditInfoLabels))
+	for _, n := range targetNamespaces {
+		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
+			c.Logger.Error(err, "failed to list configauditreports from API", "namespace", n)
+			continue
+		}
+		for _, r := range reports.Items {
+			labelValues[0] = r.Namespace
+			labelValues[1] = r.Name
+			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
+			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			for i, label := range c.GetReportResourceLabels() {
+				labelValues[i+5] = r.Labels[label]
+			}
+			for severity, countFn := range c.configAuditSeverities {
+				labelValues[4] = severity
+				count := countFn(r.Report.Summary)
+				metrics <- prometheus.MustNewConstMetric(c.configAuditInfoDesc, prometheus.GaugeValue, float64(count), labelValues...)
+			}
+		}
+	}
+}
+
 func (c *ResourcesMetricsCollector) collectRbacAssessmentReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
 	reports := &v1alpha1.RbacAssessmentReportList{}
 	labelValues := make([]string, len(c.rbacAssessmentLabels))
@@ -696,6 +742,7 @@ func (c ResourcesMetricsCollector) Describe(descs chan<- *prometheus.Desc) {
 	descs <- c.imageVulnDesc
 	descs <- c.vulnIdDesc
 	descs <- c.configAuditDesc
+	descs <- c.configAuditInfoDesc
 	descs <- c.exposedSecretDesc
 	descs <- c.exposedSecretInfoDesc
 	descs <- c.rbacAssessmentDesc

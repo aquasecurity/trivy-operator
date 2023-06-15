@@ -1638,6 +1638,7 @@ func (p *plugin) getFSScanningArgs(ctx trivyoperator.PluginContext, command Comm
 		return []string{}
 	}
 	scanners := Scanners(c)
+	imcs := p.imageConfigSecretScanner(c.Data)
 	skipUpdate := SkipDBUpdate(c)
 	args := []string{
 		"--cache-dir",
@@ -1650,6 +1651,9 @@ func (p *plugin) getFSScanningArgs(ctx trivyoperator.PluginContext, command Comm
 		"--format",
 		"json",
 		"/",
+	}
+	if len(imcs) > 0 {
+		args = append(args, imcs...)
 	}
 	if mode == ClientServer {
 		args = append(args, "--server", trivyServerURL)

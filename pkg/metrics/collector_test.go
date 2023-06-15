@@ -475,7 +475,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
         trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",config_audit_id="your-config-audit-id", config_audit_title="your-config-audit-title", config_audit_description="your-config-audit-description",config_audit_category="your-config-audit-category",severity="Low"} 7
         trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",config_audit_id="your-config-audit-id", config_audit_title="your-config-audit-title", config_audit_description="your-config-audit-description",config_audit_category="your-config-audit-category",severity="Medium"} 4
 		`
-			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_resource_configaudits")).
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_configaudits_info")).
 				To(Succeed())
 		})
 
@@ -493,7 +493,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
         trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",config_audit_id="your-config-audit-id",config_audit_title="your-config-audit-title",config_audit_description="your-config-audit-description",config_audit_category="your-config-audit-category",severity="Low"} 9
         trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",config_audit_id="your-config-audit-id", config_audit_title="your-config-audit-title",config_audit_description="your-config-audit-description",config_audit_category="your-config-audit-category",severity="Medium"} 0
 		`
-			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_resource_configaudits")).
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_configaudits_info")).
 				To(Succeed())
 		})
 	})

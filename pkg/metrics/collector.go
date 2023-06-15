@@ -47,6 +47,11 @@ const (
 	secret_rule_id  = "secret_rule_id"
 	secret_target   = "secret_target"
 	secret_title    = "secret_title"
+	//config audit
+	config_audit_id          = "config_audit_id"
+	config_audit_title       = "config_audit_title"
+	config_audit_description = "config_audit_description"
+	config_audit_category    = "config_audit_category"
 )
 
 type metricDescriptors struct {
@@ -282,6 +287,10 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		name,
 		resource_kind,
 		resource_name,
+		config_audit_id,
+		config_audit_title,
+		config_audit_description,
+		config_audit_category,
 		severity,
 	}
 	configAuditInfoLabels = append(configAuditInfoLabels, dynamicLabels...)
@@ -621,17 +630,25 @@ func (c *ResourcesMetricsCollector) collectConfigAuditInfoReports(ctx context.Co
 			continue
 		}
 		for _, r := range reports.Items {
-			labelValues[0] = r.Namespace
-			labelValues[1] = r.Name
-			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
-			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
-			for i, label := range c.GetReportResourceLabels() {
-				labelValues[i+5] = r.Labels[label]
-			}
-			for severity, countFn := range c.configAuditSeverities {
-				labelValues[4] = severity
-				count := countFn(r.Report.Summary)
-				metrics <- prometheus.MustNewConstMetric(c.configAuditInfoDesc, prometheus.GaugeValue, float64(count), labelValues...)
+			if c.Config.MetricsConfigAuditInfo {
+				labelValues[0] = r.Namespace
+				labelValues[1] = r.Name
+				labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
+				labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+				for _, config := range r.Report.Checks {
+					labelValues[4] = config.ID
+					labelValues[5] = config.Title
+					labelValues[6] = config.Description
+					labelValues[7] = config.Category
+				}
+				for i, label := range c.GetReportResourceLabels() {
+					labelValues[i+5] = r.Labels[label]
+				}
+				for severity, countFn := range c.configAuditSeverities {
+					labelValues[8] = severity
+					count := countFn(r.Report.Summary)
+					metrics <- prometheus.MustNewConstMetric(c.configAuditInfoDesc, prometheus.GaugeValue, float64(count), labelValues...)
+				}
 			}
 		}
 	}

@@ -421,10 +421,10 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car1.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "ReplicaSet",
 				trivyoperator.LabelResourceName: "nginx-6d4cf56db6"}
-			car1.Report.Checks = append(car1.Report.Checks, v1alpha1.Check{ID: "12345"})
-			car1.Report.Checks = append(car1.Report.Checks, v1alpha1.Check{Title: "config audit title"})
-			car1.Report.Checks = append(car1.Report.Checks, v1alpha1.Check{Description: "description for config audit"})
-			car1.Report.Checks = append(car1.Report.Checks, v1alpha1.Check{Category: "category for config audit"})
+			car1.Report.Checks = append(car1.Report.Checks, v1alpha1.Check{ID: "car1 Id"})
+			car1.Report.Checks = append(car1.Report.Checks, v1alpha1.Check{Title: "car1 config audit title"})
+			car1.Report.Checks = append(car1.Report.Checks, v1alpha1.Check{Description: "car1 description for config audit"})
+			car1.Report.Checks = append(car1.Report.Checks, v1alpha1.Check{Category: "car1 category for config audit"})
 			car1.Report.Summary.CriticalCount = 2
 			car1.Report.Summary.LowCount = 9
 
@@ -434,10 +434,10 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car2.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "ConfigMap",
 				trivyoperator.LabelResourceName: "test"}
-			car2.Report.Checks = append(car2.Report.Checks, v1alpha1.Check{ID: "12345"})
-			car2.Report.Checks = append(car2.Report.Checks, v1alpha1.Check{Title: "config audit title"})
-			car2.Report.Checks = append(car2.Report.Checks, v1alpha1.Check{Description: "description for config audit"})
-			car2.Report.Checks = append(car2.Report.Checks, v1alpha1.Check{Category: "category for config audit"})
+			car2.Report.Checks = append(car2.Report.Checks, v1alpha1.Check{ID: "car2 Id"})
+			car2.Report.Checks = append(car2.Report.Checks, v1alpha1.Check{Title: "car2 config audit title"})
+			car2.Report.Checks = append(car2.Report.Checks, v1alpha1.Check{Description: "car2 description for config audit"})
+			car2.Report.Checks = append(car2.Report.Checks, v1alpha1.Check{Category: "car2 category for config audit"})
 			car2.Report.Summary.LowCount = 1
 
 			car3 := &v1alpha1.ConfigAuditReport{}
@@ -446,10 +446,10 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car3.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "ReplicaSet",
 				trivyoperator.LabelResourceName: "vault-agent-injector-65fd65bfb8"}
-			car3.Report.Checks = append(car3.Report.Checks, v1alpha1.Check{ID: "12345"})
-			car3.Report.Checks = append(car3.Report.Checks, v1alpha1.Check{Title: "config audit title"})
-			car3.Report.Checks = append(car3.Report.Checks, v1alpha1.Check{Description: "description for config audit"})
-			car3.Report.Checks = append(car3.Report.Checks, v1alpha1.Check{Category: "category for config audit"})
+			car3.Report.Checks = append(car3.Report.Checks, v1alpha1.Check{ID: "car3 Id"})
+			car3.Report.Checks = append(car3.Report.Checks, v1alpha1.Check{Title: "car3 config audit title"})
+			car3.Report.Checks = append(car3.Report.Checks, v1alpha1.Check{Description: "car3 description for config audit"})
+			car3.Report.Checks = append(car3.Report.Checks, v1alpha1.Check{Category: "car3 category for config audit"})
 			car3.Report.Summary.MediumCount = 4
 			car3.Report.Summary.LowCount = 7
 
@@ -462,18 +462,18 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			const expected = `
         # HELP trivy_resource_configaudits Number of failing resource configuration auditing checks
         # TYPE trivy_resource_configaudits gauge
-        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="your-config-audit-id", config_audit_title="your-config-audit-title", config_audit_description="your-config-audit-description", config_audit_category="your-config-audit-category",severity="Critical"} 0
-        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="your-config-audit-id", config_audit_title="your-config-audit-title", config_audit_description="your-config-audit-description", config_audit_category="your-config-audit-category",severity="High"} 0
-        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="your-config-audit-id", config_audit_title="your-config-audit-title", config_audit_description="your-config-audit-description", config_audit_category="your-config-audit-category",severity="Low"} 1
-        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="your-config-audit-id", config_audit_title="your-config-audit-title", config_audit_description="your-config-audit-description", config_audit_category="your-config-audit-category",severity="Medium"} 0
-        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",config_audit_id="your-config-audit-id", config_audit_title="your-config-audit-title", config_audit_description="your-config-audit-description", config_audit_category="your-config-audit-category",severity="Critical"} 2
-        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",config_audit_id="your-config-audit-id", config_audit_title="your-config-audit-title", config_audit_description="your-config-audit-description", config_audit_category="your-config-audit-category",severity="High"} 0
-        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",config_audit_id="your-config-audit-id", config_audit_title="your-config-audit-title", config_audit_description="your-config-audit-description", config_audit_category="your-config-audit-category",severity="Low"} 9
-        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",config_audit_id="your-config-audit-id", config_audit_title="your-config-audit-title", config_audit_description="your-config-audit-description", config_audit_category="your-config-audit-category",severity="Medium"} 0
-        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",config_audit_id="your-config-audit-id", config_audit_title="your-config-audit-title", config_audit_description="your-config-audit-description",config_audit_category="your-config-audit-category",severity="Critical"} 0
-        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",config_audit_id="your-config-audit-id", config_audit_title="your-config-audit-title", config_audit_description="your-config-audit-description",config_audit_category="your-config-audit-category",severity="High"} 0
-        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",config_audit_id="your-config-audit-id", config_audit_title="your-config-audit-title", config_audit_description="your-config-audit-description",config_audit_category="your-config-audit-category",severity="Low"} 7
-        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",config_audit_id="your-config-audit-id", config_audit_title="your-config-audit-title", config_audit_description="your-config-audit-description",config_audit_category="your-config-audit-category",severity="Medium"} 4
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="car2 Id",config_audit_title="car2 config audit title", config_audit_description="car2 description for config audit", config_audit_category="car2 category for config audit",severity="Critical"} 0
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="car2 Id",config_audit_title="car2 config audit title", config_audit_description="car2 description for config audit", config_audit_category="car2 category for config audit",severity="High"} 0
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="car2 Id",config_audit_title="car2 config audit title", config_audit_description="car2 description for config audit", config_audit_category="car2 category for config audit",severity="Low"} 1
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="car2 Id",config_audit_title="car2 config audit title", config_audit_description="car2 description for config audit", config_audit_category="car2 category for config audit",severity="Medium"} 0
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",config_audit_id="car1 Id",config_audit_title="car1 config audit title", config_audit_description="car1 description for config audit", config_audit_category="car1 category for config audit",severity="Critical"} 2
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",config_audit_id="car1 Id",config_audit_title="car1 config audit title", config_audit_description="car1 description for config audit", config_audit_category="car1 category for config audit",severity="High"} 0
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",config_audit_id="car1 Id",config_audit_title="car1 config audit title", config_audit_description="car1 description for config audit", config_audit_category="car1 category for config audit",severity="Low"} 9
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",config_audit_id="car1 Id",config_audit_title="car1 config audit title", config_audit_description="car1 description for config audit", config_audit_category="car1 category for config audit",severity="Medium"} 0
+        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",config_audit_id="car3 Id", config_audit_title="car3 config audit title", config_audit_description="car3 description for config audit",config_audit_category="car3 category for config audit",severity="Critical"} 0
+        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",config_audit_id="car3 Id", config_audit_title="car3 config audit title", config_audit_description="car3 description for config audit",config_audit_category="car3 category for config audit",severity="High"} 0
+        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",config_audit_id="car3 Id", config_audit_title="car3 config audit title", config_audit_description="car3 description for config audit",config_audit_category="car3 category for config audit",severity="Low"} 7
+        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",config_audit_id="car3 Id", config_audit_title="car3 config audit title", config_audit_description="car3 description for config audit",config_audit_category="car3 category for config audit",severity="Medium"} 4
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_configaudits_info")).
 				To(Succeed())
@@ -484,14 +484,14 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			const expected = `
         # HELP trivy_resource_configaudits Number of failing resource configuration auditing checks
         # TYPE trivy_resource_configaudits gauge
-        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="your-config-audit-id",config_audit_title="your-config-audit-title",config_audit_description="your-config-audit-description",config_audit_category="your-config-audit-category",severity="Critical"} 0
-        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="your-config-audit-id",config_audit_title="your-config-audit-title",config_audit_description="your-config-audit-description",config_audit_category="your-config-audit-category",severity="High"} 0
-        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="your-config-audit-id",config_audit_title="your-config-audit-title",config_audit_description="your-config-audit-description",config_audit_category="your-config-audit-category",severity="Low"} 1
-        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="your-config-audit-id",config_audit_title="your-config-audit-title",config_audit_description="your-config-audit-description",config_audit_category="your-config-audit-category",severity="Medium"} 0
-        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",config_audit_id="your-config-audit-id",config_audit_title="your-config-audit-title",config_audit_description="your-config-audit-description",config_audit_category="your-config-audit-category",severity="Critical"} 2
-        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",config_audit_id="your-config-audit-id",config_audit_title="your-config-audit-title",config_audit_description="your-config-audit-description",config_audit_category="your-config-audit-category",severity="High"} 0
-        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",config_audit_id="your-config-audit-id",config_audit_title="your-config-audit-title",config_audit_description="your-config-audit-description",config_audit_category="your-config-audit-category",severity="Low"} 9
-        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",config_audit_id="your-config-audit-id", config_audit_title="your-config-audit-title",config_audit_description="your-config-audit-description",config_audit_category="your-config-audit-category",severity="Medium"} 0
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="car2 Id",config_audit_title="car2 config audit title", config_audit_description="car2 description for config audit", config_audit_category="car2 category for config audit",severity="Critical"} 0
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="car2 Id",config_audit_title="car2 config audit title", config_audit_description="car2 description for config audit", config_audit_category="car2 category for config audit",severity="High"} 0
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="car2 Id",config_audit_title="car2 config audit title", config_audit_description="car2 description for config audit", config_audit_category="car2 category for config audit",severity="Low"} 1
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="car2 Id",config_audit_title="car2 config audit title", config_audit_description="car2 description for config audit", config_audit_category="car2 category for config audit",severity="Medium"} 0
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",config_audit_id="car1 Id",config_audit_title="car1 config audit title", config_audit_description="car1 description for config audit", config_audit_category="car1 category for config audit",severity="Critical"} 2
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",config_audit_id="car1 Id",config_audit_title="car1 config audit title", config_audit_description="car1 description for config audit", config_audit_category="car1 category for config audit",severity="High"} 0
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",config_audit_id="car1 Id",config_audit_title="car1 config audit title", config_audit_description="car1 description for config audit", config_audit_category="car1 category for config audit",severity="Low"} 9
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",config_audit_id="car1 Id",config_audit_title="car1 config audit title", config_audit_description="car1 description for config audit", config_audit_category="car1 category for config audit",severity="Medium"} 0
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_configaudits_info")).
 				To(Succeed())

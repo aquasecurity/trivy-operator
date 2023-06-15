@@ -1707,6 +1707,8 @@ spec:
                       items:
                         type: string
                       type: array
+                    packagePath:
+                      type: string
                     packageType:
                       type: string
                     primaryLink:

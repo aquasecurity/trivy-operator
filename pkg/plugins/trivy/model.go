@@ -31,6 +31,7 @@ type Vulnerability struct {
 	CVSS             types.VendorCVSS  `json:"CVSS"`
 	Target           string            `json:"Target"`
 	Class            string            `json:"Class"`
+	PkgPath          string            `json:"pkgPath"`
 }
 
 type CVSS struct {

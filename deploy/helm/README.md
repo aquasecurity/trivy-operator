@@ -81,7 +81,7 @@ Keeps security report resources updated
 | targetNamespaces | string | `""` | targetNamespace defines where you want trivy-operator to operate. By default, it's a blank string to select all namespaces, but you can specify another namespace, or a comma separated list of namespaces. |
 | targetWorkloads | string | `"pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job"` | targetWorkloads is a comma seperated list of Kubernetes workload resources to be included in the vulnerability and config-audit scans if left blank, all workload resources will be scanned |
 | tolerations | list | `[]` | tolerations set the operator tolerations |
-| trivy.additionalVulnerabilityReportFields | string | `""` | additionalVulnerabilityReportFields is a comma separated list of additional fields which can be added to the VulnerabilityReport. Supported parameters: Description, Links, CVSS, Target, Class and PackageType |
+| trivy.additionalVulnerabilityReportFields | string | `""` | additionalVulnerabilityReportFields is a comma separated list of additional fields which can be added to the VulnerabilityReport. Supported parameters: Description, Links, CVSS, Target, Class, PackagePath and PackageType |
 | trivy.command | string | `"image"` | command. One of `image`, `filesystem` or `rootfs` scanning, depending on the target type required for the scan. For 'filesystem' and `rootfs` scanning, ensure that the `trivyOperator.scanJobPodTemplateContainerSecurityContext` is configured to run as the root user (runAsUser = 0). |
 | trivy.createConfig | bool | `true` | createConfig indicates whether to create config objects |
 | trivy.dbRegistry | string | `"ghcr.io"` | serverCustomHeaders: "foo=bar" |

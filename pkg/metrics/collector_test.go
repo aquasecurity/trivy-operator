@@ -461,7 +461,28 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 
 		AssertNoLintIssues()
 
-		It("should produce correct metrics with cluster scope", func() {
+		It("should produce correct metrics with cluster scope - Summary", func() {
+			const expected = `
+        # HELP trivy_resource_configaudits Number of failing resource configuration auditing checks
+        # TYPE trivy_resource_configaudits gauge
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",severity="Critical"} 0
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",severity="High"} 0
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",severity="Low"} 1
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",severity="Medium"} 0
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical"} 2
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="High"} 0
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Low"} 9
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Medium"} 0
+        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",severity="Critical"} 0
+        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",severity="High"} 0
+        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",severity="Low"} 7
+        trivy_resource_configaudits{name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",severity="Medium"} 4
+		`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_resource_configaudits")).
+				To(Succeed())
+		})
+
+		It("should produce correct metrics with cluster scope - Info", func() {
 			const expected = `
         # HELP trivy_resource_configaudits Number of failing resource configuration auditing checks
         # TYPE trivy_resource_configaudits gauge
@@ -482,7 +503,25 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 				To(Succeed())
 		})
 
-		It("should produce correct metrics from target namespaces", func() {
+		It("should produce correct metrics from target namespaces - Summary", func() {
+			collector.TargetNamespaces = "default,some-ns"
+			const expected = `
+        # HELP trivy_resource_configaudits Number of failing resource configuration auditing checks
+        # TYPE trivy_resource_configaudits gauge
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",severity="Critical"} 0
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",severity="High"} 0
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",severity="Low"} 1
+        trivy_resource_configaudits{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",severity="Medium"} 0
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical"} 2
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="High"} 0
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Low"} 9
+        trivy_resource_configaudits{name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Medium"} 0
+		`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_resource_configaudits")).
+				To(Succeed())
+		})
+
+		It("should produce correct metrics from target namespaces - Info", func() {
 			collector.TargetNamespaces = "default,some-ns"
 			const expected = `
         # HELP trivy_resource_configaudits Number of failing resource configuration auditing checks

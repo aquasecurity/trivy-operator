@@ -52,7 +52,7 @@ const (
 	config_audit_title       = "config_audit_title"
 	config_audit_description = "config_audit_description"
 	config_audit_category    = "config_audit_category"
-	config_audit_success     = false
+	config_audit_success     = "config_audit_success"
 )
 
 type metricDescriptors struct {
@@ -282,7 +282,6 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		resource_name,
 		severity,
 	}
-	config_audit_success := strconv.FormatBool(config_audit_success)
 	configAuditLabels = append(configAuditLabels, dynamicLabels...)
 	configAuditInfoLabels := []string{
 		namespace,
@@ -643,7 +642,7 @@ func (c *ResourcesMetricsCollector) collectConfigAuditInfoReports(ctx context.Co
 					labelValues[5] = config.Title
 					labelValues[6] = config.Description
 					labelValues[7] = config.Category
-					labelValues[8] = config.Success
+					labelValues[8] = strconv.FormatBool(config.Success)
 				}
 				for i, label := range c.GetReportResourceLabels() {
 					labelValues[i+5] = r.Labels[label]

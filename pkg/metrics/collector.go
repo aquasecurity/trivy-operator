@@ -52,7 +52,7 @@ const (
 	config_audit_title       = "config_audit_title"
 	config_audit_description = "config_audit_description"
 	config_audit_category    = "config_audit_category"
-	config_audit_success     = true
+	config_audit_success     = "config_audit_success"
 )
 
 type metricDescriptors struct {
@@ -292,7 +292,7 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		config_audit_title,
 		config_audit_description,
 		config_audit_category,
-		strconv.FormatBool(config_audit_success),
+		config_audit_success,
 		severity,
 	}
 	configAuditInfoLabels = append(configAuditInfoLabels, dynamicLabels...)
@@ -642,7 +642,7 @@ func (c *ResourcesMetricsCollector) collectConfigAuditInfoReports(ctx context.Co
 					labelValues[5] = config.Title
 					labelValues[6] = config.Description
 					labelValues[7] = config.Category
-					labelValues[8] = config.Success
+					labelValues[8] = strconv.FormatBool(config.Success)
 					labelValues[9] = NewSeverityLabel(config.Severity).Label
 
 					metrics <- prometheus.MustNewConstMetric(c.configAuditInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)

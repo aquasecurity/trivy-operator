@@ -523,6 +523,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		})
 
 		It("should produce correct metrics from target namespaces - Info", func() {
+			collector.Config.MetricsConfigAuditInfo = true
 			collector.TargetNamespaces = "default,some-ns"
 			const expected = `
         # HELP trivy_configaudits_info Number of failing resource configuration auditing checks

@@ -644,6 +644,7 @@ func (c *ResourcesMetricsCollector) collectConfigAuditInfoReports(ctx context.Co
 					labelValues[7] = config.Category
 					labelValues[8] = strconv.FormatBool(config.Success)
 					labelValues[9] = NewSeverityLabel(config.Severity).Label
+
 					for i, label := range c.GetReportResourceLabels() {
 						labelValues[i+10] = r.Labels[label]
 					}

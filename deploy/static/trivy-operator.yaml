@@ -1930,6 +1930,8 @@ spec:
               value: "true"
             - name: OPERATOR_METRICS_EXPOSED_SECRET_INFO_ENABLED
               value: "false"
+            - name: OPERATOR_METRICS_CONFIG_AUDIT_INFO_ENABLED
+              value: "false"
             - name: OPERATOR_WEBHOOK_BROADCAST_URL
               value: ""
             - name: OPERATOR_WEBHOOK_BROADCAST_TIMEOUT

@@ -421,6 +421,26 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car1.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "ReplicaSet",
 				trivyoperator.LabelResourceName: "nginx-6d4cf56db6"}
+			car1.Report.Checks = append(car1.Report.Checks,
+				[]v1alpha1.Check{
+					{
+						ID:          "car1 Id",
+						Title:       "car1 config audit title",
+						Description: "car1 description for config audit",
+						Category:    "car1 category for config audit",
+						Severity:    "Critical",
+						Success:     true,
+					},
+					{
+						ID:          "car1 Id",
+						Title:       "car1 config audit title",
+						Description: "car1 description for config audit",
+						Category:    "car1 category for config audit",
+						Severity:    "Critical",
+						Success:     false,
+					},
+				}...)
+
 			car1.Report.Summary.CriticalCount = 2
 			car1.Report.Summary.LowCount = 9
 
@@ -430,6 +450,25 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car2.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "ConfigMap",
 				trivyoperator.LabelResourceName: "test"}
+			car2.Report.Checks = append(car2.Report.Checks,
+				[]v1alpha1.Check{
+					{
+						ID:          "car2 Id",
+						Title:       "car2 config audit title",
+						Description: "car2 description for config audit",
+						Category:    "car2 category for config audit",
+						Severity:    "Critical",
+						Success:     true,
+					},
+					{
+						ID:          "car2 Id",
+						Title:       "car2 config audit title",
+						Description: "car2 description for config audit",
+						Category:    "car2 category for config audit",
+						Severity:    "Critical",
+						Success:     false,
+					},
+				}...)
 			car2.Report.Summary.LowCount = 1
 
 			car3 := &v1alpha1.ConfigAuditReport{}
@@ -438,6 +477,25 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car3.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "ReplicaSet",
 				trivyoperator.LabelResourceName: "vault-agent-injector-65fd65bfb8"}
+			car3.Report.Checks = append(car3.Report.Checks,
+				[]v1alpha1.Check{
+					{
+						ID:          "car3 Id",
+						Title:       "car3 config audit title",
+						Description: "car3 description for config audit",
+						Category:    "car3 category for config audit",
+						Severity:    "Critical",
+						Success:     true,
+					},
+					{
+						ID:          "car3 Id",
+						Title:       "car3 config audit title",
+						Description: "car3 description for config audit",
+						Category:    "car3 category for config audit",
+						Severity:    "Critical",
+						Success:     false,
+					},
+				}...)
 			car3.Report.Summary.MediumCount = 4
 			car3.Report.Summary.LowCount = 7
 
@@ -446,7 +504,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 
 		AssertNoLintIssues()
 
-		It("should produce correct metrics with cluster scope", func() {
+		It("should produce correct metrics with cluster scope - Summary", func() {
 			const expected = `
         # HELP trivy_resource_configaudits Number of failing resource configuration auditing checks
         # TYPE trivy_resource_configaudits gauge
@@ -467,7 +525,23 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 				To(Succeed())
 		})
 
-		It("should produce correct metrics from target namespaces", func() {
+		It("should produce correct metrics with cluster scope - Info", func() {
+			collector.Config.MetricsConfigAuditInfo = true
+			const expected = `
+        # HELP trivy_configaudits_info Number of failing resource configuration auditing checks Info
+		# TYPE trivy_configaudits_info gauge
+		trivy_configaudits_info{config_audit_category="car1 category for config audit",config_audit_description="car1 description for config audit",config_audit_id="car1 Id",config_audit_success="false",config_audit_title="car1 config audit title",name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical"} 1
+		trivy_configaudits_info{config_audit_category="car1 category for config audit",config_audit_description="car1 description for config audit",config_audit_id="car1 Id",config_audit_success="true",config_audit_title="car1 config audit title",name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical"} 1
+		trivy_configaudits_info{config_audit_category="car2 category for config audit",config_audit_description="car2 description for config audit",config_audit_id="car2 Id",config_audit_success="false",config_audit_title="car2 config audit title",name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",severity="Critical"} 1
+		trivy_configaudits_info{config_audit_category="car2 category for config audit",config_audit_description="car2 description for config audit",config_audit_id="car2 Id",config_audit_success="true",config_audit_title="car2 config audit title",name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",severity="Critical"} 1
+		trivy_configaudits_info{config_audit_category="car3 category for config audit",config_audit_description="car3 description for config audit",config_audit_id="car3 Id",config_audit_success="false",config_audit_title="car3 config audit title",name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",severity="Critical"} 1
+		trivy_configaudits_info{config_audit_category="car3 category for config audit",config_audit_description="car3 description for config audit",config_audit_id="car3 Id",config_audit_success="true",config_audit_title="car3 config audit title",name="replicaset-vault-agent-injector-65fd65bfb8",namespace="vault-system",resource_kind="ReplicaSet",resource_name="vault-agent-injector-65fd65bfb8",severity="Critical"} 1
+		`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_configaudits_info")).
+				To(Succeed())
+		})
+
+		It("should produce correct metrics from target namespaces - Summary", func() {
 			collector.TargetNamespaces = "default,some-ns"
 			const expected = `
         # HELP trivy_resource_configaudits Number of failing resource configuration auditing checks

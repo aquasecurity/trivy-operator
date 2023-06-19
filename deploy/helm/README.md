@@ -45,6 +45,7 @@ Keeps security report resources updated
 | operator.leaderElectionId | string | `"trivyoperator-lock"` | leaderElectionId determines the name of the resource that leader election will use for holding the leader lock. |
 | operator.logDevMode | bool | `false` | logDevMode the flag to enable development mode (more human-readable output, extra stack traces and logging information, etc) |
 | operator.mergeRbacFindingWithConfigAudit | bool | `false` | mergeRbacFindingWithConfigAudit the flag to enable merging rbac finding with config-audit report |
+| operator.metricsRbacAssessmentInfo | bool | `false` | MetricsRbacAssessmentInfo the flag to enable metrics about Rbac Assessment be aware of metrics cardinality is significantly increased with this feature enabled. |
 | operator.metricsConfigAuditInfo | bool | `false` | MetricsConfigAuditInfo the flag to enable metrics about configuration audits be aware of metrics cardinality is significantly increased with this feature enabled. |
 | operator.metricsExposedSecretInfo | bool | `false` | MetricsExposedSecretInfo the flag to enable metrics about exposed secrets be aware of metrics cardinality is significantly increased with this feature enabled. |
 | operator.metricsFindingsEnabled | bool | `true` | metricsFindingsEnabled the flag to enable metrics for findings |

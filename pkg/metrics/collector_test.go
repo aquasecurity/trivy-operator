@@ -598,6 +598,24 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car1.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "Role",
 				trivyoperator.LabelResourceName: "admin-6d4cf56db6"}
+			car1.Report.Checks = append(car1.Report.Checks,
+				[]v1alpha1.Check{
+					{
+						ID:          "car1 Id",
+						Title:       "car1 config rbac assessment",
+						Description: "car1 description for rbac assessment",
+						Category:    "car1 category for rbac assessment",
+						Severity:    "Critical",
+					},
+					{
+						ID:          "car1 Id",
+						Title:       "car1 rbac assessment title",
+						Description: "car1 description for rbac assessment",
+						Category:    "car1 category for rbac assessment",
+						Severity:    "Critical",
+					},
+				}...)
+
 			car1.Report.Summary.CriticalCount = 2
 			car1.Report.Summary.LowCount = 9
 
@@ -607,6 +625,23 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car2.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "Role",
 				trivyoperator.LabelResourceName: "write-test"}
+			car2.Report.Checks = append(car2.Report.Checks,
+				[]v1alpha1.Check{
+					{
+						ID:          "car2 Id",
+						Title:       "car2 rbac assessment title",
+						Description: "car2 description for rbac assessment",
+						Category:    "car2 category for rbac assessment",
+						Severity:    "Critical",
+					},
+					{
+						ID:          "car2 Id",
+						Title:       "car2 rbac assessment title",
+						Description: "car2 description for rbac assessment",
+						Category:    "car2 category for rbac assessment",
+						Severity:    "Critical",
+					},
+				}...)
 			car2.Report.Summary.LowCount = 1
 
 			car3 := &v1alpha1.RbacAssessmentReport{}
@@ -615,6 +650,23 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car3.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "Role",
 				trivyoperator.LabelResourceName: "read-65fd65bfb8"}
+			car3.Report.Checks = append(car3.Report.Checks,
+				[]v1alpha1.Check{
+					{
+						ID:          "car3 Id",
+						Title:       "car3 rbac assessment title",
+						Description: "car3 description for rbac assessment",
+						Category:    "car3 category for rbac assessment",
+						Severity:    "Critical",
+					},
+					{
+						ID:          "car3 Id",
+						Title:       "car3 rbac assessment title",
+						Description: "car3 description for rbac assessment",
+						Category:    "car3 category for rbac assessment",
+						Severity:    "Critical",
+					},
+				}...)
 			car3.Report.Summary.MediumCount = 4
 			car3.Report.Summary.LowCount = 7
 
@@ -641,6 +693,28 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		trivy_role_rbacassessments{name="role-write-test",namespace="some-ns",resource_kind="Role",resource_name="write-test",severity="Medium"} 0
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_role_rbacassessments")).
+				To(Succeed())
+		})
+
+		It("should produce correct rbac assessment metrics with cluster scope - Info", func() {
+			collector.Config.MetricsRbacAssessmentInfo = true
+			const expected = `
+		# HELP trivy_rbacassessments_info Number of rbac risky role assessment checks Info
+		# TYPE trivy_rbacassessments__info gauge
+		trivy_rbacassessments_info{rbac_assessment_category="car1 category for rbac assessment",rbac_assessment_description="car1 description for rbac assessment",rbac_assessment_id="car1 Id",rbac_assessment_title="car1 rbac assessment title",name="role-admin-6d4cf56db6",namespace="default",resource_kind="Role",resource_name="admin-6d4cf56db6",severity="Critical"} 2
+		trivy_rbacassessments_info{rbac_assessment_category="car1 category for rbac assessment",rbac_assessment_description="car1 description for rbac assessment",rbac_assessment_id="car1 Id",rbac_assessment_title="car1 rbac assessment title",name="role-admin-6d4cf56db6",namespace="default",resource_kind="Role",resource_name="admin-6d4cf56db6",severity="High"} 0
+		trivy_rbacassessments_info{rbac_assessment_category="car1 category for rbac assessment",rbac_assessment_description="car1 description for rbac assessment",rbac_assessment_id="car1 Id",rbac_assessment_title="car1 rbac assessment title",name="role-admin-6d4cf56db6",namespace="default",resource_kind="Role",resource_name="admin-6d4cf56db6",severity="Low"} 9
+		trivy_rbacassessments_info{rbac_assessment_category="car1 category for rbac assessment",rbac_assessment_description="car1 description for rbac assessment",rbac_assessment_id="car1 Id",rbac_assessment_title="car1 rbac assessment title",name="role-admin-6d4cf56db6",namespace="default",resource_kind="Role",resource_name="admin-6d4cf56db6",severity="Medium"} 0
+		trivy_rbacassessments_info{rbac_assessment_category="car3 category for rbac assessment",rbac_assessment_description="car3 description for rbac assessment",rbac_assessment_id="car3 Id",rbac_assessment_title="car3 rbac assessment title",name="role-read-65fd65bfb8",namespace="vault-system",resource_kind="Role",resource_name="read-65fd65bfb8",severity="Critical"} 0
+		trivy_rbacassessments_info{rbac_assessment_category="car3 category for rbac assessment",rbac_assessment_description="car3 description for rbac assessment",rbac_assessment_id="car3 Id",rbac_assessment_title="car3 rbac assessment title",name="role-read-65fd65bfb8",namespace="vault-system",resource_kind="Role",resource_name="read-65fd65bfb8",severity="High"} 0
+		trivy_rbacassessments_info{rbac_assessment_category="car3 category for rbac assessment",rbac_assessment_description="car3 description for rbac assessment",rbac_assessment_id="car3 Id",rbac_assessment_title="car3 rbac assessment title",name="role-read-65fd65bfb8",namespace="vault-system",resource_kind="Role",resource_name="read-65fd65bfb8",severity="Low"} 7
+		trivy_rbacassessments_info{rbac_assessment_category="car3 category for rbac assessment",rbac_assessment_description="car3 description for rbac assessment",rbac_assessment_id="car3 Id",rbac_assessment_title="car3 rbac assessment title",name="role-read-65fd65bfb8",namespace="vault-system",resource_kind="Role",resource_name="read-65fd65bfb8",severity="Medium"} 4
+		trivy_rbacassessments_info{rbac_assessment_category="car2 category for rbac assessment",rbac_assessment_description="car2 description for rbac assessment",rbac_assessment_id="car2 Id",rbac_assessment_title="car2 rbac assessment title",name="role-write-test",namespace="some-ns",resource_kind="Role",resource_name="write-test",severity="Critical"} 0
+		trivy_rbacassessments_info{rbac_assessment_category="car2 category for rbac assessment",rbac_assessment_description="car2 description for rbac assessment",rbac_assessment_id="car2 Id",rbac_assessment_title="car2 rbac assessment title",name="role-write-test",namespace="some-ns",resource_kind="Role",resource_name="write-test",severity="High"} 0
+		trivy_rbacassessments_info{rbac_assessment_category="car2 category for rbac assessment",rbac_assessment_description="car2 description for rbac assessment",rbac_assessment_id="car2 Id",rbac_assessment_title="car2 rbac assessment title",name="role-write-test",namespace="some-ns",resource_kind="Role",resource_name="write-test",severity="Low"} 1
+		trivy_rbacassessments_info{rbac_assessment_category="car2 category for rbac assessment",rbac_assessment_description="car2 description for rbac assessment",rbac_assessment_id="car2 Id",rbac_assessment_title="car2 rbac assessment title",name="role-write-test",namespace="some-ns",resource_kind="Role",resource_name="write-test",severity="Medium"} 0
+		`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_rbacassessments_info")).
 				To(Succeed())
 		})
 

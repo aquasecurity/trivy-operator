@@ -87,6 +87,8 @@ spec:
               value: {{ .Values.operator.metricsExposedSecretInfo | quote }}
             - name: OPERATOR_METRICS_CONFIG_AUDIT_INFO_ENABLED
               value: {{ .Values.operator.metricsConfigAuditInfo | quote }}
+            - name: OPERATOR_METRICS_RBAC_ASSESSMENT_INFO_ENABLED
+              value: {{ .Values.operator.metricsRbacAssessmentInfo | quote }}
             - name: OPERATOR_WEBHOOK_BROADCAST_URL
               value: {{ .Values.operator.webhookBroadcastURL | quote }}
             - name: OPERATOR_WEBHOOK_BROADCAST_TIMEOUT

@@ -95,6 +95,7 @@ func (w *cm) buildComplianceReport(spec v1alpha1.ReportSpec, complianceResults [
 // MisconfigReportToTrivyResults convert misconfig and infra assessment report Data to trivy results
 func misconfigReportToTrivyResults(cli client.Client, ctx context.Context) ([]ttypes.Results, error) {
 	resultsArray := make([]ttypes.Results, 0)
+	// collect configaudit report data
 	caObjList := &v1alpha1.ConfigAuditReportList{}
 	err := cli.List(ctx, caObjList)
 	if err != nil {
@@ -104,6 +105,27 @@ func misconfigReportToTrivyResults(cli client.Client, ctx context.Context) ([]tt
 		results := reportsToResults(ca.Report.Checks, ca.Name, ca.Namespace)
 		resultsArray = append(resultsArray, results)
 	}
+	// collect rbac assessment report data
+	raObjList := &v1alpha1.RbacAssessmentReportList{}
+	err = cli.List(ctx, raObjList)
+	if err != nil {
+		return nil, err
+	}
+	for _, ra := range raObjList.Items {
+		results := reportsToResults(ra.Report.Checks, ra.Name, ra.Namespace)
+		resultsArray = append(resultsArray, results)
+	}
+	// collect cluster rbac assessment report data
+	craObjList := &v1alpha1.ClusterRbacAssessmentReportList{}
+	err = cli.List(ctx, craObjList)
+	if err != nil {
+		return nil, err
+	}
+	for _, cra := range craObjList.Items {
+		results := reportsToResults(cra.Report.Checks, cra.Name, cra.Namespace)
+		resultsArray = append(resultsArray, results)
+	}
+	// collect infra assessment report data
 	iaObjList := &v1alpha1.InfraAssessmentReportList{}
 	err = cli.List(ctx, iaObjList)
 	if err != nil {
@@ -113,6 +135,7 @@ func misconfigReportToTrivyResults(cli client.Client, ctx context.Context) ([]tt
 		results := reportsToResults(ia.Report.Checks, ia.Name, ia.Namespace)
 		resultsArray = append(resultsArray, results)
 	}
+	// collect cluster infra assessment report data
 	ciaObjList := &v1alpha1.ClusterInfraAssessmentReportList{}
 	err = cli.List(ctx, ciaObjList)
 	if err != nil {

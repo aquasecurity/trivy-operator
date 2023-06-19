@@ -485,7 +485,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		It("should produce correct metrics with cluster scope - Info", func() {
 			collector.Config.MetricsConfigAuditInfo = true
 			const expected = `
-        # HELP trivy_configaudits_info Number of failing resource configuration auditing checks
+        # HELP trivy_configaudits_info Number of failing resource configuration auditing checks Info
         # TYPE trivy_configaudits_info gauge
         trivy_configaudits_info{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="car2 Id",config_audit_title="car2 config audit title", config_audit_description="car2 description for config audit", config_audit_category="car2 category for config audit",config_audit_success="true",severity="Critical"} 0
         trivy_configaudits_info{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="car2 Id",config_audit_title="car2 config audit title", config_audit_description="car2 description for config audit", config_audit_category="car2 category for config audit",config_audit_success="true",severity="High"} 0
@@ -526,7 +526,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			collector.Config.MetricsConfigAuditInfo = true
 			collector.TargetNamespaces = "default,some-ns"
 			const expected = `
-        # HELP trivy_configaudits_info Number of failing resource configuration auditing checks
+        # HELP trivy_configaudits_info Number of failing resource configuration auditing checks Info
         # TYPE trivy_configaudits_info gauge
         trivy_configaudits_info{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="car2 Id",config_audit_title="car2 config audit title", config_audit_description="car2 description for config audit", config_audit_category="car2 category for config audit",config_audit_success="true",severity="Critical"} 0
         trivy_configaudits_info{name="configmap-test",namespace="some-ns",resource_kind="ConfigMap",resource_name="test",config_audit_id="car2 Id",config_audit_title="car2 config audit title", config_audit_description="car2 description for config audit", config_audit_category="car2 category for config audit",config_audit_success="true",severity="High"} 0

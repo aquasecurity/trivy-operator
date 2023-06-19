@@ -381,7 +381,7 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		nil,
 	)
 	rbacAssessmentInfoDesc := prometheus.NewDesc(
-		prometheus.BuildFQName("trivy", "rbacassessments", "Info"),
+		prometheus.BuildFQName("trivy", "rbacassessments", "info"),
 		"Number of rbac risky role assessment checks Info",
 		rbacAssessmentInfoLabels,
 		nil,

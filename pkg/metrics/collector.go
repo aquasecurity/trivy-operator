@@ -57,7 +57,7 @@ const (
 	rbac_assessment_id          = "rbac_assessment_id"
 	rbac_assessment_title       = "rbac_assessment_title"
 	rbac_assessment_description = "rbac_assessment_description"
-	rbac_assessment_category    = "config_audit_category"
+	rbac_assessment_category    = "rbac_assessment_category"
 )
 
 type metricDescriptors struct {

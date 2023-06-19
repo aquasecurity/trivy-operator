@@ -528,7 +528,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		It("should produce correct metrics with cluster scope - Info", func() {
 			collector.Config.MetricsConfigAuditInfo = true
 			const expected = `
-        # HELP trivy_configaudits_info Number of failing resource configuration auditing checks
+        # HELP trivy_configaudits_info Number of failing resource configuration auditing checks Info
 		# TYPE trivy_configaudits_info gauge
 		trivy_configaudits_info{config_audit_category="car1 category for config audit",config_audit_description="car1 description for config audit",config_audit_id="car1 Id",config_audit_success="false",config_audit_title="car1 config audit title",name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical"} 1
 		trivy_configaudits_info{config_audit_category="car1 category for config audit",config_audit_description="car1 description for config audit",config_audit_id="car1 Id",config_audit_success="true",config_audit_title="car1 config audit title",name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical"} 1

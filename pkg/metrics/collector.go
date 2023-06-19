@@ -351,7 +351,7 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 	)
 	configAuditInfoDesc := prometheus.NewDesc(
 		prometheus.BuildFQName("trivy", "configaudits", "info"),
-		"Number of failing resource configuration auditing checks",
+		"Number of failing resource configuration auditing checks Info",
 		configAuditInfoLabels,
 		nil,
 	)

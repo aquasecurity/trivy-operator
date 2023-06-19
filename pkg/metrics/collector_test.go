@@ -645,7 +645,6 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		})
 
 		It("should produce correct rbac assessment metrics from target namespaces", func() {
-			collector.Config.MetricsConfigAuditInfo = true
 			collector.TargetNamespaces = "default,some-ns"
 			const expected = `
 		# HELP trivy_role_rbacassessments Number of rbac risky role assessment checks

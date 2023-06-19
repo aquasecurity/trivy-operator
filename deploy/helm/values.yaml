@@ -312,7 +312,7 @@ trivy:
 
   # -- ignorePolicy can be used to tell Trivy to ignore vulnerabilities by a policy
   # If multiple policies would match, then the most specific one has precedence over the others.
-  # See https://aquasecurity.github.io/trivy/latest/docs/vulnerability/examples/filter/#by-open-policy-agent) for more details.
+  # See https://aquasecurity.github.io/trivy/latest/docs/configuration/filtering/#by-open-policy-agent for more details.
   #
   # ignorePolicy.application.my-app-.: |
   #   # applies to all workloads in namespace "application" with the name pattern "my-app-*"

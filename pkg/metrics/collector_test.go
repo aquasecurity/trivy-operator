@@ -700,7 +700,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			collector.Config.MetricsRbacAssessmentInfo = true
 			const expected = `
 		# HELP trivy_rbacassessments_info Number of rbac risky role assessment checks Info
-		# TYPE trivy_rbacassessments__info gauge
+		# TYPE trivy_rbacassessments_info gauge
 		trivy_rbacassessments_info{rbac_assessment_category="car1 category for rbac assessment",rbac_assessment_description="car1 description for rbac assessment",rbac_assessment_id="car1 Id",rbac_assessment_title="car1 rbac assessment title",name="role-admin-6d4cf56db6",namespace="default",resource_kind="Role",resource_name="admin-6d4cf56db6",severity="Critical"} 2
 		trivy_rbacassessments_info{rbac_assessment_category="car1 category for rbac assessment",rbac_assessment_description="car1 description for rbac assessment",rbac_assessment_id="car1 Id",rbac_assessment_title="car1 rbac assessment title",name="role-admin-6d4cf56db6",namespace="default",resource_kind="Role",resource_name="admin-6d4cf56db6",severity="High"} 0
 		trivy_rbacassessments_info{rbac_assessment_category="car1 category for rbac assessment",rbac_assessment_description="car1 description for rbac assessment",rbac_assessment_id="car1 Id",rbac_assessment_title="car1 rbac assessment title",name="role-admin-6d4cf56db6",namespace="default",resource_kind="Role",resource_name="admin-6d4cf56db6",severity="Low"} 9

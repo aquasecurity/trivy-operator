@@ -728,13 +728,11 @@ func (c *ResourcesMetricsCollector) collectRbacAssessmentInfoReports(ctx context
 					labelValues[5] = rbac.Title
 					labelValues[6] = rbac.Description
 					labelValues[7] = rbac.Category
-					labelValues[8] = NewSeverityLabel(rbac.Severity).Label
-
 					for i, label := range c.GetReportResourceLabels() {
 						labelValues[i+9] = r.Labels[label]
 					}
-					metrics <- prometheus.MustNewConstMetric(c.rbacAssessmentInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
-					//c.populateRbacAssessmentValues(labelValues, c.rbacAssessmentInfoDesc, r.Report.Summary, metrics, 8)
+
+					c.populateRbacAssessmentValues(labelValues, c.rbacAssessmentInfoDesc, r.Report.Summary, metrics, 8)
 				}
 			}
 		}
@@ -809,6 +807,9 @@ func (c *ResourcesMetricsCollector) populateRbacAssessmentValues(labelValues []s
 	for severity, countFn := range c.rbacAssessmentSeverities {
 		labelValues[index] = severity
 		count := countFn(summary)
+		if c.Config.MetricsRbacAssessmentInfo {
+			count = 1
+		}
 		metrics <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, float64(count), labelValues...)
 
 	}

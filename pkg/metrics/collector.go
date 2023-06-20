@@ -718,22 +718,24 @@ func (c *ResourcesMetricsCollector) collectRbacAssessmentInfoReports(ctx context
 			continue
 		}
 		for _, r := range reports.Items {
-			labelValues[0] = r.Namespace
-			labelValues[1] = r.Name
-			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
-			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
-			for _, rbac := range r.Report.Checks {
-				labelValues[4] = rbac.ID
-				labelValues[5] = rbac.Title
-				labelValues[6] = rbac.Description
-				labelValues[7] = rbac.Category
-				labelValues[8] = NewSeverityLabel(rbac.Severity).Label
+			if c.Config.MetricsRbacAssessmentInfo {
+				labelValues[0] = r.Namespace
+				labelValues[1] = r.Name
+				labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
+				labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+				for _, rbac := range r.Report.Checks {
+					labelValues[4] = rbac.ID
+					labelValues[5] = rbac.Title
+					labelValues[6] = rbac.Description
+					labelValues[7] = rbac.Category
+					labelValues[8] = NewSeverityLabel(rbac.Severity).Label
 
-				for i, label := range c.GetReportResourceLabels() {
-					labelValues[i+9] = r.Labels[label]
+					for i, label := range c.GetReportResourceLabels() {
+						labelValues[i+9] = r.Labels[label]
+					}
+					metrics <- prometheus.MustNewConstMetric(c.rbacAssessmentInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
+					//c.populateRbacAssessmentValues(labelValues, c.rbacAssessmentInfoDesc, r.Report.Summary, metrics, 8)
 				}
-
-				c.populateRbacAssessmentValues(labelValues, c.rbacAssessmentInfoDesc, r.Report.Summary, metrics, 1)
 			}
 		}
 	}
@@ -808,6 +810,7 @@ func (c *ResourcesMetricsCollector) populateRbacAssessmentValues(labelValues []s
 		labelValues[index] = severity
 		count := countFn(summary)
 		metrics <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, float64(count), labelValues...)
+
 	}
 }
 

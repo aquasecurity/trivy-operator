@@ -602,7 +602,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 				[]v1alpha1.Check{
 					{
 						ID:          "car1 Id",
-						Title:       "car1 config rbac assessment",
+						Title:       "car1 rbac assessment title",
 						Description: "car1 description for rbac assessment",
 						Category:    "car1 category for rbac assessment",
 						Severity:    "Critical",

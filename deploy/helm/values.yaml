@@ -106,7 +106,6 @@ operator:
   # -- MetricsRbacAssessmentInfo the flag to enable metrics about Rbac Assessment
   # be aware of metrics cardinality is significantly increased with this feature enabled.
   metricsRbacAssessmentInfo: false
-  
   # -- webhookBroadcastURL the flag to set reports should be sent to a webhook endpoint. "" means that the webhookBroadcastURL feature is disabled
   webhookBroadcastURL: ""
 

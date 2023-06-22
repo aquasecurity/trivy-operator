@@ -697,7 +697,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		})
 
 		It("should produce correct rbac assessment metrics with cluster scope - Info", func() {
-			collector.Config.MetricsRbacAssessmentInfo = true
+			collector.Config.MetricsRbacAssessmentInfo = false
 			const expected = `
 		# HELP trivy_rbacassessments_info Number of rbac risky role assessment checks Info
 		# TYPE trivy_rbacassessments_info gauge

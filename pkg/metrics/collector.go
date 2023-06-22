@@ -58,6 +58,7 @@ const (
 	rbac_assessment_title       = "rbac_assessment_title"
 	rbac_assessment_description = "rbac_assessment_description"
 	rbac_assessment_category    = "rbac_assessment_category"
+	rbac_assessment_success     = "rbac_assessment_success"
 )
 
 type metricDescriptors struct {
@@ -320,6 +321,7 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		rbac_assessment_title,
 		rbac_assessment_description,
 		rbac_assessment_category,
+		rbac_assessment_success,
 		severity,
 	}
 	rbacAssessmentInfoLabels = append(rbacAssessmentInfoLabels, dynamicLabels...)
@@ -728,9 +730,10 @@ func (c *ResourcesMetricsCollector) collectRbacAssessmentInfoReports(ctx context
 					labelValues[5] = rbac.Title
 					labelValues[6] = rbac.Description
 					labelValues[7] = rbac.Category
-					labelValues[8] = NewSeverityLabel(rbac.Severity).Label
+					labelValues[8] = strconv.FormatBool(rbac.Success)
+					labelValues[9] = NewSeverityLabel(rbac.Severity).Label
 					for i, label := range c.GetReportResourceLabels() {
-						labelValues[i+9] = r.Labels[label]
+						labelValues[i+10] = r.Labels[label]
 					}
 
 					metrics <- prometheus.MustNewConstMetric(c.rbacAssessmentInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)

@@ -114,4 +114,52 @@ func TestReportBuilder(t *testing.T) {
 			Report: v1alpha1.ConfigAuditReportData{},
 		}))
 	})
+
+	t.Run("Should build report with lowercase name", func(t *testing.T) {
+		g := NewGomegaWithT(t)
+
+		report, err := configauditreport.NewReportBuilder(scheme.Scheme).
+			Controller(&rbacv1.Role{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Role",
+					APIVersion: "rbac.authorization.k8s.io/v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "pod-Reader",
+					Labels:    labels.Set{"tier": "tier-1", "owner": "team-a"},
+					Namespace: "test",
+				},
+			}).
+			ResourceSpecHash("xyz").
+			PluginConfigHash("nop").
+			Data(v1alpha1.ConfigAuditReportData{}).
+			ResourceLabelsToInclude([]string{"tier"}).
+			GetReport()
+
+		g.Expect(err).ToNot(HaveOccurred())
+		g.Expect(report).To(Equal(v1alpha1.ConfigAuditReport{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "role-65c67c5c64",
+				Namespace: "test",
+				OwnerReferences: []metav1.OwnerReference{
+					{
+						APIVersion:         "rbac.authorization.k8s.io/v1",
+						Kind:               "Role",
+						Name:               "pod-Reader",
+						Controller:         pointer.Bool(true),
+						BlockOwnerDeletion: pointer.Bool(false),
+					},
+				},
+				Labels: map[string]string{
+					trivyoperator.LabelPluginConfigHash:  "nop",
+					trivyoperator.LabelResourceKind:      "Role",
+					trivyoperator.LabelResourceNamespace: "test",
+					trivyoperator.LabelResourceName:      "pod-Reader",
+					"tier":                               "tier-1",
+					trivyoperator.LabelResourceSpecHash:  "xyz",
+				},
+			},
+			Report: v1alpha1.ConfigAuditReportData{},
+		}))
+	})
 }

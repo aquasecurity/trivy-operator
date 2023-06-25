@@ -43,6 +43,55 @@ func TestReportBuilder(t *testing.T) {
 		g.Expect(report).To(Equal(assessmentReport))
 	})
 
+	t.Run("Should build report for namespaced resource with capital letter", func(t *testing.T) {
+		g := NewGomegaWithT(t)
+
+		report, err := rbacassessment.NewReportBuilder(scheme.Scheme).
+			Controller(&rbacv1.Role{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Role",
+					APIVersion: "rbac.authorization.k8s.io/v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "some-Owner",
+					Namespace: "qa",
+					Labels:    labels.Set{"tier": "tier-1", "owner": "team-a"},
+				},
+				Rules: []rbacv1.PolicyRule{},
+			}).
+			ResourceSpecHash("xyz").
+			PluginConfigHash("nop").
+			Data(v1alpha1.RbacAssessmentReportData{}).
+			ResourceLabelsToInclude([]string{"tier"}).
+			GetReport()
+		g.Expect(err).ToNot(HaveOccurred())
+		assessmentReport := v1alpha1.RbacAssessmentReport{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "role-5ccc5d4cff",
+				Namespace: "qa",
+				OwnerReferences: []metav1.OwnerReference{
+					{
+						APIVersion:         "rbac.authorization.k8s.io/v1",
+						Kind:               "Role",
+						Name:               "some-Owner",
+						Controller:         pointer.Bool(true),
+						BlockOwnerDeletion: pointer.Bool(false),
+					},
+				},
+				Labels: map[string]string{
+					trivyoperator.LabelResourceKind:      "Role",
+					trivyoperator.LabelResourceName:      "some-Owner",
+					trivyoperator.LabelResourceNamespace: "qa",
+					trivyoperator.LabelResourceSpecHash:  "xyz",
+					trivyoperator.LabelPluginConfigHash:  "nop",
+					"tier":                               "tier-1",
+				},
+			},
+			Report: v1alpha1.RbacAssessmentReportData{},
+		}
+		g.Expect(report).To(Equal(assessmentReport))
+	})
+
 	t.Run("Should build report for cluster scoped resource", func(t *testing.T) {
 		g := NewGomegaWithT(t)
 

@@ -74,7 +74,7 @@ func (b *ReportBuilder) reportName() string {
 	kind := b.controller.GetObjectKind().GroupVersionKind().Kind
 	name := b.controller.GetName()
 	reportName := fmt.Sprintf("%s-%s", strings.ToLower(kind), name)
-	if len(validation.IsValidLabelValue(reportName)) == 0 {
+	if len(validation.IsDNS1123Label(reportName)) == 0 {
 		return reportName
 	}
 	return fmt.Sprintf("%s-%s", strings.ToLower(kind), kube.ComputeHash(name))

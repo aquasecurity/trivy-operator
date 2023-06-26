@@ -9,6 +9,7 @@ import (
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	containerimage "github.com/google/go-containerregistry/pkg/name"
+	ocpappsv1 "github.com/openshift/api/apps/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	batchv1beta1 "k8s.io/api/batch/v1beta1"
@@ -35,6 +36,7 @@ func NewScheme() *runtime.Scheme {
 	_ = v1alpha1.AddToScheme(scheme)
 	_ = coordinationv1.AddToScheme(scheme)
 	_ = apiextensionsv1.AddToScheme(scheme)
+	_ = ocpappsv1.Install(scheme)
 	return scheme
 }
 

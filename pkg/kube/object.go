@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	ocpappsv1 "github.com/openshift/api/apps/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	batchv1beta1 "k8s.io/api/batch/v1beta1"
@@ -40,6 +41,7 @@ const (
 	KindReplicaSet            Kind = "ReplicaSet"
 	KindReplicationController Kind = "ReplicationController"
 	KindDeployment            Kind = "Deployment"
+	KindDeploymentConfig      Kind = "DeploymentConfig"
 	KindStatefulSet           Kind = "StatefulSet"
 	KindDaemonSet             Kind = "DaemonSet"
 	KindCronJob               Kind = "CronJob"
@@ -60,7 +62,10 @@ const (
 )
 
 const (
-	deploymentAnnotation string = "deployment.kubernetes.io/revision"
+	deploymentAnnotation       string = "deployment.kubernetes.io/revision"
+	deploymentConfigAnnotation string = "openshift.io/deployment-config.latest-version"
+
+	DeployerPodForDeploymentAnnotation string = "openshift.io/deployment-config.name"
 )
 const (
 	cronJobResource        = "cronjobs"
@@ -641,6 +646,27 @@ func (o *ObjectResolver) IsActiveReplicaSet(ctx context.Context, workloadObj cli
 		deploymentRevisionAnnotation := deploymentObject.GetAnnotations()
 		replicasetRevisionAnnotation := workloadObj.GetAnnotations()
 		return replicasetRevisionAnnotation[deploymentAnnotation] == deploymentRevisionAnnotation[deploymentAnnotation], nil
+	}
+	return true, nil
+}
+
+// +kubebuilder:rbac:groups=apps.openshift.io,resources=deploymentconfigs,verbs=get;list;watch
+
+func (o *ObjectResolver) IsActiveReplicationController(ctx context.Context, workloadObj client.Object, controller *metav1.OwnerReference) (bool, error) {
+	if controller != nil && controller.Kind == string(KindDeploymentConfig) {
+		deploymentConfigObj := &ocpappsv1.DeploymentConfig{}
+
+		err := o.Client.Get(ctx, client.ObjectKey{
+			Namespace: workloadObj.GetNamespace(),
+			Name:      controller.Name,
+		}, deploymentConfigObj)
+
+		if err != nil {
+			return false, err
+		}
+		replicasetRevisionAnnotation := workloadObj.GetAnnotations()
+		latestRevision := fmt.Sprintf("%d", deploymentConfigObj.Status.LatestVersion)
+		return replicasetRevisionAnnotation[deploymentConfigAnnotation] == latestRevision, nil
 	}
 	return true, nil
 }

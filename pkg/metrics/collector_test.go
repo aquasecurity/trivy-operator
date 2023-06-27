@@ -568,6 +568,26 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car1.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "Pod",
 				trivyoperator.LabelResourceName: "kube-apiserver-minikube-6d4cf56db6"}
+			car1.Report.Checks = append(car1.Report.Checks,
+				[]v1alpha1.Check{
+					{
+						ID:          "car1 Id",
+						Title:       "car1 infra assessment title",
+						Description: "car1 description for infra assessment",
+						Category:    "car1 category for infra assessment",
+						Severity:    "Critical",
+						Success:     true,
+					},
+					{
+						ID:          "car1 Id",
+						Title:       "car1 infra assessment title",
+						Description: "car1 description for infra assessment",
+						Category:    "car1 category for infra assessment",
+						Severity:    "Critical",
+						Success:     false,
+					},
+				}...)
+
 			car1.Report.Summary.CriticalCount = 2
 			car1.Report.Summary.LowCount = 9
 
@@ -586,6 +606,18 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		trivy_resource_infraassessments{name="pod-kube-apiserver-minikube-6d4cf56db6",namespace="kube-system",resource_kind="Pod",resource_name="kube-apiserver-minikube-6d4cf56db6",severity="Medium"} 0
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_resource_infraassessments")).
+				To(Succeed())
+		})
+
+		It("should produce correct infra assessment metrics with cluster scope - Info", func() {
+			collector.Config.MetricsInfraAssessmentInfo = true
+			const expected = `
+		# HELP trivy_infraassessments_info Number of failing k8s infra assessment checks Info
+		# TYPE trivy_infraassessments_info gauge
+		trivy_infraassessments_info{name="pod-kube-apiserver-minikube-6d4cf56db6",namespace="kube-system",infra_assessment_category="car1 category for infra assessment",infra_assessment_description="car1 description for infra assessment",infra_assessment_id="car1 Id",infra_assessment_success="true",infra_assessment_title="car1 infra assessment title",resource_kind="Pod",resource_name="kube-apiserver-minikube-6d4cf56db6",severity="Critical"} 1
+		trivy_infraassessments_info{name="pod-kube-apiserver-minikube-6d4cf56db6",namespace="kube-system",infra_assessment_category="car1 category for infra assessment",infra_assessment_description="car1 description for infra assessment",infra_assessment_id="car1 Id",infra_assessment_success="false",infra_assessment_title="car1 infra assessment title",resource_kind="Pod",resource_name="kube-apiserver-minikube-6d4cf56db6",severity="Critical"} 1
+		`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_rbacassessments_info")).
 				To(Succeed())
 		})
 	})

@@ -7,6 +7,7 @@ import (
 
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	ocpappsv1 "github.com/openshift/api/apps/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	appsv1 "k8s.io/api/apps/v1"
@@ -1304,6 +1305,230 @@ func TestObjectResolver_IsActiveReplicaSet(t *testing.T) {
 			or := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 			controller := metav1.GetControllerOf(tc.resource)
 			isActive, err := or.IsActiveReplicaSet(context.TODO(), tc.resource, controller)
+			require.NoError(t, err)
+			assert.Equal(t, isActive, tc.result)
+		})
+	}
+}
+
+func TestObjectResolver_IsActiveReplicationController(t *testing.T) {
+	busyboxDeploymentConfig := &ocpappsv1.DeploymentConfig{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "DeploymentConfig",
+			APIVersion: "apps.openshift.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:            "busybox",
+			Namespace:       "test",
+			UID:             "3767b9a7-c2ad-4a3e-a115-b72edda9084b",
+			ResourceVersion: "212822",
+			Generation:      3,
+		},
+		Spec: ocpappsv1.DeploymentConfigSpec{
+			Strategy: ocpappsv1.DeploymentStrategy{
+				Type: "Recreate",
+			},
+			MinReadySeconds: 0,
+			Triggers:        nil,
+			Replicas:        1,
+			Test:            false,
+			Paused:          false,
+			Selector:        map[string]string{"deploymentconfig": "busybox"},
+			Template: &corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{"deploymentconfig": "busybox"},
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{corev1.Container{
+						Name:    "busybox",
+						Image:   "busybox",
+						Command: []string{"/bin/sh", "-c", "while true ; do date; sleep 1; done;"},
+					}},
+				},
+			},
+		},
+		Status: ocpappsv1.DeploymentConfigStatus{
+			LatestVersion:       3,
+			ObservedGeneration:  3,
+			Replicas:            1,
+			UpdatedReplicas:     1,
+			AvailableReplicas:   1,
+			UnavailableReplicas: 0,
+			ReadyReplicas:       1,
+		},
+	}
+
+	busyboxReplicaController := &corev1.ReplicationController{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ReplicationController",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:            "busybox-3",
+			Namespace:       "test",
+			UID:             "69f2c92a-3032-4b7a-ba60-63be0bffdbe5",
+			ResourceVersion: "212821",
+			Generation:      2,
+			Labels:          map[string]string{"openshift.io/deployment-config.name": "busybox"},
+			Annotations: map[string]string{
+				"openshift.io/deployer-pod.completed-at":        "2023-05-25 06:57:18 +0000 UTC",
+				"openshift.io/deployer-pod.created-at":          "2023-05-25 06:56:39 +0000 UTC",
+				"openshift.io/deployer-pod.name":                "busybox-3-deploy",
+				"openshift.io/deployment-config.latest-version": "3",
+				"openshift.io/deployment-config.name":           "busybox",
+				"openshift.io/deployment.phase":                 "Complete",
+				"openshift.io/deployment.replicas":              "1",
+				"openshift.io/deployment.status-reason":         "config change",
+			},
+			OwnerReferences: []metav1.OwnerReference{{
+				APIVersion:         "apps.openshift.io/v1",
+				Kind:               "DeploymentConfig",
+				Name:               "busybox",
+				UID:                "3767b9a7-c2ad-4a3e-a115-b72edda9084b",
+				Controller:         pointer.Bool(true),
+				BlockOwnerDeletion: pointer.Bool(true)},
+			},
+		},
+		Spec: corev1.ReplicationControllerSpec{
+			Replicas: pointer.Int32(1),
+			Selector: map[string]string{
+				"deployment":       "busybox-3",
+				"deploymentconfig": "busybox",
+			},
+			Template: &corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{"deploymentconfig": "busybox"},
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{corev1.Container{
+						Name:    "busybox",
+						Image:   "busybox",
+						Command: []string{"/bin/sh", "-c", "while true ; do date; sleep 1; done;"},
+					}},
+				},
+			},
+		},
+		Status: corev1.ReplicationControllerStatus{},
+	}
+
+	notActivebusyboxReplicaController := &corev1.ReplicationController{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ReplicationController",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:            "busybox-2",
+			Namespace:       "test",
+			UID:             "69f2c92a-3032-4b7a-ba60-63be0bffdbe5",
+			ResourceVersion: "212821",
+			Generation:      1,
+			Labels:          map[string]string{"openshift.io/deployment-config.name": "busybox"},
+			Annotations: map[string]string{
+				"openshift.io/deployer-pod.completed-at":        "2023-05-25 06:57:18 +0000 UTC",
+				"openshift.io/deployer-pod.created-at":          "2023-05-25 06:56:39 +0000 UTC",
+				"openshift.io/deployer-pod.name":                "busybox-3-deploy",
+				"openshift.io/deployment-config.latest-version": "2",
+				"openshift.io/deployment-config.name":           "busybox",
+				"openshift.io/deployment.phase":                 "Complete",
+				"openshift.io/deployment.replicas":              "1",
+				"openshift.io/deployment.status-reason":         "config change",
+			},
+			OwnerReferences: []metav1.OwnerReference{{
+				APIVersion:         "apps.openshift.io/v1",
+				Kind:               "DeploymentConfig",
+				Name:               "busybox",
+				UID:                "3767b9a7-c2ad-4a3e-a115-b72edda9084b",
+				Controller:         pointer.Bool(true),
+				BlockOwnerDeletion: pointer.Bool(true)},
+			},
+		},
+		Spec: corev1.ReplicationControllerSpec{
+			Replicas: pointer.Int32(1),
+			Selector: map[string]string{
+				"deployment":       "busybox-2",
+				"deploymentconfig": "busybox",
+			},
+			Template: &corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{"deploymentconfig": "busybox"},
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{corev1.Container{
+						Name:    "busybox",
+						Image:   "busybox",
+						Command: []string{"/bin/sh", "-c", "while true ; do date; sleep 1; done;"},
+					}},
+				},
+			},
+		},
+		Status: corev1.ReplicationControllerStatus{},
+	}
+
+	standalonebusyboxReplicaController := &corev1.ReplicationController{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "ReplicationController",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:            "busybox-3",
+			Namespace:       "test",
+			UID:             "69f2c92a-3032-4b7a-ba60-63be0bffdbe5",
+			ResourceVersion: "212821",
+			Generation:      2,
+			Labels:          map[string]string{"openshift.io/deployment-config.name": "busybox"},
+		},
+		Spec: corev1.ReplicationControllerSpec{
+			Replicas: pointer.Int32(1),
+			Selector: map[string]string{
+				"deployment":       "busybox-3",
+				"deploymentconfig": "busybox",
+			},
+			Template: &corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{"deploymentconfig": "busybox"},
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{corev1.Container{
+						Name:    "busybox",
+						Image:   "busybox",
+						Command: []string{"/bin/sh", "-c", "while true ; do date; sleep 1; done;"},
+					}},
+				},
+			},
+		},
+		Status: corev1.ReplicationControllerStatus{},
+	}
+	testClient := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(
+		busyboxDeploymentConfig,
+		busyboxReplicaController,
+		notActivebusyboxReplicaController,
+	).Build()
+	tests := []struct {
+		name     string
+		resource *corev1.ReplicationController
+		result   bool
+	}{
+		{
+			name:     "active Replication Controller",
+			resource: busyboxReplicaController,
+			result:   true,
+		},
+		{
+			name:     "Non active replication controller",
+			resource: notActivebusyboxReplicaController,
+			result:   false,
+		},
+		{
+			name:     "Standalone replication controller",
+			resource: standalonebusyboxReplicaController,
+			result:   true,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			or := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
+			controller := metav1.GetControllerOf(tc.resource)
+			isActive, err := or.IsActiveReplicationController(context.TODO(), tc.resource, controller)
 			require.NoError(t, err)
 			assert.Equal(t, isActive, tc.result)
 		})

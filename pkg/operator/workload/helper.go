@@ -63,6 +63,21 @@ func SkipProcessing(ctx context.Context, resource client.Object, or kube.ObjectR
 			}
 			return true, err
 		}
+		if scanOnlyCurrentRevisions {
+			controller := metav1.GetControllerOf(resource)
+			activeReplicationController, err := or.IsActiveReplicationController(ctx, resource, controller)
+			if err != nil {
+				return true, fmt.Errorf("failed checking current revision: %w", err)
+			}
+			if !activeReplicationController {
+				log.V(1).Info("Ignoring inactive ReplicationController", "controllerKind", controller.Kind, "controllerName", controller.Name)
+				err := MarkOldReportForImmediateDeletion(ctx, or, resource.GetNamespace(), resource.GetName())
+				if err != nil {
+					return true, fmt.Errorf("failed marking old reports for immediate deletion : %w", err)
+				}
+				return true, nil
+			}
+		}
 	case *appsv1.StatefulSet:
 		_, err := or.GetActivePodsMatchingLabels(ctx, resource.GetNamespace(), r.Spec.Selector.MatchLabels)
 		if err != nil {
@@ -79,6 +94,13 @@ func SkipProcessing(ctx context.Context, resource client.Object, or kube.ObjectR
 			log.V(1).Info("Ignoring managed pod",
 				"controllerKind", controller.Kind,
 				"controllerName", controller.Name)
+			return true, nil
+		}
+		annotations := resource.GetAnnotations()
+		// Ignore scanning of system pod which is created for deploymentConfig
+		if value, ok := annotations[kube.DeployerPodForDeploymentAnnotation]; ok {
+			log.V(1).Info("Ignoring system pod created for deployment config",
+				"deploymentConfigName", value)
 			return true, nil
 		}
 	case *batchv1.Job:

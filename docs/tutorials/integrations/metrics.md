@@ -24,6 +24,14 @@ trivy_resource_configaudits{
     } 2
 ```
 
+### ConfigAuditInfo
+
+Exposes details about ConfigAudit that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_CONFIG_AUDIT_INFO_ENABLED" envDefault:"false"` . For example:
+
+```shell
+    trivy_configaudits_info{config_audit_category="car1 category for config audit",config_audit_description="car1 description for config audit",config_audit_id="car1 Id",config_audit_success="false",config_audit_title="car1 config audit title",name="replicaset-nginx-6d4cf56db6",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6",severity="Critical"} 1
+```
+
 ### RbacAssessments
 
 A report summary series exposes the count of checks of each status reported in a given `RbacAssessmentsReport`. For example:
@@ -32,6 +40,14 @@ A report summary series exposes the count of checks of each status reported in a
 trivy_role_rbacassessments{
     name="role-6fbccbcb9d",namespace="kube-system",resource_kind="Role",resource_name="6fbccbcb9d",severity="Medium"
     } 1
+```
+
+### RbacAssessmentsInfo
+
+Exposes details about RbacAssessments that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_RBAC_ASSESSMENT_INFO_ENABLED" envDefault:"false"` . For example:
+
+```shell
+    trivy_rbacassessments_info{name="role-admin-6d4cf56db6",namespace="default",rbac_assessment_category="car1 category for rbac assessment",rbac_assessment_description="car1 description for rbac assessment",rbac_assessment_id="car1 Id",rbac_assessment_success="true",rbac_assessment_title="car1 rbac assessment title",resource_kind="Role",resource_name="admin-6d4cf56db6",severity="Critical"} 1
 ```
 
 ### ExposedsSecrets

@@ -48,8 +48,8 @@ Keeps security report resources updated
 | operator.metricsConfigAuditInfo | bool | `false` | MetricsConfigAuditInfo the flag to enable metrics about configuration audits be aware of metrics cardinality is significantly increased with this feature enabled. |
 | operator.metricsExposedSecretInfo | bool | `false` | MetricsExposedSecretInfo the flag to enable metrics about exposed secrets be aware of metrics cardinality is significantly increased with this feature enabled. |
 | operator.metricsFindingsEnabled | bool | `true` | metricsFindingsEnabled the flag to enable metrics for findings |
-| operator.metricsRbacAssessmentInfo | bool | `false` | MetricsRbacAssessmentInfo the flag to enable metrics about Rbac Assessment be aware of metrics cardinality is significantly increased with this feature enabled. |
 | operator.metricsInfraAssessmentInfo | bool | `false` | MetricsInfraAssessmentInfo the flag to enable metrics about Infra Assessment be aware of metrics cardinality is significantly increased with this feature enabled. |
+| operator.metricsRbacAssessmentInfo | bool | `false` | MetricsRbacAssessmentInfo the flag to enable metrics about Rbac Assessment be aware of metrics cardinality is significantly increased with this feature enabled. |
 | operator.metricsVulnIdEnabled | bool | `false` | metricsVulnIdEnabled the flag to enable metrics about cve vulns id be aware of metrics cardinality is significantly increased with this feature enabled. |
 | operator.namespace | string | `""` | namespace to install the operator, defaults to the .Release.Namespace |
 | operator.podLabels | object | `{}` | additional labels for the operator pod |

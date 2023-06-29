@@ -825,6 +825,17 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car1 := &v1alpha1.ClusterComplianceReport{}
 			car1.Spec.Complaince.Title = "nsa"
 			car1.Spec.Complaince.Description = "National Security Agency - Kubernetes Hardening Guidance"
+			car1.Spec.Complaince.Controls = append(car1.Spec.Complaince.Controls,
+				[]v1alpha1.Control{
+					{
+						ID:   "car1 Id",
+						Name: "car1 cluster compliance name",
+					},
+					{
+						ID:   "car1 Id",
+						Name: "car1 cluster compliance name",
+					},
+				}...)
 			car1.Status.Summary.FailCount = 12
 			car1.Status.Summary.PassCount = 15
 
@@ -841,6 +852,18 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 15
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_cluster_compliance")).
+				To(Succeed())
+		})
+
+		It("should produce correct cluster rbac assessment metrics - Info", func() {
+			collector.Config.MetricsClusterComplianceInfo = true
+			const expected = `
+		# HELP trivy_compliance_info cluster compliance report Info
+		# TYPE trivy_compliance_info gauge
+		trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",description="National Security Agency - Kubernetes Hardening Guidance",status="Fail",title="nsa"} 12
+		trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 15
+		`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_compliance_info")).
 				To(Succeed())
 		})
 	})

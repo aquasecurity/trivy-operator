@@ -3,9 +3,9 @@ module github.com/aquasecurity/trivy-operator
 go 1.20
 
 require (
-	github.com/aquasecurity/defsec v0.89.0
-	github.com/aquasecurity/trivy v0.42.1
-	github.com/aquasecurity/trivy-kubernetes v0.5.6
+	github.com/aquasecurity/defsec v0.90.1
+	github.com/aquasecurity/trivy v0.43.0
+	github.com/aquasecurity/trivy-kubernetes v0.5.7-0.20230628140707-dae3bdb6ee81
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/davecgh/go-spew v1.1.1
@@ -35,7 +35,7 @@ require (
 
 require (
 	github.com/anchore/go-struct-converter v0.0.0-20221118182256-c68fdcfa2092 // indirect
-	github.com/aquasecurity/go-dep-parser v0.0.0-20230605080024-b71d9356a6c6 // indirect
+	github.com/aquasecurity/go-dep-parser v0.0.0-20230626110909-e7ea5097483b // indirect
 	github.com/aquasecurity/table v1.8.0 // indirect
 	github.com/aquasecurity/tml v0.6.1 // indirect
 	github.com/cloudflare/circl v1.3.3 // indirect
@@ -64,7 +64,7 @@ require (
 	github.com/tchap/go-patricia/v2 v2.3.1 // indirect
 	github.com/xlab/treeprint v1.1.0 // indirect
 	go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5 // indirect
-	golang.org/x/mod v0.10.0 // indirect
+	golang.org/x/mod v0.11.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	sigs.k8s.io/kustomize/api v0.13.2 // indirect

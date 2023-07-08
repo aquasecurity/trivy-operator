@@ -131,6 +131,7 @@ data:
   {{- end }}
   {{- if .Values.trivy.vulnType }}
   trivy.vulnType: {{ .Values.trivy.vulnType | quote }}
+  trivy.generateSbom: {{ .Values.operator.sbomGenerationEnable | quote }}
   {{- end }}
   {{- if .Values.trivy.dbRepositoryInsecure }}
   trivy.dbRepositoryInsecure: {{ .Values.trivy.dbRepositoryInsecure | quote }}

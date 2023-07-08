@@ -38,6 +38,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&InfraAssessmentReportList{},
 		&ClusterInfraAssessmentReport{},
 		&ClusterInfraAssessmentReportList{},
+		&SbomReport{},
+		&SbomReportList{},
 	)
 	meta.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

@@ -947,7 +947,7 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			MountPath: "/tmp",
 		},
 	}
-	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
+	
 	// add tmp volume
 	volumes := []corev1.Volume{
 		{
@@ -959,7 +959,23 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			},
 		},
 	}
+	
+	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
 	volumes = append(volumes, getScanResultVolume())
+	
+	if volume, volumeMount := config.GenerateIgnoreFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
+	}
+	if volume, volumeMount := config.GenerateIgnorePolicyVolumeIfAvailable(trivyConfigName, workload); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
+	}
+
+	if volume, volumeMount := config.GenerateSslCertDirVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
+	}
 
 	for _, container := range containersSpec {
 		env := []corev1.EnvVar{
@@ -1038,20 +1054,6 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 				Name:  "TRIVY_INSECURE",
 				Value: "true",
 			})
-		}
-
-		if volume, volumeMount := config.GenerateIgnoreFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
-			volumes = append(volumes, *volume)
-			volumeMounts = append(volumeMounts, *volumeMount)
-		}
-		if volume, volumeMount := config.GenerateIgnorePolicyVolumeIfAvailable(trivyConfigName, workload); volume != nil && volumeMount != nil {
-			volumes = append(volumes, *volume)
-			volumeMounts = append(volumeMounts, *volumeMount)
-		}
-
-		if volume, volumeMount := config.GenerateSslCertDirVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
-			volumes = append(volumes, *volume)
-			volumeMounts = append(volumeMounts, *volumeMount)
 		}
 
 		requirements, err := config.GetResourceRequirements()
@@ -1330,6 +1332,7 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 			},
 		},
 	}
+
 	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
 	volumes = append(volumes, getScanResultVolume())
 

@@ -1537,12 +1537,12 @@ spec:
       type: date
     - description: The number of dependencies in bom
       jsonPath: .report.summary.componentsCount
-      name: ComponentsCount
+      name: Components
       priority: 1
       type: integer
     - description: The the number of components in bom
       jsonPath: .report.summary.dependenciesCount
-      name: DependenciesCount
+      name: Dependencies
       priority: 1
       type: integer
     name: v1alpha1
@@ -1605,9 +1605,6 @@ spec:
                                 type: string
                               content:
                                 type: string
-                            required:
-                            - alg
-                            - content
                             type: object
                           type: array
                         licenses:
@@ -1635,9 +1632,6 @@ spec:
                                 type: string
                               value:
                                 type: string
-                            required:
-                            - name
-                            - value
                             type: object
                           type: array
                         purl:
@@ -1661,16 +1655,11 @@ spec:
                               items:
                                 type: string
                               type: array
-                          required:
-                          - name
                           type: object
                         type:
                           type: string
                         version:
                           type: string
-                      required:
-                      - name
-                      - type
                       type: object
                     type: array
                   dependencies:
@@ -1682,8 +1671,6 @@ spec:
                           type: array
                         ref:
                           type: string
-                      required:
-                      - ref
                       type: object
                     type: array
                   metadata:
@@ -1701,9 +1688,6 @@ spec:
                                   type: string
                                 content:
                                   type: string
-                              required:
-                              - alg
-                              - content
                               type: object
                             type: array
                           licenses:
@@ -1731,9 +1715,6 @@ spec:
                                   type: string
                                 value:
                                   type: string
-                              required:
-                              - name
-                              - value
                               type: object
                             type: array
                           purl:
@@ -1757,16 +1738,11 @@ spec:
                                 items:
                                   type: string
                                 type: array
-                            required:
-                            - name
                             type: object
                           type:
                             type: string
                           version:
                             type: string
-                        required:
-                        - name
-                        - type
                         type: object
                       timestamp:
                         type: string
@@ -1779,8 +1755,6 @@ spec:
                               type: string
                             version:
                               type: string
-                          required:
-                          - name
                           type: object
                         type: array
                     type: object
@@ -1793,7 +1767,6 @@ spec:
                 required:
                 - bomFormat
                 - specVersion
-                - version
                 type: object
               registry:
                 description: Registry is the registry the Artifact was pulled from.

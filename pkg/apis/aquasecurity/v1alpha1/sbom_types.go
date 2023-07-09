@@ -21,8 +21,8 @@ type SbomSummary struct {
 // +kubebuilder:printcolumn:name="Tag",type=string,JSONPath=`.report.artifact.tag`,description="The name of image tag"
 // +kubebuilder:printcolumn:name="Scanner",type=string,JSONPath=`.report.scanner.name`,description="The name of the sbom generation scanner"
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"
-// +kubebuilder:printcolumn:name="ComponentsCount",type=integer,JSONPath=`.report.summary.componentsCount`,priority=1,description="The number of dependencies in bom"
-// +kubebuilder:printcolumn:name="DependenciesCount",type=integer,JSONPath=`.report.summary.dependenciesCount`,priority=1,description="The the number of components in bom"
+// +kubebuilder:printcolumn:name="Components",type=integer,JSONPath=`.report.summary.componentsCount`,priority=1,description="The number of dependencies in bom"
+// +kubebuilder:printcolumn:name="Dependencies",type=integer,JSONPath=`.report.summary.dependenciesCount`,priority=1,description="The the number of components in bom"
 
 // SbomReport summarizes components and dependencies found in container image
 type SbomReport struct {

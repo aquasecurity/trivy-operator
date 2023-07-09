@@ -1771,11 +1771,10 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	var bom *v1alpha1.BOM
 	if ctx.GetTrivyOperatorConfig().GenerateSbomEnabled() {
 		bom, err = generateSbomFromScanResult(reports)
+		if err != nil {
+			return vulnReport, secretReport, &sbomReport, err
+		}
 	}
-	if err != nil {
-		return vulnReport, secretReport, &sbomReport, err
-	}
-
 	registry, artifact, err := p.parseImageRef(imageRef)
 	if err != nil {
 		return vulnReport, secretReport, &sbomReport, err

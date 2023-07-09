@@ -5,12 +5,12 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 )
 
-func cycloneDxBomToReport(cbom cdx.BOM) v1alpha1.BOM {
+func cycloneDxBomToReport(cbom cdx.BOM) *v1alpha1.BOM {
 	components := make([]*v1alpha1.Component, 0)
 	for _, c := range *cbom.Components {
 		components = append(components, cycloneDxComponentToReportComponent(c))
 	}
-	return v1alpha1.BOM{
+	return &v1alpha1.BOM{
 		BOMFormat:    cbom.BOMFormat,
 		SpecVersion:  int(cbom.SpecVersion),
 		SerialNumber: cbom.SerialNumber,

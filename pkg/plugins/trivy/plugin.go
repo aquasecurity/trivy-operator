@@ -1732,32 +1732,32 @@ func (p *plugin) appendTrivyNonSSLEnv(config Config, image string, env []corev1.
 	return env, nil
 }
 
-func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef string, logsReader io.ReadCloser) (v1alpha1.VulnerabilityReportData, v1alpha1.ExposedSecretReportData, v1alpha1.SbomReportData, error) {
+func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef string, logsReader io.ReadCloser) (v1alpha1.VulnerabilityReportData, v1alpha1.ExposedSecretReportData, *v1alpha1.SbomReportData, error) {
 	var vulnReport v1alpha1.VulnerabilityReportData
 	var secretReport v1alpha1.ExposedSecretReportData
 	var sbomReport v1alpha1.SbomReportData
 
 	config, err := p.newConfigFrom(ctx)
 	if err != nil {
-		return vulnReport, secretReport, sbomReport, err
+		return vulnReport, secretReport, &sbomReport, err
 	}
 	cmd, err := config.GetCommand()
 	if err != nil {
-		return vulnReport, secretReport, sbomReport, err
+		return vulnReport, secretReport, &sbomReport, err
 	}
 	compressedLogs := ctx.GetTrivyOperatorConfig().CompressLogs()
 	if compressedLogs && cmd != Filesystem && cmd != Rootfs {
 		var errCompress error
 		logsReader, errCompress = utils.ReadCompressData(logsReader)
 		if errCompress != nil {
-			return vulnReport, secretReport, sbomReport, errCompress
+			return vulnReport, secretReport, &sbomReport, errCompress
 		}
 	}
 
 	var reports ty.Report
 	err = json.NewDecoder(logsReader).Decode(&reports)
 	if err != nil {
-		return vulnReport, secretReport, sbomReport, err
+		return vulnReport, secretReport, &sbomReport, err
 	}
 
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
@@ -1768,27 +1768,43 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 		vulnerabilities = append(vulnerabilities, getVulnerabilitiesFromScanResult(report, addFields)...)
 		secrets = append(secrets, getExposedSecretsFromScanResult(report)...)
 	}
-	bom, err := generateSbomFromScanResult(reports)
-
+	var bom *v1alpha1.BOM
+	if ctx.GetTrivyOperatorConfig().GenerateSbomEnabled() {
+		bom, err = generateSbomFromScanResult(reports)
+	}
 	if err != nil {
-		return vulnReport, secretReport, sbomReport, err
+		return vulnReport, secretReport, &sbomReport, err
 	}
 
 	registry, artifact, err := p.parseImageRef(imageRef)
 	if err != nil {
-		return vulnReport, secretReport, sbomReport, err
+		return vulnReport, secretReport, &sbomReport, err
 	}
 
 	trivyImageRef, err := config.GetImageRef()
 	if err != nil {
-		return vulnReport, secretReport, sbomReport, err
+		return vulnReport, secretReport, &sbomReport, err
 	}
 
 	version, err := trivyoperator.GetVersionFromImageRef(trivyImageRef)
 	if err != nil {
-		return vulnReport, secretReport, sbomReport, err
+		return vulnReport, secretReport, &sbomReport, err
 	}
-
+	var sbomData *v1alpha1.SbomReportData
+	if bom != nil {
+		sbomData = &v1alpha1.SbomReportData{
+			UpdateTimestamp: metav1.NewTime(p.clock.Now()),
+			Scanner: v1alpha1.Scanner{
+				Name:    v1alpha1.ScannerNameTrivy,
+				Vendor:  "Aqua Security",
+				Version: version,
+			},
+			Registry: registry,
+			Artifact: artifact,
+			Summary:  bomSummary(*bom),
+			Bom:      *bom,
+		}
+	}
 	return v1alpha1.VulnerabilityReportData{
 			UpdateTimestamp: metav1.NewTime(p.clock.Now()),
 			Scanner: v1alpha1.Scanner{
@@ -1811,18 +1827,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 			Artifact: artifact,
 			Summary:  p.secretSummary(secrets),
 			Secrets:  secrets,
-		}, v1alpha1.SbomReportData{
-			UpdateTimestamp: metav1.NewTime(p.clock.Now()),
-			Scanner: v1alpha1.Scanner{
-				Name:    v1alpha1.ScannerNameTrivy,
-				Vendor:  "Aqua Security",
-				Version: version,
-			},
-			Registry: registry,
-			Artifact: artifact,
-			Summary:  bomSummary(bom),
-			Bom:      bom,
-		}, nil
+		}, sbomData, nil
 
 }
 
@@ -1878,21 +1883,25 @@ func getVulnerabilitiesFromScanResult(report ty.Result, addFields AdditionalFiel
 	return vulnerabilities
 }
 
-func generateSbomFromScanResult(report ty.Report) (v1alpha1.BOM, error) {
-	bomWriter := new(bytes.Buffer)
-	err := tr.Write(report, tr.Option{
-		Format: "cyclonedx",
-		Output: bomWriter,
-	})
-	if err != nil {
-		return v1alpha1.BOM{}, err
+func generateSbomFromScanResult(report ty.Report) (*v1alpha1.BOM, error) {
+	var bom *v1alpha1.BOM
+	if len(report.Results) > 0 && len(report.Results[0].Packages) > 0 {
+		bomWriter := new(bytes.Buffer)
+		err := tr.Write(report, tr.Option{
+			Format: "cyclonedx",
+			Output: bomWriter,
+		})
+		if err != nil {
+			return nil, err
+		}
+		var bom cdx.BOM
+		err = json.NewEncoder(bomWriter).Encode(bom)
+		if err != nil {
+			return nil, err
+		}
+		return cycloneDxBomToReport(bom), nil
 	}
-	var bom cdx.BOM
-	err = json.NewEncoder(bomWriter).Encode(bom)
-	if err != nil {
-		return v1alpha1.BOM{}, err
-	}
-	return cycloneDxBomToReport(bom), nil
+	return bom, nil
 }
 
 func getExposedSecretsFromScanResult(report ty.Result) []v1alpha1.ExposedSecret {

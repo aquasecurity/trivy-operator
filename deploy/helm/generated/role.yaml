@@ -235,6 +235,18 @@ rules:
 - apiGroups:
   - aquasecurity.github.io
   resources:
+  - sbomreports
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aquasecurity.github.io
+  resources:
   - vulnerabilityreports
   verbs:
   - create

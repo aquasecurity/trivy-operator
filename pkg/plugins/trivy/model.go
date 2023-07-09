@@ -8,7 +8,7 @@ import (
 type ScanResult struct {
 	Target          string          `json:"Target"`
 	Class           string          `json:"Class"`
-	Type            string          `json:"Type"`    	
+	Type            string          `json:"Type"`
 	Vulnerabilities []Vulnerability `json:"Vulnerabilities"`
 	Secrets         []Secret        `json:"Secrets"`
 }

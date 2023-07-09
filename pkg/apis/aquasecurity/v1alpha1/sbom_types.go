@@ -65,7 +65,7 @@ type BOM struct {
 	SerialNumber string        `json:"serialNumber,omitempty"`
 	Version      int           `json:"version"`
 	Metadata     *Metadata     `json:"metadata,omitempty"`
-	Components   *[]Component  `json:"components,omitempty"`
+	Components   []*Component  `json:"components,omitempty"`
 	Dependencies *[]Dependency `json:"dependencies,omitempty"`
 }
 

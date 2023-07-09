@@ -35,12 +35,12 @@ func (in *BOM) DeepCopyInto(out *BOM) {
 	}
 	if in.Components != nil {
 		in, out := &in.Components, &out.Components
-		*out = new([]Component)
-		if **in != nil {
-			in, out := *in, *out
-			*out = make([]Component, len(*in))
-			for i := range *in {
-				(*in)[i].DeepCopyInto(&(*out)[i])
+		*out = make([]*Component, len(*in))
+		for i := range *in {
+			if (*in)[i] != nil {
+				in, out := &(*in)[i], &(*out)[i]
+				*out = new(Component)
+				(*in).DeepCopyInto(*out)
 			}
 		}
 	}

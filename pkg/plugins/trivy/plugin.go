@@ -1828,7 +1828,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 
 func bomSummary(bom v1alpha1.BOM) v1alpha1.SbomSummary {
 	return v1alpha1.SbomSummary{
-		ComponentsCount:   len(*bom.Components) + 1,
+		ComponentsCount:   len(bom.Components) + 1,
 		DependenciesCount: len(*bom.Dependencies),
 	}
 
@@ -1880,16 +1880,17 @@ func getVulnerabilitiesFromScanResult(report ty.Result, addFields AdditionalFiel
 
 func generateSbomFromScanResult(report ty.Report) (v1alpha1.BOM, error) {
 	bomWriter := new(bytes.Buffer)
-	tr.Write(report, tr.Option{
+	err := tr.Write(report, tr.Option{
 		Format: "cyclonedx",
 		Output: bomWriter,
 	})
-	var bom cdx.BOM
-	err := json.NewEncoder(bomWriter).Encode(bom)
 	if err != nil {
-		if err != nil {
-			return v1alpha1.BOM{}, err
-		}
+		return v1alpha1.BOM{}, err
+	}
+	var bom cdx.BOM
+	err = json.NewEncoder(bomWriter).Encode(bom)
+	if err != nil {
+		return v1alpha1.BOM{}, err
 	}
 	return cycloneDxBomToReport(bom), nil
 }

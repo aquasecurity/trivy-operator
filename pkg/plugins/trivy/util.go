@@ -6,9 +6,9 @@ import (
 )
 
 func cycloneDxBomToReport(cbom cdx.BOM) v1alpha1.BOM {
-	components := make([]v1alpha1.Component, 0)
+	components := make([]*v1alpha1.Component, 0)
 	for _, c := range *cbom.Components {
-		components = append(components, *cycloneDxComponentToReportComponent(&c))
+		components = append(components, cycloneDxComponentToReportComponent(c))
 	}
 	return v1alpha1.BOM{
 		BOMFormat:    cbom.BOMFormat,
@@ -16,7 +16,7 @@ func cycloneDxBomToReport(cbom cdx.BOM) v1alpha1.BOM {
 		SerialNumber: cbom.SerialNumber,
 		Version:      cbom.Version,
 		Metadata:     cycloneDxMetadataToReportMetadata(cbom.Metadata),
-		Components:   &components,
+		Components:   components,
 		Dependencies: cycloneDxDependenciesToReportDependencies(cbom.Dependencies),
 	}
 }
@@ -33,11 +33,11 @@ func cycloneDxMetadataToReportMetadata(cmetadata *cdx.Metadata) *v1alpha1.Metada
 	return &v1alpha1.Metadata{
 		Timestamp: cmetadata.Timestamp,
 		Tools:     &t,
-		Component: cycloneDxComponentToReportComponent(cmetadata.Component),
+		Component: cycloneDxComponentToReportComponent(*cmetadata.Component),
 	}
 }
 
-func cycloneDxComponentToReportComponent(cComp *cdx.Component) *v1alpha1.Component {
+func cycloneDxComponentToReportComponent(cComp cdx.Component) *v1alpha1.Component {
 	return &v1alpha1.Component{
 		BOMRef:     cComp.BOMRef,
 		Type:       string(cComp.Type),

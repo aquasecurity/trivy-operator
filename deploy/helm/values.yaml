@@ -58,10 +58,8 @@ operator:
 
   # -- the flag to enable vulnerability scanner
   vulnerabilityScannerEnabled: true
-  
   # -- the flag to enable sbom generation
   sbomGenerationEnabled: true
-
   # -- scannerReportTTL the flag to set how long a report should exist. "" means that the ScannerReportTTL feature is disabled
   scannerReportTTL: "24h"
   # -- configAuditScannerEnabled the flag to enable configuration audit scanner

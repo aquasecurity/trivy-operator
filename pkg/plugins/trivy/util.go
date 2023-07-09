@@ -48,14 +48,14 @@ func cycloneDxComponentToReportComponent(cComp cdx.Component) *v1alpha1.Componen
 		Hashes:     cycloneDxHashesToReportHashes(cComp.Hashes),
 		Licenses:   cycloneDxLicensesToReportLicenses(cComp.Licenses),
 		Properties: cycloneDxPropertiesToReportProperties(cComp.Properties),
-		Supplier: &v1alpha1.OrganizationalEntity{
+		Supplier: v1alpha1.OrganizationalEntity{
 			Name: cComp.Supplier.Name,
 			URL:  cComp.Supplier.URL,
 		},
 	}
 }
 
-func cycloneDxHashesToReportHashes(hashes *[]cdx.Hash) *[]v1alpha1.Hash {
+func cycloneDxHashesToReportHashes(hashes *[]cdx.Hash) []v1alpha1.Hash {
 	reportHashes := make([]v1alpha1.Hash, 0)
 	for _, h := range *hashes {
 		reportHashes = append(reportHashes, v1alpha1.Hash{
@@ -63,10 +63,10 @@ func cycloneDxHashesToReportHashes(hashes *[]cdx.Hash) *[]v1alpha1.Hash {
 			Value:     h.Value,
 		})
 	}
-	return &reportHashes
+	return reportHashes
 }
 
-func cycloneDxLicensesToReportLicenses(licenses *cdx.Licenses) *[]v1alpha1.LicenseChoice {
+func cycloneDxLicensesToReportLicenses(licenses *cdx.Licenses) []v1alpha1.LicenseChoice {
 	reportLicenses := make([]v1alpha1.LicenseChoice, 0)
 	for _, l := range *licenses {
 		reportLicenses = append(reportLicenses, v1alpha1.LicenseChoice{
@@ -78,10 +78,10 @@ func cycloneDxLicensesToReportLicenses(licenses *cdx.Licenses) *[]v1alpha1.Licen
 			Expression: l.Expression,
 		})
 	}
-	return &reportLicenses
+	return reportLicenses
 }
 
-func cycloneDxPropertiesToReportProperties(properties *[]cdx.Property) *[]v1alpha1.Property {
+func cycloneDxPropertiesToReportProperties(properties *[]cdx.Property) []v1alpha1.Property {
 	reportProperties := make([]v1alpha1.Property, 0)
 	for _, p := range *properties {
 		reportProperties = append(reportProperties, v1alpha1.Property{
@@ -89,7 +89,7 @@ func cycloneDxPropertiesToReportProperties(properties *[]cdx.Property) *[]v1alph
 			Value: p.Value,
 		})
 	}
-	return &reportProperties
+	return reportProperties
 }
 
 func cycloneDxDependenciesToReportDependencies(dependencies *[]cdx.Dependency) *[]v1alpha1.Dependency {

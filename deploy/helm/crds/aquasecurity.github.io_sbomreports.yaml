@@ -96,9 +96,6 @@ spec:
                       properties:
                         bom-ref:
                           type: string
-                        components:
-                          items: {}
-                          type: array
                         group:
                           type: string
                         hashes:
@@ -195,9 +192,6 @@ spec:
                         properties:
                           bom-ref:
                             type: string
-                          components:
-                            items: {}
-                            type: array
                           group:
                             type: string
                           hashes:

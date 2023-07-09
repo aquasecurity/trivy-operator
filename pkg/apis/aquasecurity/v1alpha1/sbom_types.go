@@ -70,17 +70,16 @@ type BOM struct {
 }
 
 type Component struct {
-	BOMRef     string                `json:"bom-ref,omitempty"`
-	Type       string                `json:"type"`
-	Name       string                `json:"name"`
-	Group      string                `json:"group,omitempty"`
-	Version    string                `json:"version,omitempty"`
-	PackageURL string                `json:"purl,omitempty"`
-	Supplier   *OrganizationalEntity `json:"supplier,omitempty"`
-	Hashes     *[]Hash               `json:"hashes,omitempty"`
-	Licenses   *[]LicenseChoice      `json:"licenses,omitempty"`
-	Properties *[]Property           `json:"properties,omitempty"`
-	Components *[]Component          `json:"components,omitempty"`
+	BOMRef     string               `json:"bom-ref,omitempty"`
+	Type       string               `json:"type"`
+	Name       string               `json:"name"`
+	Group      string               `json:"group,omitempty"`
+	Version    string               `json:"version,omitempty"`
+	PackageURL string               `json:"purl,omitempty"`
+	Supplier   OrganizationalEntity `json:"supplier,omitempty"`
+	Hashes     []Hash               `json:"hashes,omitempty"`
+	Licenses   []LicenseChoice      `json:"licenses,omitempty"`
+	Properties []Property           `json:"properties,omitempty"`
 }
 
 type Tool struct {

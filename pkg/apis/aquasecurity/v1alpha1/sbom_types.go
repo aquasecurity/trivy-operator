@@ -63,7 +63,7 @@ type BOM struct {
 	SpecVersion int    `json:"specVersion"`
 
 	SerialNumber string        `json:"serialNumber,omitempty"`
-	Version      int           `json:"version"`
+	Version      int           `json:"version,omitempty"`
 	Metadata     *Metadata     `json:"metadata,omitempty"`
 	Components   []*Component  `json:"components,omitempty"`
 	Dependencies *[]Dependency `json:"dependencies,omitempty"`
@@ -71,8 +71,8 @@ type BOM struct {
 
 type Component struct {
 	BOMRef     string               `json:"bom-ref,omitempty"`
-	Type       string               `json:"type"`
-	Name       string               `json:"name"`
+	Type       string               `json:"type,omitempty"`
+	Name       string               `json:"name,omitempty"`
 	Group      string               `json:"group,omitempty"`
 	Version    string               `json:"version,omitempty"`
 	PackageURL string               `json:"purl,omitempty"`
@@ -84,7 +84,7 @@ type Component struct {
 
 type Tool struct {
 	Vendor  string `json:"vendor,omitempty"`
-	Name    string `json:"name"`
+	Name    string `json:"name,omitempty"`
 	Version string `json:"version,omitempty"`
 }
 type Metadata struct {
@@ -94,7 +94,7 @@ type Metadata struct {
 }
 
 type Dependency struct {
-	Ref          string    `json:"ref"`
+	Ref          string    `json:"ref,omitempty"`
 	Dependencies *[]string `json:"dependsOn,omitempty"`
 }
 
@@ -110,12 +110,12 @@ type License struct {
 }
 
 type Hash struct {
-	Algorithm string `json:"alg"`
-	Value     string `json:"content"`
+	Algorithm string `json:"alg,omitempty"`
+	Value     string `json:"content,omitempty"`
 }
 
 type OrganizationalEntity struct {
-	Name    string                   `json:"name"`
+	Name    string                   `json:"name,omitempty"`
 	URL     *[]string                `json:"url,omitempty"`
 	Contact *[]OrganizationalContact `json:"contact,omitempty"`
 }
@@ -127,8 +127,8 @@ type OrganizationalContact struct {
 }
 
 type Property struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Name  string `json:"name,omitempty"`
+	Value string `json:"value,omitempty"`
 }
 
 // +kubebuilder:object:root=true

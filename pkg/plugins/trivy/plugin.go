@@ -949,7 +949,7 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			MountPath: "/tmp",
 		},
 	}
-	
+
 	// add tmp volume
 	volumes := []corev1.Volume{
 		{
@@ -961,10 +961,10 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			},
 		},
 	}
-	
+
 	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
 	volumes = append(volumes, getScanResultVolume())
-	
+
 	if volume, volumeMount := config.GenerateIgnoreFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
 		volumes = append(volumes, *volume)
 		volumeMounts = append(volumeMounts, *volumeMount)
@@ -1894,7 +1894,7 @@ func generateSbomFromScanResult(report ty.Report) (*v1alpha1.BOM, error) {
 			return nil, err
 		}
 		var bom cdx.BOM
-		err = json.NewEncoder(bomWriter).Encode(bom)
+		err = json.Unmarshal(bomWriter.Bytes(), &bom)
 		if err != nil {
 			return nil, err
 		}

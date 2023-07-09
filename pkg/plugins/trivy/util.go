@@ -38,6 +38,13 @@ func cycloneDxMetadataToReportMetadata(cmetadata *cdx.Metadata) *v1alpha1.Metada
 }
 
 func cycloneDxComponentToReportComponent(cComp cdx.Component) *v1alpha1.Component {
+	var oe v1alpha1.OrganizationalEntity
+	if cComp.Supplier != nil {
+		oe = v1alpha1.OrganizationalEntity{
+			Name: cComp.Supplier.Name,
+			URL:  cComp.Supplier.URL,
+		}
+	}
 	return &v1alpha1.Component{
 		BOMRef:     cComp.BOMRef,
 		Type:       string(cComp.Type),
@@ -48,46 +55,54 @@ func cycloneDxComponentToReportComponent(cComp cdx.Component) *v1alpha1.Componen
 		Hashes:     cycloneDxHashesToReportHashes(cComp.Hashes),
 		Licenses:   cycloneDxLicensesToReportLicenses(cComp.Licenses),
 		Properties: cycloneDxPropertiesToReportProperties(cComp.Properties),
-		Supplier: v1alpha1.OrganizationalEntity{
-			Name: cComp.Supplier.Name,
-			URL:  cComp.Supplier.URL,
-		},
+		Supplier:   oe,
 	}
 }
 
 func cycloneDxHashesToReportHashes(hashes *[]cdx.Hash) []v1alpha1.Hash {
 	reportHashes := make([]v1alpha1.Hash, 0)
-	for _, h := range *hashes {
-		reportHashes = append(reportHashes, v1alpha1.Hash{
-			Algorithm: string(h.Algorithm),
-			Value:     h.Value,
-		})
+	if hashes != nil {
+		for _, h := range *hashes {
+			reportHashes = append(reportHashes, v1alpha1.Hash{
+				Algorithm: string(h.Algorithm),
+				Value:     h.Value,
+			})
+		}
 	}
 	return reportHashes
 }
 
 func cycloneDxLicensesToReportLicenses(licenses *cdx.Licenses) []v1alpha1.LicenseChoice {
 	reportLicenses := make([]v1alpha1.LicenseChoice, 0)
-	for _, l := range *licenses {
-		reportLicenses = append(reportLicenses, v1alpha1.LicenseChoice{
-			License: v1alpha1.License{
-				ID:   l.License.ID,
-				Name: l.License.Name,
-				URL:  l.License.URL,
-			},
-			Expression: l.Expression,
-		})
+	if licenses != nil {
+		for _, l := range *licenses {
+			var li v1alpha1.License
+			if l.License != nil {
+				li = v1alpha1.License{
+					ID:   l.License.ID,
+					Name: l.License.Name,
+					URL:  l.License.URL,
+				}
+			}
+			exp := l.Expression
+			reportLicenses = append(reportLicenses, v1alpha1.LicenseChoice{
+				License:    li,
+				Expression: exp,
+			})
+		}
 	}
 	return reportLicenses
 }
 
 func cycloneDxPropertiesToReportProperties(properties *[]cdx.Property) []v1alpha1.Property {
 	reportProperties := make([]v1alpha1.Property, 0)
-	for _, p := range *properties {
-		reportProperties = append(reportProperties, v1alpha1.Property{
-			Name:  p.Name,
-			Value: p.Value,
-		})
+	if properties != nil {
+		for _, p := range *properties {
+			reportProperties = append(reportProperties, v1alpha1.Property{
+				Name:  p.Name,
+				Value: p.Value,
+			})
+		}
 	}
 	return reportProperties
 }

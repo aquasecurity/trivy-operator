@@ -55,12 +55,10 @@ type SbomReportData struct {
 	Summary SbomSummary `json:"summary"`
 
 	// Bom isartifact bill of materials.
-	Bom []BOM `json:"components"`
+	Bom BOM `json:"components"`
 }
 
 type BOM struct {
-	// JSON specific fields
-	JSONSchema  string `json:"$schema,omitempty"`
 	BOMFormat   string `json:"bomFormat"`
 	SpecVersion int    `json:"specVersion"`
 

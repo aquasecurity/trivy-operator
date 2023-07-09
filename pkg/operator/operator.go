@@ -195,6 +195,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			LogsReader:              logsReader,
 			Plugin:                  plugin,
 			PluginContext:           pluginContext,
+			SbomReadWriter:          sbomreport.NewReadWriter(&objectResolver),
 			VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(&objectResolver),
 			ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(&objectResolver),
 		}).SetupWithManager(mgr); err != nil {

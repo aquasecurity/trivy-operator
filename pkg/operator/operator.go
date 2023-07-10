@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
@@ -266,6 +267,10 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		if err != nil {
 			return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
 		}
+		var gitVersion string
+		if version, err := clientSet.ServerVersion(); err == nil {
+			gitVersion = strings.TrimPrefix(version.GitVersion, "v")
+		}
 		setupLog.Info("Enabling built-in configuration audit scanner")
 		if err = (&controller.ResourceController{
 			Logger:          ctrl.Log.WithName("resourcecontroller"),
@@ -278,6 +283,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			RbacReadWriter:  rbacassessment.NewReadWriter(&objectResolver),
 			InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
 			BuildInfo:       buildInfo,
+			ClusterVersion:  gitVersion,
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup resource controller: %w", err)
 		}
@@ -287,6 +293,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			ObjectResolver: objectResolver,
 			PluginContext:  pluginContext,
 			PluginInMemory: plugin,
+			ClusterVersion: gitVersion,
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup resource controller: %w", err)
 		}

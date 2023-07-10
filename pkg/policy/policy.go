@@ -5,13 +5,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/aquasecurity/defsec/pkg/severity"
+	"io/fs"
 	"path"
 	"path/filepath"
 	"strings"
 
+	"github.com/aquasecurity/defsec/pkg/severity"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
+	"github.com/aquasecurity/trivy/pkg/mapfs"
 
 	"github.com/go-logr/logr"
 	"github.com/liamg/memoryfs"
@@ -44,16 +46,18 @@ const (
 )
 
 type Policies struct {
-	data map[string]string
-	log  logr.Logger
-	cac  configauditreport.ConfigAuditConfig
+	data           map[string]string
+	log            logr.Logger
+	cac            configauditreport.ConfigAuditConfig
+	clusterVersion string
 }
 
-func NewPolicies(data map[string]string, cac configauditreport.ConfigAuditConfig, log logr.Logger) *Policies {
+func NewPolicies(data map[string]string, cac configauditreport.ConfigAuditConfig, log logr.Logger, serverVersion string) *Policies {
 	return &Policies{
-		data: data,
-		log:  log,
-		cac:  cac,
+		data:           data,
+		log:            log,
+		cac:            cac,
+		clusterVersion: serverVersion,
 	}
 }
 
@@ -207,9 +211,13 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[
 	if len(inputs) > 0 {
 		inputResource = inputs[0]
 	} else {
-		inputResource, err = json.Marshal(resource)
-		if err != nil {
-			return nil, err
+		if jsonManifest, ok := resource.GetAnnotations()["kubectl.kubernetes.io/last-applied-configuration"]; ok {
+			inputResource = []byte(jsonManifest) // required for outdated-api when k8s convert resources
+		} else {
+			inputResource, err = json.Marshal(resource)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	// add input files
@@ -217,7 +225,16 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[
 	if err != nil {
 		return nil, err
 	}
-	scanner := kubernetes.NewScanner(getScannerOptions(hasExternalPolicies, p.cac.GetUseBuiltinRegoPolicies(), policiesFolder)...)
+
+	dataFS, dataPaths, err := createDataFS([]string{}, p.clusterVersion)
+	if err != nil {
+		return nil, err
+	}
+	scanner := kubernetes.NewScanner(getScannerOptions(hasExternalPolicies,
+		p.cac.GetUseBuiltinRegoPolicies(),
+		policiesFolder,
+		dataPaths,
+		dataFS)...)
 	scanResult, err := scanner.ScanFS(ctx, memfs, inputFolder)
 	if err != nil {
 		return nil, err
@@ -246,12 +263,14 @@ func (r *Policies) HasSeverity(resultSeverity severity.Severity) bool {
 	return strings.Contains(defaultSeverity, string(resultSeverity))
 }
 
-func getScannerOptions(hasExternalPolicies bool, useDefaultPolicies bool, policiesFolder string) []options.ScannerOption {
+func getScannerOptions(hasExternalPolicies bool, useDefaultPolicies bool, policiesFolder string, dataPaths []string, dataFS fs.FS) []options.ScannerOption {
 	optionsArray := []options.ScannerOption{options.ScannerWithEmbeddedPolicies(useDefaultPolicies)}
 	if hasExternalPolicies {
 		optionsArray = append(optionsArray, options.ScannerWithPolicyDirs(policiesFolder))
 		optionsArray = append(optionsArray, options.ScannerWithPolicyNamespaces(externalPoliciesNamespace))
 	}
+	optionsArray = append(optionsArray, options.ScannerWithDataDirs(dataPaths...))
+	optionsArray = append(optionsArray, options.ScannerWithDataFilesystem(dataFS))
 	return optionsArray
 }
 
@@ -268,4 +287,29 @@ func createPolicyInputFS(memfs *memoryfs.FS, folderName string, fileData []strin
 		}
 	}
 	return nil
+}
+
+func createDataFS(dataPaths []string, k8sVersion string) (fs.FS, []string, error) {
+	fsys := mapfs.New()
+
+	// Create a virtual file for Kubernetes scanning
+	if k8sVersion != "" {
+		if err := fsys.MkdirAll("system", 0700); err != nil {
+			return nil, nil, err
+		}
+		data := []byte(fmt.Sprintf(`{"k8s": {"version": "%s"}}`, k8sVersion))
+		if err := fsys.WriteVirtualFile("system/k8s-version.json", data, 0600); err != nil {
+			return nil, nil, err
+		}
+	}
+	for _, path := range dataPaths {
+		if err := fsys.CopyFilesUnder(path); err != nil {
+			return nil, nil, err
+		}
+	}
+
+	// data paths are no longer needed as fs.FS contains only needed files now.
+	dataPaths = []string{"."}
+
+	return fsys, dataPaths, nil
 }

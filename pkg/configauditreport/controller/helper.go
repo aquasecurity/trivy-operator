@@ -21,7 +21,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func Policies(ctx context.Context, config etc.Config, c client.Client, cac configauditreport.ConfigAuditConfig, log logr.Logger) (*policy.Policies, error) {
+func Policies(ctx context.Context, config etc.Config, c client.Client, cac configauditreport.ConfigAuditConfig, log logr.Logger, clusterVersion ...string) (*policy.Policies, error) {
 	cm := &corev1.ConfigMap{}
 
 	err := c.Get(ctx, client.ObjectKey{
@@ -33,7 +33,11 @@ func Policies(ctx context.Context, config etc.Config, c client.Client, cac confi
 			return nil, fmt.Errorf("failed getting policies from configmap: %s/%s: %w", config.Namespace, trivyoperator.PoliciesConfigMapName, err)
 		}
 	}
-	return policy.NewPolicies(cm.Data, cac, log), nil
+	var version string
+	if len(clusterVersion) > 0 {
+		version = clusterVersion[0]
+	}
+	return policy.NewPolicies(cm.Data, cac, log, version), nil
 }
 
 func evaluate(ctx context.Context, policies *policy.Policies, resource client.Object, bi trivyoperator.BuildInfo, cd trivyoperator.ConfigData, c etc.Config, inputs ...[]byte) (Misconfiguration, error) {

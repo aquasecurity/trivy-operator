@@ -1,0 +1,17 @@
+---
+apiVersion: kuttl.dev/v1beta1
+commands:
+  - script: >
+      cnt="$(kubectl get -n $NAMESPACE
+      sbomreports.aquasecurity.github.io pod-my-pod-app \
+        -o=jsonpath='{.report.summary.componentsCount}')"
+      if [ $cnt -gt 0 ]
+
+      then
+        echo "Pass: SbomReport ComponentCount ($cnt) is greater than 0"
+      else
+        echo "Fail: SbomReport ComponentCount ($cnt) should be greater than 0"
+        exit 1
+      fi
+kind: TestAssert
+timeout: 30

@@ -55,6 +55,7 @@ type Scanner string
 const (
 	KeyVulnerabilityScannerEnabled       = "vulnerabilityScannerEnabled"
 	KeyExposedSecretsScannerEnabled      = "exposedSecretsScannerEnabled"
+	KeyGenerateSbom                      = "generateSbomEnabled"
 	keyVulnerabilityReportsScanner       = "vulnerabilityReports.scanner"
 	KeyVulnerabilityScansInSameNamespace = "vulnerabilityReports.scanJobsInSameNamespace"
 	keyConfigAuditReportsScanner         = "configAuditReports.scanner"
@@ -123,6 +124,11 @@ func (c ConfigData) VulnerabilityScannerEnabled() bool {
 // ExposedSecretsScannerEnabled returns if the vulnerability scanners is enabled/disablsed
 func (c ConfigData) ExposedSecretsScannerEnabled() bool {
 	return c.getBoolKey(KeyExposedSecretsScannerEnabled)
+}
+
+// GenerateSbomEnabled returns if the sbom generation is enabled
+func (c ConfigData) GenerateSbomEnabled() bool {
+	return c.getBoolKey(KeyGenerateSbom)
 }
 
 func (c ConfigData) getBoolKey(key string) bool {

@@ -1,20 +1,22 @@
 package trivy
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/aquasecurity/trivy-db/pkg/types"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
+	tr "github.com/aquasecurity/trivy/pkg/report"
+	ty "github.com/aquasecurity/trivy/pkg/types"
+	containerimage "github.com/google/go-containerregistry/pkg/name"
 	"io"
 	"net/url"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/aquasecurity/trivy-db/pkg/types"
-
-	"github.com/aquasecurity/trivy-operator/pkg/utils"
-	containerimage "github.com/google/go-containerregistry/pkg/name"
 
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 
@@ -947,7 +949,7 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			MountPath: "/tmp",
 		},
 	}
-	
+
 	// add tmp volume
 	volumes := []corev1.Volume{
 		{
@@ -959,10 +961,10 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 			},
 		},
 	}
-	
+
 	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
 	volumes = append(volumes, getScanResultVolume())
-	
+
 	if volume, volumeMount := config.GenerateIgnoreFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
 		volumes = append(volumes, *volume)
 		volumeMounts = append(volumeMounts, *volumeMount)
@@ -1141,9 +1143,13 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 			if len(imcs) > 0 {
 				args = append(args, imcs...)
 			}
+			pkgList := getPkgList(ctx)
+			if len(pkgList) > 0 {
+				args = append(args, pkgList)
+			}
 			return command, args
 		}
-		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, trivyServerURL, resultFileName, resultFileName)}
+		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, getPkgList(ctx), trivyServerURL, resultFileName, resultFileName)}
 	}
 	skipUpdate := SkipDBUpdate(c)
 	if !compressLogs {
@@ -1168,9 +1174,13 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 		if len(imcs) > 0 {
 			args = append(args, imcs...)
 		}
+		pkgList := getPkgList(ctx)
+		if len(pkgList) > 0 {
+			args = append(args, pkgList)
+		}
 		return command, args
 	}
-	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, resultFileName, resultFileName)}
+	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, getPkgList(ctx), resultFileName, resultFileName)}
 }
 
 func (p *plugin) vulnTypeFilter(ctx trivyoperator.PluginContext) []string {
@@ -1665,6 +1675,10 @@ func (p *plugin) getFSScanningArgs(ctx trivyoperator.PluginContext, command Comm
 	if len(slow) > 0 {
 		args = append(args, slow)
 	}
+	pkgList := getPkgList(ctx)
+	if len(pkgList) > 0 {
+		args = append(args, pkgList)
+	}
 	return args
 }
 
@@ -1718,58 +1732,78 @@ func (p *plugin) appendTrivyNonSSLEnv(config Config, image string, env []corev1.
 	return env, nil
 }
 
-func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef string, logsReader io.ReadCloser) (v1alpha1.VulnerabilityReportData, v1alpha1.ExposedSecretReportData, error) {
+func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef string, logsReader io.ReadCloser) (v1alpha1.VulnerabilityReportData, v1alpha1.ExposedSecretReportData, *v1alpha1.SbomReportData, error) {
 	var vulnReport v1alpha1.VulnerabilityReportData
 	var secretReport v1alpha1.ExposedSecretReportData
+	var sbomReport v1alpha1.SbomReportData
 
 	config, err := p.newConfigFrom(ctx)
 	if err != nil {
-		return vulnReport, secretReport, err
+		return vulnReport, secretReport, &sbomReport, err
 	}
 	cmd, err := config.GetCommand()
 	if err != nil {
-		return vulnReport, secretReport, err
+		return vulnReport, secretReport, &sbomReport, err
 	}
 	compressedLogs := ctx.GetTrivyOperatorConfig().CompressLogs()
 	if compressedLogs && cmd != Filesystem && cmd != Rootfs {
 		var errCompress error
 		logsReader, errCompress = utils.ReadCompressData(logsReader)
 		if errCompress != nil {
-			return vulnReport, secretReport, errCompress
+			return vulnReport, secretReport, &sbomReport, errCompress
 		}
 	}
 
-	var reports ScanReport
+	var reports ty.Report
 	err = json.NewDecoder(logsReader).Decode(&reports)
 	if err != nil {
-		return vulnReport, secretReport, err
+		return vulnReport, secretReport, &sbomReport, err
 	}
 
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
 	secrets := make([]v1alpha1.ExposedSecret, 0)
-
 	addFields := config.GetAdditionalVulnerabilityReportFields()
 
 	for _, report := range reports.Results {
 		vulnerabilities = append(vulnerabilities, getVulnerabilitiesFromScanResult(report, addFields)...)
 		secrets = append(secrets, getExposedSecretsFromScanResult(report)...)
 	}
-
+	var bom *v1alpha1.BOM
+	if ctx.GetTrivyOperatorConfig().GenerateSbomEnabled() {
+		bom, err = generateSbomFromScanResult(reports)
+		if err != nil {
+			return vulnReport, secretReport, &sbomReport, err
+		}
+	}
 	registry, artifact, err := p.parseImageRef(imageRef)
 	if err != nil {
-		return vulnReport, secretReport, err
+		return vulnReport, secretReport, &sbomReport, err
 	}
 
 	trivyImageRef, err := config.GetImageRef()
 	if err != nil {
-		return vulnReport, secretReport, err
+		return vulnReport, secretReport, &sbomReport, err
 	}
 
 	version, err := trivyoperator.GetVersionFromImageRef(trivyImageRef)
 	if err != nil {
-		return vulnReport, secretReport, err
+		return vulnReport, secretReport, &sbomReport, err
 	}
-
+	var sbomData *v1alpha1.SbomReportData
+	if bom != nil {
+		sbomData = &v1alpha1.SbomReportData{
+			UpdateTimestamp: metav1.NewTime(p.clock.Now()),
+			Scanner: v1alpha1.Scanner{
+				Name:    v1alpha1.ScannerNameTrivy,
+				Vendor:  "Aqua Security",
+				Version: version,
+			},
+			Registry: registry,
+			Artifact: artifact,
+			Summary:  bomSummary(*bom),
+			Bom:      *bom,
+		}
+	}
 	return v1alpha1.VulnerabilityReportData{
 			UpdateTimestamp: metav1.NewTime(p.clock.Now()),
 			Scanner: v1alpha1.Scanner{
@@ -1792,11 +1826,19 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 			Artifact: artifact,
 			Summary:  p.secretSummary(secrets),
 			Secrets:  secrets,
-		}, nil
+		}, sbomData, nil
 
 }
 
-func getVulnerabilitiesFromScanResult(report ScanResult, addFields AdditionalFields) []v1alpha1.Vulnerability {
+func bomSummary(bom v1alpha1.BOM) v1alpha1.SbomSummary {
+	return v1alpha1.SbomSummary{
+		ComponentsCount:   len(bom.Components) + 1,
+		DependenciesCount: len(*bom.Dependencies),
+	}
+
+}
+
+func getVulnerabilitiesFromScanResult(report ty.Result, addFields AdditionalFields) []v1alpha1.Vulnerability {
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
 
 	for _, sr := range report.Vulnerabilities {
@@ -1805,7 +1847,7 @@ func getVulnerabilitiesFromScanResult(report ScanResult, addFields AdditionalFie
 			Resource:         sr.PkgName,
 			InstalledVersion: sr.InstalledVersion,
 			FixedVersion:     sr.FixedVersion,
-			Severity:         sr.Severity,
+			Severity:         v1alpha1.Severity(sr.Severity),
 			Title:            sr.Title,
 			PrimaryLink:      sr.PrimaryURL,
 			Links:            []string{},
@@ -1825,7 +1867,7 @@ func getVulnerabilitiesFromScanResult(report ScanResult, addFields AdditionalFie
 			vulnerability.Target = report.Target
 		}
 		if addFields.Class {
-			vulnerability.Class = report.Class
+			vulnerability.Class = string(report.Class)
 		}
 		if addFields.PackageType {
 			vulnerability.PackageType = report.Type
@@ -1840,7 +1882,28 @@ func getVulnerabilitiesFromScanResult(report ScanResult, addFields AdditionalFie
 	return vulnerabilities
 }
 
-func getExposedSecretsFromScanResult(report ScanResult) []v1alpha1.ExposedSecret {
+func generateSbomFromScanResult(report ty.Report) (*v1alpha1.BOM, error) {
+	var bom *v1alpha1.BOM
+	if len(report.Results) > 0 && len(report.Results[0].Packages) > 0 {
+		bomWriter := new(bytes.Buffer)
+		err := tr.Write(report, tr.Option{
+			Format: "cyclonedx",
+			Output: bomWriter,
+		})
+		if err != nil {
+			return nil, err
+		}
+		var bom cdx.BOM
+		err = json.Unmarshal(bomWriter.Bytes(), &bom)
+		if err != nil {
+			return nil, err
+		}
+		return cycloneDxBomToReport(bom), nil
+	}
+	return bom, nil
+}
+
+func getExposedSecretsFromScanResult(report ty.Result) []v1alpha1.ExposedSecret {
 	secrets := make([]v1alpha1.ExposedSecret, 0)
 
 	for _, sr := range report.Secrets {
@@ -1848,8 +1911,8 @@ func getExposedSecretsFromScanResult(report ScanResult) []v1alpha1.ExposedSecret
 			Target:   report.Target,
 			RuleID:   sr.RuleID,
 			Title:    sr.Title,
-			Severity: sr.Severity,
-			Category: sr.Category,
+			Severity: v1alpha1.Severity(sr.Severity),
+			Category: string(sr.Category),
 			Match:    sr.Match,
 		})
 	}
@@ -2042,6 +2105,14 @@ func getSecurityChecks(ctx trivyoperator.PluginContext) string {
 	return strings.Join(securityChecks, ",")
 }
 
+func getPkgList(ctx trivyoperator.PluginContext) string {
+	c := ctx.GetTrivyOperatorConfig()
+	if c.GenerateSbomEnabled() {
+		return "--list-all-pkgs"
+	}
+	return ""
+}
+
 func ConfigWorkloadAnnotationEnvVars(workload client.Object, annotation string, envVarName string, trivyConfigName string, configKey string) corev1.EnvVar {
 	if value, ok := workload.GetAnnotations()[annotation]; ok {
 		return corev1.EnvVar{
@@ -2050,4 +2121,8 @@ func ConfigWorkloadAnnotationEnvVars(workload client.Object, annotation string, 
 		}
 	}
 	return constructEnvVarSourceFromConfigMap(envVarName, trivyConfigName, configKey)
+}
+
+type CVSS struct {
+	V3Score *float64 `json:"V3Score,omitempty"`
 }

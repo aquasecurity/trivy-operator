@@ -17,6 +17,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
+	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 	vcontroller "github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
@@ -141,10 +142,11 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	logsReader := kube.NewLogsReader(clientSet)
 	secretsReader := kube.NewSecretsReader(mgr.GetClient())
 
-	if operatorConfig.VulnerabilityScannerEnabled || operatorConfig.ExposedSecretScannerEnabled {
+	if operatorConfig.VulnerabilityScannerEnabled || operatorConfig.ExposedSecretScannerEnabled || operatorConfig.SbomGenerationEnable {
 
 		trivyOperatorConfig.Set(trivyoperator.KeyVulnerabilityScannerEnabled, strconv.FormatBool(operatorConfig.VulnerabilityScannerEnabled))
 		trivyOperatorConfig.Set(trivyoperator.KeyExposedSecretsScannerEnabled, strconv.FormatBool(operatorConfig.ExposedSecretScannerEnabled))
+		trivyOperatorConfig.Set(trivyoperator.KeyGenerateSbom, strconv.FormatBool(operatorConfig.SbomGenerationEnable))
 
 		plugin, pluginContext, err := plugins.NewResolver().
 			WithBuildInfo(buildInfo).
@@ -179,6 +181,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				vcontroller.NewHttpChecker()),
 			VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(&objectResolver),
 			ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(&objectResolver),
+			SbomReadWriter:          sbomreport.NewReadWriter(&objectResolver),
 			SubmitScanJobChan:       make(chan vcontroller.ScanJobRequest, operatorConfig.ConcurrentScanJobsLimit),
 			ResultScanJobChan:       make(chan vcontroller.ScanJobResult, operatorConfig.ConcurrentScanJobsLimit),
 		}).SetupWithManager(mgr); err != nil {
@@ -193,6 +196,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			LogsReader:              logsReader,
 			Plugin:                  plugin,
 			PluginContext:           pluginContext,
+			SbomReadWriter:          sbomreport.NewReadWriter(&objectResolver),
 			VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(&objectResolver),
 			ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(&objectResolver),
 		}).SetupWithManager(mgr); err != nil {

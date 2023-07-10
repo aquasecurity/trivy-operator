@@ -56,6 +56,7 @@ Keeps security report resources updated
 | operator.privateRegistryScanSecretsNames | object | `{}` | privateRegistryScanSecretsNames is map of namespace:secrets, secrets are comma seperated which can be used to authenticate in private registries in case if there no imagePullSecrets provided example : {"mynamespace":"mySecrets,anotherSecret"} |
 | operator.rbacAssessmentScannerEnabled | bool | `true` | rbacAssessmentScannerEnabled the flag to enable rbac assessment scanner |
 | operator.replicas | int | `1` | replicas the number of replicas of the operator's pod |
+| operator.sbomGenerationEnabled | bool | `false` | the flag to enable sbom generation |
 | operator.scanJobTTL | string | `""` | scanJobTTL the set automatic cleanup time after the job is completed |
 | operator.scanJobTimeout | string | `"5m"` | scanJobTimeout the length of time to wait before giving up on a scan job |
 | operator.scanJobsConcurrentLimit | int | `10` | scanJobsConcurrentLimit the maximum number of scan jobs create by the operator |

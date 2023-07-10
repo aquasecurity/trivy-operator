@@ -3,6 +3,7 @@ module github.com/aquasecurity/trivy-operator
 go 1.20
 
 require (
+	github.com/CycloneDX/cyclonedx-go v0.7.0
 	github.com/aquasecurity/defsec v0.89.0
 	github.com/aquasecurity/trivy v0.42.1
 	github.com/aquasecurity/trivy-kubernetes v0.5.6
@@ -34,6 +35,9 @@ require (
 )
 
 require (
+	github.com/Masterminds/goutils v1.1.1 // indirect
+	github.com/Masterminds/semver/v3 v3.2.0 // indirect
+	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
 	github.com/anchore/go-struct-converter v0.0.0-20221118182256-c68fdcfa2092 // indirect
 	github.com/aquasecurity/go-dep-parser v0.0.0-20230605080024-b71d9356a6c6 // indirect
 	github.com/aquasecurity/table v1.8.0 // indirect
@@ -44,25 +48,39 @@ require (
 	github.com/golang/glog v1.1.0 // indirect
 	github.com/google/btree v1.1.2 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
+	github.com/google/licenseclassifier/v2 v2.0.0 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/gregjones/httpcache v0.0.0-20180305231024-9cad4c3443a7 // indirect
+	github.com/hashicorp/errwrap v1.1.0 // indirect
+	github.com/hashicorp/go-multierror v1.1.1 // indirect
+	github.com/huandu/xstrings v1.3.3 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/knqyf263/go-rpm-version v0.0.0-20220614171824-631e686d1075 // indirect
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de // indirect
 	github.com/masahiro331/go-xfs-filesystem v0.0.0-20230608043311-a335f4599b70 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
+	github.com/mitchellh/copystructure v1.2.0 // indirect
+	github.com/mitchellh/hashstructure/v2 v2.0.2 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/monochromegane/go-gitignore v0.0.0-20200626010858-205db1a8cc00 // indirect
+	github.com/owenrumney/go-sarif/v2 v2.2.0 // indirect
+	github.com/package-url/packageurl-go v0.1.1-0.20220428063043-89078438f170 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pjbgf/sha1cd v0.3.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/samber/lo v1.38.1 // indirect
+	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/skeema/knownhosts v1.1.1 // indirect
 	github.com/spdx/tools-golang v0.5.0 // indirect
+	github.com/spf13/cast v1.5.1 // indirect
 	github.com/spf13/cobra v1.7.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/tchap/go-patricia/v2 v2.3.1 // indirect
 	github.com/xlab/treeprint v1.1.0 // indirect
+	go.etcd.io/bbolt v1.3.7 // indirect
 	go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5 // indirect
 	golang.org/x/mod v0.10.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect

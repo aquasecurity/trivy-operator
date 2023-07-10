@@ -37,6 +37,7 @@ The Trivy operator automatically updates security reports in response to workloa
   - CIS Kubernetes Benchmark v1.23 cybersecurity technical report is produced.
   - Kubernetes pss-baseline, Pod Security Standards
   - Kubernetes pss-restricted, Pod Security Standards
+- SBOM (software bill of materials genertations) for Kubernetes workloads.
 
 <p align="center">
 <img src="docs/images/trivy-operator-overview.png" alt="Trivy-operator Overview"/>

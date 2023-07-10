@@ -10,7 +10,7 @@ commands:
       then
         echo "Pass: ConfigAuditReport MediumCount ($cnt) is greater than 0"
       else
-        echo "Fail: ConfigAuditReport MediumCount $(cnt) should be greater than 0"
+        echo "Fail: ConfigAuditReport MediumCount ($cnt) should be greater than 0"
         exit 1
       fi
 kind: TestAssert

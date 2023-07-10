@@ -45,6 +45,7 @@ type ResourceController struct {
 	RbacReadWriter  rbacassessment.ReadWriter
 	InfraReadWriter infraassessment.ReadWriter
 	trivyoperator.BuildInfo
+	ClusterVersion string
 }
 
 // +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
@@ -167,7 +168,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger)
+		policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger, r.ClusterVersion)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
 		}

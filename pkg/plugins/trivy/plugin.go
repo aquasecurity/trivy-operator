@@ -2122,3 +2122,7 @@ func ConfigWorkloadAnnotationEnvVars(workload client.Object, annotation string, 
 	}
 	return constructEnvVarSourceFromConfigMap(envVarName, trivyConfigName, configKey)
 }
+
+type CVSS struct {
+	V3Score *float64 `json:"V3Score,omitempty"`
+}

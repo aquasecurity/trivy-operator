@@ -11,5 +11,3 @@ spec:
   containers:
     - image: nginx:1.14.2
       name: app
-
-

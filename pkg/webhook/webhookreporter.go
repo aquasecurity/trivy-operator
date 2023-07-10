@@ -53,6 +53,7 @@ func (r *WebhookReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		&v1alpha1.ClusterRbacAssessmentReport{},
 		&v1alpha1.ClusterConfigAuditReport{},
 		&v1alpha1.ClusterInfraAssessmentReport{},
+		&v1alpha1.SbomReport{},
 	}
 
 	for _, reportType := range reports {

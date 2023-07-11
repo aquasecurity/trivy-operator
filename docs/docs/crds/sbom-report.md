@@ -13,8 +13,6 @@ The following listing shows a sample SbomReport associated with the Pod named `k
 apiVersion: aquasecurity.github.io/v1alpha1
 kind: SbomReport
 metadata:
-  annotations:
-    trivy-operator.aquasecurity.github.io/report-ttl: 24h0m0s
   creationTimestamp: "2023-07-10T09:37:21Z"
   generation: 1
   labels:

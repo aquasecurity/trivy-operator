@@ -32,7 +32,7 @@ type Config struct {
 	MetricsInfraAssessmentInfo                   bool           `env:"OPERATOR_METRICS_INFRA_ASSESSMENT_INFO_ENABLED" envDefault:"false"`
 	HealthProbeBindAddress                       string         `env:"OPERATOR_HEALTH_PROBE_BIND_ADDRESS" envDefault:":9090"`
 	VulnerabilityScannerEnabled                  bool           `env:"OPERATOR_VULNERABILITY_SCANNER_ENABLED" envDefault:"true"`
-	SbomGenerationEnable                         bool           `env:"OPERATOR_SBOM_GENERATION_ENABLED" envDefault:"false"`
+	SbomGenerationEnable                         bool           `env:"OPERATOR_SBOM_GENERATION_ENABLED" envDefault:"true"`
 	VulnerabilityScannerScanOnlyCurrentRevisions bool           `env:"OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS" envDefault:"true"`
 	ScannerReportTTL                             *time.Duration `env:"OPERATOR_SCANNER_REPORT_TTL" envDefault:"24h"`
 	ClusterComplianceEnabled                     bool           `env:"OPERATOR_CLUSTER_COMPLIANCE_ENABLED" envDefault:"true"`

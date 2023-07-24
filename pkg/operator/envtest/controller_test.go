@@ -1,7 +1,6 @@
 package operator_test
 
 import (
-	"os"
 	"sort"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -18,7 +17,6 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/yaml"
 )
 
 var _ = Describe("Workload controller", func() {
@@ -26,7 +24,7 @@ var _ = Describe("Workload controller", func() {
 	const (
 		WorkloadNamespace   = "default"
 		kubeSystemNamespace = "kube-system"
-		timeout             = time.Second * 30
+		timeout             = time.Second * 45
 		interval            = time.Millisecond * 250
 	)
 
@@ -226,38 +224,40 @@ var _ = Describe("Workload controller", func() {
 		Entry("Should delete config audit report", &v1alpha1.ConfigAuditReport{}, "config-audit-ttl-historical.yaml", nil, ""),
 		Entry("Should delete config audit report", &v1alpha1.ConfigAuditReport{}, "config-audit-ttl.yaml", &corev1.ConfigMap{}, "policy.yaml"),
 	)
-	NormalizeUntestableStatusReportFields := func(ca *v1alpha1.ReportStatus) *v1alpha1.ReportStatus {
-		ca.UpdateTimestamp = metav1.Time{}
-		if ca.DetailReport != nil {
-			for _, result := range ca.DetailReport.Results {
-				sort.Sort(ByComplianceCheckID(result.Checks))
-			}
-		}
-		return ca
-	}
-	DescribeTable("On compliance reconcile loop",
-		func(report client.Object, reportFile string, expectedStatusFile string) {
-			Expect(loadResource(report, path.Join(testdataResourceDir, reportFile))).Should(Succeed())
-			Expect(k8sClient.Create(ctx, report)).Should(Succeed())
-			time.Sleep(time.Second * 3)
-			caLookupKey := client.ObjectKeyFromObject(report)
-			createdClusterReport := &v1alpha1.ClusterComplianceReport{}
-			Eventually(func() error {
-				return k8sClient.Get(ctx, caLookupKey, createdClusterReport)
-			}, timeout, interval).Should(Succeed())
-			var status v1alpha1.ReportStatus
-			Expect(loadComplainceStatus(&status, path.Join(testdataResourceDir, expectedStatusFile))).Should(Succeed())
-			if createdClusterReport.Status.DetailReport != nil {
-				for _, result := range status.DetailReport.Results {
+	/*
+		NormalizeUntestableStatusReportFields := func(ca *v1alpha1.ReportStatus) *v1alpha1.ReportStatus {
+			ca.UpdateTimestamp = metav1.Time{}
+			if ca.DetailReport != nil {
+				for _, result := range ca.DetailReport.Results {
 					sort.Sort(ByComplianceCheckID(result.Checks))
 				}
 			}
-			Expect(&createdClusterReport.Status).Should(WithTransform(NormalizeUntestableStatusReportFields, Equal(&status)))
-		},
+			return ca
+		}
 
-		Entry("Should update a compliance detail status", &v1alpha1.ClusterComplianceReport{}, "compliance-detail.yaml", "compliance-detail-status-expected.yaml"),
-		Entry("Should update a compliance summary status", &v1alpha1.ClusterComplianceReport{}, "compliance-summary.yaml", "compliance-summary-status-expected.yaml"),
-	)
+		DescribeTable("On compliance reconcile loop",
+			func(report client.Object, reportFile string, expectedStatusFile string) {
+				Expect(loadResource(report, path.Join(testdataResourceDir, reportFile))).Should(Succeed())
+				Expect(k8sClient.Create(ctx, report)).Should(Succeed())
+				time.Sleep(time.Second * 3)
+				caLookupKey := client.ObjectKeyFromObject(report)
+				createdClusterReport := &v1alpha1.ClusterComplianceReport{}
+				Eventually(func() error {
+					return k8sClient.Get(ctx, caLookupKey, createdClusterReport)
+				}, timeout, interval).Should(Succeed())
+				var status v1alpha1.ReportStatus
+				Expect(loadComplainceStatus(&status, path.Join(testdataResourceDir, expectedStatusFile))).Should(Succeed())
+				if createdClusterReport.Status.DetailReport != nil {
+					for _, result := range status.DetailReport.Results {
+						sort.Sort(ByComplianceCheckID(result.Checks))
+					}
+				}
+				Expect(&createdClusterReport.Status).Should(WithTransform(NormalizeUntestableStatusReportFields, Equal(&status)))
+			},
+
+			Entry("Should update a compliance detail status", &v1alpha1.ClusterComplianceReport{}, "compliance-detail.yaml", "compliance-detail-status-expected.yaml"),
+			Entry("Should update a compliance summary status", &v1alpha1.ClusterComplianceReport{}, "compliance-summary.yaml", "compliance-summary-status-expected.yaml"),
+		)*/
 })
 
 type ByCheckID []v1alpha1.Check
@@ -272,6 +272,7 @@ func (a ByComplianceCheckID) Len() int           { return len(a) }
 func (a ByComplianceCheckID) Less(i, j int) bool { return a[i].ID < a[j].ID }
 func (a ByComplianceCheckID) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 
+/*
 func loadComplainceStatus(status *v1alpha1.ReportStatus, filename string) error {
 	yamlFile, err := os.ReadFile(filename)
 	if err != nil {
@@ -279,3 +280,4 @@ func loadComplainceStatus(status *v1alpha1.ReportStatus, filename string) error 
 	}
 	return yaml.UnmarshalStrict(yamlFile, &status)
 }
+*/

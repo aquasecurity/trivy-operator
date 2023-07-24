@@ -22,11 +22,12 @@ require (
 	github.com/openshift/api v0.0.0-20221013123533-341d389bd4a7
 	github.com/prometheus/client_golang v1.16.0
 	github.com/stretchr/testify v1.8.4
+	go.uber.org/automaxprocs v1.5.2
 	go.uber.org/multierr v1.11.0
 	golang.org/x/net v0.12.0
 	k8s.io/api v0.27.3
 	k8s.io/apiextensions-apiserver v0.27.3
-	k8s.io/apimachinery v0.27.3
+	k8s.io/apimachinery v0.27.4
 	k8s.io/cli-runtime v0.27.3
 	k8s.io/client-go v0.27.3
 	k8s.io/utils v0.0.0-20230220204549-a5ecb0141aa5
@@ -82,7 +83,6 @@ require (
 	github.com/xlab/treeprint v1.1.0 // indirect
 	go.etcd.io/bbolt v1.3.7 // indirect
 	go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5 // indirect
-	go.uber.org/automaxprocs v1.5.2 // indirect
 	golang.org/x/mod v0.10.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

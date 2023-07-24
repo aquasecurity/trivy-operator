@@ -91,6 +91,8 @@ var _ = BeforeSuite(func() {
 	config := etc.Config{
 		Namespace:                     "default",
 		TargetNamespaces:              "default",
+		VulnerabilityScannerEnabled:   true,
+		ExposedSecretScannerEnabled:   true,
 		ConcurrentScanJobsLimit:       10,
 		RbacAssessmentScannerEnabled:  true,
 		InfraAssessmentScannerEnabled: true,

@@ -155,7 +155,7 @@ report:
       - name: trivy
         vendor: aquasecurity
     serialNumber: urn:uuid:50dbce86-28c5-4caf-9d08-a4aadf23233e
-    specVersion: 5
+    specVersion: 1.4
     version: 1
   registry:
     server: k8s.gcr.io

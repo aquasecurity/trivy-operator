@@ -1761,7 +1761,7 @@ spec:
                   serialNumber:
                     type: string
                   specVersion:
-                    type: integer
+                    type: string
                   version:
                     type: integer
                 required:

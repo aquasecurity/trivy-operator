@@ -12,7 +12,7 @@ func cycloneDxBomToReport(cbom cdx.BOM) *v1alpha1.BOM {
 	}
 	return &v1alpha1.BOM{
 		BOMFormat:    cbom.BOMFormat,
-		SpecVersion:  int(cbom.SpecVersion),
+		SpecVersion:  cbom.SpecVersion.String(),
 		SerialNumber: cbom.SerialNumber,
 		Version:      cbom.Version,
 		Metadata:     cycloneDxMetadataToReportMetadata(cbom.Metadata),

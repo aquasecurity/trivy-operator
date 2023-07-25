@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/CycloneDX/cyclonedx-go v0.7.1
-	github.com/aquasecurity/defsec v0.89.0
+	github.com/aquasecurity/defsec v0.90.3
 	github.com/aquasecurity/trivy v0.42.1
 	github.com/aquasecurity/trivy-kubernetes v0.5.6
 	github.com/bluele/gcache v0.0.2
@@ -37,7 +37,7 @@ require (
 
 require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
-	github.com/Masterminds/semver/v3 v3.2.0 // indirect
+	github.com/Masterminds/semver/v3 v3.2.1 // indirect
 	github.com/Masterminds/sprig/v3 v3.2.3 // indirect
 	github.com/anchore/go-struct-converter v0.0.0-20221118182256-c68fdcfa2092 // indirect
 	github.com/aquasecurity/go-dep-parser v0.0.0-20230605080024-b71d9356a6c6 // indirect
@@ -54,7 +54,7 @@ require (
 	github.com/gregjones/httpcache v0.0.0-20180305231024-9cad4c3443a7 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/huandu/xstrings v1.3.3 // indirect
+	github.com/huandu/xstrings v1.4.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/knqyf263/go-rpm-version v0.0.0-20220614171824-631e686d1075 // indirect
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de // indirect
@@ -73,7 +73,7 @@ require (
 	github.com/pjbgf/sha1cd v0.3.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/samber/lo v1.38.1 // indirect
-	github.com/shopspring/decimal v1.2.0 // indirect
+	github.com/shopspring/decimal v1.3.1 // indirect
 	github.com/skeema/knownhosts v1.1.1 // indirect
 	github.com/spdx/tools-golang v0.5.0 // indirect
 	github.com/spf13/cast v1.5.1 // indirect

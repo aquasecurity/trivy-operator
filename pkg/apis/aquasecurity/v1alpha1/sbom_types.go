@@ -60,7 +60,7 @@ type SbomReportData struct {
 
 type BOM struct {
 	BOMFormat   string `json:"bomFormat"`
-	SpecVersion int    `json:"specVersion"`
+	SpecVersion string `json:"specVersion"`
 
 	SerialNumber string        `json:"serialNumber,omitempty"`
 	Version      int           `json:"version,omitempty"`

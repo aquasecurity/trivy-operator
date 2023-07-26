@@ -566,6 +566,9 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 				}
 				var vulnList = make(map[string]bool)
 				for _, vuln := range r.Report.Vulnerabilities {
+					if vulnList[vuln.VulnerabilityID] {
+						continue
+					}
 					vulnList[vuln.VulnerabilityID] = true
 					vulnLabelValues[9] = vuln.InstalledVersion
 					vulnLabelValues[10] = vuln.FixedVersion
@@ -698,7 +701,12 @@ func (c *ResourcesMetricsCollector) collectConfigAuditInfoReports(ctx context.Co
 				labelValues[1] = r.Name
 				labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
 				labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+				var configMap = make(map[string]bool)
 				for _, config := range r.Report.Checks {
+					if configMap[config.ID] {
+						continue
+					}
+					configMap[config.ID] = true
 					labelValues[4] = config.ID
 					labelValues[5] = config.Title
 					labelValues[6] = config.Description
@@ -754,7 +762,12 @@ func (c *ResourcesMetricsCollector) collectRbacAssessmentInfoReports(ctx context
 				labelValues[1] = r.Name
 				labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
 				labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+				var configMap = make(map[string]bool)
 				for _, rbac := range r.Report.Checks {
+					if configMap[rbac.ID] {
+						continue
+					}
+					configMap[rbac.ID] = true
 					labelValues[4] = rbac.ID
 					labelValues[5] = rbac.Title
 					labelValues[6] = rbac.Description
@@ -807,7 +820,12 @@ func (c *ResourcesMetricsCollector) collectInfraAssessmentInfoReports(ctx contex
 				labelValues[1] = r.Name
 				labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
 				labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+				var configMap = make(map[string]bool)
 				for _, infra := range r.Report.Checks {
+					if configMap[infra.ID] {
+						continue
+					}
+					configMap[infra.ID] = true
 					labelValues[4] = infra.ID
 					labelValues[5] = infra.Title
 					labelValues[6] = infra.Description

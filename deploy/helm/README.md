@@ -136,4 +136,3 @@ Keeps security report resources updated
 | trivyOperator.scanJobTolerations | list | `[]` | scanJobTolerations tolerations to be applied to the scanner pods and node-collector so that they can run on nodes with matching taints |
 | trivyOperator.skipResourceByLabels | string | `""` | skipResourceByLabels comma-separated labels keys which trivy-operator will skip scanning on resources with matching labels |
 | trivyOperator.vulnerabilityReportsPlugin | string | `"Trivy"` | vulnerabilityReportsPlugin the name of the plugin that generates vulnerability reports `Trivy` |
-

@@ -24,18 +24,25 @@ except `kube-system` and `trivy-system`:
    helm install trivy-operator ./deploy/helm \
      --namespace trivy-system \
      --create-namespace \
-     --set="trivy.ignoreUnfixed=true"
    ```
    Or install the chart from the Aqua chart repository:
    ```
    helm install trivy-operator aqua/trivy-operator \
      --namespace trivy-system \
      --create-namespace \
-     --set="trivy.ignoreUnfixed=true" \
      --version {{ var.chart_version }}
    ```
+
+   Configuration options can be passed using the `--set` parameter. To list only the fixed vulnerabilities in the cluster, one can use the following command.
+   ```
+      helm install trivy-operator ./deploy/helm \
+     --namespace trivy-system \
+     --create-namespace \
+     --set="trivy.ignoreUnfixed=true"
+   ```
+   
    There are many [values] in the chart that can be set to configure Trivy-Operator. See the [Customising][customising] section for more details.
-3. Check that the `trivy-operator` Helm release is created in the `trivy-system` namespace, and it has status
+4. Check that the `trivy-operator` Helm release is created in the `trivy-system` namespace, and it has status
    `deployed`:
    ```console
    $ helm list -n trivy-system

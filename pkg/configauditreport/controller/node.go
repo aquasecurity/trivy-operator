@@ -26,6 +26,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
@@ -41,7 +42,7 @@ type NodeReconciler struct {
 	trivyoperator.PluginContext
 	configauditreport.PluginInMemory
 	jobs.LimitChecker
-	InfraReadWriter infraassessment.ReadWriter
+	InfraReadWriter  infraassessment.ReadWriter
 	CacheSyncTimeout time.Duration
 	trivyoperator.BuildInfo
 }
@@ -55,7 +56,9 @@ func (r *NodeReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 
-	return ctrl.NewControllerManagedBy(mgr).
+	return ctrl.NewControllerManagedBy(mgr).WithOptions(controller.Options{
+		CacheSyncTimeout: r.CacheSyncTimeout,
+	}).
 		For(&corev1.Node{}, builder.WithPredicates(IsLinuxNode, predicate.Not((excludeNodePredicate)))).
 		Owns(&v1alpha1.ClusterInfraAssessmentReport{}).
 		Complete(r.reconcileNodes())

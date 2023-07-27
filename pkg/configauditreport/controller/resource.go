@@ -47,7 +47,7 @@ type ResourceController struct {
 	RbacReadWriter  rbacassessment.ReadWriter
 	InfraReadWriter infraassessment.ReadWriter
 	trivyoperator.BuildInfo
-	ClusterVersion string
+	ClusterVersion   string
 	CacheSyncTimeout time.Duration
 }
 

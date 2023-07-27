@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"time"
+
 	j "github.com/aquasecurity/trivy-kubernetes/pkg/jobs"
 	"github.com/aquasecurity/trivy-kubernetes/pkg/k8s"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
@@ -40,6 +42,7 @@ type NodeReconciler struct {
 	configauditreport.PluginInMemory
 	jobs.LimitChecker
 	InfraReadWriter infraassessment.ReadWriter
+	CacheSyncTimeout time.Duration
 	trivyoperator.BuildInfo
 }
 

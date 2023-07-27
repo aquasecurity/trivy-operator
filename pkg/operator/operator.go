@@ -167,15 +167,16 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 
 		if err = (&vcontroller.WorkloadController{
-			Logger:         ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
-			Config:         operatorConfig,
-			ConfigData:     trivyOperatorConfig,
-			Client:         mgr.GetClient(),
-			ObjectResolver: objectResolver,
-			LimitChecker:   limitChecker,
-			SecretsReader:  secretsReader,
-			Plugin:         plugin,
-			PluginContext:  pluginContext,
+			Logger:           ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
+			Config:           operatorConfig,
+			ConfigData:       trivyOperatorConfig,
+			Client:           mgr.GetClient(),
+			ObjectResolver:   objectResolver,
+			LimitChecker:     limitChecker,
+			SecretsReader:    secretsReader,
+			Plugin:           plugin,
+			PluginContext:    pluginContext,
+			CacheSyncTimeout: *operatorConfig.ControllerCacheSyncTimeout,
 			ServerHealthChecker: vcontroller.NewTrivyServerChecker(
 				operatorConfig.TrivyServerHealthCheckCacheExpiration,
 				gcache.New(1).LRU().Build(),
@@ -273,17 +274,18 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 		setupLog.Info("Enabling built-in configuration audit scanner")
 		if err = (&controller.ResourceController{
-			Logger:          ctrl.Log.WithName("resourcecontroller"),
-			Config:          operatorConfig,
-			ConfigData:      trivyOperatorConfig,
-			ObjectResolver:  objectResolver,
-			PluginContext:   pluginContext,
-			PluginInMemory:  plugin,
-			ReadWriter:      configauditreport.NewReadWriter(&objectResolver),
-			RbacReadWriter:  rbacassessment.NewReadWriter(&objectResolver),
-			InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
-			BuildInfo:       buildInfo,
-			ClusterVersion:  gitVersion,
+			Logger:           ctrl.Log.WithName("resourcecontroller"),
+			Config:           operatorConfig,
+			ConfigData:       trivyOperatorConfig,
+			ObjectResolver:   objectResolver,
+			PluginContext:    pluginContext,
+			PluginInMemory:   plugin,
+			ReadWriter:       configauditreport.NewReadWriter(&objectResolver),
+			RbacReadWriter:   rbacassessment.NewReadWriter(&objectResolver),
+			InfraReadWriter:  infraassessment.NewReadWriter(&objectResolver),
+			BuildInfo:        buildInfo,
+			ClusterVersion:   gitVersion,
+			CacheSyncTimeout: *operatorConfig.ControllerCacheSyncTimeout,
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup resource controller: %w", err)
 		}
@@ -300,15 +302,16 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		if operatorConfig.InfraAssessmentScannerEnabled {
 			limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
 			if err = (&controller.NodeReconciler{
-				Logger:          ctrl.Log.WithName("node-reconciler"),
-				Config:          operatorConfig,
-				ConfigData:      trivyOperatorConfig,
-				ObjectResolver:  objectResolver,
-				PluginContext:   pluginContext,
-				PluginInMemory:  plugin,
-				LimitChecker:    limitChecker,
-				InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
-				BuildInfo:       buildInfo,
+				Logger:           ctrl.Log.WithName("node-reconciler"),
+				Config:           operatorConfig,
+				ConfigData:       trivyOperatorConfig,
+				ObjectResolver:   objectResolver,
+				PluginContext:    pluginContext,
+				PluginInMemory:   plugin,
+				LimitChecker:     limitChecker,
+				InfraReadWriter:  infraassessment.NewReadWriter(&objectResolver),
+				BuildInfo:        buildInfo,
+				CacheSyncTimeout: *operatorConfig.ControllerCacheSyncTimeout,
 			}).SetupWithManager(mgr); err != nil {
 				return fmt.Errorf("unable to setup node collector controller: %w", err)
 			}

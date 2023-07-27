@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	rbacv1 "k8s.io/api/rbac/v1"
 
@@ -27,6 +28,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
 	k8s_predicate "sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
@@ -46,6 +48,7 @@ type ResourceController struct {
 	InfraReadWriter infraassessment.ReadWriter
 	trivyoperator.BuildInfo
 	ClusterVersion string
+	CacheSyncTimeout time.Duration
 }
 
 // +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
@@ -137,7 +140,9 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 func (r *ResourceController) buildControlMgr(mgr ctrl.Manager, configResource kube.Resource, installModePredicate k8s_predicate.Predicate) *builder.Builder {
-	return ctrl.NewControllerManagedBy(mgr).
+	return ctrl.NewControllerManagedBy(mgr).WithOptions(controller.Options{
+		CacheSyncTimeout: r.CacheSyncTimeout,
+	}).
 		For(configResource.ForObject, builder.WithPredicates(
 			predicate.Not(predicate.ManagedByTrivyOperator),
 			predicate.Not(predicate.IsLeaderElectionResource),

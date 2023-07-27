@@ -83,7 +83,7 @@ operator:
   # -- builtInTrivyServer The flag enable the usage of built-in trivy server in cluster ,its also override the following trivy params with built-in values
   # trivy.mode = ClientServer and serverURL = http://<serverServiceName>.<trivy operator namespace>:4975
   builtInTrivyServer: false
-  # -- controllerCacheSyncTimeout the duration to wait for controller resources cache sync.
+  # -- controllerCacheSyncTimeout the duration to wait for controller resources cache sync (default: 5m).
   controllerCacheSyncTimeout: "5m"
 
   # -- trivyServerHealthCheckCacheExpiration The flag to set the interval for trivy server health cache before it invalidate

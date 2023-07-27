@@ -124,7 +124,9 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 
 	for _, resource := range clusterResources {
 
-		if err = ctrl.NewControllerManagedBy(mgr).
+		if err = ctrl.NewControllerManagedBy(mgr).WithOptions(controller.Options{
+			CacheSyncTimeout: r.CacheSyncTimeout,
+		}).
 			For(resource.ForObject, builder.WithPredicates(
 				predicate.Not(predicate.ManagedByTrivyOperator),
 				predicate.Not(predicate.IsBeingTerminated),

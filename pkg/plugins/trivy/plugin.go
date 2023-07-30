@@ -39,6 +39,7 @@ const (
 )
 
 const (
+	GCPCR_Inage_Regex         = `^(gcr\.io.*|^([a-zA-Z0-9-]+)-*-*.docker.pkg.dev.*)`
 	AWSECR_Image_Regex        = "^\\d+\\.dkr\\.ecr\\.(\\w+-\\w+-\\d+)\\.amazonaws\\.com\\/"
 	SupportedConfigAuditKinds = "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
 	// SkipDirsAnnotation annotation  example: trivy-operator.aquasecurity.github.io/skip-dirs: "/tmp,/home"
@@ -801,32 +802,64 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 				Value: region,
 			})
 		}
-
+		gcrImage := CheckGcpCrOrivateRegistry(c.Image)
 		if _, ok := containersCredentials[c.Name]; ok && secret != nil {
 			registryUsernameKey := fmt.Sprintf("%s.username", c.Name)
 			registryPasswordKey := fmt.Sprintf("%s.password", c.Name)
+			if gcrImage {
+				env = append(env, corev1.EnvVar{
+					Name:  "TRIVY_USERNAME",
+					Value: "",
+				})
+				env = append(env, corev1.EnvVar{
+					Name:  "GOOGLE_APPLICATION_CREDENTIALS",
+					Value: "/cred/credential.json",
+				})
+				googlecredMount := corev1.VolumeMount{
+					Name:      "gcrvol",
+					MountPath: "/cred",
+					ReadOnly:  true,
+				}
+				googlecredVolume := corev1.Volume{
+					Name: "gcrvol",
+					VolumeSource: corev1.VolumeSource{
+						Secret: &corev1.SecretVolumeSource{
+							SecretName: secret.Name,
+							Items: []corev1.KeyToPath{
+								{
+									Key:  registryPasswordKey,
+									Path: "credential.json",
+								},
+							},
+						},
+					},
+				}
+				volumes = append(volumes, googlecredVolume)
+				volumeMounts = append(volumeMounts, googlecredMount)
+			} else {
+				env = append(env, corev1.EnvVar{
+					Name: "TRIVY_USERNAME",
+					ValueFrom: &corev1.EnvVarSource{
+						SecretKeyRef: &corev1.SecretKeySelector{
+							LocalObjectReference: corev1.LocalObjectReference{
+								Name: secret.Name,
+							},
+							Key: registryUsernameKey,
+						},
+					},
+				}, corev1.EnvVar{
+					Name: "TRIVY_PASSWORD",
+					ValueFrom: &corev1.EnvVarSource{
+						SecretKeyRef: &corev1.SecretKeySelector{
+							LocalObjectReference: corev1.LocalObjectReference{
+								Name: secret.Name,
+							},
+							Key: registryPasswordKey,
+						},
+					},
+				})
+			}
 
-			env = append(env, corev1.EnvVar{
-				Name: "TRIVY_USERNAME",
-				ValueFrom: &corev1.EnvVarSource{
-					SecretKeyRef: &corev1.SecretKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: secret.Name,
-						},
-						Key: registryUsernameKey,
-					},
-				},
-			}, corev1.EnvVar{
-				Name: "TRIVY_PASSWORD",
-				ValueFrom: &corev1.EnvVarSource{
-					SecretKeyRef: &corev1.SecretKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: secret.Name,
-						},
-						Key: registryPasswordKey,
-					},
-				},
-			})
 		}
 
 		env, err = p.appendTrivyInsecureEnv(config, c.Image, env)
@@ -874,6 +907,11 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 		Containers:                   containers,
 		SecurityContext:              &corev1.PodSecurityContext{},
 	}, secrets, nil
+}
+
+func CheckGcpCrOrivateRegistry(imageUrl string) bool {
+	imageRegex := regexp.MustCompile(GCPCR_Inage_Regex)
+	return imageRegex.MatchString(imageUrl)
 }
 
 func (p *plugin) initContainerEnvVar(trivyConfigName string, config Config) []corev1.EnvVar {
@@ -1013,32 +1051,65 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 				Value: ignorePolicyMountPath,
 			})
 		}
+		gcrImage := CheckGcpCrOrivateRegistry(container.Image)
 
 		if _, ok := containersCredentials[container.Name]; ok && secret != nil {
 			registryUsernameKey := fmt.Sprintf("%s.username", container.Name)
 			registryPasswordKey := fmt.Sprintf("%s.password", container.Name)
+			if gcrImage {
+				env = append(env, corev1.EnvVar{
+					Name:  "TRIVY_USERNAME",
+					Value: "",
+				})
+				env = append(env, corev1.EnvVar{
+					Name:  "GOOGLE_APPLICATION_CREDENTIALS",
+					Value: "/cred/credential.json",
+				})
+				googlecredMount := corev1.VolumeMount{
+					Name:      "gcrvol",
+					MountPath: "/cred",
+					ReadOnly:  true,
+				}
+				googlecredVolume := corev1.Volume{
+					Name: "gcrvol",
+					VolumeSource: corev1.VolumeSource{
+						Secret: &corev1.SecretVolumeSource{
+							SecretName: secret.Name,
+							Items: []corev1.KeyToPath{
+								{
+									Key:  registryPasswordKey,
+									Path: "credential.json",
+								},
+							},
+						},
+					},
+				}
+				volumes = append(volumes, googlecredVolume)
+				volumeMounts = append(volumeMounts, googlecredMount)
+			} else {
+				env = append(env, corev1.EnvVar{
+					Name: "TRIVY_USERNAME",
+					ValueFrom: &corev1.EnvVarSource{
+						SecretKeyRef: &corev1.SecretKeySelector{
+							LocalObjectReference: corev1.LocalObjectReference{
+								Name: secret.Name,
+							},
+							Key: registryUsernameKey,
+						},
+					},
+				}, corev1.EnvVar{
+					Name: "TRIVY_PASSWORD",
+					ValueFrom: &corev1.EnvVarSource{
+						SecretKeyRef: &corev1.SecretKeySelector{
+							LocalObjectReference: corev1.LocalObjectReference{
+								Name: secret.Name,
+							},
+							Key: registryPasswordKey,
+						},
+					},
+				})
+			}
 
-			env = append(env, corev1.EnvVar{
-				Name: "TRIVY_USERNAME",
-				ValueFrom: &corev1.EnvVarSource{
-					SecretKeyRef: &corev1.SecretKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: secret.Name,
-						},
-						Key: registryUsernameKey,
-					},
-				},
-			}, corev1.EnvVar{
-				Name: "TRIVY_PASSWORD",
-				ValueFrom: &corev1.EnvVarSource{
-					SecretKeyRef: &corev1.SecretKeySelector{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: secret.Name,
-						},
-						Key: registryPasswordKey,
-					},
-				},
-			})
 		}
 
 		env, err = p.appendTrivyInsecureEnv(config, container.Image, env)

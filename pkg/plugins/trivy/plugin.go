@@ -5,18 +5,19 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	cdx "github.com/CycloneDX/cyclonedx-go"
-	"github.com/aquasecurity/trivy-db/pkg/types"
-	"github.com/aquasecurity/trivy-operator/pkg/utils"
-	tr "github.com/aquasecurity/trivy/pkg/report"
-	ty "github.com/aquasecurity/trivy/pkg/types"
-	containerimage "github.com/google/go-containerregistry/pkg/name"
 	"io"
 	"net/url"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
+
+	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/aquasecurity/trivy-db/pkg/types"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
+	tr "github.com/aquasecurity/trivy/pkg/report"
+	ty "github.com/aquasecurity/trivy/pkg/types"
+	containerimage "github.com/google/go-containerregistry/pkg/name"
 
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 
@@ -554,7 +555,7 @@ func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 	return ctx.EnsureConfig(trivyoperator.PluginConfig{
 		Data: map[string]string{
 			keyTrivyImageRepository:           DefaultImageRepository,
-			keyTrivyImageTag:                  "0.42.0",
+			keyTrivyImageTag:                  "0.43.1",
 			KeyTrivySeverity:                  DefaultSeverity,
 			keyTrivySlow:                      "true",
 			keyTrivyMode:                      string(Standalone),

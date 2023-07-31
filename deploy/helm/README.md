@@ -96,7 +96,7 @@ Keeps security report resources updated
 | trivy.ignoreUnfixed | bool | `false` | ignoreUnfixed is the flag to show only fixed vulnerabilities in vulnerabilities reported by Trivy. Set to true to enable it.  |
 | trivy.image.registry | string | `"ghcr.io"` | registry of the Trivy image |
 | trivy.image.repository | string | `"aquasecurity/trivy"` | repository of the Trivy image |
-| trivy.image.tag | string | `"0.42.0"` | tag version of the Trivy image |
+| trivy.image.tag | string | `"0.43.1"` | tag version of the Trivy image |
 | trivy.insecureRegistries | object | `{}` | The registry to which insecure connections are allowed. There can be multiple registries with different keys. |
 | trivy.javaDbRegistry | string | `"ghcr.io"` | javaDbRegistry is the registry for the Java vulnerability database. |
 | trivy.javaDbRepository | string | `"aquasecurity/trivy-java-db"` |  |

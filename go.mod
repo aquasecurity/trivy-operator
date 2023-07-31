@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/CycloneDX/cyclonedx-go v0.7.2-0.20230625092137-07e2f29defc3
-	github.com/aquasecurity/defsec v0.90.3
+	github.com/aquasecurity/defsec v0.91.0
 	github.com/aquasecurity/trivy v0.43.1
 	github.com/aquasecurity/trivy-kubernetes v0.5.7-0.20230628140707-dae3bdb6ee81
 	github.com/bluele/gcache v0.0.2

@@ -147,7 +147,8 @@ service:
   metricsPort: 80
 
 # -- Prometheus ServiceMonitor configuration -- to install the trivy operator with the ServiceMonitor
-# you must have Prometheus already installed and running
+# you must have Prometheus already installed and running. If you do not have Prometheus installed, enabling this will
+# have no effect.
 serviceMonitor:
   # -- enabled determines whether a serviceMonitor should be deployed
   enabled: false

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"reflect"
 	"sort"
 	"strings"
 	"testing"
@@ -748,7 +749,7 @@ deny[res] {
 				g.Expect(err).To(MatchError(tc.expectedError))
 			} else {
 				g.Expect(err).ToNot(HaveOccurred())
-				g.Expect(getPolicyResults(checks)).To(Equal(tc.results))
+				g.Expect(reflect.DeepEqual(getPolicyResults(checks), tc.results))
 			}
 		})
 	}

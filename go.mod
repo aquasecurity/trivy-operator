@@ -22,7 +22,7 @@ require (
 	github.com/openshift/api v0.0.0-20221013123533-341d389bd4a7
 	github.com/prometheus/client_golang v1.16.0
 	github.com/stretchr/testify v1.8.4
-	go.uber.org/automaxprocs v1.5.2
+	go.uber.org/automaxprocs v1.5.3
 	go.uber.org/multierr v1.11.0
 	golang.org/x/net v0.12.0
 	k8s.io/api v0.27.4

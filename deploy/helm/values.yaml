@@ -31,6 +31,9 @@ operator:
   # -- replicas the number of replicas of the operator's pod
   replicas: 1
 
+  # -- number of old history to retain to allow rollback (if not set, default Kubernetes value is set to 10)
+  # revisionHistoryLimit: 1
+
   # -- additional labels for the operator pod
   podLabels: {}
 

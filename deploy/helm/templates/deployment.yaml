@@ -7,6 +7,9 @@ metadata:
     {{- include "trivy-operator.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.operator.replicas }}
+  {{- if .Values.operator.revisionHistoryLimit }}
+  revisionHistoryLimit: {{ .Values.operator.revisionHistoryLimit }}
+  {{- end }}
   strategy:
     type: Recreate
   selector:

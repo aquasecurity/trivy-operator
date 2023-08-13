@@ -19,7 +19,7 @@ spec:
     matchLabels:
       {{- include "trivy-operator.selectorLabels" . | nindent 6 }}
   endpoints:
-  - honorLabels: {{ .Values.serviceMonitor.honorLabels | default true }}
+  - honorLabels: {{ .Values.serviceMonitor.honorLabels }}
     port: metrics
     {{- if .Values.serviceMonitor.interval }}
     interval: {{ .Values.serviceMonitor.interval }}

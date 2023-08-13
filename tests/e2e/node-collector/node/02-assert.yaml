@@ -2,13 +2,13 @@
 apiVersion: kuttl.dev/v1beta1
 commands:
   - script: >
-      cnt="$(kubectl get compliance cis -o=jsonpath='{.status.summary.failCount}')"
+      cnt="$(kubectl get compliance cis -o=jsonpath='{.status.summary.passCount}')"
       if [ $cnt -gt 0 ]
 
       then
-        echo "Pass: ClusterComplianceReport failCount ($cnt) is greater than 0"
+        echo "Pass: ClusterComplianceReport passCount ($cnt) is greater than 0"
       else
-        echo "Fail: ClusterComplianceReport failCount $(cnt) should be greater than 0"
+        echo "Fail: ClusterComplianceReport passCount $(cnt) should be greater than 0"
         exit 1
       fi
 kind: TestAssert

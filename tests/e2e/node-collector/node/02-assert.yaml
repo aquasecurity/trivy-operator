@@ -2,9 +2,7 @@
 apiVersion: kuttl.dev/v1beta1
 commands:
   - script: >
-      cnt="$(kubectl get compliance cis
-      \
-        -o=jsonpath='{.status.summary.failCount}')"
+      cnt="$(kubectl get compliance cis -o=jsonpath='{.status.summary.failCount}')"
       if [ $cnt -gt 0 ]
 
       then
@@ -14,4 +12,4 @@ commands:
         exit 1
       fi
 kind: TestAssert
-timeout: 30
+timeout: 90

@@ -1,13 +1,11 @@
-{{- if .Values.rbac.create}}
----
+{{- if .Values.rbac.create }}
 # permissions to do leader election.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: {{ include "trivy-operator.fullname" . }}-leader-election
   namespace: {{ include "trivy-operator.namespace" . }}
-  labels:
-    {{- include "trivy-operator.labels" . | nindent 4 }}
+  labels: {{- include "trivy-operator.labels" . | nindent 4 }}
 rules:
   - apiGroups:
       - coordination.k8s.io
@@ -29,8 +27,7 @@ kind: RoleBinding
 metadata:
   name: {{ include "trivy-operator.fullname" . }}-leader-election
   namespace: {{ include "trivy-operator.namespace" . }}
-  labels:
-    {{- include "trivy-operator.labels" . | nindent 4 }}
+  labels: {{- include "trivy-operator.labels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -39,4 +36,4 @@ subjects:
   - kind: ServiceAccount
     name: {{ include "trivy-operator.serviceAccountName" . }}
     namespace: {{ include "trivy-operator.namespace" . }}
-{{- end}}
+{{- end }}

@@ -7,7 +7,7 @@ metadata:
   labels:
     {{- include "trivy-operator.labels" . | nindent 4 }}
     {{- if .Values.serviceMonitor.labels }}
-    {{- toYaml .Values.serviceMonitor.labels | nindent 4 }}
+      {{- toYaml .Values.serviceMonitor.labels | nindent 4 }}
     {{- end }}
 spec:
   {{- if .Values.serviceMonitor.namespace }}
@@ -16,8 +16,7 @@ spec:
     - {{ include "trivy-operator.namespace" . }}
   {{- end }}
   selector:
-    matchLabels:
-      {{- include "trivy-operator.selectorLabels" . | nindent 6 }}
+    matchLabels: {{- include "trivy-operator.selectorLabels" . | nindent 6 }}
   endpoints:
   - honorLabels: {{ .Values.serviceMonitor.honorLabels }}
     port: metrics

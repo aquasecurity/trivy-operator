@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/aquasecurity/trivy-db/pkg/types"
@@ -1860,6 +1861,8 @@ func getVulnerabilitiesFromScanResult(report ty.Result, addFields AdditionalFiel
 			Resource:         sr.PkgName,
 			InstalledVersion: sr.InstalledVersion,
 			FixedVersion:     sr.FixedVersion,
+			PublishedDate:    sr.PublishedDate.Format(time.RFC3339),
+			LastModifiedDate: sr.LastModifiedDate.Format(time.RFC3339),
 			Severity:         v1alpha1.Severity(sr.Severity),
 			Title:            sr.Title,
 			PrimaryLink:      sr.PrimaryURL,

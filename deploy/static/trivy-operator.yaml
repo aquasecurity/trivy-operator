@@ -2031,6 +2031,10 @@ spec:
                       description: InstalledVersion indicates the installed version
                         of the Resource.
                       type: string
+                    lastModifiedDate:
+                      description: LastModifiedDate indicates the last date CVE has
+                        been modified.
+                      type: string
                     links:
                       items:
                         type: string
@@ -2040,6 +2044,9 @@ spec:
                     packageType:
                       type: string
                     primaryLink:
+                      type: string
+                    publishedDate:
+                      description: PublishedDate indicates the date of published CVE.
                       type: string
                     resource:
                       description: Resource is a vulnerable package, application,
@@ -2067,6 +2074,8 @@ spec:
                   required:
                   - fixedVersion
                   - installedVersion
+                  - lastModifiedDate
+                  - publishedDate
                   - resource
                   - severity
                   - title

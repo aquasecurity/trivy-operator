@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/aquasecurity/trivy-db/pkg/types"
@@ -1855,11 +1856,20 @@ func getVulnerabilitiesFromScanResult(report ty.Result, addFields AdditionalFiel
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
 
 	for _, sr := range report.Vulnerabilities {
+		var pd, lmd string
+		if sr.PublishedDate != nil {
+			pd = sr.PublishedDate.Format(time.RFC3339)
+		}
+		if sr.LastModifiedDate != nil {
+			lmd = sr.LastModifiedDate.Format(time.RFC3339)
+		}
 		vulnerability := v1alpha1.Vulnerability{
 			VulnerabilityID:  sr.VulnerabilityID,
 			Resource:         sr.PkgName,
 			InstalledVersion: sr.InstalledVersion,
 			FixedVersion:     sr.FixedVersion,
+			PublishedDate:    pd,
+			LastModifiedDate: lmd,
 			Severity:         v1alpha1.Severity(sr.Severity),
 			Title:            sr.Title,
 			PrimaryLink:      sr.PrimaryURL,

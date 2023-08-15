@@ -200,6 +200,9 @@ trivyOperator:
   # -- scanJobPodTemplateLabels comma-separated representation of the labels which the user wants the scanner pods to be
   # labeled with. Example: `foo=bar,env=stage` will labeled the scanner pods with the labels `foo: bar` and `env: stage`
   scanJobPodTemplateLabels: ""
+  
+  # -- skipInitContainers when this flag is set to true, the initContainers will be skipped for the scanner and node collector pods  
+  skipInitContainers: false
 
   # -- scanJobPodTemplatePodSecurityContext podSecurityContext the user wants the scanner and node collector pods to be amended with.
   # Example:

@@ -68,6 +68,7 @@ const (
 	keyScanJobAnnotations                = "scanJob.annotations"
 	//nolint
 	keyscanJobAutomountServiceAccountToken = "scanJob.automountServiceAccountToken"
+	keySkipInitContainers                  = "scanJob.skipInitContainers"
 	KeyScanJobContainerSecurityContext     = "scanJob.podTemplateContainerSecurityContext"
 	keyScanJobPodSecurityContext           = "scanJob.podTemplatePodSecurityContext"
 	keyScanJobPodTemplateLabels            = "scanJob.podTemplateLabels"
@@ -241,6 +242,10 @@ func (c ConfigData) GetScanJobContainerSecurityContext() (*corev1.SecurityContex
 
 func (c ConfigData) GetScanJobAutomountServiceAccountToken() bool {
 	return c.getBoolKey(keyscanJobAutomountServiceAccountToken)
+}
+
+func (c ConfigData) GetSkipInitContainers() bool {
+	return c.getBoolKey(keySkipInitContainers)
 }
 
 func (c ConfigData) GetScanJobAnnotations() (map[string]string, error) {

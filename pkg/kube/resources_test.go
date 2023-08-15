@@ -42,7 +42,7 @@ func TestGetContainerImagesFromPodSpec(t *testing.T) {
 				},
 			},
 		},
-	})
+	}, false)
 	assert.Equal(t, kube.ContainerImages{
 		"nginx":   "nginx:1.16",
 		"sidecar": "sidecar:1.32.7",

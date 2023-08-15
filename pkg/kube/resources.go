@@ -16,10 +16,13 @@ const KubeSystemNamespace = "kube-system"
 
 // GetContainerImagesFromPodSpec returns a map of container names
 // to container images from the specified v1.PodSpec.
-func GetContainerImagesFromPodSpec(spec corev1.PodSpec) ContainerImages {
+func GetContainerImagesFromPodSpec(spec corev1.PodSpec, skipInitContainers bool) ContainerImages {
 	images := ContainerImages{}
-
-	containers := append(spec.Containers, spec.InitContainers...)
+	containers := make([]corev1.Container, 0)
+	containers = append(containers, spec.Containers...)
+	if !skipInitContainers {
+		containers = append(containers, spec.InitContainers...)
+	}
 	for _, container := range containers {
 		images[container.Name] = container.Image
 	}

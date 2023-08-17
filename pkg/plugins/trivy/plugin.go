@@ -83,7 +83,8 @@ const (
 	keyTrivyUseBuiltinRegoPolicies    = "trivy.useBuiltinRegoPolicies"
 	keyTrivySupportedConfigAuditKinds = "trivy.supportedConfigAuditKinds"
 
-	keyTrivyServerURL = "trivy.serverURL"
+	keyTrivyServerURL              = "trivy.serverURL"
+	keyTrivyClientServerSkipUpdate = "trivy.clientServerSkipUpdate"
 	// nolint:gosec // This is not a secret, but a configuration value.
 	keyTrivyServerTokenHeader = "trivy.serverTokenHeader"
 	keyTrivyServerInsecure    = "trivy.serverInsecure"
@@ -236,6 +237,18 @@ func (c Config) GetCommand() (Command, error) {
 
 func (c Config) GetServerURL() (string, error) {
 	return c.GetRequiredData(keyTrivyServerURL)
+}
+
+func (c Config) GetClientServerSkipUpdate() bool {
+	val, ok := c.Data[keyTrivyClientServerSkipUpdate]
+	if !ok {
+		return false
+	}
+	boolVal, err := strconv.ParseBool(val)
+	if err != nil {
+		return false
+	}
+	return boolVal
 }
 
 func (c Config) GetServerInsecure() bool {
@@ -1127,7 +1140,11 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 	if len(imcs) == 2 {
 		imageconfigSecretScannerFlag = fmt.Sprintf("%s %s ", imcs[0], imcs[1])
 	}
+	var skipUpdate string
 	if mode == ClientServer {
+		if c.GetClientServerSkipUpdate() {
+			skipUpdate = SkipDBUpdate(c)
+		}
 		if !compressLogs {
 			args := []string{
 				"--cache-dir",
@@ -1136,6 +1153,7 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 				"image",
 				scanners,
 				getSecurityChecks(ctx),
+				skipUpdate,
 				"--format",
 				"json",
 				"--server",
@@ -1157,9 +1175,9 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 			}
 			return command, args
 		}
-		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, getPkgList(ctx), trivyServerURL, resultFileName, resultFileName)}
+		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, getPkgList(ctx), trivyServerURL, resultFileName, resultFileName)}
 	}
-	skipUpdate := SkipDBUpdate(c)
+	skipUpdate = SkipDBUpdate(c)
 	if !compressLogs {
 		args := []string{
 			"--cache-dir",

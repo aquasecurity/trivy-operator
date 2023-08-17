@@ -360,6 +360,10 @@ trivy:
   #
   # serverURL: "https://trivy.trivy:4975"
 
+  # -- clientServerSkipUpdate is the flag to enable skip databases update for Trivy client.
+  # Only applicable in ClientServer mode.
+  # clientServerSkipUpdate: "true"
+
   # -- serverInsecure is the flag to enable insecure connection to the Trivy server.
   serverInsecure: false
 
@@ -382,10 +386,6 @@ trivy:
   # Trivy client to Trivy server. Only applicable in ClientServer mode.
   serverCustomHeaders: ~
   # serverCustomHeaders: "foo=bar"
-
-  # -- clientServerSkipUpdate is the flag to enable skip databases update for Trivy client.
-  # Only applicable in ClientServer mode.
-  # clientServerSkipUpdate: true
 
   dbRegistry: "ghcr.io"
   dbRepository: "aquasecurity/trivy-db"

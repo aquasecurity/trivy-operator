@@ -168,6 +168,9 @@ data:
   trivy.mode: {{ .Values.trivy.mode | quote }}
   {{- if eq .Values.trivy.mode "ClientServer" }}
   trivy.serverURL: {{ required ".Values.trivy.serverURL is required" .Values.trivy.serverURL | quote }}
+  {{- if .Values.trivy.clientServerSkipUpdate }}
+  trivy.clientServerSkipUpdate: {{ .Values.trivy.clientServerSkipUpdate | quote }}
+  {{- end }}
   {{- end }}
   {{- end }}
   {{- with .Values.trivy.resources }}

@@ -3137,7 +3137,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --image-config-scanners secret    --cache-dir /tmp/trivy/.cache --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --image-config-scanners secret    --cache-dir /tmp/trivy/.cache --quiet  --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3366,7 +3366,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --image-config-scanners secret    --cache-dir /tmp/trivy/.cache --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --image-config-scanners secret    --cache-dir /tmp/trivy/.cache --quiet  --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3600,7 +3600,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln,secret --image-config-scanners secret    --cache-dir /tmp/trivy/.cache --quiet --format json --server 'https://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln,secret --image-config-scanners secret    --cache-dir /tmp/trivy/.cache --quiet  --format json --server 'https://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3834,7 +3834,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln    --cache-dir /tmp/trivy/.cache --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln    --cache-dir /tmp/trivy/.cache --quiet  --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -4088,7 +4088,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'nginx:1.16' --security-checks secret --image-config-scanners secret    --cache-dir /tmp/trivy/.cache --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'nginx:1.16' --security-checks secret --image-config-scanners secret    --cache-dir /tmp/trivy/.cache --quiet  --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -4348,7 +4348,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'nginx:1.16' --security-checks secret --image-config-scanners secret    --cache-dir /tmp/trivy/.cache --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'nginx:1.16' --security-checks secret --image-config-scanners secret    --cache-dir /tmp/trivy/.cache --quiet  --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -4583,7 +4583,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --image-config-scanners secret    --cache-dir /tmp/trivy/.cache --quiet --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --image-config-scanners secret    --cache-dir /tmp/trivy/.cache --quiet  --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{

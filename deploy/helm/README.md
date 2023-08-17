@@ -128,7 +128,6 @@ Keeps security report resources updated
 | trivy.serverToken | string | `nil` | serverToken is the token to authenticate Trivy client with Trivy server. Only applicable in ClientServer mode. |
 | trivy.serverTokenHeader | string | `"Trivy-Token"` | serverTokenHeader is the name of the HTTP header used to send the authentication token to Trivy server. Only application in ClientServer mode when trivy.serverToken is specified. |
 | trivy.serverUser | string | `""` | serverUser this param is the server user to be used to download db from private registry |
-| trivy.clientServerSkipUpdate | bool | `false` | clientServerSkipUpdate this param is to enable skip databases update for Trivy client. Only applicable in ClientServer mode. |
 | trivy.severity | string | `"UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"` | severity is a comma separated list of severity levels reported by Trivy. |
 | trivy.skipDirs | string | `nil` | a comma separated list of directories for Trivy to skip |
 | trivy.slow | bool | `true` | slow this flag is to use less CPU/memory for scanning though it takes more time than normal scanning. It fits small-footprint |

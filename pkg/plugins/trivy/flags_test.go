@@ -126,7 +126,7 @@ func TestSkipDBUpdate(t *testing.T) {
 			want: "--skip-db-update",
 		},
 		{
-			name: "skip update DB with trivy tag higher then v0.38.0",
+			name: "skip update DB with trivy tag higher then v0.37.0",
 			configData: map[string]string{
 				"trivy.tag": "0.38.0",
 			},
@@ -141,6 +141,59 @@ func TestSkipDBUpdate(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			got := trivy.SkipDBUpdate(trivy.Config{trivyoperator.PluginConfig{Data: tc.configData}})
+			assert.Equal(t, got, tc.want)
+		})
+	}
+}
+
+func TestSkipJavaDBUpdate(t *testing.T) {
+	testCases := []struct {
+		name       string
+		configData trivyoperator.ConfigData
+		want       string
+	}{
+		{
+			name: "skip update Java DB with trivy tag lower then v0.37.0",
+			configData: map[string]string{
+				"trivy.skipJavaDBUpdate": "true",
+				"trivy.tag":              "0.36.0",
+			},
+			want: "",
+		},
+		{
+			name: "skip update Java DB with trivy tag equal to v0.37.0",
+			configData: map[string]string{
+				"trivy.skipJavaDBUpdate": "true",
+				"trivy.tag":              "0.37.0",
+			},
+			want: "--skip-java-db-update",
+		},
+		{
+			name: "skip update Java DB with trivy tag higher then v0.37.0",
+			configData: map[string]string{
+				"trivy.skipJavaDBUpdate": "true",
+				"trivy.tag":              "0.38.0",
+			},
+			want: "--skip-java-db-update",
+		},
+		{
+			name: "skip update Java DB with no trivy tag",
+			configData: map[string]string{
+				"trivy.skipJavaDBUpdate": "true",
+			},
+			want: "--skip-java-db-update",
+		},
+		{
+			name: "skip update Java DB with skip false",
+			configData: map[string]string{
+				"trivy.skipJavaDBUpdate": "false",
+			},
+			want: "",
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := trivy.SkipJavaDBUpdate(trivy.Config{trivyoperator.PluginConfig{Data: tc.configData}})
 			assert.Equal(t, got, tc.want)
 		})
 	}

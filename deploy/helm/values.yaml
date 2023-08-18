@@ -367,6 +367,9 @@ trivy:
   # Only applicable in ClientServer mode.
   clientServerSkipUpdate: false
 
+  # -- skipJavaDBUpdate is the flag to enable skip Java index databases update for Trivy client.
+  skipJavaDBUpdate: false
+
   # -- serverInsecure is the flag to enable insecure connection to the Trivy server.
   serverInsecure: false
 

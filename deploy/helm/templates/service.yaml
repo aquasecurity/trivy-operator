@@ -3,11 +3,9 @@ kind: Service
 metadata:
   name: {{ include "trivy-operator.fullname" . }}
   namespace: {{ include "trivy-operator.namespace" . }}
-  labels:
-    {{- include "trivy-operator.labels" . | nindent 4 }}
+  labels: {{- include "trivy-operator.labels" . | nindent 4 }}
   {{- with .Values.service.annotations }}
-  annotations:
-    {{- . | toYaml | nindent 4 }}
+  annotations: {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
   clusterIP: None
@@ -16,5 +14,4 @@ spec:
       port: {{ .Values.service.metricsPort }}
       targetPort: metrics
       protocol: TCP
-  selector:
-    {{- include "trivy-operator.selectorLabels" . | nindent 4 }}
+  selector: {{- include "trivy-operator.selectorLabels" . | nindent 4 }}

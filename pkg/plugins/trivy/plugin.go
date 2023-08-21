@@ -1823,7 +1823,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 			return vulnReport, secretReport, &sbomReport, err
 		}
 	}
-	registry, artifact, err := p.parseImageRef(imageRef)
+	registry, artifact, err := p.parseImageRef(imageRef, reports.Metadata.ImageID)
 	if err != nil {
 		return vulnReport, secretReport, &sbomReport, err
 	}
@@ -2030,7 +2030,7 @@ func (p *plugin) secretSummary(secrets []v1alpha1.ExposedSecret) v1alpha1.Expose
 	return s
 }
 
-func (p *plugin) parseImageRef(imageRef string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
+func (p *plugin) parseImageRef(imageRef string, imageID string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
 	ref, err := containerimage.ParseReference(imageRef)
 	if err != nil {
 		return v1alpha1.Registry{}, v1alpha1.Artifact{}, err
@@ -2046,6 +2046,9 @@ func (p *plugin) parseImageRef(imageRef string) (v1alpha1.Registry, v1alpha1.Art
 		artifact.Tag = t.TagStr()
 	case containerimage.Digest:
 		artifact.Digest = t.DigestStr()
+	}
+	if len(artifact.Digest) == 0 {
+		artifact.Digest = imageID
 	}
 	return registry, artifact, nil
 }

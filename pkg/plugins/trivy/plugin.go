@@ -85,6 +85,7 @@ const (
 
 	keyTrivyServerURL              = "trivy.serverURL"
 	keyTrivyClientServerSkipUpdate = "trivy.clientServerSkipUpdate"
+	keyTrivySkipJavaDBUpdate       = "trivy.skipJavaDBUpdate"
 	// nolint:gosec // This is not a secret, but a configuration value.
 	keyTrivyServerTokenHeader = "trivy.serverTokenHeader"
 	keyTrivyServerInsecure    = "trivy.serverInsecure"
@@ -241,6 +242,18 @@ func (c Config) GetServerURL() (string, error) {
 
 func (c Config) GetClientServerSkipUpdate() bool {
 	val, ok := c.Data[keyTrivyClientServerSkipUpdate]
+	if !ok {
+		return false
+	}
+	boolVal, err := strconv.ParseBool(val)
+	if err != nil {
+		return false
+	}
+	return boolVal
+}
+
+func (c Config) GetSkipJavaDBUpdate() bool {
+	val, ok := c.Data[keyTrivySkipJavaDBUpdate]
 	if !ok {
 		return false
 	}
@@ -1129,6 +1142,7 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 		return []string{}, []string{}
 	}
 	slow := Slow(c)
+	skipJavaDBUpdate := SkipJavaDBUpdate(c)
 	vulnTypeArgs := p.vulnTypeFilter(ctx)
 	scanners := Scanners(c)
 	var vulnTypeFlag string
@@ -1154,6 +1168,7 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 				scanners,
 				getSecurityChecks(ctx),
 				skipUpdate,
+				skipJavaDBUpdate,
 				"--format",
 				"json",
 				"--server",
@@ -1175,7 +1190,7 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 			}
 			return command, args
 		}
-		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, getPkgList(ctx), trivyServerURL, resultFileName, resultFileName)}
+		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, skipJavaDBUpdate, getPkgList(ctx), trivyServerURL, resultFileName, resultFileName)}
 	}
 	skipUpdate = SkipDBUpdate(c)
 	if !compressLogs {
@@ -1187,6 +1202,7 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 			scanners,
 			getSecurityChecks(ctx),
 			skipUpdate,
+			skipJavaDBUpdate,
 			"--format",
 			"json",
 			imageRef,
@@ -1206,7 +1222,7 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 		}
 		return command, args
 	}
-	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, getPkgList(ctx), resultFileName, resultFileName)}
+	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, skipJavaDBUpdate, getPkgList(ctx), resultFileName, resultFileName)}
 }
 
 func (p *plugin) vulnTypeFilter(ctx trivyoperator.PluginContext) []string {

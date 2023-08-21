@@ -5,6 +5,16 @@ The following sections list built-in configuration audit policies installed with
 them or add a new policy. For example, follow the [Writing Custom Configuration Audit Policies] tutorial to add a custom
 policy that checks for recommended Kubernetes labels on any resource kind.
 
+### Processing information
+
+The Trivy Operator pulls the information from the [defsec] respository.
+
+Once the Trivy Operator is installed inside the Kubernetes cluster, it will perform the following processes:
+
+1. The [node-collector] will collect infrastructure data from node filesystem and processes
+2. It then outputs the data as JSON output 
+3. The the Rego policies (cis-controls) from [defsec] are executed against the infrastructure data ( JSON ) and return evaluation results as ConfigAudit and Compliance reports
+
 ## General
 
 | NAME                                       | DESCRIPTION                                                                                                                                                                                                         | KINDS    |
@@ -86,6 +96,9 @@ policy that checks for recommended Kubernetes labels on any resource kind.
 | [No Wildcard Verb Role]                    | No wildcard verb roles  | Role/ClusterRole |
 | [View All Secrets]                       | Do not allow users in a rolebinding to add other users to their rolebindings                                        | Role/ClusterRole |
 
+
+[defsec]: https://github.com/aquasecurity/defsec/tree/master/rules/kubernetes/policies/cisbenchmarks
+[node-collector]: https://github.com/aquasecurity/k8s-node-collector
 
 [CPU not limited]: https://avd.aquasec.com/misconfig/kubernetes/ksv011/
 [CPU requests not specified]: https://avd.aquasec.com/misconfig/kubernetes/ksv015/

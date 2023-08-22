@@ -51,7 +51,7 @@ jobs:
         uses: golangci/golangci-lint-action@v3.6.0
         with:
           args: --verbose
-          version: 1.53.2
+          version: v1.53.2
           skip-pkg-cache: true
           skip-build-cache: true
       - name: Verify YAML code

@@ -161,10 +161,14 @@ serviceMonitor:
   namespace: ~
   # -- Interval at which metrics should be scraped. If not specified Prometheus’ global scrape interval is used.
   interval: ~
+  # -- Additional annotations for the serviceMonitor
+  annotations: {}
   # -- Additional labels for the serviceMonitor
   labels: {}
   # -- HonorLabels chooses the metric’s labels on collisions with target labels
   honorLabels: true
+  # -- EndpointAdditionalProperties allows setting additional properties on the endpoint such as relabelings, metricRelabelings etc.
+  endpointAdditionalProperties: {}
 
 trivyOperator:
   # -- vulnerabilityReportsPlugin the name of the plugin that generates vulnerability reports `Trivy`

@@ -4,6 +4,10 @@ kind: ServiceMonitor
 metadata:
   name: {{ include "trivy-operator.fullname" . }}
   namespace: {{ .Values.serviceMonitor.namespace | default (include "trivy-operator.namespace" . ) }}
+  {{- if .Values.serviceMonitor.annotations }}
+  annotations:
+    {{- toYaml .Values.serviceMonitor.annotations | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "trivy-operator.labels" . | nindent 4 }}
     {{- if .Values.serviceMonitor.labels }}
@@ -24,4 +28,9 @@ spec:
     interval: {{ .Values.serviceMonitor.interval }}
     {{- end }}
     scheme: http
+    {{- if .Values.serviceMonitor.endpointAdditionalProperties }}
+    {{- with .Values.serviceMonitor.endpointAdditionalProperties }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- end }}
 {{- end }}

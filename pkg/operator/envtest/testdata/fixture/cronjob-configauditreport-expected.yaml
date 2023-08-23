@@ -48,16 +48,25 @@ report:
           'securityContext.seccompProfile.type' to 'RuntimeDefault'
       severity: LOW
       success: false
-      title: Default Seccomp profile not set
+      title: Runtime/Default Seccomp profile not set
     - category: Kubernetes Security Check
-      checkID: KSV106
-      description: Containers must drop ALL capabilities, and are only permitted to
-        add back the NET_BIND_SERVICE capability.
+      messages:
+        - container hello of cronjob hello in default namespace should specify a
+          seccomp profile
+      success: false
+      checkID: KSV104
+      title: Seccomp policies disabled
+      description: Seccomp profile must not be explicitly set to 'Unconfined'.
+      severity: MEDIUM
+    - category: Kubernetes Security Check
       messages:
         - container should drop all
-      severity: LOW
       success: false
+      checkID: KSV106
       title: Container capabilities must only include NET_BIND_SERVICE
+      description: Containers must drop ALL capabilities, and are only permitted to
+        add back the NET_BIND_SERVICE capability.
+      severity: LOW
     - category: Kubernetes Security Check
       checkID: KSV003
       description: The container should drop all default capabilities and add only
@@ -67,7 +76,7 @@ report:
           'securityContext.capabilities.drop'
       severity: LOW
       success: false
-      title: Default capabilities not dropped
+      title: "Default capabilities: some containers do not drop all"
     - category: Kubernetes Security Check
       checkID: KSV015
       description: When containers have resource requests specified, the scheduler can
@@ -88,7 +97,7 @@ report:
           'securityContext.runAsGroup' > 10000
       severity: LOW
       success: false
-      title: Runs with low group ID
+      title: Runs with GID <= 10000
     - category: Kubernetes Security Check
       checkID: KSV014
       description: An immutable root file system prevents applications from writing to
@@ -111,7 +120,7 @@ report:
           'securityContext.allowPrivilegeEscalation' to false
       severity: MEDIUM
       success: false
-      title: Process can elevate its own privileges
+      title: Can elevate its own privileges
     - category: Kubernetes Security Check
       checkID: KSV020
       description: Force the container to run with user ID > 10000 to avoid conflicts
@@ -121,7 +130,7 @@ report:
           'securityContext.runAsUser' > 10000
       severity: LOW
       success: false
-      title: Runs with low user ID
+      title: Runs with UID <= 10000
     - category: Kubernetes Security Check
       checkID: KSV012
       description: "'runAsNonRoot' forces the running image to run as a non-root user
@@ -145,11 +154,24 @@ report:
       checkID: KSV110
       description: ensure that default namespace should not be used
       messages:
-        - CronJob 'hello' should not be set with 'default'
-          namespace
+        - cronjob hello in default namespace should set metadata.namespace to a
+          non-default namespace
       severity: LOW
       success: false
-      title: The default namespace should not be used
+      title: Workloads in the default namespace
+    - category: Kubernetes Security Check
+      checkID: KSV116
+      description: According to pod security standard 'Non-root groups', containers
+        should be forbidden from running with a root primary or supplementary
+        GID.
+      messages:
+        - cronjob hello in default namespace should set
+          spec.securityContext.runAsGroup,
+          spec.securityContext.supplementalGroups[*] and
+          spec.securityContext.fsGroup to integer greater than 0
+      severity: LOW
+      success: false
+      title: Runs with a root primary or supplementary GID
   scanner:
     name: Trivy
     vendor: Aqua Security
@@ -157,5 +179,5 @@ report:
   summary:
     criticalCount: 0
     highCount: 0
-    lowCount: 11
-    mediumCount: 2
+    lowCount: 12
+    mediumCount: 3

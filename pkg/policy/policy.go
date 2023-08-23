@@ -269,6 +269,7 @@ func getScannerOptions(hasExternalPolicies bool, useDefaultPolicies bool, polici
 		optionsArray = append(optionsArray, options.ScannerWithPolicyDirs(policiesFolder))
 		optionsArray = append(optionsArray, options.ScannerWithPolicyNamespaces(externalPoliciesNamespace))
 	}
+	optionsArray = append(optionsArray, options.ScannerWithEmbeddedLibraries(true))
 	optionsArray = append(optionsArray, options.ScannerWithDataDirs(dataPaths...))
 	optionsArray = append(optionsArray, options.ScannerWithDataFilesystem(dataFS))
 	return optionsArray

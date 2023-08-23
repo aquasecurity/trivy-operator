@@ -1,6 +1,10 @@
 package trivy
 
 import (
+	"io"
+	"os"
+	"strings"
+
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 )
@@ -116,4 +120,34 @@ func cycloneDxDependenciesToReportDependencies(dependencies *[]cdx.Dependency) *
 		})
 	}
 	return &reportDependencies
+}
+
+// capture replaces os.Stdout with a writer that buffers any data written
+// to os.Stdout. Call the returned function to cleanup and get the data
+// as a string.
+func capture() func() (string, error) {
+	r, w, err := os.Pipe()
+	if err != nil {
+		return func() (string, error) {
+			return "", err
+		}
+	}
+	done := make(chan error, 1)
+	save := os.Stdout
+	os.Stdout = w
+
+	var buf strings.Builder
+
+	go func() {
+		_, err := io.Copy(&buf, r)
+		r.Close()
+		done <- err
+	}()
+
+	return func() (string, error) {
+		os.Stdout = save
+		w.Close()
+		err := <-done
+		return buf.String(), err
+	}
 }

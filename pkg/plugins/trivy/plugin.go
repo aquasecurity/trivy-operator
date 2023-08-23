@@ -1,7 +1,6 @@
 package trivy
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -16,6 +15,7 @@ import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/aquasecurity/trivy-db/pkg/types"
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
+	fg "github.com/aquasecurity/trivy/pkg/flag"
 	tr "github.com/aquasecurity/trivy/pkg/report"
 	ty "github.com/aquasecurity/trivy/pkg/types"
 	containerimage "github.com/google/go-containerregistry/pkg/name"
@@ -1942,16 +1942,22 @@ func getVulnerabilitiesFromScanResult(report ty.Result, addFields AdditionalFiel
 func generateSbomFromScanResult(report ty.Report) (*v1alpha1.BOM, error) {
 	var bom *v1alpha1.BOM
 	if len(report.Results) > 0 && len(report.Results[0].Packages) > 0 {
-		bomWriter := new(bytes.Buffer)
-		err := tr.Write(report, tr.Option{
-			Format: "cyclonedx",
-			Output: bomWriter,
+		// capture os.Stdout with a writer
+		done := capture()
+		err := tr.Write(report, fg.Options{
+			ReportOptions: fg.ReportOptions{
+				Format: ty.FormatCycloneDX,
+			},
 		})
 		if err != nil {
 			return nil, err
 		}
+		out, err := done()
+		if err != nil {
+			return nil, err
+		}
 		var bom cdx.BOM
-		err = json.Unmarshal(bomWriter.Bytes(), &bom)
+		err = json.Unmarshal([]byte(out), &bom)
 		if err != nil {
 			return nil, err
 		}

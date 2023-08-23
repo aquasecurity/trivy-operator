@@ -1952,12 +1952,12 @@ func generateSbomFromScanResult(report ty.Report) (*v1alpha1.BOM, error) {
 		if err != nil {
 			return nil, err
 		}
-		out, err := done()
+		bomWriter, err := done()
 		if err != nil {
 			return nil, err
 		}
 		var bom cdx.BOM
-		err = json.Unmarshal([]byte(out), &bom)
+		err = json.Unmarshal([]byte(bomWriter), &bom)
 		if err != nil {
 			return nil, err
 		}

@@ -1,6 +1,6 @@
 # trivy-operator
 
-![Version: 0.15.1](https://img.shields.io/badge/Version-0.15.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.15.1](https://img.shields.io/badge/AppVersion-0.15.1-informational?style=flat-square)
+![Version: 0.16.0](https://img.shields.io/badge/Version-0.16.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.15.1](https://img.shields.io/badge/AppVersion-0.15.1-informational?style=flat-square)
 
 Keeps security report resources updated
 
@@ -83,7 +83,9 @@ Keeps security report resources updated
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created. |
 | serviceAccount.name | string | `""` | name specifies the name of the k8s Service Account. If not set and create is true, a name is generated using the fullname template. |
+| serviceMonitor.annotations | object | `{}` | Additional annotations for the serviceMonitor |
 | serviceMonitor.enabled | bool | `false` | enabled determines whether a serviceMonitor should be deployed |
+| serviceMonitor.endpointAdditionalProperties | object | `{}` | EndpointAdditionalProperties allows setting additional properties on the endpoint such as relabelings, metricRelabelings etc. |
 | serviceMonitor.honorLabels | bool | `true` | HonorLabels chooses the metric’s labels on collisions with target labels |
 | serviceMonitor.interval | string | `nil` | Interval at which metrics should be scraped. If not specified Prometheus’ global scrape interval is used. |
 | serviceMonitor.labels | object | `{}` | Additional labels for the serviceMonitor |

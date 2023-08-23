@@ -20,151 +20,159 @@ metadata:
       uid: null
 report:
   checks:
-  - checkID: KSV001
-    title: Can elevate its own privileges
-    description: A program inside the container can elevate its own privileges and
-      run as root, which might give the program control over the container and node.
-    severity: MEDIUM
-    category: Kubernetes Security Check
-    messages:
-    - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should set 'securityContext.allowPrivilegeEscalation'
-      to false
-    success: false
-  - checkID: KSV003
-    title: 'Default capabilities: some containers do not drop all'
-    description: The container should drop all default capabilities and add only those
-      that are needed for its execution.
-    severity: LOW
-    category: Kubernetes Security Check
-    messages:
-    - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should add 'ALL'
-      to 'securityContext.capabilities.drop'
-    success: false
-  - checkID: KSV011
-    title: CPU not limited
-    description: Enforcing CPU limits prevents DoS via resource exhaustion.
-    severity: LOW
-    category: Kubernetes Security Check
-    messages:
-    - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should set 'resources.limits.cpu'
-    success: false
-  - checkID: KSV012
-    title: Runs as root user
-    description: "'runAsNonRoot' forces the running image to run as a non-root user
-      to ensure least privileges."
-    severity: MEDIUM
-    category: Kubernetes Security Check
-    messages:
-    - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should set 'securityContext.runAsNonRoot'
-      to true
-    success: false
-  - checkID: KSV014
-    title: Root file system is not read-only
-    description: An immutable root file system prevents applications from writing
-      to their local disk. This can limit intrusions, as attackers will not be able
-      to tamper with the file system or write foreign executables to disk.
-    severity: LOW
-    category: Kubernetes Security Check
-    messages:
-    - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should set 'securityContext.readOnlyRootFilesystem'
-      to true
-    success: false
-  - checkID: KSV015
-    title: CPU requests not specified
-    description: When containers have resource requests specified, the scheduler can
-      make better decisions about which nodes to place pods on, and how to deal with
-      resource contention.
-    severity: LOW
-    category: Kubernetes Security Check
-    messages:
-    - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should set 'resources.requests.cpu'
-    success: false
-  - checkID: KSV016
-    title: Memory requests not specified
-    description: When containers have memory requests specified, the scheduler can
-      make better decisions about which nodes to place pods on, and how to deal with
-      resource contention.
-    severity: LOW
-    category: Kubernetes Security Check
-    messages:
-    - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should set 'resources.requests.memory'
-    success: false
-  - checkID: KSV018
-    title: Memory not limited
-    description: Enforcing memory limits prevents DoS via resource exhaustion.
-    severity: LOW
-    category: Kubernetes Security Check
-    messages:
-    - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should set 'resources.limits.memory'
-    success: false
-  - checkID: KSV020
-    title: Runs with UID <= 10000
-    description: Force the container to run with user ID > 10000 to avoid conflicts
-      with the host’s user table.
-    severity: LOW
-    category: Kubernetes Security Check
-    messages:
-    - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should set 'securityContext.runAsUser'
-      > 10000
-    success: false
-  - checkID: KSV021
-    title: Runs with GID <= 10000
-    description: Force the container to run with group ID > 10000 to avoid conflicts
-      with the host’s user table.
-    severity: LOW
-    category: Kubernetes Security Check
-    messages:
-    - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should set 'securityContext.runAsGroup'
-      > 10000
-    success: false
-  - checkID: KSV030
-    title: Runtime/Default Seccomp profile not set
-    description: The RuntimeDefault/Localhost seccomp profile must be required, or
-      allow specific additional profiles.
-    severity: LOW
-    category: Kubernetes Security Check
-    messages:
-    - Either Pod or Container should set 'securityContext.seccompProfile.type' to
-      'RuntimeDefault'
-    success: false
-  - checkID: KSV104
-    title: Seccomp policies disabled
-    description: Seccomp profile must not be explicitly set to 'Unconfined'.
-    severity: MEDIUM
-    category: Kubernetes Security Check
-    messages:
-    - container wordpress of replicaset wordpress-84bbf6f4dd in default namespace
-      should specify a seccomp profile
-    success: false
-  - checkID: KSV106
-    title: Container capabilities must only include NET_BIND_SERVICE
-    description: Containers must drop ALL capabilities, and are only permitted to
-      add back the NET_BIND_SERVICE capability.
-    severity: LOW
-    category: Kubernetes Security Check
-    messages:
-    - container should drop all
-    success: false
-  - checkID: KSV110
-    title: Workloads in the default namespace
-    description: ensure that default namespace should not be used
-    severity: LOW
-    category: Kubernetes Security Check
-    messages:
-    - replicaset wordpress-84bbf6f4dd in default namespace should set metadata.namespace
-      to a non-default namespace
-    success: false
-  - checkID: KSV116
-    title: Runs with a root primary or supplementary GID
-    description: According to pod security standard 'Non-root groups', containers
-      should be forbidden from running with a root primary or supplementary GID.
-    severity: LOW
-    category: Kubernetes Security Check
-    messages:
-    - replicaset wordpress-84bbf6f4dd in default namespace should set spec.securityContext.runAsGroup,
-      spec.securityContext.supplementalGroups[*] and spec.securityContext.fsGroup
-      to integer greater than 0
-    success: false
+    - checkID: KSV001
+      title: Can elevate its own privileges
+      description: A program inside the container can elevate its own privileges and
+        run as root, which might give the program control over the container and
+        node.
+      severity: MEDIUM
+      category: Kubernetes Security Check
+      messages:
+        - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should set
+          'securityContext.allowPrivilegeEscalation' to false
+      success: false
+    - checkID: KSV003
+      title: "Default capabilities: some containers do not drop all"
+      description: The container should drop all default capabilities and add only
+        those that are needed for its execution.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should add
+          'ALL' to 'securityContext.capabilities.drop'
+      success: false
+    - checkID: KSV011
+      title: CPU not limited
+      description: Enforcing CPU limits prevents DoS via resource exhaustion.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should set
+          'resources.limits.cpu'
+      success: false
+    - checkID: KSV012
+      title: Runs as root user
+      description: "'runAsNonRoot' forces the running image to run as a non-root user
+        to ensure least privileges."
+      severity: MEDIUM
+      category: Kubernetes Security Check
+      messages:
+        - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should set
+          'securityContext.runAsNonRoot' to true
+      success: false
+    - checkID: KSV014
+      title: Root file system is not read-only
+      description: An immutable root file system prevents applications from writing to
+        their local disk. This can limit intrusions, as attackers will not be
+        able to tamper with the file system or write foreign executables to
+        disk.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should set
+          'securityContext.readOnlyRootFilesystem' to true
+      success: false
+    - checkID: KSV015
+      title: CPU requests not specified
+      description: When containers have resource requests specified, the scheduler can
+        make better decisions about which nodes to place pods on, and how to
+        deal with resource contention.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should set
+          'resources.requests.cpu'
+      success: false
+    - checkID: KSV016
+      title: Memory requests not specified
+      description: When containers have memory requests specified, the scheduler can
+        make better decisions about which nodes to place pods on, and how to
+        deal with resource contention.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should set
+          'resources.requests.memory'
+      success: false
+    - checkID: KSV018
+      title: Memory not limited
+      description: Enforcing memory limits prevents DoS via resource exhaustion.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should set
+          'resources.limits.memory'
+      success: false
+    - checkID: KSV020
+      title: Runs with UID <= 10000
+      description: Force the container to run with user ID > 10000 to avoid conflicts
+        with the host’s user table.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should set
+          'securityContext.runAsUser' > 10000
+      success: false
+    - checkID: KSV021
+      title: Runs with GID <= 10000
+      description: Force the container to run with group ID > 10000 to avoid conflicts
+        with the host’s user table.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Container 'wordpress' of ReplicaSet 'wordpress-84bbf6f4dd' should set
+          'securityContext.runAsGroup' > 10000
+      success: false
+    - checkID: KSV030
+      title: Runtime/Default Seccomp profile not set
+      description: The RuntimeDefault/Localhost seccomp profile must be required, or
+        allow specific additional profiles.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Either Pod or Container should set
+          'securityContext.seccompProfile.type' to 'RuntimeDefault'
+      success: false
+    - checkID: KSV104
+      title: Seccomp policies disabled
+      description: Seccomp profile must not be explicitly set to 'Unconfined'.
+      severity: MEDIUM
+      category: Kubernetes Security Check
+      messages:
+        - container wordpress of replicaset wordpress-84bbf6f4dd in default
+          namespace should specify a seccomp profile
+      success: false
+    - checkID: KSV106
+      title: Container capabilities must only include NET_BIND_SERVICE
+      description: Containers must drop ALL capabilities, and are only permitted to
+        add back the NET_BIND_SERVICE capability.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - container should drop all
+      success: false
+    - checkID: KSV110
+      title: Workloads in the default namespace
+      description: ensure that default namespace should not be used
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - replicaset wordpress-84bbf6f4dd in default namespace should set
+          metadata.namespace to a non-default namespace
+      success: false
+    - checkID: KSV116
+      title: Runs with a root primary or supplementary GID
+      description: According to pod security standard 'Non-root groups', containers
+        should be forbidden from running with a root primary or supplementary
+        GID.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - replicaset wordpress-84bbf6f4dd in default namespace should set
+          spec.securityContext.runAsGroup,
+          spec.securityContext.supplementalGroups[*] and
+          spec.securityContext.fsGroup to integer greater than 0
+      success: false
   scanner:
     name: Trivy
     vendor: Aqua Security

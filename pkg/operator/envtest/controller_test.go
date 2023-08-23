@@ -120,6 +120,7 @@ var _ = Describe("Workload controller", func() {
 				return k8sClient.Get(ctx, caLookupKey, createdConfigAuditReport)
 			}, timeout, interval).Should(Succeed())
 			sort.Sort(ByCheckID(expectedConfigAuditReport.Report.Checks))
+
 			Expect(createdConfigAuditReport).Should(WithTransform(NormalizeUntestableConfigAuditReportFields, Equal(expectedConfigAuditReport)))
 		},
 		Entry("Should create a config audit report CronJob", "cronjob-configauditreport-expected.yaml"),

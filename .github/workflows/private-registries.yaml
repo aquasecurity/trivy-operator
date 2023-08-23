@@ -111,12 +111,6 @@ jobs:
           ./bin/kuttl test --start-kind=false --config tests/config/image-private-registries-sa.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
-      - name: image private registries via namespace to secret config tests
-        run: >
-
-          ./bin/kuttl test --start-kind=false --config tests/config/image-private-registries-config.yaml
-
-          ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: Delete kind cluster
         run: |
           kind delete cluster

@@ -266,7 +266,10 @@ trivy:
   # on the active mode other settings might be applicable or required.
   mode: Standalone
 
-  # -- storageClassName is the name of the storage class to be used for trivy server PVC
+  # -- whether to use a storage class for trivy server or emptydir (one mey want to use ephemeral storage)
+  storageClassEnabled: true
+  
+  # -- storageClassName is the name of the storage class to be used for trivy server PVC. If empty, tries to find default storage class
   storageClassName: ""
 
   # -- podLabels is the extra pod labels to be used for trivy server

@@ -106,7 +106,7 @@ There are two ways to overwrite values in a Helm chart upon installation:
 
    e.g. to specfy that Trivy should ignore all unfixed vulnerabilities:
    ```yaml
-   trivy
+   trivy:
       ignoreUnfixed: true
    ```
 

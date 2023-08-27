@@ -136,7 +136,8 @@ Keeps security report resources updated
 | trivy.skipJavaDBUpdate | bool | `false` | skipJavaDBUpdate is the flag to enable skip Java index databases update for Trivy client. |
 | trivy.slow | bool | `true` | slow this flag is to use less CPU/memory for scanning though it takes more time than normal scanning. It fits small-footprint |
 | trivy.sslCertDir | string | `nil` | sslCertDir can be used to override the system default locations for SSL certificate files directory, example: /ssl/certs |
-| trivy.storageClassName | string | `""` | storageClassName is the name of the storage class to be used for trivy server PVC |
+| trivy.storageClassEnabled | bool | `true` | whether to use a storage class for trivy server or emptydir (one mey want to use ephemeral storage) |
+| trivy.storageClassName | string | `""` | storageClassName is the name of the storage class to be used for trivy server PVC. If empty, tries to find default storage class |
 | trivy.supportedConfigAuditKinds | string | `"Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"` | The Flag is the list of supported kinds separated by comma delimiter to be scanned by the config audit scanner  |
 | trivy.timeout | string | `"5m0s"` | timeout is the duration to wait for scan completion. |
 | trivy.useBuiltinRegoPolicies | string | `"true"` | The Flag to enable the usage of builtin rego policies by default  |

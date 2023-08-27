@@ -35,6 +35,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: trivy-server
       app.kubernetes.io/instance: trivy-server
+  {{- if .Values.trivy.storageClassEnabled }}
   volumeClaimTemplates:
     - apiVersion: v1
       kind: PersistentVolumeClaim
@@ -47,6 +48,7 @@ spec:
         accessModes:
           - ReadWriteOnce
         storageClassName: {{ .Values.trivy.storageClassName }}
+  {{- end }}        
   template:
     metadata:
       annotations:
@@ -133,6 +135,10 @@ spec:
       volumes:
         - name: tmp-data
           emptyDir: {}
+        {{- if not .Values.trivy.storageClassEnabled }}
+        - name: data
+          emptyDir: {}
+        {{- end }}
       {{- with .Values.tolerations }}
       tolerations: {{- toYaml . | nindent 8 }}
       {{- end }}

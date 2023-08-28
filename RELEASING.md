@@ -57,9 +57,8 @@
        `public.ecr.aws/aquasecurity/trivy-operator:0.15.1`
    2. Trivy-operator container images published to GitHub Container Registry
        `ghcr.io/aquasecurity/trivy-operator:0.15.1`
-7. Publish the Helm chart by manually triggering the [`.github/workflows/publish-helm-chart.yaml`] workflow
-8. Publish docs on <https://aquasecurity.github.io/trivy-operator/> by manually triggering the [`.github/workflows/publish-docs.yaml`] workflow
-9. Submit trivy-operator Operator to OperatorHub and ArtifactHUB by opening the PR to the <https://github.com/k8s-operatorhub/community-operators> repository.
+7. Publish docs on <https://aquasecurity.github.io/trivy-operator/> by manually triggering the [`.github/workflows/publish-docs.yaml`] workflow
+8. Submit trivy-operator Operator to OperatorHub and ArtifactHUB by opening the PR to the <https://github.com/k8s-operatorhub/community-operators> repository.
 
 [`deploy/helm/Chart.yaml`]: ./deploy/helm/Chart.yaml
 [`deploy/static/namespace.yaml`]: ./deploy/static/namespace.yaml

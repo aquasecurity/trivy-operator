@@ -9,7 +9,7 @@ on:
       - deploy/helm/Chart.yaml
 
 jobs:
-  appversion-validation:
+  appVersion-validation:
     runs-on: ubuntu-latest
     permissions:
       contents: write

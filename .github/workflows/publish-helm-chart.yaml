@@ -4,11 +4,16 @@
 name: Publish Helm chart
 
 on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: The branch, tag or SHA to publish, e.g. v0.0.1
+        required: true
   pull_request_target:
     types:
       - closed
     paths:
-      - 'deploy/helm/Chart.yaml'
+      - deploy/helm/Chart.yaml
 env:
   HELM_REP: helm-charts
   GH_OWNER: aquasecurity
@@ -17,10 +22,17 @@ env:
   KIND_IMAGE: kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6
 jobs:
   release:
-    if: github.event.pull_request.merged == true
+    if: (github.event.pull_request.merged == true && !contains(github.event.pull_request.labels.*.name, 'app-version-changed') || github.event.inputs.ref != '')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
+        uses: actions/checkout@v3
+        if: github.event.inputs.ref != ''
+        with:
+          ref: ${{ github.event.inputs.ref }}
+          fetch-depth: 0
+      - name: Checkout
+        if: github.event.inputs.ref == ''
         uses: actions/checkout@v3
         with:
           fetch-depth: 0

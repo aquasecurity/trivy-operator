@@ -7,7 +7,7 @@ on:
       - synchronize
     paths:
       - deploy/helm/Chart.yaml
-      
+
 jobs:
   check-appversion-change:
     runs-on: ubuntu-latest
@@ -18,14 +18,14 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0 
+          fetch-depth: 0
 
       - name: Get latest tag
         id: latest_tag
         run: |
           latest_tag=$(git describe --tags --abbrev=0 | sed 's/v//')
           echo "::set-output name=tag::$latest_tag"
-          
+
       - name: Read Chart.yaml appVersion
         id: chart_version
         run: |
@@ -43,5 +43,3 @@ jobs:
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           labels: app-version-changed
-
-       

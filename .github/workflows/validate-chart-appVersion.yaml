@@ -1,4 +1,4 @@
-name: Validate Chart appVersion change
+name: Chart-Content
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ on:
       - deploy/helm/Chart.yaml
 
 jobs:
-  check-appversion-change:
+  appVersion-validation:
     runs-on: ubuntu-latest
     permissions:
       contents: write

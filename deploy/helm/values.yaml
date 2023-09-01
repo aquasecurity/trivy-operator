@@ -455,6 +455,9 @@ trivy:
       privileged: false
       readOnlyRootFilesystem: true
 
+    # -- the number of replicas of the trivy-server
+    replicas: 1
+
 compliance:
   # -- failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report
   failEntriesLimit: 10

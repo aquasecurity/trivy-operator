@@ -73,7 +73,7 @@ spec:
       - name:  {{ . }}
       {{- end }}
       containers:
-        - name: {{ .Values.trivy.serverServiceName }}
+        - name: trivy-server
           image: "{{ .Values.trivy.image.registry }}/{{ .Values.trivy.image.repository }}:{{ .Values.trivy.image.tag }}"
           imagePullPolicy: "IfNotPresent"
           {{- with .Values.trivy.server.securityContext }}

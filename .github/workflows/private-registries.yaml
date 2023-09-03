@@ -11,6 +11,16 @@ on:
       - mkdocs.yml
       - LICENSE
       - NOTICE
+  pull_request_target:
+    branches:
+      - main
+    paths-ignore:
+      - .github/ISSUE_TEMPLATE/*.md
+      - "*.md"
+      - docs/**
+      - mkdocs.yml
+      - LICENSE
+      - NOTICE
 
 env:
   GO_VERSION: 1.20.4

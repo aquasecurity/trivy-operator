@@ -3,6 +3,8 @@ name: Chart-Content
 on:
   pull_request_target:
     types: [opened, synchronize, reopened]
+    branches:
+      - 'main'
     paths:
       - deploy/helm/Chart.yaml
 

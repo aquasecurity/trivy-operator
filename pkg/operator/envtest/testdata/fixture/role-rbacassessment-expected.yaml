@@ -1,7 +1,8 @@
+---
 apiVersion: aquasecurity.github.io/v1alpha1
 kind: RbacAssessmentReport
 metadata:
-  annotations:
+  annotations: null
   generation: 1
   labels:
     trivy-operator.resource.name: proxy
@@ -14,31 +15,39 @@ metadata:
       controller: true
       kind: Role
       name: proxy
-      uid:
+      uid: null
 report:
   checks:
-    - category: Kubernetes Security Check
-      checkID: KSV041
-      description: Check whether role permits managing secrets
+    - checkID: KSV113
+      title: Manage namespace secrets
+      description: Viewing secrets at the namespace scope can lead to escalation if
+        another service account in that namespace has a higher privileged
+        rolebinding or clusterrolebinding bound.
+      severity: MEDIUM
+      category: Kubernetes Security Check
       messages:
-        - Role permits management of secret(s)
-      severity: CRITICAL
+        - Role 'proxy' shouldn't have access to manage secrets in namespace
+          'default'
       success: false
-      title: Do not allow management of secrets
-    - category: Kubernetes Security Check
-      checkID: KSV110
-      description: ensure that default namespace should not be used
-      messages:
-        - Role 'proxy' should not be set with 'default' namespace
+    - checkID: KSV116
+      title: Runs with a root primary or supplementary GID
+      description: According to pod security standard 'Non-root groups', containers
+        should be forbidden from running with a root primary or supplementary
+        GID.
       severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - role proxy in default namespace should set
+          spec.securityContext.runAsGroup,
+          spec.securityContext.supplementalGroups[*] and
+          spec.securityContext.fsGroup to integer greater than 0
       success: false
-      title: The default namespace should not be used
   scanner:
     name: Trivy
     vendor: Aqua Security
     version: version
   summary:
-    criticalCount: 1
+    criticalCount: 0
     highCount: 0
     lowCount: 1
-    mediumCount: 0
+    mediumCount: 1

@@ -1,7 +1,6 @@
 package trivy
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -11,10 +10,12 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/aquasecurity/trivy-db/pkg/types"
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
+	fg "github.com/aquasecurity/trivy/pkg/flag"
 	tr "github.com/aquasecurity/trivy/pkg/report"
 	ty "github.com/aquasecurity/trivy/pkg/types"
 	containerimage "github.com/google/go-containerregistry/pkg/name"
@@ -82,7 +83,9 @@ const (
 	keyTrivyUseBuiltinRegoPolicies    = "trivy.useBuiltinRegoPolicies"
 	keyTrivySupportedConfigAuditKinds = "trivy.supportedConfigAuditKinds"
 
-	keyTrivyServerURL = "trivy.serverURL"
+	keyTrivyServerURL              = "trivy.serverURL"
+	keyTrivyClientServerSkipUpdate = "trivy.clientServerSkipUpdate"
+	keyTrivySkipJavaDBUpdate       = "trivy.skipJavaDBUpdate"
 	// nolint:gosec // This is not a secret, but a configuration value.
 	keyTrivyServerTokenHeader = "trivy.serverTokenHeader"
 	keyTrivyServerInsecure    = "trivy.serverInsecure"
@@ -235,6 +238,30 @@ func (c Config) GetCommand() (Command, error) {
 
 func (c Config) GetServerURL() (string, error) {
 	return c.GetRequiredData(keyTrivyServerURL)
+}
+
+func (c Config) GetClientServerSkipUpdate() bool {
+	val, ok := c.Data[keyTrivyClientServerSkipUpdate]
+	if !ok {
+		return false
+	}
+	boolVal, err := strconv.ParseBool(val)
+	if err != nil {
+		return false
+	}
+	return boolVal
+}
+
+func (c Config) GetSkipJavaDBUpdate() bool {
+	val, ok := c.Data[keyTrivySkipJavaDBUpdate]
+	if !ok {
+		return false
+	}
+	boolVal, err := strconv.ParseBool(val)
+	if err != nil {
+		return false
+	}
+	return boolVal
 }
 
 func (c Config) GetServerInsecure() bool {
@@ -555,7 +582,7 @@ func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 	return ctx.EnsureConfig(trivyoperator.PluginConfig{
 		Data: map[string]string{
 			keyTrivyImageRepository:           DefaultImageRepository,
-			keyTrivyImageTag:                  "0.43.1",
+			keyTrivyImageTag:                  "0.44.1",
 			KeyTrivySeverity:                  DefaultSeverity,
 			keyTrivySlow:                      "true",
 			keyTrivyMode:                      string(Standalone),
@@ -1115,6 +1142,7 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 		return []string{}, []string{}
 	}
 	slow := Slow(c)
+	skipJavaDBUpdate := SkipJavaDBUpdate(c)
 	vulnTypeArgs := p.vulnTypeFilter(ctx)
 	scanners := Scanners(c)
 	var vulnTypeFlag string
@@ -1126,7 +1154,11 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 	if len(imcs) == 2 {
 		imageconfigSecretScannerFlag = fmt.Sprintf("%s %s ", imcs[0], imcs[1])
 	}
+	var skipUpdate string
 	if mode == ClientServer {
+		if c.GetClientServerSkipUpdate() {
+			skipUpdate = SkipDBUpdate(c)
+		}
 		if !compressLogs {
 			args := []string{
 				"--cache-dir",
@@ -1135,6 +1167,8 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 				"image",
 				scanners,
 				getSecurityChecks(ctx),
+				skipUpdate,
+				skipJavaDBUpdate,
 				"--format",
 				"json",
 				"--server",
@@ -1156,9 +1190,9 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 			}
 			return command, args
 		}
-		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, getPkgList(ctx), trivyServerURL, resultFileName, resultFileName)}
+		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, skipJavaDBUpdate, getPkgList(ctx), trivyServerURL, resultFileName, resultFileName)}
 	}
-	skipUpdate := SkipDBUpdate(c)
+	skipUpdate = SkipDBUpdate(c)
 	if !compressLogs {
 		args := []string{
 			"--cache-dir",
@@ -1168,6 +1202,7 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 			scanners,
 			getSecurityChecks(ctx),
 			skipUpdate,
+			skipJavaDBUpdate,
 			"--format",
 			"json",
 			imageRef,
@@ -1187,7 +1222,7 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 		}
 		return command, args
 	}
-	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, getPkgList(ctx), resultFileName, resultFileName)}
+	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, skipJavaDBUpdate, getPkgList(ctx), resultFileName, resultFileName)}
 }
 
 func (p *plugin) vulnTypeFilter(ctx trivyoperator.PluginContext) []string {
@@ -1788,7 +1823,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 			return vulnReport, secretReport, &sbomReport, err
 		}
 	}
-	registry, artifact, err := p.parseImageRef(imageRef)
+	registry, artifact, err := p.parseImageRef(imageRef, reports.Metadata.ImageID)
 	if err != nil {
 		return vulnReport, secretReport, &sbomReport, err
 	}
@@ -1855,11 +1890,20 @@ func getVulnerabilitiesFromScanResult(report ty.Result, addFields AdditionalFiel
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
 
 	for _, sr := range report.Vulnerabilities {
+		var pd, lmd string
+		if sr.PublishedDate != nil {
+			pd = sr.PublishedDate.Format(time.RFC3339)
+		}
+		if sr.LastModifiedDate != nil {
+			lmd = sr.LastModifiedDate.Format(time.RFC3339)
+		}
 		vulnerability := v1alpha1.Vulnerability{
 			VulnerabilityID:  sr.VulnerabilityID,
 			Resource:         sr.PkgName,
 			InstalledVersion: sr.InstalledVersion,
 			FixedVersion:     sr.FixedVersion,
+			PublishedDate:    pd,
+			LastModifiedDate: lmd,
 			Severity:         v1alpha1.Severity(sr.Severity),
 			Title:            sr.Title,
 			PrimaryLink:      sr.PrimaryURL,
@@ -1898,16 +1942,22 @@ func getVulnerabilitiesFromScanResult(report ty.Result, addFields AdditionalFiel
 func generateSbomFromScanResult(report ty.Report) (*v1alpha1.BOM, error) {
 	var bom *v1alpha1.BOM
 	if len(report.Results) > 0 && len(report.Results[0].Packages) > 0 {
-		bomWriter := new(bytes.Buffer)
-		err := tr.Write(report, tr.Option{
-			Format: "cyclonedx",
-			Output: bomWriter,
+		// capture os.Stdout with a writer
+		done := capture()
+		err := tr.Write(report, fg.Options{
+			ReportOptions: fg.ReportOptions{
+				Format: ty.FormatCycloneDX,
+			},
 		})
 		if err != nil {
 			return nil, err
 		}
+		bomWriter, err := done()
+		if err != nil {
+			return nil, err
+		}
 		var bom cdx.BOM
-		err = json.Unmarshal(bomWriter.Bytes(), &bom)
+		err = json.Unmarshal([]byte(bomWriter), &bom)
 		if err != nil {
 			return nil, err
 		}
@@ -1986,7 +2036,7 @@ func (p *plugin) secretSummary(secrets []v1alpha1.ExposedSecret) v1alpha1.Expose
 	return s
 }
 
-func (p *plugin) parseImageRef(imageRef string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
+func (p *plugin) parseImageRef(imageRef string, imageID string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
 	ref, err := containerimage.ParseReference(imageRef)
 	if err != nil {
 		return v1alpha1.Registry{}, v1alpha1.Artifact{}, err
@@ -2002,6 +2052,9 @@ func (p *plugin) parseImageRef(imageRef string) (v1alpha1.Registry, v1alpha1.Art
 		artifact.Tag = t.TagStr()
 	case containerimage.Digest:
 		artifact.Digest = t.DigestStr()
+	}
+	if len(artifact.Digest) == 0 {
+		artifact.Digest = imageID
 	}
 	return registry, artifact, nil
 }

@@ -35,11 +35,18 @@ type TTLReportReconciler struct {
 
 func (r *TTLReportReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	// watch reports for ttl
-	ttlResources := []kube.Resource{
-		{ForObject: &v1alpha1.VulnerabilityReport{}},
-		{ForObject: &v1alpha1.ConfigAuditReport{}},
-		{ForObject: &v1alpha1.ExposedSecretReport{}},
-		{ForObject: &v1alpha1.RbacAssessmentReport{}},
+	ttlResources := make([]kube.Resource, 0)
+	if r.Config.RbacAssessmentScannerEnabled {
+		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.RbacAssessmentReport{}})
+	}
+	if r.Config.ConfigAuditScannerEnabled {
+		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.ConfigAuditReport{}})
+	}
+	if r.Config.VulnerabilityScannerEnabled {
+		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.VulnerabilityReport{}})
+	}
+	if r.Config.ExposedSecretScannerEnabled {
+		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.ExposedSecretReport{}})
 	}
 	if r.Config.InfraAssessmentScannerEnabled {
 		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.InfraAssessmentReport{}})

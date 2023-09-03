@@ -48,10 +48,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Verify Go code
-        uses: golangci/golangci-lint-action@v3.6.0
+        uses: golangci/golangci-lint-action@v3.7.0
         with:
           args: --verbose
-          version: latest
+          version: v1.53.2
           skip-pkg-cache: true
           skip-build-cache: true
       - name: Verify YAML code

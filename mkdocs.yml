@@ -87,7 +87,7 @@ extra:
     provider: mike
   var:
     prev_git_tag: "v0.15.0"
-    chart_version: "0.15.1"
+    chart_version: "0.18.0-rc"
 
 plugins:
   - search

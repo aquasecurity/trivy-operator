@@ -11,9 +11,7 @@ on:
 jobs:
   appVersion-validation:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
+
     steps:
       - name: Check out code
         uses: actions/checkout@v2
@@ -36,7 +34,6 @@ jobs:
         if: ${{ steps.latest_tag.outputs.tag != steps.chart_version.outputs.app_version }}
         uses: actions-ecosystem/action-add-labels@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           labels: app-version-changed
 
 
@@ -44,5 +41,4 @@ jobs:
         if: ${{ steps.latest_tag.outputs.tag == steps.chart_version.outputs.app_version }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           labels: app-version-changed

@@ -1,9 +1,6 @@
 name: Chart-Content
 on:
   pull_request_target:
-    types:
-    - opened
-    - synchronize
     paths:
       - deploy/helm/Chart.yaml
 

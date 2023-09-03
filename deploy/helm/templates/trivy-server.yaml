@@ -30,7 +30,7 @@ metadata:
 spec:
   podManagementPolicy: "Parallel"
   serviceName: {{ .Values.trivy.serverServiceName }}
-  replicas: 1
+  replicas: {{ .Values.trivy.server.replicas }}
   selector:
     matchLabels:
       app.kubernetes.io/name: trivy-server

@@ -1,10 +1,7 @@
 name: Chart-Content
-
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
+  pull_request_target:
+    types: [opened, reopened, ready_for_review, synchronize]
     paths:
       - deploy/helm/Chart.yaml
 
@@ -14,6 +11,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+
     steps:
       - name: Check out code
         uses: actions/checkout@v2
@@ -37,6 +35,7 @@ jobs:
         uses: actions-ecosystem/action-add-labels@v1
         with:
           labels: app-version-changed
+
 
       - name: remove app-version-changed label
         if: ${{ steps.latest_tag.outputs.tag == steps.chart_version.outputs.app_version }}

@@ -1,14 +1,18 @@
 name: Chart-Content
-
 on:
   pull_request_target:
+    types:
+    - opened
+    - synchronize
     paths:
       - deploy/helm/Chart.yaml
 
 jobs:
   appVersion-validation:
     runs-on: ubuntu-latest
-    permissions: write-all
+    permissions:
+      contents: write
+      pull-requests: write
       
     steps:
       - name: Check out code

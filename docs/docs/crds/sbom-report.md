@@ -162,7 +162,7 @@ report:
   scanner:
     name: Trivy
     vendor: Aqua Security
-    version: 0.42.0
+    version: 0.44.1
   summary:
     componentsCount: 5
     dependenciesCount: 5

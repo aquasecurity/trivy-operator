@@ -23,3 +23,4 @@ The Webhook integration support the following reports types:
 - `clusterConfigAuditReport`
 - `clusterInfraAssessmentReport`
 - `clusterComplianceReport`
+- `sbomReport`

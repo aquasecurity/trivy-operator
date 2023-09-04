@@ -1,6 +1,39 @@
 [
   {
     "Metadata": {
+      "ID": "AVD-KSV-01010",
+      "Title": "ConfigMap with sensitive content",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Storing sensitive content such as usernames and email addresses in configMaps is unsafe"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "AVD-KSV-0108",
+      "Title": "Service with External IP",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Services with external IP addresses allows direct access from the internet and might expose risk for CVE-2020-8554"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "AVD-KSV-0109",
+      "Title": "ConfigMap with secrets",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Storing secrets in configMaps is unsafe"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
       "ID": "KCV0001",
       "Title": "Ensure that the --anonymous-auth argument is set to false",
       "Severity": "MEDIUM",
@@ -463,6 +496,501 @@
   },
   {
     "Metadata": {
+      "ID": "KCV0048",
+      "Title": "Ensure that the API server pod specification file permissions are set to 600 or more restrictive",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the API server pod specification file has permissions of 600 or more restrictive."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0049",
+      "Title": "Ensure that the API server pod specification file ownership is set to root:root",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the API server pod specification file ownership is set to root:root."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0050",
+      "Title": "Ensure that the controller manager pod specification file permissions are set to 600 or more restrictive",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the controller manager pod specification file has permissions of 600 or more restrictive."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0051",
+      "Title": "Ensure that the controller manager pod specification file ownership is set to root:root",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the controller manager pod specification file ownership is set to root:root."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0052",
+      "Title": "Ensure that the scheduler pod specification file permissions are set to 600 or more restrictive",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the scheduler pod specification file has permissions of 600 or more restrictive."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0053",
+      "Title": "Ensure that the scheduler pod specification file ownership is set to root:root",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the scheduler pod specification file ownership is set to root:root."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0054",
+      "Title": "Ensure that the etcd pod specification file permissions are set to 600 or more restrictive",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the etcd pod specification file has permissions of 600 or more restrictive."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0055",
+      "Title": "Ensure that the etcd pod specification file ownership is set to root:root",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the etcd pod specification file ownership is set to root:root."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0056",
+      "Title": "Ensure that the container network interface file permissions are set to 600 or more restrictive",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the container network interface file has permissions of 600 or more restrictive."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0057",
+      "Title": "Ensure that the container network interface file ownership is set to root:root",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the container network interface file ownership is set to root:root."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0058",
+      "Title": "Ensure that the etcd data directory permissions are set to 700 or more restrictive",
+      "Severity": "LOW",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the etcd data directory has permissions of 700 or more restrictive."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0059",
+      "Title": "Ensure that the etcd data directory ownership is set to etcd:etcd",
+      "Severity": "LOW",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the etcd data directory ownership is set to etcd:etcd."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0060",
+      "Title": "Ensure that the admin config file permissions are set to 600 or more restrictive",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the admin config file has permissions of 600 or more restrictive."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0061",
+      "Title": "Ensure that the admin config  file ownership is set to root:root",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the admin config  file ownership is set to root:root."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0062",
+      "Title": "Ensure that the scheduler config file permissions are set to 600 or more restrictive",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the scheduler config file has permissions of 600 or more restrictive."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0063",
+      "Title": "Ensure that the scheduler config  file ownership is set to root:root",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the scheduler config  file ownership is set to root:root."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0064",
+      "Title": "Ensure that the controller-manager config file permissions are set to 600 or more restrictive",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the controller-manager config file has permissions of 600 or more restrictive."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0065",
+      "Title": "Ensure that the controller-manager config  file ownership is set to root:root",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the controller-manager config  file ownership is set to root:root."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0066",
+      "Title": "Ensure that the Kubernetes PKI directory and file file ownership is set to root:root",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the Kubernetes PKI directory and file file ownership is set to root:root."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0067",
+      "Title": "Ensure that the Kubernetes PKI key file permission is set to 600",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the Kubernetes PKI key file permission is set to 600."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0068",
+      "Title": "Ensure that the Kubernetes PKI certificate file permission is set to 600",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the Kubernetes PKI certificate file permission is set to 600."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0069",
+      "Title": "Ensure that the kubelet service file permissions are set to 600 or more restrictive",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the kubelet service file has permissions of 600 or more restrictive."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0070",
+      "Title": "Ensure that the kubelet service file ownership is set to root:root",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the kubelet service file ownership is set to root:root."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0071",
+      "Title": "If proxy kubeconfig file exists ensure permissions are set to 600 or more restrictive",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "If kube-proxy is running, and if it is using a file-based kubeconfig file, ensure that the proxy kubeconfig file has permissions of 600 or more restrictive."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0072",
+      "Title": "if proxy kubeconfig file exists ensure ownership is set to root:root",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "If kube-proxy is running, ensure that the file ownership of its kubeconfig file is set to root:root."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0073",
+      "Title": "Ensure that the --kubeconfig kubelet.conf file permissions are set to 600 or more restrictive",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the kubelet.conf file has permissions of 600 or more restrictive."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0074",
+      "Title": "Ensure that the --kubeconfig kubelet.conf file ownership is set to root:root",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the kubelet.conf file ownership is set to root:root."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0075",
+      "Title": "Ensure that the certificate authorities file permissions are set to 600 or more restrictive",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the certificate authorities file has permissions of 600 or more restrictive."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0076",
+      "Title": "Ensure that the client certificate authorities file ownership is set to root:root",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the certificate authorities file ownership is set to root:root."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0077",
+      "Title": "If the kubelet config.yaml configuration file is being used validate permissions set to 600 or more restrictive",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that if the kubelet refers to a configuration file with the --config argument, that file has permissions of 600 or more restrictive."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0078",
+      "Title": "If the kubelet config.yaml configuration file is being used validate file ownership is set to root:root ",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that if the kubelet refers to a configuration file with the --config argument, that file is owned by root:root."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0079",
+      "Title": "Ensure that the --anonymous-auth argument is set to false",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Disable anonymous requests to the Kubelet server."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0080",
+      "Title": "Ensure that the --authorization-mode argument is not set to AlwaysAllow",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Do not allow all requests. Enable explicit authorization."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0081",
+      "Title": "Ensure that the --client-ca-file argument is set as appropriate",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Enable Kubelet authentication using certificates."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0082",
+      "Title": "Verify that the --read-only-port argument is set to 0",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Disable the read-only port."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0083",
+      "Title": "Ensure that the --protect-kernel-defaults is set to true",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Protect tuned kernel parameters from overriding kubelet default kernel parameter values."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0084",
+      "Title": "Ensure that the --make-iptables-util-chains argument is set to true",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Allow Kubelet to manage iptables."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0085",
+      "Title": "Ensure that the --streaming-connection-idle-timeout argument is not set to 0",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Do not disable timeouts on streaming connections."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0086",
+      "Title": "Ensure that the --hostname-override argument is not set",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Do not override node hostnames."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0087",
+      "Title": "Ensure that the --event-qps argument is set to 0 or a level which ensures appropriate event capture",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Security relevant information should be captured. The --event-qps flag on the Kubelet can be used to limit the rate at which events are gathered"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0088",
+      "Title": "Ensure that the --tls-cert-file argument are set as appropriate",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Setup TLS connection on the Kubelets."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0089",
+      "Title": "Ensure that the --tls-key-file argument are set as appropriate",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Setup TLS connection on the Kubelets."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0090",
+      "Title": "Ensure that the --rotate-certificates argument is not set to false",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Enable kubelet client certificate rotation."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0091",
+      "Title": "Verify that the RotateKubeletServerCertificate argument is set to true",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Enable kubelet server certificate rotation."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KCV0092",
+      "Title": "Ensure that the Kubelet only makes use of Strong Cryptographic Ciphers",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Ensure that the Kubelet is configured to only use strong cryptographic ciphers."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
       "ID": "KCV0135",
       "Title": "Ensure that the --use-service-account-credentials argument is set to true",
       "Severity": "LOW",
@@ -766,10 +1294,8 @@
       "Type": "Kubernetes Security Check",
       "Description": "The RuntimeDefault/Localhost seccomp profile must be required, or allow specific additional profiles."
     },
-    "Success": false,
-    "Messages": [
-      "Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'"
-    ]
+    "Success": true,
+    "Messages": null
   },
   {
     "Metadata": {
@@ -800,6 +1326,184 @@
       "Severity": "MEDIUM",
       "Type": "Kubernetes Security Check",
       "Description": "ensure that network policies selectors are applied to pods or namespaces to restricted ingress and egress traffic within the pod network"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV041",
+      "Title": "Do not allow management of secrets",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits managing secrets"
+    },
+    "Success": false,
+    "Messages": [
+      "Role permits management of secret(s)"
+    ]
+  },
+  {
+    "Metadata": {
+      "ID": "KSV042",
+      "Title": "Do not allow deletion of pod logs",
+      "Severity": "MEDIUM",
+      "Type": "Kubernetes Security Check",
+      "Description": "Used to cover attacker’s tracks, but most clusters ship logs quickly off-cluster."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV043",
+      "Title": "Do not allow impersonation of privileged groups",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits impersonating privileged groups"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV044",
+      "Title": "No wildcard verb and resource roles",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits wildcard verb on wildcard resource"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV045",
+      "Title": "No wildcard verb roles",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits wildcard verb on specific resources"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV046",
+      "Title": "No wildcard resource roles",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits specific verb on wildcard resources"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV047",
+      "Title": "Do not allow privilege escalation from node proxy",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits privilege escalation from node proxy"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV048",
+      "Title": "Do not allow update/create of a malicious pod",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits update/create of a malicious pod"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV049",
+      "Title": "Do not allow management of configmaps",
+      "Severity": "MEDIUM",
+      "Type": "Kubernetes Security Check",
+      "Description": "Some workloads leverage configmaps to store sensitive data or configuration parameters that affect runtime behavior that can be modified by an attacker or combined with another issue to potentially lead to compromise."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV050",
+      "Title": "Do not allow management of RBAC resources",
+      "Severity": "CRITICAL",
+      "Type": "Kubernetes Security Check",
+      "Description": "An effective level of access equivalent to cluster-admin should not be provided."
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV051",
+      "Title": "Do not allow role binding creation and association with privileged role/clusterrole",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits creating role bindings and associating to privileged role/clusterrole"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV052",
+      "Title": "Do not allow role to create ClusterRoleBindings and association with privileged role",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits creating role ClusterRoleBindings and association with privileged cluster role"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV053",
+      "Title": "Do not allow getting shell on pods",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits getting shell on pods"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV054",
+      "Title": "Do not allow attaching to shell on pods",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits attaching to shell on pods"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV055",
+      "Title": "Do not allow users in a rolebinding to add other users to their rolebindings",
+      "Severity": "LOW",
+      "Type": "Kubernetes Security Check",
+      "Description": "Check whether role permits allowing users in a rolebinding to add other users to their rolebindings"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV056",
+      "Title": "Do not allow management of networking resources",
+      "Severity": "HIGH",
+      "Type": "Kubernetes Security Check",
+      "Description": "The ability to control which pods get service traffic directed to them allows for interception attacks. Controlling network policy allows for bypassing lateral movement restrictions."
     },
     "Success": true,
     "Messages": null
@@ -856,10 +1560,30 @@
       "Type": "Kubernetes Security Check",
       "Description": "Containers must drop ALL capabilities, and are only permitted to add back the NET_BIND_SERVICE capability."
     },
-    "Success": false,
-    "Messages": [
-      "container should drop all"
-    ]
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV110",
+      "Title": "The default namespace should not be used",
+      "Severity": "LOW",
+      "Type": "Kubernetes Security Check",
+      "Description": "ensure that default namespace should not be used"
+    },
+    "Success": true,
+    "Messages": null
+  },
+  {
+    "Metadata": {
+      "ID": "KSV111",
+      "Title": "Ensure that the cluster-admin role is only used where required",
+      "Severity": "MEDIUM",
+      "Type": "Kubernetes Security Check",
+      "Description": "The RBAC role cluster-admin provides wide-ranging powers over the environment and should be used only where and when needed."
+    },
+    "Success": true,
+    "Messages": null
   },
   {
     "Metadata": {

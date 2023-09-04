@@ -78,3 +78,11 @@ jobs:
           destination_branch: "gh-pages"
           user_email: aqua-bot@users.noreply.github.com
           user_name: "aqua-bot"
+
+      - name: Repository Dispatch Publish docs
+        if: github.event.client_payload.action == 'chart-and-app-release'
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: publish-docs
+          client-payload: '{"action": "docs-release"}'

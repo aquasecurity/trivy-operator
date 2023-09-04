@@ -32,15 +32,10 @@ jobs:
           app_version=$(grep -E '^appVersion:' deploy/helm/Chart.yaml | awk '{print $2}')
           echo "::set-output name=app_version::$app_version"
 
-      - name: add app-version-changed label
-        if: ${{ steps.latest_tag.outputs.tag != steps.chart_version.outputs.app_version }}
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          labels: app-version-changed
-
-
-      - name: remove app-version-changed label
+      - name: Repository Dispatch Label PR
         if: ${{ steps.latest_tag.outputs.tag == steps.chart_version.outputs.app_version }}
-        uses: actions-ecosystem/action-remove-labels@v1
+        uses: peter-evans/repository-dispatch@v1
         with:
-          labels: app-version-changed
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: publish-chart
+          client-payload: '{"action": "chart-release"}'

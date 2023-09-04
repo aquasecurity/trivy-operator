@@ -3,13 +3,8 @@
 # main branch to Aqua Security repository at https://github.com/aquasecurity/helm-charts.
 name: Publish Helm chart
 on:
-  release:
-    types: [published]
-
-  workflow_run:
-    workflows: ["Chart-Content"]
-    types:
-      - completed
+  repository_dispatch:
+    types: [publish-chart]
     paths:
       - deploy/helm/Chart.yaml
 env:
@@ -20,18 +15,22 @@ env:
   KIND_IMAGE: kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6
 jobs:
   release:
-    if: (!contains(github.event.pull_request.labels.*.name, 'app-version-changed')) || github.event.inputs.ref != ''
+    # this job will only run if the PR has been merged
+    if: github.event.client_payload.action == 'chart-release' || github.event.client_payload.action == 'chart-and-app-release'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        if: github.event.inputs.ref != ''
+      - name: Get latest tag
+        id: latest_tag
+        run: |
+          latest_tag=$(git describe --tags --abbrev=0)
+          echo "::set-output name=tag::$latest_tag"
+      - uses: actions/checkout@v2
+        if: github.event.client_payload.action == 'chart-and-app-release'
         with:
-          ref: ${{ github.event.inputs.ref }}
+          ref: ${{ steps.latest_tag.outputs.tag }}
           fetch-depth: 0
-      - name: Checkout
-        if: github.event.inputs.ref == ''
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v2
+        if: github.event.client_payload.action == 'chart-release'
         with:
           fetch-depth: 0
       - name: Install Helm

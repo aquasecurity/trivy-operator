@@ -2,13 +2,9 @@
 # This is a manually triggered workflow to package and upload the Helm chart from the
 # main branch to Aqua Security repository at https://github.com/aquasecurity/helm-charts.
 name: Publish Helm chart
-
 on:
-  workflow_dispatch:
-    inputs:
-      ref:
-        description: The branch, tag or SHA to publish, e.g. v0.0.1
-        required: true
+  release:
+    types: [published]
 
   workflow_run:
     workflows: ["Chart-Content"]
@@ -24,7 +20,7 @@ env:
   KIND_IMAGE: kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6
 jobs:
   release:
-    if: (!contains(github.event.pull_request.labels.*.name, 'app-version-changed') || github.event.inputs.ref != ''
+    if: (!contains(github.event.pull_request.labels.*.name, 'app-version-changed')) || github.event.inputs.ref != ''
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

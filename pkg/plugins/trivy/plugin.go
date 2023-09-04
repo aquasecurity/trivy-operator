@@ -830,46 +830,19 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 				Value: region,
 			})
 		}
-		gcrImage := CheckGcpCrOrivateRegistry(c.Image)
 		if config.GetDBRepositoryInsecure() {
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_INSECURE",
 				Value: "true",
 			})
 		}
+		gcrImage := checkGcpCrOrPivateRegistry(c.Image)
 		if _, ok := containersCredentials[c.Name]; ok && secret != nil {
 			registryUsernameKey := fmt.Sprintf("%s.username", c.Name)
 			registryPasswordKey := fmt.Sprintf("%s.password", c.Name)
+			secretName := secret.Name
 			if gcrImage {
-				env = append(env, corev1.EnvVar{
-					Name:  "TRIVY_USERNAME",
-					Value: "",
-				})
-				env = append(env, corev1.EnvVar{
-					Name:  "GOOGLE_APPLICATION_CREDENTIALS",
-					Value: "/cred/credential.json",
-				})
-				googlecredMount := corev1.VolumeMount{
-					Name:      "gcrvol",
-					MountPath: "/cred",
-					ReadOnly:  true,
-				}
-				googlecredVolume := corev1.Volume{
-					Name: "gcrvol",
-					VolumeSource: corev1.VolumeSource{
-						Secret: &corev1.SecretVolumeSource{
-							SecretName: secret.Name,
-							Items: []corev1.KeyToPath{
-								{
-									Key:  registryPasswordKey,
-									Path: "credential.json",
-								},
-							},
-						},
-					},
-				}
-				volumes = append(volumes, googlecredVolume)
-				volumeMounts = append(volumeMounts, googlecredMount)
+				createEnvandVolumeForGcr(&env, &volumeMounts, &volumes, &registryPasswordKey, &secretName)
 			} else {
 				env = append(env, corev1.EnvVar{
 					Name: "TRIVY_USERNAME",
@@ -943,7 +916,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 	}, secrets, nil
 }
 
-func CheckGcpCrOrivateRegistry(imageUrl string) bool {
+func checkGcpCrOrPivateRegistry(imageUrl string) bool {
 	imageRegex := regexp.MustCompile(GCPCR_Inage_Regex)
 	return imageRegex.MatchString(imageUrl)
 }
@@ -1085,41 +1058,14 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 				Value: ignorePolicyMountPath,
 			})
 		}
-		gcrImage := CheckGcpCrOrivateRegistry(container.Image)
+		gcrImage := checkGcpCrOrPivateRegistry(container.Image)
 
 		if _, ok := containersCredentials[container.Name]; ok && secret != nil {
 			registryUsernameKey := fmt.Sprintf("%s.username", container.Name)
 			registryPasswordKey := fmt.Sprintf("%s.password", container.Name)
+			secretName := secret.Name
 			if gcrImage {
-				env = append(env, corev1.EnvVar{
-					Name:  "TRIVY_USERNAME",
-					Value: "",
-				})
-				env = append(env, corev1.EnvVar{
-					Name:  "GOOGLE_APPLICATION_CREDENTIALS",
-					Value: "/cred/credential.json",
-				})
-				googlecredMount := corev1.VolumeMount{
-					Name:      "gcrvol",
-					MountPath: "/cred",
-					ReadOnly:  true,
-				}
-				googlecredVolume := corev1.Volume{
-					Name: "gcrvol",
-					VolumeSource: corev1.VolumeSource{
-						Secret: &corev1.SecretVolumeSource{
-							SecretName: secret.Name,
-							Items: []corev1.KeyToPath{
-								{
-									Key:  registryPasswordKey,
-									Path: "credential.json",
-								},
-							},
-						},
-					},
-				}
-				volumes = append(volumes, googlecredVolume)
-				volumeMounts = append(volumeMounts, googlecredMount)
+				createEnvandVolumeForGcr(&env, &volumeMounts, &volumes, &registryPasswordKey, &secretName)
 			} else {
 				env = append(env, corev1.EnvVar{
 					Name: "TRIVY_USERNAME",
@@ -1342,9 +1288,41 @@ func getScanResultVolumeMount() corev1.VolumeMount {
 	}
 }
 
+func createEnvandVolumeForGcr(env *[]corev1.EnvVar, volumeMounts *[]corev1.VolumeMount, volumes *[]corev1.Volume, registryPasswordKey *string, secretName *string) {
+	*env = append(*env, corev1.EnvVar{
+		Name:  "TRIVY_USERNAME",
+		Value: "",
+	})
+	*env = append(*env, corev1.EnvVar{
+		Name:  "GOOGLE_APPLICATION_CREDENTIALS",
+		Value: "/cred/credential.json",
+	})
+	googlecredMount := corev1.VolumeMount{
+		Name:      "gcrvol",
+		MountPath: "/cred",
+		ReadOnly:  true,
+	}
+	googlecredVolume := corev1.Volume{
+		Name: "gcrvol",
+		VolumeSource: corev1.VolumeSource{
+			Secret: &corev1.SecretVolumeSource{
+				SecretName: *secretName,
+				Items: []corev1.KeyToPath{
+					{
+						Key:  *registryPasswordKey,
+						Path: "credential.json",
+					},
+				},
+			},
+		},
+	}
+	*volumes = append(*volumes, googlecredVolume)
+	*volumeMounts = append(*volumeMounts, googlecredMount)
+}
+
 // FileSystem scan option with standalone mode.
 // The only difference is that instead of scanning the resource by name,
-// We scanning the resource place on a specific file system location using the following command.
+// We are scanning the resource place on a specific file system location using the following command.
 //
 //	trivy --quiet fs  --format json --ignore-unfixed  file/system/location
 func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, command Command, config Config,

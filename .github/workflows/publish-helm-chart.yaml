@@ -2,16 +2,9 @@
 # This is a manually triggered workflow to package and upload the Helm chart from the
 # main branch to Aqua Security repository at https://github.com/aquasecurity/helm-charts.
 name: Publish Helm chart
-
 on:
-  workflow_dispatch:
-    inputs:
-      ref:
-        description: The branch, tag or SHA to publish, e.g. v0.0.1
-        required: true
-  pull_request_target:
-    types:
-      - closed
+  repository_dispatch:
+    types: [publish-chart]
     paths:
       - deploy/helm/Chart.yaml
 env:
@@ -22,18 +15,22 @@ env:
   KIND_IMAGE: kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6
 jobs:
   release:
-    if: (github.event.pull_request.merged == true && !contains(github.event.pull_request.labels.*.name, 'app-version-changed') || github.event.inputs.ref != '')
+    # this job will only run if the PR has been merged
+    if: github.event.client_payload.action == 'chart-release' || github.event.client_payload.action == 'chart-and-app-release'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        if: github.event.inputs.ref != ''
+      - name: Get latest tag
+        id: latest_tag
+        run: |
+          latest_tag=$(git describe --tags --abbrev=0)
+          echo "::set-output name=tag::$latest_tag"
+      - uses: actions/checkout@v2
+        if: github.event.client_payload.action == 'chart-and-app-release'
         with:
-          ref: ${{ github.event.inputs.ref }}
+          ref: ${{ steps.latest_tag.outputs.tag }}
           fetch-depth: 0
-      - name: Checkout
-        if: github.event.inputs.ref == ''
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v2
+        if: github.event.client_payload.action == 'chart-release'
         with:
           fetch-depth: 0
       - name: Install Helm
@@ -81,3 +78,11 @@ jobs:
           destination_branch: "gh-pages"
           user_email: aqua-bot@users.noreply.github.com
           user_name: "aqua-bot"
+
+      - name: Repository Dispatch Publish docs
+        if: github.event.client_payload.action == 'chart-and-app-release'
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: publish-docs
+          client-payload: '{"action": "docs-release"}'

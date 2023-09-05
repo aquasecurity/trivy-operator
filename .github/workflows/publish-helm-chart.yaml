@@ -19,18 +19,7 @@ jobs:
     if: github.event.client_payload.action == 'chart-release' || github.event.client_payload.action == 'chart-and-app-release'
     runs-on: ubuntu-latest
     steps:
-      - name: Get latest tag
-        id: latest_tag
-        run: |
-          latest_tag=$(git describe --tags --abbrev=0)
-          echo "::set-output name=tag::$latest_tag"
       - uses: actions/checkout@v2
-        if: github.event.client_payload.action == 'chart-and-app-release'
-        with:
-          ref: ${{ steps.latest_tag.outputs.tag }}
-          fetch-depth: 0
-      - uses: actions/checkout@v2
-        if: github.event.client_payload.action == 'chart-release'
         with:
           fetch-depth: 0
       - name: Install Helm

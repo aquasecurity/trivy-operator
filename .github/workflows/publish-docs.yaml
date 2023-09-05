@@ -6,6 +6,11 @@ name: Publish documentation
 on:
   repository_dispatch:
     types: [publish-docs]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: The branch, tag or SHA to deploy, e.g. v0.0.1
+        required: true
 
 # Disable permissions granted to the GITHUB_TOKEN for all the available scopes.
 permissions: {}
@@ -18,9 +23,18 @@ jobs:
       contents: write
     steps:
       - name: Checkout main
+        if: github.event.inputs.ref == ''
         uses: actions/checkout@a12a3943b4bdde767164f792f33f40b04645d846
         with:
           fetch-depth: 0
+          ref: ${{ github.event.client_payload.tag }}
+          persist-credentials: true
+      - name: Checkout main
+        if: github.event.inputs.ref != ''
+        uses: actions/checkout@a12a3943b4bdde767164f792f33f40b04645d846
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.ref }}
           persist-credentials: true
       - uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1
         with:
@@ -35,5 +49,9 @@ jobs:
       - run: |
           git config user.name "aqua-bot"
           git config user.email "aqua-bot@users.noreply.github.com"
+        if: github.event.inputs.ref  != ''
       - run: |
           mike deploy --push --update-aliases ${{ github.event.inputs.ref }} latest
+        if: github.event.inputs.ref  == ''
+      - run: |
+          mike deploy --push --update-aliases ${{ github.event.client_payload.tag }} latest

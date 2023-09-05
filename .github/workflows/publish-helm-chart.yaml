@@ -68,10 +68,16 @@ jobs:
           user_email: aqua-bot@users.noreply.github.com
           user_name: "aqua-bot"
 
+      - name: Get latest tag
+        id: latest_tag
+        run: |
+          latest_tag=$(git describe --tags --abbrev=0)
+          echo "::set-output name=tag::$latest_tag"
+
       - name: Repository Dispatch Publish docs
         if: github.event.client_payload.action == 'chart-and-app-release'
         uses: peter-evans/repository-dispatch@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: publish-docs
-          client-payload: '{"action": "docs-release"}'
+          client-payload: '{"action": "docs-release", "tag": "${{ steps.latest_tag.outputs.tag }}"}'

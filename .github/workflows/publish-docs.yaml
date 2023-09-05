@@ -49,9 +49,11 @@ jobs:
       - run: |
           git config user.name "aqua-bot"
           git config user.email "aqua-bot@users.noreply.github.com"
+      - name: Checkout main input
         if: github.event.inputs.ref  != ''
-      - run: |
+        run: |
           mike deploy --push --update-aliases ${{ github.event.inputs.ref }} latest
+      - name: Checkout main release
         if: github.event.inputs.ref  == ''
-      - run: |
+        run: |
           mike deploy --push --update-aliases ${{ github.event.client_payload.tag }} latest

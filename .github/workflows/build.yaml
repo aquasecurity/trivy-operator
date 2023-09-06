@@ -59,9 +59,9 @@ jobs:
       - name: Vendor Go modules
         run: go mod vendor
       - name: Verify all generated
-        run: make verify-generated
+        run: go run mage.go generate:verify
       - name: Verify Generated Helm docs
-        run: make verify-generated-helm-docs
+        run: go run mage.go generate:verifyhelmdocs
   tests:
     name: Run tests
     runs-on: ubuntu-latest
@@ -79,7 +79,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Run unit tests
-        run: make test
+        run: go run mage.go test:unit
       - name: Upload code coverage
         uses: codecov/codecov-action@v3
         with:
@@ -104,7 +104,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Run envtest
-        run: make envtest
+        run: go run mage.go test:envtest
       - name: Upload code coverage
         uses: codecov/codecov-action@v3
         with:
@@ -141,7 +141,7 @@ jobs:
       - name: Run integration tests
         run: |
           kubectl create -k deploy/static
-          make itests-trivy-operator
+          go run mage.go test:integration
         env:
           KUBECONFIG: /home/runner/.kube/config
           OPERATOR_NAMESPACE: trivy-system

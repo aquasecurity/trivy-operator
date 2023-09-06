@@ -217,10 +217,14 @@ func (t Test) EnvTestBin() error {
 type Generate mg.Namespace
 
 // Target for verifying generated artifacts
-func (g Generate) Verify() error {
+func (g Generate) Verify() {
 	fmt.Println("Verifying generated artifacts...")
-	mg.Deps(g.All)
-	return sh.RunV("./hack/verify-generated.sh")
+	mg.Deps(g.All, g.VerifyFilesDiff)
+}
+
+func (g Generate) VerifyFilesDiff() error {
+	command := "./hack/verify-generated.sh"
+	return sh.RunV("bash", "-c", command)
 }
 
 // Target for generating code and manifests
@@ -258,10 +262,9 @@ func (g Generate) HelmDocs() error {
 }
 
 // Target for verifying generated Helm documentation
-func (g Generate) VerifyHelmDocs() error {
+func (g Generate) VerifyHelmDocs() {
 	fmt.Println("Verifying generated Helm documentation...")
-	mg.Deps(g.HelmDocs)
-	return sh.RunV("./hack/verify-generated.sh")
+	mg.Deps(g.HelmDocs, g.VerifyFilesDiff)
 }
 
 // GoEnv returns the value of a Go environment variable.

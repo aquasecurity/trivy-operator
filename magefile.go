@@ -34,8 +34,7 @@ var (
 	}
 
 	// Variables
-	DOCKER = "docker"
-	KIND   = "kind"
+	KIND = "kind"
 
 	KUBECONFIG = filepath.Join(os.Getenv("HOME"), ".kube", "config")
 
@@ -79,13 +78,13 @@ func getWorkingDir() string {
 
 // All is the default target for building and running tests.
 func (b Build) All() {
-	mg.Deps(b.OperatorBin)
+	mg.Deps(b.Binary)
 }
 
 type Build mg.Namespace
 
 // Build is the target for building.
-func (b Build) OperatorBin() error {
+func (b Build) Binary() error {
 	fmt.Println("Building trivy-operator binary...")
 	return sh.RunWithV(LINUX_ENV, "go", "build", "-o", "./bin/trivy-operator", "./cmd/trivy-operator/main.go")
 }
@@ -149,28 +148,28 @@ func Clean() {
 }
 
 // Target for building Docker images for all binaries
-func (b Build) Docker() {
+func (b Build) DockerAll() {
 	fmt.Println("Building Docker images for all binaries...")
-	OperatorDocker()
-	OperatorDockerUbi8()
+	b.Docker()
+	b.DockerUbi8()
 }
 
 // Target for building Docker image for trivy-operator
-func OperatorDocker() error {
+func (b Build) Docker() error {
 	fmt.Println("Building Docker image for trivy-operator...")
 	return sh.RunV("docker", "build", "--no-cache", "-t", TRIVY_OPERATOR_IMAGE, "-f", "build/trivy-operator/Dockerfile", "bin")
 }
 
 // Target for building Docker image for trivy-operator ubi8
-func OperatorDockerUbi8() error {
+func (b Build) DockerUbi8() error {
 	fmt.Println("Building Docker image for trivy-operator ubi8...")
 	return sh.RunV("docker", "build", "--no-cache", "-f", "build/trivy-operator/Dockerfile.ubi8", "-t", TRIVY_OPERATOR_IMAGE_UBI8, "bin")
 }
 
 // Target for loading Docker images into the KIND cluster
-func KindLoadImages() error {
+func (b Build) KindLoadImages() error {
 	fmt.Println("Loading Docker images into the KIND cluster...")
-	mg.Deps(OperatorDocker, OperatorDockerUbi8)
+	mg.Deps(b.Docker, b.DockerUbi8)
 	return sh.RunV(KIND, "load", "docker-image", TRIVY_OPERATOR_IMAGE, TRIVY_OPERATOR_IMAGE_UBI8)
 }
 
@@ -250,7 +249,7 @@ func (g Generate) All() {
 // Target for generating Helm documentation
 func (g Generate) Docs() error {
 	fmt.Println("Generating Helm documentation...")
-	err := sh.RunV("go", "install", "github.com/norwoodj/helm-docs/cmd/helm-docs@latest")
+	err := sh.RunWithV(GOLOCALBINENV, "go", "install", "github.com/norwoodj/helm-docs/cmd/helm-docs@latest")
 	if err != nil {
 		return err
 	}

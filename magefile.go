@@ -19,6 +19,7 @@ var (
 	// Default targets
 	ENV = map[string]string{
 		"CGO_ENABLED": "0",
+		"GOBIN": LOCALBIN,
 	}
 	LINUX_ENV = map[string]string{
 		"CGO_ENABLED": "0",

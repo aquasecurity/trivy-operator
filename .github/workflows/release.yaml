@@ -32,8 +32,12 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+      - name: Install tools
+        uses: aquaproj/aqua-installer@v2.1.2
+        with:
+          aqua_version: v1.25.0
       - name: Run unit tests
-        run: make test
+        run: mage test:unit
   itest-trivy-operator:
     name: Run integration tests / Trivy Operator
     needs:
@@ -53,6 +57,10 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+      - name: Install tools
+        uses: aquaproj/aqua-installer@v2.1.2
+        with:
+          aqua_version: v1.25.0
       - name: Setup Kubernetes cluster (KIND)
         uses: engineerd/setup-kind@v0.5.0
         with:
@@ -66,7 +74,7 @@ jobs:
       - name: Run integration tests
         run: |
           kubectl create -k deploy/static
-          make itests-trivy-operator
+          mage test:integration
         env:
           KUBECONFIG: /home/runner/.kube/config
           OPERATOR_NAMESPACE: trivy-system

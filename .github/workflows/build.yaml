@@ -47,6 +47,10 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+      - name: Install tools
+        uses: aquaproj/aqua-installer@v2.1.2
+        with:
+          aqua_version: v1.25.0
       - name: Verify Go code
         uses: golangci/golangci-lint-action@v3.7.0
         with:
@@ -59,9 +63,9 @@ jobs:
       - name: Vendor Go modules
         run: go mod tidy
       - name: Verify all generated
-        run: go run mage.go generate:verify
+        run: mage generate:verify
       - name: Verify Generated Helm docs
-        run: go run mage.go generate:verifydocs
+        run: mage generate:verifydocs
   tests:
     name: Run tests
     runs-on: ubuntu-latest
@@ -78,8 +82,12 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+      - name: Install tools
+        uses: aquaproj/aqua-installer@v2.1.2
+        with:
+          aqua_version: v1.25.0
       - name: Run unit tests
-        run: go run mage.go test:unit
+        run: mage test:unit
       - name: Upload code coverage
         uses: codecov/codecov-action@v3
         with:
@@ -103,8 +111,12 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+      - name: Install tools
+        uses: aquaproj/aqua-installer@v2.1.2
+        with:
+          aqua_version: v1.25.0
       - name: Run envtest
-        run: go run mage.go test:envtest
+        run: mage test:envtest
       - name: Upload code coverage
         uses: codecov/codecov-action@v3
         with:
@@ -128,6 +140,10 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+      - name: Install tools
+        uses: aquaproj/aqua-installer@v2.1.2
+        with:
+          aqua_version: v1.25.0
       - name: Setup Kubernetes cluster (KIND)
         uses: engineerd/setup-kind@v0.5.0
         with:
@@ -141,7 +157,7 @@ jobs:
       - name: Run integration tests
         run: |
           kubectl create -k deploy/static
-          go run mage.go test:integration
+          mage test:integration
         env:
           KUBECONFIG: /home/runner/.kube/config
           OPERATOR_NAMESPACE: trivy-system

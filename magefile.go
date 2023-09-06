@@ -124,7 +124,7 @@ func (t Test) Unit() error {
 func (t Test) Integration() error {
 	fmt.Println("Running integration tests for Trivy Operator...")
 	mg.Deps(CheckKubeconfig, GetGinkgo)
-	return sh.Run(GINKGO, "-coverprofile=coverage.txt",
+	return sh.RunV(GINKGO, "-coverprofile=coverage.txt",
 		"-coverpkg=github.com/aquasecurity/trivy-operator/pkg/operator,"+
 			"github.com/aquasecurity/trivy-operator/pkg/operator/predicate,"+
 			"github.com/aquasecurity/trivy-operator/pkg/operator/controller,"+
@@ -162,30 +162,30 @@ func DockerBuild() {
 // Target for building Docker image for trivy-operator
 func DockerBuildTrivyOperator() error {
 	fmt.Println("Building Docker image for trivy-operator...")
-	return sh.Run("docker", "build", "--no-cache", "-t", TRIVY_OPERATOR_IMAGE, "-f", "build/trivy-operator/Dockerfile", "bin")
+	return sh.RunV("docker", "build", "--no-cache", "-t", TRIVY_OPERATOR_IMAGE, "-f", "build/trivy-operator/Dockerfile", "bin")
 }
 
 // Target for building Docker image for trivy-operator ubi8
 func DockerBuildTrivyOperatorUbi8() error {
 	fmt.Println("Building Docker image for trivy-operator ubi8...")
-	return sh.Run("docker", "build", "--no-cache", "-f", "build/trivy-operator/Dockerfile.ubi8", "-t", TRIVY_OPERATOR_IMAGE_UBI8, "bin")
+	return sh.RunV("docker", "build", "--no-cache", "-f", "build/trivy-operator/Dockerfile.ubi8", "-t", TRIVY_OPERATOR_IMAGE_UBI8, "bin")
 }
 
 // Target for loading Docker images into the KIND cluster
 func KindLoadImages() error {
 	fmt.Println("Loading Docker images into the KIND cluster...")
 	mg.Deps(DockerBuildTrivyOperator, DockerBuildTrivyOperatorUbi8)
-	return sh.Run(KIND, "load", "docker-image", TRIVY_OPERATOR_IMAGE, TRIVY_OPERATOR_IMAGE_UBI8)
+	return sh.RunV(KIND, "load", "docker-image", TRIVY_OPERATOR_IMAGE, TRIVY_OPERATOR_IMAGE_UBI8)
 }
 
 // Target for running MkDocs development server to preview the documentation page
 func MkDocsServe() error {
 	fmt.Println("Running MkDocs development server...")
-	err := sh.Run("docker", "build", "-t", MKDOCS_IMAGE, "-f", "build/mkdocs-material/Dockerfile", "build/trivy-operator")
+	err := sh.RunV("docker", "build", "-t", MKDOCS_IMAGE, "-f", "build/mkdocs-material/Dockerfile", "build/trivy-operator")
 	if err != nil {
 		return err
 	}
-	return sh.Run("docker", "run", "--name", "mkdocs-serve", "--rm", "-v", fmt.Sprintf("%s:/docs", PWD), "-p", fmt.Sprintf("%d:8000", MKDOCS_PORT), MKDOCS_IMAGE)
+	return sh.RunV("docker", "run", "--name", "mkdocs-serve", "--rm", "-v", fmt.Sprintf("%s:/docs", PWD), "-p", fmt.Sprintf("%d:8000", MKDOCS_PORT), MKDOCS_IMAGE)
 }
 
 // Target for installing the labeler tool
@@ -208,7 +208,7 @@ func ControllerGen() error {
 }
 
 // Target for downloading envtest-setup locally if necessary
-func (t Test) Envtest() error {
+func (t Test) EnvTestBin() error {
 	mg.Deps(LocalBin)
 	fmt.Println("Downloading envtest-setup...")
 	return sh.RunWithV(GOLOCALBINENV, "go", "install", "sigs.k8s.io/controller-runtime/tools/setup-envtest@latest")
@@ -220,25 +220,25 @@ type Generate mg.Namespace
 func (g Generate) Verify() error {
 	fmt.Println("Verifying generated artifacts...")
 	mg.Deps(g.All)
-	return sh.Run("./hack/verify-generated.sh")
+	return sh.RunV("./hack/verify-generated.sh")
 }
 
 // Target for generating code and manifests
 func (g Generate) Code() error {
 	fmt.Println("Generating code and manifests...")
 	mg.Deps(ControllerGen)
-	return sh.Run(CONTROLLER_GEN, "object:headerFile=hack/boilerplate.go.txt", "paths=./pkg/...", "+rbac:roleName=trivy-operator", "output:rbac:artifacts:config=deploy/helm/generated")
+	return sh.RunV(CONTROLLER_GEN, "object:headerFile=hack/boilerplate.go.txt", "paths=./pkg/...", "+rbac:roleName=trivy-operator", "output:rbac:artifacts:config=deploy/helm/generated")
 }
 
 // Target for generating CRDs and updating static YAML
 func (g Generate) Manifests() error {
 	fmt.Println("Generating CRDs and updating static YAML...")
 	mg.Deps(ControllerGen)
-	err := sh.Run(CONTROLLER_GEN, "crd:allowDangerousTypes=true", "paths=./pkg/apis/...", "output:crd:artifacts:config=deploy/helm/crds")
+	err := sh.RunV(CONTROLLER_GEN, "crd:allowDangerousTypes=true", "paths=./pkg/apis/...", "output:crd:artifacts:config=deploy/helm/crds")
 	if err != nil {
 		return err
 	}
-	return sh.Run("./hack/update-static.yaml.sh")
+	return sh.RunV("./hack/update-static.yaml.sh")
 }
 
 // Target for generating all artifacts
@@ -250,18 +250,18 @@ func (g Generate) All() {
 // Target for generating Helm documentation
 func (g Generate) HelmDocs() error {
 	fmt.Println("Generating Helm documentation...")
-	err := sh.Run("go", "install", "github.com/norwoodj/helm-docs/cmd/helm-docs@latest")
+	err := sh.RunV("go", "install", "github.com/norwoodj/helm-docs/cmd/helm-docs@latest")
 	if err != nil {
 		return err
 	}
-	return sh.Run(HELM_DOCS_GEN, "./deploy")
+	return sh.RunV(HELM_DOCS_GEN, "./deploy")
 }
 
 // Target for verifying generated Helm documentation
 func (g Generate) VerifyHelmDocs() error {
 	fmt.Println("Verifying generated Helm documentation...")
 	mg.Deps(g.HelmDocs)
-	return sh.Run("./hack/verify-generated.sh")
+	return sh.RunV("./hack/verify-generated.sh")
 }
 
 // GoEnv returns the value of a Go environment variable.
@@ -276,17 +276,17 @@ func goEnv(envVar string) string {
 }
 
 // getEnvtestKubeAssets returns the path to kubebuilder assets for envtest.
-func getEnvtestKubeAssets() string {
-	cmd := exec.Command("envtest", "use", ENVTEST_K8S_VERSION, "-p", "path")
+func (t Test) Envtest() error {
+	cmd := exec.Command(filepath.Join(PWD, "bin", "setup-envtest"), "use", ENVTEST_K8S_VERSION, "-p", "path")
 	output, err := cmd.Output()
 	if err != nil {
-		fmt.Println("Error getting envtest kube assets:", err)
-		os.Exit(1)
+		return err
 	}
-	return string(output)
+	mg.Deps(t.EnvTestBin)
+	return sh.RunWithV(map[string]string{"KUBEBUILDER_ASSETS": string(output)}, "go", "test", "-v", "-timeout", "60s", "-coverprofile=coverage.txt", "./pkg/operator/envtest/...")
 }
 
 // removeDir removes the directory at the given path.
 func removeDir(path string) error {
-	return sh.Run("rm", "-r", path)
+	return sh.RunV("rm", "-r", path)
 }

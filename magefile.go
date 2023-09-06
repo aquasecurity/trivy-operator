@@ -280,13 +280,12 @@ func goEnv(envVar string) string {
 
 // getEnvtestKubeAssets returns the path to kubebuilder assets for envtest.
 func (t Test) Envtest() error {
-	cmd := exec.Command(filepath.Join(PWD, "bin", "setup-envtest"), "use", ENVTEST_K8S_VERSION, "-p", "path")
-	output, err := cmd.Output()
+	output, err := sh.Output(filepath.Join(PWD, "bin", "setup-envtest"), "use", ENVTEST_K8S_VERSION, "-p", "path")
 	if err != nil {
 		return err
 	}
 	mg.Deps(t.EnvTestBin)
-	return sh.RunWithV(map[string]string{"KUBEBUILDER_ASSETS": string(output)}, "go", "test", "-v", "-timeout", "60s", "-coverprofile=coverage.txt", "./pkg/operator/envtest/...")
+	return sh.RunWithV(map[string]string{"KUBEBUILDER_ASSETS": output}, "go", "test", "-v", "-timeout", "60s", "-coverprofile=coverage.txt", "./pkg/operator/envtest/...")
 }
 
 // removeDir removes the directory at the given path.

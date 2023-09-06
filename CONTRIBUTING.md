@@ -78,7 +78,7 @@ If you only run test using the Magefile
 run some of these integration tests using `go test` or from your IDE, you'll
 have to
 [install kubebuiler-tools](https://book.kubebuilder.io/reference/envtest.html#installation).
-[install magefile](https://magefile.org)  or use `go run mage.go <gaol>` 
+[install magefile](https://magefile.org)  or use `go run mage.go <goal>` 
 
 ## Build Binaries
 

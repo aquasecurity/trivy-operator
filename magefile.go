@@ -19,7 +19,7 @@ var (
 	// Default targets
 	ENV = map[string]string{
 		"CGO_ENABLED": "0",
-		"GOBIN": LOCALBIN,
+		"GOBIN":       LOCALBIN,
 	}
 	LINUX_ENV = map[string]string{
 		"CGO_ENABLED": "0",
@@ -42,7 +42,7 @@ var (
 	GO111MODULE = "on" // Active module mode, as we use Go modules to manage dependencies
 	GOPATH      = goEnv("GOPATH")
 	GOBIN       = filepath.Join(goEnv("GOPATH"), "bin")
-	GINKGO      = filepath.Join(goEnv("GOPATH"), "bin", "ginkgo")
+	GINKGO      = filepath.Join(PWD, "bin", "ginkgo")
 
 	IMAGE_TAG                 = "dev"
 	TRIVY_OPERATOR_IMAGE      = "aquasecurity/trivy-operator:" + IMAGE_TAG

@@ -57,11 +57,11 @@ jobs:
       - name: Verify YAML code
         uses: ibiqlik/action-yamllint@v3
       - name: Vendor Go modules
-        run: go mod vendor
+        run: go mod tidy
       - name: Verify all generated
         run: go run mage.go generate:verify
       - name: Verify Generated Helm docs
-        run: go run mage.go generate:verifyhelmdocs
+        run: go run mage.go generate:verifydocs
   tests:
     name: Run tests
     runs-on: ubuntu-latest

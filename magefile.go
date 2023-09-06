@@ -248,7 +248,7 @@ func (g Generate) All() {
 }
 
 // Target for generating Helm documentation
-func (g Generate) HelmDocs() error {
+func (g Generate) Docs() error {
 	fmt.Println("Generating Helm documentation...")
 	err := sh.RunV("go", "install", "github.com/norwoodj/helm-docs/cmd/helm-docs@latest")
 	if err != nil {
@@ -258,9 +258,9 @@ func (g Generate) HelmDocs() error {
 }
 
 // Target for verifying generated Helm documentation
-func (g Generate) VerifyHelmDocs() {
+func (g Generate) VerifyDocs() {
 	fmt.Println("Verifying generated Helm documentation...")
-	mg.Deps(g.HelmDocs, g.VerifyFilesDiff)
+	mg.Deps(g.Docs, g.VerifyFilesDiff)
 }
 
 // GoEnv returns the value of a Go environment variable.

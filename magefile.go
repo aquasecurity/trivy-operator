@@ -17,8 +17,7 @@ import (
 
 var (
 	// Default targets
-	Default = Build
-	ENV     = map[string]string{
+	ENV = map[string]string{
 		"CGO_ENABLED": "0",
 	}
 	LINUX_ENV = map[string]string{
@@ -79,17 +78,14 @@ func getWorkingDir() string {
 }
 
 // All is the default target for building and running tests.
-func All() {
-	mg.Deps(Build)
+func (b Build) All() {
+	mg.Deps(b.OperatorBin)
 }
+
+type Build mg.Namespace
 
 // Build is the target for building.
-func Build() {
-	mg.Deps(BuildTrivyOperator)
-}
-
-// Target for building trivy-operator binary.
-func BuildTrivyOperator() error {
+func (b Build) OperatorBin() error {
 	fmt.Println("Building trivy-operator binary...")
 	return sh.RunWithV(LINUX_ENV, "go", "build", "-o", "./bin/trivy-operator", "./cmd/trivy-operator/main.go")
 }
@@ -153,20 +149,20 @@ func Clean() {
 }
 
 // Target for building Docker images for all binaries
-func DockerBuild() {
+func (b Build) Docker() {
 	fmt.Println("Building Docker images for all binaries...")
-	DockerBuildTrivyOperator()
-	DockerBuildTrivyOperatorUbi8()
+	OperatorDocker()
+	OperatorDockerUbi8()
 }
 
 // Target for building Docker image for trivy-operator
-func DockerBuildTrivyOperator() error {
+func OperatorDocker() error {
 	fmt.Println("Building Docker image for trivy-operator...")
 	return sh.RunV("docker", "build", "--no-cache", "-t", TRIVY_OPERATOR_IMAGE, "-f", "build/trivy-operator/Dockerfile", "bin")
 }
 
 // Target for building Docker image for trivy-operator ubi8
-func DockerBuildTrivyOperatorUbi8() error {
+func OperatorDockerUbi8() error {
 	fmt.Println("Building Docker image for trivy-operator ubi8...")
 	return sh.RunV("docker", "build", "--no-cache", "-f", "build/trivy-operator/Dockerfile.ubi8", "-t", TRIVY_OPERATOR_IMAGE_UBI8, "bin")
 }
@@ -174,7 +170,7 @@ func DockerBuildTrivyOperatorUbi8() error {
 // Target for loading Docker images into the KIND cluster
 func KindLoadImages() error {
 	fmt.Println("Loading Docker images into the KIND cluster...")
-	mg.Deps(DockerBuildTrivyOperator, DockerBuildTrivyOperatorUbi8)
+	mg.Deps(OperatorDocker, OperatorDockerUbi8)
 	return sh.RunV(KIND, "load", "docker-image", TRIVY_OPERATOR_IMAGE, TRIVY_OPERATOR_IMAGE_UBI8)
 }
 

@@ -77,14 +77,9 @@ func getWorkingDir() string {
 	return wd
 }
 
-// All is the default target for building and running tests.
-func (b Build) All() {
-	mg.Deps(b.Binary)
-}
-
 type Build mg.Namespace
 
-// Build is the target for building.
+// Target for building trivy-operator binary.
 func (b Build) Binary() error {
 	fmt.Println("Building trivy-operator binary...")
 	return sh.RunWithV(LINUX_ENV, "go", "build", "-o", "./bin/trivy-operator", "./cmd/trivy-operator/main.go")
@@ -110,7 +105,7 @@ func compileTemplates() error {
 
 type Test mg.Namespace
 
-// Target for running tests.
+// Target for running unit tests.
 func (t Test) Unit() error {
 	fmt.Println("Running tests...")
 	return sh.RunWithV(ENV, "go", "test", "-v", "-short", "-timeout", "60s", "-coverprofile=coverage.txt", "./...")
@@ -142,7 +137,7 @@ func checkKubeconfig() error {
 }
 
 // Target for removing build artifacts
-func Clean() {
+func (t Tool) Clean() {
 	fmt.Println("Removing build artifacts...")
 	removeDir(filepath.Join(".", "bin"))
 	removeDir(filepath.Join(".", "dist"))
@@ -174,8 +169,10 @@ func (b Build) KindLoadImages() error {
 	return sh.RunV(KIND, "load", "docker-image", TRIVY_OPERATOR_IMAGE, TRIVY_OPERATOR_IMAGE_UBI8)
 }
 
-// Target for running MkDocs development server to preview the documentation page
-func DocsServe() error {
+type Docs mg.Namespace
+
+// Target for running MkDocs development server to preview the operator documentation page
+func (d Docs) Serve() error {
 	fmt.Println("Running MkDocs development server...")
 	err := sh.RunV("docker", "build", "-t", MKDOCS_IMAGE, "-f", "build/mkdocs-material/Dockerfile", "build/trivy-operator")
 	if err != nil {
@@ -274,7 +271,7 @@ func goEnv(envVar string) string {
 	return string(output)
 }
 
-// getEnvtestKubeAssets returns the path to kubebuilder assets for envtest.
+// Target for running kubernetes envtests.
 func (t Test) Envtest() error {
 	mg.Deps(t.envTestBin)
 	output, err := sh.Output(filepath.Join(PWD, "bin", "setup-envtest"), "use", ENVTEST_K8S_VERSION, "-p", "path")
@@ -292,7 +289,7 @@ func removeDir(path string) error {
 
 type Tool mg.Namespace
 
-// Aqua installs aqua if not installed
+// Target install Aqua tools if not installed
 func (Tool) Aqua() error {
 	if exists(filepath.Join(GOBIN, "aqua")) {
 		return nil

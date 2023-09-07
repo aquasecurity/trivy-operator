@@ -19,6 +19,15 @@ metadata:
       name: wordpress-84bbf6f4dd
       uid: null
 report:
+  scanner:
+    name: Trivy
+    vendor: Aqua Security
+    version: version
+  summary:
+    criticalCount: 0
+    highCount: 1
+    mediumCount: 3
+    lowCount: 12
   checks:
     - checkID: KSV001
       title: Can elevate its own privileges
@@ -52,8 +61,8 @@ report:
       success: false
     - checkID: KSV012
       title: Runs as root user
-      description: "'runAsNonRoot' forces the running image to run as a non-root user
-        to ensure least privileges."
+      description: Force the running image to run as a non-root user to ensure least
+        privileges.
       severity: MEDIUM
       category: Kubernetes Security Check
       messages:
@@ -125,8 +134,8 @@ report:
       success: false
     - checkID: KSV030
       title: Runtime/Default Seccomp profile not set
-      description: The RuntimeDefault/Localhost seccomp profile must be required, or
-        allow specific additional profiles.
+      description: According to pod security standard 'Seccomp', the RuntimeDefault
+        seccomp profile must be required, or allow specific additional profiles.
       severity: LOW
       category: Kubernetes Security Check
       messages:
@@ -135,7 +144,7 @@ report:
       success: false
     - checkID: KSV104
       title: Seccomp policies disabled
-      description: Seccomp profile must not be explicitly set to 'Unconfined'.
+      description: A program inside the container can bypass Seccomp protection policies.
       severity: MEDIUM
       category: Kubernetes Security Check
       messages:
@@ -153,7 +162,7 @@ report:
       success: false
     - checkID: KSV110
       title: Workloads in the default namespace
-      description: ensure that default namespace should not be used
+      description: Checks whether a workload is running in the default namespace.
       severity: LOW
       category: Kubernetes Security Check
       messages:
@@ -173,12 +182,15 @@ report:
           spec.securityContext.supplementalGroups[*] and
           spec.securityContext.fsGroup to integer greater than 0
       success: false
-  scanner:
-    name: Trivy
-    vendor: Aqua Security
-    version: version
-  summary:
-    criticalCount: 0
-    highCount: 0
-    lowCount: 12
-    mediumCount: 3
+    - checkID: KSV118
+      title: Default security context configured
+      description: Security context controls the allocation of security parameters for
+        the pod/container/volume, ensuring the appropriate level of protection.
+        Relying on default security context may expose vulnerabilities to
+        potential attacks that rely on privileged access.
+      severity: HIGH
+      category: Kubernetes Security Check
+      messages:
+        - replicaset wordpress-84bbf6f4dd in default namespace is using the
+          default security context, which allows root privileges
+      success: false

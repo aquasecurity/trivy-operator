@@ -582,7 +582,7 @@ func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 	return ctx.EnsureConfig(trivyoperator.PluginConfig{
 		Data: map[string]string{
 			keyTrivyImageRepository:           DefaultImageRepository,
-			keyTrivyImageTag:                  "0.44.1",
+			keyTrivyImageTag:                  "0.45.0",
 			KeyTrivySeverity:                  DefaultSeverity,
 			keyTrivySlow:                      "true",
 			keyTrivyMode:                      string(Standalone),

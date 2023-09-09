@@ -22,12 +22,6 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed,
-          # when set to "true" but frees about 6 GB
-          tool-cache: true
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx

@@ -24,13 +24,15 @@ import (
 	vcontroller "github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/webhook"
 	"github.com/bluele/gcache"
-	corev1 "k8s.io/api/core/v1"
+
 	"k8s.io/client-go/kubernetes"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
+
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
+	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 )
 
 var (
@@ -53,14 +55,8 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	// Set the default manager options.
 	options := manager.Options{
 		Scheme:                 trivyoperator.NewScheme(),
-		MetricsBindAddress:     operatorConfig.MetricsBindAddress,
+		Metrics:                metricsserver.Options{BindAddress: operatorConfig.MetricsBindAddress},
 		HealthProbeBindAddress: operatorConfig.HealthProbeBindAddress,
-		// Disable cache for resources used to look up image pull secrets to avoid
-		// spinning up informers and to tighten operator RBAC permissions
-		ClientDisableCacheFor: []client.Object{
-			&corev1.Secret{},
-			&corev1.ServiceAccount{},
-		},
 	}
 
 	if operatorConfig.LeaderElectionEnabled {
@@ -73,22 +69,28 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	case etc.OwnNamespace:
 		// Add support for OwnNamespace set in OPERATOR_NAMESPACE (e.g. `trivy-operator`)
 		// and OPERATOR_TARGET_NAMESPACES (e.g. `trivy-operator`).
-		setupLog.Info("Constructing client cache", "namespace", targetNamespaces[0])
-		options.Cache.Namespaces = []string{targetNamespaces[0]}
+		setupLog.Info("Constructing client cache", "namespace", operatorNamespace)
+		options.Cache.DefaultNamespaces = map[string]cache.Config{operatorNamespace: {}}
 	case etc.SingleNamespace:
 		// Add support for SingleNamespace set in OPERATOR_NAMESPACE (e.g. `trivy-operator`)
 		// and OPERATOR_TARGET_NAMESPACES (e.g. `default`).
-		cachedNamespaces := append(targetNamespaces, operatorNamespace)
-		setupLog.Info("Constructing client cache", "namespaces", cachedNamespaces)
-		options.Cache.Namespaces = cachedNamespaces
+		namespaceCacheMap := make(map[string]cache.Config)
+		setupLog.Info("Constructing client cache", "namespaces", targetNamespaces)
+		for _, namespace := range append(targetNamespaces, operatorNamespace) {
+			namespaceCacheMap[namespace] = cache.Config{}
+		}
+
 	case etc.MultiNamespace:
 		// Add support for MultiNamespace set in OPERATOR_NAMESPACE (e.g. `trivy-operator`)
 		// and OPERATOR_TARGET_NAMESPACES (e.g. `default,kube-system`).
 		// Note that you may face performance issues when using this mode with a high number of namespaces.
 		// More: https://godoc.org/github.com/kubernetes-sigs/controller-runtime/pkg/cache#MultiNamespacedCacheBuilder
-		cachedNamespaces := append(targetNamespaces, operatorNamespace)
-		setupLog.Info("Constructing client cache", "namespaces", cachedNamespaces)
-		options.Cache.Namespaces = cachedNamespaces
+		namespaceCacheMap := make(map[string]cache.Config)
+		setupLog.Info("Constructing client cache", "namespaces", targetNamespaces)
+		for _, namespace := range append(targetNamespaces, operatorNamespace) {
+			namespaceCacheMap[namespace] = cache.Config{}
+		}
+		options.Cache.DefaultNamespaces = namespaceCacheMap
 	case etc.AllNamespaces:
 		// Add support for AllNamespaces set in OPERATOR_NAMESPACE (e.g. `operators`)
 		// and OPERATOR_TARGET_NAMESPACES left blank.

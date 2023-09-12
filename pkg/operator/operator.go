@@ -71,16 +71,9 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		// and OPERATOR_TARGET_NAMESPACES (e.g. `trivy-operator`).
 		setupLog.Info("Constructing client cache", "namespace", operatorNamespace)
 		options.Cache.DefaultNamespaces = map[string]cache.Config{operatorNamespace: {}}
-	case etc.SingleNamespace:
+	case etc.SingleNamespace, etc.MultiNamespace:
 		// Add support for SingleNamespace set in OPERATOR_NAMESPACE (e.g. `trivy-operator`)
 		// and OPERATOR_TARGET_NAMESPACES (e.g. `default`).
-		namespaceCacheMap := make(map[string]cache.Config)
-		setupLog.Info("Constructing client cache", "namespaces", targetNamespaces)
-		for _, namespace := range append(targetNamespaces, operatorNamespace) {
-			namespaceCacheMap[namespace] = cache.Config{}
-		}
-
-	case etc.MultiNamespace:
 		// Add support for MultiNamespace set in OPERATOR_NAMESPACE (e.g. `trivy-operator`)
 		// and OPERATOR_TARGET_NAMESPACES (e.g. `default,kube-system`).
 		// Note that you may face performance issues when using this mode with a high number of namespaces.

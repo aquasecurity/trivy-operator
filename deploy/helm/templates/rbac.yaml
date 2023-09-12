@@ -22,12 +22,14 @@ metadata:
   - create
   - get
   - update
+  - list
 - apiGroups:
   - ""
   resources:
   - serviceaccounts
   verbs:
   - get
+  - list
 {{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1

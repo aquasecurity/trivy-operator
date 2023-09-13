@@ -46,17 +46,15 @@ var InstallModePredicate = func(config etc.Config) (predicate.Predicate, error) 
 		if mode == etc.AllNamespaces && strings.TrimSpace(config.ExcludeNamespaces) != "" {
 			namespaces := strings.Split(config.ExcludeNamespaces, ",")
 			for _, namespace := range namespaces {
-				matches, err := filepath.Match(strings.TrimSpace(namespace), obj.GetNamespace())
+				matched, err := filepath.Match(strings.TrimSpace(namespace), obj.GetNamespace())
 				if err != nil {
-					// In case of error we'd assume the resource should be scanned
 					return true
 				}
-				if matches {
+				if matched {
 					return false
 				}
 			}
 		}
-
 		return true
 	}), nil
 }

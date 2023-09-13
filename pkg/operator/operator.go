@@ -58,16 +58,20 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		Scheme:                 trivyoperator.NewScheme(),
 		Metrics:                metricsserver.Options{BindAddress: operatorConfig.MetricsBindAddress},
 		HealthProbeBindAddress: operatorConfig.HealthProbeBindAddress,
+		Client: client.Options{
+			Cache: &client.CacheOptions{
+				DisableFor: []client.Object{
+					&corev1.Secret{},
+					&corev1.ServiceAccount{},
+				},
+			},
+		},
 	}
 
 	if operatorConfig.LeaderElectionEnabled {
 		options.LeaderElection = operatorConfig.LeaderElectionEnabled
 		options.LeaderElectionID = operatorConfig.LeaderElectionID
 		options.LeaderElectionNamespace = operatorNamespace
-	}
-	options.Client.Cache.DisableFor = []client.Object{
-		&corev1.Secret{},
-		&corev1.ServiceAccount{},
 	}
 
 	switch installMode {

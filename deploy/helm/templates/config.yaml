@@ -192,7 +192,7 @@ data:
   TRIVY_LISTEN: "0.0.0.0:4954"
   TRIVY_CACHE_DIR: "/home/scanner/.cache/trivy"
   TRIVY_DEBUG: {{ .Values.trivy.debug | quote }}
-  TRIVY_SKIP_UPDATE: "false"
+  TRIVY_SKIP_DB_UPDATE: "false"
   TRIVY_DB_REPOSITORY: "{{ .Values.trivy.dbRegistry }}/{{ .Values.trivy.dbRepository }}"
   {{- end }}
 {{- end }}

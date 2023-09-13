@@ -2768,14 +2768,12 @@ rules:
   - create
   - get
   - update
-  - list
 - apiGroups:
   - ""
   resources:
   - serviceaccounts
   verbs:
   - get
-  - list
 ---
 # Source: trivy-operator/templates/rbac.yaml
 # permissions for end users to view configauditreports

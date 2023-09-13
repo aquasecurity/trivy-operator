@@ -24,10 +24,11 @@ import (
 	vcontroller "github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/webhook"
 	"github.com/bluele/gcache"
-
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -63,6 +64,10 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		options.LeaderElection = operatorConfig.LeaderElectionEnabled
 		options.LeaderElectionID = operatorConfig.LeaderElectionID
 		options.LeaderElectionNamespace = operatorNamespace
+	}
+	options.Client.Cache.DisableFor = []client.Object{
+		&corev1.Secret{},
+		&corev1.ServiceAccount{},
 	}
 
 	switch installMode {

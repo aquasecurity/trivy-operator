@@ -1060,13 +1060,13 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 		}
 		gcrImage := checkGcpCrOrPivateRegistry(container.Image)
 
-		if _, ok := containersCredentials[container.Name]; ok && secret != nil {
-			registryUsernameKey := fmt.Sprintf("%s.username", container.Name)
-			registryPasswordKey := fmt.Sprintf("%s.password", container.Name)
-			secretName := secret.Name
-			if gcrImage {
-				createEnvandVolumeForGcr(&env, &volumeMounts, &volumes, &registryPasswordKey, &secretName)
+		if auth, ok := containersCredentials[container.Name]; ok && secret != nil {
+			if gcrImage && auth.Username == "_json_key" {
+				registryServiceAccountAuthKey := fmt.Sprintf("%s.password", container.Name)
+				createEnvandVolumeForGcr(&env, &volumeMounts, &volumes, &registryServiceAccountAuthKey, &secret.Name)
 			} else {
+				registryUsernameKey := fmt.Sprintf("%s.username", container.Name)
+				registryPasswordKey := fmt.Sprintf("%s.password", container.Name)
 				env = append(env, corev1.EnvVar{
 					Name: "TRIVY_USERNAME",
 					ValueFrom: &corev1.EnvVarSource{
@@ -1089,7 +1089,6 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 					},
 				})
 			}
-
 		}
 
 		env, err = p.appendTrivyInsecureEnv(config, container.Image, env)

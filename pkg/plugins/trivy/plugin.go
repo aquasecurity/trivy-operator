@@ -1058,10 +1058,9 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 				Value: ignorePolicyMountPath,
 			})
 		}
-		gcrImage := checkGcpCrOrPivateRegistry(container.Image)
 
 		if auth, ok := containersCredentials[container.Name]; ok && secret != nil {
-			if gcrImage && auth.Username == "_json_key" {
+			if checkGcpCrOrPivateRegistry(container.Image) && auth.Username == "_json_key" {
 				registryServiceAccountAuthKey := fmt.Sprintf("%s.password", container.Name)
 				createEnvandVolumeForGcr(&env, &volumeMounts, &volumes, &registryServiceAccountAuthKey, &secret.Name)
 			} else {

@@ -16,15 +16,18 @@ helm template trivy-operator $HELM_DIR \
 
 cat $CRD_DIR/* > $STATIC_DIR/trivy-operator.yaml
 
-## if ns.yaml do not exist, cat namespace.yaml to trivy-operator.yaml (avoid duplicate namespace definition)
-[ ! -f $HELM_TMPDIR/trivy-operator/templates/ns.yaml ] && cat $STATIC_DIR/namespace.yaml >> $STATIC_DIR/trivy-operator.yaml
+## if namespace.yaml do not exist, cat namespace.yaml to trivy-operator.yaml (avoid duplicate namespace definition)
+[ ! -f $HELM_TMPDIR/trivy-operator/templates/namespace.yaml ] && cat $STATIC_DIR/namespace.yaml >> $STATIC_DIR/trivy-operator.yaml
 
+cat $HELM_TMPDIR/trivy-operator/templates/rbac/* > $STATIC_DIR/rbac.yaml
+rm -rf $HELM_TMPDIR/trivy-operator/templates/rbac
 cat $HELM_TMPDIR/trivy-operator/templates/specs/* > $STATIC_DIR/specs.yaml
 rm -rf $HELM_TMPDIR/trivy-operator/templates/specs
+cat $HELM_TMPDIR/trivy-operator/templates/trivy-server/* > $STATIC_DIR/trivy-server.yaml
+rm -rf $HELM_TMPDIR/trivy-operator/templates/trivy-server
 cat $HELM_TMPDIR/trivy-operator/templates/* >> $STATIC_DIR/trivy-operator.yaml
 
 # Copy all manifests rendered by the Helm chart to the static resources directory,
 # where they should be ignored by Git.
 # This is done to support local development with partial updates to local cluster.
 cp $HELM_TMPDIR/trivy-operator/templates/* $STATIC_DIR/
-

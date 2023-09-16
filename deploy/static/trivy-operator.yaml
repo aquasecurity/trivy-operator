@@ -2107,32 +2107,7 @@ metadata:
     app.kubernetes.io/version: "0.16.0"
     app.kubernetes.io/managed-by: kubectl
 ---
-# Source: trivy-operator/templates/config.yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: trivy-operator
-  namespace: trivy-system
-  labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.0"
-    app.kubernetes.io/managed-by: kubectl
----
-# Source: trivy-operator/templates/config.yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: trivy-operator-trivy-config
-  namespace: trivy-system
-  labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.0"
-    app.kubernetes.io/managed-by: kubectl
-data:
----
-# Source: trivy-operator/templates/config.yaml
+# Source: trivy-operator/templates/config-configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -2154,11 +2129,11 @@ data:
   report.recordFailedChecksOnly: "true"
   node.collector.imageRef: "ghcr.io/aquasecurity/node-collector:0.0.8"
 ---
-# Source: trivy-operator/templates/config.yaml
+# Source: trivy-operator/templates/config-policies-configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: trivy-operator-trivy-config
+  name: trivy-operator-policies-config
   namespace: trivy-system
   labels:
     app.kubernetes.io/name: trivy-operator
@@ -2166,24 +2141,55 @@ metadata:
     app.kubernetes.io/version: "0.16.0"
     app.kubernetes.io/managed-by: kubectl
 data:
-  trivy.repository: "ghcr.io/aquasecurity/trivy"
-  trivy.tag: "0.45.0"
-  trivy.additionalVulnerabilityReportFields: ""
-  trivy.severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
-  trivy.slow: "true"
-  trivy.skipJavaDBUpdate: "false"
-  trivy.dbRepository: "ghcr.io/aquasecurity/trivy-db"
-  trivy.javaDbRepository: "ghcr.io/aquasecurity/trivy-java-db"
-  trivy.command: "image"
-  trivy.dbRepositoryInsecure: "false"
-  trivy.useBuiltinRegoPolicies: "true"
-  trivy.supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
-  trivy.timeout: "5m0s"
-  trivy.mode: "Standalone"
-  trivy.resources.requests.cpu: "100m"
-  trivy.resources.requests.memory: "100M"
-  trivy.resources.limits.cpu: "500m"
-  trivy.resources.limits.memory: "500M"
+# example
+# policy.my_policy.kinds: Workload
+# policy.my_policy.rego: "package builtin.kubernetes.KSV008
+#
+# import data.lib.kubernetes
+# import data.lib.result
+#
+# default failHostIPC = false
+#
+# __rego_metadata__ := {
+#	 "id": "KSV008",
+#	 "avd_id": "AVD-KSV-0008",
+#	 "title": "Access to host IPC namespace",
+#	 "short_code": "no-shared-ipc-namespace",
+#	 "version": "v1.0.0",
+#	 "severity": "HIGH",
+#	 "type": "Kubernetes Security Check",
+#	 "description": "Sharing the host’s IPC namespace allows container processes to communicate with processes on the host.",
+#	 "recommended_actions": "Do not set 'spec.template.spec.hostIPC' to true.",
+#	 "url": "https://kubernetes.io/docs/concepts/security/pod-security-standards/#baseline",
+#}
+#
+# __rego_input__ := {
+#	 "combine": false,
+#	 "selector": [{"type": "kubernetes"}],
+# }
+#
+## failHostIPC is true if spec.hostIPC is set to true (on all resources)
+# failHostIPC {
+#	 kubernetes.host_ipcs[_] == true
+# }
+#
+#deny[res] {
+#	failHostIPC
+#	msg := kubernetes.format(sprintf("%s '%s' should not set 'spec.template.spec.hostIPC' to true", [kubernetes.kind, kubernetes.name]))
+#	res := result.new(msg, input.spec)
+#}"
+---
+# Source: trivy-operator/templates/config-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: trivy-operator
+  namespace: trivy-system
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.16.0"
+    app.kubernetes.io/managed-by: kubectl
 ---
 # Source: trivy-operator/templates/deployment.yaml
 apiVersion: apps/v1
@@ -2326,599 +2332,6 @@ spec:
             privileged: false
             readOnlyRootFilesystem: true
 ---
-# Source: trivy-operator/templates/leader-election.yaml
-# permissions to do leader election.
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: trivy-operator-leader-election
-  namespace: trivy-system
-  labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.0"
-    app.kubernetes.io/managed-by: kubectl
-rules:
-  - apiGroups:
-      - coordination.k8s.io
-    resources:
-      - leases
-    verbs:
-      - create
-      - get
-      - update
-  - apiGroups:
-      - ""
-    resources:
-      - events
-    verbs:
-      - create
----
-# Source: trivy-operator/templates/leader-election.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: trivy-operator-leader-election
-  namespace: trivy-system
-  labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.0"
-    app.kubernetes.io/managed-by: kubectl
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: trivy-operator-leader-election
-subjects:
-  - kind: ServiceAccount
-    name: trivy-operator
-    namespace: trivy-system
----
-# Source: trivy-operator/templates/policies.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: trivy-operator-policies-config
-  namespace: trivy-system
-  labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.0"
-    app.kubernetes.io/managed-by: kubectl
-data:
-# example
-# policy.my_policy.kinds: Workload
-# policy.my_policy.rego: "package builtin.kubernetes.KSV008
-#
-# import data.lib.kubernetes
-# import data.lib.result
-#
-# default failHostIPC = false
-#
-# __rego_metadata__ := {
-#	 "id": "KSV008",
-#	 "avd_id": "AVD-KSV-0008",
-#	 "title": "Access to host IPC namespace",
-#	 "short_code": "no-shared-ipc-namespace",
-#	 "version": "v1.0.0",
-#	 "severity": "HIGH",
-#	 "type": "Kubernetes Security Check",
-#	 "description": "Sharing the host’s IPC namespace allows container processes to communicate with processes on the host.",
-#	 "recommended_actions": "Do not set 'spec.template.spec.hostIPC' to true.",
-#	 "url": "https://kubernetes.io/docs/concepts/security/pod-security-standards/#baseline",
-#}
-#
-# __rego_input__ := {
-#	 "combine": false,
-#	 "selector": [{"type": "kubernetes"}],
-# }
-#
-## failHostIPC is true if spec.hostIPC is set to true (on all resources)
-# failHostIPC {
-#	 kubernetes.host_ipcs[_] == true
-# }
-#
-#deny[res] {
-#	failHostIPC
-#	msg := kubernetes.format(sprintf("%s '%s' should not set 'spec.template.spec.hostIPC' to true", [kubernetes.kind, kubernetes.name]))
-#	res := result.new(msg, input.spec)
-#}"
----
-# Source: trivy-operator/templates/rbac.yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: trivy-operator
-  namespace: trivy-system
-  labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.0"
-    app.kubernetes.io/managed-by: kubectl
----
-# Source: trivy-operator/templates/rbac.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  creationTimestamp: null
-  name: trivy-operator
-rules:
-- apiGroups:
-  - ""
-  resources:
-  - configmaps
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - limitranges
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - nodes
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - pods
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - pods/log
-  verbs:
-  - get
-  - list
-- apiGroups:
-  - ""
-  resources:
-  - replicationcontrollers
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - resourcequotas
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - services
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - apiextensions.k8s.io
-  resources:
-  - customresourcedefinitions
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - apps
-  resources:
-  - daemonsets
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - apps
-  resources:
-  - deployments
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - apps
-  resources:
-  - replicasets
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - apps
-  resources:
-  - statefulsets
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - apps.openshift.io
-  resources:
-  - deploymentconfigs
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - clustercompliancedetailreports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - clustercompliancereports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - clustercompliancereports/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - clusterconfigauditreports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - clusterinfraassessmentreports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - clusterrbacassessmentreports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - configauditreports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - exposedsecretreports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - infraassessmentreports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - rbacassessmentreports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - sbomreports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - aquasecurity.github.io
-  resources:
-  - vulnerabilityreports
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - batch
-  resources:
-  - cronjobs
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - batch
-  resources:
-  - jobs
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - watch
-- apiGroups:
-  - networking.k8s.io
-  resources:
-  - ingresses
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - networking.k8s.io
-  resources:
-  - networkpolicies
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - rbac.authorization.k8s.io
-  resources:
-  - clusterrolebindings
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - rbac.authorization.k8s.io
-  resources:
-  - clusterroles
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - rbac.authorization.k8s.io
-  resources:
-  - rolebindings
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - rbac.authorization.k8s.io
-  resources:
-  - roles
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - secrets
-  verbs:
-  - create
-  - get
-  - update
-- apiGroups:
-  - ""
-  resources:
-  - serviceaccounts
-  verbs:
-  - get
----
-# Source: trivy-operator/templates/rbac.yaml
-# permissions for end users to view configauditreports
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: aggregate-config-audit-reports-view
-  labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.0"
-    app.kubernetes.io/managed-by: kubectl
-    rbac.authorization.k8s.io/aggregate-to-view: "true"
-    rbac.authorization.k8s.io/aggregate-to-edit: "true"
-    rbac.authorization.k8s.io/aggregate-to-admin: "true"
-    rbac.authorization.k8s.io/aggregate-to-cluster-reader: "true"
-rules:
-  - apiGroups:
-      - aquasecurity.github.io
-    resources:
-      - configauditreports
-    verbs:
-      - get
-      - list
-      - watch
----
-# Source: trivy-operator/templates/rbac.yaml
-# permissions for end users to view exposedsecretreports
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: aggregate-exposed-secret-reports-view
-  labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.0"
-    app.kubernetes.io/managed-by: kubectl
-    rbac.authorization.k8s.io/aggregate-to-view: "true"
-    rbac.authorization.k8s.io/aggregate-to-edit: "true"
-    rbac.authorization.k8s.io/aggregate-to-admin: "true"
-    rbac.authorization.k8s.io/aggregate-to-cluster-reader: "true"
-rules:
-  - apiGroups:
-      - aquasecurity.github.io
-    resources:
-      - exposedsecretreports
-    verbs:
-      - get
-      - list
-      - watch
----
-# Source: trivy-operator/templates/rbac.yaml
-# permissions for end users to view vulnerabilityreports
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: aggregate-vulnerability-reports-view
-  labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.0"
-    app.kubernetes.io/managed-by: kubectl
-    rbac.authorization.k8s.io/aggregate-to-view: "true"
-    rbac.authorization.k8s.io/aggregate-to-edit: "true"
-    rbac.authorization.k8s.io/aggregate-to-admin: "true"
-    rbac.authorization.k8s.io/aggregate-to-cluster-reader: "true"
-rules:
-  - apiGroups:
-      - aquasecurity.github.io
-    resources:
-      - vulnerabilityreports
-    verbs:
-      - get
-      - list
-      - watch
----
-# Source: trivy-operator/templates/rbac.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: trivy-operator
-  labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.0"
-    app.kubernetes.io/managed-by: kubectl
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: trivy-operator
-subjects:
-  - kind: ServiceAccount
-    name: trivy-operator
-    namespace: trivy-system
----
-# Source: trivy-operator/templates/rbac.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: trivy-operator
-  namespace: trivy-system
-  labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.0"
-    app.kubernetes.io/managed-by: kubectl
-rules:
-  - apiGroups:
-      - ""
-    resources:
-      - configmaps
-    verbs:
-      - create
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - secrets
-    verbs:
-      - create
-      - get
-      - delete
----
-# Source: trivy-operator/templates/rbac.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: trivy-operator
-  namespace: trivy-system
-  labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.0"
-    app.kubernetes.io/managed-by: kubectl
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: trivy-operator
-subjects:
-  - kind: ServiceAccount
-    name: trivy-operator
-    namespace: trivy-system
----
 # Source: trivy-operator/templates/service.yaml
 apiVersion: v1
 kind: Service
@@ -2940,3 +2353,15 @@ spec:
   selector:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
+---
+# Source: trivy-operator/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: trivy-operator
+  namespace: trivy-system
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.16.0"
+    app.kubernetes.io/managed-by: kubectl

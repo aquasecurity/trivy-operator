@@ -1,5 +1,7 @@
 {{- if eq .Values.trivyOperator.vulnerabilityReportsPlugin "Trivy" }}
 {{- if .Values.trivy.createConfig }}
+
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:

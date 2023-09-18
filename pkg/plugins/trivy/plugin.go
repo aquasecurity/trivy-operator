@@ -1182,8 +1182,6 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 				"image",
 				scanners,
 				getSecurityChecks(ctx),
-				skipUpdate,
-				skipJavaDBUpdate,
 				"--format",
 				"json",
 				"--server",
@@ -1203,6 +1201,13 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 			if len(pkgList) > 0 {
 				args = append(args, pkgList)
 			}
+			if len(skipUpdate) > 0 {
+				args = append(args, skipUpdate)
+			}
+			if len(skipJavaDBUpdate) > 0 {
+				args = append(args, skipJavaDBUpdate)
+			}
+
 			return command, args
 		}
 		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, skipJavaDBUpdate, getPkgList(ctx), trivyServerURL, resultFileName, resultFileName)}
@@ -1216,8 +1221,6 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 			"image",
 			scanners,
 			getSecurityChecks(ctx),
-			skipUpdate,
-			skipJavaDBUpdate,
 			"--format",
 			"json",
 			imageRef,
@@ -1234,6 +1237,12 @@ func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, i
 		pkgList := getPkgList(ctx)
 		if len(pkgList) > 0 {
 			args = append(args, pkgList)
+		}
+		if len(skipUpdate) > 0 {
+			args = append(args, skipUpdate)
+		}
+		if len(skipJavaDBUpdate) > 0 {
+			args = append(args, skipJavaDBUpdate)
 		}
 		return command, args
 	}

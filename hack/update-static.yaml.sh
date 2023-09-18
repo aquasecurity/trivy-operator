@@ -31,7 +31,6 @@ rm -rf $HELM_TMPDIR/trivy-operator/templates/configmaps
 rm -rf $HELM_TMPDIR/trivy-operator/templates/secrets
 
 cat $HELM_TMPDIR/trivy-operator/templates/specs/* > $STATIC_DIR/specs.yaml
-cp $STATIC_DIR/specs.yaml $HELM_TMPDIR/trivy-operator/templates
 rm -rf $HELM_TMPDIR/trivy-operator/templates/specs
 
 [ -d $HELM_TMPDIR/trivy-operator/templates/trivy-server ] && cat $HELM_TMPDIR/trivy-operator/templates/trivy-server/* > $STATIC_DIR/trivy-server.yaml && cp $STATIC_DIR/trivy-server.yaml $HELM_TMPDIR/trivy-operator/templates

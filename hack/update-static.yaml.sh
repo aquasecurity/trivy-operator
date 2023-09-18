@@ -20,8 +20,8 @@ cat $CRD_DIR/* > $STATIC_DIR/trivy-operator.yaml
 [ ! -f $HELM_TMPDIR/trivy-operator/templates/namespace.yaml ] && cat $STATIC_DIR/namespace.yaml >> $STATIC_DIR/trivy-operator.yaml
 
 cat $HELM_TMPDIR/trivy-operator/templates/rbac/* > $STATIC_DIR/rbac.yaml
-cat $HELM_TMPDIR/trivy-operator/templates/serviceaccount.yaml >> $STATIC_DIR/rbac.yaml
 cp $STATIC_DIR/rbac.yaml $HELM_TMPDIR/trivy-operator/templates
+cat $HELM_TMPDIR/trivy-operator/templates/serviceaccount.yaml >> $STATIC_DIR/rbac.yaml
 rm -rf $HELM_TMPDIR/trivy-operator/templates/rbac
 
 cat $HELM_TMPDIR/trivy-operator/templates/configmaps/* > $STATIC_DIR/config.yaml

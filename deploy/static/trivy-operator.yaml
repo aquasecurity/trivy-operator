@@ -2940,15 +2940,3 @@ metadata:
     app.kubernetes.io/instance: trivy-operator
     app.kubernetes.io/version: "0.16.0"
     app.kubernetes.io/managed-by: kubectl
----
-# Source: trivy-operator/templates/serviceaccount.yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: trivy-operator
-  namespace: trivy-system
-  labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.0"
-    app.kubernetes.io/managed-by: kubectl

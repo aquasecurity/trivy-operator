@@ -21,26 +21,30 @@ cat $CRD_DIR/* > $STATIC_DIR/trivy-operator.yaml
 
 cat $HELM_TMPDIR/trivy-operator/templates/rbac/* > $STATIC_DIR/rbac.yaml
 cat $HELM_TMPDIR/trivy-operator/templates/serviceaccount.yaml >> $STATIC_DIR/rbac.yaml
+cp $STATIC_DIR/rbac.yaml $HELM_TMPDIR/trivy-operator/templates
 rm -rf $HELM_TMPDIR/trivy-operator/templates/rbac
 
 cat $HELM_TMPDIR/trivy-operator/templates/configmaps/* > $STATIC_DIR/config.yaml
 cat $HELM_TMPDIR/trivy-operator/templates/secrets/* >> $STATIC_DIR/config.yaml
+cp $STATIC_DIR/config.yaml $HELM_TMPDIR/trivy-operator/templates
 rm -rf $HELM_TMPDIR/trivy-operator/templates/configmaps
 rm -rf $HELM_TMPDIR/trivy-operator/templates/secrets
 
 cat $HELM_TMPDIR/trivy-operator/templates/specs/* > $STATIC_DIR/specs.yaml
+cp $STATIC_DIR/specs.yaml $HELM_TMPDIR/trivy-operator/templates
 rm -rf $HELM_TMPDIR/trivy-operator/templates/specs
 
-[ -d $HELM_TMPDIR/trivy-operator/templates/trivy-server ] && cat $HELM_TMPDIR/trivy-operator/templates/trivy-server/* > $STATIC_DIR/trivy-server.yaml
+[ -d $HELM_TMPDIR/trivy-operator/templates/trivy-server ] && cat $HELM_TMPDIR/trivy-operator/templates/trivy-server/* > $STATIC_DIR/trivy-server.yaml && cp $STATIC_DIR/trivy-server.yaml $HELM_TMPDIR/trivy-operator/templates
 rm -rf $HELM_TMPDIR/trivy-operator/templates/trivy-server
 
 cat $HELM_TMPDIR/trivy-operator/templates/monitor/* > $STATIC_DIR/monitor.yaml
+cp $STATIC_DIR/monitor.yaml $HELM_TMPDIR/trivy-operator/templates
 rm -rf $HELM_TMPDIR/trivy-operator/templates/monitor
 
 
-find $HELM_TMPDIR/trivy-operator/templates -name '*.yaml' -exec cat {} \; > $STATIC_DIR/trivy-operator.yaml
+cat $HELM_TMPDIR/trivy-operator/templates/* >> $STATIC_DIR/trivy-operator.yaml
 
 # Copy all manifests rendered by the Helm chart to the static resources directory,
 # where they should be ignored by Git.
 # This is done to support local development with partial updates to local cluster.
-cp $HELM_TMPDIR/trivy-operator/templates/* $STATIC_DIR/
+

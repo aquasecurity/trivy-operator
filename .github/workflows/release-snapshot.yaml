@@ -38,7 +38,7 @@ jobs:
       - name: Install cosign
         uses: sigstore/cosign-installer@v3.1.2
       - name: Release snapshot
-        uses: goreleaser/goreleaser-action@v4
+        uses: goreleaser/goreleaser-action@v5
         with:
           version: v1.7.0
           args: release --snapshot --skip-publish --rm-dist

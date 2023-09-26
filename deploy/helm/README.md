@@ -19,6 +19,7 @@ Keeps security report resources updated
 | compliance.reportType | string | `"summary"` | reportType this flag control the type of report generated (summary or all) |
 | excludeNamespaces | string | `""` | excludeNamespaces is a comma separated list of namespaces (or glob patterns) to be excluded from scanning. Only applicable in the all namespaces install mode, i.e. when the targetNamespaces values is a blank string. |
 | fullnameOverride | string | `""` | fullnameOverride override operator full name |
+| global.image.registry | string | `""` | global populates the same value for each instance of image.registry |
 | image.pullPolicy | string | `"IfNotPresent"` | pullPolicy set the operator pullPolicy |
 | image.pullSecrets | list | `[]` | pullSecrets set the operator pullSecrets |
 | image.registry | string | `"ghcr.io"` |  |

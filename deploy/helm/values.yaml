@@ -1,6 +1,12 @@
 # Default values for the trivy-operator Helm chart, these are used to render
 # the templates into valid k8s Resources.
 
+# -- global values provide a centralized configuration for 'image.registry', reducing the potential for errors.
+# If left blank, the chart will default to the individually set 'image.registry' values
+global:
+  image:
+    registry: ""
+
 # -- managedBy is similar to .Release.Service but allows to overwrite the value
 managedBy: Helm
 

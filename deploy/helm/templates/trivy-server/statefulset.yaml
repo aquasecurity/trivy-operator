@@ -54,7 +54,7 @@ spec:
       {{- end }}
       containers:
         - name: trivy-server
-          image: "{{ .Values.trivy.image.registry }}/{{ .Values.trivy.image.repository }}:{{ .Values.trivy.image.tag }}"
+          image: "{{ include "global.imageRegistry" . | default .Values.trivy.image.registry }}/{{ .Values.trivy.image.repository }}:{{ .Values.trivy.image.tag }}"
           imagePullPolicy: "IfNotPresent"
           {{- with .Values.trivy.server.securityContext }}
           securityContext: {{- toYaml . | nindent 12 }}

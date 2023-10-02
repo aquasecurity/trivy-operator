@@ -568,12 +568,7 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 				for i, label := range c.GetReportResourceLabels() {
 					vulnLabelValues[i+21] = r.Labels[label]
 				}
-				var vulnList = make(map[string]bool)
 				for _, vuln := range r.Report.Vulnerabilities {
-					if vulnList[vuln.VulnerabilityID] {
-						continue
-					}
-					vulnList[vuln.VulnerabilityID] = true
 					vulnLabelValues[9] = vuln.InstalledVersion
 					vulnLabelValues[10] = vuln.FixedVersion
 					vulnLabelValues[11] = vuln.PublishedDate

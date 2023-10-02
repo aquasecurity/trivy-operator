@@ -70,3 +70,12 @@ Create the name of the service account to use.
 {{- define "trivy-operator.namespace" -}}
   {{- default .Release.Namespace .Values.operator.namespace }}
 {{- end }}
+
+{{/*
+Define the image registry to use if global values are set.
+*/}}
+{{- define "global.imageRegistry" -}}
+{{- if ((.Values.global).image).registry -}}
+  {{- .Values.global.image.registry }}
+{{- end }}
+{{- end }}

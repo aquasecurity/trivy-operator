@@ -2192,7 +2192,7 @@ metadata:
     app.kubernetes.io/managed-by: kubectl
 data:
   trivy.repository: "ghcr.io/aquasecurity/trivy"
-  trivy.tag: "0.45.0"
+  trivy.tag: "0.45.1"
   trivy.additionalVulnerabilityReportFields: ""
   trivy.severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
   trivy.slow: "true"

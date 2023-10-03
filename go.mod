@@ -18,7 +18,7 @@ require (
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
 	github.com/liamg/memoryfs v1.6.0
 	github.com/onsi/ginkgo/v2 v2.12.1
-	github.com/onsi/gomega v1.27.10
+	github.com/onsi/gomega v1.28.0
 	github.com/openshift/api v0.0.0-20221013123533-341d389bd4a7
 	github.com/prometheus/client_golang v1.17.0
 	github.com/stretchr/testify v1.8.4

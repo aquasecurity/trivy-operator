@@ -204,7 +204,7 @@ func (c Config) GetImagePullSecret() []corev1.LocalObjectReference {
 func (c Config) GetImagePullPolicy() string {
 	ipp, ok := c.Data[keyTrivyImagePullPolicy]
 	if !ok {
-		return "Always"
+		return "IfNotPresent"
 	}
 	return ipp
 }

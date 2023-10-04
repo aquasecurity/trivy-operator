@@ -14,7 +14,7 @@ data:
   {{- with .Values.trivy.image.imagePullSecret }}
   trivy.imagePullSecret: {{ . | quote }}
   {{- end }}
-   {{- with .Values.trivy.image.PullPolicy }}
+   {{- with .Values.trivy.image.pullPolicy }}
   trivy.imagePullPolicy: {{ . | quote }}
   {{- end }}
   trivy.additionalVulnerabilityReportFields: {{ .Values.trivy.additionalVulnerabilityReportFields | quote}}

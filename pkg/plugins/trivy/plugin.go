@@ -55,6 +55,7 @@ const (
 	keyTrivyImageTag        = "trivy.tag"
 	//nolint:gosec
 	keyTrivyImagePullSecret                     = "trivy.imagePullSecret"
+	keyTrivyImagePullPolicy                     = "trivy.imagePullPolicy"
 	keyTrivyMode                                = "trivy.mode"
 	keyTrivyAdditionalVulnerabilityReportFields = "trivy.additionalVulnerabilityReportFields"
 	keyTrivyCommand                             = "trivy.command"
@@ -198,6 +199,14 @@ func (c Config) GetImagePullSecret() []corev1.LocalObjectReference {
 		return []corev1.LocalObjectReference{}
 	}
 	return []corev1.LocalObjectReference{{Name: ips}}
+}
+
+func (c Config) GetImagePullPolicy() string {
+	ipp, ok := c.Data[keyTrivyImagePullPolicy]
+	if !ok {
+		return "Always"
+	}
+	return ipp
 }
 
 func (c Config) GetMode() (Mode, error) {
@@ -730,7 +739,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 	initContainer := corev1.Container{
 		Name:                     p.idGenerator.GenerateID(),
 		Image:                    trivyImageRef,
-		ImagePullPolicy:          corev1.PullIfNotPresent,
+		ImagePullPolicy:          corev1.PullPolicy(config.GetImagePullPolicy()),
 		TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 		Env:                      p.initContainerEnvVar(trivyConfigName, config),
 		Command: []string{
@@ -893,7 +902,7 @@ func (p *plugin) getPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, co
 		containers = append(containers, corev1.Container{
 			Name:                     c.Name,
 			Image:                    trivyImageRef,
-			ImagePullPolicy:          corev1.PullIfNotPresent,
+			ImagePullPolicy:          corev1.PullPolicy(config.GetImagePullPolicy()),
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 			Env:                      env,
 			Command:                  cmd,
@@ -1125,7 +1134,7 @@ func (p *plugin) getPodSpecForClientServerMode(ctx trivyoperator.PluginContext, 
 		containers = append(containers, corev1.Container{
 			Name:                     container.Name,
 			Image:                    trivyImageRef,
-			ImagePullPolicy:          corev1.PullIfNotPresent,
+			ImagePullPolicy:          corev1.PullPolicy(config.GetImagePullPolicy()),
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 			Env:                      env,
 			Command:                  cmd,
@@ -1385,7 +1394,7 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 	initContainerCopyBinary := corev1.Container{
 		Name:                     p.idGenerator.GenerateID(),
 		Image:                    trivyImageRef,
-		ImagePullPolicy:          corev1.PullIfNotPresent,
+		ImagePullPolicy:          corev1.PullPolicy(config.GetImagePullPolicy()),
 		TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 		Command: []string{
 			"cp",
@@ -1401,7 +1410,7 @@ func (p *plugin) getPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, 
 	initContainerDB := corev1.Container{
 		Name:                     p.idGenerator.GenerateID(),
 		Image:                    trivyImageRef,
-		ImagePullPolicy:          corev1.PullIfNotPresent,
+		ImagePullPolicy:          corev1.PullPolicy(config.GetImagePullPolicy()),
 		TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 		Env:                      p.initContainerFSEnvVar(trivyConfigName, config),
 		Command: []string{
@@ -1608,7 +1617,7 @@ func (p *plugin) getPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext
 	initContainerCopyBinary := corev1.Container{
 		Name:                     p.idGenerator.GenerateID(),
 		Image:                    trivyImageRef,
-		ImagePullPolicy:          corev1.PullIfNotPresent,
+		ImagePullPolicy:          corev1.PullPolicy(config.GetImagePullPolicy()),
 		TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 		Command: []string{
 			"cp",

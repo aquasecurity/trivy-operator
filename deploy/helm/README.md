@@ -19,7 +19,7 @@ Keeps security report resources updated
 | compliance.reportType | string | `"summary"` | reportType this flag control the type of report generated (summary or all) |
 | excludeNamespaces | string | `""` | excludeNamespaces is a comma separated list of namespaces (or glob patterns) to be excluded from scanning. Only applicable in the all namespaces install mode, i.e. when the targetNamespaces values is a blank string. |
 | fullnameOverride | string | `""` | fullnameOverride override operator full name |
-| global.image.registry | string | `""` | global populates the same value for each instance of image.registry |
+| global | object | `{"image":{"registry":""}}` | global values provide a centralized configuration for 'image.registry', reducing the potential for errors. If left blank, the chart will default to the individually set 'image.registry' values |
 | image.pullPolicy | string | `"IfNotPresent"` | pullPolicy set the operator pullPolicy |
 | image.pullSecrets | list | `[]` | pullSecrets set the operator pullSecrets |
 | image.registry | string | `"ghcr.io"` |  |
@@ -108,6 +108,7 @@ Keeps security report resources updated
 | trivy.ignoreFile | string | `nil` | ignoreFile can be used to tell Trivy to ignore vulnerabilities by ID (one per line) |
 | trivy.ignoreUnfixed | bool | `false` | ignoreUnfixed is the flag to show only fixed vulnerabilities in vulnerabilities reported by Trivy. Set to true to enable it.  |
 | trivy.image.imagePullSecret | string | `nil` | imagePullSecret is the secret name to be used when pulling trivy image from private registries example : reg-secret It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace |
+| trivy.image.pullPolicy | string | `"IfNotPresent"` | pullPolicy is the imge pull policy used for trivy image , valid values are (Always, Never, IfNotPresent) |
 | trivy.image.registry | string | `"ghcr.io"` | registry of the Trivy image |
 | trivy.image.repository | string | `"aquasecurity/trivy"` | repository of the Trivy image |
 | trivy.image.tag | string | `"0.45.1"` | tag version of the Trivy image |

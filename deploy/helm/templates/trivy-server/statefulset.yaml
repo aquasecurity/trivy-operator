@@ -63,15 +63,15 @@ spec:
             - server
           {{- if or (or .Values.trivy.httpProxy .Values.trivy.httpsProxy) .Values.trivy.noProxy }}
           env:
-            {{- with .Values.trivy.httpProxy }}
+            {{- with .Values.trivy.httpProxy | quote }}
             - name: HTTP_PROXY
               value: {{ . }}
             {{- end }}
-            {{- with .Values.trivy.httpsProxy }}
+            {{- with .Values.trivy.httpsProxy | quote }}
             - name: HTTPS_PROXY
               value: {{ . }}
             {{- end }}
-            {{- with .Values.trivy.noProxy }}
+            {{- with .Values.trivy.noProxy | quote }}
             - name: NO_PROXY
               value: {{ . }}
             {{- end }}

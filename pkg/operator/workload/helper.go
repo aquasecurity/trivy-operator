@@ -144,6 +144,10 @@ func MarkOldReportForImmediateDeletion(ctx context.Context, resolver kube.Object
 	if err != nil {
 		return err
 	}
+	err = markOldSbomReport(ctx, resolver, namespace, resourceNameLabels, annotation)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -189,6 +193,23 @@ func markOldExposeSecretsReport(ctx context.Context, resolver kube.ObjectResolve
 			return err
 		}
 		for _, report := range exposeSecretReportList.Items {
+			err := markReportTTL(ctx, resolver, report.DeepCopy(), annotation)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
+func markOldSbomReport(ctx context.Context, resolver kube.ObjectResolver, namespace string, resourceNameLabels map[string]string, annotation map[string]string) error {
+	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		var sbomReportList v1alpha1.SbomReportList
+		err := GetReportsByLabel(ctx, resolver, &sbomReportList, namespace, resourceNameLabels)
+		if err != nil {
+			return err
+		}
+		for _, report := range sbomReportList.Items {
 			err := markReportTTL(ctx, resolver, report.DeepCopy(), annotation)
 			if err != nil {
 				return err

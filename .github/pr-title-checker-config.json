@@ -1,6 +1,17 @@
 {
+  "LABEL": {
+    "name": "title needs formatting",
+    "color": "EEEEEE"
+  },
   "CHECKS": {
-    "prefixes": ["fix: ", "feat: ","chore: ","docs: ","test: ","refactor: "],
+    "prefixes": [
+      "fix: ",
+      "feat: ",
+      "chore: ",
+      "docs: ",
+      "test: ",
+      "refactor: "
+    ],
     "regexp": "docs\\(v[0-9]\\): ",
     "regexpFlags": "i"
   },

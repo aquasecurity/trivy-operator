@@ -1,9 +1,11 @@
 ---
 name: Private Registries
 on:
-  push:
-    branches:
-      - main
+  pull_request_target:
+    types:
+      - opened
+      - edited
+      - synchronize
     paths-ignore:
       - .github/ISSUE_TEMPLATE/*.md
       - "*.md"

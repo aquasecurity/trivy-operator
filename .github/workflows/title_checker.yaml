@@ -1,4 +1,5 @@
-name: "PR Title Checker"
+name: "Lint PR title"
+
 on:
   pull_request_target:
     types:
@@ -7,11 +8,23 @@ on:
       - synchronize
 
 jobs:
-  check:
+  main:
+    name: Validate PR title
     runs-on: ubuntu-latest
     steps:
-      - uses: thehanimo/pr-title-checker@v1.4.0
-        with:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          pass_on_octokit_error: false
-          configuration_path: .github/pr-title-checker-config.json #(optional. defaults to .github/pr-title-checker-config.json)
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert

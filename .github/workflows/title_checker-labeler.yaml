@@ -1,4 +1,4 @@
-name: "Lint PR title"
+name: "Lint PR title and label"
 
 on:
   pull_request_target:
@@ -6,9 +6,10 @@ on:
       - opened
       - edited
       - synchronize
+      - reopened
 
 jobs:
-  main:
+  pr-title-checker:
     name: Validate PR title
     runs-on: ubuntu-latest
     steps:
@@ -28,3 +29,11 @@ jobs:
             ci
             chore
             revert
+  pr-labeler:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label the PR
+        uses: gerrymanoim/pr-prefix-labeler@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

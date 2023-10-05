@@ -267,6 +267,8 @@ jobs:
           kind delete cluster
   private-registry-testing:
     name: private registry testing
+    needs:
+      - e2e-testing
     runs-on: ubuntu-latest
     env:
       DOCKER_CLI_EXPERIMENTAL: enabled

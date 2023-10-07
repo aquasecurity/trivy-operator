@@ -8,7 +8,7 @@ changelog:
     - title: 🐛 Notable Fixes 🐛
       labels:
         - bug
-    - title: 🔧 Docs && Updateds 📝	
+    - title: 📝 Documentation && Miscellaneous 🔧
       labels:
         - documentation
         - misc

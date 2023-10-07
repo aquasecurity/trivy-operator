@@ -29,12 +29,6 @@ jobs:
             ci
             chore
             revert
-  pr-labeler:
-    name: label PR by title prefix
-    needs:
-      - pr-title-checker
-    runs-on: ubuntu-latest
-    steps:
       - name: Label the PR
         uses: gerrymanoim/pr-prefix-labeler@v3
         env:

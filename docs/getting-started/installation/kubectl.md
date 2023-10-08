@@ -28,7 +28,7 @@ kubectl logs deployment/trivy-operator -n trivy-system
 ## Advanced Configuration
 
 You can configure Trivy-Operator to control it's behavior and adapt it to your needs. Aspects of the operator machinery are configured using environment variables on the operator Pod, while aspects of the scanning behavior are controlled by ConfigMaps and Secrets.
-To learn more, please refer to the [Configuration](config) documentation.
+To learn more, please refer to the [Configuration](configuration) documentation.
 
 ## Uninstall
 

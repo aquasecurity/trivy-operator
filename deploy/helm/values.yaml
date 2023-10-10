@@ -153,6 +153,7 @@ image:
 # -- service only expose a metrics endpoint for prometheus to scrape,
 # trivy-operator does not have a user interface.
 service:
+  headless: true
   metricsPort: 80
   # -- annotations added to the operator's service
   annotations: {}

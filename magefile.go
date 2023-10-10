@@ -255,9 +255,10 @@ func (g Generate) Docs() error {
 }
 
 // Target for verifying generated Helm documentation
-func (g Generate) VerifyDocs() {
+func (g Generate) VerifyDocs() error {
 	fmt.Println("Verifying generated Helm documentation...")
-	mg.Deps(g.Docs, g.verifyFilesDiff)
+	mg.Deps(g.Docs)
+	return g.verifyFilesDiff()
 }
 
 // GoEnv returns the value of a Go environment variable.

@@ -28,6 +28,7 @@ jobs:
             build
             ci
             chore
+            release
             revert
       - name: Label the PR
         uses: gerrymanoim/pr-prefix-labeler@v3

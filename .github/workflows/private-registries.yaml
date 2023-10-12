@@ -1,5 +1,5 @@
 ---
-name: Build
+name: Private Registries E2E
 on:
   push:
     branches:

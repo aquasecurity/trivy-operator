@@ -2389,7 +2389,9 @@ metadata:
     app.kubernetes.io/version: "0.16.1"
     app.kubernetes.io/managed-by: kubectl
 spec:
+  
   clusterIP: None
+  
   ports:
     - name: metrics
       port: 80

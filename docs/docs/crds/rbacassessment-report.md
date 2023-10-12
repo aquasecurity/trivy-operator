@@ -177,7 +177,7 @@ report:
   scanner:
     name: Trivy
     vendor: Aqua Security
-    version: '0.16.1'
+    version: '0.16.2'
   summary:
     criticalCount: 1
     highCount: 0

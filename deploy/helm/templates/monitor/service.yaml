@@ -8,7 +8,9 @@ metadata:
   annotations: {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
+  {{ if .Values.service.headless }}
   clusterIP: None
+  {{ end }}
   ports:
     - name: metrics
       port: {{ .Values.service.metricsPort }}

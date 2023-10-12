@@ -10,6 +10,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 	. "github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 
 	"context"
@@ -144,6 +145,16 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting scan job annotations: %w", err)
 		}
+		pConfig, err := r.PluginContext.GetConfig()
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("getting getting config: %w", err)
+		}
+		tc := trivy.Config{PluginConfig: pConfig}
+
+		requirements, err := tc.GetResourceRequirements()
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("getting node-collector resource requierments: %w", err)
+		}
 
 		scanJobPodPriorityClassName, err := r.GetScanJobPodPriorityClassName()
 		if err != nil {
@@ -164,6 +175,7 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 			j.WithVolumes(nodeCollectorVolumes),
 			j.WithPodPriorityClassName(scanJobPodPriorityClassName),
 			j.WithVolumesMount(nodeCollectorVolumeMounts),
+			j.WithContainerResourceRequirements(&requirements),
 			j.WithJobLabels(map[string]string{
 				trivyoperator.LabelNodeInfoCollector: "Trivy",
 				trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,

@@ -11,4 +11,4 @@ linters-settings:
     enabled-checks:
       - importShadow
 run:
-  timeout: 10m
+  timeout: 5m

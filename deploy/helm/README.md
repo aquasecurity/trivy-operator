@@ -79,7 +79,7 @@ Keeps security report resources updated
 | rbac.create | bool | `true` |  |
 | resources | object | `{}` |  |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true}` | securityContext security context |
-| service | object | `{"annotations":{},"metricsPort":80}` | service only expose a metrics endpoint for prometheus to scrape, trivy-operator does not have a user interface. |
+| service | object | `{"annotations":{},"headless":true,"metricsPort":80}` | service only expose a metrics endpoint for prometheus to scrape, trivy-operator does not have a user interface. |
 | service.annotations | object | `{}` | annotations added to the operator's service |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created. |

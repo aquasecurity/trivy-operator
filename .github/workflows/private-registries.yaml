@@ -1,0 +1,121 @@
+---
+name: Build
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - .github/ISSUE_TEMPLATE/*.md
+      - "*.md"
+      - docs/**
+      - mkdocs.yml
+      - LICENSE
+      - NOTICE
+  pull_request_target:
+    branches:
+      - main
+    paths-ignore:
+      - .github/ISSUE_TEMPLATE/*.md
+      - "*.md"
+      - docs/**
+      - mkdocs.yml
+      - LICENSE
+      - NOTICE
+env:
+  GO_VERSION: 1.20.4
+  KIND_VERSION: v0.17.0
+  KIND_IMAGE: kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6
+permissions: {}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  private-registry-testing:
+    name: private registry testing
+    needs:
+      - e2e-testing
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_CLI_EXPERIMENTAL: enabled
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Available platforms
+        run: echo ${{ steps.buildx.outputs.platforms }}
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Release snapshot
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          version: v1.7.0
+          args: release -f=goreleaser-e2e.yaml --snapshot --skip-publish --rm-dist
+      - name: Install kind and create cluster
+        run: >
+          curl -Lo ./kind https://kind.sigs.k8s.io/dl/${{ env.KIND_VERSION
+          }}/kind-linux-amd64
+
+          chmod +x ./kind
+
+          sudo mv ./kind /usr/local/bin/kind
+
+          kind create cluster
+
+          curl -LO https://dl.k8s.io/release/v1.26.0/bin/linux/amd64/kubectl
+
+          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+      - name: Test connection to Kubernetes cluster
+        run: |
+          kubectl cluster-info
+          kubectl wait --for=condition=Ready nodes --all --timeout=300s
+          kubectl describe node
+          kubectl create namespace private
+
+          kubectl create secret docker-registry artcred \
+            --docker-server=https://index.docker.io/v1 \
+            --docker-username=${{ secrets.DOCKERHUB_USER }} \
+            --docker-password=${{ secrets.DOCKERHUB_TOKEN }} \
+            --docker-email=private@gmail.com \
+            -n private
+      - name: Load operator image to cluster
+        run: >
+          docker tag ghcr.io/aquasecurity/trivy-operator:${{ github.sha }}-amd64
+          ghcr.io/aquasecurity/trivy-operator:e2e
+
+          docker save -o trivy-operator.tar ghcr.io/aquasecurity/trivy-operator:e2e
+
+          kind load image-archive trivy-operator.tar
+      - name: Init E2E tests (Install kuttl & helm)
+        run: >
+          mkdir -p ./bin
+
+          curl -L https://github.com/kudobuilder/kuttl/releases/download/v0.15.0/kubectl-kuttl_0.15.0_linux_x86_64 -o ./bin/kuttl;
+
+          chmod +x ./bin/kuttl;
+
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+
+          chmod 700 get_helm.sh
+
+          ./get_helm.sh
+      - name: image private registries via pod image pull secret tests
+        run: >
+
+          ./bin/kuttl test --start-kind=false --config tests/config/image-private-registries.yaml
+
+          ./tests/resources-cleanup.sh > /dev/null 2>&1
+      - name: image private registries via service account image pull secret tests
+        run: >
+
+          ./bin/kuttl test --start-kind=false --config tests/config/image-private-registries-sa.yaml
+
+          ./tests/resources-cleanup.sh > /dev/null 2>&1
+      - name: Delete kind cluster
+        run: |
+          kind delete cluster

@@ -164,3 +164,4 @@ Keeps security report resources updated
 | trivyOperator.vulnerabilityReportsPlugin | string | `"Trivy"` | vulnerabilityReportsPlugin the name of the plugin that generates vulnerability reports `Trivy` |
 | volumeMounts | list | `[]` |  |
 | volumes | list | `[]` |  |
+

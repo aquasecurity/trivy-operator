@@ -37,12 +37,27 @@ checksum:
 snapshot:
   name_template: "{{ .FullCommit }}"
 changelog:
-  sort: asc
   filters:
     exclude:
-      - '^docs'
       - '^test'
       - '^release'
+  sort: asc
+  use: github
+  groups:
+    - title: ✨ Notable Changes ✨
+      regexp: "^feat"
+      order: 0
+    - title: 🐛 Notable Fixes 🐛
+      regexp: "^fix"
+      order: 10
+    - title: 📝 Documentation 📝
+      regexp: "^docs"
+      order: 20
+    - title: 🔧 Miscellaneous 🔧
+      regexp: "^chore"
+      order: 30
+    - title: 👷 Other work 👷
+      order: 999
 dockers:
   - image_templates:
       - "docker.io/aquasec/trivy-operator:{{ .Version }}-amd64"

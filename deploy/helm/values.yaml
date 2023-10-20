@@ -255,6 +255,10 @@ trivyOperator:
   # labeled with. Example: `foo=bar,env=stage` will labeled the reports with the labels `foo: bar` and `env: stage`
   additionalReportLabels: ""
 
+  # -- policiesConfig Custom Rego Policies to be used by the config audit scanner
+  # See https://github.com/aquasecurity/trivy-operator/blob/main/docs/tutorials/writing-custom-configuration-audit-policies.md for more details.
+  policiesConfig: ""
+
 trivy:
   # -- createConfig indicates whether to create config objects
   createConfig: true

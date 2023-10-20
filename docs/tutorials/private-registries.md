@@ -33,7 +33,7 @@ Next, we will change the the `command` and the `trivyOperator.scanJobPodTemplate
 
 ```sh
 trivy:
-    command: fs
+    command: filesystem
     ignoreUnfixed: true
 trivyOperator:
     scanJobPodTemplateContainerSecurityContext:

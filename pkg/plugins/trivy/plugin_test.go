@@ -4626,6 +4626,7 @@ default ignore = false`,
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
 				"trivy.resources.limits.memory":   "500M",
+				"trivy.timeout":                   "5m0s",
 			},
 			workloadSpec: &corev1.Pod{
 				TypeMeta: metav1.TypeMeta{
@@ -4867,6 +4868,18 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "TRIVY_TIMEOUT",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.timeout",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
 								Name: "HTTPS_PROXY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -4975,6 +4988,7 @@ default ignore = false`,
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
 				"trivy.resources.limits.memory":   "500M",
+				"trivy.timeout":                   "5m0s",
 			},
 			workloadSpec: &corev1.Pod{
 				TypeMeta: metav1.TypeMeta{
@@ -5114,6 +5128,18 @@ default ignore = false`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpProxy",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_TIMEOUT",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.timeout",
 										Optional: pointer.Bool(true),
 									},
 								},
@@ -5264,6 +5290,7 @@ default ignore = false`,
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
 				"trivy.resources.limits.memory":   "500M",
+				"trivy.timeout":                   "5m0s",
 			},
 			workloadSpec: &corev1.Pod{
 				TypeMeta: metav1.TypeMeta{
@@ -5505,6 +5532,18 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "TRIVY_TIMEOUT",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.timeout",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
 								Name: "HTTPS_PROXY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -5613,6 +5652,7 @@ default ignore = false`,
 				"trivy.resources.requests.memory": "100M",
 				"trivy.resources.limits.cpu":      "500m",
 				"trivy.resources.limits.memory":   "500M",
+				"trivy.timeout":                   "5m0s",
 			},
 			workloadSpec: &corev1.Pod{
 				TypeMeta: metav1.TypeMeta{
@@ -5752,6 +5792,18 @@ default ignore = false`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.httpProxy",
+										Optional: pointer.Bool(true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_TIMEOUT",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.timeout",
 										Optional: pointer.Bool(true),
 									},
 								},
@@ -6873,6 +6925,7 @@ default ignore = false`,
 			"trivy.resources.requests.memory": "100M",
 			"trivy.resources.limits.cpu":      "500m",
 			"trivy.resources.limits.memory":   "500M",
+			"trivy.timeout":                   "5m0s",
 		},
 		workloadSpec: &corev1.Pod{
 			TypeMeta: metav1.TypeMeta{
@@ -7111,6 +7164,18 @@ default ignore = false`,
 										Name: "trivy-operator-trivy-config",
 									},
 									Key:      "trivy.httpProxy",
+									Optional: pointer.Bool(true),
+								},
+							},
+						},
+						{
+							Name: "TRIVY_TIMEOUT",
+							ValueFrom: &corev1.EnvVarSource{
+								ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+									LocalObjectReference: corev1.LocalObjectReference{
+										Name: "trivy-operator-trivy-config",
+									},
+									Key:      "trivy.timeout",
 									Optional: pointer.Bool(true),
 								},
 							},

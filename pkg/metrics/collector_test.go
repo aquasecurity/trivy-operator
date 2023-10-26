@@ -825,6 +825,10 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 						ID:   "car1 Id",
 						Name: "car1 cluster compliance name",
 					},
+					{
+						ID:   "car1 Id",
+						Name: "car1 cluster compliance name",
+					},
 				}...)
 			car1.Status.Summary.FailCount = 12
 			car1.Status.Summary.PassCount = 15

@@ -822,12 +822,14 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car1.Spec.Complaince.Controls = append(car1.Spec.Complaince.Controls,
 				[]v1alpha1.Control{
 					{
-						ID:   "car1 Id",
-						Name: "car1 cluster compliance name",
+						ID:            "car1 Id",
+						Name:          "car1 cluster compliance name",
+						DefaultStatus: v1alpha1.FailStatus,
 					},
 					{
-						ID:   "car1 Id",
-						Name: "car1 cluster compliance name",
+						ID:            "car1 Id",
+						Name:          "car1 cluster compliance name",
+						DefaultStatus: v1alpha1.PassStatus,
 					},
 				}...)
 			car1.Status.Summary.FailCount = 12

@@ -925,13 +925,11 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceInfoReports(ctx cont
 			for _, compliance := range r.Spec.Complaince.Controls {
 				labelValues[2] = compliance.ID
 				labelValues[3] = compliance.Name
+				labelValues[4] = string(compliance.DefaultStatus)
 				for i, label := range c.GetReportResourceLabels() {
 					labelValues[i+5] = r.Labels[label]
 				}
-				for status := range c.complianceStatuses {
-					labelValues[4] = status
-					metrics <- prometheus.MustNewConstMetric(c.complianceInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
-				}
+				metrics <- prometheus.MustNewConstMetric(c.complianceInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
 			}
 		}
 	}

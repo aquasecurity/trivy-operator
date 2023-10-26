@@ -55,6 +55,7 @@ type Scanner string
 const (
 	KeyVulnerabilityScannerEnabled       = "vulnerabilityScannerEnabled"
 	KeyExposedSecretsScannerEnabled      = "exposedSecretsScannerEnabled"
+	KeyGenerateSbom                      = "generateSbomEnabled"
 	keyVulnerabilityReportsScanner       = "vulnerabilityReports.scanner"
 	KeyVulnerabilityScansInSameNamespace = "vulnerabilityReports.scanJobsInSameNamespace"
 	keyConfigAuditReportsScanner         = "configAuditReports.scanner"
@@ -67,6 +68,7 @@ const (
 	keyScanJobAnnotations                = "scanJob.annotations"
 	//nolint
 	keyscanJobAutomountServiceAccountToken = "scanJob.automountServiceAccountToken"
+	keySkipInitContainers                  = "scanJob.skipInitContainers"
 	KeyScanJobContainerSecurityContext     = "scanJob.podTemplateContainerSecurityContext"
 	keyScanJobPodSecurityContext           = "scanJob.podTemplatePodSecurityContext"
 	keyScanJobPodTemplateLabels            = "scanJob.podTemplateLabels"
@@ -123,6 +125,11 @@ func (c ConfigData) VulnerabilityScannerEnabled() bool {
 // ExposedSecretsScannerEnabled returns if the vulnerability scanners is enabled/disablsed
 func (c ConfigData) ExposedSecretsScannerEnabled() bool {
 	return c.getBoolKey(KeyExposedSecretsScannerEnabled)
+}
+
+// GenerateSbomEnabled returns if the sbom generation is enabled
+func (c ConfigData) GenerateSbomEnabled() bool {
+	return c.getBoolKey(KeyGenerateSbom)
 }
 
 func (c ConfigData) getBoolKey(key string) bool {
@@ -235,6 +242,10 @@ func (c ConfigData) GetScanJobContainerSecurityContext() (*corev1.SecurityContex
 
 func (c ConfigData) GetScanJobAutomountServiceAccountToken() bool {
 	return c.getBoolKey(keyscanJobAutomountServiceAccountToken)
+}
+
+func (c ConfigData) GetSkipInitContainers() bool {
+	return c.getBoolKey(keySkipInitContainers)
 }
 
 func (c ConfigData) GetScanJobAnnotations() (map[string]string, error) {

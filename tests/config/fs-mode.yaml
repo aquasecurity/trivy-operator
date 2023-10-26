@@ -6,6 +6,7 @@ commands:
       --create-namespace --set="trivy.command=filesystem"
       --set="trivyOperator.scanJobPodTemplateContainerSecurityContext.runAsUser=0"
       --set="image.tag=e2e" --set="excludeNamespaces=kube-system"
+      --set="operator.sbomGenerationEnabled=true"
 testDirs:
   - tests/e2e/fs-mode
 timeout: 240

@@ -10,7 +10,7 @@ commands:
       then
         echo "Pass: VulnerabilityReport CriticalCount ($cnt) is greater than 0"
       else
-        echo "Fail: VulnerabilityReport CriticalCount $(cnt) should be greater than 0"
+        echo "Fail: VulnerabilityReport CriticalCount ($cnt) should be greater than 0"
         exit 1
       fi
 kind: TestAssert

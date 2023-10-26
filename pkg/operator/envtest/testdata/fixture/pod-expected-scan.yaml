@@ -47,7 +47,7 @@ spec:
       containers:
         - args:
             - -c
-            - trivy image --slow 'app-image:app-image-tag' --security-checks vuln,secret --image-config-scanners secret   --cache-dir /tmp/trivy/.cache --quiet --skip-update --format json > /tmp/scan/result_app.json &&  bzip2 -c /tmp/scan/result_app.json | base64
+            - trivy image --slow 'app-image:app-image-tag' --security-checks vuln,secret --image-config-scanners secret   --skip-update  --cache-dir /tmp/trivy/.cache --quiet  --format json > /tmp/scan/result_app.json &&  bzip2 -c /tmp/scan/result_app.json | base64
           command:
             - /bin/sh
           env:

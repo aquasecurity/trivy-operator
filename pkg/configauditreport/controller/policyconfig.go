@@ -35,6 +35,7 @@ type PolicyConfigController struct {
 	kube.ObjectResolver
 	trivyoperator.PluginContext
 	configauditreport.PluginInMemory
+	ClusterVersion string
 }
 
 // Controller for trivy-operator-policies-config in the operator namespace; must be cluster scoped even with namespace predicate
@@ -118,7 +119,7 @@ func (r *PolicyConfigController) reconcileConfig(kind kube.Kind) reconcile.Func 
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger)
+		policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger, r.ClusterVersion)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
 		}

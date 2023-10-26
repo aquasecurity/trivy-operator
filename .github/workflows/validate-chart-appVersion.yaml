@@ -1,0 +1,41 @@
+name: Chart-Content
+on:
+  pull_request_target:
+    types:
+      - closed
+    paths:
+      - deploy/helm/Chart.yaml
+
+jobs:
+  appVersion-validation:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get latest tag
+        id: latest_tag
+        run: |
+          latest_tag=$(git describe --tags --abbrev=0 | sed 's/v//')
+          echo "::set-output name=tag::$latest_tag"
+
+      - name: Read Chart.yaml appVersion
+        id: chart_version
+        run: |
+          app_version=$(grep -E '^appVersion:' deploy/helm/Chart.yaml | awk '{print $2}')
+          echo "::set-output name=app_version::$app_version"
+
+      - name: Repository Dispatch Publish Helm Chart
+        if: ${{ steps.latest_tag.outputs.tag == steps.chart_version.outputs.app_version }}
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: publish-chart
+          client-payload: '{"action": "chart-release"}'

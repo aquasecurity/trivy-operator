@@ -4,6 +4,8 @@
 name: Publish documentation
 
 on:
+  repository_dispatch:
+    types: [publish-docs]
   workflow_dispatch:
     inputs:
       ref:
@@ -21,12 +23,20 @@ jobs:
       contents: write
     steps:
       - name: Checkout main
-        uses: actions/checkout@a12a3943b4bdde767164f792f33f40b04645d846
+        if: github.event.inputs.ref == ''
+        uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.ref }}
           fetch-depth: 0
+          ref: ${{ github.event.client_payload.tag }}
           persist-credentials: true
-      - uses: actions/setup-python@bd6b4b6205c4dbad673328db7b31b7fab9e241c0
+      - name: Checkout main
+        if: github.event.inputs.ref != ''
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.ref }}
+          persist-credentials: true
+      - uses: actions/setup-python@65d7f2d534ac1bc67fcd62888c5f4f3d2cb2b236
         with:
           python-version: 3.x
       - run: |
@@ -39,5 +49,11 @@ jobs:
       - run: |
           git config user.name "aqua-bot"
           git config user.email "aqua-bot@users.noreply.github.com"
-      - run: |
+      - name: Checkout main input
+        if: github.event.inputs.ref  != ''
+        run: |
           mike deploy --push --update-aliases ${{ github.event.inputs.ref }} latest
+      - name: Checkout main release
+        if: github.event.inputs.ref  == ''
+        run: |
+          mike deploy --push --update-aliases ${{ github.event.client_payload.tag }} latest

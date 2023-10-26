@@ -19,25 +19,27 @@ import (
 )
 
 const (
-	namespace         = "namespace"
-	name              = "name"
-	resource_kind     = "resource_kind"
-	resource_name     = "resource_name"
-	container_name    = "container_name"
-	image_registry    = "image_registry"
-	image_repository  = "image_repository"
-	image_tag         = "image_tag"
-	image_digest      = "image_digest"
-	installed_version = "installed_version"
-	fixed_version     = "fixed_version"
-	resource          = "resource"
-	package_type      = "package_type"
-	pkg_path          = "pkg_path"
-	class             = "class"
-	severity          = "severity"
-	vuln_id           = "vuln_id"
-	vuln_title        = "vuln_title"
-	vuln_score        = "vuln_score"
+	namespace          = "namespace"
+	name               = "name"
+	resource_kind      = "resource_kind"
+	resource_name      = "resource_name"
+	container_name     = "container_name"
+	image_registry     = "image_registry"
+	image_repository   = "image_repository"
+	image_tag          = "image_tag"
+	image_digest       = "image_digest"
+	installed_version  = "installed_version"
+	fixed_version      = "fixed_version"
+	published_date     = "published_date"
+	Last_modified_date = "last_modified_date"
+	resource           = "resource"
+	package_type       = "package_type"
+	pkg_path           = "pkg_path"
+	class              = "class"
+	severity           = "severity"
+	vuln_id            = "vuln_id"
+	vuln_title         = "vuln_title"
+	vuln_score         = "vuln_score"
 	//compliance
 	title       = "title"
 	description = "description"
@@ -48,8 +50,9 @@ const (
 	secret_target   = "secret_target"
 	secret_title    = "secret_title"
 	//config audit
-	config_audit_id          = "config_audit_id"
-	config_audit_title       = "config_audit_title"
+	config_audit_id    = "config_audit_id"
+	config_audit_title = "config_audit_title"
+	////nolint:gosec
 	config_audit_description = "config_audit_description"
 	config_audit_category    = "config_audit_category"
 	config_audit_success     = "config_audit_success"
@@ -256,6 +259,8 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		image_digest,
 		installed_version,
 		fixed_version,
+		published_date,
+		Last_modified_date,
 		resource,
 		severity,
 		package_type,
@@ -588,7 +593,7 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 				vulnLabelValues[7] = r.Report.Artifact.Tag
 				vulnLabelValues[8] = r.Report.Artifact.Digest
 				for i, label := range c.GetReportResourceLabels() {
-					vulnLabelValues[i+19] = r.Labels[label]
+					vulnLabelValues[i+21] = r.Labels[label]
 				}
 				var vulnList = make(map[string]bool)
 				for _, vuln := range r.Report.Vulnerabilities {
@@ -598,16 +603,18 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 					vulnList[vuln.VulnerabilityID] = true
 					vulnLabelValues[9] = vuln.InstalledVersion
 					vulnLabelValues[10] = vuln.FixedVersion
-					vulnLabelValues[11] = vuln.Resource
-					vulnLabelValues[12] = NewSeverityLabel(vuln.Severity).Label
-					vulnLabelValues[13] = vuln.PackageType
-					vulnLabelValues[14] = vuln.PkgPath
-					vulnLabelValues[15] = vuln.Class
-					vulnLabelValues[16] = vuln.VulnerabilityID
-					vulnLabelValues[17] = vuln.Title
-					vulnLabelValues[18] = ""
+					vulnLabelValues[11] = vuln.PublishedDate
+					vulnLabelValues[12] = vuln.LastModifiedDate
+					vulnLabelValues[13] = vuln.Resource
+					vulnLabelValues[14] = NewSeverityLabel(vuln.Severity).Label
+					vulnLabelValues[15] = vuln.PackageType
+					vulnLabelValues[16] = vuln.PkgPath
+					vulnLabelValues[17] = vuln.Class
+					vulnLabelValues[18] = vuln.VulnerabilityID
+					vulnLabelValues[19] = vuln.Title
+					vulnLabelValues[20] = ""
 					if vuln.Score != nil {
-						vulnLabelValues[18] = strconv.FormatFloat(*vuln.Score, 'f', -1, 64)
+						vulnLabelValues[20] = strconv.FormatFloat(*vuln.Score, 'f', -1, 64)
 					}
 					metrics <- prometheus.MustNewConstMetric(c.vulnIdDesc, prometheus.GaugeValue, float64(1), vulnLabelValues...)
 				}
@@ -727,7 +734,12 @@ func (c *ResourcesMetricsCollector) collectConfigAuditInfoReports(ctx context.Co
 				labelValues[1] = r.Name
 				labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
 				labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+				var configMap = make(map[string]bool)
 				for _, config := range r.Report.Checks {
+					if configMap[config.ID] {
+						continue
+					}
+					configMap[config.ID] = true
 					labelValues[4] = config.ID
 					labelValues[5] = config.Title
 					labelValues[6] = config.Description
@@ -783,7 +795,12 @@ func (c *ResourcesMetricsCollector) collectRbacAssessmentInfoReports(ctx context
 				labelValues[1] = r.Name
 				labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
 				labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+				var configMap = make(map[string]bool)
 				for _, rbac := range r.Report.Checks {
+					if configMap[rbac.ID] {
+						continue
+					}
+					configMap[rbac.ID] = true
 					labelValues[4] = rbac.ID
 					labelValues[5] = rbac.Title
 					labelValues[6] = rbac.Description
@@ -836,7 +853,12 @@ func (c *ResourcesMetricsCollector) collectInfraAssessmentInfoReports(ctx contex
 				labelValues[1] = r.Name
 				labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
 				labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+				var configMap = make(map[string]bool)
 				for _, infra := range r.Report.Checks {
+					if configMap[infra.ID] {
+						continue
+					}
+					configMap[infra.ID] = true
 					labelValues[4] = infra.ID
 					labelValues[5] = infra.Title
 					labelValues[6] = infra.Description

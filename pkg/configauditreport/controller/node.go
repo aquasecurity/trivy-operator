@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"time"
+
 	j "github.com/aquasecurity/trivy-kubernetes/pkg/jobs"
 	"github.com/aquasecurity/trivy-kubernetes/pkg/k8s"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
@@ -8,6 +10,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 	. "github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 
 	"context"
@@ -24,6 +27,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
@@ -39,7 +43,8 @@ type NodeReconciler struct {
 	trivyoperator.PluginContext
 	configauditreport.PluginInMemory
 	jobs.LimitChecker
-	InfraReadWriter infraassessment.ReadWriter
+	InfraReadWriter  infraassessment.ReadWriter
+	CacheSyncTimeout time.Duration
 	trivyoperator.BuildInfo
 }
 
@@ -52,7 +57,9 @@ func (r *NodeReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 
-	return ctrl.NewControllerManagedBy(mgr).
+	return ctrl.NewControllerManagedBy(mgr).WithOptions(controller.Options{
+		CacheSyncTimeout: r.CacheSyncTimeout,
+	}).
 		For(&corev1.Node{}, builder.WithPredicates(IsLinuxNode, predicate.Not((excludeNodePredicate)))).
 		Owns(&v1alpha1.ClusterInfraAssessmentReport{}).
 		Complete(r.reconcileNodes())
@@ -138,7 +145,21 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting scan job annotations: %w", err)
 		}
+		pConfig, err := r.PluginContext.GetConfig()
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("getting getting config: %w", err)
+		}
+		tc := trivy.Config{PluginConfig: pConfig}
 
+		requirements, err := tc.GetResourceRequirements()
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("getting node-collector resource requierments: %w", err)
+		}
+
+		scanJobPodPriorityClassName, err := r.GetScanJobPodPriorityClassName()
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("getting scan job priority class name: %w", err)
+		}
 		nodeCollectorImageRef := r.GetTrivyOperatorConfig().NodeCollectorImageRef()
 		coll := j.NewCollector(cluster,
 			j.WithJobTemplateName(j.NodeCollectorName),
@@ -152,7 +173,9 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 			j.WithJobAnnotation(scanJobAnnotations),
 			j.WithImageRef(nodeCollectorImageRef),
 			j.WithVolumes(nodeCollectorVolumes),
+			j.WithPodPriorityClassName(scanJobPodPriorityClassName),
 			j.WithVolumesMount(nodeCollectorVolumeMounts),
+			j.WithContainerResourceRequirements(&requirements),
 			j.WithJobLabels(map[string]string{
 				trivyoperator.LabelNodeInfoCollector: "Trivy",
 				trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,

@@ -10,7 +10,7 @@ commands:
       then
         echo "Pass: ExposedSecretReport CriticalCount ($cnt) is equal to 0"
       else
-        echo "Fail: ExposedSecretReport CriticalCount $(cnt) should be equal to 0"
+        echo "Fail: ExposedSecretReport CriticalCount ($cnt) should be equal to 0"
         exit 1
       fi
 kind: TestAssert

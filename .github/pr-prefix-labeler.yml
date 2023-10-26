@@ -1,0 +1,6 @@
+"feat": "feature"
+"fix": "bug"
+"docs": "documentation"
+"chore": "misc"
+"test": "testing"
+"build(deps)": "deps"

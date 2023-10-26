@@ -1,5 +1,5 @@
 ---
-name: Private Registries
+name: Private Registries E2E
 on:
   push:
     branches:
@@ -11,7 +11,16 @@ on:
       - mkdocs.yml
       - LICENSE
       - NOTICE
-
+  pull_request_target:
+    branches:
+      - main
+    paths-ignore:
+      - .github/ISSUE_TEMPLATE/*.md
+      - "*.md"
+      - docs/**
+      - mkdocs.yml
+      - LICENSE
+      - NOTICE
 env:
   GO_VERSION: 1.20.4
   KIND_VERSION: v0.17.0
@@ -21,17 +30,17 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  e2e-testing-private-registry:
-    name: Run end to end private registry testing
+  private-registry-testing:
+    name: private registry testing
     runs-on: ubuntu-latest
     env:
       DOCKER_CLI_EXPERIMENTAL: enabled
     steps:
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
       - name: Setup Go
@@ -39,15 +48,9 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Checkout code
-        uses: actions/checkout@v3
-      - uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+        uses: actions/checkout@v4
       - name: Release snapshot
-        uses: goreleaser/goreleaser-action@v4
+        uses: goreleaser/goreleaser-action@v5
         with:
           version: v1.7.0
           args: release -f=goreleaser-e2e.yaml --snapshot --skip-publish --rm-dist
@@ -109,12 +112,6 @@ jobs:
         run: >
 
           ./bin/kuttl test --start-kind=false --config tests/config/image-private-registries-sa.yaml
-
-          ./tests/resources-cleanup.sh > /dev/null 2>&1
-      - name: image private registries via namespace to secret config tests
-        run: >
-
-          ./bin/kuttl test --start-kind=false --config tests/config/image-private-registries-config.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: Delete kind cluster

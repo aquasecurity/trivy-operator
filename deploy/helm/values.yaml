@@ -1,6 +1,12 @@
 # Default values for the trivy-operator Helm chart, these are used to render
 # the templates into valid k8s Resources.
 
+# -- global values provide a centralized configuration for 'image.registry', reducing the potential for errors.
+# If left blank, the chart will default to the individually set 'image.registry' values
+global:
+  image:
+    registry: ""
+
 # -- managedBy is similar to .Release.Service but allows to overwrite the value
 managedBy: Helm
 
@@ -31,6 +37,9 @@ operator:
   # -- replicas the number of replicas of the operator's pod
   replicas: 1
 
+  # -- number of old history to retain to allow rollback (if not set, default Kubernetes value is set to 10)
+  revisionHistoryLimit: ~
+
   # -- additional labels for the operator pod
   podLabels: {}
 
@@ -58,6 +67,8 @@ operator:
 
   # -- the flag to enable vulnerability scanner
   vulnerabilityScannerEnabled: true
+  # -- the flag to enable sbom generation
+  sbomGenerationEnabled: true
   # -- scannerReportTTL the flag to set how long a report should exist. "" means that the ScannerReportTTL feature is disabled
   scannerReportTTL: "24h"
   # -- configAuditScannerEnabled the flag to enable configuration audit scanner
@@ -81,6 +92,8 @@ operator:
   # -- builtInTrivyServer The flag enable the usage of built-in trivy server in cluster ,its also override the following trivy params with built-in values
   # trivy.mode = ClientServer and serverURL = http://<serverServiceName>.<trivy operator namespace>:4975
   builtInTrivyServer: false
+  # -- controllerCacheSyncTimeout the duration to wait for controller resources cache sync (default: 5m).
+  controllerCacheSyncTimeout: "5m"
 
   # -- trivyServerHealthCheckCacheExpiration The flag to set the interval for trivy server health cache before it invalidate
   trivyServerHealthCheckCacheExpiration: 10h
@@ -144,19 +157,29 @@ image:
 # -- service only expose a metrics endpoint for prometheus to scrape,
 # trivy-operator does not have a user interface.
 service:
+  headless: true
   metricsPort: 80
+  # -- annotations added to the operator's service
+  annotations: {}
 
 # -- Prometheus ServiceMonitor configuration -- to install the trivy operator with the ServiceMonitor
-# you must have Prometheus already installed and running
+# you must have Prometheus already installed and running. If you do not have Prometheus installed, enabling this will
+# have no effect.
 serviceMonitor:
   # -- enabled determines whether a serviceMonitor should be deployed
   enabled: false
   # -- The namespace where Prometheus expects to find service monitors
-  # namespace: ""
-  interval: ""
+  namespace: ~
+  # -- Interval at which metrics should be scraped. If not specified Prometheus’ global scrape interval is used.
+  interval: ~
+  # -- Additional annotations for the serviceMonitor
+  annotations: {}
   # -- Additional labels for the serviceMonitor
   labels: {}
-  # honorLabels: true
+  # -- HonorLabels chooses the metric’s labels on collisions with target labels
+  honorLabels: true
+  # -- EndpointAdditionalProperties allows setting additional properties on the endpoint such as relabelings, metricRelabelings etc.
+  endpointAdditionalProperties: {}
 
 trivyOperator:
   # -- vulnerabilityReportsPlugin the name of the plugin that generates vulnerability reports `Trivy`
@@ -192,6 +215,9 @@ trivyOperator:
   # -- scanJobPodTemplateLabels comma-separated representation of the labels which the user wants the scanner pods to be
   # labeled with. Example: `foo=bar,env=stage` will labeled the scanner pods with the labels `foo: bar` and `env: stage`
   scanJobPodTemplateLabels: ""
+
+  # -- skipInitContainers when this flag is set to true, the initContainers will be skipped for the scanner and node collector pods
+  skipInitContainers: false
 
   # -- scanJobPodTemplatePodSecurityContext podSecurityContext the user wants the scanner and node collector pods to be amended with.
   # Example:
@@ -233,6 +259,10 @@ trivyOperator:
   # labeled with. Example: `foo=bar,env=stage` will labeled the reports with the labels `foo: bar` and `env: stage`
   additionalReportLabels: ""
 
+  # -- policiesConfig Custom Rego Policies to be used by the config audit scanner
+  # See https://github.com/aquasecurity/trivy-operator/blob/main/docs/tutorials/writing-custom-configuration-audit-policies.md for more details.
+  policiesConfig: ""
+
 trivy:
   # -- createConfig indicates whether to create config objects
   createConfig: true
@@ -242,16 +272,22 @@ trivy:
     # -- repository of the Trivy image
     repository: aquasecurity/trivy
     # -- tag version of the Trivy image
-    tag: 0.42.0
+    tag: 0.45.1
     # -- imagePullSecret is the secret name to be used when pulling trivy image from private registries example : reg-secret
     # It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace
-    # imagePullSecret:
+    imagePullSecret: ~
+
+    # -- pullPolicy is the imge pull policy used for trivy image , valid values are (Always, Never, IfNotPresent)
+    pullPolicy: IfNotPresent
 
   # -- mode is the Trivy client mode. Either Standalone or ClientServer. Depending
   # on the active mode other settings might be applicable or required.
   mode: Standalone
 
-  # -- storageClassName is the name of the storage class to be used for trivy server PVC
+  # -- whether to use a storage class for trivy server or emptydir (one mey want to use ephemeral storage)
+  storageClassEnabled: true
+
+  # -- storageClassName is the name of the storage class to be used for trivy server PVC. If empty, tries to find default storage class
   storageClassName: ""
 
   # -- podLabels is the extra pod labels to be used for trivy server
@@ -265,16 +301,13 @@ trivy:
   additionalVulnerabilityReportFields: ""
 
   # -- httpProxy is the HTTP proxy used by Trivy to download the vulnerabilities database from GitHub.
-  #
-  # httpProxy:
+  httpProxy: ~
 
   # -- httpsProxy is the HTTPS proxy used by Trivy to download the vulnerabilities database from GitHub.
-  #
-  # httpsProxy:
+  httpsProxy: ~
 
   # -- noProxy is a comma separated list of IPs and domain names that are not subject to proxy settings.
-  #
-  # noProxy:
+  noProxy: ~
 
   # -- Registries without SSL. There can be multiple registries with different keys.
   nonSslRegistries: {}
@@ -283,7 +316,7 @@ trivy:
   #  internalRegistry: registry.registry.svc:5000
 
   # -- sslCertDir can be used to override the system default locations for SSL certificate files directory, example: /ssl/certs
-  # sslCertDir:
+  sslCertDir: ~
 
   # -- The registry to which insecure connections are allowed. There can be multiple registries with different keys.
   insecureRegistries: {}
@@ -317,7 +350,7 @@ trivy:
   timeout: "5m0s"
 
   # -- ignoreFile can be used to tell Trivy to ignore vulnerabilities by ID (one per line)
-  #
+  ignoreFile: ~
   # ignoreFile: |
   #   CVE-1970-0001
   #   CVE-1970-0002
@@ -334,9 +367,9 @@ trivy:
   #   # applies to all other workloads
 
   # -- vulnType can be used to tell Trivy to filter vulnerabilities by a pkg-type (library, os)
-  # vulnType:
+  vulnType: ~
 
-  # -- resources resource requests and limits
+  # -- resources resource requests and limits for scan job containers
   resources:
     requests:
       cpu: 100m
@@ -349,20 +382,25 @@ trivy:
 
   # -- githubToken is the GitHub access token used by Trivy to download the vulnerabilities
   # database from GitHub. Only applicable in Standalone mode.
-  #
-  # githubToken: "*****"
+  githubToken: ~
 
   # -- serverURL is the endpoint URL of the Trivy server. Required in ClientServer mode.
   #
   # serverURL: "https://trivy.trivy:4975"
 
+  # -- clientServerSkipUpdate is the flag to enable skip databases update for Trivy client.
+  # Only applicable in ClientServer mode.
+  clientServerSkipUpdate: false
+
+  # -- skipJavaDBUpdate is the flag to enable skip Java index databases update for Trivy client.
+  skipJavaDBUpdate: false
+
   # -- serverInsecure is the flag to enable insecure connection to the Trivy server.
-  #
-  # serverInsecure: true
+  serverInsecure: false
+
   # -- serverToken is the token to authenticate Trivy client with Trivy server. Only
   # applicable in ClientServer mode.
-  #
-  # serverToken: "*****"
+  serverToken: ~
 
   # -- existingSecret if a secret containing gitHubToken, serverToken or serverCustomHeaders has been created outside the chart (e.g external-secrets, sops, etc...).
   # Keys must be at least one of the following: trivy.githubToken, trivy.serverToken, trivy.serverCustomHeaders
@@ -377,8 +415,9 @@ trivy:
 
   # -- serverCustomHeaders is a comma separated list of custom HTTP headers sent by
   # Trivy client to Trivy server. Only applicable in ClientServer mode.
-  #
-  # -- serverCustomHeaders: "foo=bar"
+  serverCustomHeaders: ~
+  # serverCustomHeaders: "foo=bar"
+
   dbRegistry: "ghcr.io"
   dbRepository: "aquasecurity/trivy-db"
 
@@ -434,6 +473,9 @@ trivy:
       privileged: false
       readOnlyRootFilesystem: true
 
+    # -- the number of replicas of the trivy-server
+    replicas: 1
+
 compliance:
   # -- failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report
   failEntriesLimit: 10
@@ -467,13 +509,13 @@ securityContext:
     drop:
       - ALL
 
-# volumeMounts:
+volumeMounts: []
 # Example:
 #  - mountPath: /tmp
 #    name: tmp-data
 #    readOnly: false
 
-# volumes:
+volumes: []
 # Example:
 #  - name: tmp-data
 #    emptyDir: {}
@@ -510,10 +552,10 @@ nodeCollector:
   # -- repository of the node-collector image
   repository: aquasecurity/node-collector
   # -- tag version of the node-collector image
-  tag: 0.0.6
-  # imagePullSecret is the secret name to be used when pulling node-collector image from private registries example : reg-secret
+  tag: 0.0.8
+  # -- imagePullSecret is the secret name to be used when pulling node-collector image from private registries example : reg-secret
   # It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace
-  # imagePullSecret:
+  imagePullSecret: ~
   # -- excludeNodes comma-separated node labels that the node-collector job should exclude from scanning (example kubernetes.io/arch=arm64,team=dev)
   excludeNodes:
   # -- node-collector pod volumeMounts definition for collecting config files information

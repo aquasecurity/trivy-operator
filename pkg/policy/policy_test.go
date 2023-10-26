@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"reflect"
 	"sort"
 	"strings"
 	"testing"
@@ -32,7 +33,7 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 			"library.kubernetes.rego":        "<REGO_A>",
 			"library.utils.rego":             "<REGO_B>",
 			"policy.access_to_host_pid.rego": "<REGO_C>",
-		}, testConfig{}, ctrl.Log.WithName("policy logger"))
+		}, testConfig{}, ctrl.Log.WithName("policy logger"), "1.27.1")
 		_, err := config.PoliciesByKind("Pod")
 		g.Expect(err).To(MatchError("kinds not defined for policy: policy.access_to_host_pid.rego"))
 	})
@@ -41,7 +42,7 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 		g := NewGomegaWithT(t)
 		config := policy.NewPolicies(map[string]string{
 			"policy.access_to_host_pid.kinds": "Workload",
-		}, testConfig{}, ctrl.Log.WithName("policy logger"))
+		}, testConfig{}, ctrl.Log.WithName("policy logger"), "1.27.1")
 		_, err := config.PoliciesByKind("Pod")
 		g.Expect(err).To(MatchError("expected policy not found: policy.access_to_host_pid.rego"))
 	})
@@ -68,7 +69,7 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 			"policy.privileged": "<REGO_E>",
 			// This one should be skipped (no policy. prefix)
 			"foo": "bar",
-		}, testConfig{}, ctrl.Log.WithName("policy logger"))
+		}, testConfig{}, ctrl.Log.WithName("policy logger"), "1.27.1")
 		g.Expect(config.PoliciesByKind("Pod")).To(Equal(map[string]string{
 			"policy.access_to_host_pid.rego":                "<REGO_C>",
 			"policy.cpu_not_limited.rego":                   "<REGO_D>",
@@ -142,7 +143,7 @@ func TestPolicies_Supported(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			ready, err := policy.NewPolicies(tc.data, testConfig{}, log).SupportedKind(tc.resource, tc.rbacEnable)
+			ready, err := policy.NewPolicies(tc.data, testConfig{}, log, "1.27.1").SupportedKind(tc.resource, tc.rbacEnable)
 			g.Expect(err).ToNot(HaveOccurred())
 			g.Expect(ready).To(Equal(tc.expected))
 		})
@@ -217,7 +218,7 @@ deny[res] {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			ready, _, err := policy.NewPolicies(tc.data, testConfig{builtInPolicies: false}, log).Applicable(tc.resource.GetObjectKind().GroupVersionKind().Kind)
+			ready, _, err := policy.NewPolicies(tc.data, testConfig{builtInPolicies: false}, log, "1.27.1").Applicable(tc.resource.GetObjectKind().GroupVersionKind().Kind)
 			g.Expect(err).ToNot(HaveOccurred())
 			g.Expect(ready).To(Equal(tc.expected))
 		})
@@ -743,12 +744,12 @@ deny[res] {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			checks, err := policy.NewPolicies(tc.policies, newTestConfig(tc.useBuiltInPolicies), log).Eval(context.TODO(), tc.resource)
+			checks, err := policy.NewPolicies(tc.policies, newTestConfig(tc.useBuiltInPolicies), log, "1.27.1").Eval(context.TODO(), tc.resource)
 			if tc.expectedError != "" {
 				g.Expect(err).To(MatchError(tc.expectedError))
 			} else {
 				g.Expect(err).ToNot(HaveOccurred())
-				g.Expect(getPolicyResults(checks)).To(Equal(tc.results))
+				g.Expect(reflect.DeepEqual(getPolicyResults(checks), tc.results))
 			}
 		})
 	}

@@ -27,10 +27,10 @@ jobs:
       DOCKER_CLI_EXPERIMENTAL: enabled
     steps:
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
       - name: Setup Go
@@ -38,15 +38,9 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Checkout code
-        uses: actions/checkout@v3
-      - uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+        uses: actions/checkout@v4
       - name: Release snapshot
-        uses: goreleaser/goreleaser-action@v4
+        uses: goreleaser/goreleaser-action@v5
         with:
           version: v1.7.0
           args: release -f=goreleaser-e2e.yaml --snapshot --skip-publish --rm-dist
@@ -82,7 +76,7 @@ jobs:
 
           kind load image-archive trivy-operator.tar
       - name: Set up python
-        uses: actions/setup-python@bd6b4b6205c4dbad673328db7b31b7fab9e241c0
+        uses: actions/setup-python@65d7f2d534ac1bc67fcd62888c5f4f3d2cb2b236
         with:
           python-version: 3.7
       - name: Setup chart-testing

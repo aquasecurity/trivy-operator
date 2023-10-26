@@ -33,6 +33,7 @@ type Config struct {
 	MetricsClusterComplianceInfo                 bool           `env:"OPERATOR_METRICS_CLUSTER_COMPLIANCE_INFO_ENABLED" envDefault:"false"`
 	HealthProbeBindAddress                       string         `env:"OPERATOR_HEALTH_PROBE_BIND_ADDRESS" envDefault:":9090"`
 	VulnerabilityScannerEnabled                  bool           `env:"OPERATOR_VULNERABILITY_SCANNER_ENABLED" envDefault:"true"`
+	SbomGenerationEnable                         bool           `env:"OPERATOR_SBOM_GENERATION_ENABLED" envDefault:"true"`
 	VulnerabilityScannerScanOnlyCurrentRevisions bool           `env:"OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS" envDefault:"true"`
 	ScannerReportTTL                             *time.Duration `env:"OPERATOR_SCANNER_REPORT_TTL" envDefault:"24h"`
 	ClusterComplianceEnabled                     bool           `env:"OPERATOR_CLUSTER_COMPLIANCE_ENABLED" envDefault:"true"`
@@ -53,6 +54,7 @@ type Config struct {
 	BuiltInTrivyServer                           bool           `env:"OPERATOR_BUILT_IN_TRIVY_SERVER" envDefault:"false"`
 	TrivyServerHealthCheckCacheExpiration        *time.Duration `env:"TRIVY_SERVER_HEALTH_CHECK_CACHE_EXPIRATION" envDefault:"10h"`
 	MergeRbacFindingWithConfigAudit              bool           `env:"OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT" envDefault:"false"`
+	ControllerCacheSyncTimeout                   *time.Duration `env:"CONTROLLER_CACHE_SYNC_TIMEOUT" envDefault:"5m"`
 }
 
 // GetOperatorConfig loads Config from environment variables.

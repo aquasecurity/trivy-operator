@@ -1,3 +1,4 @@
+---
 apiVersion: aquasecurity.github.io/v1alpha1
 kind: ConfigAuditReport
 metadata:
@@ -16,154 +17,180 @@ metadata:
       controller: true
       kind: DaemonSet
       name: fluentd-elasticsearch
-      uid:
+      uid: null
 report:
-  checks:
-    - category: Kubernetes Security Check
-      checkID: KSV020
-      description:
-        Force the container to run with user ID > 10000 to avoid conflicts
-        with the host’s user table.
-      messages:
-        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch' should
-          set 'securityContext.runAsUser' > 10000
-      severity: LOW
-      success: false
-      title: Runs with low user ID
-    - category: Kubernetes Security Check
-      checkID: KSV030
-      description:
-        The RuntimeDefault/Localhost seccomp profile must be required, or
-        allow specific additional profiles.
-      messages:
-        - Either Pod or Container should set 'securityContext.seccompProfile.type' to
-          'RuntimeDefault'
-      severity: LOW
-      success: false
-      title: Default Seccomp profile not set
-    - category: Kubernetes Security Check
-      checkID: KSV012
-      description:
-        "'runAsNonRoot' forces the running image to run as a non-root user
-        to ensure least privileges."
-      messages:
-        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch' should
-          set 'securityContext.runAsNonRoot' to true
-      severity: MEDIUM
-      success: false
-      title: Runs as root user
-    - category: Kubernetes Security Check
-      checkID: KSV014
-      description:
-        An immutable root file system prevents applications from writing
-        to their local disk. This can limit intrusions, as attackers will not be able
-        to tamper with the file system or write foreign executables to disk.
-      messages:
-        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch' should
-          set 'securityContext.readOnlyRootFilesystem' to true
-      severity: LOW
-      success: false
-      title: Root file system is not read-only
-    - category: Kubernetes Security Check
-      checkID: KSV011
-      description: Enforcing CPU limits prevents DoS via resource exhaustion.
-      messages:
-        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch' should
-          set 'resources.limits.cpu'
-      severity: LOW
-      success: false
-      title: CPU not limited
-    - category: Kubernetes Security Check
-      checkID: KSV106
-      description:
-        Containers must drop ALL capabilities, and are only permitted to
-        add back the NET_BIND_SERVICE capability.
-      messages:
-        - container should drop all
-      severity: LOW
-      success: false
-      title: Container capabilities must only include NET_BIND_SERVICE
-    - category: Kubernetes Security Check
-      checkID: KSV016
-      description:
-        When containers have memory requests specified, the scheduler can
-        make better decisions about which nodes to place pods on, and how to deal with
-        resource contention.
-      messages:
-        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch' should
-          set 'resources.requests.memory'
-      severity: LOW
-      success: false
-      title: Memory requests not specified
-    - category: Kubernetes Security Check
-      checkID: KSV021
-      description:
-        Force the container to run with group ID > 10000 to avoid conflicts
-        with the host’s user table.
-      messages:
-        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch' should
-          set 'securityContext.runAsGroup' > 10000
-      severity: LOW
-      success: false
-      title: Runs with low group ID
-    - category: Kubernetes Security Check
-      checkID: KSV018
-      description: Enforcing memory limits prevents DoS via resource exhaustion.
-      messages:
-        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch' should
-          set 'resources.limits.memory'
-      severity: LOW
-      success: false
-      title: Memory not limited
-    - category: Kubernetes Security Check
-      checkID: KSV015
-      description:
-        When containers have resource requests specified, the scheduler can
-        make better decisions about which nodes to place pods on, and how to deal with
-        resource contention.
-      messages:
-        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch' should
-          set 'resources.requests.cpu'
-      severity: LOW
-      success: false
-      title: CPU requests not specified
-    - category: Kubernetes Security Check
-      checkID: KSV003
-      description:
-        The container should drop all default capabilities and add only those
-        that are needed for its execution.
-      messages:
-        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch' should
-          add 'ALL' to 'securityContext.capabilities.drop'
-      severity: LOW
-      success: false
-      title: Default capabilities not dropped
-    - category: Kubernetes Security Check
-      checkID: KSV001
-      description:
-        A program inside the container can elevate its own privileges and
-        run as root, which might give the program control over the container and node.
-      messages:
-        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch' should
-          set 'securityContext.allowPrivilegeEscalation' to false
-      severity: MEDIUM
-      success: false
-      title: Process can elevate its own privileges
-    - category: Kubernetes Security Check
-      checkID: KSV110
-      description: ensure that default namespace should not be used
-      messages:
-        - DaemonSet 'fluentd-elasticsearch' should not be set with 'default'
-          namespace
-      severity: LOW
-      success: false
-      title: The default namespace should not be used
   scanner:
     name: Trivy
     vendor: Aqua Security
     version: version
   summary:
     criticalCount: 0
-    highCount: 0
-    lowCount: 11
-    mediumCount: 2
+    highCount: 1
+    mediumCount: 3
+    lowCount: 12
+  checks:
+    - checkID: KSV001
+      title: Can elevate its own privileges
+      description: A program inside the container can elevate its own privileges and
+        run as root, which might give the program control over the container and
+        node.
+      severity: MEDIUM
+      category: Kubernetes Security Check
+      messages:
+        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch'
+          should set 'securityContext.allowPrivilegeEscalation' to false
+      success: false
+    - checkID: KSV003
+      title: "Default capabilities: some containers do not drop all"
+      description: The container should drop all default capabilities and add only
+        those that are needed for its execution.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch'
+          should add 'ALL' to 'securityContext.capabilities.drop'
+      success: false
+    - checkID: KSV011
+      title: CPU not limited
+      description: Enforcing CPU limits prevents DoS via resource exhaustion.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch'
+          should set 'resources.limits.cpu'
+      success: false
+    - checkID: KSV012
+      title: Runs as root user
+      description: Force the running image to run as a non-root user to ensure least
+        privileges.
+      severity: MEDIUM
+      category: Kubernetes Security Check
+      messages:
+        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch'
+          should set 'securityContext.runAsNonRoot' to true
+      success: false
+    - checkID: KSV014
+      title: Root file system is not read-only
+      description: An immutable root file system prevents applications from writing to
+        their local disk. This can limit intrusions, as attackers will not be
+        able to tamper with the file system or write foreign executables to
+        disk.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch'
+          should set 'securityContext.readOnlyRootFilesystem' to true
+      success: false
+    - checkID: KSV015
+      title: CPU requests not specified
+      description: When containers have resource requests specified, the scheduler can
+        make better decisions about which nodes to place pods on, and how to
+        deal with resource contention.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch'
+          should set 'resources.requests.cpu'
+      success: false
+    - checkID: KSV016
+      title: Memory requests not specified
+      description: When containers have memory requests specified, the scheduler can
+        make better decisions about which nodes to place pods on, and how to
+        deal with resource contention.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch'
+          should set 'resources.requests.memory'
+      success: false
+    - checkID: KSV018
+      title: Memory not limited
+      description: Enforcing memory limits prevents DoS via resource exhaustion.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch'
+          should set 'resources.limits.memory'
+      success: false
+    - checkID: KSV020
+      title: Runs with UID <= 10000
+      description: Force the container to run with user ID > 10000 to avoid conflicts
+        with the host’s user table.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch'
+          should set 'securityContext.runAsUser' > 10000
+      success: false
+    - checkID: KSV021
+      title: Runs with GID <= 10000
+      description: Force the container to run with group ID > 10000 to avoid conflicts
+        with the host’s user table.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Container 'fluentd-elasticsearch' of DaemonSet 'fluentd-elasticsearch'
+          should set 'securityContext.runAsGroup' > 10000
+      success: false
+    - checkID: KSV030
+      title: Runtime/Default Seccomp profile not set
+      description: According to pod security standard 'Seccomp', the RuntimeDefault
+        seccomp profile must be required, or allow specific additional profiles.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Either Pod or Container should set
+          'securityContext.seccompProfile.type' to 'RuntimeDefault'
+      success: false
+    - checkID: KSV104
+      title: Seccomp policies disabled
+      description: A program inside the container can bypass Seccomp protection policies.
+      severity: MEDIUM
+      category: Kubernetes Security Check
+      messages:
+        - container fluentd-elasticsearch of daemonset fluentd-elasticsearch in
+          default namespace should specify a seccomp profile
+      success: false
+    - checkID: KSV106
+      title: Container capabilities must only include NET_BIND_SERVICE
+      description: Containers must drop ALL capabilities, and are only permitted to
+        add back the NET_BIND_SERVICE capability.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - container should drop all
+      success: false
+    - checkID: KSV110
+      title: Workloads in the default namespace
+      description: Checks whether a workload is running in the default namespace.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - daemonset fluentd-elasticsearch in default namespace should set
+          metadata.namespace to a non-default namespace
+      success: false
+    - checkID: KSV116
+      title: Runs with a root primary or supplementary GID
+      description: According to pod security standard 'Non-root groups', containers
+        should be forbidden from running with a root primary or supplementary
+        GID.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - daemonset fluentd-elasticsearch in default namespace should set
+          spec.securityContext.runAsGroup,
+          spec.securityContext.supplementalGroups[*] and
+          spec.securityContext.fsGroup to integer greater than 0
+      success: false
+    - checkID: KSV118
+      title: Default security context configured
+      description: Security context controls the allocation of security parameters for
+        the pod/container/volume, ensuring the appropriate level of protection.
+        Relying on default security context may expose vulnerabilities to
+        potential attacks that rely on privileged access.
+      severity: HIGH
+      category: Kubernetes Security Check
+      messages:
+        - daemonset fluentd-elasticsearch in default namespace is using the
+          default security context, which allows root privileges
+      success: false

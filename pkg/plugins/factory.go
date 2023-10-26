@@ -54,7 +54,7 @@ func (r *Resolver) WithObjectResolver(objectResolver *kube.ObjectResolver) *Reso
 
 // GetVulnerabilityPlugin is a factory method that instantiates the vulnerabilityreport.Plugin.
 //
-// Trivy-Operator currently supports Trivy scanner in Standalone and ClientServer
+// Trivy-Operator currently supports Trivy scanner in LocalCache, Standalone and ClientServer
 // mode.
 //
 // You could add your own scanner by implementing the vulnerabilityreport.Plugin interface.

@@ -918,25 +918,20 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceInfoReports(ctx cont
 		c.Logger.Error(err, "failed to list cluster compliance from API")
 		return
 	}
-	ls := []string{"Fail", "Pass"}
 	for _, r := range reports.Items {
-		var a int
 		if c.Config.MetricsClusterComplianceInfo {
 			labelValues[0] = r.Spec.Complaince.Title
 			labelValues[1] = r.Spec.Complaince.Description
 			for _, compliance := range r.Spec.Complaince.Controls {
 				labelValues[2] = compliance.ID
 				labelValues[3] = compliance.Name
-				labelValues[4] = ls[a]
 				for i, label := range c.GetReportResourceLabels() {
 					labelValues[i+5] = r.Labels[label]
 				}
-				a = a + 1
-				metrics <- prometheus.MustNewConstMetric(c.complianceInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
-				// for status := range c.complianceStatuses {
-				// 	labelValues[4] = status
-				// 	metrics <- prometheus.MustNewConstMetric(c.complianceInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
-				// }
+				for status := range c.complianceStatuses {
+					labelValues[4] = status
+					metrics <- prometheus.MustNewConstMetric(c.complianceInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
+				}
 			}
 		}
 	}

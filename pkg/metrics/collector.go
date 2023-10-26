@@ -913,7 +913,7 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceReports(ctx context.
 
 func (c *ResourcesMetricsCollector) collectClusterComplianceInfoReports(ctx context.Context, metrics chan<- prometheus.Metric) {
 	reports := &v1alpha1.ClusterComplianceReportList{}
-	labelValues := make([]string, len(c.complianceInfoLabels[0:]))
+	labelValues := make([]string, len(c.complianceInfoLabels))
 	if err := c.List(ctx, reports); err != nil {
 		c.Logger.Error(err, "failed to list cluster compliance from API")
 		return

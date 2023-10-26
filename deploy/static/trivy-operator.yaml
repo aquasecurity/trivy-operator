@@ -2724,6 +2724,7 @@ subjects:
     name: trivy-operator
     namespace: trivy-system
 ---
+<<<<<<< HEAD
 # Source: trivy-operator/templates/rbac/leader-election-role.yaml
 # permissions to do leader election.
 apiVersion: rbac.authorization.k8s.io/v1
@@ -2773,6 +2774,9 @@ subjects:
     namespace: trivy-system
 ---
 # Source: trivy-operator/templates/rbac/role.yaml
+=======
+# Source: trivy-operator/templates/rbac.yaml
+>>>>>>> 9f1a85cc (Added clusterCompliance_info metrics)
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:

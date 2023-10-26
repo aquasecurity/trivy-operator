@@ -928,12 +928,10 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceInfoReports(ctx cont
 				for i, label := range c.GetReportResourceLabels() {
 					labelValues[i+5] = r.Labels[label]
 				}
-				c.populateComplianceInfoValues(labelValues, c.complianceDesc, metrics, 4)
-				// for status := range c.complianceStatuses {
-				// 	labelValues[4] = status
-				// }
-				// metrics <- prometheus.MustNewConstMetric(c.complianceInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
-
+				for status := range c.complianceStatuses {
+					labelValues[4] = status
+					metrics <- prometheus.MustNewConstMetric(c.complianceInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
+				}
 			}
 		}
 	}
@@ -944,13 +942,6 @@ func (c *ResourcesMetricsCollector) populateComplianceValues(labelValues []strin
 		labelValues[index] = status
 		count := countFn(summary)
 		metrics <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, float64(count), labelValues...)
-	}
-}
-
-func (c *ResourcesMetricsCollector) populateComplianceInfoValues(labelValues []string, desc *prometheus.Desc, metrics chan<- prometheus.Metric, index int) {
-	for status := range c.complianceStatuses {
-		labelValues[index] = status
-		metrics <- prometheus.MustNewConstMetric(desc, prometheus.GaugeValue, float64(1), labelValues...)
 	}
 }
 

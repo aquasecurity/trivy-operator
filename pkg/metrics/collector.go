@@ -925,7 +925,7 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceInfoReports(ctx cont
 			for _, compliance := range r.Spec.Complaince.Controls {
 				labelValues[2] = compliance.ID
 				labelValues[3] = compliance.Name
-				labelValues[4] = string(compliance.DefaultStatus)
+				labelValues[4] = NewStatusLabel(Status(compliance.DefaultStatus)).Label
 				for i, label := range c.GetReportResourceLabels() {
 					labelValues[i+5] = r.Labels[label]
 				}

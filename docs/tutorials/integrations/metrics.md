@@ -98,6 +98,15 @@ trivy_cluster_compliance{description="National Security Agency - Kubernetes Hard
 trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 17
 ```
 
+### ClusterComplianceInfo
+
+Exposes details about ClusterCompliance that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_CLUSTER_COMPLIANCE_INFO_ENABLED" envDefault:"false"` . For example:
+
+```shell
+		trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",
+        description="National Security Agency - Kubernetes Hardening Guidance",status="Fail",title="nsa"} 1
+```
+
 ## Vulnerability ID
 
 Exposing vulnerability ID on metrics by setting the EnvVar: `OPERATOR_METRICS_VULN_ID_ENABLED" envDefault:"false"`

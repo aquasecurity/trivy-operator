@@ -105,6 +105,8 @@ Exposes details about ClusterCompliance that were discovered in images, enable b
 ```shell
 trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",
     description="National Security Agency - Kubernetes Hardening Guidance",status="Fail",title="nsa"} 1
+trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",
+    description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 1
 ```
 
 ## Vulnerability ID

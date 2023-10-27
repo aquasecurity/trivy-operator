@@ -2353,8 +2353,10 @@ metadata:
     app.kubernetes.io/instance: trivy-operator
     app.kubernetes.io/version: "0.16.3"
     app.kubernetes.io/managed-by: kubectl
-spec: 
+spec:
+ 
   clusterIP: None
+  
   ports:
     - name: metrics
       port: 80

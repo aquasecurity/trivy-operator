@@ -2294,7 +2294,7 @@ spec:
             - name: OPERATOR_METRICS_INFRA_ASSESSMENT_INFO_ENABLED
               value: "false"   
             - name: OPERATOR_METRICS_CLUSTER_COMPLIANCE_INFO_ENABLED
-              value: "false" 
+              value: "false"  
             - name: OPERATOR_WEBHOOK_BROADCAST_URL
               value: ""
             - name: OPERATOR_WEBHOOK_BROADCAST_TIMEOUT
@@ -2354,7 +2354,7 @@ metadata:
     app.kubernetes.io/version: "0.16.3"
     app.kubernetes.io/managed-by: kubectl
 spec:
- 
+  
   clusterIP: None
   
   ports:

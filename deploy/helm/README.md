@@ -48,12 +48,12 @@ Keeps security report resources updated
 | operator.leaderElectionId | string | `"trivyoperator-lock"` | leaderElectionId determines the name of the resource that leader election will use for holding the leader lock. |
 | operator.logDevMode | bool | `false` | logDevMode the flag to enable development mode (more human-readable output, extra stack traces and logging information, etc) |
 | operator.mergeRbacFindingWithConfigAudit | bool | `false` | mergeRbacFindingWithConfigAudit the flag to enable merging rbac finding with config-audit report |
+| operator.metricsClusterComplianceInfo | bool | `false` | MetricsClusterComplianceInfo the flag to enable metrics about Cluster Compliance be aware of metrics cardinality is significantly increased with this feature enabled. |
 | operator.metricsConfigAuditInfo | bool | `false` | MetricsConfigAuditInfo the flag to enable metrics about configuration audits be aware of metrics cardinality is significantly increased with this feature enabled. |
 | operator.metricsExposedSecretInfo | bool | `false` | MetricsExposedSecretInfo the flag to enable metrics about exposed secrets be aware of metrics cardinality is significantly increased with this feature enabled. |
 | operator.metricsFindingsEnabled | bool | `true` | metricsFindingsEnabled the flag to enable metrics for findings |
 | operator.metricsInfraAssessmentInfo | bool | `false` | MetricsInfraAssessmentInfo the flag to enable metrics about Infra Assessment be aware of metrics cardinality is significantly increased with this feature enabled. |
 | operator.metricsRbacAssessmentInfo | bool | `false` | MetricsRbacAssessmentInfo the flag to enable metrics about Rbac Assessment be aware of metrics cardinality is significantly increased with this feature enabled. |
-| operator.metricsClusterComplianceInfo | bool | `false` | MetricsClusterComplianceInfo the flag to enable metrics about Cluster Compliance be aware of metrics cardinality is significantly increased with this feature enabled. |
 | operator.metricsVulnIdEnabled | bool | `false` | metricsVulnIdEnabled the flag to enable metrics about cve vulns id be aware of metrics cardinality is significantly increased with this feature enabled. |
 | operator.namespace | string | `""` | namespace to install the operator, defaults to the .Release.Namespace |
 | operator.podLabels | object | `{}` | additional labels for the operator pod |

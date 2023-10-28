@@ -204,3 +204,15 @@ func constructEnvVarSourceFromConfigMap(envName, configName, configKey string) (
 	}
 	return
 }
+
+func getAutomountServiceAccountToken(ctx trivyoperator.PluginContext) bool {
+	return ctx.GetTrivyOperatorConfig().GetScanJobAutomountServiceAccountToken()
+}
+
+func getConfig(ctx trivyoperator.PluginContext) (Config, error) {
+	pluginConfig, err := ctx.GetConfig()
+	if err != nil {
+		return Config{}, err
+	}
+	return Config{PluginConfig: pluginConfig}, nil
+}

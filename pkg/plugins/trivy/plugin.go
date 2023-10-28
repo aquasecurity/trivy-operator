@@ -114,7 +114,7 @@ func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 }
 
 func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext) (corev1.PodSpec, []*corev1.Secret, error) {
-	config, err := p.newConfigFrom(ctx)
+	config, err := getConfig(ctx)
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
 	}
@@ -125,17 +125,6 @@ func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client
 	// add image pull secret to be used when pulling trivy image fom private registry
 	podSpec.ImagePullSecrets = config.GetImagePullSecret()
 	return podSpec, secrets, err
-}
-
-func (p *plugin) newSecretWithAggregateImagePullCredentials(obj client.Object, containerImages kube.ContainerImages, credentials map[string]docker.Auth) *corev1.Secret {
-	secretData := kube.AggregateImagePullSecretsData(containerImages, credentials)
-
-	return &corev1.Secret{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: vulnerabilityreport.RegistryCredentialsSecretName(obj),
-		},
-		Data: secretData,
-	}
 }
 
 const (
@@ -153,16 +142,12 @@ const (
 	SslCertDir                  = "/var/ssl-cert"
 )
 
-func getAutomountServiceAccountToken(ctx trivyoperator.PluginContext) bool {
-	return ctx.GetTrivyOperatorConfig().GetScanJobAutomountServiceAccountToken()
-}
-
 func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef string, logsReader io.ReadCloser) (v1alpha1.VulnerabilityReportData, v1alpha1.ExposedSecretReportData, *v1alpha1.SbomReportData, error) {
 	var vulnReport v1alpha1.VulnerabilityReportData
 	var secretReport v1alpha1.ExposedSecretReportData
 	var sbomReport v1alpha1.SbomReportData
 
-	config, err := p.newConfigFrom(ctx)
+	config, err := getConfig(ctx)
 	if err != nil {
 		return vulnReport, secretReport, &sbomReport, err
 	}
@@ -359,21 +344,9 @@ func getExposedSecretsFromScanResult(report ty.Result) []v1alpha1.ExposedSecret 
 	return secrets
 }
 
-func (p *plugin) newConfigFrom(ctx trivyoperator.PluginContext) (Config, error) {
-	return p.getConfig(ctx)
-}
-
-func (p *plugin) getConfig(ctx trivyoperator.PluginContext) (Config, error) {
-	pluginConfig, err := ctx.GetConfig()
-	if err != nil {
-		return Config{}, err
-	}
-	return Config{PluginConfig: pluginConfig}, nil
-}
-
 // NewConfigForConfigAudit and interface which expose related configaudit report configuration
 func (p *plugin) NewConfigForConfigAudit(ctx trivyoperator.PluginContext) (configauditreport.ConfigAuditConfig, error) {
-	return p.getConfig(ctx)
+	return getConfig(ctx)
 }
 
 func (p *plugin) vulnerabilitySummary(vulnerabilities []v1alpha1.Vulnerability) v1alpha1.VulnerabilitySummary {

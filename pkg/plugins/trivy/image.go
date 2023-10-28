@@ -12,7 +12,9 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 	containerimage "github.com/google/go-containerregistry/pkg/name"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -604,14 +606,6 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef stri
 	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, skipJavaDBUpdate, getPkgList(ctx), resultFileName, resultFileName)}
 }
 
-func getConfig(ctx trivyoperator.PluginContext) (Config, error) {
-	pluginConfig, err := ctx.GetConfig()
-	if err != nil {
-		return Config{}, err
-	}
-	return Config{PluginConfig: pluginConfig}, nil
-}
-
 func vulnTypeFilter(ctx trivyoperator.PluginContext) []string {
 	config, err := getConfig(ctx)
 	if err != nil {
@@ -702,4 +696,15 @@ func GetMirroredImage(image string, mirrors map[string]string) (string, error) {
 	}
 	// If nothing is mirrored, we can simply use the input image.
 	return image, nil
+}
+
+func (p *plugin) newSecretWithAggregateImagePullCredentials(obj client.Object, containerImages kube.ContainerImages, credentials map[string]docker.Auth) *corev1.Secret {
+	secretData := kube.AggregateImagePullSecretsData(containerImages, credentials)
+
+	return &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: vulnerabilityreport.RegistryCredentialsSecretName(obj),
+		},
+		Data: secretData,
+	}
 }

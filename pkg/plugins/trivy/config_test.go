@@ -152,9 +152,9 @@ func TestConfig_GetMode(t *testing.T) {
 			expectedMode: ClientServer,
 		},
 		{
-			name:          "Should return error when value is not set",
-			configData:    Config{PluginConfig: trivyoperator.PluginConfig{}},
-			expectedError: "property trivy.mode not set",
+			name:         "Should return error when value is not set",
+			configData:   Config{PluginConfig: trivyoperator.PluginConfig{}},
+			expectedMode: Standalone,
 		},
 		{
 			name: "Should return error when value is not allowed",
@@ -163,18 +163,13 @@ func TestConfig_GetMode(t *testing.T) {
 					"trivy.mode": "P2P",
 				},
 			}},
-			expectedError: "invalid value (P2P) of trivy.mode; allowed values (Standalone, ClientServer)",
+			expectedMode: Standalone,
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			mode, err := tc.configData.GetMode()
-			if tc.expectedError != "" {
-				require.EqualError(t, err, tc.expectedError)
-			} else {
-				require.NoError(t, err)
-				assert.Equal(t, tc.expectedMode, mode)
-			}
+			mode := tc.configData.GetMode()
+			assert.Equal(t, tc.expectedMode, mode)
 		})
 	}
 }
@@ -276,18 +271,14 @@ func TestConfig_GetCommand(t *testing.T) {
 					"trivy.command": "ls",
 				},
 			}},
-			expectedError: "invalid value (ls) of trivy.command; allowed values (image, filesystem, rootfs)",
+			expectedCommand: Image,
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			command, err := tc.configData.GetCommand()
-			if tc.expectedError != "" {
-				require.EqualError(t, err, tc.expectedError)
-			} else {
-				require.NoError(t, err)
-				assert.Equal(t, tc.expectedCommand, command)
-			}
+			command := tc.configData.GetCommand()
+			assert.Equal(t, tc.expectedCommand, command)
+
 		})
 	}
 }

@@ -213,7 +213,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
-		command, err := config.GetCommand()
+		command := config.GetCommand()
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
@@ -426,7 +426,7 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
-		command, err := config.GetCommand()
+		command := config.GetCommand()
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}

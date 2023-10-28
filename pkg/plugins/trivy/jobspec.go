@@ -1,7 +1,6 @@
 package trivy
 
 import (
-	"fmt"
 	"strings"
 
 	corev1 "k8s.io/api/core/v1"
@@ -45,33 +44,23 @@ type PodSpecMgr interface {
 	GetPodSpec(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext, p *plugin) (corev1.PodSpec, []*corev1.Secret, error)
 }
 
-func NewPodSpecMgr(ctx trivyoperator.PluginContext) (PodSpecMgr, error) {
-	pluginConfig, err := ctx.GetConfig()
-	if err != nil {
-		return nil, err
-	}
-	config := Config{PluginConfig: pluginConfig}
-
-	mode, err := config.GetMode()
-	if err != nil {
-		return nil, err
-	}
-	command, err := config.GetCommand()
-	if err != nil {
-		return nil, err
-	}
-
+func NewPodSpecMgr(config Config) PodSpecMgr {
+	mode := config.GetMode()
+	command := config.GetCommand()
 	if command == Image {
 		switch mode {
 		case Standalone:
 			return &ImageJobSpecMgr{
 				getPodSpecFunc: GetPodSpecForStandaloneMode,
-			}, nil
+			}
 		case ClientServer:
 			return &ImageJobSpecMgr{
 				getPodSpecFunc: GetPodSpecForClientServerMode,
-			}, nil
+			}
 		default:
+			return &ImageJobSpecMgr{
+				getPodSpecFunc: GetPodSpecForStandaloneMode,
+			}
 		}
 	}
 
@@ -80,14 +69,20 @@ func NewPodSpecMgr(ctx trivyoperator.PluginContext) (PodSpecMgr, error) {
 		case Standalone:
 			return &ImageJobSpecMgr{
 				getPodSpecFunc: GetPodSpecForStandaloneFSMode,
-			}, nil
+			}
 		case ClientServer:
 			return &ImageJobSpecMgr{
 				getPodSpecFunc: GetPodSpecForClientServerFSMode,
-			}, nil
+			}
+		default:
+			return &ImageJobSpecMgr{
+				getPodSpecFunc: GetPodSpecForStandaloneFSMode,
+			}
 		}
 	}
-	return nil, fmt.Errorf("unrecognized trivy mode %q for command %q", mode, command)
+	return &ImageJobSpecMgr{
+		getPodSpecFunc: GetPodSpecForStandaloneMode,
+	}
 }
 
 func imageConfigSecretScanner(tc trivyoperator.ConfigData) []string {

@@ -120,11 +120,7 @@ func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client
 	}
 	var podSpec corev1.PodSpec
 	var secrets []*corev1.Secret
-	psm, err := NewPodSpecMgr(ctx)
-	if err != nil {
-		return corev1.PodSpec{}, nil, err
-	}
-	podSpec, secrets, err = psm.GetPodSpec(ctx, config, workload, credentials, securityContext, p)
+	podSpec, secrets, err = NewPodSpecMgr(config).GetPodSpec(ctx, config, workload, credentials, securityContext, p)
 
 	// add image pull secret to be used when pulling trivy image fom private registry
 	podSpec.ImagePullSecrets = config.GetImagePullSecret()
@@ -170,7 +166,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	if err != nil {
 		return vulnReport, secretReport, &sbomReport, err
 	}
-	cmd, err := config.GetCommand()
+	cmd := config.GetCommand()
 	if err != nil {
 		return vulnReport, secretReport, &sbomReport, err
 	}

@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -799,4 +800,84 @@ func TestPlugin_Init(t *testing.T) {
 			},
 		}, cm)
 	})
+}
+
+func TestPlugin_FindIgnorePolicyKey(t *testing.T) {
+	workload := &appsv1.ReplicaSet{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "name-01234abcd",
+			Namespace: "namespace",
+		},
+	}
+	testCases := []struct {
+		name        string
+		configData  map[string]string
+		expectedKey string
+	}{
+		{
+			name: "empty",
+			configData: map[string]string{
+				"other": "",
+			},
+			expectedKey: "",
+		},
+		{
+			name: "fallback",
+			configData: map[string]string{
+				"other":              "",
+				"trivy.ignorePolicy": "",
+			},
+			expectedKey: "trivy.ignorePolicy",
+		},
+		{
+			name: "fallback namespace",
+			configData: map[string]string{
+				"other":                        "",
+				"trivy.ignorePolicy":           "",
+				"trivy.ignorePolicy.namespace": "",
+			},
+			expectedKey: "trivy.ignorePolicy.namespace",
+		},
+		{
+			name: "fallback namespace workload",
+			configData: map[string]string{
+				"other":                               "",
+				"trivy.ignorePolicy":                  "",
+				"trivy.ignorePolicy.namespace":        "",
+				"trivy.ignorePolicy.namespace.name-.": "",
+			},
+			expectedKey: "trivy.ignorePolicy.namespace.name-.",
+		},
+		{
+			name: "fallback namespace other-workload",
+			configData: map[string]string{
+				"other":                        "",
+				"trivy.ignorePolicy":           "",
+				"trivy.ignorePolicy.namespace": "",
+				"trivy.ignorePolicy.namespace.name-other-.": "",
+			},
+			expectedKey: "trivy.ignorePolicy.namespace",
+		},
+		{
+			name: "fallback other-namespace other-workload",
+			configData: map[string]string{
+				"other":                              "",
+				"trivy.ignorePolicy":                 "",
+				"trivy.ignorePolicy.namespace-other": "",
+				"trivy.ignorePolicy.namespace-other.name-other-.": "",
+			},
+			expectedKey: "trivy.ignorePolicy",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			config := Config{
+				trivyoperator.PluginConfig{
+					Data: tc.configData,
+				},
+			}
+			assert.Equal(t, tc.expectedKey, config.FindIgnorePolicyKey(workload))
+		})
+	}
 }

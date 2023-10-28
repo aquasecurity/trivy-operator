@@ -100,7 +100,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 		Image:                    trivyImageRef,
 		ImagePullPolicy:          corev1.PullPolicy(config.GetImagePullPolicy()),
 		TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
-		Env:                      p.initContainerFSEnvVar(trivyConfigName, config),
+		Env:                      initContainerFSEnvVar(trivyConfigName, config),
 		Command: []string{
 			"trivy",
 		},
@@ -199,7 +199,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 				trivyConfigName, keyTrivyOfflineScan))
 		}
 
-		env, err = p.appendTrivyInsecureEnv(config, c.Image, env)
+		env, err = appendTrivyInsecureEnv(config, c.Image, env)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
@@ -209,7 +209,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 			return corev1.PodSpec{}, nil, err
 		}
 
-		config, err := p.newConfigFrom(ctx)
+		config, err := getConfig(ctx)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
@@ -227,7 +227,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 			Command: []string{
 				SharedVolumeLocationOfTrivy,
 			},
-			Args:            p.getFSScanningArgs(ctx, command, Standalone, ""),
+			Args:            getFSScanningArgs(ctx, command, Standalone, ""),
 			Resources:       resourceRequirements,
 			SecurityContext: securityContext,
 			VolumeMounts:    volumeMounts,
@@ -406,7 +406,7 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 				trivyConfigName, keyTrivyOfflineScan))
 		}
 
-		env, err = p.appendTrivyInsecureEnv(config, c.Image, env)
+		env, err = appendTrivyInsecureEnv(config, c.Image, env)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
@@ -422,7 +422,7 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
-		config, err := p.newConfigFrom(ctx)
+		config, err := getConfig(ctx)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
@@ -440,7 +440,7 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 			Command: []string{
 				SharedVolumeLocationOfTrivy,
 			},
-			Args:            p.getFSScanningArgs(ctx, command, ClientServer, encodedTrivyServerURL.String()),
+			Args:            getFSScanningArgs(ctx, command, ClientServer, encodedTrivyServerURL.String()),
 			Resources:       resourceRequirements,
 			SecurityContext: securityContext,
 			VolumeMounts:    volumeMounts,
@@ -464,4 +464,57 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 	}
 
 	return podSpec, secrets, nil
+}
+
+func getFSScanningArgs(ctx trivyoperator.PluginContext, command Command, mode Mode, trivyServerURL string) []string {
+	c, err := getConfig(ctx)
+	if err != nil {
+		return []string{}
+	}
+	scanners := Scanners(c)
+	imcs := imageConfigSecretScanner(c.Data)
+	skipUpdate := SkipDBUpdate(c)
+	args := []string{
+		"--cache-dir",
+		"/var/trivyoperator/trivy-db",
+		"--quiet",
+		string(command),
+		scanners,
+		getSecurityChecks(ctx),
+		skipUpdate,
+		"--format",
+		"json",
+		"/",
+	}
+	if len(imcs) > 0 {
+		args = append(args, imcs...)
+	}
+	if mode == ClientServer {
+		args = append(args, "--server", trivyServerURL)
+	}
+	slow := Slow(c)
+	if len(slow) > 0 {
+		args = append(args, slow)
+	}
+	pkgList := getPkgList(ctx)
+	if len(pkgList) > 0 {
+		args = append(args, pkgList)
+	}
+	return args
+}
+
+func initContainerFSEnvVar(trivyConfigName string, config Config) []corev1.EnvVar {
+	envs := []corev1.EnvVar{
+		constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
+		constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
+		constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
+		constructEnvVarSourceFromSecret("GITHUB_TOKEN", trivyConfigName, keyTrivyGitHubToken),
+	}
+	if config.GetDBRepositoryInsecure() {
+		envs = append(envs, corev1.EnvVar{
+			Name:  "TRIVY_INSECURE",
+			Value: "true",
+		})
+	}
+	return envs
 }

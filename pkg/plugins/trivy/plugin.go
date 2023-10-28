@@ -2,12 +2,8 @@ package trivy
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 
-	"regexp"
-
-	"strings"
 	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
@@ -39,13 +35,7 @@ const (
 )
 
 const (
-	GCPCR_Inage_Regex         = `^(gcr\.io.*|^([a-zA-Z0-9-]+)-*-*.docker.pkg.dev.*)`
-	AWSECR_Image_Regex        = "^\\d+\\.dkr\\.ecr\\.(\\w+-\\w+-\\d+)\\.amazonaws\\.com\\/"
 	SupportedConfigAuditKinds = "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
-	// SkipDirsAnnotation annotation  example: trivy-operator.aquasecurity.github.io/skip-dirs: "/tmp,/home"
-	SkipDirsAnnotation = "trivy-operator.aquasecurity.github.io/skip-dirs"
-	// SkipFilesAnnotation example: trivy-operator.aquasecurity.github.io/skip-files: "/src/Gemfile.lock,/examplebinary"
-	SkipFilesAnnotation = "trivy-operator.aquasecurity.github.io/skip-files"
 )
 
 const (
@@ -53,23 +43,6 @@ const (
 	DefaultDBRepository     = "ghcr.io/aquasecurity/trivy-db"
 	DefaultJavaDBRepository = "ghcr.io/aquasecurity/trivy-java-db"
 	DefaultSeverity         = "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
-)
-
-// Mode in which Trivy client operates.
-type Mode string
-
-const (
-	Standalone   Mode = "Standalone"
-	ClientServer Mode = "ClientServer"
-)
-
-// Command to scan image or filesystem.
-type Command string
-
-const (
-	Filesystem Command = "filesystem"
-	Image      Command = "image"
-	Rootfs     Command = "rootfs"
 )
 
 type AdditionalFields struct {
@@ -184,294 +157,8 @@ const (
 	SslCertDir                  = "/var/ssl-cert"
 )
 
-func checkGcpCrOrPivateRegistry(imageUrl string) bool {
-	imageRegex := regexp.MustCompile(GCPCR_Inage_Regex)
-	return imageRegex.MatchString(imageUrl)
-}
-
-func (p *plugin) initContainerEnvVar(trivyConfigName string, config Config) []corev1.EnvVar {
-	envs := []corev1.EnvVar{
-		constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
-		constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
-		constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
-		constructEnvVarSourceFromSecret("GITHUB_TOKEN", trivyConfigName, keyTrivyGitHubToken),
-	}
-
-	if config.GetDBRepositoryInsecure() {
-		envs = append(envs, corev1.EnvVar{
-			Name:  "TRIVY_INSECURE",
-			Value: "true",
-		})
-	}
-	return envs
-}
-
-func (p *plugin) getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef string, trivyServerURL string, resultFileName string) ([]string, []string) {
-	command := []string{
-		"trivy",
-	}
-	trivyConfig := ctx.GetTrivyOperatorConfig()
-	compressLogs := trivyConfig.CompressLogs()
-	c, err := p.getConfig(ctx)
-	if err != nil {
-		return []string{}, []string{}
-	}
-	slow := Slow(c)
-	skipJavaDBUpdate := SkipJavaDBUpdate(c)
-	vulnTypeArgs := p.vulnTypeFilter(ctx)
-	scanners := Scanners(c)
-	var vulnTypeFlag string
-	if len(vulnTypeArgs) == 2 {
-		vulnTypeFlag = fmt.Sprintf("%s %s ", vulnTypeArgs[0], vulnTypeArgs[1])
-	}
-	imcs := p.imageConfigSecretScanner(trivyConfig)
-	var imageconfigSecretScannerFlag string
-	if len(imcs) == 2 {
-		imageconfigSecretScannerFlag = fmt.Sprintf("%s %s ", imcs[0], imcs[1])
-	}
-	var skipUpdate string
-	if mode == ClientServer {
-		if c.GetClientServerSkipUpdate() {
-			skipUpdate = SkipDBUpdate(c)
-		}
-		if !compressLogs {
-			args := []string{
-				"--cache-dir",
-				"/tmp/trivy/.cache",
-				"--quiet",
-				"image",
-				scanners,
-				getSecurityChecks(ctx),
-				"--format",
-				"json",
-				"--server",
-				trivyServerURL,
-				imageRef,
-			}
-			if len(slow) > 0 {
-				args = append(args, slow)
-			}
-			if len(vulnTypeArgs) > 0 {
-				args = append(args, vulnTypeArgs...)
-			}
-			if len(imcs) > 0 {
-				args = append(args, imcs...)
-			}
-			pkgList := getPkgList(ctx)
-			if len(pkgList) > 0 {
-				args = append(args, pkgList)
-			}
-			if len(skipUpdate) > 0 {
-				args = append(args, skipUpdate)
-			}
-			if len(skipJavaDBUpdate) > 0 {
-				args = append(args, skipJavaDBUpdate)
-			}
-
-			return command, args
-		}
-		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, skipJavaDBUpdate, getPkgList(ctx), trivyServerURL, resultFileName, resultFileName)}
-	}
-	skipUpdate = SkipDBUpdate(c)
-	if !compressLogs {
-		args := []string{
-			"--cache-dir",
-			"/tmp/trivy/.cache",
-			"--quiet",
-			"image",
-			scanners,
-			getSecurityChecks(ctx),
-			"--format",
-			"json",
-			imageRef,
-		}
-		if len(slow) > 0 {
-			args = append(args, slow)
-		}
-		if len(vulnTypeArgs) > 0 {
-			args = append(args, vulnTypeArgs...)
-		}
-		if len(imcs) > 0 {
-			args = append(args, imcs...)
-		}
-		pkgList := getPkgList(ctx)
-		if len(pkgList) > 0 {
-			args = append(args, pkgList)
-		}
-		if len(skipUpdate) > 0 {
-			args = append(args, skipUpdate)
-		}
-		if len(skipJavaDBUpdate) > 0 {
-			args = append(args, skipJavaDBUpdate)
-		}
-		return command, args
-	}
-	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, skipJavaDBUpdate, getPkgList(ctx), resultFileName, resultFileName)}
-}
-
-func (p *plugin) vulnTypeFilter(ctx trivyoperator.PluginContext) []string {
-	config, err := p.newConfigFrom(ctx)
-	if err != nil {
-		return []string{}
-	}
-	vulnType := config.GetVulnType()
-	if len(vulnType) == 0 {
-		return []string{}
-	}
-	return []string{"--vuln-type", vulnType}
-}
-
-func (p *plugin) imageConfigSecretScanner(tc trivyoperator.ConfigData) []string {
-
-	if tc.ExposedSecretsScannerEnabled() {
-		return []string{"--image-config-scanners", "secret"}
-	}
-	return []string{}
-}
-
 func getAutomountServiceAccountToken(ctx trivyoperator.PluginContext) bool {
 	return ctx.GetTrivyOperatorConfig().GetScanJobAutomountServiceAccountToken()
-}
-func getUniqueScanResultFileName(name string) string {
-	return fmt.Sprintf("result_%s.json", name)
-}
-
-func getScanResultVolume() corev1.Volume {
-	return corev1.Volume{
-		Name: scanResultVolumeName,
-		VolumeSource: corev1.VolumeSource{
-			EmptyDir: &corev1.EmptyDirVolumeSource{
-				Medium: corev1.StorageMediumDefault,
-			},
-		},
-	}
-}
-
-func getScanResultVolumeMount() corev1.VolumeMount {
-	return corev1.VolumeMount{
-		Name:      scanResultVolumeName,
-		ReadOnly:  false,
-		MountPath: "/tmp/scan",
-	}
-}
-
-func createEnvandVolumeForGcr(env *[]corev1.EnvVar, volumeMounts *[]corev1.VolumeMount, volumes *[]corev1.Volume, registryPasswordKey *string, secretName *string) {
-	*env = append(*env, corev1.EnvVar{
-		Name:  "TRIVY_USERNAME",
-		Value: "",
-	})
-	*env = append(*env, corev1.EnvVar{
-		Name:  "GOOGLE_APPLICATION_CREDENTIALS",
-		Value: "/cred/credential.json",
-	})
-	googlecredMount := corev1.VolumeMount{
-		Name:      "gcrvol",
-		MountPath: "/cred",
-		ReadOnly:  true,
-	}
-	googlecredVolume := corev1.Volume{
-		Name: "gcrvol",
-		VolumeSource: corev1.VolumeSource{
-			Secret: &corev1.SecretVolumeSource{
-				SecretName: *secretName,
-				Items: []corev1.KeyToPath{
-					{
-						Key:  *registryPasswordKey,
-						Path: "credential.json",
-					},
-				},
-			},
-		},
-	}
-	*volumes = append(*volumes, googlecredVolume)
-	*volumeMounts = append(*volumeMounts, googlecredMount)
-}
-
-func (p *plugin) getFSScanningArgs(ctx trivyoperator.PluginContext, command Command, mode Mode, trivyServerURL string) []string {
-	c, err := p.getConfig(ctx)
-	if err != nil {
-		return []string{}
-	}
-	scanners := Scanners(c)
-	imcs := p.imageConfigSecretScanner(c.Data)
-	skipUpdate := SkipDBUpdate(c)
-	args := []string{
-		"--cache-dir",
-		"/var/trivyoperator/trivy-db",
-		"--quiet",
-		string(command),
-		scanners,
-		getSecurityChecks(ctx),
-		skipUpdate,
-		"--format",
-		"json",
-		"/",
-	}
-	if len(imcs) > 0 {
-		args = append(args, imcs...)
-	}
-	if mode == ClientServer {
-		args = append(args, "--server", trivyServerURL)
-	}
-	slow := Slow(c)
-	if len(slow) > 0 {
-		args = append(args, slow)
-	}
-	pkgList := getPkgList(ctx)
-	if len(pkgList) > 0 {
-		args = append(args, pkgList)
-	}
-	return args
-}
-
-func (p *plugin) initContainerFSEnvVar(trivyConfigName string, config Config) []corev1.EnvVar {
-	envs := []corev1.EnvVar{
-		constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
-		constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
-		constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
-		constructEnvVarSourceFromSecret("GITHUB_TOKEN", trivyConfigName, keyTrivyGitHubToken),
-	}
-	if config.GetDBRepositoryInsecure() {
-		envs = append(envs, corev1.EnvVar{
-			Name:  "TRIVY_INSECURE",
-			Value: "true",
-		})
-	}
-	return envs
-}
-
-func (p *plugin) appendTrivyInsecureEnv(config Config, image string, env []corev1.EnvVar) ([]corev1.EnvVar, error) {
-	ref, err := containerimage.ParseReference(image)
-	if err != nil {
-		return nil, err
-	}
-
-	insecureRegistries := config.GetInsecureRegistries()
-	if insecureRegistries[ref.Context().RegistryStr()] {
-		env = append(env, corev1.EnvVar{
-			Name:  "TRIVY_INSECURE",
-			Value: "true",
-		})
-	}
-
-	return env, nil
-}
-
-func (p *plugin) appendTrivyNonSSLEnv(config Config, image string, env []corev1.EnvVar) ([]corev1.EnvVar, error) {
-	ref, err := containerimage.ParseReference(image)
-	if err != nil {
-		return nil, err
-	}
-
-	nonSSLRegistries := config.GetNonSSLRegistries()
-	if nonSSLRegistries[ref.Context().RegistryStr()] {
-		env = append(env, corev1.EnvVar{
-			Name:  "TRIVY_NON_SSL",
-			Value: "true",
-		})
-	}
-
-	return env, nil
 }
 
 func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef string, logsReader io.ReadCloser) (v1alpha1.VulnerabilityReportData, v1alpha1.ExposedSecretReportData, *v1alpha1.SbomReportData, error) {
@@ -577,7 +264,6 @@ func bomSummary(bom v1alpha1.BOM) v1alpha1.SbomSummary {
 		ComponentsCount:   len(bom.Components) + 1,
 		DependenciesCount: len(*bom.Dependencies),
 	}
-
 }
 
 func getVulnerabilitiesFromScanResult(report ty.Result, addFields AdditionalFields) []v1alpha1.Vulnerability {
@@ -781,106 +467,6 @@ func GetScoreFromCVSS(CVSSs map[string]*CVSS) *float64 {
 	}
 
 	return vendorScore
-}
-
-func GetMirroredImage(image string, mirrors map[string]string) (string, error) {
-	ref, err := containerimage.ParseReference(image)
-	if err != nil {
-		return "", err
-	}
-	mirroredImage := ref.Name()
-	for k, v := range mirrors {
-		if strings.HasPrefix(mirroredImage, k) {
-			mirroredImage = strings.Replace(mirroredImage, k, v, 1)
-			return mirroredImage, nil
-		}
-	}
-	// If nothing is mirrored, we can simply use the input image.
-	return image, nil
-}
-
-func constructEnvVarSourceFromConfigMap(envName, configName, configKey string) (res corev1.EnvVar) {
-	res = corev1.EnvVar{
-		Name: envName,
-		ValueFrom: &corev1.EnvVarSource{
-			ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-				LocalObjectReference: corev1.LocalObjectReference{
-					Name: configName,
-				},
-				Key:      configKey,
-				Optional: pointer.Bool(true),
-			},
-		},
-	}
-	return
-}
-
-func constructEnvVarSourceFromSecret(envName, secretName, secretKey string) (res corev1.EnvVar) {
-	res = corev1.EnvVar{
-		Name: envName,
-		ValueFrom: &corev1.EnvVarSource{
-			SecretKeyRef: &corev1.SecretKeySelector{
-				LocalObjectReference: corev1.LocalObjectReference{
-					Name: secretName,
-				},
-				Key:      secretKey,
-				Optional: pointer.Bool(true),
-			},
-		},
-	}
-	return
-}
-
-func getContainers(spec corev1.PodSpec) []corev1.Container {
-	containers := append(spec.Containers, spec.InitContainers...)
-
-	// ephemeral container are not the same type as Containers/InitContainers,
-	// then we add it in a different loop
-	for _, c := range spec.EphemeralContainers {
-		containers = append(containers, corev1.Container(c.EphemeralContainerCommon))
-	}
-
-	return containers
-}
-
-func CheckAwsEcrPrivateRegistry(ImageUrl string) string {
-	if len(regexp.MustCompile(AWSECR_Image_Regex).FindAllStringSubmatch(ImageUrl, -1)) != 0 {
-		return regexp.MustCompile(AWSECR_Image_Regex).FindAllStringSubmatch(ImageUrl, -1)[0][1]
-	}
-	return ""
-}
-
-func getSecurityChecks(ctx trivyoperator.PluginContext) string {
-	securityChecks := make([]string, 0)
-
-	c := ctx.GetTrivyOperatorConfig()
-	if c.VulnerabilityScannerEnabled() {
-		securityChecks = append(securityChecks, "vuln")
-	}
-
-	if c.ExposedSecretsScannerEnabled() {
-		securityChecks = append(securityChecks, "secret")
-	}
-
-	return strings.Join(securityChecks, ",")
-}
-
-func getPkgList(ctx trivyoperator.PluginContext) string {
-	c := ctx.GetTrivyOperatorConfig()
-	if c.GenerateSbomEnabled() {
-		return "--list-all-pkgs"
-	}
-	return ""
-}
-
-func ConfigWorkloadAnnotationEnvVars(workload client.Object, annotation string, envVarName string, trivyConfigName string, configKey string) corev1.EnvVar {
-	if value, ok := workload.GetAnnotations()[annotation]; ok {
-		return corev1.EnvVar{
-			Name:  envVarName,
-			Value: value,
-		}
-	}
-	return constructEnvVarSourceFromConfigMap(envVarName, trivyConfigName, configKey)
 }
 
 type CVSS struct {

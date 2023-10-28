@@ -43,7 +43,6 @@ func NewPodSpecMgr(ctx trivyoperator.PluginContext) (PodSpecMgr, error) {
 				getPodSpecFunc: GetPodSpecForClientServerMode,
 			}, nil
 		default:
-
 		}
 	}
 

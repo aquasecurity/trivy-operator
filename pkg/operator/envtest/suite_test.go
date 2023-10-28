@@ -123,7 +123,8 @@ var _ = BeforeSuite(func() {
 		},
 	})
 	Expect(err).ToNot(HaveOccurred())
-
+	err = plugin.Init(pluginContext)
+	Expect(err).ToNot(HaveOccurred())
 	err = (&controller.WorkloadController{
 		Logger:                  ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
 		Config:                  config,

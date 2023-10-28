@@ -712,9 +712,9 @@ func TestPlugin_Init(t *testing.T) {
 			WithServiceAccountName("trivyoperator-sa").
 			WithClient(testClient).
 			Get()
-		_, err := NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &or, pluginContext)
+		p := NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &or)
+		err := p.Init(pluginContext)
 		assert.NoError(t, err)
-
 		var cm corev1.ConfigMap
 		err = testClient.Get(context.Background(), types.NamespacedName{
 			Namespace: "trivyoperator-ns",
@@ -781,9 +781,9 @@ func TestPlugin_Init(t *testing.T) {
 			WithClient(testClient).
 			Get()
 
-		_, err := NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver, pluginContext)
+		p := NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
+		err := p.Init(pluginContext)
 		assert.NoError(t, err)
-
 		var cm corev1.ConfigMap
 		err = testClient.Get(context.Background(), types.NamespacedName{
 			Namespace: "trivyoperator-ns",

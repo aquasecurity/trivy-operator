@@ -86,7 +86,6 @@ type plugin struct {
 	clock          ext.Clock
 	idGenerator    ext.IDGenerator
 	objectResolver *kube.ObjectResolver
-	podSpecMgr     PodSpecMgr
 }
 
 // NewPlugin constructs a new vulnerabilityreport.Plugin, which is using an
@@ -100,21 +99,13 @@ type plugin struct {
 // on the settings returned by Config.GetMode. The ClientServer mode is usually
 // more performant, however it requires a Trivy server accessible at the
 // configurable Config.GetServerURL.
-func NewPlugin(clock ext.Clock, idGenerator ext.IDGenerator, objectResolver *kube.ObjectResolver, ctx trivyoperator.PluginContext) (vulnerabilityreport.Plugin, error) {
+func NewPlugin(clock ext.Clock, idGenerator ext.IDGenerator, objectResolver *kube.ObjectResolver) vulnerabilityreport.Plugin {
 	plugin := &plugin{
 		clock:          clock,
 		idGenerator:    idGenerator,
 		objectResolver: objectResolver,
 	}
-	err := plugin.Init(ctx)
-	if err != nil {
-		return nil, err
-	}
-	plugin.podSpecMgr, err = NewPodSpecMgr(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return plugin, nil
+	return plugin
 }
 
 // NewTrivyConfigAuditPlugin constructs a new configAudit.Plugin, which is using an
@@ -156,8 +147,11 @@ func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client
 	}
 	var podSpec corev1.PodSpec
 	var secrets []*corev1.Secret
-
-	podSpec, secrets, err = p.podSpecMgr.GetPodSpec(ctx, config, workload, credentials, securityContext, p)
+	psm, err := NewPodSpecMgr(ctx)
+	if err != nil {
+		return corev1.PodSpec{}, nil, err
+	}
+	podSpec, secrets, err = psm.GetPodSpec(ctx, config, workload, credentials, securityContext, p)
 
 	// add image pull secret to be used when pulling trivy image fom private registry
 	podSpec.ImagePullSecrets = config.GetImagePullSecret()

@@ -72,11 +72,7 @@ func (r *Resolver) GetVulnerabilityPlugin() (vulnerabilityreport.Plugin, trivyop
 		WithTrivyOperatorConfig(r.config).
 		Get()
 
-	plugin, err := trivy.NewPlugin(ext.NewSystemClock(), ext.NewGoogleUUIDGenerator(), r.objectResolver, pluginContext)
-	if err != nil {
-		return nil, nil, err
-	}
-	return plugin, pluginContext, nil
+	return trivy.NewPlugin(ext.NewSystemClock(), ext.NewGoogleUUIDGenerator(), r.objectResolver), pluginContext, nil
 }
 
 // GetConfigAuditPlugin is a factory method that instantiates the configauditreport.Plugin.

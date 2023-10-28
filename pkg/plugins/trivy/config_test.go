@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -152,9 +153,9 @@ func TestConfig_GetMode(t *testing.T) {
 			expectedMode: ClientServer,
 		},
 		{
-			name:          "Should return error when value is not set",
-			configData:    Config{PluginConfig: trivyoperator.PluginConfig{}},
-			expectedError: "property trivy.mode not set",
+			name:         "Should return error when value is not set",
+			configData:   Config{PluginConfig: trivyoperator.PluginConfig{}},
+			expectedMode: Standalone,
 		},
 		{
 			name: "Should return error when value is not allowed",
@@ -163,18 +164,13 @@ func TestConfig_GetMode(t *testing.T) {
 					"trivy.mode": "P2P",
 				},
 			}},
-			expectedError: "invalid value (P2P) of trivy.mode; allowed values (Standalone, ClientServer)",
+			expectedMode: Standalone,
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			mode, err := tc.configData.GetMode()
-			if tc.expectedError != "" {
-				require.EqualError(t, err, tc.expectedError)
-			} else {
-				require.NoError(t, err)
-				assert.Equal(t, tc.expectedMode, mode)
-			}
+			mode := tc.configData.GetMode()
+			assert.Equal(t, tc.expectedMode, mode)
 		})
 	}
 }
@@ -276,18 +272,14 @@ func TestConfig_GetCommand(t *testing.T) {
 					"trivy.command": "ls",
 				},
 			}},
-			expectedError: "invalid value (ls) of trivy.command; allowed values (image, filesystem, rootfs)",
+			expectedCommand: Image,
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			command, err := tc.configData.GetCommand()
-			if tc.expectedError != "" {
-				require.EqualError(t, err, tc.expectedError)
-			} else {
-				require.NoError(t, err)
-				assert.Equal(t, tc.expectedCommand, command)
-			}
+			command := tc.configData.GetCommand()
+			assert.Equal(t, tc.expectedCommand, command)
+
 		})
 	}
 }
@@ -808,4 +800,84 @@ func TestPlugin_Init(t *testing.T) {
 			},
 		}, cm)
 	})
+}
+
+func TestPlugin_FindIgnorePolicyKey(t *testing.T) {
+	workload := &appsv1.ReplicaSet{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "name-01234abcd",
+			Namespace: "namespace",
+		},
+	}
+	testCases := []struct {
+		name        string
+		configData  map[string]string
+		expectedKey string
+	}{
+		{
+			name: "empty",
+			configData: map[string]string{
+				"other": "",
+			},
+			expectedKey: "",
+		},
+		{
+			name: "fallback",
+			configData: map[string]string{
+				"other":              "",
+				"trivy.ignorePolicy": "",
+			},
+			expectedKey: "trivy.ignorePolicy",
+		},
+		{
+			name: "fallback namespace",
+			configData: map[string]string{
+				"other":                        "",
+				"trivy.ignorePolicy":           "",
+				"trivy.ignorePolicy.namespace": "",
+			},
+			expectedKey: "trivy.ignorePolicy.namespace",
+		},
+		{
+			name: "fallback namespace workload",
+			configData: map[string]string{
+				"other":                               "",
+				"trivy.ignorePolicy":                  "",
+				"trivy.ignorePolicy.namespace":        "",
+				"trivy.ignorePolicy.namespace.name-.": "",
+			},
+			expectedKey: "trivy.ignorePolicy.namespace.name-.",
+		},
+		{
+			name: "fallback namespace other-workload",
+			configData: map[string]string{
+				"other":                        "",
+				"trivy.ignorePolicy":           "",
+				"trivy.ignorePolicy.namespace": "",
+				"trivy.ignorePolicy.namespace.name-other-.": "",
+			},
+			expectedKey: "trivy.ignorePolicy.namespace",
+		},
+		{
+			name: "fallback other-namespace other-workload",
+			configData: map[string]string{
+				"other":                              "",
+				"trivy.ignorePolicy":                 "",
+				"trivy.ignorePolicy.namespace-other": "",
+				"trivy.ignorePolicy.namespace-other.name-other-.": "",
+			},
+			expectedKey: "trivy.ignorePolicy",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			config := Config{
+				trivyoperator.PluginConfig{
+					Data: tc.configData,
+				},
+			}
+			assert.Equal(t, tc.expectedKey, config.FindIgnorePolicyKey(workload))
+		})
+	}
 }

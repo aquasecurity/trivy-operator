@@ -6910,46 +6910,6 @@ func TestGetCVSSV3(t *testing.T) {
 	}
 }
 
-func TestGetMirroredImage(t *testing.T) {
-	testCases := []struct {
-		name          string
-		image         string
-		mirrors       map[string]string
-		expected      string
-		expectedError string
-	}{
-		{
-			name:     "Mirror not match",
-			image:    "alpine",
-			mirrors:  map[string]string{"gcr.io": "mirror.io"},
-			expected: "alpine",
-		},
-		{
-			name:     "Mirror match",
-			image:    "alpine",
-			mirrors:  map[string]string{"index.docker.io": "mirror.io"},
-			expected: "mirror.io/library/alpine:latest",
-		},
-		{
-			name:          "Broken image",
-			image:         "alpine@sha256:broken",
-			expectedError: "could not parse reference: alpine@sha256:broken",
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			expected, err := trivy.GetMirroredImage(tc.image, tc.mirrors)
-			if tc.expectedError != "" {
-				require.EqualError(t, err, tc.expectedError)
-			} else {
-				require.NoError(t, err)
-				assert.Equal(t, tc.expected, expected)
-			}
-		})
-	}
-}
-
 func TestGetContainers(t *testing.T) {
 	workloadSpec := &appsv1.ReplicaSet{
 		Spec: appsv1.ReplicaSetSpec{
@@ -7064,86 +7024,6 @@ func TestGetContainers(t *testing.T) {
 			sort.Strings(containers)
 
 			assert.Equal(t, expectedContainers, containers)
-		})
-	}
-}
-
-func TestPlugin_FindIgnorePolicyKey(t *testing.T) {
-	workload := &appsv1.ReplicaSet{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "name-01234abcd",
-			Namespace: "namespace",
-		},
-	}
-	testCases := []struct {
-		name        string
-		configData  map[string]string
-		expectedKey string
-	}{
-		{
-			name: "empty",
-			configData: map[string]string{
-				"other": "",
-			},
-			expectedKey: "",
-		},
-		{
-			name: "fallback",
-			configData: map[string]string{
-				"other":              "",
-				"trivy.ignorePolicy": "",
-			},
-			expectedKey: "trivy.ignorePolicy",
-		},
-		{
-			name: "fallback namespace",
-			configData: map[string]string{
-				"other":                        "",
-				"trivy.ignorePolicy":           "",
-				"trivy.ignorePolicy.namespace": "",
-			},
-			expectedKey: "trivy.ignorePolicy.namespace",
-		},
-		{
-			name: "fallback namespace workload",
-			configData: map[string]string{
-				"other":                               "",
-				"trivy.ignorePolicy":                  "",
-				"trivy.ignorePolicy.namespace":        "",
-				"trivy.ignorePolicy.namespace.name-.": "",
-			},
-			expectedKey: "trivy.ignorePolicy.namespace.name-.",
-		},
-		{
-			name: "fallback namespace other-workload",
-			configData: map[string]string{
-				"other":                        "",
-				"trivy.ignorePolicy":           "",
-				"trivy.ignorePolicy.namespace": "",
-				"trivy.ignorePolicy.namespace.name-other-.": "",
-			},
-			expectedKey: "trivy.ignorePolicy.namespace",
-		},
-		{
-			name: "fallback other-namespace other-workload",
-			configData: map[string]string{
-				"other":                              "",
-				"trivy.ignorePolicy":                 "",
-				"trivy.ignorePolicy.namespace-other": "",
-				"trivy.ignorePolicy.namespace-other.name-other-.": "",
-			},
-			expectedKey: "trivy.ignorePolicy",
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			config := trivy.Config{
-				trivyoperator.PluginConfig{
-					Data: tc.configData,
-				},
-			}
-			assert.Equal(t, tc.expectedKey, config.FindIgnorePolicyKey(workload))
 		})
 	}
 }

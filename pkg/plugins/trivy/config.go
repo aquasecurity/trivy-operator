@@ -143,41 +143,38 @@ func (c Config) GetImagePullPolicy() string {
 	return ipp
 }
 
-func (c Config) GetMode() (Mode, error) {
+func (c Config) GetMode() Mode {
 	var ok bool
 	var value string
 	if value, ok = c.Data[keyTrivyMode]; !ok {
-		return "", fmt.Errorf("property %s not set", keyTrivyMode)
+		return Standalone
 	}
 
 	switch Mode(value) {
 	case Standalone:
-		return Standalone, nil
+		return Standalone
 	case ClientServer:
-		return ClientServer, nil
+		return ClientServer
 	}
-
-	return "", fmt.Errorf("invalid value (%s) of %s; allowed values (%s, %s)",
-		value, keyTrivyMode, Standalone, ClientServer)
+	return Standalone
 }
 
-func (c Config) GetCommand() (Command, error) {
+func (c Config) GetCommand() Command {
 	var ok bool
 	var value string
 	if value, ok = c.Data[keyTrivyCommand]; !ok {
 		// for backward compatibility, fallback to ImageScan
-		return Image, nil
+		return Image
 	}
 	switch Command(value) {
 	case Image:
-		return Image, nil
+		return Image
 	case Filesystem:
-		return Filesystem, nil
+		return Filesystem
 	case Rootfs:
-		return Rootfs, nil
+		return Rootfs
 	}
-	return "", fmt.Errorf("invalid value (%s) of %s; allowed values (%s, %s, %s)",
-		value, keyTrivyCommand, Image, Filesystem, Rootfs)
+	return Image
 }
 
 func (c Config) GetServerURL() (string, error) {

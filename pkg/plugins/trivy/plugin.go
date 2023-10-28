@@ -100,13 +100,21 @@ type plugin struct {
 // on the settings returned by Config.GetMode. The ClientServer mode is usually
 // more performant, however it requires a Trivy server accessible at the
 // configurable Config.GetServerURL.
-func NewPlugin(clock ext.Clock, idGenerator ext.IDGenerator, objectResolver *kube.ObjectResolver, podSpecMgr PodSpecMgr) vulnerabilityreport.Plugin {
-	return &plugin{
+func NewPlugin(clock ext.Clock, idGenerator ext.IDGenerator, objectResolver *kube.ObjectResolver, ctx trivyoperator.PluginContext) (vulnerabilityreport.Plugin, error) {
+	plugin := &plugin{
 		clock:          clock,
 		idGenerator:    idGenerator,
 		objectResolver: objectResolver,
-		podSpecMgr:     podSpecMgr,
 	}
+	err := plugin.Init(ctx)
+	if err != nil {
+		return nil, err
+	}
+	plugin.podSpecMgr, err = NewPodSpecMgr(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return plugin, nil
 }
 
 // NewTrivyConfigAuditPlugin constructs a new configAudit.Plugin, which is using an

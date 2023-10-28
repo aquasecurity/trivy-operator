@@ -37,7 +37,7 @@ func TestConfig_GetImageRef(t *testing.T) {
 		{
 			name:          "Should return error",
 			configData:    Config{PluginConfig: trivyoperator.PluginConfig{}},
-			expectedError: "property repository not set",
+			expectedError: "property trivy.repository not set",
 		},
 		{
 			name: "Should return error",
@@ -46,23 +46,23 @@ func TestConfig_GetImageRef(t *testing.T) {
 					"tag": "0.8.0",
 				},
 			}},
-			expectedError: "property repository not set",
+			expectedError: "property trivy.repository not set",
 		},
 		{
 			name: "Should return error",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"repository": "gcr.io/aquasecurity/trivy",
+					"trivy.repository": "gcr.io/aquasecurity/trivy",
 				},
 			}},
-			expectedError: "property tag not set",
+			expectedError: "property trivy.tag not set",
 		},
 		{
 			name: "Should return image reference from config data",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"repository": "gcr.io/aquasecurity/trivy",
-					"tag":        "0.8.0",
+					"trivy.repository": "gcr.io/aquasecurity/trivy",
+					"trivy.tag":        "0.8.0",
 				},
 			}},
 			expectedImageRef: "gcr.io/aquasecurity/trivy:0.8.0",
@@ -97,7 +97,7 @@ func TestConfig_GetAdditionalVulnerabilityReportFields(t *testing.T) {
 			name: "all additional fields are set",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"additionalVulnerabilityReportFields": "PackageType,PkgPath,Class,Target,Links,Description,CVSS",
+					"trivy.additionalVulnerabilityReportFields": "PackageType,PkgPath,Class,Target,Links,Description,CVSS",
 				},
 			}},
 			additionalFields: AdditionalFields{Description: true, Links: true, CVSS: true, Class: true, PackageType: true, PkgPath: true, Target: true},
@@ -106,7 +106,7 @@ func TestConfig_GetAdditionalVulnerabilityReportFields(t *testing.T) {
 			name: "some additional fields are set",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"additionalVulnerabilityReportFields": "PackageType,Target,Links,CVSS",
+					"trivy.additionalVulnerabilityReportFields": "PackageType,Target,Links,CVSS",
 				},
 			}},
 			additionalFields: AdditionalFields{Links: true, CVSS: true, PackageType: true, Target: true},
@@ -137,7 +137,7 @@ func TestConfig_GetMode(t *testing.T) {
 			name: "Should return Standalone",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"mode": string(Standalone),
+					"trivy.mode": string(Standalone),
 				},
 			}},
 			expectedMode: Standalone,
@@ -146,7 +146,7 @@ func TestConfig_GetMode(t *testing.T) {
 			name: "Should return ClientServer",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"mode": string(ClientServer),
+					"trivy.mode": string(ClientServer),
 				},
 			}},
 			expectedMode: ClientServer,
@@ -154,16 +154,16 @@ func TestConfig_GetMode(t *testing.T) {
 		{
 			name:          "Should return error when value is not set",
 			configData:    Config{PluginConfig: trivyoperator.PluginConfig{}},
-			expectedError: "property mode not set",
+			expectedError: "property trivy.mode not set",
 		},
 		{
 			name: "Should return error when value is not allowed",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"mode": "P2P",
+					"trivy.mode": "P2P",
 				},
 			}},
-			expectedError: "invalid value (P2P) of mode; allowed values (Standalone, ClientServer)",
+			expectedError: "invalid value (P2P) of trivy.mode; allowed values (Standalone, ClientServer)",
 		},
 	}
 	for _, tc := range testCases {
@@ -189,7 +189,7 @@ func TestGetSlow(t *testing.T) {
 			name: "slow param set to true",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"slow": "true",
+					"trivy.slow": "true",
 				},
 			}},
 			want: true,
@@ -198,7 +198,7 @@ func TestGetSlow(t *testing.T) {
 			name: "slow param set to false",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"slow": "false",
+					"trivy.slow": "false",
 				},
 			}},
 			want: false,
@@ -207,7 +207,7 @@ func TestGetSlow(t *testing.T) {
 			name: "slow param set to no valid value",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"slow": "false2",
+					"trivy.slow": "false2",
 				},
 			}},
 			want: true,
@@ -239,7 +239,7 @@ func TestConfig_GetCommand(t *testing.T) {
 			name: "Should return image",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"command": "image",
+					"trivy.command": "image",
 				},
 			}},
 			expectedCommand: Image,
@@ -255,7 +255,7 @@ func TestConfig_GetCommand(t *testing.T) {
 			name: "Should return filesystem",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"command": "filesystem",
+					"trivy.command": "filesystem",
 				},
 			}},
 			expectedCommand: Filesystem,
@@ -264,7 +264,7 @@ func TestConfig_GetCommand(t *testing.T) {
 			name: "Should return rootfs",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"command": "rootfs",
+					"trivy.command": "rootfs",
 				},
 			}},
 			expectedCommand: Rootfs,
@@ -273,10 +273,10 @@ func TestConfig_GetCommand(t *testing.T) {
 			name: "Should return error when value is not allowed",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"command": "ls",
+					"trivy.command": "ls",
 				},
 			}},
-			expectedError: "invalid value (ls) of command; allowed values (image, filesystem, rootfs)",
+			expectedError: "invalid value (ls) of trivy.command; allowed values (image, filesystem, rootfs)",
 		},
 	}
 	for _, tc := range testCases {
@@ -302,7 +302,7 @@ func TestVulnType(t *testing.T) {
 			name: "valid vuln type os",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"vulnType": "os",
+					"trivy.vulnType": "os",
 				},
 			}},
 			want: "os",
@@ -311,7 +311,7 @@ func TestVulnType(t *testing.T) {
 			name: "valid vuln type library",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"vulnType": "library",
+					"trivy.vulnType": "library",
 				},
 			}},
 			want: "library",
@@ -320,7 +320,7 @@ func TestVulnType(t *testing.T) {
 			name: "empty vuln type",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"vulnType": "",
+					"trivy.vulnType": "",
 				},
 			}},
 			want: "",
@@ -329,7 +329,7 @@ func TestVulnType(t *testing.T) {
 			name: "non valid vuln type",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"vulnType": "aaa",
+					"trivy.vulnType": "aaa",
 				},
 			}},
 			want: "",
@@ -367,12 +367,12 @@ func TestConfig_GetResourceRequirements(t *testing.T) {
 			config: Config{
 				PluginConfig: trivyoperator.PluginConfig{
 					Data: map[string]string{
-						"dbRepository":              DefaultDBRepository,
-						"javaDbRepository":          DefaultJavaDBRepository,
-						"resources.requests.cpu":    "800m",
-						"resources.requests.memory": "200M",
-						"resources.limits.cpu":      "600m",
-						"resources.limits.memory":   "700M",
+						"trivy.dbRepository":              DefaultDBRepository,
+						"trivy.javaDbRepository":          DefaultJavaDBRepository,
+						"trivy.resources.requests.cpu":    "800m",
+						"trivy.resources.requests.memory": "200M",
+						"trivy.resources.limits.cpu":      "600m",
+						"trivy.resources.limits.memory":   "700M",
 					},
 				},
 			},
@@ -393,11 +393,11 @@ func TestConfig_GetResourceRequirements(t *testing.T) {
 			config: Config{
 				PluginConfig: trivyoperator.PluginConfig{
 					Data: map[string]string{
-						"resources.requests.cpu": "roughly 100",
+						"trivy.resources.requests.cpu": "roughly 100",
 					},
 				},
 			},
-			expectedError: "parsing resource definition resources.requests.cpu: roughly 100 quantities must match the regular expression '^([+-]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$'",
+			expectedError: "parsing resource definition trivy.resources.requests.cpu: roughly 100 quantities must match the regular expression '^([+-]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$'",
 		},
 	}
 	for _, tc := range testCases {
@@ -433,7 +433,7 @@ func TestConfig_IgnoreFileExists(t *testing.T) {
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
 					"foo": "bar",
-					"ignoreFile": `# Accept the risk
+					"trivy.ignoreFile": `# Accept the risk
 CVE-2018-14618
 
 # No impact in our settings
@@ -471,8 +471,8 @@ func TestConfig_IgnoreUnfixed(t *testing.T) {
 			name: "Should return true",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"foo":           "bar",
-					"ignoreUnfixed": "true",
+					"foo":                 "bar",
+					"trivy.ignoreUnfixed": "true",
 				},
 			}},
 			expectedOutput: true,
@@ -481,8 +481,8 @@ func TestConfig_IgnoreUnfixed(t *testing.T) {
 			name: "Should return false when set it as false",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"foo":           "bar",
-					"ignoreUnfixed": "false",
+					"foo":                 "bar",
+					"trivy.ignoreUnfixed": "false",
 				},
 			}},
 			expectedOutput: true,
@@ -515,8 +515,8 @@ func TestConfig_OfflineScan(t *testing.T) {
 			name: "Should return true",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"foo":         "bar",
-					"offlineScan": "true",
+					"foo":               "bar",
+					"trivy.offlineScan": "true",
 				},
 			}},
 			expectedOutput: true,
@@ -525,8 +525,8 @@ func TestConfig_OfflineScan(t *testing.T) {
 			name: "Should return false when set it as false",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"foo":         "bar",
-					"offlineScan": "false",
+					"foo":               "bar",
+					"trivy.offlineScan": "false",
 				},
 			}},
 			expectedOutput: true,
@@ -550,7 +550,7 @@ func TestConfig_dbRepositoryInsecure(t *testing.T) {
 			name: "good value Should return false",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"dbRepositoryInsecure": "false",
+					"trivy.dbRepositoryInsecure": "false",
 				},
 			}},
 			expectedOutput: false,
@@ -559,7 +559,7 @@ func TestConfig_dbRepositoryInsecure(t *testing.T) {
 			name: "good value Should return true",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"dbRepositoryInsecure": "true",
+					"trivy.dbRepositoryInsecure": "true",
 				},
 			}},
 			expectedOutput: true,
@@ -568,7 +568,7 @@ func TestConfig_dbRepositoryInsecure(t *testing.T) {
 			name: "bad value Should return false",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"dbRepositoryInsecure": "true1",
+					"trivy.dbRepositoryInsecure": "true1",
 				},
 			}},
 			expectedOutput: false,
@@ -608,9 +608,9 @@ func TestConfig_GetInsecureRegistries(t *testing.T) {
 			name: "Should return insecure registries in map",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"foo":                          "bar",
-					"insecureRegistry.pocRegistry": "poc.myregistry.harbor.com.pl",
-					"insecureRegistry.qaRegistry":  "qa.registry.aquasec.com",
+					"foo":                                "bar",
+					"trivy.insecureRegistry.pocRegistry": "poc.myregistry.harbor.com.pl",
+					"trivy.insecureRegistry.qaRegistry":  "qa.registry.aquasec.com",
 				},
 			}},
 			expectedOutput: map[string]bool{
@@ -647,9 +647,9 @@ func TestConfig_GetNonSSLRegistries(t *testing.T) {
 			name: "Should return insecure registries in map",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"foo":                        "bar",
-					"nonSslRegistry.pocRegistry": "poc.myregistry.harbor.com.pl",
-					"nonSslRegistry.qaRegistry":  "qa.registry.aquasec.com",
+					"foo":                              "bar",
+					"trivy.nonSslRegistry.pocRegistry": "poc.myregistry.harbor.com.pl",
+					"trivy.nonSslRegistry.qaRegistry":  "qa.registry.aquasec.com",
 				},
 			}},
 			expectedOutput: map[string]bool{
@@ -686,7 +686,7 @@ func TestConfig_GetMirrors(t *testing.T) {
 			name: "Should return mirrors in a map",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"registry.mirror.docker.io": "mirror.io",
+					"trivy.registry.mirror.docker.io": "mirror.io",
 				},
 			}},
 			expectedOutput: map[string]string{"docker.io": "mirror.io"},
@@ -712,12 +712,8 @@ func TestPlugin_Init(t *testing.T) {
 			WithServiceAccountName("trivyoperator-sa").
 			WithClient(testClient).
 			Get()
-		psm, err := NewPodSpecMgr(pluginContext)
+		_, err := NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &or, pluginContext)
 		assert.NoError(t, err)
-		instance := NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &or, psm)
-
-		err = instance.Init(pluginContext)
-		require.NoError(t, err)
 
 		var cm corev1.ConfigMap
 		err = testClient.Get(context.Background(), types.NamespacedName{
@@ -739,20 +735,20 @@ func TestPlugin_Init(t *testing.T) {
 				ResourceVersion: "1",
 			},
 			Data: map[string]string{
-				"repository":                DefaultImageRepository,
-				"tag":                       "0.45.1",
-				"severity":                  DefaultSeverity,
-				"slow":                      "true",
-				"mode":                      string(Standalone),
-				"timeout":                   "5m0s",
-				"dbRepository":              DefaultDBRepository,
-				"javaDbRepository":          DefaultJavaDBRepository,
-				"useBuiltinRegoPolicies":    "true",
-				"supportedConfigAuditKinds": SupportedConfigAuditKinds,
-				"resources.requests.cpu":    "100m",
-				"resources.requests.memory": "100M",
-				"resources.limits.cpu":      "500m",
-				"resources.limits.memory":   "500M",
+				"trivy.repository":                DefaultImageRepository,
+				"trivy.tag":                       "0.45.1",
+				"trivy.severity":                  DefaultSeverity,
+				"trivy.slow":                      "true",
+				"trivy.mode":                      string(Standalone),
+				"trivy.timeout":                   "5m0s",
+				"trivy.dbRepository":              DefaultDBRepository,
+				"trivy.javaDbRepository":          DefaultJavaDBRepository,
+				"trivy.useBuiltinRegoPolicies":    "true",
+				"trivy.supportedConfigAuditKinds": SupportedConfigAuditKinds,
+				"trivy.resources.requests.cpu":    "100m",
+				"trivy.resources.requests.memory": "100M",
+				"trivy.resources.limits.cpu":      "500m",
+				"trivy.resources.limits.memory":   "500M",
 			},
 		}, cm)
 	})
@@ -770,10 +766,10 @@ func TestPlugin_Init(t *testing.T) {
 					ResourceVersion: "1",
 				},
 				Data: map[string]string{
-					"repository": "gcr.io/aquasecurity/trivy",
-					"tag":        "0.35.0",
-					"severity":   DefaultSeverity,
-					"mode":       string(Standalone),
+					"trivy.repository": "gcr.io/aquasecurity/trivy",
+					"trivy.tag":        "0.35.0",
+					"trivy.severity":   DefaultSeverity,
+					"trivy.mode":       string(Standalone),
 				},
 			}).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
@@ -785,11 +781,8 @@ func TestPlugin_Init(t *testing.T) {
 			WithClient(testClient).
 			Get()
 
-		psm, err := NewPodSpecMgr(pluginContext)
+		_, err := NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver, pluginContext)
 		assert.NoError(t, err)
-		instance := NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver, psm)
-		err = instance.Init(pluginContext)
-		require.NoError(t, err)
 
 		var cm corev1.ConfigMap
 		err = testClient.Get(context.Background(), types.NamespacedName{
@@ -808,10 +801,10 @@ func TestPlugin_Init(t *testing.T) {
 				ResourceVersion: "1",
 			},
 			Data: map[string]string{
-				"repository": "gcr.io/aquasecurity/trivy",
-				"tag":        "0.35.0",
-				"severity":   DefaultSeverity,
-				"mode":       string(Standalone),
+				"trivy.repository": "gcr.io/aquasecurity/trivy",
+				"trivy.tag":        "0.35.0",
+				"trivy.severity":   DefaultSeverity,
+				"trivy.mode":       string(Standalone),
 			},
 		}, cm)
 	})

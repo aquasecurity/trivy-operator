@@ -165,11 +165,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			return err
 		}
 
-		err = plugin.Init(pluginContext)
-		if err != nil {
-			return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
-		}
-
 		if err = (&vcontroller.WorkloadController{
 			Logger:           ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
 			Config:           operatorConfig,
@@ -265,10 +260,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			WithClient(mgr.GetClient()).
 			WithObjectResolver(&objectResolver).
 			GetConfigAuditPlugin()
-		if err != nil {
-			return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
-		}
-		err = plugin.Init(pluginContext)
 		if err != nil {
 			return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
 		}

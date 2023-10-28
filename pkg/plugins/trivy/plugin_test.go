@@ -6095,9 +6095,8 @@ default ignore = false`,
 				WithClient(fakeclient).
 				Get()
 			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
-			psm, err := trivy.NewPodSpecMgr(pluginContext)
-			assert.NoError(t, err)
-			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver, psm)
+			instance, err := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver, pluginContext)
+			require.NoError(t, err)
 			securityContext := &corev1.SecurityContext{
 				Privileged:               pointer.Bool(false),
 				AllowPrivilegeEscalation: pointer.Bool(false),
@@ -6507,9 +6506,8 @@ default ignore = false`,
 				WithTrivyOperatorConfig(tc.trivyOperatorConfig).
 				Get()
 			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
-			psm, err := trivy.NewPodSpecMgr(pluginContext)
-			assert.NoError(t, err)
-			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver, psm)
+			instance, err := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver, pluginContext)
+			require.NoError(t, err)
 			securityContext := &corev1.SecurityContext{
 				Privileged:               pointer.Bool(false),
 				AllowPrivilegeEscalation: pointer.Bool(false),
@@ -6773,9 +6771,8 @@ func TestPlugin_ParseReportData(t *testing.T) {
 				}).
 				Get()
 			resolver := kube.NewObjectResolver(fakeClient, &kube.CompatibleObjectMapper{})
-			psm, err := trivy.NewPodSpecMgr(ctx)
+			instance, err := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver, ctx)
 			assert.NoError(t, err)
-			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver, psm)
 			vulnReport, secretReport, _, err := instance.ParseReportData(ctx, tc.imageRef, io.NopCloser(strings.NewReader(tc.input)))
 			switch {
 			case tc.expectedError == nil:
@@ -7057,9 +7054,8 @@ func TestGetContainers(t *testing.T) {
 				WithTrivyOperatorConfig(map[string]string{trivyoperator.KeyVulnerabilityScansInSameNamespace: "true"}).
 				Get()
 			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
-			psm, err := trivy.NewPodSpecMgr(pluginContext)
-			assert.NoError(t, err)
-			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver, psm)
+			instance, err := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver, pluginContext)
+			require.NoError(t, err)
 			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil)
 			assert.NoError(t, err)
 

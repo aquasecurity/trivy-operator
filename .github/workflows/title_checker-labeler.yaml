@@ -27,6 +27,7 @@ jobs:
             test
             build
             ci
+            sec
             chore
             release
             revert

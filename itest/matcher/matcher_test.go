@@ -11,7 +11,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 )
 
 func TestVulnerabilityReportMatcher(t *testing.T) {
@@ -48,8 +48,8 @@ func TestVulnerabilityReportMatcher(t *testing.T) {
 						Kind:               "Pod",
 						Name:               "nginx-pod",
 						UID:                "56d53a84-c81b-4620-81a1-e226c35d3983",
-						Controller:         pointer.Bool(true),
-						BlockOwnerDeletion: pointer.Bool(false),
+						Controller:         ptr.To[bool](true),
+						BlockOwnerDeletion: ptr.To[bool](false),
 					},
 				},
 			},
@@ -100,8 +100,8 @@ func TestConfigAuditReportMatcher(t *testing.T) {
 						Kind:               "ReplicaSet",
 						Name:               "nginx-6d4cf56db6",
 						UID:                "494b2727-5d52-4057-9a9b-8b508c753fea",
-						Controller:         pointer.Bool(true),
-						BlockOwnerDeletion: pointer.Bool(false),
+						Controller:         ptr.To[bool](true),
+						BlockOwnerDeletion: ptr.To[bool](false),
 					},
 				},
 			},

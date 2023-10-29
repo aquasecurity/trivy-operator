@@ -9,7 +9,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -238,7 +238,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 		Affinity:                     trivyoperator.LinuxNodeAffinity(),
 		RestartPolicy:                corev1.RestartPolicyNever,
 		ServiceAccountName:           ctx.GetServiceAccountName(),
-		AutomountServiceAccountToken: pointer.Bool(getAutomountServiceAccountToken(ctx)),
+		AutomountServiceAccountToken: ptr.To[bool](getAutomountServiceAccountToken(ctx)),
 		Volumes:                      volumes,
 		InitContainers:               []corev1.Container{initContainerCopyBinary, initContainerDB},
 		Containers:                   containers,
@@ -451,7 +451,7 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 		Affinity:                     trivyoperator.LinuxNodeAffinity(),
 		RestartPolicy:                corev1.RestartPolicyNever,
 		ServiceAccountName:           ctx.GetServiceAccountName(),
-		AutomountServiceAccountToken: pointer.Bool(getAutomountServiceAccountToken(ctx)),
+		AutomountServiceAccountToken: ptr.To[bool](getAutomountServiceAccountToken(ctx)),
 		Volumes:                      volumes,
 		InitContainers:               []corev1.Container{initContainerCopyBinary},
 		Containers:                   containers,

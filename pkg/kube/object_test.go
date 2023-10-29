@@ -15,7 +15,7 @@ import (
 	batchv1beta1 "k8s.io/api/batch/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
@@ -642,8 +642,8 @@ func TestObjectResolver_RelatedReplicaSetName(t *testing.T) {
 						APIVersion:         "apps/v1",
 						Kind:               "ReplicaSet",
 						Name:               "nginx-549f5fcb58",
-						Controller:         pointer.Bool(true),
-						BlockOwnerDeletion: pointer.Bool(true),
+						Controller:         ptr.To[bool](true),
+						BlockOwnerDeletion: ptr.To[bool](true),
 					},
 				},
 			},
@@ -829,13 +829,13 @@ func TestGetActivePodsMatchingLabels(t *testing.T) {
 					Kind:               "Deployment",
 					Name:               "nginx",
 					UID:                "734c1370-2281-4946-9b5f-940b33f3e4b8",
-					Controller:         pointer.Bool(true),
-					BlockOwnerDeletion: pointer.Bool(true),
+					Controller:         ptr.To[bool](true),
+					BlockOwnerDeletion: ptr.To[bool](true),
 				},
 			},
 		},
 		Spec: appsv1.ReplicaSetSpec{
-			Replicas: pointer.Int32(1),
+			Replicas: ptr.To[int32](1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"app":               "nginx",
@@ -863,8 +863,8 @@ func TestGetActivePodsMatchingLabels(t *testing.T) {
 					Kind:               "ReplicaSet",
 					Name:               "nginx-6d4cf56db6",
 					UID:                "ecfff877-784c-4f05-8b70-abe441ca1976",
-					Controller:         pointer.Bool(true),
-					BlockOwnerDeletion: pointer.Bool(true),
+					Controller:         ptr.To[bool](true),
+					BlockOwnerDeletion: ptr.To[bool](true),
 				},
 			},
 		},
@@ -911,7 +911,7 @@ func TestObjectResolver_ReportOwner(t *testing.T) {
 			UID: "734c1370-2281-4946-9b5f-940b33f3e4b8",
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: pointer.Int32(1),
+			Replicas: ptr.To[int32](1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"app": "nginx",
@@ -955,13 +955,13 @@ func TestObjectResolver_ReportOwner(t *testing.T) {
 					Kind:               "Deployment",
 					Name:               "nginx",
 					UID:                "734c1370-2281-4946-9b5f-940b33f3e4b8",
-					Controller:         pointer.Bool(true),
-					BlockOwnerDeletion: pointer.Bool(true),
+					Controller:         ptr.To[bool](true),
+					BlockOwnerDeletion: ptr.To[bool](true),
 				},
 			},
 		},
 		Spec: appsv1.ReplicaSetSpec{
-			Replicas: pointer.Int32(1),
+			Replicas: ptr.To[int32](1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"app":               "nginx",
@@ -989,8 +989,8 @@ func TestObjectResolver_ReportOwner(t *testing.T) {
 					Kind:               "ReplicaSet",
 					Name:               "nginx-6d4cf56db6",
 					UID:                "ecfff877-784c-4f05-8b70-abe441ca1976",
-					Controller:         pointer.Bool(true),
-					BlockOwnerDeletion: pointer.Bool(true),
+					Controller:         ptr.To[bool](true),
+					BlockOwnerDeletion: ptr.To[bool](true),
 				},
 			},
 		},
@@ -1052,8 +1052,8 @@ func TestObjectResolver_ReportOwner(t *testing.T) {
 					Kind:               "Job",
 					Name:               "pi",
 					UID:                "ef340242-b677-485e-b506-2ac1dde48bca",
-					Controller:         pointer.Bool(true),
-					BlockOwnerDeletion: pointer.Bool(true),
+					Controller:         ptr.To[bool](true),
+					BlockOwnerDeletion: ptr.To[bool](true),
 				},
 			},
 		},
@@ -1149,7 +1149,7 @@ func TestObjectResolver_IsActiveReplicaSet(t *testing.T) {
 			UID: "734c1370-2281-4946-9b5f-940b33f3e4b8",
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: pointer.Int32(1),
+			Replicas: ptr.To[int32](1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"app": "nginx",
@@ -1193,13 +1193,13 @@ func TestObjectResolver_IsActiveReplicaSet(t *testing.T) {
 					Kind:               "Deployment",
 					Name:               "nginx",
 					UID:                "734c1370-2281-4946-9b5f-940b33f3e4b8",
-					Controller:         pointer.Bool(true),
-					BlockOwnerDeletion: pointer.Bool(true),
+					Controller:         ptr.To[bool](true),
+					BlockOwnerDeletion: ptr.To[bool](true),
 				},
 			},
 		},
 		Spec: appsv1.ReplicaSetSpec{
-			Replicas: pointer.Int32(1),
+			Replicas: ptr.To[int32](1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"app":               "nginx",
@@ -1232,13 +1232,13 @@ func TestObjectResolver_IsActiveReplicaSet(t *testing.T) {
 					Kind:               "Deployment",
 					Name:               "nginx",
 					UID:                "734c1370-2281-4946-9b5f-940b33f3e4b8",
-					Controller:         pointer.Bool(true),
-					BlockOwnerDeletion: pointer.Bool(true),
+					Controller:         ptr.To[bool](true),
+					BlockOwnerDeletion: ptr.To[bool](true),
 				},
 			},
 		},
 		Spec: appsv1.ReplicaSetSpec{
-			Replicas: pointer.Int32(1),
+			Replicas: ptr.To[int32](1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"app":               "nginx",
@@ -1266,7 +1266,7 @@ func TestObjectResolver_IsActiveReplicaSet(t *testing.T) {
 			UID: "0eed5ccf-4518-4ae7-933e-cafded6cf356",
 		},
 		Spec: appsv1.ReplicaSetSpec{
-			Replicas: pointer.Int32(1),
+			Replicas: ptr.To[int32](1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"app":               "nginx",
@@ -1386,12 +1386,12 @@ func TestObjectResolver_IsActiveReplicationController(t *testing.T) {
 				Kind:               "DeploymentConfig",
 				Name:               "busybox",
 				UID:                "3767b9a7-c2ad-4a3e-a115-b72edda9084b",
-				Controller:         pointer.Bool(true),
-				BlockOwnerDeletion: pointer.Bool(true)},
+				Controller:         ptr.To[bool](true),
+				BlockOwnerDeletion: ptr.To[bool](true)},
 			},
 		},
 		Spec: corev1.ReplicationControllerSpec{
-			Replicas: pointer.Int32(1),
+			Replicas: ptr.To[int32](1),
 			Selector: map[string]string{
 				"deployment":       "busybox-3",
 				"deploymentconfig": "busybox",
@@ -1439,12 +1439,12 @@ func TestObjectResolver_IsActiveReplicationController(t *testing.T) {
 				Kind:               "DeploymentConfig",
 				Name:               "busybox",
 				UID:                "3767b9a7-c2ad-4a3e-a115-b72edda9084b",
-				Controller:         pointer.Bool(true),
-				BlockOwnerDeletion: pointer.Bool(true)},
+				Controller:         ptr.To[bool](true),
+				BlockOwnerDeletion: ptr.To[bool](true)},
 			},
 		},
 		Spec: corev1.ReplicationControllerSpec{
-			Replicas: pointer.Int32(1),
+			Replicas: ptr.To[int32](1),
 			Selector: map[string]string{
 				"deployment":       "busybox-2",
 				"deploymentconfig": "busybox",
@@ -1479,7 +1479,7 @@ func TestObjectResolver_IsActiveReplicationController(t *testing.T) {
 			Labels:          map[string]string{"openshift.io/deployment-config.name": "busybox"},
 		},
 		Spec: corev1.ReplicationControllerSpec{
-			Replicas: pointer.Int32(1),
+			Replicas: ptr.To[int32](1),
 			Selector: map[string]string{
 				"deployment":       "busybox-3",
 				"deploymentconfig": "busybox",

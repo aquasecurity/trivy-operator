@@ -19,7 +19,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/rand"
 	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 )
@@ -212,7 +212,7 @@ func (b *DeploymentBuilder) Build() *appsv1.Deployment {
 			Namespace: b.namespace,
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: pointer.Int32(1),
+			Replicas: ptr.To[int32](1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"app": b.name,

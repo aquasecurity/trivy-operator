@@ -13,7 +13,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/prometheus/client_golang/prometheus/testutil"
 	"k8s.io/apimachinery/pkg/runtime"
-	pointer "k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
 
@@ -59,8 +59,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr1.Report.Artifact.Tag = "1.16"
 			vr1.Report.Summary.CriticalCount = 2
 			vr1.Report.Vulnerabilities = []v1alpha1.Vulnerability{
-				{InstalledVersion: "2.28-10", FixedVersion: "2.28-11", PublishedDate: "2023-06-28T21:15:00Z", LastModifiedDate: "2023-06-28T21:16:00Z", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "libc-bin", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR1-CRITICAL-1", Title: "VR1 Critical vulnerability 1", Score: pointer.Float64(8.5)},
-				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR1-CRITICAL-2", Title: "VR1 Critical vulnerability 2", Score: pointer.Float64(8.3)},
+				{InstalledVersion: "2.28-10", FixedVersion: "2.28-11", PublishedDate: "2023-06-28T21:15:00Z", LastModifiedDate: "2023-06-28T21:16:00Z", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "libc-bin", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR1-CRITICAL-1", Title: "VR1 Critical vulnerability 1", Score: ptr.To[float64](8.5)},
+				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR1-CRITICAL-2", Title: "VR1 Critical vulnerability 2", Score: ptr.To[float64](8.3)},
 			}
 
 			vr2 := &v1alpha1.VulnerabilityReport{}
@@ -76,17 +76,17 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr2.Report.Summary.CriticalCount = 4
 			vr2.Report.Summary.HighCount = 7
 			vr2.Report.Vulnerabilities = []v1alpha1.Vulnerability{
-				{InstalledVersion: "1.2.11-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "zlib", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-1", Title: "VR2 Critical vulnerability 1", Score: pointer.Float64(7.5)},
-				{InstalledVersion: "1.34.1-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "ssl_client", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-2", Title: "VR2 Critical vulnerability 2", Score: pointer.Float64(8.7)},
-				{InstalledVersion: "1.2.11-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "zlib", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-3", Title: "VR2 Critical vulnerability 3", Score: pointer.Float64(8.5)},
-				{InstalledVersion: "1.1.1l-r7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "libssl1.1", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-4", Title: "VR2 Critical vulnerability 4", Score: pointer.Float64(9.5)},
-				{InstalledVersion: "v1.9.0", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "golang.org/prometheus/client_golang", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-1", Title: "VR2 High vulnerability 1", Score: pointer.Float64(7)},
-				{InstalledVersion: "v0.0.0-20210711020723-a769d52b0f97", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "golang.org/x/crypto", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-2", Title: "VR2 High vulnerability 2", Score: pointer.Float64(6.7)},
-				{InstalledVersion: "v0.0.0-20210226172049-e18ecbb05110", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "golang.org/x/net", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-3", Title: "VR2 High vulnerability 3", Score: pointer.Float64(7.1)},
-				{InstalledVersion: "v0.3.3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "golang.org/x/text", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-4", Title: "VR2 High vulnerability 4", Score: pointer.Float64(7)},
-				{InstalledVersion: "1.2.11-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "zlib", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-5", Title: "VR2 High vulnerability 5", Score: pointer.Float64(7)},
-				{InstalledVersion: "1.34.1-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "busybox", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-6", Title: "VR2 High vulnerability 6", Score: pointer.Float64(6)},
-				{InstalledVersion: "1.1.1l-r7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "libssl1.1", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-7", Title: "VR2 High vulnerability 7", Score: pointer.Float64(6.4)},
+				{InstalledVersion: "1.2.11-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "zlib", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-1", Title: "VR2 Critical vulnerability 1", Score: ptr.To[float64](7.5)},
+				{InstalledVersion: "1.34.1-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "ssl_client", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-2", Title: "VR2 Critical vulnerability 2", Score: ptr.To[float64](8.7)},
+				{InstalledVersion: "1.2.11-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "zlib", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-3", Title: "VR2 Critical vulnerability 3", Score: ptr.To[float64](8.5)},
+				{InstalledVersion: "1.1.1l-r7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "libssl1.1", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-4", Title: "VR2 Critical vulnerability 4", Score: ptr.To[float64](9.5)},
+				{InstalledVersion: "v1.9.0", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "golang.org/prometheus/client_golang", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-1", Title: "VR2 High vulnerability 1", Score: ptr.To[float64](7)},
+				{InstalledVersion: "v0.0.0-20210711020723-a769d52b0f97", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "golang.org/x/crypto", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-2", Title: "VR2 High vulnerability 2", Score: ptr.To[float64](6.7)},
+				{InstalledVersion: "v0.0.0-20210226172049-e18ecbb05110", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "golang.org/x/net", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-3", Title: "VR2 High vulnerability 3", Score: ptr.To[float64](7.1)},
+				{InstalledVersion: "v0.3.3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "golang.org/x/text", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-4", Title: "VR2 High vulnerability 4", Score: ptr.To[float64](7)},
+				{InstalledVersion: "1.2.11-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "zlib", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-5", Title: "VR2 High vulnerability 5", Score: ptr.To[float64](7)},
+				{InstalledVersion: "1.34.1-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "busybox", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-6", Title: "VR2 High vulnerability 6", Score: ptr.To[float64](6)},
+				{InstalledVersion: "1.1.1l-r7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "libssl1.1", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-7", Title: "VR2 High vulnerability 7", Score: ptr.To[float64](6.4)},
 			}
 
 			vr3 := &v1alpha1.VulnerabilityReport{}
@@ -101,7 +101,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr3.Report.Artifact.Digest = "sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8"
 			vr3.Report.Summary.CriticalCount = 1
 			vr3.Report.Vulnerabilities = []v1alpha1.Vulnerability{
-				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-1", Title: "VR3 Critical vulnerability 1", Score: pointer.Float64(8.4)},
+				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-1", Title: "VR3 Critical vulnerability 1", Score: ptr.To[float64](8.4)},
 			}
 
 			client.WithRuntimeObjects(vr1, vr2, vr3)

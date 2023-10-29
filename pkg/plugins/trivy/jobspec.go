@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -182,7 +182,7 @@ func constructEnvVarSourceFromSecret(envName, secretName, secretKey string) (res
 					Name: secretName,
 				},
 				Key:      secretKey,
-				Optional: pointer.Bool(true),
+				Optional: ptr.To[bool](true),
 			},
 		},
 	}
@@ -198,7 +198,7 @@ func constructEnvVarSourceFromConfigMap(envName, configName, configKey string) (
 					Name: configName,
 				},
 				Key:      configKey,
-				Optional: pointer.Bool(true),
+				Optional: ptr.To[bool](true),
 			},
 		},
 	}

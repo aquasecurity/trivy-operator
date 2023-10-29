@@ -25,7 +25,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -288,7 +288,7 @@ func getVulnerabilitiesFromScanResult(report ty.Result, addFields AdditionalFiel
 			vulnerability.Class = string(report.Class)
 		}
 		if addFields.PackageType {
-			vulnerability.PackageType = report.Type
+			vulnerability.PackageType = string(report.Type)
 		}
 		if addFields.PkgPath {
 			vulnerability.PkgPath = sr.PkgPath
@@ -413,7 +413,7 @@ func GetCvssV3(findingCvss types.VendorCVSS) map[string]*CVSS {
 	for vendor, cvss := range findingCvss {
 		var v3Score *float64
 		if cvss.V3Score != 0.0 {
-			v3Score = pointer.Float64(cvss.V3Score)
+			v3Score = ptr.To[float64](cvss.V3Score)
 		}
 		cvssV3[string(vendor)] = &CVSS{v3Score}
 	}

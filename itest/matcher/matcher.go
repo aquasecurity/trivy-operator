@@ -12,7 +12,7 @@ import (
 	"github.com/onsi/gomega/types"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/utils/pointer"
+	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 )
@@ -75,8 +75,8 @@ func (m *vulnerabilityReportMatcher) Match(actual interface{}) (bool, error) {
 				Kind:               gvk.Kind,
 				Name:               m.owner.GetName(),
 				UID:                m.owner.GetUID(),
-				Controller:         pointer.Bool(true),
-				BlockOwnerDeletion: pointer.Bool(false),
+				Controller:         ptr.To[bool](true),
+				BlockOwnerDeletion: ptr.To[bool](false),
 			}),
 		}),
 		"Report": MatchFields(IgnoreExtras, Fields{
@@ -165,8 +165,8 @@ func (m *configAuditReportMatcher) Match(actual interface{}) (bool, error) {
 				Kind:               gvk.Kind,
 				Name:               m.owner.GetName(),
 				UID:                m.owner.GetUID(),
-				Controller:         pointer.Bool(true),
-				BlockOwnerDeletion: pointer.Bool(false),
+				Controller:         ptr.To[bool](true),
+				BlockOwnerDeletion: ptr.To[bool](false),
 			}),
 		}),
 		"Report": MatchFields(IgnoreExtras, Fields{

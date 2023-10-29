@@ -85,7 +85,7 @@ require (
 	github.com/containerd/containerd v1.7.8 // indirect
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.14.3 // indirect
-	github.com/containerd/typeurl/v2 v2.1.1 // indirect
+	github.com/containerd/typeurl v1.0.2 // indirect
 	github.com/cyphar/filepath-securejoin v0.2.4 // indirect
 	github.com/distribution/reference v0.5.0 // indirect
 	github.com/docker/cli v24.0.7+incompatible // indirect
@@ -298,3 +298,5 @@ require (
 replace oras.land/oras-go => oras.land/oras-go v1.2.4-0.20230801060855-932dd06d38af
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.57.1
+
+replace github.com/moby/buildkit => github.com/moby/buildkit v0.11.6

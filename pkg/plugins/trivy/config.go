@@ -56,6 +56,7 @@ const (
 	keyTrivyServerURL              = "trivy.serverURL"
 	keyTrivyClientServerSkipUpdate = "trivy.clientServerSkipUpdate"
 	keyTrivySkipJavaDBUpdate       = "trivy.skipJavaDBUpdate"
+	keyTrivyImageScanCacheDir      = "trivy.imageScanCacheDir"
 	// nolint:gosec // This is not a secret, but a configuration value.
 	keyTrivyServerTokenHeader = "trivy.serverTokenHeader"
 	keyTrivyServerInsecure    = "trivy.serverInsecure"
@@ -203,6 +204,14 @@ func (c Config) GetSkipJavaDBUpdate() bool {
 		return false
 	}
 	return boolVal
+}
+
+func (c Config) GetImageScanCacheDir() string {
+	val, ok := c.Data[keyTrivyImageScanCacheDir]
+	if !ok || val == "" {
+		return "/tmp/trivy/.cache"
+	}
+	return val
 }
 
 func (c Config) GetServerInsecure() bool {

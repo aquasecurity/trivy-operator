@@ -329,6 +329,9 @@ trivy:
   # -- severity is a comma separated list of severity levels reported by Trivy.
   severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
 
+  # -- imageScanCacheDir the flag to set custom path for trivy image scan `cache-dir` parameter
+  imageScanCacheDir: "/tmp/trivy/.cache"
+
   # -- slow this flag is to use less CPU/memory for scanning though it takes more time than normal scanning. It fits small-footprint
   slow: true
   # -- ignoreUnfixed is the flag to show only fixed vulnerabilities in

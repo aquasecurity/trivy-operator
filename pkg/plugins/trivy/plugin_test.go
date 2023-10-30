@@ -7367,3 +7367,43 @@ func TestGetSkipJavaDBUpdate(t *testing.T) {
 		})
 	}
 }
+
+func TestGetImageScanCacheDir(t *testing.T) {
+	testCases := []struct {
+		name       string
+		configData trivy.Config
+		want       string
+	}{
+		{
+			name: "imageScanCacheDir param set non-default path",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.imageScanCacheDir": "/home/trivy/.cache",
+				},
+			}},
+			want: "/home/trivy/.cache",
+		},
+		{
+			name: "imageScanCacheDir param set as empty string",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.imageScanCacheDir": "",
+				},
+			}},
+			want: "/tmp/trivy/.cache",
+		},
+		{
+			name: "imageScanCacheDir param unset",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{},
+			}},
+			want: "/tmp/trivy/.cache",
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.configData.GetImageScanCacheDir()
+			assert.Equal(t, got, tc.want)
+		})
+	}
+}

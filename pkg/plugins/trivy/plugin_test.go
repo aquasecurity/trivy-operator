@@ -7407,3 +7407,43 @@ func TestGetImageScanCacheDir(t *testing.T) {
 		})
 	}
 }
+
+func TestGetFilesystemScanCacheDir(t *testing.T) {
+	testCases := []struct {
+		name       string
+		configData trivy.Config
+		want       string
+	}{
+		{
+			name: "filesystemScanCacheDir param set non-default path",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.filesystemScanCacheDir": "/home/trivyoperator/trivy-db",
+				},
+			}},
+			want: "/home/trivyoperator/trivy-db",
+		},
+		{
+			name: "filesystemScanCacheDir param set as empty string",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.filesystemScanCacheDir": "",
+				},
+			}},
+			want: "/var/trivyoperator/trivy-db",
+		},
+		{
+			name: "filesystemScanCacheDir param unset",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{},
+			}},
+			want: "/var/trivyoperator/trivy-db",
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.configData.GetFilesystemScanCacheDir()
+			assert.Equal(t, got, tc.want)
+		})
+	}
+}

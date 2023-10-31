@@ -66,6 +66,8 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 		return corev1.PodSpec{}, nil, err
 	}
 
+	cacheDir := config.GetFilesystemScanCacheDir()
+
 	volumeMounts := []corev1.VolumeMount{
 		{
 			Name:      FsSharedVolumeName,
@@ -106,7 +108,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 		},
 		Args: []string{
 			"--cache-dir",
-			"/var/trivyoperator/trivy-db",
+			cacheDir,
 			"image",
 			"--download-db-only",
 			"--db-repository",
@@ -474,9 +476,10 @@ func getFSScanningArgs(ctx trivyoperator.PluginContext, command Command, mode Mo
 	scanners := Scanners(c)
 	imcs := imageConfigSecretScanner(c.Data)
 	skipUpdate := SkipDBUpdate(c)
+	cacheDir := c.GetFilesystemScanCacheDir()
 	args := []string{
 		"--cache-dir",
-		"/var/trivyoperator/trivy-db",
+		cacheDir,
 		"--quiet",
 		string(command),
 		scanners,

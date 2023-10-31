@@ -329,9 +329,6 @@ trivy:
   # -- severity is a comma separated list of severity levels reported by Trivy.
   severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
 
-  # -- imageScanCacheDir the flag to set custom path for trivy image scan `cache-dir` parameter
-  imageScanCacheDir: "/tmp/trivy/.cache"
-
   # -- slow this flag is to use less CPU/memory for scanning though it takes more time than normal scanning. It fits small-footprint
   slow: true
   # -- ignoreUnfixed is the flag to show only fixed vulnerabilities in
@@ -440,6 +437,12 @@ trivy:
   # For 'filesystem' and `rootfs` scanning, ensure that the `trivyOperator.scanJobPodTemplateContainerSecurityContext` is configured
   # to run as the root user (runAsUser = 0).
   command: image
+  # -- imageScanCacheDir the flag to set custom path for trivy image scan `cache-dir` parameter.
+  # Only applicable in image scan mode.
+  imageScanCacheDir: "/tmp/trivy/.cache"
+  # -- filesystemScanCacheDir the flag to set custom path for trivy filesystem scan `cache-dir` parameter.
+  # Only applicable in filesystem scan mode.
+  filesystemScanCacheDir: "/var/trivyoperator/trivy-db"
   # -- serverUser this param is the server user to be used to download db from private registry
   serverUser: ""
   # -- serverPassword this param is the server user to be used to download db from private registry

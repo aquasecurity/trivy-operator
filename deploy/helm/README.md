@@ -102,6 +102,7 @@ Keeps security report resources updated
 | trivy.dbRepository | string | `"aquasecurity/trivy-db"` |  |
 | trivy.dbRepositoryInsecure | string | `"false"` | The Flag to enable insecure connection for downloading trivy-db via proxy (air-gaped env)  |
 | trivy.debug | bool | `false` | debug One of `true` or `false`. Enables debug mode. |
+| trivy.filesystemScanCacheDir | string | `"/var/trivyoperator/trivy-db"` | filesystemScanCacheDir the flag to set custom path for trivy filesystem scan `cache-dir` parameter. Only applicable in filesystem scan mode. |
 | trivy.githubToken | string | `nil` | githubToken is the GitHub access token used by Trivy to download the vulnerabilities database from GitHub. Only applicable in Standalone mode. |
 | trivy.httpProxy | string | `nil` | httpProxy is the HTTP proxy used by Trivy to download the vulnerabilities database from GitHub. |
 | trivy.httpsProxy | string | `nil` | httpsProxy is the HTTPS proxy used by Trivy to download the vulnerabilities database from GitHub. |
@@ -112,7 +113,7 @@ Keeps security report resources updated
 | trivy.image.registry | string | `"ghcr.io"` | registry of the Trivy image |
 | trivy.image.repository | string | `"aquasecurity/trivy"` | repository of the Trivy image |
 | trivy.image.tag | string | `"0.45.1"` | tag version of the Trivy image |
-| trivy.imageScanCacheDir | string | `"/tmp/trivy/.cache"` | imageScanCacheDir the flag to set custom path for trivy image scan `cache-dir` parameter |
+| trivy.imageScanCacheDir | string | `"/tmp/trivy/.cache"` | imageScanCacheDir the flag to set custom path for trivy image scan `cache-dir` parameter. Only applicable in image scan mode. |
 | trivy.insecureRegistries | object | `{}` | The registry to which insecure connections are allowed. There can be multiple registries with different keys. |
 | trivy.javaDbRegistry | string | `"ghcr.io"` | javaDbRegistry is the registry for the Java vulnerability database. |
 | trivy.javaDbRepository | string | `"aquasecurity/trivy-java-db"` |  |

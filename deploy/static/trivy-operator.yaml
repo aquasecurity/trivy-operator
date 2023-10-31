@@ -2162,6 +2162,7 @@ data:
   trivy.slow: "true"
   trivy.skipJavaDBUpdate: "false"
   trivy.imageScanCacheDir: "/tmp/trivy/.cache"
+  trivy.filesystemScanCacheDir: "/var/trivyoperator/trivy-db"
   trivy.dbRepository: "ghcr.io/aquasecurity/trivy-db"
   trivy.javaDbRepository: "ghcr.io/aquasecurity/trivy-java-db"
   trivy.command: "image"

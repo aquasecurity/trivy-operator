@@ -81,7 +81,7 @@ jobs:
           python-version: 3.7
       - name: Setup chart-testing
         id: lint
-        uses: helm/chart-testing-action@e8788873172cb653a90ca2e819d79d65a66d4e76
+        uses: helm/chart-testing-action@v2.6.0
       - name: Run chart-testing
         run: ct lint-and-install --validate-maintainers=false --charts deploy/helm
       - name: Delete kind cluster

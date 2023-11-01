@@ -259,3 +259,45 @@ func TestNewReadWriter(t *testing.T) {
 		}, reports)
 	})
 }
+
+func TestImageRef(t *testing.T) {
+	testCases := []struct {
+		name    string
+		imageID string
+		want    string
+	}{
+		{
+			name:    "get image ref with libary",
+			imageID: "index.docker.io/library/alpine:3.12.0",
+
+			want: "56bcdb7c95",
+		},
+		{
+			name:    "get image ref without libary",
+			imageID: "index.docker.io/alpine:3.12.0",
+
+			want: "56bcdb7c95",
+		},
+		{
+			name:    "get image ref without index",
+			imageID: "docker.io/rancher/local-path-provisioner:v0.0.14",
+
+			want: "79b568748c",
+		},
+		{
+			name:    "get image ref non docker registry",
+			imageID: "k8s.gcr.io/kube-apiserver:v1.21.1",
+
+			want: "6857f776bb",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			ref, err := sbomreport.ImageRef(tc.imageID)
+			assert.NoError(t, err)
+			assert.Equal(t, ref, tc.want)
+		})
+
+	}
+}

@@ -71,6 +71,8 @@ operator:
   sbomGenerationEnabled: true
   # -- scannerReportTTL the flag to set how long a report should exist. "" means that the ScannerReportTTL feature is disabled
   scannerReportTTL: "24h"
+  # -- cacheReportTTL the flag to set how long a cluster sbom report should exist. "" means that the cacheReportTTL feature is disabled
+  cacheReportTTL: "96h"
   # -- configAuditScannerEnabled the flag to enable configuration audit scanner
   configAuditScannerEnabled: true
   # -- rbacAssessmentScannerEnabled the flag to enable rbac assessment scanner

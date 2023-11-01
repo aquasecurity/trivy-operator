@@ -225,6 +225,27 @@ jobs:
           tests/config/client-server.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
+      - name: Standalon mode with Sbom scanning
+          reports tests
+        run: >
+          ./bin/kuttl test --start-kind=false --config
+          tests/config/sbom-standalone.yaml
+
+          ./tests/resources-cleanup.sh > /dev/null 2>&1
+      - name: Client/Server with Sbom scanning
+          reports tests
+        run: >
+          ./bin/kuttl test --start-kind=false --config
+          tests/config/client-server-sbom.yaml
+
+          ./tests/resources-cleanup.sh > /dev/null 2>&1
+      - name: file system with Sbom scanning
+          reports tests
+        run: >
+          ./bin/kuttl test --start-kind=false --config
+          tests/config/fs-sbom.yaml
+
+          ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: Node scan producing cluster infraassessment report
         run: >
           ./bin/kuttl test --start-kind=false --config

@@ -187,6 +187,18 @@ rules:
 - apiGroups:
   - aquasecurity.github.io
   resources:
+  - clustersbomreports
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aquasecurity.github.io
+  resources:
   - configauditreports
   verbs:
   - create

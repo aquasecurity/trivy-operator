@@ -141,3 +141,32 @@ type SbomReportList struct {
 	// SbomReport is the spec for a sbom record.
 	Items []SbomReport `json:"items"`
 }
+
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:scope=Cluster,shortName={clustersbom}
+// +kubebuilder:printcolumn:name="Repository",type=string,JSONPath=`.report.artifact.repository`,description="The name of image repository"
+// +kubebuilder:printcolumn:name="Tag",type=string,JSONPath=`.report.artifact.tag`,description="The name of image tag"
+// +kubebuilder:printcolumn:name="Scanner",type=string,JSONPath=`.report.scanner.name`,description="The name of the sbom generation scanner"
+// +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"
+// +kubebuilder:printcolumn:name="Components",type=integer,JSONPath=`.report.summary.componentsCount`,priority=1,description="The number of dependencies in bom"
+// +kubebuilder:printcolumn:name="Dependencies",type=integer,JSONPath=`.report.summary.dependenciesCount`,priority=1,description="The the number of components in bom"
+
+// ClusterSbomReport summarizes components and dependencies found in container image
+type ClusterSbomReport struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	// Report is the actual sbom report data.
+	Report SbomReportData `json:"report"`
+}
+
+// +kubebuilder:object:root=true
+
+// ClusterSbomReportList is a list of cluster SbomReport resources.
+type ClusterSbomReportList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata"`
+
+	// SbomReport is the spec for a sbom record.
+	Items []ClusterSbomReport `json:"items"`
+}

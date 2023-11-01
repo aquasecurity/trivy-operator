@@ -1,11 +1,14 @@
 package trivy
 
 import (
+	"encoding/json"
 	"strings"
 
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/ptr"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	containerimage "github.com/google/go-containerregistry/pkg/name"
@@ -38,10 +41,10 @@ type Mode string
 // Command to scan image or filesystem.
 type Command string
 
-type GetPodSpecFunc func(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext, p *plugin) (corev1.PodSpec, []*corev1.Secret, error)
+type GetPodSpecFunc func(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext, p *plugin, clusterSboms map[string]v1alpha1.SbomReportData) (corev1.PodSpec, []*corev1.Secret, error)
 
 type PodSpecMgr interface {
-	GetPodSpec(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext, p *plugin) (corev1.PodSpec, []*corev1.Secret, error)
+	GetPodSpec(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext, p *plugin, clusterSboms map[string]v1alpha1.SbomReportData) (corev1.PodSpec, []*corev1.Secret, error)
 }
 
 func NewPodSpecMgr(config Config) PodSpecMgr {
@@ -215,4 +218,46 @@ func getConfig(ctx trivyoperator.PluginContext) (Config, error) {
 		return Config{}, err
 	}
 	return Config{PluginConfig: pluginConfig}, nil
+}
+
+// CreateSbomDataAsSecret creates a secret with the BOM data
+func CreateSbomDataAsSecret(bom v1alpha1.BOM, secretName string) (corev1.Secret, error) {
+	bomByte, err := json.Marshal(bom)
+	if err != nil {
+		return corev1.Secret{}, err
+	}
+	secret := corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: secretName,
+		},
+		Data: map[string][]byte{
+			"bom": bomByte,
+		},
+	}
+	return secret, nil
+}
+
+// CreateVolumeSbomFiles creates a volume and volume mount for the sbom data
+func CreateVolumeSbomFiles(volumeMounts *[]corev1.VolumeMount, volumes *[]corev1.Volume, secretName *string, fileName string) {
+	sbomMount := corev1.VolumeMount{
+		Name:      "sbomvol",
+		MountPath: "/sbom",
+		ReadOnly:  true,
+	}
+	sbomVolume := corev1.Volume{
+		Name: "sbomvol",
+		VolumeSource: corev1.VolumeSource{
+			Secret: &corev1.SecretVolumeSource{
+				SecretName: *secretName,
+				Items: []corev1.KeyToPath{
+					{
+						Key:  "bom",
+						Path: fileName,
+					},
+				},
+			},
+		},
+	}
+	*volumes = append(*volumes, sbomVolume)
+	*volumeMounts = append(*volumeMounts, sbomMount)
 }

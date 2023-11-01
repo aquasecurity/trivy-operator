@@ -35,6 +35,7 @@ type Config struct {
 	SbomGenerationEnable                         bool           `env:"OPERATOR_SBOM_GENERATION_ENABLED" envDefault:"true"`
 	VulnerabilityScannerScanOnlyCurrentRevisions bool           `env:"OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS" envDefault:"true"`
 	ScannerReportTTL                             *time.Duration `env:"OPERATOR_SCANNER_REPORT_TTL" envDefault:"24h"`
+	CacheReportTTL                               *time.Duration `env:"OPERATOR_CACHE_REPORT_TTL" envDefault:"96h"`
 	ClusterComplianceEnabled                     bool           `env:"OPERATOR_CLUSTER_COMPLIANCE_ENABLED" envDefault:"true"`
 	InvokeClusterComplianceOnce                  bool           `env:"OPERATOR_INVOKE_CLUSTER_COMPLIANCE_ONCE" envDefault:"false"` // for testing purposes only
 	ConfigAuditScannerEnabled                    bool           `env:"OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED" envDefault:"true"`

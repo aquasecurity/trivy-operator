@@ -1,0 +1,11 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestSuite
+commands:
+  - command: helm install trivy-operator ./deploy/helm --namespace trivy-system
+      --create-namespace --set="operator.builtInTrivyServer=true"
+      --set="image.tag=e2e" --set="excludeNamespaces=kube-system"
+      --set="operator.sbomGenerationEnabled=true"
+testDirs:
+  - tests/e2e/sbom-client-server
+timeout: 240

@@ -109,3 +109,31 @@ The operator also could not be configured to scan the workload you are expecting
 
 For example, by default in the [Helm Chart](./helm.md) values, the following Kubernetes workloads are configured to be scanned
 `"pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job"`.
+
+## Installing the Operator in a cluster with default deny-all egress/ingress network policies across all namespaces
+
+If you are trying to install the Trivy-Operator in an environment where there are default deny-all egress/ingress network policies (see example below), you might need to configure some extra network policies yourself to make sure the traffic can flow as expected and the operator does not enter an error state.
+
+```
+---
+kind: NetworkPolicy
+metadata:
+  name: default-deny-egress
+  namespace: trivy-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: trivy-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+```
+
+Notice how the namespace is `trivy-system`, the above network policies are assuming that you installed the `trivy-operator` (and `trivy-server` when applicable) there. Keep in mind these same network policies might be part of other namespaces (like kube-system or default) where important Kubernetes components live, such as the coredns and/or the default kubernetes service.

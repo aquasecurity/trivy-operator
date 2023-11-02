@@ -89,6 +89,8 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, config Config,
 		return corev1.PodSpec{}, nil, err
 	}
 
+	cacheDir := config.GetImageScanCacheDir()
+
 	initContainer := corev1.Container{
 		Name:                     p.idGenerator.GenerateID(),
 		Image:                    trivyImageRef,
@@ -100,7 +102,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, config Config,
 		},
 		Args: []string{
 			"--cache-dir",
-			"/tmp/trivy/.cache",
+			cacheDir,
 			"image",
 			"--download-db-only",
 			"--db-repository",
@@ -515,6 +517,7 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef stri
 	}
 	slow := Slow(c)
 	skipJavaDBUpdate := SkipJavaDBUpdate(c)
+	cacheDir := c.GetImageScanCacheDir()
 	vulnTypeArgs := vulnTypeFilter(ctx)
 	scanners := Scanners(c)
 	var vulnTypeFlag string
@@ -534,7 +537,7 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef stri
 		if !compressLogs {
 			args := []string{
 				"--cache-dir",
-				"/tmp/trivy/.cache",
+				cacheDir,
 				"--quiet",
 				"image",
 				scanners,
@@ -567,13 +570,13 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef stri
 
 			return command, args
 		}
-		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, skipJavaDBUpdate, getPkgList(ctx), trivyServerURL, resultFileName, resultFileName)}
+		return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s %s --cache-dir %s --quiet %s --format json --server '%s' > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, skipJavaDBUpdate, cacheDir, getPkgList(ctx), trivyServerURL, resultFileName, resultFileName)}
 	}
 	skipUpdate = SkipDBUpdate(c)
 	if !compressLogs {
 		args := []string{
 			"--cache-dir",
-			"/tmp/trivy/.cache",
+			cacheDir,
 			"--quiet",
 			"image",
 			scanners,
@@ -603,7 +606,7 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef stri
 		}
 		return command, args
 	}
-	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet %s --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, skipJavaDBUpdate, getPkgList(ctx), resultFileName, resultFileName)}
+	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s %s --cache-dir %s --quiet %s --format json > /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, skipJavaDBUpdate, cacheDir, getPkgList(ctx), resultFileName, resultFileName)}
 }
 
 func vulnTypeFilter(ctx trivyoperator.PluginContext) []string {

@@ -401,6 +401,14 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 			})
 		}
 
+		region := CheckAwsEcrPrivateRegistry(container.Image)
+		if region != "" {
+			env = append(env, corev1.EnvVar{
+				Name:  "AWS_REGION",
+				Value: region,
+			})
+		}
+
 		if auth, ok := containersCredentials[container.Name]; ok && secret != nil {
 			if checkGcpCrOrPivateRegistry(container.Image) && auth.Username == "_json_key" {
 				registryServiceAccountAuthKey := fmt.Sprintf("%s.password", container.Name)

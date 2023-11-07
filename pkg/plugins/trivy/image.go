@@ -456,7 +456,12 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 				Value: "true",
 			})
 		}
-
+		if config.GetDBRepositoryInsecure() {
+			env = append(env, corev1.EnvVar{
+				Name:  "TRIVY_INSECURE",
+				Value: "true",
+			})
+		}
 		requirements, err := config.GetResourceRequirements()
 		if err != nil {
 			return corev1.PodSpec{}, nil, err

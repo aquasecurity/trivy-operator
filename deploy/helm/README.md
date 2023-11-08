@@ -138,6 +138,7 @@ Keeps security report resources updated
 | trivy.serverUser | string | `""` | serverUser this param is the server user to be used to download db from private registry |
 | trivy.severity | string | `"UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"` | severity is a comma separated list of severity levels reported by Trivy. |
 | trivy.skipDirs | string | `nil` | a comma separated list of directories for Trivy to skip |
+| trivy.skipFiles | string | `nil` | a comma separated list of file paths for Trivy to skip |
 | trivy.skipJavaDBUpdate | bool | `false` | skipJavaDBUpdate is the flag to enable skip Java index databases update for Trivy client. |
 | trivy.slow | bool | `true` | slow this flag is to use less CPU/memory for scanning though it takes more time than normal scanning. It fits small-footprint |
 | trivy.sslCertDir | string | `nil` | sslCertDir can be used to override the system default locations for SSL certificate files directory, example: /ssl/certs |

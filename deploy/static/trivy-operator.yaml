@@ -2603,7 +2603,7 @@ spec:
             - name: OPERATOR_SCANNER_REPORT_TTL
               value: "24h"
             - name: OPERATOR_CACHE_REPORT_TTL
-              value: "96h"
+              value: "120h"
             - name: CONTROLLER_CACHE_SYNC_TIMEOUT
               value: "5m"
             - name: OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED

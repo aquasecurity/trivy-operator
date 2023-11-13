@@ -36,7 +36,10 @@ require (
 	sigs.k8s.io/yaml v1.4.0
 )
 
-require github.com/magefile/mage v1.15.0
+require (
+	github.com/aws/aws-sdk-go v1.46.6
+	github.com/magefile/mage v1.15.0
+)
 
 require (
 	cloud.google.com/go v0.110.9 // indirect
@@ -75,7 +78,6 @@ require (
 	github.com/aquasecurity/tml v0.6.1 // indirect
 	github.com/aquasecurity/trivy-java-db v0.0.0-20230514115002-fb1b70d903ce // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
-	github.com/aws/aws-sdk-go v1.46.6 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.22.1 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.18.45 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.13.43 // indirect

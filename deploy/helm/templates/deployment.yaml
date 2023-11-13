@@ -75,6 +75,8 @@ spec:
               value: {{ .Values.operator.vulnerabilityScannerScanOnlyCurrentRevisions | quote }}
             - name: OPERATOR_SCANNER_REPORT_TTL
               value: {{ .Values.operator.scannerReportTTL | quote }}
+            - name: OPERATOR_CACHE_REPORT_TTL
+              value: {{ .Values.operator.cacheReportTTL | quote }}
             - name: CONTROLLER_CACHE_SYNC_TIMEOUT
               value: {{ .Values.operator.controllerCacheSyncTimeout | quote }}
             - name: OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED

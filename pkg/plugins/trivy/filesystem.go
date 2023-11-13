@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -21,8 +22,8 @@ func NewFileSystemJobSpecMgr() PodSpecMgr {
 	return &FileSystemJobSpecMgr{}
 }
 
-func (j *FileSystemJobSpecMgr) GetPodSpec(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext, p *plugin) (corev1.PodSpec, []*corev1.Secret, error) {
-	return j.getPodSpecFunc(ctx, config, workload, credentials, securityContext, p)
+func (j *FileSystemJobSpecMgr) GetPodSpec(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext, p *plugin, clusterSboms map[string]v1alpha1.SbomReportData) (corev1.PodSpec, []*corev1.Secret, error) {
+	return j.getPodSpecFunc(ctx, config, workload, credentials, securityContext, p, clusterSboms)
 }
 
 // FileSystem scan option with standalone mode.
@@ -30,7 +31,7 @@ func (j *FileSystemJobSpecMgr) GetPodSpec(ctx trivyoperator.PluginContext, confi
 // We are scanning the resource place on a specific file system location using the following command.
 //
 //	trivy --quiet fs  --format json --ignore-unfixed  file/system/location
-func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Config, workload client.Object, _ map[string]docker.Auth, securityContext *corev1.SecurityContext, p *plugin) (corev1.PodSpec, []*corev1.Secret, error) {
+func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Config, workload client.Object, _ map[string]docker.Auth, securityContext *corev1.SecurityContext, p *plugin, clusterSboms map[string]v1alpha1.SbomReportData) (corev1.PodSpec, []*corev1.Secret, error) {
 	var secrets []*corev1.Secret
 	spec, err := kube.GetPodSpec(workload)
 	if err != nil {
@@ -220,19 +221,32 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 			return corev1.PodSpec{}, nil, err
 		}
 
+		fscommand := []string{SharedVolumeLocationOfTrivy}
+		args := getFSScanningArgs(ctx, command, Standalone, "")
+		if len(clusterSboms) > 0 { // trivy sbom ...
+			if sbomreportData, ok := clusterSboms[c.Name]; ok {
+				secretName := fmt.Sprintf("sbom-%s", c.Name)
+				secret, err := CreateSbomDataAsSecret(sbomreportData.Bom, secretName)
+				if err != nil {
+					return corev1.PodSpec{}, nil, err
+				}
+				secrets = append(secrets, &secret)
+				fileName := fmt.Sprintf("%s.json", secretName)
+				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName)
+				fscommand, args = GetSbomFSScanningArgs(ctx, Standalone, "", fmt.Sprintf("/sbom/%s", fileName))
+			}
+		}
 		containers = append(containers, corev1.Container{
 			Name:                     c.Name,
 			Image:                    c.Image,
 			ImagePullPolicy:          pullPolicy,
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 			Env:                      env,
-			Command: []string{
-				SharedVolumeLocationOfTrivy,
-			},
-			Args:            getFSScanningArgs(ctx, command, Standalone, ""),
-			Resources:       resourceRequirements,
-			SecurityContext: securityContext,
-			VolumeMounts:    volumeMounts,
+			Command:                  fscommand,
+			Args:                     args,
+			Resources:                resourceRequirements,
+			SecurityContext:          securityContext,
+			VolumeMounts:             volumeMounts,
 		})
 	}
 
@@ -260,7 +274,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 // We scanning the resource place on a specific file system location using the following command.
 //
 //	trivy --quiet fs  --server TRIVY_SERVER  --format json --ignore-unfixed  file/system/location
-func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Config, workload client.Object, _ map[string]docker.Auth, securityContext *corev1.SecurityContext, p *plugin) (corev1.PodSpec, []*corev1.Secret, error) {
+func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Config, workload client.Object, _ map[string]docker.Auth, securityContext *corev1.SecurityContext, p *plugin, clusterSboms map[string]v1alpha1.SbomReportData) (corev1.PodSpec, []*corev1.Secret, error) {
 	var secrets []*corev1.Secret
 	spec, err := kube.GetPodSpec(workload)
 	if err != nil {
@@ -433,19 +447,32 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 			return corev1.PodSpec{}, nil, err
 		}
 
+		fscommand := []string{SharedVolumeLocationOfTrivy}
+		args := getFSScanningArgs(ctx, command, ClientServer, encodedTrivyServerURL.String())
+		if len(clusterSboms) > 0 { // trivy sbom ...
+			if sbomreportData, ok := clusterSboms[c.Name]; ok {
+				secretName := fmt.Sprintf("sbom-%s", c.Name)
+				secret, err := CreateSbomDataAsSecret(sbomreportData.Bom, secretName)
+				if err != nil {
+					return corev1.PodSpec{}, nil, err
+				}
+				secrets = append(secrets, &secret)
+				fileName := fmt.Sprintf("%s.json", secretName)
+				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName)
+				fscommand, args = GetSbomFSScanningArgs(ctx, ClientServer, encodedTrivyServerURL.String(), fmt.Sprintf("/sbom/%s", fileName))
+			}
+		}
 		containers = append(containers, corev1.Container{
 			Name:                     c.Name,
 			Image:                    c.Image,
 			ImagePullPolicy:          pullPolicy,
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 			Env:                      env,
-			Command: []string{
-				SharedVolumeLocationOfTrivy,
-			},
-			Args:            getFSScanningArgs(ctx, command, ClientServer, encodedTrivyServerURL.String()),
-			Resources:       resourceRequirements,
-			SecurityContext: securityContext,
-			VolumeMounts:    volumeMounts,
+			Command:                  fscommand,
+			Args:                     args,
+			Resources:                resourceRequirements,
+			SecurityContext:          securityContext,
+			VolumeMounts:             volumeMounts,
 		})
 	}
 
@@ -504,6 +531,37 @@ func getFSScanningArgs(ctx trivyoperator.PluginContext, command Command, mode Mo
 		args = append(args, pkgList)
 	}
 	return args
+}
+
+func GetSbomFSScanningArgs(ctx trivyoperator.PluginContext, mode Mode, trivyServerURL string, sbomFile string) ([]string, []string) {
+	command := []string{
+		SharedVolumeLocationOfTrivy,
+	}
+	c, err := getConfig(ctx)
+	if err != nil {
+		return []string{}, []string{}
+	}
+	skipUpdate := SkipDBUpdate(c)
+	cacheDir := c.GetFilesystemScanCacheDir()
+	args := []string{
+		"--cache-dir",
+		cacheDir,
+		"--quiet",
+		"sbom",
+		"--format",
+		"json",
+		skipUpdate,
+		sbomFile,
+	}
+
+	if mode == ClientServer {
+		args = append(args, "--server", trivyServerURL)
+	}
+	slow := Slow(c)
+	if len(slow) > 0 {
+		args = append(args, slow)
+	}
+	return command, args
 }
 
 func initContainerFSEnvVar(trivyConfigName string, config Config) []corev1.EnvVar {

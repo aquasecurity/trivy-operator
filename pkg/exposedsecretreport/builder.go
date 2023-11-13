@@ -3,7 +3,6 @@ package exposedsecretreport
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
@@ -23,7 +22,6 @@ type ReportBuilder struct {
 	container               string
 	hash                    string
 	data                    v1alpha1.ExposedSecretReportData
-	reportTTL               *time.Duration
 	resourceLabelsToInclude []string
 	additionalReportLabels  labels.Set
 }
@@ -51,11 +49,6 @@ func (b *ReportBuilder) PodSpecHash(hash string) *ReportBuilder {
 
 func (b *ReportBuilder) Data(data v1alpha1.ExposedSecretReportData) *ReportBuilder {
 	b.data = data
-	return b
-}
-
-func (b *ReportBuilder) ReportTTL(ttl *time.Duration) *ReportBuilder {
-	b.reportTTL = ttl
 	return b
 }
 
@@ -101,11 +94,6 @@ func (b *ReportBuilder) Get() (v1alpha1.ExposedSecretReport, error) {
 			Labels:    reportLabels,
 		},
 		Report: b.data,
-	}
-	if b.reportTTL != nil {
-		report.Annotations = map[string]string{
-			v1alpha1.TTLReportAnnotation: b.reportTTL.String(),
-		}
 	}
 	err := kube.ObjectToObjectMeta(b.controller, &report.ObjectMeta)
 	if err != nil {

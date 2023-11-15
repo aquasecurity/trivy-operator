@@ -7,6 +7,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/onsi/gomega"
+	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -16,7 +17,7 @@ import (
 
 func TestReportBuilder(t *testing.T) {
 	g := gomega.NewGomegaWithT(t)
-	report, err := sbomreport.NewReportBuilder(scheme.Scheme).
+	report, _, err := sbomreport.NewReportBuilder(scheme.Scheme).
 		Controller(&appsv1.ReplicaSet{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "ReplicaSet",
@@ -59,4 +60,73 @@ func TestReportBuilder(t *testing.T) {
 		},
 		Report: v1alpha1.SbomReportData{},
 	}))
+}
+
+func TestArtifactRef(t *testing.T) {
+	testCases := []struct {
+		name string
+		data v1alpha1.SbomReportData
+		want string
+	}{
+		{
+			name: "get image ref with libary",
+			data: v1alpha1.SbomReportData{
+				Registry: v1alpha1.Registry{
+					Server: "index.docker.io",
+				},
+				Artifact: v1alpha1.Artifact{
+					Repository: "library/alpine",
+					Tag:        "3.12.0",
+				},
+			},
+			want: "56bcdb7c95",
+		},
+		{
+			name: "get image ref without libary",
+			data: v1alpha1.SbomReportData{
+				Registry: v1alpha1.Registry{
+					Server: "index.docker.io",
+				},
+				Artifact: v1alpha1.Artifact{
+					Repository: "alpine",
+					Tag:        "3.12.0",
+				},
+			},
+			want: "56bcdb7c95",
+		},
+		{
+			name: "get image ref without index",
+			data: v1alpha1.SbomReportData{
+				Registry: v1alpha1.Registry{
+					Server: "index.docker.io",
+				},
+				Artifact: v1alpha1.Artifact{
+					Repository: "rancher/local-path-provisioner",
+					Tag:        "v0.0.14",
+				},
+			},
+			want: "79b568748c",
+		},
+		{
+			name: "get image ref non docker registry",
+			data: v1alpha1.SbomReportData{
+				Registry: v1alpha1.Registry{
+					Server: "k8s.gcr.io",
+				},
+				Artifact: v1alpha1.Artifact{
+					Repository: "kube-apiserver",
+					Tag:        "v1.21.1",
+				},
+			},
+			want: "6857f776bb",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			ref := sbomreport.ArtifactRef(tc.data)
+			assert.Equal(t, ref, tc.want)
+		})
+
+	}
 }

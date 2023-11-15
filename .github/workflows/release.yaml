@@ -27,7 +27,7 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Install tools
-        uses: aquaproj/aqua-installer@v2.1.3
+        uses: aquaproj/aqua-installer@v2.2.0
         with:
           aqua_version: v1.25.0
       - name: Run unit tests
@@ -46,7 +46,7 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Install tools
-        uses: aquaproj/aqua-installer@v2.1.3
+        uses: aquaproj/aqua-installer@v2.2.0
         with:
           aqua_version: v1.25.0
       - name: Setup Kubernetes cluster (KIND)
@@ -95,7 +95,7 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Install cosign
-        uses: sigstore/cosign-installer@v3.1.2
+        uses: sigstore/cosign-installer@v3.2.0
       - name: Login to docker.io registry
         uses: docker/login-action@v3.0.0
         with:

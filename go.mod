@@ -6,7 +6,7 @@ require (
 	github.com/CycloneDX/cyclonedx-go v0.7.2
 	github.com/aquasecurity/defsec v0.93.1
 	github.com/aquasecurity/trivy v0.47.0
-	github.com/aquasecurity/trivy-kubernetes v0.5.9-0.20231019164303-dcdfdc50763f
+	github.com/aquasecurity/trivy-kubernetes v0.5.9-0.20231115100645-921512b4d163
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
@@ -17,14 +17,14 @@ require (
 	github.com/google/uuid v1.4.0
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
 	github.com/liamg/memoryfs v1.6.0
-	github.com/onsi/ginkgo/v2 v2.13.0
-	github.com/onsi/gomega v1.29.0
+	github.com/onsi/ginkgo/v2 v2.13.1
+	github.com/onsi/gomega v1.30.0
 	github.com/openshift/api v0.0.0-20231025170628-b8a18fdc040d
 	github.com/prometheus/client_golang v1.17.0
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/automaxprocs v1.5.3
 	go.uber.org/multierr v1.11.0
-	golang.org/x/net v0.17.0
+	golang.org/x/net v0.18.0
 	k8s.io/api v0.28.3
 	k8s.io/apiextensions-apiserver v0.28.3
 	k8s.io/apimachinery v0.28.3
@@ -36,7 +36,10 @@ require (
 	sigs.k8s.io/yaml v1.4.0
 )
 
-require github.com/magefile/mage v1.15.0
+require (
+	github.com/aws/aws-sdk-go v1.47.9
+	github.com/magefile/mage v1.15.0
+)
 
 require (
 	cloud.google.com/go v0.110.9 // indirect
@@ -75,7 +78,6 @@ require (
 	github.com/aquasecurity/tml v0.6.1 // indirect
 	github.com/aquasecurity/trivy-java-db v0.0.0-20230514115002-fb1b70d903ce // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
-	github.com/aws/aws-sdk-go v1.46.6 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.22.1 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.18.45 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.13.43 // indirect
@@ -286,12 +288,12 @@ require (
 	github.com/yashtewari/glob-intersection v0.2.0 // indirect
 	github.com/zclconf/go-cty v1.14.1 // indirect
 	go.uber.org/zap v1.26.0 // indirect
-	golang.org/x/crypto v0.14.0 // indirect
+	golang.org/x/crypto v0.15.0 // indirect
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	golang.org/x/oauth2 v0.13.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
-	golang.org/x/term v0.13.0 // indirect
-	golang.org/x/text v0.13.0
+	golang.org/x/sys v0.14.0 // indirect
+	golang.org/x/term v0.14.0 // indirect
+	golang.org/x/text v0.14.0
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.14.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect

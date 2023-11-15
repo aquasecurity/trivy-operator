@@ -31,7 +31,7 @@ Keeps security report resources updated
 | nodeCollector.imagePullSecret | string | `nil` | imagePullSecret is the secret name to be used when pulling node-collector image from private registries example : reg-secret It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace |
 | nodeCollector.registry | string | `"ghcr.io"` | registry of the node-collector image |
 | nodeCollector.repository | string | `"aquasecurity/node-collector"` | repository of the node-collector image |
-| nodeCollector.tag | string | `"0.0.8"` | tag version of the node-collector image |
+| nodeCollector.tag | string | `"0.0.9"` | tag version of the node-collector image |
 | nodeCollector.volumeMounts | list | `[{"mountPath":"/var/lib/etcd","name":"var-lib-etcd","readOnly":true},{"mountPath":"/var/lib/kubelet","name":"var-lib-kubelet","readOnly":true},{"mountPath":"/var/lib/kube-scheduler","name":"var-lib-kube-scheduler","readOnly":true},{"mountPath":"/var/lib/kube-controller-manager","name":"var-lib-kube-controller-manager","readOnly":true},{"mountPath":"/etc/systemd","name":"etc-systemd","readOnly":true},{"mountPath":"/lib/systemd/","name":"lib-systemd","readOnly":true},{"mountPath":"/etc/kubernetes","name":"etc-kubernetes","readOnly":true},{"mountPath":"/etc/cni/net.d/","name":"etc-cni-netd","readOnly":true}]` | node-collector pod volume mounts definition for collecting config files information |
 | nodeCollector.volumes | list | `[{"hostPath":{"path":"/var/lib/etcd"},"name":"var-lib-etcd"},{"hostPath":{"path":"/var/lib/kubelet"},"name":"var-lib-kubelet"},{"hostPath":{"path":"/var/lib/kube-scheduler"},"name":"var-lib-kube-scheduler"},{"hostPath":{"path":"/var/lib/kube-controller-manager"},"name":"var-lib-kube-controller-manager"},{"hostPath":{"path":"/etc/systemd"},"name":"etc-systemd"},{"hostPath":{"path":"/lib/systemd"},"name":"lib-systemd"},{"hostPath":{"path":"/etc/kubernetes"},"name":"etc-kubernetes"},{"hostPath":{"path":"/etc/cni/net.d/"},"name":"etc-cni-netd"}]` | node-collector pod volumes definition for collecting config files information |
 | nodeSelector | object | `{}` | nodeSelector set the operator nodeSelector |
@@ -39,6 +39,7 @@ Keeps security report resources updated
 | operator.batchDeleteDelay | string | `"10s"` | batchDeleteDelay the duration to wait before deleting another batch of config audit reports. |
 | operator.batchDeleteLimit | int | `10` | batchDeleteLimit the maximum number of config audit reports deleted by the operator when the plugin's config has changed. |
 | operator.builtInTrivyServer | bool | `false` | builtInTrivyServer The flag enable the usage of built-in trivy server in cluster ,its also override the following trivy params with built-in values trivy.mode = ClientServer and serverURL = http://<serverServiceName>.<trivy operator namespace>:4975 |
+| operator.cacheReportTTL | string | `"120h"` | cacheReportTTL the flag to set how long a cluster sbom report should exist. "" means that the cacheReportTTL feature is disabled |
 | operator.clusterComplianceEnabled | bool | `true` | clusterComplianceEnabled the flag to enable cluster compliance scanner |
 | operator.configAuditScannerEnabled | bool | `true` | configAuditScannerEnabled the flag to enable configuration audit scanner |
 | operator.configAuditScannerScanOnlyCurrentRevisions | bool | `true` | configAuditScannerScanOnlyCurrentRevisions the flag to only create config audit scans on the current revision of a deployment. |
@@ -112,7 +113,7 @@ Keeps security report resources updated
 | trivy.image.pullPolicy | string | `"IfNotPresent"` | pullPolicy is the imge pull policy used for trivy image , valid values are (Always, Never, IfNotPresent) |
 | trivy.image.registry | string | `"ghcr.io"` | registry of the Trivy image |
 | trivy.image.repository | string | `"aquasecurity/trivy"` | repository of the Trivy image |
-| trivy.image.tag | string | `"0.45.1"` | tag version of the Trivy image |
+| trivy.image.tag | string | `"0.47.0"` | tag version of the Trivy image |
 | trivy.imageScanCacheDir | string | `"/tmp/trivy/.cache"` | imageScanCacheDir the flag to set custom path for trivy image scan `cache-dir` parameter. Only applicable in image scan mode. |
 | trivy.insecureRegistries | object | `{}` | The registry to which insecure connections are allowed. There can be multiple registries with different keys. |
 | trivy.javaDbRegistry | string | `"ghcr.io"` | javaDbRegistry is the registry for the Java vulnerability database. |

@@ -1372,16 +1372,16 @@ spec:
                     type: string
                 type: object
               os:
-                description: OS information of the Artifact
+                description: OS is the Operating System of the Artifact
                 properties:
                   family:
-                    description: OS family
+                    description: Operating System Family
                     type: string
                   name:
-                    description: Name of OS
+                    description: Name or version of the OS
                     type: string
                   eosl:
-                    description: End of Service Life
+                    description: Eosl is the End of Service Life and is true if the OS version being used has reached it's end of service life
                     type: boolean
                 type: object
               registry:

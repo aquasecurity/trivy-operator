@@ -2454,7 +2454,7 @@ data:
   configAuditReports.scanner: "Trivy"
   compliance.failEntriesLimit: "10"
   report.recordFailedChecksOnly: "true"
-  node.collector.imageRef: "ghcr.io/aquasecurity/node-collector:0.0.8"
+  node.collector.imageRef: "ghcr.io/aquasecurity/node-collector:0.0.9"
 ---
 # Source: trivy-operator/templates/configmaps/policies.yaml
 apiVersion: v1

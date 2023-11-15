@@ -190,6 +190,10 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 		return vulnReport, secretReport, &sbomReport, err
 	}
 
+	os, err := p.parseOSRef(reports)
+	if err != nil {
+		return vulnReport, secretReport, &sbomReport, err
+	}
 	trivyImageRef, err := config.GetImageRef()
 	if err != nil {
 		return vulnReport, secretReport, &sbomReport, err
@@ -223,6 +227,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 			},
 			Registry:        registry,
 			Artifact:        artifact,
+			OS:              os,
 			Summary:         p.vulnerabilitySummary(vulnerabilities),
 			Vulnerabilities: vulnerabilities,
 		}, v1alpha1.ExposedSecretReportData{
@@ -234,6 +239,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 			},
 			Registry: registry,
 			Artifact: artifact,
+			OS:       os,
 			Summary:  p.secretSummary(secrets),
 			Secrets:  secrets,
 		}, sbomData, nil
@@ -406,6 +412,20 @@ func (p *plugin) parseImageRef(imageRef string, imageID string) (v1alpha1.Regist
 		artifact.Digest = imageID
 	}
 	return registry, artifact, nil
+}
+
+func (p *plugin) parseOSRef(reports ty.Report) (v1alpha1.OS, error) {
+	os := v1alpha1.OS{}
+	if reports.Metadata.OS != nil {
+		os.Family = reports.Metadata.OS.Family
+		os.Name = reports.Metadata.OS.Name
+		eosl := reports.Metadata.OS.Eosl
+		if eosl {
+			os.Eosl = eosl
+		}
+	}
+
+	return os, nil
 }
 
 func GetCvssV3(findingCvss types.VendorCVSS) map[string]*CVSS {

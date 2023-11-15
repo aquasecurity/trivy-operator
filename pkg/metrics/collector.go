@@ -28,6 +28,9 @@ const (
 	image_repository   = "image_repository"
 	image_tag          = "image_tag"
 	image_digest       = "image_digest"
+	image_os_family    = "image_os_family"
+	image_os_name      = "image_os_name"
+	image_os_eosl      = "image_os_eosl"
 	installed_version  = "installed_version"
 	fixed_version      = "fixed_version"
 	published_date     = "published_date"
@@ -239,6 +242,9 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		image_repository,
 		image_tag,
 		image_digest,
+		image_os_family,
+		image_os_name,
+		image_os_eosl,
 		severity,
 	}
 	imageVulnLabels = append(imageVulnLabels, dynamicLabels...)
@@ -535,11 +541,19 @@ func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Conte
 			labelValues[6] = r.Report.Artifact.Repository
 			labelValues[7] = r.Report.Artifact.Tag
 			labelValues[8] = r.Report.Artifact.Digest
+			labelValues[9] = string(r.Report.OS.Family)
+			labelValues[10] = r.Report.OS.Name
+			if r.Report.OS.Eosl {
+				labelValues[11] = strconv.FormatBool(r.Report.OS.Eosl)
+			} else {
+				labelValues[11] = ""
+			}
+
 			for i, label := range c.GetReportResourceLabels() {
-				labelValues[i+10] = r.Labels[label]
+				labelValues[i+13] = r.Labels[label]
 			}
 			for severity, countFn := range c.imageVulnSeverities {
-				labelValues[9] = severity
+				labelValues[12] = severity
 				count := countFn(r.Report.Summary)
 				metrics <- prometheus.MustNewConstMetric(c.imageVulnDesc, prometheus.GaugeValue, float64(count), labelValues...)
 			}

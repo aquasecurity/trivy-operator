@@ -164,7 +164,7 @@ func ImageRef(imageRef string) (string, error) {
 
 func BuildSbomReportData(reports ty.Report, clock ext.Clock, registry v1alpha1.Registry, artifact v1alpha1.Artifact, version string) *v1alpha1.SbomReportData {
 	bom, err := generateSbomFromScanResult(reports)
-	if err != nil {
+	if err != nil || bom == nil {
 		return nil
 	}
 	return &v1alpha1.SbomReportData{

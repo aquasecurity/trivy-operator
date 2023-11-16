@@ -160,7 +160,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	}
 
 	trivyImageRef, err := config.GetImageRef()
-	if err != nil {
+	if err != nil {x	
 		return vulnReport, secretReport, &sbomReport, err
 	}
 
@@ -170,10 +170,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	}
 	var sbomData *v1alpha1.SbomReportData
 	if ctx.GetTrivyOperatorConfig().GenerateSbomEnabled() {
-		sbomData, err = sbomreport.BuildSbomReportData(reports, p.clock, registry, artifact, version)
-		if err != nil {
-			return vulnReport, secretReport, &sbomReport, err
-		}
+		sbomData = sbomreport.BuildSbomReportData(reports, p.clock, registry, artifact, version)
 	}
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
 	secrets := make([]v1alpha1.ExposedSecret, 0)

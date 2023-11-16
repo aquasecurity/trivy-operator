@@ -70,7 +70,7 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 			serverUrl:      "",
 			resultFileName: "output.json",
 			compressedLogs: "true",
-			wantArgs:       []string{"-c", "trivy sbom --slow /tmp/scan/bom.json  --skip-db-update --cache-dir /tmp/trivy/.cache --quiet --format json > /tmp/scan/output.json &&  bzip2 -c /tmp/scan/output.json | base64"},
+			wantArgs:       []string{"-c", "trivy sbom --slow /tmp/scan/bom.json  --skip-db-update  --cache-dir /tmp/trivy/.cache --quiet --format json > /tmp/scan/output.json &&  bzip2 -c /tmp/scan/output.json | base64"},
 			wantCmd:        []string{"/bin/sh"},
 		},
 		{

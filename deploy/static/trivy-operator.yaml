@@ -2725,25 +2725,6 @@ spec:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
 ---
-# Source: trivy-operator/templates/rbac/clusterrolebinding.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: trivy-operator
-  labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.4"
-    app.kubernetes.io/managed-by: kubectl
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: trivy-operator
-subjects:
-  - kind: ServiceAccount
-    name: trivy-operator
-    namespace: trivy-system
----
 # Source: trivy-operator/templates/rbac/clusterrole.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -3095,12 +3076,11 @@ rules:
   verbs:
   - get
 ---
-# Source: trivy-operator/templates/rbac/leader-election-rolebinding.yaml
+# Source: trivy-operator/templates/rbac/clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
-  name: trivy-operator-leader-election
-  namespace: trivy-system
+  name: trivy-operator
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
@@ -3108,8 +3088,8 @@ metadata:
     app.kubernetes.io/managed-by: kubectl
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: trivy-operator-leader-election
+  kind: ClusterRole
+  name: trivy-operator
 subjects:
   - kind: ServiceAccount
     name: trivy-operator
@@ -3143,11 +3123,11 @@ rules:
     verbs:
       - create
 ---
-# Source: trivy-operator/templates/rbac/rolebinding.yaml
+# Source: trivy-operator/templates/rbac/leader-election-rolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: trivy-operator
+  name: trivy-operator-leader-election
   namespace: trivy-system
   labels:
     app.kubernetes.io/name: trivy-operator
@@ -3157,7 +3137,7 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: trivy-operator
+  name: trivy-operator-leader-election
 subjects:
   - kind: ServiceAccount
     name: trivy-operator
@@ -3192,6 +3172,26 @@ rules:
       - create
       - get
       - delete
+---
+# Source: trivy-operator/templates/rbac/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: trivy-operator
+  namespace: trivy-system
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.16.4"
+    app.kubernetes.io/managed-by: kubectl
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: trivy-operator
+subjects:
+  - kind: ServiceAccount
+    name: trivy-operator
+    namespace: trivy-system
 ---
 # Source: trivy-operator/templates/rbac/view-configauditreports-clusterrole.yaml
 # permissions for end users to view configauditreports

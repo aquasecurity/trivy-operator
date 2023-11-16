@@ -162,10 +162,13 @@ func ImageRef(imageRef string) (string, error) {
 	return ReportGlobalName(fmt.Sprintf("%s/%s:%s", server, strings.TrimPrefix(repo, "library/"), tag)), nil
 }
 
-func BuildSbomReportData(reports ty.Report, clock ext.Clock, registry v1alpha1.Registry, artifact v1alpha1.Artifact, version string) *v1alpha1.SbomReportData {
+func BuildSbomReportData(reports ty.Report, clock ext.Clock, registry v1alpha1.Registry, artifact v1alpha1.Artifact, version string) (*v1alpha1.SbomReportData, error) {
 	bom, err := generateSbomFromScanResult(reports)
-	if err != nil || bom == nil {
-		return nil
+	if err != nil {
+		return nil, err
+	}
+	if bom == nil {
+		return nil, nil
 	}
 	return &v1alpha1.SbomReportData{
 		UpdateTimestamp: metav1.NewTime(clock.Now()),
@@ -178,7 +181,7 @@ func BuildSbomReportData(reports ty.Report, clock ext.Clock, registry v1alpha1.R
 		Artifact: artifact,
 		Summary:  bomSummary(*bom),
 		Bom:      *bom,
-	}
+	}, nil
 }
 
 func generateSbomFromScanResult(report ty.Report) (*v1alpha1.BOM, error) {

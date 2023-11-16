@@ -1,6 +1,6 @@
 # ClusterComplianceReport
 
-The ClusterComplianceReport is a cluster-scoped resource, which represents the latest compliance control checks results.
+The ClusterComplianceReport is a cluster-scoped resource, which represents the latest compliance control check results.
 The report spec defines a mapping between pre-defined compliance control check ids to security scanners check ids.
 Currently, only `config-audit` security scanners are supported.
 

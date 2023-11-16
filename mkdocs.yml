@@ -33,6 +33,7 @@ nav:
           - Webhook Integration: tutorials/integrations/webhook.md
           - Policy Reporter Integration: tutorials/integrations/policy-reporter.md
   - Docs:
+      - Overview: docs/index.md
       - Vulnerability Scanning:
           - Overview: docs/vulnerability-scanning/index.md
           - Trivy Scanner: docs/vulnerability-scanning/trivy.md

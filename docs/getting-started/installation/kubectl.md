@@ -1,6 +1,6 @@
 # kubectl
 
-Kubernetes Yaml deployment files are available on GitHub in [https://github.com/aquasecurity/trivy-operator](https://github.com/aquasecurity/trivy-operator) under `/deploy/static`.
+The Kubernetes Yaml Deployment files are available on GitHub in [https://github.com/aquasecurity/trivy-operator](https://github.com/aquasecurity/trivy-operator) under `/deploy/static`.
 
 ## Example - Deploy from GitHub
 
@@ -10,7 +10,7 @@ This will install the operator in the `trivy-system` namespace and configure it 
 kubectl apply -f https://raw.githubusercontent.com/aquasecurity/trivy-operator/{{ git.tag }}/deploy/static/trivy-operator.yaml
 ```
 
-To confirm that the operator is running, check that the `trivy-operator` Deployment in the `trivy-system`
+To confirm that the Operator is running, check that the `trivy-operator` Deployment in the `trivy-system`
 namespace is available and all its containers are ready:
 
 ```bash

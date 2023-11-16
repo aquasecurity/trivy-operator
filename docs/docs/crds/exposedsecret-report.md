@@ -1,11 +1,10 @@
 # ExposedSecretReport
 
-An instance of the ExposedSecretReport represents the secrets found in a container image of a given
-Kubernetes workload. It consists of a list exposed secrets with a summary grouped by severity. For a multi-container workload trivy-operator creates multiple instances
-of ExposedSecretsReports in the workload's namespace with the owner reference set to that workload.
+An instance of the `ExposedSecretReport` represents the secrets found in a container image of a given
+Kubernetes workload. It consists of a list exposed secrets with a summary grouped by severity. For a multi-container workload the Trivy Operator will create multiple instances of the `ExposedSecretsReports` in the workload's namespace with the owner reference set to that workload.
 Each report follows the naming convention `<workload kind>-<workload name>-<container-name>`.
 
-The following listing shows a sample ExposedSecretReport associated with the ReplicaSet named `app-574ddcb559` in the
+The following listing shows a sample `ExposedSecretReport` associated with the ReplicaSet named `app-574ddcb559` in the
 `default` namespace that has the `app` container.
 
 ```yaml

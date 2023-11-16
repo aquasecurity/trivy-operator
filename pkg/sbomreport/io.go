@@ -2,13 +2,20 @@ package sbomreport
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 
+	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	fg "github.com/aquasecurity/trivy/pkg/flag"
+	tr "github.com/aquasecurity/trivy/pkg/report"
+	ty "github.com/aquasecurity/trivy/pkg/types"
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -153,4 +160,57 @@ func ImageRef(imageRef string) (string, error) {
 	tag := parsedRef.Identifier()
 
 	return ReportGlobalName(fmt.Sprintf("%s/%s:%s", server, strings.TrimPrefix(repo, "library/"), tag)), nil
+}
+
+func BuildSbomReportData(reports ty.Report, clock ext.Clock, registry v1alpha1.Registry, artifact v1alpha1.Artifact, version string) (*v1alpha1.SbomReportData, error) {
+	bom, err := generateSbomFromScanResult(reports)
+	if err != nil {
+		return nil, err
+	}
+	return &v1alpha1.SbomReportData{
+		UpdateTimestamp: metav1.NewTime(clock.Now()),
+		Scanner: v1alpha1.Scanner{
+			Name:    v1alpha1.ScannerNameTrivy,
+			Vendor:  "Aqua Security",
+			Version: version,
+		},
+		Registry: registry,
+		Artifact: artifact,
+		Summary:  bomSummary(*bom),
+		Bom:      *bom,
+	}, nil
+}
+
+func generateSbomFromScanResult(report ty.Report) (*v1alpha1.BOM, error) {
+	var bom *v1alpha1.BOM
+	if len(report.Results) > 0 && len(report.Results[0].Packages) > 0 {
+		// capture os.Stdout with a writer
+		done := capture()
+		err := tr.Write(report, fg.Options{
+			ReportOptions: fg.ReportOptions{
+				Format: ty.FormatCycloneDX,
+			},
+		})
+		if err != nil {
+			return nil, err
+		}
+		bomWriter, err := done()
+		if err != nil {
+			return nil, err
+		}
+		var bom cdx.BOM
+		err = json.Unmarshal([]byte(bomWriter), &bom)
+		if err != nil {
+			return nil, err
+		}
+		return cycloneDxBomToReport(bom), nil
+	}
+	return bom, nil
+}
+
+func bomSummary(bom v1alpha1.BOM) v1alpha1.SbomSummary {
+	return v1alpha1.SbomSummary{
+		ComponentsCount:   len(bom.Components) + 1,
+		DependenciesCount: len(*bom.Dependencies),
+	}
 }

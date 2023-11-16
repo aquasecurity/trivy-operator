@@ -8,6 +8,7 @@ import (
 
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 
@@ -87,12 +88,12 @@ func TestConfig_GetAdditionalVulnerabilityReportFields(t *testing.T) {
 	testCases := []struct {
 		name             string
 		configData       Config
-		additionalFields AdditionalFields
+		additionalFields vulnerabilityreport.AdditionalFields
 	}{
 		{
 			name:             "no additional fields are set",
 			configData:       Config{PluginConfig: trivyoperator.PluginConfig{}},
-			additionalFields: AdditionalFields{},
+			additionalFields: vulnerabilityreport.AdditionalFields{},
 		},
 		{
 			name: "all additional fields are set",
@@ -101,7 +102,7 @@ func TestConfig_GetAdditionalVulnerabilityReportFields(t *testing.T) {
 					"trivy.additionalVulnerabilityReportFields": "PackageType,PkgPath,Class,Target,Links,Description,CVSS",
 				},
 			}},
-			additionalFields: AdditionalFields{Description: true, Links: true, CVSS: true, Class: true, PackageType: true, PkgPath: true, Target: true},
+			additionalFields: vulnerabilityreport.AdditionalFields{Description: true, Links: true, CVSS: true, Class: true, PackageType: true, PkgPath: true, Target: true},
 		},
 		{
 			name: "some additional fields are set",
@@ -110,7 +111,7 @@ func TestConfig_GetAdditionalVulnerabilityReportFields(t *testing.T) {
 					"trivy.additionalVulnerabilityReportFields": "PackageType,Target,Links,CVSS",
 				},
 			}},
-			additionalFields: AdditionalFields{Links: true, CVSS: true, PackageType: true, Target: true},
+			additionalFields: vulnerabilityreport.AdditionalFields{Links: true, CVSS: true, PackageType: true, Target: true},
 		},
 	}
 

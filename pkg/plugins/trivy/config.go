@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
+	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 
@@ -78,8 +79,8 @@ type Config struct {
 	trivyoperator.PluginConfig
 }
 
-func (c Config) GetAdditionalVulnerabilityReportFields() AdditionalFields {
-	addFields := AdditionalFields{}
+func (c Config) GetAdditionalVulnerabilityReportFields() vulnerabilityreport.AdditionalFields {
+	addFields := vulnerabilityreport.AdditionalFields{}
 
 	fields, ok := c.Data[keyTrivyAdditionalVulnerabilityReportFields]
 	if !ok {

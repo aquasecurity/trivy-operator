@@ -205,7 +205,7 @@ func generateSbomFromScanResult(report ty.Report) (*v1alpha1.BOM, error) {
 		}
 		return cycloneDxBomToReport(bom), nil
 	}
-	return bom
+	return bom, nil
 }
 
 func bomSummary(bom v1alpha1.BOM) v1alpha1.SbomSummary {

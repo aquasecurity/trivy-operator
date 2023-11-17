@@ -126,6 +126,11 @@ operator:
   # be aware of metrics cardinality is significantly increased with this feature enabled.
   metricsInfraAssessmentInfo: false
 
+  # -- MetricsImageInfo the flag to enable metrics about Image Information of scanned images
+  # This information has image os information including os family, name/version, and if end of service life has been reached
+  # be aware of metrics cardinality is significantly increased with this feature enabled.
+  metricsImageInfo: false
+
   # -- webhookBroadcastURL the flag to set reports should be sent to a webhook endpoint. "" means that the webhookBroadcastURL feature is disabled
   webhookBroadcastURL: ""
 

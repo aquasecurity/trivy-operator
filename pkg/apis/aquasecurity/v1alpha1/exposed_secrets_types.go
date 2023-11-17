@@ -80,7 +80,6 @@ type ExposedSecretReportData struct {
 	// run an application.
 	Artifact Artifact `json:"artifact"`
 
-	OS OS `json:"os"`
 	// Summary is the exposed secrets counts grouped by Severity.
 	Summary ExposedSecretSummary `json:"summary"`
 

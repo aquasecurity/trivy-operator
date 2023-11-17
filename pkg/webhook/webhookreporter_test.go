@@ -42,7 +42,7 @@ func Test_sendReports(t *testing.T) {
 		},
 		{
 			name: "happy path, secret report data",
-			want: `{"metadata":{"creationTimestamp":null},"report":{"updateTimestamp":null,"scanner":{"name":"","vendor":"","version":""},"registry":{"server":""},"artifact":{"repository":""},"os":{"family":""},"summary":{"criticalCount":0,"highCount":0,"mediumCount":0,"lowCount":0},"secrets":[{"target":"foo bar baz","ruleID":"foo123","title":"bad bad secret","category":"","severity":"CRITICAL","match":""}]}}`,
+			want: `{"metadata":{"creationTimestamp":null},"report":{"updateTimestamp":null,"scanner":{"name":"","vendor":"","version":""},"registry":{"server":""},"artifact":{"repository":""},"summary":{"criticalCount":0,"highCount":0,"mediumCount":0,"lowCount":0},"secrets":[{"target":"foo bar baz","ruleID":"foo123","title":"bad bad secret","category":"","severity":"CRITICAL","match":""}]}}`,
 			inputReport: v1alpha1.ExposedSecretReport{
 				Report: v1alpha1.ExposedSecretReportData{
 					Secrets: []v1alpha1.ExposedSecret{

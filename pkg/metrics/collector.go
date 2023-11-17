@@ -920,12 +920,12 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceInfoReports(ctx cont
 	}
 	for _, r := range reports.Items {
 		if c.Config.MetricsClusterComplianceInfo {
-			labelValues[0] = r.Spec.Complaince.Title
-			labelValues[1] = r.Spec.Complaince.Description
-			for _, compliance := range r.Spec.Complaince.Controls {
-				labelValues[2] = compliance.ID
-				labelValues[3] = compliance.Name
-				labelValues[4] = NewStatusLabel(Status(compliance.DefaultStatus)).Label
+			labelValues[0] = r.Status.DetailReport.Title
+			labelValues[1] = r.Status.DetailReport.Description
+			for _, detail := range r.Status.DetailReport.Results {
+				labelValues[2] = detail.ID
+				labelValues[3] = detail.Name
+				labelValues[4] = NewStatusLabel(Status(detail.DefaultStatus)).Label
 				for i, label := range c.GetReportResourceLabels() {
 					labelValues[i+5] = r.Labels[label]
 				}

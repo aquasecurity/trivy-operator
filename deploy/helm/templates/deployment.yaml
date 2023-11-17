@@ -98,7 +98,7 @@ spec:
             - name: OPERATOR_METRICS_INFRA_ASSESSMENT_INFO_ENABLED
               value: {{ .Values.operator.metricsInfraAssessmentInfo | quote }}
             - name: OPERATOR_METRICS_IMAGE_INFO_ENABLED
-              value: {{ .Values.operator.metricsImageInfo | quote }}   
+              value: {{ .Values.operator.metricsImageInfo | quote }}
             - name: OPERATOR_WEBHOOK_BROADCAST_URL
               value: {{ .Values.operator.webhookBroadcastURL | quote }}
             - name: OPERATOR_WEBHOOK_BROADCAST_TIMEOUT

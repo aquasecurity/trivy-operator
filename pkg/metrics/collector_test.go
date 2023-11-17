@@ -836,7 +836,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car1.Status.DetailReport.Title = "nsa"
 			car1.Status.DetailReport.Description = "National Security Agency - Kubernetes Hardening Guidance"
 			car1.Status.DetailReport.Results = append(car1.Status.DetailReport.Results,
-				[]v1alpha1.ControlCheckResult{
+				[]*v1alpha1.ControlCheckResult{
 					{
 						ID:            "car1 Id",
 						Name:          "car1 cluster compliance name",

@@ -120,12 +120,12 @@ const (
 
 // ComplianceReport represents a kubernetes scan report
 type ComplianceReport struct {
-	ID               string               `json:"id,omitempty"`
-	Title            string               `json:"title,omitempty"`
-	Description      string               `json:"description,omitempty"`
-	Version          string               `json:"version,omitempty"`
-	RelatedResources []string             `json:"relatedVersion,omitempty"`
-	Results          []ControlCheckResult `json:"results,omitempty"`
+	ID               string                `json:"id,omitempty"`
+	Title            string                `json:"title,omitempty"`
+	Description      string                `json:"description,omitempty"`
+	Version          string                `json:"version,omitempty"`
+	RelatedResources []string              `json:"relatedVersion,omitempty"`
+	Results          []*ControlCheckResult `json:"results,omitempty"`
 }
 
 type ControlCheckResult struct {

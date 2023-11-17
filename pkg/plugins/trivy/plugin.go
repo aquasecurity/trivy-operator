@@ -4,28 +4,22 @@ import (
 	"encoding/json"
 	"io"
 
-	"time"
-
-	cdx "github.com/CycloneDX/cyclonedx-go"
-	"github.com/aquasecurity/trivy-db/pkg/types"
+	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
+	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
-	fg "github.com/aquasecurity/trivy/pkg/flag"
-	tr "github.com/aquasecurity/trivy/pkg/report"
-	ty "github.com/aquasecurity/trivy/pkg/types"
+
 	containerimage "github.com/google/go-containerregistry/pkg/name"
 
-	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
-
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
+	ty "github.com/aquasecurity/trivy/pkg/types"
 	corev1 "k8s.io/api/core/v1"
 
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
@@ -44,16 +38,6 @@ const (
 	DefaultJavaDBRepository = "ghcr.io/aquasecurity/trivy-java-db"
 	DefaultSeverity         = "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
 )
-
-type AdditionalFields struct {
-	Description bool
-	Links       bool
-	CVSS        bool
-	Target      bool
-	Class       bool
-	PackageType bool
-	PkgPath     bool
-}
 
 type plugin struct {
 	clock          ext.Clock
@@ -170,21 +154,6 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 		return vulnReport, secretReport, &sbomReport, err
 	}
 
-	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
-	secrets := make([]v1alpha1.ExposedSecret, 0)
-	addFields := config.GetAdditionalVulnerabilityReportFields()
-
-	for _, report := range reports.Results {
-		vulnerabilities = append(vulnerabilities, getVulnerabilitiesFromScanResult(report, addFields)...)
-		secrets = append(secrets, getExposedSecretsFromScanResult(report)...)
-	}
-	var bom *v1alpha1.BOM
-	if ctx.GetTrivyOperatorConfig().GenerateSbomEnabled() {
-		bom, err = generateSbomFromScanResult(reports)
-		if err != nil {
-			return vulnReport, secretReport, &sbomReport, err
-		}
-	}
 	registry, artifact, err := p.parseImageRef(imageRef, reports.Metadata.ImageID)
 	if err != nil {
 		return vulnReport, secretReport, &sbomReport, err
@@ -204,133 +173,23 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 		return vulnReport, secretReport, &sbomReport, err
 	}
 	var sbomData *v1alpha1.SbomReportData
-	if bom != nil {
-		sbomData = &v1alpha1.SbomReportData{
-			UpdateTimestamp: metav1.NewTime(p.clock.Now()),
-			Scanner: v1alpha1.Scanner{
-				Name:    v1alpha1.ScannerNameTrivy,
-				Vendor:  "Aqua Security",
-				Version: version,
-			},
-			Registry: registry,
-			Artifact: artifact,
-			Summary:  bomSummary(*bom),
-			Bom:      *bom,
+	if ctx.GetTrivyOperatorConfig().GenerateSbomEnabled() {
+		sbomData, err = sbomreport.BuildSbomReportData(reports, p.clock, registry, artifact, version)
+		if err != nil {
+			return vulnReport, secretReport, &sbomReport, err
 		}
 	}
-	return v1alpha1.VulnerabilityReportData{
-			UpdateTimestamp: metav1.NewTime(p.clock.Now()),
-			Scanner: v1alpha1.Scanner{
-				Name:    v1alpha1.ScannerNameTrivy,
-				Vendor:  "Aqua Security",
-				Version: version,
-			},
-			Registry:        registry,
-			Artifact:        artifact,
-			OS:              os,
-			Summary:         p.vulnerabilitySummary(vulnerabilities),
-			Vulnerabilities: vulnerabilities,
-		}, v1alpha1.ExposedSecretReportData{
-			UpdateTimestamp: metav1.NewTime(p.clock.Now()),
-			Scanner: v1alpha1.Scanner{
-				Name:    v1alpha1.ScannerNameTrivy,
-				Vendor:  "Aqua Security",
-				Version: version,
-			},
-			Registry: registry,
-			Artifact: artifact,
-			OS:       os,
-			Summary:  p.secretSummary(secrets),
-			Secrets:  secrets,
-		}, sbomData, nil
-
-}
-
-func bomSummary(bom v1alpha1.BOM) v1alpha1.SbomSummary {
-	return v1alpha1.SbomSummary{
-		ComponentsCount:   len(bom.Components) + 1,
-		DependenciesCount: len(*bom.Dependencies),
-	}
-}
-
-func getVulnerabilitiesFromScanResult(report ty.Result, addFields AdditionalFields) []v1alpha1.Vulnerability {
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
-
-	for _, sr := range report.Vulnerabilities {
-		var pd, lmd string
-		if sr.PublishedDate != nil {
-			pd = sr.PublishedDate.Format(time.RFC3339)
-		}
-		if sr.LastModifiedDate != nil {
-			lmd = sr.LastModifiedDate.Format(time.RFC3339)
-		}
-		vulnerability := v1alpha1.Vulnerability{
-			VulnerabilityID:  sr.VulnerabilityID,
-			Resource:         sr.PkgName,
-			InstalledVersion: sr.InstalledVersion,
-			FixedVersion:     sr.FixedVersion,
-			PublishedDate:    pd,
-			LastModifiedDate: lmd,
-			Severity:         v1alpha1.Severity(sr.Severity),
-			Title:            sr.Title,
-			PrimaryLink:      sr.PrimaryURL,
-			Links:            []string{},
-			Score:            GetScoreFromCVSS(GetCvssV3(sr.CVSS)),
-		}
-
-		if addFields.Description {
-			vulnerability.Description = sr.Description
-		}
-		if addFields.Links && sr.References != nil {
-			vulnerability.Links = sr.References
-		}
-		if addFields.CVSS {
-			vulnerability.CVSS = sr.CVSS
-		}
-		if addFields.Target {
-			vulnerability.Target = report.Target
-		}
-		if addFields.Class {
-			vulnerability.Class = string(report.Class)
-		}
-		if addFields.PackageType {
-			vulnerability.PackageType = string(report.Type)
-		}
-		if addFields.PkgPath {
-			vulnerability.PkgPath = sr.PkgPath
-		}
-
-		vulnerabilities = append(vulnerabilities, vulnerability)
+	secrets := make([]v1alpha1.ExposedSecret, 0)
+	for _, report := range reports.Results {
+		addFields := config.GetAdditionalVulnerabilityReportFields()
+		vulnerabilities = append(vulnerabilities, vulnerabilityreport.GetVulnerabilitiesFromScanResult(report, addFields)...)
+		secrets = append(secrets, getExposedSecretsFromScanResult(report)...)
 	}
+	vulnerabilitiesData := vulnerabilityreport.BuildVulnerabilityReportData(p.clock, registry, artifact, version, vulnerabilities)
+	exposedSecretsData := exposedsecretreport.BuildExposedSecretsReportData(p.clock, registry, artifact, version, secrets)
+	return vulnerabilitiesData, exposedSecretsData, sbomData, nil
 
-	return vulnerabilities
-}
-
-func generateSbomFromScanResult(report ty.Report) (*v1alpha1.BOM, error) {
-	var bom *v1alpha1.BOM
-	if len(report.Results) > 0 && len(report.Results[0].Packages) > 0 {
-		// capture os.Stdout with a writer
-		done := capture()
-		err := tr.Write(report, fg.Options{
-			ReportOptions: fg.ReportOptions{
-				Format: ty.FormatCycloneDX,
-			},
-		})
-		if err != nil {
-			return nil, err
-		}
-		bomWriter, err := done()
-		if err != nil {
-			return nil, err
-		}
-		var bom cdx.BOM
-		err = json.Unmarshal([]byte(bomWriter), &bom)
-		if err != nil {
-			return nil, err
-		}
-		return cycloneDxBomToReport(bom), nil
-	}
-	return bom, nil
 }
 
 func getExposedSecretsFromScanResult(report ty.Result) []v1alpha1.ExposedSecret {
@@ -353,42 +212,6 @@ func getExposedSecretsFromScanResult(report ty.Result) []v1alpha1.ExposedSecret 
 // NewConfigForConfigAudit and interface which expose related configaudit report configuration
 func (p *plugin) NewConfigForConfigAudit(ctx trivyoperator.PluginContext) (configauditreport.ConfigAuditConfig, error) {
 	return getConfig(ctx)
-}
-
-func (p *plugin) vulnerabilitySummary(vulnerabilities []v1alpha1.Vulnerability) v1alpha1.VulnerabilitySummary {
-	var vs v1alpha1.VulnerabilitySummary
-	for _, v := range vulnerabilities {
-		switch v.Severity {
-		case v1alpha1.SeverityCritical:
-			vs.CriticalCount++
-		case v1alpha1.SeverityHigh:
-			vs.HighCount++
-		case v1alpha1.SeverityMedium:
-			vs.MediumCount++
-		case v1alpha1.SeverityLow:
-			vs.LowCount++
-		default:
-			vs.UnknownCount++
-		}
-	}
-	return vs
-}
-
-func (p *plugin) secretSummary(secrets []v1alpha1.ExposedSecret) v1alpha1.ExposedSecretSummary {
-	var s v1alpha1.ExposedSecretSummary
-	for _, v := range secrets {
-		switch v.Severity {
-		case v1alpha1.SeverityCritical:
-			s.CriticalCount++
-		case v1alpha1.SeverityHigh:
-			s.HighCount++
-		case v1alpha1.SeverityMedium:
-			s.MediumCount++
-		case v1alpha1.SeverityLow:
-			s.LowCount++
-		}
-	}
-	return s
 }
 
 func (p *plugin) parseImageRef(imageRef string, imageID string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
@@ -426,38 +249,4 @@ func (p *plugin) parseOSRef(reports ty.Report) (v1alpha1.OS, error) {
 	}
 
 	return os, nil
-}
-
-func GetCvssV3(findingCvss types.VendorCVSS) map[string]*CVSS {
-	cvssV3 := make(map[string]*CVSS)
-	for vendor, cvss := range findingCvss {
-		var v3Score *float64
-		if cvss.V3Score != 0.0 {
-			v3Score = ptr.To[float64](cvss.V3Score)
-		}
-		cvssV3[string(vendor)] = &CVSS{v3Score}
-	}
-	return cvssV3
-}
-
-func GetScoreFromCVSS(CVSSs map[string]*CVSS) *float64 {
-	var nvdScore, vendorScore *float64
-
-	for name, cvss := range CVSSs {
-		if name == "nvd" {
-			nvdScore = cvss.V3Score
-		} else {
-			vendorScore = cvss.V3Score
-		}
-	}
-
-	if nvdScore != nil {
-		return nvdScore
-	}
-
-	return vendorScore
-}
-
-type CVSS struct {
-	V3Score *float64 `json:"V3Score,omitempty"`
 }

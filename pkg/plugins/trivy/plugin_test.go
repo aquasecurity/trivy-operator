@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
+	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 
 	dbtypes "github.com/aquasecurity/trivy-db/pkg/types"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
@@ -6873,7 +6874,7 @@ func TestGetScoreFromCVSS(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			score := trivy.GetScoreFromCVSS(trivy.GetCvssV3(tc.cvss))
+			score := vulnerabilityreport.GetScoreFromCVSS(vulnerabilityreport.GetCvssV3(tc.cvss))
 			assert.Equal(t, tc.expectedScore, score)
 		})
 	}
@@ -6883,7 +6884,7 @@ func TestGetCVSSV3(t *testing.T) {
 	testCases := []struct {
 		name     string
 		cvss     dbtypes.VendorCVSS
-		expected map[string]*trivy.CVSS
+		expected map[string]*vulnerabilityreport.CVSS
 	}{
 		{
 			name: "Should return vendor score when vendor v3 score exist",
@@ -6895,7 +6896,7 @@ func TestGetCVSSV3(t *testing.T) {
 					V3Score: 8.3,
 				},
 			},
-			expected: map[string]*trivy.CVSS{
+			expected: map[string]*vulnerabilityreport.CVSS{
 				"nvd":    {V3Score: ptr.To[float64](8.1)},
 				"redhat": {V3Score: ptr.To[float64](8.3)},
 			},
@@ -6910,7 +6911,7 @@ func TestGetCVSSV3(t *testing.T) {
 					V3Score: 0.0,
 				},
 			},
-			expected: map[string]*trivy.CVSS{
+			expected: map[string]*vulnerabilityreport.CVSS{
 				"nvd":    {V3Score: nil},
 				"redhat": {V3Score: nil},
 			},
@@ -6918,13 +6919,13 @@ func TestGetCVSSV3(t *testing.T) {
 		{
 			name:     "Should return nil when cvss doesn't exist",
 			cvss:     dbtypes.VendorCVSS{},
-			expected: map[string]*trivy.CVSS{},
+			expected: map[string]*vulnerabilityreport.CVSS{},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			score := trivy.GetCvssV3(tc.cvss)
+			score := vulnerabilityreport.GetCvssV3(tc.cvss)
 			assert.True(t, reflect.DeepEqual(tc.expected, score))
 		})
 	}

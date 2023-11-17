@@ -35,8 +35,6 @@ report:
   artifact:
     repository: myimagewithsecret
     tag: v0.16.4
-  os:
-    family: ""
   registry:
     server: index.docker.io
   scanner:

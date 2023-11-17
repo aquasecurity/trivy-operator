@@ -6593,11 +6593,6 @@ var (
 			Repository: "library/alpine",
 			Tag:        "3.10.2",
 		},
-		OS: v1alpha1.OS{
-			Family: "alpine",
-			Name:   "3.10.2",
-			Eosl:   true,
-		},
 		Summary: v1alpha1.ExposedSecretSummary{
 			CriticalCount: 3,
 			HighCount:     1,
@@ -6683,11 +6678,6 @@ var (
 		Artifact: v1alpha1.Artifact{
 			Repository: "library/alpine",
 			Tag:        "3.10.2",
-		},
-		OS: v1alpha1.OS{
-			Family: "alpine",
-			Name:   "3.10.2",
-			Eosl:   true,
 		},
 		Summary: v1alpha1.ExposedSecretSummary{
 			CriticalCount: 0,

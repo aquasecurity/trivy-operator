@@ -754,7 +754,6 @@ func (in *ExposedSecretReportData) DeepCopyInto(out *ExposedSecretReportData) {
 	out.Scanner = in.Scanner
 	out.Registry = in.Registry
 	out.Artifact = in.Artifact
-	out.OS = in.OS
 	out.Summary = in.Summary
 	if in.Secrets != nil {
 		in, out := &in.Secrets, &out.Secrets

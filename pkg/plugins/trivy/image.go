@@ -44,7 +44,13 @@ func (j *ImageJobSpecMgr) GetPodSpec(ctx trivyoperator.PluginContext, config Con
 //
 //	trivy --cache-dir /tmp/trivy/.cache image --skip-update \
 //	  --format json <container image>
-func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext, p *plugin, clusterSboms map[string]v1alpha1.SbomReportData) (corev1.PodSpec, []*corev1.Secret, error) {
+func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
+	config Config,
+	workload client.Object,
+	credentials map[string]docker.Auth,
+	securityContext *corev1.SecurityContext,
+	p *plugin,
+	clusterSboms map[string]v1alpha1.SbomReportData) (corev1.PodSpec, []*corev1.Secret, error) {
 	var secret *corev1.Secret
 	var secrets []*corev1.Secret
 	var containersSpec []corev1.Container

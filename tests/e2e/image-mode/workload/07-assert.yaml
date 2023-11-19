@@ -1,0 +1,16 @@
+---
+apiVersion: kuttl.dev/v1beta1
+commands:
+  - script: >
+      cnt="$(kubectl get clustervulnerabilityreports.aquasecurity.github.io clustersbomreport-557764dbc-k8s-cluster \
+        -o=jsonpath='{.report.summary.highCount}')"
+      if [ $cnt -gt 0 ]
+
+      then
+        echo "Pass: ClusterVulnerabilityReport highCount ($cnt) is greater than 0"
+      else
+        echo "Fail: ClusterVulnerabilityReport highCount ($cnt) should be greater than 0"
+        exit 1
+      fi
+kind: TestAssert
+timeout: 30

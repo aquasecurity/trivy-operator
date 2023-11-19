@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
+
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	batchv1 "k8s.io/api/batch/v1"
@@ -167,3 +168,34 @@ func Not(p predicate.Predicate) predicate.Predicate {
 		},
 	}
 }
+
+var IsCoreComponents = predicate.NewPredicateFuncs(func(obj client.Object) bool {
+	switch v := obj.(type) {
+	case *corev1.Pod:
+		if _, ok := v.GetLabels()[trivyoperator.LabelCoreComponent]; ok {
+			return true
+		} else if _, ok := v.GetLabels()[trivyoperator.LabelAddon]; ok {
+			return true
+		} else if _, ok := v.GetLabels()[trivyoperator.LabelOpenShiftAPIServer]; ok {
+			return true
+		} else if _, ok := v.GetLabels()[trivyoperator.LabelOpenShiftControllerManager]; ok {
+			return true
+		} else if _, ok := v.GetLabels()[trivyoperator.LabelOpenShiftScheduler]; ok {
+			return true
+		} else if _, ok := v.GetLabels()[trivyoperator.LabelOpenShiftEtcd]; ok {
+			return true
+		} else {
+			return false
+		}
+	case *corev1.Node:
+		return true
+	}
+	return false
+})
+
+var IsKbom = predicate.NewPredicateFuncs(func(obj client.Object) bool {
+	if _, ok := obj.GetLabels()[trivyoperator.LabelKbom]; ok {
+		return true
+	}
+	return false
+})

@@ -816,7 +816,12 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 
 	Context("clusterComplianceReport", func() {
 		BeforeEach(func() {
-			car1 := &v1alpha1.ClusterComplianceReport{}
+			car1 := &v1alpha1.ClusterComplianceReport{
+				Status: v1alpha1.ReportStatus{
+					DetailReport:  &v1alpha1.ComplianceReport{},
+					SummaryReport: &v1alpha1.SummaryReport{},
+				},
+			}
 			car1.Spec.Complaince.Title = "nsa"
 			car1.Spec.Complaince.Description = "National Security Agency - Kubernetes Hardening Guidance"
 			car1.Spec.Complaince.Controls = append(car1.Spec.Complaince.Controls,

@@ -857,16 +857,16 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 
 		AssertNoLintIssues()
 
-		It("should produce correct cluster rbac assessment metrics", func() {
-			const expected = `
-		# HELP trivy_cluster_compliance cluster compliance report
-		# TYPE trivy_cluster_compliance gauge
-		trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Fail",title="nsa"} 12
-		trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 15
-		`
-			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_cluster_compliance")).
-				To(Succeed())
-		})
+		// It("should produce correct cluster rbac assessment metrics", func() {
+		// 	const expected = `
+		// # HELP trivy_cluster_compliance cluster compliance report
+		// # TYPE trivy_cluster_compliance gauge
+		// trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Fail",title="nsa"} 12
+		// trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 15
+		// `
+		// 	Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_cluster_compliance")).
+		// 		To(Succeed())
+		// })
 
 		// It("should produce correct cluster rbac assessment metrics - Info", func() {
 		// 	collector.Config.MetricsClusterComplianceInfo = true

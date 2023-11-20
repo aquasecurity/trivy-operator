@@ -930,7 +930,7 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceInfoReports(ctx cont
 				labelValues[i+5] = r.Labels[label]
 			}
 			metrics <- prometheus.MustNewConstMetric(c.complianceInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
-			}
+			//}
 		}
 	}
 }

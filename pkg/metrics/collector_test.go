@@ -833,8 +833,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 					},
 				}...)
 
-			car1.Status.DetailReport.Title = "nsa"
-			car1.Status.DetailReport.Description = "National Security Agency - Kubernetes Hardening Guidance"
+			// car1.Status.DetailReport.Title = "nsa"
+			// car1.Status.DetailReport.Description = "National Security Agency - Kubernetes Hardening Guidance"
 			// car1.Status.DetailReport.Results = append(car1.Status.DetailReport.Results,
 			// 	[]*v1alpha1.ControlCheckResult{
 			// 		{
@@ -873,8 +873,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			const expected = `
 		# HELP trivy_compliance_info cluster compliance report Info
 		# TYPE trivy_compliance_info gauge
-		trivy_compliance_info{description="National Security Agency - Kubernetes Hardening Guidance",title="nsa"} 1
-		trivy_compliance_info{description="National Security Agency - Kubernetes Hardening Guidance",title="nsa"} 1
+		trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",description="National Security Agency - Kubernetes Hardening Guidance",status="Fail",title="nsa"} 1
+		trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 1
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_compliance_info")).
 				To(Succeed())

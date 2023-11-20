@@ -548,7 +548,9 @@ func (c ResourcesMetricsCollector) Collect(metrics chan<- prometheus.Metric) {
 	c.collectClusterRbacAssessmentReports(ctx, metrics)
 	c.collectClusterComplianceReports(ctx, metrics)
 	// todo: Add as optional
+ if c.Config.MetricsImageInfo {
 	c.collectImageReports(ctx, metrics, targetNamespaces)
+	}
 }
 
 func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {

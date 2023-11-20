@@ -3,10 +3,10 @@
 The [Operator Lifecycle Manager (OLM)][olm] provides a declarative way to install and upgrade operators and their
 dependencies.
 
-You can install the Trivy operator from [OperatorHub.io] or [ArtifactHUB] by creating the OperatorGroup, which
-defines the operator's multitenancy, and Subscription that links everything together to run the operator's pod.
+You can install the Trivy Operator from [OperatorHub.io] or [ArtifactHUB] by creating the OperatorGroup, which
+defines the Operator's multitenancy, and Subscription that links everything together to run the operator's pod.
 
-As an example, let's install the operator from the OperatorHub catalog in the `trivy-system` namespace and
+As an example, let's install the Operator from the OperatorHub catalog in the `trivy-system` namespace and
 configure it to watch the `default` namespaces:
 
 1. Install the Operator Lifecycle Manager:

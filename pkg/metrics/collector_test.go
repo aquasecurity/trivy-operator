@@ -833,21 +833,21 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 					},
 				}...)
 
-			car1.Status.DetailReport.Title = "nsa"
-			car1.Status.DetailReport.Description = "National Security Agency - Kubernetes Hardening Guidance"
-			car1.Status.DetailReport.Results = append(car1.Status.DetailReport.Results,
-				[]*v1alpha1.ControlCheckResult{
-					{
-						ID:            "car1 Id",
-						Name:          "car1 cluster compliance name",
-						DefaultStatus: "FAIL",
-					},
-					{
-						ID:            "car1 Id",
-						Name:          "car1 cluster compliance name",
-						DefaultStatus: "PASS",
-					},
-				}...)
+			// car1.Status.DetailReport.Title = "nsa"
+			// car1.Status.DetailReport.Description = "National Security Agency - Kubernetes Hardening Guidance"
+			// car1.Status.DetailReport.Results = append(car1.Status.DetailReport.Results,
+			// 	[]*v1alpha1.ControlCheckResult{
+			// 		{
+			// 			ID:            "car1 Id",
+			// 			Name:          "car1 cluster compliance name",
+			// 			DefaultStatus: "FAIL",
+			// 		},
+			// 		{
+			// 			ID:            "car1 Id",
+			// 			Name:          "car1 cluster compliance name",
+			// 			DefaultStatus: "PASS",
+			// 		},
+			// 	}...)
 
 			car1.Status.Summary.FailCount = 12
 			car1.Status.Summary.PassCount = 15

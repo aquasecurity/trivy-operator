@@ -857,27 +857,27 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 
 		AssertNoLintIssues()
 
-		// It("should produce correct cluster rbac assessment metrics", func() {
-		// 	const expected = `
-		// # HELP trivy_cluster_compliance cluster compliance report
-		// # TYPE trivy_cluster_compliance gauge
-		// trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Fail",title="nsa"} 12
-		// trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 15
-		// `
-		// 	Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_cluster_compliance")).
-		// 		To(Succeed())
-		// })
-
-		It("should produce correct cluster rbac assessment metrics - Info", func() {
-			collector.Config.MetricsClusterComplianceInfo = true
+		It("should produce correct cluster rbac assessment metrics", func() {
 			const expected = `
-		# HELP trivy_compliance_info cluster compliance report Info
-		# TYPE trivy_compliance_info gauge
-		trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",description="National Security Agency - Kubernetes Hardening Guidance",status="Fail",title="nsa"} 1
-		trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 1
+		# HELP trivy_cluster_compliance cluster compliance report
+		# TYPE trivy_cluster_compliance gauge
+		trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Fail",title="nsa"} 12
+		trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 15
 		`
-			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_compliance_info")).
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_cluster_compliance")).
 				To(Succeed())
 		})
+
+		// It("should produce correct cluster rbac assessment metrics - Info", func() {
+		// 	collector.Config.MetricsClusterComplianceInfo = true
+		// 	const expected = `
+		// # HELP trivy_compliance_info cluster compliance report Info
+		// # TYPE trivy_compliance_info gauge
+		// trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",description="National Security Agency - Kubernetes Hardening Guidance",status="Fail",title="nsa"} 1
+		// trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 1
+		// `
+		// 	Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_compliance_info")).
+		// 		To(Succeed())
+		// })
 	})
 })

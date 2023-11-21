@@ -137,3 +137,57 @@ spec:
 ```
 
 Notice how the namespace is `trivy-system`, the above network policies are assuming that you installed the `trivy-operator` (and `trivy-server` when applicable) there. Keep in mind these same network policies might be part of other namespaces (like kube-system or default) where important Kubernetes components live, such as the coredns and/or the default kubernetes service.
+
+We'll now create a namespace where we will deploy our pod with vulnerabilities. This namespace will be called *applications*
+
+`kubectl create namespace applications`
+
+Next step is to create the pod with vulnerabilities. To do this we can run the following command:
+
+`kubectl run nginx -n applications`
+
+At this point, we should expect the Trivy Operator to generate the `VulnerabilityReports` resources (ADD HYPERLINK TO VULNR HERE) in our `applications` namespace. However, if we try to get these resources across the `applications` namespace, we'll see that we won't get any reports:
+
+```
+kubectl get vulnerabilityreports -n applications
+k get vulnerabilityreport -n applications
+No resources found in applications namespace.
+```
+
+If we take a look at the `get pods` command, the description of the trivy-operaotr pod and its logs, we'll see some interesting messages that will help us understand why the reports aren't being generated.
+
+```
+kubectl get pods -n trivy-system
+NAME                              READY   STATUS             RESTARTS        AGE
+trivy-operator-846f8c6446-clzlk   0/1     CrashLoopBackOff   6 (2m41s ago)   8m28s
+```
+
+```
+kubectl describe pods trivy-operator-846f8c6446-clzlk -n trivy-system | grep Events -A 10
+Events:
+  Type     Reason     Age                    From               Message
+  ----     ------     ----                   ----               -------
+  Normal   Scheduled  7m11s                  default-scheduler  Successfully assigned trivy-system/trivy-operator-846f8c6446-clzlk to k3d-kon-test-server-0
+  Normal   Created    6m26s (x4 over 7m11s)  kubelet            Created container trivy-operator
+  Normal   Started    6m26s (x4 over 7m11s)  kubelet            Started container trivy-operator
+  Normal   Pulled     5m38s (x5 over 7m11s)  kubelet            Container image "ghcr.io/aquasecurity/trivy-operator:0.16.4" already present on machine
+  Warning  BackOff    2m4s (x32 over 7m9s)   kubelet            Back-off restarting failed container trivy-operator in pod trivy-operator-846f8c6446-clzlk_trivy-system(ddbfdf6d-751b-4137-860e-5561c71b6f8d)
+```
+
+The pod is in a `CrashLoopBackOff` state, and the description confirms that the container is constantly being restarted.
+
+```
+kubectl logs trivy-operator-846f8c6446-clzlk -n trivy-system
+2023/11/21 06:04:02 maxprocs: Leaving GOMAXPROCS=2: CPU quota undefined
+{"level":"info","ts":"2023-11-21T06:04:02Z","logger":"main","msg":"Starting operator","buildInfo":{"Version":"0.16.4","Commit":"c2f0e0f4f773f090f61c07489fd6dc062d465b2d","Date":"2023-10-29T08:18:47Z","Executable":""}}
+{"level":"info","ts":"2023-11-21T06:04:02Z","logger":"operator","msg":"Resolved install mode","install mode":"AllNamespaces","operator namespace":"trivy-system","target namespaces":[],"exclude namespaces":"","target workloads":["pod","replicaset","replicationcontroller","statefulset","daemonset","cronjob","job"]}
+{"level":"info","ts":"2023-11-21T06:04:02Z","logger":"operator","msg":"Watching all namespaces"}
+unable to run trivy operator: failed getting configmap: trivy-operator: Get "https://10.43.0.1:443/api/v1/namespaces/trivy-system/configmaps/trivy-operator": dial tcp 10.43.0.1:443: connect: connection refused
+```
+
+We see that the Trivy-Operator is correctly configured to watch all namespaces, that means that the `VulnerabilityReports` should be generated across all namespaces, including the `applications` namespace.
+
+The first red flag that something with the networking part also made its presence with the message:
+```
+unable to run trivy operator: failed getting configmap: trivy-operator: Get "https://10.43.0.1:443/api/v1/namespaces/trivy-system/configmaps/trivy-operator": dial tcp 10.43.0.1:443: connect: connection refused
+```

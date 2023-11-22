@@ -246,5 +246,5 @@ func (p *plugin) parseOSRef(reports ty.Report) (v1alpha1.OS) {
 		}
 	}
 
-	return os, nil
+	return os
 }

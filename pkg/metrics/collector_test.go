@@ -895,8 +895,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			const expected = `
 		# HELP trivy_compliance_info cluster compliance report Info
 		# TYPE trivy_compliance_info gauge
-		trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",description="National Security Agency - Kubernetes Hardening Guidance",status="Fail",title="nsa"} 4
-		trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 1
+		trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",description="National Security Agency - Kubernetes Hardening Guidance",severity="Critical",status="Fail",title="nsa"} 4
+		trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",description="National Security Agency - Kubernetes Hardening Guidance",severity="Low",status="Pass",title="nsa"} 1
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_compliance_info")).
 				To(Succeed())

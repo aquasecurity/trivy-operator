@@ -378,6 +378,7 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		compliance_id,
 		compliance_name,
 		status,
+		severity,
 	}
 	clusterComplianceInfoLabels = append(clusterComplianceInfoLabels, dynamicLabels...)
 
@@ -938,8 +939,10 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceInfoReports(ctx cont
 				labelValues[2] = summary.ID
 				labelValues[3] = summary.Name
 				labelValues[4] = NewStatusLabel(Status(status)).Label
+				labelValues[5] = summary.Severity
+
 				for i, label := range c.GetReportResourceLabels() {
-					labelValues[i+5] = r.Labels[label]
+					labelValues[i+6] = r.Labels[label]
 				}
 				metrics <- prometheus.MustNewConstMetric(c.complianceInfoDesc, prometheus.GaugeValue, float64(metricCounter), labelValues...)
 			}

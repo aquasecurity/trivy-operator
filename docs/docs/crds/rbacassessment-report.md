@@ -1,7 +1,6 @@
 # RbacAssessmentReport
 
-An instance of the RbacAssessmentReport represents checks performed by configuration auditing tools, such as [Trivy],
-against a Kubernetes rbac assessment. For example, check that a given Role do not expose permission to secret for all groups
+An instance of the RbacAssessmentReport represents checks performed by configuration auditing tools, such as [Trivy](https://github.com/aquasecurity/trivy), against a Kubernetes RBAC assessment. For example, check that a given Role does not expose permission to secrets for all groups.
 
 Each report is owned by the underlying Kubernetes object and is stored in the same namespace, following the
 `<Role>-<role-name>` naming convention.

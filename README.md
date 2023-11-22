@@ -16,16 +16,12 @@
 
 # Introduction
 
-There are lots of security tools in the cloud native world, created by Aqua and by others, for identifying and informing
-users about security issues in Kubernetes workloads and infrastructure components. However powerful and useful they
-might be, they tend to sit alongside Kubernetes, with each new product requiring users to learn a separate set of
-commands and installation steps in order to operate them and find critical security information.
+The Trivy Operator leverages [Trivy](https://github.com/aquasecurity/trivy) to continuously scan your Kubernetes cluster for security issues. The scans are summarised in security reports as Kubernetes [Custom Resource Definitions](crd), which become accessible through the Kubernetes API. The Operator does this by watching Kubernetes for state changes and automatically triggering security scans in response. For example, a vulnerability scan is initiated when a new Pod is created.
+This way, users can find and view the risks that relate to different resources in a `Kubernetes-native` way.
 
-The Trivy-Operator leverages trivy security tools by incorporating their outputs into Kubernetes CRDs
-(Custom Resource Definitions) and from there, making security reports accessible through the Kubernetes API. This way
-users can find and view the risks that relate to different resources in what we call a Kubernetes-native way.
+## In-cluster Security Scans 
 
-The Trivy operator automatically updates security reports in response to workload and other changes on a Kubernetes cluster, generating the following reports:
+The Trivy Operator automatically generates and updates security reports. These reports are generated in response to new workload and other changes on a Kubernetes cluster, generating the following reports:
 
 - Vulnerability Scans: Automated vulnerability scanning for Kubernetes workloads.
 - ConfigAudit Scans: Automated configuration audits for Kubernetes resources with predefined rules or custom Open Policy Agent (OPA) policies.
@@ -38,7 +34,7 @@ The Trivy operator automatically updates security reports in response to workloa
   - CIS Kubernetes Benchmark v1.23 cybersecurity technical report is produced.
   - Kubernetes pss-baseline, Pod Security Standards
   - Kubernetes pss-restricted, Pod Security Standards
-- SBOM (software bill of materials genertations) for Kubernetes workloads.
+- SBOM (Software Bill of Materials genertations) for Kubernetes workloads.
 
 <p align="center">
 <img src="docs/images/trivy-operator-overview.png" alt="Trivy-operator Overview"/>
@@ -46,20 +42,41 @@ The Trivy operator automatically updates security reports in response to workloa
 
 _Please [star ⭐](https://github.com/aquasecurity/trivy-operator/stargazers) the repo if you want us to continue developing and improving trivy-operator! 😀_
 
-
-# Status
-
-Although we are trying to keep new releases backward compatible with previous versions, this project is still incubating,
-and some APIs and [Custom Resource Definitions] may change.
-
-# Usage
+## Usage
 
 The official [Documentation] provides detailed installation, configuration, troubleshooting, and quick start guides.
 
 You can install the Trivy-operator Operator with [Static YAML Manifests] and follow the [Getting Started][getting-started-operator]
 guide to see how vulnerability and configuration audit reports are generated automatically.
 
-# Contributing
+### Quick Start
+
+The Trivy Operator can be installed easily through the [Helm Chart](https://aquasecurity.github.io/trivy-operator/latest/getting-started/installation/helm/):
+
+Add the Aqua chart repository:
+
+```sh
+   helm repo add aqua https://aquasecurity.github.io/helm-charts/
+   helm repo update
+```
+
+Install the Helm Chart:
+
+```sh
+   helm install trivy-operator aqua/trivy-operator \
+     --namespace trivy-system \
+     --create-namespace \
+     --version 0.18.4
+```
+
+This will install the Trivy Helm Chart into the `trivy-system` namespace and start triggering the scans.
+
+## Status
+
+Although we are trying to keep new releases backward compatible with previous versions, this project is still incubating,
+and some APIs and [Custom Resource Definitions] may change.
+
+## Contributing
 
 At this early stage we would love your feedback on the overall concept of Trivy-Operator. Over time, we'd love to see
 contributions integrating different security tools so that users can access security information in standard,

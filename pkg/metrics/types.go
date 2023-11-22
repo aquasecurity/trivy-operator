@@ -64,7 +64,7 @@ type StatusLabel struct {
 	Label  string
 }
 
-type Status string
+type Status v1alpha1.ControlStatus
 
 const (
 	FailStatus Status = "FAIL"
@@ -89,7 +89,7 @@ func NewStatusLabel(status Status) StatusLabel {
 		FailStatus: StatusFail(),
 		PassStatus: StatusPass(),
 	}
-	if sevLbl, ok := m[severity]; ok {
+	if sevLbl, ok := m[status]; ok {
 		return sevLbl
 	}
 	return StatusLabel{

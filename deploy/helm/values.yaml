@@ -122,7 +122,7 @@ operator:
   # be aware of metrics cardinality is significantly increased with this feature enabled.
   metricsRbacAssessmentInfo: false
 
-    # -- MetricsInfraAssessmentInfo the flag to enable metrics about Infra Assessment
+  # -- MetricsInfraAssessmentInfo the flag to enable metrics about Infra Assessment
   # be aware of metrics cardinality is significantly increased with this feature enabled.
   metricsInfraAssessmentInfo: false
 
@@ -130,6 +130,10 @@ operator:
   # This information has image os information including os family, name/version, and if end of service life has been reached
   # be aware of metrics cardinality is significantly increased with this feature enabled.
   metricsImageInfo: false
+
+  # -- MetricsClusterComplianceInfo the flag to enable metrics about Cluster Compliance
+  # be aware of metrics cardinality is significantly increased with this feature enabled.
+  metricsClusterComplianceInfo: false
 
   # -- webhookBroadcastURL the flag to set reports should be sent to a webhook endpoint. "" means that the webhookBroadcastURL feature is disabled
   webhookBroadcastURL: ""

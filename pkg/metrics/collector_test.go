@@ -853,9 +853,62 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 
 	Context("clusterComplianceReport", func() {
 		BeforeEach(func() {
-			car1 := &v1alpha1.ClusterComplianceReport{}
+			car1 := &v1alpha1.ClusterComplianceReport{
+				Status: v1alpha1.ReportStatus{
+					DetailReport:  &v1alpha1.ComplianceReport{},
+					SummaryReport: &v1alpha1.SummaryReport{},
+				},
+			}
 			car1.Spec.Complaince.Title = "nsa"
 			car1.Spec.Complaince.Description = "National Security Agency - Kubernetes Hardening Guidance"
+			car1.Spec.Complaince.Controls = append(car1.Spec.Complaince.Controls,
+				[]v1alpha1.Control{
+					{
+						ID:            "car1 Id",
+						Name:          "car1 cluster compliance name",
+						DefaultStatus: v1alpha1.FailStatus,
+					},
+					{
+						ID:            "car1 Id",
+						Name:          "car1 cluster compliance name",
+						DefaultStatus: v1alpha1.PassStatus,
+					},
+				}...)
+
+			car1.Status.DetailReport.Title = "nsa"
+			car1.Status.DetailReport.Description = "National Security Agency - Kubernetes Hardening Guidance"
+			car1.Status.DetailReport.Results = append(car1.Status.DetailReport.Results,
+				[]*v1alpha1.ControlCheckResult{
+					{
+						ID:            "car1 Id",
+						Name:          "car1 cluster compliance name",
+						DefaultStatus: "FAIL",
+					},
+					{
+						ID:            "car1 Id",
+						Name:          "car1 cluster compliance name",
+						DefaultStatus: "PASS",
+					},
+				}...)
+			failcount := 4
+			passCount := 0
+			car1.Spec.ReportFormat = "summary"
+			car1.Status.SummaryReport.SummaryControls = append(car1.Status.SummaryReport.SummaryControls,
+
+				[]v1alpha1.ControlCheckSummary{
+					{
+						ID:        "car1 Id",
+						Name:      "car1 cluster compliance name",
+						Severity:  "Critical",
+						TotalFail: &failcount,
+					},
+					{
+						ID:        "car1 Id",
+						Name:      "car1 cluster compliance name",
+						Severity:  "Low",
+						TotalFail: &passCount,
+					},
+				}...)
 			car1.Status.Summary.FailCount = 12
 			car1.Status.Summary.PassCount = 15
 
@@ -863,8 +916,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		})
 
 		AssertNoLintIssues()
-
-		It("should produce correct cluster rbac assessment metrics", func() {
+		It("should produce correct cluster compliance metrics", func() {
 			const expected = `
 		# HELP trivy_cluster_compliance cluster compliance report
 		# TYPE trivy_cluster_compliance gauge
@@ -872,6 +924,18 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 15
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_cluster_compliance")).
+				To(Succeed())
+		})
+
+		It("should produce correct cluster complaince metrics - Info", func() {
+			collector.Config.MetricsClusterComplianceInfo = true
+			const expected = `
+		# HELP trivy_compliance_info cluster compliance report Info
+		# TYPE trivy_compliance_info gauge
+		trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",description="National Security Agency - Kubernetes Hardening Guidance",severity="Critical",status="Fail",title="nsa"} 4
+		trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",description="National Security Agency - Kubernetes Hardening Guidance",severity="Low",status="Pass",title="nsa"} 1
+		`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_compliance_info")).
 				To(Succeed())
 		})
 	})

@@ -919,17 +919,29 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceInfoReports(ctx cont
 		return
 	}
 	for _, r := range reports.Items {
+		if r.Spec.ReportFormat == "all" {
+			continue
+		}
 		if c.Config.MetricsClusterComplianceInfo {
-			labelValues[0] = r.Status.DetailReport.Title
-			labelValues[1] = r.Status.DetailReport.Description
-			for _, detail := range r.Status.DetailReport.Results {
-				labelValues[2] = detail.ID
-				labelValues[3] = detail.Name
-				labelValues[4] = NewStatusLabel(Status(detail.DefaultStatus)).Label
+			labelValues[0] = r.Spec.Complaince.Title
+			labelValues[1] = r.Spec.Complaince.Description
+			for _, summary := range r.Status.SummaryReport.SummaryControls {
+				if summary.TotalFail == nil {
+					continue
+				}
+				status := PassStatus
+				metricCounter := 1
+				if *summary.TotalFail > 0 {
+					status = FailStatus
+					metricCounter = *summary.TotalFail
+				}
+				labelValues[2] = summary.ID
+				labelValues[3] = summary.Name
+				labelValues[4] = NewStatusLabel(Status(status)).Label
 				for i, label := range c.GetReportResourceLabels() {
 					labelValues[i+5] = r.Labels[label]
 				}
-				metrics <- prometheus.MustNewConstMetric(c.complianceInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
+				metrics <- prometheus.MustNewConstMetric(c.complianceInfoDesc, prometheus.GaugeValue, float64(metricCounter), labelValues...)
 			}
 		}
 	}

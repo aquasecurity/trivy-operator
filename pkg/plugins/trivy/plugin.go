@@ -160,9 +160,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	}
 
 	os, err := p.parseOSRef(reports)
-	if err != nil {
-		return vulnReport, secretReport, &sbomReport, err
-	}
+
 	trivyImageRef, err := config.GetImageRef()
 	if err != nil {
 		return vulnReport, secretReport, &sbomReport, err
@@ -237,7 +235,7 @@ func (p *plugin) parseImageRef(imageRef string, imageID string) (v1alpha1.Regist
 	return registry, artifact, nil
 }
 
-func (p *plugin) parseOSRef(reports ty.Report) (v1alpha1.OS, error) {
+func (p *plugin) parseOSRef(reports ty.Report) (v1alpha1.OS) {
 	os := v1alpha1.OS{}
 	if reports.Metadata.OS != nil {
 		os.Family = reports.Metadata.OS.Family

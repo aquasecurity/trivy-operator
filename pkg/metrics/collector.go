@@ -988,6 +988,10 @@ func (c ResourcesMetricsCollector) collectImageReports(ctx context.Context, metr
 					labelValues[i+12] = r.Labels[label]
 				}
 				metrics <- prometheus.MustNewConstMetric(c.imageInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
+				}
+			}
+		}
+}
 
 func (c *ResourcesMetricsCollector) collectClusterComplianceInfoReports(ctx context.Context, metrics chan<- prometheus.Metric) {
 	reports := &v1alpha1.ClusterComplianceReportList{}

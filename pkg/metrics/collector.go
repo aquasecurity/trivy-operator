@@ -486,6 +486,7 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		prometheus.BuildFQName("trivy", "image", "info"),
 		"scanned container image information",
 		imageInfoLabels,
+	)
 
 	complianceInfoDesc := prometheus.NewDesc(
 		prometheus.BuildFQName("trivy", "compliance", "info"),

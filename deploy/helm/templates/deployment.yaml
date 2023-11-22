@@ -97,6 +97,8 @@ spec:
               value: {{ .Values.operator.metricsRbacAssessmentInfo | quote }}
             - name: OPERATOR_METRICS_INFRA_ASSESSMENT_INFO_ENABLED
               value: {{ .Values.operator.metricsInfraAssessmentInfo | quote }}   
+            - name: OPERATOR_METRICS_CLUSTER_COMPLIANCE_INFO_ENABLED
+              value: {{ .Values.operator.metricsClusterComplianceInfo | quote }}  
             - name: OPERATOR_WEBHOOK_BROADCAST_URL
               value: {{ .Values.operator.webhookBroadcastURL | quote }}
             - name: OPERATOR_WEBHOOK_BROADCAST_TIMEOUT

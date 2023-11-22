@@ -83,12 +83,17 @@ trivy_resource_infraassessments{
 ```
 
 ### InfraAssessmentsInfo
-Exposes details about InfraAssessments that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_INFRA_ASSESSMENT_INFO_ENABLED" envDefault:"false"` . For example:
+
 ```shell
+Exposes details about InfraAssessments that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_INFRA_ASSESSMENT_INFO_ENABLED" envDefault:"false"` . For example:
+
+```shell
+
 trivy_infraassessments_info{
     name="pod-kube-apiserver-minikube-6d4cf56db6",namespace="kube-system",infra_assessment_category="car1 category for infra assessment",infra_assessment_description="car1 description for infra assessment",infra_assessment_id="car1 Id",infra_assessment_success="true",infra_assessment_title="car1 infra assessment title",resource_kind="Pod",resource_name="kube-apiserver-minikube-6d4cf56db6",severity="Critical"
     } 1
 ```
+
 ### ClusterComplianceReport
 
 A report summary series exposes the count of checks of each status reported in a given `ClusterComplianceReport`. For example:
@@ -96,6 +101,17 @@ A report summary series exposes the count of checks of each status reported in a
 ```shell
 trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Fail",title="nsa"} 12
 trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 17
+```
+
+### ClusterComplianceInfo
+
+Exposes details about ClusterCompliance that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_CLUSTER_COMPLIANCE_INFO_ENABLED" envDefault:"false"` . For example:
+
+```shell
+trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",
+    description="National Security Agency - Kubernetes Hardening Guidance",severity="MEDIUM",status="Fail",title="nsa"} 1
+trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",
+    description="National Security Agency - Kubernetes Hardening Guidance",severity="LOW",status="Pass",title="nsa"} 1
 ```
 
 ## Vulnerability ID

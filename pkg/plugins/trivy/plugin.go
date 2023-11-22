@@ -159,7 +159,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 		return vulnReport, secretReport, &sbomReport, err
 	}
 
-	os, err := p.parseOSRef(reports)
+	os := p.parseOSRef(reports)
 
 	trivyImageRef, err := config.GetImageRef()
 	if err != nil {

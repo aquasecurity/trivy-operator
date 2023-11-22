@@ -945,10 +945,9 @@ func (c ResourcesMetricsCollector) collectImageReports(ctx context.Context, metr
 				labelValues[8] = r.Report.Artifact.Digest
 				labelValues[9] = string(r.Report.OS.Family)
 				labelValues[10] = r.Report.OS.Name
+                                  labelValues[11] = ""
 				if r.Report.OS.Eosl {
 					labelValues[11] = strconv.FormatBool(r.Report.OS.Eosl)
-				} else {
-					labelValues[11] = ""
 				}
 
 				for i, label := range c.GetReportResourceLabels() {

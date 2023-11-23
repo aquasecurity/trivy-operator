@@ -289,6 +289,10 @@ func (b *VulnerabilityReportBuilder) Build() *v1alpha1.VulnerabilityReport {
 				Repository: "library/nginx",
 				Tag:        "1.16",
 			},
+			OS: v1alpha1.OS{
+				Family: "debian",
+				Name:   "10.3",
+			},
 			Summary: v1alpha1.VulnerabilitySummary{
 				MediumCount: 1,
 			},

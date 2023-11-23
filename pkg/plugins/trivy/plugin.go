@@ -159,6 +159,8 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 		return vulnReport, secretReport, &sbomReport, err
 	}
 
+	os := p.parseOSRef(reports)
+
 	trivyImageRef, err := config.GetImageRef()
 	if err != nil {
 		return vulnReport, secretReport, &sbomReport, err
@@ -182,7 +184,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 		vulnerabilities = append(vulnerabilities, vulnerabilityreport.GetVulnerabilitiesFromScanResult(report, addFields)...)
 		secrets = append(secrets, getExposedSecretsFromScanResult(report)...)
 	}
-	vulnerabilitiesData := vulnerabilityreport.BuildVulnerabilityReportData(p.clock, registry, artifact, version, vulnerabilities)
+	vulnerabilitiesData := vulnerabilityreport.BuildVulnerabilityReportData(p.clock, registry, artifact, os, version, vulnerabilities)
 	exposedSecretsData := exposedsecretreport.BuildExposedSecretsReportData(p.clock, registry, artifact, version, secrets)
 	return vulnerabilitiesData, exposedSecretsData, sbomData, nil
 
@@ -231,4 +233,18 @@ func (p *plugin) parseImageRef(imageRef string, imageID string) (v1alpha1.Regist
 		artifact.Digest = imageID
 	}
 	return registry, artifact, nil
+}
+
+func (p *plugin) parseOSRef(reports ty.Report) (v1alpha1.OS) {
+	os := v1alpha1.OS{}
+	if reports.Metadata.OS != nil {
+		os.Family = reports.Metadata.OS.Family
+		os.Name = reports.Metadata.OS.Name
+		eosl := reports.Metadata.OS.Eosl
+		if eosl {
+			os.Eosl = eosl
+		}
+	}
+
+	return os
 }

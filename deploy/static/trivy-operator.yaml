@@ -2256,6 +2256,20 @@ spec:
                       an Artifact.
                     type: string
                 type: object
+              os:
+                description: OS information of the artifact
+                properties:
+                  eosl:
+                    description: Eosl is true if OS version has reached end of service
+                      life
+                    type: boolean
+                  family:
+                    description: Operating System Family
+                    type: string
+                  name:
+                    description: Name or version of the OS
+                    type: string
+                type: object
               registry:
                 description: Registry is the registry the Artifact was pulled from.
                 properties:
@@ -2411,6 +2425,7 @@ spec:
                 type: array
             required:
             - artifact
+            - os
             - scanner
             - summary
             - updateTimestamp
@@ -2623,7 +2638,9 @@ spec:
             - name: OPERATOR_METRICS_RBAC_ASSESSMENT_INFO_ENABLED
               value: "false"
             - name: OPERATOR_METRICS_INFRA_ASSESSMENT_INFO_ENABLED
-              value: "false"   
+              value: "false"
+            - name: OPERATOR_METRICS_IMAGE_INFO_ENABLED
+              value: "false"  
             - name: OPERATOR_METRICS_CLUSTER_COMPLIANCE_INFO_ENABLED
               value: "false"  
             - name: OPERATOR_WEBHOOK_BROADCAST_URL

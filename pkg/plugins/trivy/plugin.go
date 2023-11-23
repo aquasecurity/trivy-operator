@@ -235,7 +235,7 @@ func (p *plugin) parseImageRef(imageRef string, imageID string) (v1alpha1.Regist
 	return registry, artifact, nil
 }
 
-func (p *plugin) parseOSRef(reports ty.Report) (v1alpha1.OS) {
+func (p *plugin) parseOSRef(reports ty.Report) v1alpha1.OS {
 	os := v1alpha1.OS{}
 	if reports.Metadata.OS != nil {
 		os.Family = reports.Metadata.OS.Family

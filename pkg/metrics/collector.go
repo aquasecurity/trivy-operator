@@ -78,7 +78,6 @@ const (
 	//compliance
 	compliance_id   = "compliance_id"
 	compliance_name = "compliance_name"
-
 )
 
 type metricDescriptors struct {
@@ -104,7 +103,6 @@ type metricDescriptors struct {
 	complianceLabels          []string
 	imageInfoLabels           []string
 	complianceInfoLabels      []string
-
 
 	// Descriptors
 	imageVulnDesc             *prometheus.Desc
@@ -517,7 +515,6 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		imageInfoLabels:           imageInfoLabels,
 		complianceInfoLabels:      clusterComplianceInfoLabels,
 
-
 		imageVulnDesc:             imageVulnDesc,
 		vulnIdDesc:                vulnIdDesc,
 		configAuditDesc:           configAuditDesc,
@@ -532,7 +529,6 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		complianceDesc:            complianceDesc,
 		imageInfoDesc:             imageInfoDesc,
 		complianceInfoDesc:        complianceInfoDesc,
-
 	}
 }
 
@@ -579,9 +575,9 @@ func (c ResourcesMetricsCollector) Collect(metrics chan<- prometheus.Metric) {
 	c.collectClusterRbacAssessmentReports(ctx, metrics)
 	c.collectClusterComplianceReports(ctx, metrics)
 
- if c.Config.MetricsImageInfo {
-	c.collectImageReports(ctx, metrics, targetNamespaces)
- }
+	if c.Config.MetricsImageInfo {
+		c.collectImageReports(ctx, metrics, targetNamespaces)
+	}
 
 	if c.Config.MetricsClusterComplianceInfo {
 		c.collectClusterComplianceInfoReports(ctx, metrics)
@@ -980,7 +976,7 @@ func (c ResourcesMetricsCollector) collectImageReports(ctx context.Context, metr
 				labelValues[8] = r.Report.Artifact.Digest
 				labelValues[9] = string(r.Report.OS.Family)
 				labelValues[10] = r.Report.OS.Name
-                                  labelValues[11] = ""
+				labelValues[11] = ""
 				if r.Report.OS.Eosl {
 					labelValues[11] = strconv.FormatBool(r.Report.OS.Eosl)
 				}
@@ -989,9 +985,9 @@ func (c ResourcesMetricsCollector) collectImageReports(ctx context.Context, metr
 					labelValues[i+12] = r.Labels[label]
 				}
 				metrics <- prometheus.MustNewConstMetric(c.imageInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
-				}
 			}
 		}
+	}
 }
 
 func (c *ResourcesMetricsCollector) collectClusterComplianceInfoReports(ctx context.Context, metrics chan<- prometheus.Metric) {

@@ -48,6 +48,8 @@ const (
 	keyTrivySkipFiles            = "trivy.skipFiles"
 	keyTrivySkipDirs             = "trivy.skipDirs"
 	keyTrivyDBRepository         = "trivy.dbRepository"
+	keyTrivyDBRepositoryUsername = "trivy.dbRepositoryUsername"
+	keyTrivyDBRepositoryPassword = "trivy.dbRepositoryPassword"
 	keyTrivyJavaDBRepository     = "trivy.javaDbRepository"
 	keyTrivyDBRepositoryInsecure = "trivy.dbRepositoryInsecure"
 

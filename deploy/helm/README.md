@@ -103,6 +103,8 @@ Keeps security report resources updated
 | trivy.createConfig | bool | `true` | createConfig indicates whether to create config objects |
 | trivy.dbRegistry | string | `"ghcr.io"` |  |
 | trivy.dbRepository | string | `"aquasecurity/trivy-db"` |  |
+| trivy.dbRepositoryUsername | string | `nil` | The username for dbRepository authentication |
+| trivy.dbRepositoryPassword | string | `nil` | The password for dbRepository authentication |
 | trivy.dbRepositoryInsecure | string | `"false"` | The Flag to enable insecure connection for downloading trivy-db via proxy (air-gaped env)  |
 | trivy.debug | bool | `false` | debug One of `true` or `false`. Enables debug mode. |
 | trivy.filesystemScanCacheDir | string | `"/var/trivyoperator/trivy-db"` | filesystemScanCacheDir the flag to set custom path for trivy filesystem scan `cache-dir` parameter. Only applicable in filesystem scan mode. |

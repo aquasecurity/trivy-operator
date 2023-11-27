@@ -429,6 +429,8 @@ trivy:
 
   dbRegistry: "ghcr.io"
   dbRepository: "aquasecurity/trivy-db"
+  dbRepositoryUsername: ~
+  dbRepositoryPassword: ~
 
   # -- javaDbRegistry is the registry for the Java vulnerability database.
   javaDbRegistry: "ghcr.io"

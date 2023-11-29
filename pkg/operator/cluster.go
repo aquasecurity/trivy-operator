@@ -139,7 +139,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 			return ctrl.Result{}, fmt.Errorf("getting core pods and nodes count : %w", err)
 		}
 		// validate that all core components resources has been collected
-		if len(nodeInfo) != numOfPods || len(components) != numOfNodes {
+		if len(nodeInfo) != numOfNodes || len(components) != numOfPods {
 			return ctrl.Result{}, nil
 		}
 		br := &bom.Result{

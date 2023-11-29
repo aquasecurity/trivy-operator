@@ -303,4 +303,4 @@ data:
 
 The last way that you could give the Trivy operator access to your private container registry is through managed registries. In this case, the container registry and your Kubernetes cluster would have to be on the same cloud provider; then you can define access to your container namespace as part of the IAM account. Once defined, trivy will already have the permissions for the registry.
 
-For additional information, please refer to the [documentation on managed registries.](https://aquasecurity.github.io/trivy-operator/v0.17.0/docs/vulnerability-scanning/managed-registries/)
+For additional information, please refer to the [documentation on managed registries.](https://aquasecurity.github.io/trivy-operator/v0.17.1/docs/vulnerability-scanning/managed-registries/)

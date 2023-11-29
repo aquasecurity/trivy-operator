@@ -49,7 +49,7 @@ const (
 	keyTrivySkipDirs             = "trivy.skipDirs"
 	keyTrivyDBRepository         = "trivy.dbRepository"
 	keyTrivyDBRepositoryUsername = "trivy.dbRepositoryUsername"
-	keyTrivyDBRepositoryPassword = "trivy.dbRepositoryPassword"
+	keyTrivyDBRepositoryPassword = "trivy.dbRepositoryPassword" // #nosec G101
 	keyTrivyJavaDBRepository     = "trivy.javaDbRepository"
 	keyTrivyDBRepositoryInsecure = "trivy.dbRepositoryInsecure"
 

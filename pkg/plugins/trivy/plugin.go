@@ -129,52 +129,51 @@ const (
 func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef string, logsReader io.ReadCloser) (v1alpha1.VulnerabilityReportData, v1alpha1.ExposedSecretReportData, *v1alpha1.SbomReportData, error) {
 	var vulnReport v1alpha1.VulnerabilityReportData
 	var secretReport v1alpha1.ExposedSecretReportData
-	var sbomReport v1alpha1.SbomReportData
 
 	config, err := getConfig(ctx)
 	if err != nil {
-		return vulnReport, secretReport, &sbomReport, err
+		return vulnReport, secretReport, nil, err
 	}
 	cmd := config.GetCommand()
 	if err != nil {
-		return vulnReport, secretReport, &sbomReport, err
+		return vulnReport, secretReport, nil, err
 	}
 	compressedLogs := ctx.GetTrivyOperatorConfig().CompressLogs()
 	if compressedLogs && cmd != Filesystem && cmd != Rootfs {
 		var errCompress error
 		logsReader, errCompress = utils.ReadCompressData(logsReader)
 		if errCompress != nil {
-			return vulnReport, secretReport, &sbomReport, errCompress
+			return vulnReport, secretReport, nil, errCompress
 		}
 	}
 
 	var reports ty.Report
 	err = json.NewDecoder(logsReader).Decode(&reports)
 	if err != nil {
-		return vulnReport, secretReport, &sbomReport, err
+		return vulnReport, secretReport, nil, err
 	}
 
 	registry, artifact, err := p.parseImageRef(imageRef, reports.Metadata.ImageID)
 	if err != nil {
-		return vulnReport, secretReport, &sbomReport, err
+		return vulnReport, secretReport, nil, err
 	}
 
 	os := p.parseOSRef(reports)
 
 	trivyImageRef, err := config.GetImageRef()
 	if err != nil {
-		return vulnReport, secretReport, &sbomReport, err
+		return vulnReport, secretReport, nil, err
 	}
 
 	version, err := trivyoperator.GetVersionFromImageRef(trivyImageRef)
 	if err != nil {
-		return vulnReport, secretReport, &sbomReport, err
+		return vulnReport, secretReport, nil, err
 	}
 	var sbomData *v1alpha1.SbomReportData
 	if ctx.GetTrivyOperatorConfig().GenerateSbomEnabled() {
 		sbomData, err = sbomreport.BuildSbomReportData(reports, p.clock, registry, artifact, version)
 		if err != nil {
-			return vulnReport, secretReport, &sbomReport, err
+			return vulnReport, secretReport, nil, err
 		}
 	}
 	vulnerabilities := make([]v1alpha1.Vulnerability, 0)

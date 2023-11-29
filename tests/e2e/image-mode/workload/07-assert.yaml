@@ -2,7 +2,7 @@
 apiVersion: kuttl.dev/v1beta1
 commands:
   - script: >
-      echo "$(kubectl get clustervulnerabilityreports.aquasecurity.github.io-o wide"
+      echo "kubectl get clustervulnerabilityreports.aquasecurity.github.io-o wide"
 
 kind: TestAssert
 timeout: 30

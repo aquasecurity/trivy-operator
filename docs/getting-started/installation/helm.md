@@ -107,6 +107,8 @@ You have to manually delete custom resource definitions created by the `helm ins
     kubectl delete crd clusterinfraassessmentreports.aquasecurity.github.io
     kubectl delete crd clusterconfigauditreports.aquasecurity.github.io
     kubectl delete crd sbomreports.aquasecurity.github.io
+    kubectl delete crd clustersbomreports.aquasecurity.github.io
+    kubectl delete crd clustervulnerabilityreports.aquasecurity.github.io
 ```
 
 ## Customising the Helm Chart

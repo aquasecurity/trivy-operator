@@ -139,12 +139,12 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 			return ctrl.Result{}, fmt.Errorf("getting core pods and nodes count : %w", err)
 		}
 		// validate that all core components resources has been collected
-		if len(nodeInfo) != numOfNodes || len(components) != numOfPods {
+		if !(len(nodeInfo) == numOfNodes && len(components) == numOfPods) {
 			return ctrl.Result{}, nil
 		}
 		br := &bom.Result{
 			Components: components,
-			ID:         "k8s.io/kubernetes",
+			ID:         fmt.Sprintf("%s/%s", K8sRegistry, K8sRepo),
 			Type:       "Cluster",
 			Version:    r.version,
 			Properties: map[string]string{"Name": r.name, "Type": "cluster"},
@@ -288,22 +288,20 @@ func (r *ClusterController) numOfCoreComponentPodsAndNodes(ctx context.Context) 
 		return 0, 0, err
 	}
 
-	podsCount := 0
+	corePodsCount := 0
 	for namespace, label := range coreK8slabels {
 		pods, err := r.clientset.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{LabelSelector: label})
 		if err != nil {
 			return 0, 0, err
 		}
-		podsCount = podsCount + len(pods.Items)
+		corePodsCount = corePodsCount + len(pods.Items)
 	}
 
 	addonPods, err := r.clientset.CoreV1().Pods("").List(ctx, metav1.ListOptions{LabelSelector: trivyoperator.LabelAddon})
 	if err != nil {
 		return 0, 0, err
 	}
-	podsCount = podsCount + len(addonPods.Items)
-	return podsCount, len(nodes.Items), nil
-
+	return corePodsCount + len(addonPods.Items), len(nodes.Items), nil
 }
 
 func (r *ClusterController) isOpenShift() bool {

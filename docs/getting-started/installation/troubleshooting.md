@@ -187,7 +187,41 @@ unable to run trivy operator: failed getting configmap: trivy-operator: Get "htt
 
 We see that the Trivy-Operator is correctly configured to watch all namespaces, that means that the `VulnerabilityReports` should be generated across all namespaces, including the `applications` namespace.
 
-The first red flag that something with the networking part also made its presence with the message:
+The first red flag that something is wrong with the networking configuration can be found in the following message:
 ```
 unable to run trivy operator: failed getting configmap: trivy-operator: Get "https://10.43.0.1:443/api/v1/namespaces/trivy-system/configmaps/trivy-operator": dial tcp 10.43.0.1:443: connect: connection refused
 ```
+
+The IP address in context `10.43.0.1` belongs to the kube-api. We can confirm so by looking for the service called `kubernetes`:
+```
+kubectl get svc kubernetes
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.43.0.1    <none>        443/TCP   28d
+```
+
+Basically, the trivy-operator cannot reach the kube-api to execute the calls looking for different resources. In example above, we can see that the trivy-operator was looking for the trivy-operator configmap in the trivy-system. Our first task will be to enable traffic between the trivy-operator pods and the kube-api service so that the trivy-operator can successfully get what it needs from the kube-api.
+
+```
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-from-trivy-system-to-kube-api
+  namespace: trivy-system
+spec:
+  podSelector: {}
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 10.43.0.1/32
+```
+
+If we run `kubectl logs -n trivy-operator deployment/trivy-operator`, we'll see that the error referncing `10.43.0.1:443` has disappeared. This means that we have successfully enabled all outbound traffic between the trivy-system namespace and the kube-api.
+
+We also notice that there are new errors as part of the logs referencing port `53`:
+
+```
+failed to download vulnerability DB: database download error: OCI repository error: 1 error occurred:\n\t* Get \"https://ghcr.io/v2/\": dial tcp: lookup ghcr.io on 10.43.0.10:53:
+```
+
+This means that the trivy-operator cannot resolve DNS records. The cause of this is the fact that the traffic to the `coredns` pods residing in the `kube-system` namespace is disabled because of out `deny-all` egress network policies in the `trivy-system` namespace, let's take care of this issue.
+

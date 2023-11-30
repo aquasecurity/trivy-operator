@@ -142,9 +142,10 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 		if !(len(nodeInfo) == numOfNodes && len(components) == numOfPods) {
 			return ctrl.Result{}, nil
 		}
+		name := fmt.Sprintf("%s/%s", K8sRegistry, K8sRepo)
 		br := &bom.Result{
 			Components: components,
-			ID:         fmt.Sprintf("%s/%s", K8sRegistry, K8sRepo),
+			ID:         name,
 			Type:       "Cluster",
 			Version:    r.version,
 			Properties: map[string]string{"Name": r.name, "Type": "cluster"},
@@ -168,6 +169,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 			},
 			AppVersion: apiVersion,
 		})
+		// scan resource data and generate kbom
 		k8sreport, err := scanner.Scan(ctx, ar)
 		if err != nil {
 			return ctrl.Result{}, err
@@ -200,7 +202,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 			Bom:     bomData,
 		}
 		sbomReportBuilder := sbomreport.NewReportBuilder(r.Client.Scheme()).
-			Container(fmt.Sprintf("%s/%s", K8sRegistry, K8sRepo)).
+			Container(name).
 			Data(sbomReportData).
 			AdditionalReportLabels(map[string]string{trivyoperator.LabelKbom: kbom})
 		sbomReport := sbomReportBuilder.ClusterReport()
@@ -246,6 +248,7 @@ func (r *ClusterController) reconcileKbom() reconcile.Func {
 		dbs := v1alpha1.SbomReportData{
 			Bom: kbom.Report.Bom,
 		}
+		// trigger kbom scan job
 		err = r.SubmitScanJob(ctx, &corev1.Pod{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "ClusterSbomReport",

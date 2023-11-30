@@ -23,7 +23,7 @@ This way, users can find and view the risks that relate to different resources i
 
 The Trivy Operator automatically generates and updates security reports. These reports are generated in response to new workload and other changes on a Kubernetes cluster, generating the following reports:
 
-- Vulnerability Scans: Automated vulnerability scanning for Kubernetes workloads.
+- Vulnerability Scans: Automated vulnerability scanning for Kubernetes workloads, control-plane and node components (api-server, controller-manager, kubelet and etc)
 - ConfigAudit Scans: Automated configuration audits for Kubernetes resources with predefined rules or custom Open Policy Agent (OPA) policies.
 - Exposed Secret Scans: Automated secret scans which find and detail the location of exposed Secrets within your cluster.
 - RBAC scans: Role Based Access Control scans provide detailed information on the access rights of the different resources installed.
@@ -35,7 +35,6 @@ The Trivy Operator automatically generates and updates security reports. These r
   - Kubernetes pss-baseline, Pod Security Standards
   - Kubernetes pss-restricted, Pod Security Standards
 - SBOM (Software Bill of Materials genertations) for Kubernetes workloads.
-- K8s control-plane and node components (api-server, controller-manager, kubelet and etc)
 
 <p align="center">
 <img src="docs/images/trivy-operator-overview.png" alt="Trivy-operator Overview"/>

@@ -179,7 +179,7 @@ func BuildSbomReportData(reports ty.Report, clock ext.Clock, registry v1alpha1.R
 		},
 		Registry: registry,
 		Artifact: artifact,
-		Summary:  bomSummary(*bom),
+		Summary:  BomSummary(*bom),
 		Bom:      *bom,
 	}, nil
 }
@@ -211,7 +211,7 @@ func generateSbomFromScanResult(report ty.Report) (*v1alpha1.BOM, error) {
 	return bom, nil
 }
 
-func bomSummary(bom v1alpha1.BOM) v1alpha1.SbomSummary {
+func BomSummary(bom v1alpha1.BOM) v1alpha1.SbomSummary {
 	return v1alpha1.SbomSummary{
 		ComponentsCount:   len(bom.Components) + 1,
 		DependenciesCount: len(*bom.Dependencies),

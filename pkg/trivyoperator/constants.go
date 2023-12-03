@@ -28,12 +28,21 @@ const (
 	LabelPluginConfigHash  = "plugin-config-hash"
 	LabelResourceImageID   = "resource-image-id"
 	LabelReusedReport      = "reused-report"
+	LabelCoreComponent     = "component"
+	LabelAddon             = "k8s-app"
 
 	LabelVulnerabilityReportScanner = "vulnerabilityReport.scanner"
 	LabelNodeInfoCollector          = "node-info.collector"
 
 	LabelK8SAppManagedBy = "app.kubernetes.io/managed-by"
 	AppTrivyOperator     = "trivy-operator"
+
+	// openshift core component
+	LabelOpenShiftAPIServer         = "apiserver"
+	LabelOpenShiftControllerManager = "kube-controller-manager"
+	LabelOpenShiftScheduler         = "scheduler"
+	LabelOpenShiftEtcd              = "etcd"
+	LabelKbom                       = "trivy-operator.aquasecurity.github.io/sbom-type"
 )
 
 const (

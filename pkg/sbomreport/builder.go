@@ -144,14 +144,15 @@ func (b *ReportBuilder) Get() (v1alpha1.SbomReport, v1alpha1.ClusterSbomReport, 
 	if err != nil {
 		return v1alpha1.SbomReport{}, v1alpha1.ClusterSbomReport{}, err
 	}
-	return report, b.clusterReport(), nil
+	return report, b.ClusterReport(), nil
 }
 
-func (b *ReportBuilder) clusterReport() v1alpha1.ClusterSbomReport {
+func (b *ReportBuilder) ClusterReport() v1alpha1.ClusterSbomReport {
 	artifactRef := ArtifactRef(b.data)
 	reportLabels := map[string]string{
 		trivyoperator.LabelResourceImageID: artifactRef,
 	}
+	kube.AppendCustomLabels(b.additionalReportLabels, reportLabels)
 	clusterReport := v1alpha1.ClusterSbomReport{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   artifactRef,

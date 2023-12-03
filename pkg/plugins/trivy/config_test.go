@@ -882,3 +882,39 @@ func TestPlugin_FindIgnorePolicyKey(t *testing.T) {
 		})
 	}
 }
+
+func TestPlugin_GetIncludeDevDeps(t *testing.T) {
+
+	testCases := []struct {
+		name       string
+		configData map[string]string
+		want       bool
+	}{
+		{
+			name: "includeDevDeps enabled",
+			configData: map[string]string{
+				"trivy.includeDevDeps": "true",
+			},
+			want: true,
+		},
+		{
+			name: "includeDevDeps not set",
+			configData: map[string]string{
+				"trivy.includeDevDeps": "false",
+			},
+			want: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			config := Config{
+				trivyoperator.PluginConfig{
+					Data: tc.configData,
+				},
+			}
+			got := config.GetIncludeDevDeps()
+			assert.Equal(t, got, tc.want)
+		})
+	}
+}

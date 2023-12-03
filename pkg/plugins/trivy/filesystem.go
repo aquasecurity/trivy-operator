@@ -222,7 +222,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 		}
 
 		fscommand := []string{SharedVolumeLocationOfTrivy}
-		args := getFSScanningArgs(ctx, command, Standalone, "")
+		args := GetFSScanningArgs(ctx, command, Standalone, "")
 		if len(clusterSboms) > 0 { // trivy sbom ...
 			if sbomreportData, ok := clusterSboms[c.Name]; ok {
 				secretName := fmt.Sprintf("sbom-%s", c.Name)
@@ -448,7 +448,7 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 		}
 
 		fscommand := []string{SharedVolumeLocationOfTrivy}
-		args := getFSScanningArgs(ctx, command, ClientServer, encodedTrivyServerURL.String())
+		args := GetFSScanningArgs(ctx, command, ClientServer, encodedTrivyServerURL.String())
 		if len(clusterSboms) > 0 { // trivy sbom ...
 			if sbomreportData, ok := clusterSboms[c.Name]; ok {
 				secretName := fmt.Sprintf("sbom-%s", c.Name)
@@ -495,7 +495,7 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 	return podSpec, secrets, nil
 }
 
-func getFSScanningArgs(ctx trivyoperator.PluginContext, command Command, mode Mode, trivyServerURL string) []string {
+func GetFSScanningArgs(ctx trivyoperator.PluginContext, command Command, mode Mode, trivyServerURL string) []string {
 	c, err := getConfig(ctx)
 	if err != nil {
 		return []string{}
@@ -526,6 +526,11 @@ func getFSScanningArgs(ctx trivyoperator.PluginContext, command Command, mode Mo
 	if len(slow) > 0 {
 		args = append(args, slow)
 	}
+
+	if c.GetIncludeDevDeps() && command == Filesystem {
+		args = append(args, "--include-dev-deps")
+	}
+
 	pkgList := getPkgList(ctx)
 	if len(pkgList) > 0 {
 		args = append(args, pkgList)

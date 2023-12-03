@@ -293,7 +293,7 @@ trivy:
 
   # -- includeDevDeps include development dependencies in the report (supported: npm, yarn) (default: false)
   # note: this flag is only applicable when trivy.command is set to filesystem
-  includeDevDeps : false
+  includeDevDeps: false
 
   # -- whether to use a storage class for trivy server or emptydir (one mey want to use ephemeral storage)
   storageClassEnabled: true

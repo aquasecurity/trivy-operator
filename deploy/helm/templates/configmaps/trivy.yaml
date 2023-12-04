@@ -45,6 +45,7 @@ data:
   trivy.severity: {{ .Values.trivy.severity | quote }}
   trivy.slow: {{ .Values.trivy.slow | quote }}
   trivy.skipJavaDBUpdate: {{ .Values.trivy.skipJavaDBUpdate | quote }}
+  trivy.includeDevDeps: {{ .Values.trivy.includeDevDeps | quote }}
   trivy.imageScanCacheDir: {{ .Values.trivy.imageScanCacheDir | quote }}
   trivy.filesystemScanCacheDir: {{ .Values.trivy.filesystemScanCacheDir | quote }}
   trivy.dbRepository: "{{ .Values.trivy.dbRegistry }}/{{ .Values.trivy.dbRepository }}"

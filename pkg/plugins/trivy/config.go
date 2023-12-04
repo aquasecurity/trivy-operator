@@ -43,6 +43,7 @@ const (
 	keyTrivyHTTPSProxy                          = "trivy.httpsProxy"
 	keyTrivyNoProxy                             = "trivy.noProxy"
 	keyTrivySslCertDir                          = "trivy.sslCertDir"
+	keyIncludeDevDeps                           = "trivy.includeDevDeps"
 	// nolint:gosec // This is not a secret, but a configuration value.
 	keyTrivyGitHubToken          = "trivy.githubToken"
 	keyTrivySkipFiles            = "trivy.skipFiles"
@@ -186,6 +187,18 @@ func (c Config) GetServerURL() (string, error) {
 
 func (c Config) GetClientServerSkipUpdate() bool {
 	val, ok := c.Data[keyTrivyClientServerSkipUpdate]
+	if !ok {
+		return false
+	}
+	boolVal, err := strconv.ParseBool(val)
+	if err != nil {
+		return false
+	}
+	return boolVal
+}
+
+func (c Config) GetIncludeDevDeps() bool {
+	val, ok := c.Data[keyIncludeDevDeps]
 	if !ok {
 		return false
 	}

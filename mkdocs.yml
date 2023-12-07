@@ -42,7 +42,7 @@ nav:
       - Configuration Auditing:
           - Overview: docs/configuration-auditing/index.md
           - Built-in Configuration Audit Policies: docs/configuration-auditing/built-in-policies.md
-      - Complaince Report:
+      - Compliance Report:
           - Overview: docs/compliance/compliance.md
       - Custom Resource Definitions:
           - Overview: docs/crds/index.md

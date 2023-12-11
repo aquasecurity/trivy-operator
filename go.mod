@@ -37,7 +37,7 @@ require (
 )
 
 require (
-	github.com/aws/aws-sdk-go v1.48.11
+	github.com/aws/aws-sdk-go v1.48.16
 	github.com/magefile/mage v1.15.0
 )
 

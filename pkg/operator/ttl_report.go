@@ -51,7 +51,7 @@ func (r *TTLReportReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	if r.Config.InfraAssessmentScannerEnabled {
 		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.InfraAssessmentReport{}})
 	}
-	if r.Config.SbomGenerationEnable {
+	if r.Config.ClusterSbomCacheEnable {
 		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.ClusterSbomReport{}})
 	}
 	installModePredicate, err := predicate.InstallModePredicate(r.Config)

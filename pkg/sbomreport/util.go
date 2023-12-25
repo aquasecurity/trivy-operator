@@ -27,7 +27,7 @@ func cycloneDxBomToReport(cbom cdx.BOM) *v1alpha1.BOM {
 
 func cycloneDxMetadataToReportMetadata(cmetadata *cdx.Metadata) *v1alpha1.Metadata {
 	t := make([]v1alpha1.Tool, 0)
-	for _, ct := range *cmetadata.Tools.Tools {
+	for _, ct := range *cmetadata.Tools {
 		t = append(t, v1alpha1.Tool{
 			Vendor:  ct.Vendor,
 			Name:    ct.Name,

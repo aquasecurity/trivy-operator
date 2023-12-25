@@ -189,7 +189,7 @@ func generateSbomFromScanResult(report ty.Report) (*v1alpha1.BOM, error) {
 	if len(report.Results) > 0 && len(report.Results[0].Packages) > 0 {
 		// capture os.Stdout with a writer
 		done := capture()
-		err := tr.Write(report, fg.Options{
+		err := tr.Write(context.TODO(), report, fg.Options{
 			ReportOptions: fg.ReportOptions{
 				Format: ty.FormatCycloneDX,
 			},

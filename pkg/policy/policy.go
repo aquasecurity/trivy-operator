@@ -19,8 +19,8 @@ import (
 	"github.com/liamg/memoryfs"
 
 	"github.com/aquasecurity/defsec/pkg/scan"
-	"github.com/aquasecurity/defsec/pkg/scanners/kubernetes"
 	"github.com/aquasecurity/defsec/pkg/scanners/options"
+	"github.com/aquasecurity/trivy-iac/pkg/scanners/kubernetes"
 
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"sigs.k8s.io/controller-runtime/pkg/client"

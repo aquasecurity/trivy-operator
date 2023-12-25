@@ -41,6 +41,7 @@ Keeps security report resources updated
 | operator.builtInTrivyServer | bool | `false` | builtInTrivyServer The flag enable the usage of built-in trivy server in cluster ,its also override the following trivy params with built-in values trivy.mode = ClientServer and serverURL = http://<serverServiceName>.<trivy operator namespace>:4975 |
 | operator.cacheReportTTL | string | `"120h"` | cacheReportTTL the flag to set how long a cluster sbom report should exist. "" means that the cacheReportTTL feature is disabled |
 | operator.clusterComplianceEnabled | bool | `true` | clusterComplianceEnabled the flag to enable cluster compliance scanner |
+| operator.clusterSbomCacheEnabled | bool | `true` | the flag to enable cluster sbom cache generation |
 | operator.configAuditScannerEnabled | bool | `true` | configAuditScannerEnabled the flag to enable configuration audit scanner |
 | operator.configAuditScannerScanOnlyCurrentRevisions | bool | `true` | configAuditScannerScanOnlyCurrentRevisions the flag to only create config audit scans on the current revision of a deployment. |
 | operator.controllerCacheSyncTimeout | string | `"5m"` | controllerCacheSyncTimeout the duration to wait for controller resources cache sync (default: 5m). |

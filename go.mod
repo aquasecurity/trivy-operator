@@ -3,7 +3,7 @@ module github.com/aquasecurity/trivy-operator
 go 1.21
 
 require (
-	github.com/CycloneDX/cyclonedx-go v0.7.2
+	github.com/CycloneDX/cyclonedx-go v0.8.0
 	github.com/aquasecurity/defsec v0.93.1
 	github.com/aquasecurity/trivy v0.47.0
 	github.com/aquasecurity/trivy-kubernetes v0.6.0

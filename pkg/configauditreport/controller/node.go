@@ -166,6 +166,7 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 			j.WithName(r.getNodeCollectorName(node)),
 			j.WithJobNamespace(on),
 			j.WithServiceAccount(r.ServiceAccount),
+			j.WithCollectorTimeout(r.Config.ScanJobTimeout),
 			j.WithJobTolerations(jobTolerations),
 			j.WithPodSpecSecurityContext(scanJobSecurityContext),
 			j.WithContainerSecurityContext(scanJobContainerSecurityContext),

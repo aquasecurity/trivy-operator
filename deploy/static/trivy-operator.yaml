@@ -2753,7 +2753,7 @@ data:
   configAuditReports.scanner: "Trivy"
   compliance.failEntriesLimit: "10"
   report.recordFailedChecksOnly: "true"
-  node.collector.imageRef: "ghcr.io/aquasecurity/node-collector:0.0.9"
+  node.collector.imageRef: "ghcr.io/aquasecurity/node-collector:0.1.1"
 ---
 # Source: trivy-operator/templates/configmaps/policies.yaml
 apiVersion: v1
@@ -3361,6 +3361,12 @@ rules:
   - serviceaccounts
   verbs:
   - get
+- apiGroups:
+    - ""
+  resources:
+    - nodes/proxy
+  verbs:
+    - get
 ---
 # Source: trivy-operator/templates/rbac/clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1

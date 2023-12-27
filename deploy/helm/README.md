@@ -105,6 +105,8 @@ Keeps security report resources updated
 | trivy.dbRegistry | string | `"ghcr.io"` |  |
 | trivy.dbRepository | string | `"aquasecurity/trivy-db"` |  |
 | trivy.dbRepositoryInsecure | string | `"false"` | The Flag to enable insecure connection for downloading trivy-db via proxy (air-gaped env)  |
+| trivy.dbRepositoryPassword | string | `nil` | The password for dbRepository authentication  |
+| trivy.dbRepositoryUsername | string | `nil` | The username for dbRepository authentication  |
 | trivy.debug | bool | `false` | debug One of `true` or `false`. Enables debug mode. |
 | trivy.filesystemScanCacheDir | string | `"/var/trivyoperator/trivy-db"` | filesystemScanCacheDir the flag to set custom path for trivy filesystem scan `cache-dir` parameter. Only applicable in filesystem scan mode. |
 | trivy.githubToken | string | `nil` | githubToken is the GitHub access token used by Trivy to download the vulnerabilities database from GitHub. Only applicable in Standalone mode. |

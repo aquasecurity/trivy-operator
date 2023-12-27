@@ -576,6 +576,12 @@ func initContainerFSEnvVar(trivyConfigName string, config Config) []corev1.EnvVa
 		constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
 		constructEnvVarSourceFromSecret("GITHUB_TOKEN", trivyConfigName, keyTrivyGitHubToken),
 	}
+	if config.TrivyDBRepositoryCredentialsSet() {
+		envs = append(envs, []corev1.EnvVar{
+			constructEnvVarSourceFromSecret("TRIVY_USERNAME", trivyConfigName, keyTrivyDBRepositoryUsername),
+			constructEnvVarSourceFromSecret("TRIVY_PASSWORD", trivyConfigName, keyTrivyDBRepositoryPassword),
+		}...)
+	}
 	if config.GetDBRepositoryInsecure() {
 		envs = append(envs, corev1.EnvVar{
 			Name:  "TRIVY_INSECURE",

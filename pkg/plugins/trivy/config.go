@@ -49,6 +49,8 @@ const (
 	keyTrivySkipFiles            = "trivy.skipFiles"
 	keyTrivySkipDirs             = "trivy.skipDirs"
 	keyTrivyDBRepository         = "trivy.dbRepository"
+	keyTrivyDBRepositoryUsername = "trivy.dbRepositoryUsername"
+	keyTrivyDBRepositoryPassword = "trivy.dbRepositoryPassword" // #nosec G101
 	keyTrivyJavaDBRepository     = "trivy.javaDbRepository"
 	keyTrivyDBRepositoryInsecure = "trivy.dbRepositoryInsecure"
 
@@ -219,6 +221,12 @@ func (c Config) GetSkipJavaDBUpdate() bool {
 		return false
 	}
 	return boolVal
+}
+
+func (c Config) TrivyDBRepositoryCredentialsSet() bool {
+	_, userOk := c.Data[keyTrivyDBRepositoryUsername]
+	_, passOk := c.Data[keyTrivyDBRepositoryPassword]
+	return userOk && passOk
 }
 
 func (c Config) GetImageScanCacheDir() string {

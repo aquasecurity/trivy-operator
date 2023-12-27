@@ -210,6 +210,12 @@ func (c Config) GetSkipJavaDBUpdate() bool {
 	return boolVal
 }
 
+func (c Config) TrivyDBRepositoryCredentialsSet() bool {
+	_, userOk := c.Data[keyTrivyDBRepositoryUsername]
+	_, passOk := c.Data[keyTrivyDBRepositoryPassword]
+	return userOk && passOk
+}
+
 func (c Config) GetImageScanCacheDir() string {
 	val, ok := c.Data[keyTrivyImageScanCacheDir]
 	if !ok || val == "" {

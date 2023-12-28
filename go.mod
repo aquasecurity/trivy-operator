@@ -375,3 +375,5 @@ replace oras.land/oras-go => oras.land/oras-go v1.2.4-0.20230801060855-932dd06d3
 replace google.golang.org/grpc => google.golang.org/grpc v1.57.1
 
 replace github.com/moby/buildkit => github.com/moby/buildkit v0.11.6
+
+replace github.com/go-git/go-git/v5 => github.com/go-git/go-git/v5 v5.11.0 // indirect

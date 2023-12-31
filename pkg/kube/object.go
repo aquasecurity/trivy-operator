@@ -729,6 +729,8 @@ func (r *Resource) GetWorkloadResource(kind string, object client.Object, resolv
 		*r = Resource{Kind: KindCronJob, ForObject: resolver.GetSupportedObjectByKind(KindCronJob, &batchv1.CronJob{}), OwnsObject: object}
 	case "job":
 		*r = Resource{Kind: KindJob, ForObject: &batchv1.Job{}, OwnsObject: object}
+	case "ingress":
+		*r = Resource{Kind: KindIngress, ForObject: &networkingv1.Ingress{}, OwnsObject: object}
 	default:
 		return fmt.Errorf("workload of kind %s is not supported", kind)
 	}

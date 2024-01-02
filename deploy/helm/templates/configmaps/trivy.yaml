@@ -51,6 +51,7 @@ data:
   trivy.dbRepository: "{{ .Values.trivy.dbRegistry }}/{{ .Values.trivy.dbRepository }}"
   trivy.javaDbRepository: "{{ .Values.trivy.javaDbRegistry }}/{{ .Values.trivy.javaDbRepository }}"
   trivy.command: {{ .Values.trivy.command | quote }}
+  trivy.sbomSources: {{ .Values.trivy.sbomSources }}
   {{- with .Values.trivy.skipFiles }}
   trivy.skipFiles: {{ . | quote }}
   {{- end }}

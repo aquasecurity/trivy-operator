@@ -28,6 +28,7 @@ const (
 	keyTrivyMode                                = "trivy.mode"
 	keyTrivyAdditionalVulnerabilityReportFields = "trivy.additionalVulnerabilityReportFields"
 	keyTrivyCommand                             = "trivy.command"
+	keyTrivySbomSources                         = "trivy.sbomSources"
 	KeyTrivySeverity                            = "trivy.severity"
 	keyTrivySlow                                = "trivy.slow"
 	keyTrivyVulnType                            = "trivy.vulnType"
@@ -209,6 +210,14 @@ func (c Config) GetIncludeDevDeps() bool {
 		return false
 	}
 	return boolVal
+}
+
+func (c Config) GetSbomSources() string {
+	val, ok := c.Data[keyTrivySbomSources]
+	if !ok {
+		return ""
+	}
+	return val
 }
 
 func (c Config) GetSkipJavaDBUpdate() bool {

@@ -570,10 +570,12 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef stri
 		return []string{}, []string{}
 	}
 	slow := Slow(c)
+	sbomSources := c.GetSbomSources()
 	skipJavaDBUpdate := SkipJavaDBUpdate(c)
 	cacheDir := c.GetImageScanCacheDir()
 	vulnTypeArgs := vulnTypeFilter(ctx)
 	scanners := Scanners(c)
+
 	var vulnTypeFlag string
 	if len(vulnTypeArgs) == 2 {
 		vulnTypeFlag = fmt.Sprintf("%s %s ", vulnTypeArgs[0], vulnTypeArgs[1])
@@ -618,6 +620,9 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef stri
 		if len(pkgList) > 0 {
 			args = append(args, pkgList)
 		}
+		if len(sbomSources) > 0 {
+			args = append(args, []string{"--sbom-sources", sbomSources}...)
+		}
 		if len(skipUpdate) > 0 {
 			args = append(args, skipUpdate)
 		}
@@ -631,7 +636,11 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef stri
 	if mode == ClientServer {
 		serverUrlParms = fmt.Sprintf("--server '%s' ", trivyServerURL)
 	}
-	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s %s --cache-dir %s --quiet %s --format json %s> /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, skipJavaDBUpdate, cacheDir, getPkgList(ctx), serverUrlParms, resultFileName, resultFileName)}
+	var sbomSourcesFlag string
+	if len(sbomSources) > 0 {
+		sbomSourcesFlag = fmt.Sprintf(" --sbom-sources %s ", sbomSources)
+	}
+	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s %s%s --cache-dir %s --quiet %s --format json %s> /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, skipJavaDBUpdate, sbomSourcesFlag, cacheDir, getPkgList(ctx), serverUrlParms, resultFileName, resultFileName)}
 }
 
 func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomFile string, trivyServerURL string, resultFileName string) ([]string, []string) {

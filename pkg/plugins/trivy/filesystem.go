@@ -522,11 +522,14 @@ func GetFSScanningArgs(ctx trivyoperator.PluginContext, command Command, mode Mo
 	if mode == ClientServer {
 		args = append(args, "--server", trivyServerURL)
 	}
+
 	slow := Slow(c)
 	if len(slow) > 0 {
 		args = append(args, slow)
 	}
-
+	if sbomSources := c.GetSbomSources(); len(sbomSources) > 0 {
+		args = append(args, []string{"--sbom-sources", sbomSources}...)
+	}
 	if c.GetIncludeDevDeps() && command == Filesystem {
 		args = append(args, "--include-dev-deps")
 	}

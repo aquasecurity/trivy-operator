@@ -1004,25 +1004,27 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceInfoReports(ctx cont
 		if c.Config.MetricsClusterComplianceInfo {
 			labelValues[0] = r.Spec.Complaince.Title
 			labelValues[1] = r.Spec.Complaince.Description
-			for _, summary := range r.Status.SummaryReport.SummaryControls {
-				if summary.TotalFail == nil {
-					continue
-				}
-				status := PassStatus
-				metricCounter := 1
-				if *summary.TotalFail > 0 {
-					status = FailStatus
-					metricCounter = *summary.TotalFail
-				}
-				labelValues[2] = summary.ID
-				labelValues[3] = summary.Name
-				labelValues[4] = NewStatusLabel(Status(status)).Label
-				labelValues[5] = summary.Severity
+			if r.Status.SummaryReport != nil {
+				for _, summary := range r.Status.SummaryReport.SummaryControls {
+					if summary.TotalFail == nil {
+						continue
+					}
+					status := PassStatus
+					metricCounter := 1
+					if *summary.TotalFail > 0 {
+						status = FailStatus
+						metricCounter = *summary.TotalFail
+					}
+					labelValues[2] = summary.ID
+					labelValues[3] = summary.Name
+					labelValues[4] = NewStatusLabel(Status(status)).Label
+					labelValues[5] = summary.Severity
 
-				for i, label := range c.GetReportResourceLabels() {
-					labelValues[i+6] = r.Labels[label]
+					for i, label := range c.GetReportResourceLabels() {
+						labelValues[i+6] = r.Labels[label]
+					}
+					metrics <- prometheus.MustNewConstMetric(c.complianceInfoDesc, prometheus.GaugeValue, float64(metricCounter), labelValues...)
 				}
-				metrics <- prometheus.MustNewConstMetric(c.complianceInfoDesc, prometheus.GaugeValue, float64(metricCounter), labelValues...)
 			}
 		}
 	}

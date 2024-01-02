@@ -294,7 +294,7 @@ trivy:
   mode: Standalone
 
   # -- sbomSources trivy will try to retrieve SBOM from the specified sources (oci,rekor)
-  sbomSources: ""
+  sbomSources: ~
 
   # -- includeDevDeps include development dependencies in the report (supported: npm, yarn) (default: false)
   # note: this flag is only applicable when trivy.command is set to filesystem

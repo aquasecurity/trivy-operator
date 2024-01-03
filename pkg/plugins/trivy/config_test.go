@@ -931,7 +931,7 @@ func TestPlugin_GetSbomSources(t *testing.T) {
 			want:       "",
 		},
 		{
-			name: "GetSbomSources not set",
+			name: "GetSbomSources with oci and rekor",
 			configData: map[string]string{
 				"trivy.sbomSources": "oci,rekor",
 			},

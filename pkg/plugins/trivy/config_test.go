@@ -918,3 +918,35 @@ func TestPlugin_GetIncludeDevDeps(t *testing.T) {
 		})
 	}
 }
+
+func TestPlugin_GetSbomSources(t *testing.T) {
+	testCases := []struct {
+		name       string
+		configData map[string]string
+		want       string
+	}{
+		{
+			name:       "GetSbomSources not set",
+			configData: map[string]string{},
+			want:       "",
+		},
+		{
+			name: "GetSbomSources with oci and rekor",
+			configData: map[string]string{
+				"trivy.sbomSources": "oci,rekor",
+			},
+			want: "oci,rekor",
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			config := Config{
+				trivyoperator.PluginConfig{
+					Data: tc.configData,
+				},
+			}
+			got := config.GetSbomSources()
+			assert.Equal(t, got, tc.want)
+		})
+	}
+}

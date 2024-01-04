@@ -77,9 +77,11 @@ data:
   {{- with .Values.trivy.timeout }}
   trivy.timeout: {{ . | quote }}
   {{- end }}
-  {{- with .Values.trivy.ignoreFile }}
+  {{- if .Values.trivy.ignoreFile }}
   trivy.ignoreFile: |
-    {{- . | trim | nindent 4 }}
+  {{- range .Values.trivy.ignoreFile }}
+    {{ . | indent 4 }}
+  {{- end }}
   {{- end }}
   {{- range $k, $v := .Values.trivy }}
   {{- if hasPrefix "ignorePolicy" $k }}

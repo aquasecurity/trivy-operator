@@ -71,11 +71,8 @@ func TestConfigData_GetConfigAuditReportsScanner(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			scanner, err := tc.configData.GetConfigAuditReportsScanner()
+			scanner := tc.configData.GetConfigAuditReportsScanner()
 			if tc.expectedError != "" {
-				require.EqualError(t, err, tc.expectedError)
-			} else {
-				require.NoError(t, err)
 				assert.Equal(t, tc.expectedScanner, scanner)
 			}
 		})

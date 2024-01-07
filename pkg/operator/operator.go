@@ -163,7 +163,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	if err != nil {
 		return err
 	}
-	pluginConfig, pluginContextConfig, err := plugins.NewResolver().WithBuildInfo(buildInfo).
+	pluginConfig, pluginContextConfig := plugins.NewResolver().WithBuildInfo(buildInfo).
 		WithNamespace(operatorNamespace).
 		WithServiceAccountName(operatorConfig.ServiceAccount).
 		WithConfig(trivyOperatorConfig).

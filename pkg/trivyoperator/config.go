@@ -154,13 +154,13 @@ func (c ConfigData) VulnerabilityScanJobsInSameNamespace() bool {
 	return c.getBoolKey(KeyVulnerabilityScansInSameNamespace)
 }
 
-func (c ConfigData) GetConfigAuditReportsScanner() (Scanner, error) {
+func (c ConfigData) GetConfigAuditReportsScanner() Scanner {
 	var ok bool
 	var value string
 	if value, ok = c[keyConfigAuditReportsScanner]; !ok {
-		return "", fmt.Errorf("property %s not set", keyConfigAuditReportsScanner)
+		return Scanner("Trivy")
 	}
-	return Scanner(value), nil
+	return Scanner(value)
 }
 
 func (c ConfigData) GetScanJobTolerations() ([]corev1.Toleration, error) {

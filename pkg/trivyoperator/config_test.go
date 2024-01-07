@@ -53,31 +53,25 @@ func TestConfigData_GetConfigAuditReportsScanner(t *testing.T) {
 	testCases := []struct {
 		name            string
 		configData      trivyoperator.ConfigData
-		expectedError   string
 		expectedScanner trivyoperator.Scanner
 	}{
 		{
 			name: "Should return Trivy",
 			configData: trivyoperator.ConfigData{
-				"configAuditReports.scanner": "Trivy",
+				"configAuditReports.scanner": "Test",
 			},
-			expectedScanner: v1alpha1.ScannerNameTrivy,
+			expectedScanner: trivyoperator.Scanner("Test"),
 		},
 		{
-			name:          "Should return error when value is not set",
-			configData:    trivyoperator.ConfigData{},
-			expectedError: "property configAuditReports.scanner not set",
+			name:            "Scaner is not set",
+			configData:      trivyoperator.ConfigData{},
+			expectedScanner: trivyoperator.Scanner(v1alpha1.ScannerNameTrivy),
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			scanner, err := tc.configData.GetConfigAuditReportsScanner()
-			if tc.expectedError != "" {
-				require.EqualError(t, err, tc.expectedError)
-			} else {
-				require.NoError(t, err)
-				assert.Equal(t, tc.expectedScanner, scanner)
-			}
+			scanner := tc.configData.GetConfigAuditReportsScanner()
+			assert.Equal(t, tc.expectedScanner, scanner)
 		})
 	}
 }

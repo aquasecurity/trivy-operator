@@ -146,7 +146,7 @@ var _ = BeforeSuite(func() {
 		Commit:  "commit",
 		Date:    "12/12/2020",
 	}
-	pluginca, _, err := plugins.NewResolver().WithBuildInfo(buildInfo).
+	pluginca, _ := plugins.NewResolver().WithBuildInfo(buildInfo).
 		WithNamespace(config.Namespace).
 		WithServiceAccountName(config.ServiceAccount).
 		WithConfig(trivyOperatorConfig).

@@ -60,7 +60,7 @@ func TestConfigData_GetConfigAuditReportsScanner(t *testing.T) {
 			configData: trivyoperator.ConfigData{
 				"configAuditReports.scanner": "Test",
 			},
-			expectedScanner: v1alpha1.ScannerNameTrivy,
+			expectedScanner: trivyoperator.Scanner("Test"),
 		},
 		{
 			name:            "Scaner is not set",

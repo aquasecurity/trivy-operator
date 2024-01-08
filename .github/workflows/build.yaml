@@ -211,20 +211,20 @@ jobs:
           reports tests
         run: >
           kubectl create namespace e2e-test
-          ./bin/kuttl test --start-kind=false --config tests/config/image-mode.yaml
+          ./bin/kuttl test --start-kind=false --namespace e2e-test --config tests/config/image-mode.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: Files System scan mode producing vulnerability,misconfig and
           exposedsecrets reports tests
         run: |
           kubectl create namespace e2e-test
-          ./bin/kuttl test --start-kind=false --config tests/config/fs-mode.yaml
+          ./bin/kuttl test --start-kind=false --config --namespace e2e-test tests/config/fs-mode.yaml
           ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: Client/server mode producing vulnerability,misconfig and exposedsecrets
           reports tests
         run: >
           kubectl create namespace e2e-test
-          ./bin/kuttl test --start-kind=false --config
+          ./bin/kuttl test --start-kind=false --namespace e2e-test --config
           tests/config/client-server.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
@@ -232,7 +232,7 @@ jobs:
           reports tests
         run: >
           kubectl create namespace e2e-test
-          ./bin/kuttl test --start-kind=false --config
+          ./bin/kuttl test --start-kind=false --namespace e2e-test --config
           tests/config/sbom-standalone.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
@@ -240,7 +240,7 @@ jobs:
           reports tests
         run: >
           kubectl create namespace e2e-test
-          ./bin/kuttl test --start-kind=false --config
+          ./bin/kuttl test --start-kind=false --namespace e2e-test --config
           tests/config/client-server-sbom.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
@@ -248,14 +248,14 @@ jobs:
           reports tests
         run: >
           kubectl create namespace e2e-test
-          ./bin/kuttl test --start-kind=false --config
+          ./bin/kuttl test --start-kind=false --namespace e2e-test --config
           tests/config/fs-sbom.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: Node scan producing cluster infraassessment report
         run: >
           kubectl create namespace e2e-test
-          ./bin/kuttl test --start-kind=false --config
+          ./bin/kuttl test --start-kind=false --namespace e2e-test --config
           tests/config/node-collector.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1

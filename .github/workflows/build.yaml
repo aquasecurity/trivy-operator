@@ -220,7 +220,7 @@ jobs:
         run: |
           kubectl create namespace e2e-test
 
-          ./bin/kuttl test --start-kind=false --config --namespace e2e-test tests/config/fs-mode.yaml
+          ./bin/kuttl test --start-kind=false --config --namespace e2e-test --config tests/config/fs-mode.yaml
           ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: Client/server mode producing vulnerability,misconfig and exposedsecrets
           reports tests

@@ -5,7 +5,7 @@ metadata:
   annotations:
     trivy-operator.aquasecurity.github.io/report-ttl: 24h0m0s
   name: pod-sa-pod-app
-  namespace: private
+  namespace: e2e-test
 report:
   artifact:
     repository: aquasec/private-test

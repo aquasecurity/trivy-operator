@@ -2,7 +2,7 @@
 apiVersion: kuttl.dev/v1beta1
 commands:
   - script: >
-      cnt="$(kubectl get -n private
+      cnt="$(kubectl get -n e2e-test
       vulnerabilityreports.aquasecurity.github.io pod-my-pod-app \
         -o=jsonpath='{.report.summary.criticalCount}')"
       if [ $cnt -gt 0 ]

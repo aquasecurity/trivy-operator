@@ -106,12 +106,12 @@ jobs:
         run: >
           ./bin/kuttl test --start-kind=false --config tests/config/image-private-registries.yaml
 
-          ./tests/resources-cleanup.sh > /dev/null 2>&1
+          ./tests/resources-cleanup-private.sh > /dev/null 2>&1
       - name: image private registries via service account image pull secret tests
         run: >
           ./bin/kuttl test --start-kind=false --config tests/config/image-private-registries-sa.yaml
 
-          ./tests/resources-cleanup.sh > /dev/null 2>&1
+          ./tests/resources-cleanup-private.sh > /dev/null 2>&1
       - name: Delete kind cluster
         run: |
           kind delete cluster

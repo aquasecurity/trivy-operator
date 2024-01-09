@@ -10,3 +10,4 @@ commands:
 testDirs:
   - tests/e2e/sbom-fs
 timeout: 240
+kindNodeCache: true

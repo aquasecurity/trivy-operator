@@ -9,3 +9,4 @@ commands:
 testDirs:
   - tests/e2e/client-server
 timeout: 240
+kindNodeCache: true

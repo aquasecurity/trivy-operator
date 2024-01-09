@@ -9,3 +9,4 @@ commands:
 testDirs:
   - tests/e2e/sbom-client-server
 timeout: 240
+kindNodeCache: true

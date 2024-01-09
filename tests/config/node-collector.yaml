@@ -9,3 +9,4 @@ commands:
 testDirs:
   - tests/e2e/node-collector
 timeout: 240
+kindNodeCache: true

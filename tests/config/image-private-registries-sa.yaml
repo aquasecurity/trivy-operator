@@ -10,3 +10,4 @@ testDirs:
 manifestDirs:
   - tests/e2e/image-private-registries-sa/manifests/
 timeout: 240
+kindNodeCache: true

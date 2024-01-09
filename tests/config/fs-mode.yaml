@@ -10,3 +10,4 @@ commands:
 testDirs:
   - tests/e2e/fs-mode
 timeout: 240
+kindNodeCache: true

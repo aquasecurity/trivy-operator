@@ -511,7 +511,7 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 				fileName := fmt.Sprintf("%s.json", secretName)
 				mountPath := fmt.Sprintf("/sbom-%s", container.Name)
 				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, container.Name)
-				cmd, args = GetSbomScanCommandAndArgs(ctx, ClientServer, fmt.Sprintf("%s/%s", mountPath, fileName), "", resultFileName)
+				cmd, args = GetSbomScanCommandAndArgs(ctx, ClientServer, fmt.Sprintf("%s/%s", mountPath, fileName), encodedTrivyServerURL.String(), resultFileName)
 			}
 		}
 		containers = append(containers, corev1.Container{

@@ -379,3 +379,5 @@ replace google.golang.org/grpc => google.golang.org/grpc v1.57.1
 replace github.com/moby/buildkit => github.com/moby/buildkit v0.11.6
 
 replace github.com/go-git/go-git/v5 => github.com/go-git/go-git/v5 v5.11.0 // indirect
+
+replace github.com/cloudflare/circl => github.com/cloudflare/circl v1.3.7 // indirect

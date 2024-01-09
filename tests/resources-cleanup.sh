@@ -8,3 +8,4 @@ kubectl delete crd infraassessmentreports.aquasecurity.github.io
 kubectl delete crd clusterrbacassessmentreports.aquasecurity.github.io
 kubectl delete crd sbomreports.aquasecurity.github.io
 kubectl delete crd clustersbomreports.aquasecurity.github.io
+kubectl delete namespace e2e-test

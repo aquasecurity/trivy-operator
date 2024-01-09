@@ -3,9 +3,8 @@ apiVersion: kuttl.dev/v1beta1
 kind: TestSuite
 commands:
   - command: helm install trivy-operator ./deploy/helm --namespace trivy-system
-      --create-namespace --set="image.tag=e2e"
-      --set="targetNamespaces=e2e-test"
+      --create-namespace
 testDirs:
-  - tests/e2e/image-private-registries
+  - tests/e2e/cluster
 timeout: 240
 kindNodeCache: true

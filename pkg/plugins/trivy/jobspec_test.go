@@ -51,28 +51,32 @@ func TestCreateSbomDataSecret(t *testing.T) {
 
 func TestCreateVolumes(t *testing.T) {
 	testCases := []struct {
-		name string
-		vm   []corev1.VolumeMount
-		v    []corev1.Volume
-		sn   string
-		fn   string
+		name      string
+		vm        []corev1.VolumeMount
+		v         []corev1.Volume
+		cName     string
+		sn        string
+		fn        string
+		mountPath string
 	}{
 		{
-			name: "cretae volumes",
-			vm:   []corev1.VolumeMount{},
-			v:    []corev1.Volume{},
-			sn:   "test",
-			fn:   "name",
+			name:      "cretae volumes",
+			vm:        []corev1.VolumeMount{},
+			v:         []corev1.Volume{},
+			sn:        "test",
+			cName:     "cname",
+			mountPath: "/sbom-cname",
+			fn:        "name",
 		},
 	}
 	tc := testCases[0]
 	t.Run(tc.name, func(t *testing.T) {
-		trivy.CreateVolumeSbomFiles(&tc.vm, &tc.v, &tc.sn, tc.fn)
+		trivy.CreateVolumeSbomFiles(&tc.vm, &tc.v, &tc.sn, tc.fn, tc.mountPath, tc.cName)
 		assert.Equal(t, len(tc.vm), 1)
 		assert.Equal(t, len(tc.v), 1)
-		assert.Equal(t, tc.vm[0].Name, "sbomvol")
-		assert.Equal(t, tc.vm[0].MountPath, "/sbom")
-		assert.Equal(t, tc.v[0].Name, "sbomvol")
+		assert.Equal(t, tc.vm[0].Name, "sbomvol-cname")
+		assert.Equal(t, tc.vm[0].MountPath, "/sbom-cname")
+		assert.Equal(t, tc.v[0].Name, "sbomvol-cname")
 		assert.Equal(t, tc.v[0].Secret.SecretName, tc.sn)
 		assert.Equal(t, tc.v[0].Secret.Items[0].Key, "bom")
 		assert.Equal(t, tc.v[0].Secret.Items[0].Path, tc.fn)

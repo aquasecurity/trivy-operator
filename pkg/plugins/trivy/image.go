@@ -270,8 +270,9 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 				}
 				secrets = append(secrets, &secret)
 				fileName := fmt.Sprintf("%s.json", secretName)
-				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName)
-				cmd, args = GetSbomScanCommandAndArgs(ctx, Standalone, fmt.Sprintf("/sbom/%s", fileName), "", resultFileName)
+				mountPath := fmt.Sprintf("/sbom-%s", c.Name)
+				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, c.Name)
+				cmd, args = GetSbomScanCommandAndArgs(ctx, Standalone, fmt.Sprintf("%s/%s", mountPath, fileName), "", resultFileName)
 			}
 		}
 		containers = append(containers, corev1.Container{
@@ -508,8 +509,9 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 				}
 				secrets = append(secrets, &secret)
 				fileName := fmt.Sprintf("%s.json", secretName)
-				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName)
-				cmd, args = GetSbomScanCommandAndArgs(ctx, ClientServer, fmt.Sprintf("/sbom/%s", fileName), "", resultFileName)
+				mountPath := fmt.Sprintf("/sbom-%s", container.Name)
+				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, container.Name)
+				cmd, args = GetSbomScanCommandAndArgs(ctx, ClientServer, fmt.Sprintf("%s/%s", mountPath, fileName), encodedTrivyServerURL.String(), resultFileName)
 			}
 		}
 		containers = append(containers, corev1.Container{

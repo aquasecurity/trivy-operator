@@ -2,6 +2,7 @@ package trivy
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	corev1 "k8s.io/api/core/v1"
@@ -238,14 +239,15 @@ func CreateSbomDataAsSecret(bom v1alpha1.BOM, secretName string) (corev1.Secret,
 }
 
 // CreateVolumeSbomFiles creates a volume and volume mount for the sbom data
-func CreateVolumeSbomFiles(volumeMounts *[]corev1.VolumeMount, volumes *[]corev1.Volume, secretName *string, fileName string) {
+func CreateVolumeSbomFiles(volumeMounts *[]corev1.VolumeMount, volumes *[]corev1.Volume, secretName *string, fileName string, mountPath string, cname string) {
+	vname := fmt.Sprintf("sbomvol-%s", cname)
 	sbomMount := corev1.VolumeMount{
-		Name:      "sbomvol",
-		MountPath: "/sbom",
+		Name:      vname,
+		MountPath: mountPath,
 		ReadOnly:  true,
 	}
 	sbomVolume := corev1.Volume{
-		Name: "sbomvol",
+		Name: vname,
 		VolumeSource: corev1.VolumeSource{
 			Secret: &corev1.SecretVolumeSource{
 				SecretName: *secretName,

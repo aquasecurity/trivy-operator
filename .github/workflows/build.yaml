@@ -210,48 +210,61 @@ jobs:
       - name: Image scan mode producing vulnerability,misconfig and exposedsecrets
           reports tests
         run: >
-          ./bin/kuttl test --start-kind=false --config tests/config/image-mode.yaml
+          kubectl create namespace e2e-test
+
+          ./bin/kuttl test --start-kind=false --namespace e2e-test --config tests/config/image-mode.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
-      - name: Files System scan mode producing vulnerability,misconfig and
-          exposedsecrets reports tests
+      - name: Files System scan mode producing vulnerability,misconfig and exposedsecrets reports tests
         run: |
-          ./bin/kuttl test --start-kind=false --config tests/config/fs-mode.yaml
+          kubectl create namespace e2e-test
+
+          ./bin/kuttl test --start-kind=false --namespace e2e-test --config tests/config/fs-mode.yaml
+
           ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: Client/server mode producing vulnerability,misconfig and exposedsecrets
           reports tests
         run: >
-          ./bin/kuttl test --start-kind=false --config
-          tests/config/client-server.yaml
+          kubectl create namespace e2e-test
+
+          ./bin/kuttl test --start-kind=false --namespace e2e-test --config tests/config/client-server.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: Standalon mode with Sbom scanning
           reports tests
         run: >
-          ./bin/kuttl test --start-kind=false --config
-          tests/config/sbom-standalone.yaml
+          kubectl create namespace e2e-test
+
+          ./bin/kuttl test --start-kind=false --namespace e2e-test --config tests/config/sbom-standalone.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: Client/Server with Sbom scanning
           reports tests
         run: >
-          ./bin/kuttl test --start-kind=false --config
-          tests/config/client-server-sbom.yaml
+          kubectl create namespace e2e-test
+
+          ./bin/kuttl test --start-kind=false --namespace e2e-test --config tests/config/client-server-sbom.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: file system with Sbom scanning
           reports tests
         run: >
-          ./bin/kuttl test --start-kind=false --config
-          tests/config/fs-sbom.yaml
+          kubectl create namespace e2e-test
+
+          ./bin/kuttl test --start-kind=false --namespace e2e-test --config tests/config/fs-sbom.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: Node scan producing cluster infraassessment report
         run: >
-          ./bin/kuttl test --start-kind=false --config
-          tests/config/node-collector.yaml
+          kubectl create namespace e2e-test
+
+          ./bin/kuttl test --start-kind=false --namespace e2e-test --config tests/config/node-collector.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
+      - name: Cluster vulnerabilities report
+        run: >
+          ./bin/kuttl test --start-kind=false --config tests/config/cluster-scan.yaml
+
       - name: Delete kind cluster
         run: |
           kind delete cluster

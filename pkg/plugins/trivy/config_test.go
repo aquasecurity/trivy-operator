@@ -729,7 +729,7 @@ func TestPlugin_Init(t *testing.T) {
 			},
 			Data: map[string]string{
 				"trivy.repository":                DefaultImageRepository,
-				"trivy.tag":                       "0.48.1",
+				"trivy.tag":                       "0.48.2",
 				"trivy.severity":                  DefaultSeverity,
 				"trivy.slow":                      "true",
 				"trivy.mode":                      string(Standalone),

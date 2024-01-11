@@ -273,6 +273,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 				mountPath := fmt.Sprintf("/sbom-%s", c.Name)
 				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, c.Name)
 				ssp := SbomScanParams{
+					CacheDir:       "/tmp/trivy/.cache",
 					Mode:           Standalone,
 					Command:        Image,
 					SbomFile:       fmt.Sprintf("%s/%s", mountPath, fileName),
@@ -519,6 +520,7 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 				mountPath := fmt.Sprintf("/sbom-%s", container.Name)
 				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, container.Name)
 				ssp := SbomScanParams{
+					CacheDir:       "/tmp/trivy/.cache",
 					Mode:           ClientServer,
 					Command:        Image,
 					SbomFile:       fmt.Sprintf("%s/%s", mountPath, fileName),

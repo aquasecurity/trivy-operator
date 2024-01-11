@@ -265,6 +265,7 @@ func CreateVolumeSbomFiles(volumeMounts *[]corev1.VolumeMount, volumes *[]corev1
 }
 
 type SbomScanParams struct {
+	CacheDir       string
 	Command        Command
 	Mode           Mode
 	TrivyServerURL string
@@ -298,7 +299,7 @@ func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, ssp SbomScanPara
 	if (!compressLogs && ssp.Command == Image) || (ssp.Command != Image) {
 		args := []string{
 			"--cache-dir",
-			"/tmp/trivy/.cache",
+			ssp.CacheDir,
 			"--quiet",
 			"sbom",
 			"--format",

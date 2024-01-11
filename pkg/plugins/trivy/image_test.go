@@ -132,6 +132,7 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 				}).
 				Get()
 			ssp := trivy.SbomScanParams{
+				CacheDir:       "/tmp/trivy/.cache",
 				Mode:           tc.mode,
 				Command:        trivy.Image,
 				SbomFile:       tc.sbomFile,

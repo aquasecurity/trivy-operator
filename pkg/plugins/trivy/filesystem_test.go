@@ -27,8 +27,8 @@ func TestGetSbomFSScanningArgs(t *testing.T) {
 			sbomFile:       "/tmp/scan/bom.json",
 			serverUrl:      "",
 			resultFileName: "",
-			wantArgs:       []string{"--cache-dir", "/var/trivyoperator/trivy-db", "--quiet", "sbom", "--format", "json", "--skip-db-update", "/tmp/scan/bom.json", "--slow"},
-			wantCmd:        []string{trivy.SharedVolumeLocationOfTrivy},
+			wantArgs:       []string{"--cache-dir", "/var/trivyoperator/trivy-db", "--quiet", "sbom", "--format", "json", "/tmp/scan/bom.json", "--slow", "--skip-db-update"},
+			wantCmd:        []string{"trivy"},
 		},
 		{
 			name:           "command and args for client/server mode",
@@ -36,8 +36,8 @@ func TestGetSbomFSScanningArgs(t *testing.T) {
 			sbomFile:       "/tmp/scan/bom.json",
 			serverUrl:      "http://trivy-server:8080",
 			resultFileName: "",
-			wantArgs:       []string{"--cache-dir", "/var/trivyoperator/trivy-db", "--quiet", "sbom", "--format", "json", "--skip-db-update", "/tmp/scan/bom.json", "--server", "http://trivy-server:8080", "--slow"},
-			wantCmd:        []string{trivy.SharedVolumeLocationOfTrivy},
+			wantArgs:       []string{"--cache-dir", "/var/trivyoperator/trivy-db", "--quiet", "sbom", "--format", "json", "--server", "http://trivy-server:8080", "/tmp/scan/bom.json", "--slow"},
+			wantCmd:        []string{"trivy"},
 		},
 	}
 	for _, tc := range testCases {
@@ -66,6 +66,7 @@ func TestGetSbomFSScanningArgs(t *testing.T) {
 				}).
 				Get()
 			ssp := trivy.SbomScanParams{
+				CacheDir:       "/var/trivyoperator/trivy-db",
 				Mode:           tc.mode,
 				Command:        trivy.Filesystem,
 				SbomFile:       tc.sbomFile,

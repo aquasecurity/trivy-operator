@@ -234,7 +234,14 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 				fileName := fmt.Sprintf("%s.json", secretName)
 				mountPath := fmt.Sprintf("/sbom-%s", c.Name)
 				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, c.Name)
-				fscommand, args = GetSbomFSScanningArgs(ctx, Standalone, "", fmt.Sprintf("%s/%s", mountPath, fileName))
+				ssp := SbomScanParams{
+					Mode:           Standalone,
+					Command:        command,
+					SbomFile:       fmt.Sprintf("%s/%s", mountPath, fileName),
+					TrivyServerURL: "",
+					ResultFileName: "",
+				}
+				fscommand, args = GetSbomScanCommandAndArgs(ctx, ssp)
 			}
 		}
 		containers = append(containers, corev1.Container{
@@ -461,7 +468,14 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 				fileName := fmt.Sprintf("%s.json", secretName)
 				mountPath := fmt.Sprintf("/sbom-%s", c.Name)
 				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, c.Name)
-				fscommand, args = GetSbomFSScanningArgs(ctx, ClientServer, encodedTrivyServerURL.String(), fmt.Sprintf("%s/%s", mountPath, fileName))
+				ssp := SbomScanParams{
+					Mode:           ClientServer,
+					Command:        command,
+					SbomFile:       fmt.Sprintf("%s/%s", mountPath, fileName),
+					TrivyServerURL: encodedTrivyServerURL.String(),
+					ResultFileName: "",
+				}
+				fscommand, args = GetSbomScanCommandAndArgs(ctx, ssp)
 			}
 		}
 		containers = append(containers, corev1.Container{
@@ -541,37 +555,6 @@ func GetFSScanningArgs(ctx trivyoperator.PluginContext, command Command, mode Mo
 		args = append(args, pkgList)
 	}
 	return args
-}
-
-func GetSbomFSScanningArgs(ctx trivyoperator.PluginContext, mode Mode, trivyServerURL string, sbomFile string) ([]string, []string) {
-	command := []string{
-		SharedVolumeLocationOfTrivy,
-	}
-	c, err := getConfig(ctx)
-	if err != nil {
-		return []string{}, []string{}
-	}
-	skipUpdate := SkipDBUpdate(c)
-	cacheDir := c.GetFilesystemScanCacheDir()
-	args := []string{
-		"--cache-dir",
-		cacheDir,
-		"--quiet",
-		"sbom",
-		"--format",
-		"json",
-		skipUpdate,
-		sbomFile,
-	}
-
-	if mode == ClientServer {
-		args = append(args, "--server", trivyServerURL)
-	}
-	slow := Slow(c)
-	if len(slow) > 0 {
-		args = append(args, slow)
-	}
-	return command, args
 }
 
 func initContainerFSEnvVar(trivyConfigName string, config Config) []corev1.EnvVar {

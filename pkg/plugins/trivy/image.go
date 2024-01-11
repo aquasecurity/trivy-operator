@@ -272,7 +272,14 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 				fileName := fmt.Sprintf("%s.json", secretName)
 				mountPath := fmt.Sprintf("/sbom-%s", c.Name)
 				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, c.Name)
-				cmd, args = GetSbomScanCommandAndArgs(ctx, Standalone, fmt.Sprintf("%s/%s", mountPath, fileName), "", resultFileName)
+				ssp := SbomScanParams{
+					Mode:           Standalone,
+					Command:        Image,
+					SbomFile:       fmt.Sprintf("%s/%s", mountPath, fileName),
+					TrivyServerURL: "",
+					ResultFileName: resultFileName,
+				}
+				cmd, args = GetSbomScanCommandAndArgs(ctx, ssp)
 			}
 		}
 		containers = append(containers, corev1.Container{
@@ -511,7 +518,14 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 				fileName := fmt.Sprintf("%s.json", secretName)
 				mountPath := fmt.Sprintf("/sbom-%s", container.Name)
 				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, container.Name)
-				cmd, args = GetSbomScanCommandAndArgs(ctx, ClientServer, fmt.Sprintf("%s/%s", mountPath, fileName), encodedTrivyServerURL.String(), resultFileName)
+				ssp := SbomScanParams{
+					Mode:           ClientServer,
+					Command:        Image,
+					SbomFile:       fmt.Sprintf("%s/%s", mountPath, fileName),
+					TrivyServerURL: encodedTrivyServerURL.String(),
+					ResultFileName: resultFileName,
+				}
+				cmd, args = GetSbomScanCommandAndArgs(ctx, ssp)
 			}
 		}
 		containers = append(containers, corev1.Container{
@@ -643,61 +657,6 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef stri
 		sbomSourcesFlag = fmt.Sprintf(" --sbom-sources %s ", sbomSources)
 	}
 	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s %s%s --cache-dir %s --quiet %s --format json %s> /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, skipJavaDBUpdate, sbomSourcesFlag, cacheDir, getPkgList(ctx), serverUrlParms, resultFileName, resultFileName)}
-}
-
-func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomFile string, trivyServerURL string, resultFileName string) ([]string, []string) {
-	command := []string{
-		"trivy",
-	}
-	trivyConfig := ctx.GetTrivyOperatorConfig()
-	compressLogs := trivyConfig.CompressLogs()
-	c, err := getConfig(ctx)
-	if err != nil {
-		return []string{}, []string{}
-	}
-	slow := Slow(c)
-	vulnTypeArgs := vulnTypeFilter(ctx)
-	var vulnTypeFlag string
-	if len(vulnTypeArgs) == 2 {
-		vulnTypeFlag = fmt.Sprintf("%s %s ", vulnTypeArgs[0], vulnTypeArgs[1])
-	}
-
-	var skipUpdate string
-	if c.GetClientServerSkipUpdate() && mode == ClientServer {
-		skipUpdate = SkipDBUpdate(c)
-	} else if mode != ClientServer {
-		skipUpdate = SkipDBUpdate(c)
-	}
-	if !compressLogs {
-		args := []string{
-			"--cache-dir",
-			"/tmp/trivy/.cache",
-			"--quiet",
-			"sbom",
-			"--format",
-			"json",
-		}
-
-		if len(trivyServerURL) > 0 {
-			args = append(args, []string{"--server", trivyServerURL}...)
-		}
-		args = append(args, sbomFile)
-		if len(slow) > 0 {
-			args = append(args, slow)
-		}
-		if len(vulnTypeArgs) > 0 {
-			args = append(args, vulnTypeArgs...)
-		}
-		if len(skipUpdate) > 0 {
-			args = append(args, skipUpdate)
-		}
-		return command, args
-	}
-	var serverUrlParms string
-	if mode == ClientServer {
-		serverUrlParms = fmt.Sprintf("--server '%s' ", trivyServerURL)
-	}
-	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy sbom %s %s %s %s  --cache-dir /tmp/trivy/.cache --quiet --format json %s> /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, sbomFile, vulnTypeFlag, skipUpdate, serverUrlParms, resultFileName, resultFileName)}
 }
 
 func vulnTypeFilter(ctx trivyoperator.PluginContext) []string {

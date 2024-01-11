@@ -263,3 +263,66 @@ func CreateVolumeSbomFiles(volumeMounts *[]corev1.VolumeMount, volumes *[]corev1
 	*volumes = append(*volumes, sbomVolume)
 	*volumeMounts = append(*volumeMounts, sbomMount)
 }
+
+type SbomScanParams struct {
+	Command        Command
+	Mode           Mode
+	TrivyServerURL string
+	SbomFile       string
+	ResultFileName string
+}
+
+func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, ssp SbomScanParams) ([]string, []string) {
+	command := []string{
+		"trivy",
+	}
+	trivyConfig := ctx.GetTrivyOperatorConfig()
+	compressLogs := trivyConfig.CompressLogs()
+	c, err := getConfig(ctx)
+	if err != nil {
+		return []string{}, []string{}
+	}
+	slow := Slow(c)
+	vulnTypeArgs := vulnTypeFilter(ctx)
+	var vulnTypeFlag string
+	if len(vulnTypeArgs) == 2 {
+		vulnTypeFlag = fmt.Sprintf("%s %s ", vulnTypeArgs[0], vulnTypeArgs[1])
+	}
+
+	var skipUpdate string
+	if c.GetClientServerSkipUpdate() && ssp.Mode == ClientServer {
+		skipUpdate = SkipDBUpdate(c)
+	} else if ssp.Mode != ClientServer {
+		skipUpdate = SkipDBUpdate(c)
+	}
+	if (!compressLogs && ssp.Command == Image) || (ssp.Command != Image) {
+		args := []string{
+			"--cache-dir",
+			"/tmp/trivy/.cache",
+			"--quiet",
+			"sbom",
+			"--format",
+			"json",
+		}
+
+		if len(ssp.TrivyServerURL) > 0 {
+			args = append(args, []string{"--server", ssp.TrivyServerURL}...)
+		}
+		args = append(args, ssp.SbomFile)
+		if len(slow) > 0 {
+			args = append(args, slow)
+		}
+		if len(vulnTypeArgs) > 0 {
+			args = append(args, vulnTypeArgs...)
+		}
+		if len(skipUpdate) > 0 {
+			args = append(args, skipUpdate)
+		}
+		return command, args
+	}
+	var serverUrlParms string
+	if ssp.Mode == ClientServer {
+		serverUrlParms = fmt.Sprintf("--server '%s' ", ssp.TrivyServerURL)
+	}
+	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy sbom %s %s %s %s  --cache-dir /tmp/trivy/.cache --quiet --format json %s> /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, ssp.SbomFile, vulnTypeFlag, skipUpdate, serverUrlParms, ssp.ResultFileName, ssp.ResultFileName)}
+}

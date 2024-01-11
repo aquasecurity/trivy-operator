@@ -65,7 +65,14 @@ func TestGetSbomFSScanningArgs(t *testing.T) {
 					"trivy.clientServerSkipUpdate": "false",
 				}).
 				Get()
-			cmd, args := trivy.GetSbomFSScanningArgs(pluginContext, tc.mode, tc.serverUrl, tc.sbomFile)
+			ssp := trivy.SbomScanParams{
+				Mode:           tc.mode,
+				Command:        trivy.Filesystem,
+				SbomFile:       tc.sbomFile,
+				TrivyServerURL: tc.serverUrl,
+				ResultFileName: "",
+			}
+			cmd, args := trivy.GetSbomScanCommandAndArgs(pluginContext, ssp)
 			assert.Equal(t, tc.wantCmd, cmd)
 			assert.Equal(t, tc.wantArgs, args)
 		})

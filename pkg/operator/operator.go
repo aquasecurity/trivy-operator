@@ -238,7 +238,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	var gitVersion string
 	if version, err := clientSet.ServerVersion(); err == nil {
 		gitVersion = strings.TrimPrefix(version.GitVersion, "v")
-		gitVersion = strings.Replace(gitVersion, "+", "-", 1)
+		gitVersion = strings.ReplaceAll(gitVersion, "+", "-")
 	}
 	if operatorConfig.ConfigAuditScannerEnabled {
 

@@ -735,8 +735,8 @@ github.com/aquasecurity/trivy-iac v0.7.1 h1:YqA0B1P/5uJy2YOrT+QtoB8Z/DCqMxApsMkv
 github.com/aquasecurity/trivy-iac v0.7.1/go.mod h1:SK5XaVwGh5M17QV81139BSPXNlm3bIGp+YmAYs7slRw=
 github.com/aquasecurity/trivy-java-db v0.0.0-20230514115002-fb1b70d903ce h1:WzPuUf6V4S4jGcxf5d4o+HJjNne/xxBAQWJ46Z7eCTE=
 github.com/aquasecurity/trivy-java-db v0.0.0-20230514115002-fb1b70d903ce/go.mod h1:Ldya37FLi0e/5Cjq2T5Bty7cFkzUDwTcPeQua+2M8i8=
-github.com/aquasecurity/trivy-kubernetes v0.6.2-0.20240117093628-249e18b0a70e h1:p104LuFah4fBof6ec8sYbLi5dSPT3K+m790focU9o9k=
-github.com/aquasecurity/trivy-kubernetes v0.6.2-0.20240117093628-249e18b0a70e/go.mod h1:dgc4AnkHhgbjkfZ+1U2oWoGh+qpEDiUK5lXeiLUIsmk=
+github.com/aquasecurity/trivy-kubernetes v0.6.2 h1:jHVPU6BKMftbsLYl2xi6aaxm2S7MyRIu4THGNm0wS44=
+github.com/aquasecurity/trivy-kubernetes v0.6.2/go.mod h1:dgc4AnkHhgbjkfZ+1U2oWoGh+qpEDiUK5lXeiLUIsmk=
 github.com/aquasecurity/trivy-policies v0.6.1-0.20231120231532-f6f2330bf842 h1:RnxM3eTcwPlA/WBwnmaEpeEk3WOCDcnz7yTIFxVL7us=
 github.com/aquasecurity/trivy-policies v0.6.1-0.20231120231532-f6f2330bf842/go.mod h1:BmEeSFgmBjo3avCli71736sy0veGcSUzGATupp1MCgA=
 github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0 h1:jfIu9sQUG6Ig+0+Ap1h4unLjW6YQJpKZVmUzxsD4E/Q=

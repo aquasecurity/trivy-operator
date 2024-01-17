@@ -6,7 +6,7 @@ require (
 	github.com/CycloneDX/cyclonedx-go v0.7.2
 	github.com/aquasecurity/defsec v0.93.2-0.20231208181342-318642ac6f08
 	github.com/aquasecurity/trivy v0.48.3
-	github.com/aquasecurity/trivy-kubernetes v0.6.2-0.20240117093628-249e18b0a70e
+	github.com/aquasecurity/trivy-kubernetes v0.6.2
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc

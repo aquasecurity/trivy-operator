@@ -172,6 +172,7 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 			j.WithPodSpecSecurityContext(scanJobSecurityContext),
 			j.WithContainerSecurityContext(scanJobContainerSecurityContext),
 			j.WithPodImagePullSecrets(r.GetNodeCollectorImagePullsecret()),
+			j.WithNodeConfig(true),
 			j.WithJobAnnotation(scanJobAnnotations),
 			j.WithImageRef(nodeCollectorImageRef),
 			j.WithVolumes(nodeCollectorVolumes),

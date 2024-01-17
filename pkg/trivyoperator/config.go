@@ -184,11 +184,11 @@ func (c ConfigData) GetNodeCollectorImagePullsecret() []corev1.LocalObjectRefere
 }
 
 func (c ConfigData) UseNodeCollectorNodeSelector() bool {
-	_, ok := c[KeyNodeCollectorNodeSelector]
+	val, ok := c[KeyNodeCollectorNodeSelector]
 	if !ok {
 		return true
 	}
-	return c.getBoolKey(KeyNodeCollectorNodeSelector)
+	return val == "true"
 }
 
 func (c ConfigData) GetNodeCollectorVolumes() ([]corev1.Volume, error) {

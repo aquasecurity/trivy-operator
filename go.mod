@@ -38,7 +38,7 @@ require (
 
 require (
 	github.com/aquasecurity/trivy-iac v0.7.1
-	github.com/aws/aws-sdk-go v1.49.21
+	github.com/aws/aws-sdk-go v1.49.22
 	github.com/magefile/mage v1.15.0
 )
 

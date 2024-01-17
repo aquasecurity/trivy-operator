@@ -82,6 +82,7 @@ const (
 	KeyNodeCollectorImageRef               = "node.collector.imageRef"
 	KeyNodeCollectorImagePullSecret        = "node.collector.imagePullSecret"
 	KeyAdditionalReportLabels              = "report.additionalLabels"
+	KeyNodeCollectorNodeSelector           = "node.collector.nodeSelector"
 )
 
 // ConfigData holds Trivy-operator configuration settings as a set of key-value
@@ -180,6 +181,14 @@ func (c ConfigData) GetNodeCollectorImagePullsecret() []corev1.LocalObjectRefere
 		imagePullSecrets = append(imagePullSecrets, corev1.LocalObjectReference{Name: imagePullSecretValue})
 	}
 	return imagePullSecrets
+}
+
+func (c ConfigData) UseNodeCollectorNodeSelector() bool {
+	useNodeSelector, ok := c[KeyNodeCollectorNodeSelector]
+	if !ok {
+		return true
+	}
+	return c.getBoolKey(useNodeSelector)
 }
 
 func (c ConfigData) GetNodeCollectorVolumes() ([]corev1.Volume, error) {

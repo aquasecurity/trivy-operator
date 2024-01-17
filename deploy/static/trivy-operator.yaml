@@ -2754,7 +2754,7 @@ data:
   compliance.failEntriesLimit: "10"
   report.recordFailedChecksOnly: "true"
   node.collector.imageRef: "ghcr.io/aquasecurity/node-collector:0.1.1"
-  node.collector.nodeSelector: true
+  node.collector.nodeSelector: "true"
 ---
 # Source: trivy-operator/templates/configmaps/policies.yaml
 apiVersion: v1

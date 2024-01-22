@@ -58,7 +58,7 @@ helm upgrade --install trivy-operator aqua/trivy-operator \
   --namespace trivy-system \
   --create-namespace \
   --version {{ var.chart_version }}
-  --set="trivy.command=fs"
+  --set="trivy.command=filesystem"
   --set="trivyOperator.scanJobPodTemplateContainerSecurityContext.runAsUser=0"
 ```
 

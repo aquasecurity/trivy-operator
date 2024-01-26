@@ -24,11 +24,11 @@ spec:
       spec:
         resources:
           requests:
-            storage: 5Gi
+            storage: {{ .Values.trivy.storageSize }}
         accessModes:
           - ReadWriteOnce
         storageClassName: {{ .Values.trivy.storageClassName }}
-  {{- end }}        
+  {{- end }}
   template:
     metadata:
       annotations:

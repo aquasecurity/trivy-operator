@@ -306,6 +306,9 @@ trivy:
   # -- storageClassName is the name of the storage class to be used for trivy server PVC. If empty, tries to find default storage class
   storageClassName: ""
 
+  # -- storageSize is the size of the trivy server PVC
+  storageSize: "5Gi"
+
   # -- podLabels is the extra pod labels to be used for trivy server
   podLabels:
 

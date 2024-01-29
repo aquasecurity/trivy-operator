@@ -70,7 +70,7 @@ operator:
   # -- the flag to enable sbom generation
   sbomGenerationEnabled: true
   # -- the flag to enable cluster sbom cache generation
-  clusterSbomCacheEnabled: true
+  clusterSbomCacheEnabled: false
   # -- scannerReportTTL the flag to set how long a report should exist. "" means that the ScannerReportTTL feature is disabled
   scannerReportTTL: "24h"
   # -- cacheReportTTL the flag to set how long a cluster sbom report should exist. "" means that the cacheReportTTL feature is disabled

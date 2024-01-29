@@ -2901,7 +2901,7 @@ spec:
             - name: OPERATOR_SBOM_GENERATION_ENABLED
               value: "true"
             - name: OPERATOR_CLUSTER_SBOM_CACHE_ENABLED
-              value: "true"
+              value: "false"
             - name: OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS
               value: "true"
             - name: OPERATOR_SCANNER_REPORT_TTL

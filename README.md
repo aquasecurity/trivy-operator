@@ -66,7 +66,7 @@ Install the Helm Chart:
    helm install trivy-operator aqua/trivy-operator \
      --namespace trivy-system \
      --create-namespace \
-     --version 0.20.3
+     --version 0.20.4
 ```
 
 This will install the Trivy Helm Chart into the `trivy-system` namespace and start triggering the scans.
@@ -112,4 +112,3 @@ Join the community, and talk to us about any matter in [GitHub Discussions] or [
 [Documentation]: https://aquasecurity.github.io/trivy-operator/latest
 [Static YAML Manifests]: https://aquasecurity.github.io/trivy-operator/latest/getting-started/installation/kubectl/
 [getting-started-operator]: https://aquasecurity.github.io/trivy-operator/latest/
-

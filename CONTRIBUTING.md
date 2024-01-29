@@ -84,7 +84,7 @@ If you only run test using the Magefile
 run some of these integration tests using `go test` or from your IDE, you'll
 have to
 [install kubebuiler-tools](https://book.kubebuilder.io/reference/envtest.html#installation).
-[install magefile](https://magefile.org)  or use `go run mage.go <goal>` 
+[install magefile](https://magefile.org)  or use `go run mage.go <goal>`
 
 ## Build Binaries
 
@@ -351,7 +351,7 @@ kubectl apply -f https://github.com/operator-framework/operator-lifecycle-manage
 or
 
 ```
-curl -L https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.20.3/install.sh -o install.sh
+curl -L https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.20.4/install.sh -o install.sh
 chmod +x install.sh
 ./install.sh v0.20.0
 ```

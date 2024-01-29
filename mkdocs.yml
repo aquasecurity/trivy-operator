@@ -89,8 +89,8 @@ extra:
     method: mike
     provider: mike
   var:
-    prev_git_tag: "v0.18.1"
-    chart_version: "0.20.2"
+    prev_git_tag: "v0.18.2"
+    chart_version: "0.20.4"
 
 plugins:
   - search

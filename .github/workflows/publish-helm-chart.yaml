@@ -76,7 +76,7 @@ jobs:
 
       - name: Repository Dispatch Publish docs
         if: github.event.client_payload.action == 'chart-and-app-release' && !contains(steps.latest_tag.outputs.tag, 'rc')
-        uses: peter-evans/repository-dispatch@v2
+        uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: publish-docs

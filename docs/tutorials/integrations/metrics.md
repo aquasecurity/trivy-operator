@@ -84,7 +84,6 @@ trivy_resource_infraassessments{
 
 ### InfraAssessmentsInfo
 
-```shell
 Exposes details about InfraAssessments that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_INFRA_ASSESSMENT_INFO_ENABLED" envDefault:"false"` . For example:
 
 ```shell

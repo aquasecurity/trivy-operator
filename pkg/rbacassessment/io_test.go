@@ -319,6 +319,10 @@ func TestReadWriter(t *testing.T) {
 			WithScheme(kubernetesScheme).
 			WithObjects(
 				&v1alpha1.ClusterRbacAssessmentReport{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "ClusterRbacAssessmentReport",
+						APIVersion: "aquasecurity.github.io/v1alpha1",
+					},
 					ObjectMeta: metav1.ObjectMeta{
 						Name:            "clusterrole-admin",
 						ResourceVersion: "0",

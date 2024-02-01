@@ -26,6 +26,10 @@ func TestReadWriter(t *testing.T) {
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := rbacassessment.NewReadWriter(&resolver)
 		err := readWriter.WriteReport(context.TODO(), v1alpha1.RbacAssessmentReport{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "RbacAssessmentReport",
+				APIVersion: "aquasecurity.github.io/v1alpha1",
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "role-app",
 				Namespace: "qa",
@@ -74,6 +78,10 @@ func TestReadWriter(t *testing.T) {
 
 	t.Run("Should update RbacAssessmentReport", func(t *testing.T) {
 		testClient := fake.NewClientBuilder().WithScheme(kubernetesScheme).WithObjects(&v1alpha1.RbacAssessmentReport{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "RbacAssessmentReport",
+				APIVersion: "aquasecurity.github.io/v1alpha1",
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:            "role-app",
 				Namespace:       "qa",
@@ -95,6 +103,10 @@ func TestReadWriter(t *testing.T) {
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := rbacassessment.NewReadWriter(&resolver)
 		err := readWriter.WriteReport(context.TODO(), v1alpha1.RbacAssessmentReport{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "RbacAssessmentReport",
+				APIVersion: "aquasecurity.github.io/v1alpha1",
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "role-app",
 				Namespace: "qa",
@@ -256,6 +268,10 @@ func TestReadWriter(t *testing.T) {
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := rbacassessment.NewReadWriter(&resolver)
 		err := readWriter.WriteClusterReport(context.TODO(), v1alpha1.ClusterRbacAssessmentReport{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "ClusterRbacAssessmentReport",
+				APIVersion: "aquasecurity.github.io/v1alpha1",
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "clusterrole-admin",
 				Labels: map[string]string{
@@ -323,6 +339,10 @@ func TestReadWriter(t *testing.T) {
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := rbacassessment.NewReadWriter(&resolver)
 		err := readWriter.WriteClusterReport(context.TODO(), v1alpha1.ClusterRbacAssessmentReport{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "ClusterRbacAssessmentReport",
+				APIVersion: "aquasecurity.github.io/v1alpha1",
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "clusterrole-admin",
 				Labels: map[string]string{

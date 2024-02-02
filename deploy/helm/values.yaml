@@ -96,6 +96,8 @@ operator:
   # -- builtInTrivyServer The flag enable the usage of built-in trivy server in cluster ,its also override the following trivy params with built-in values
   # trivy.mode = ClientServer and serverURL = http://<serverServiceName>.<trivy operator namespace>:4975
   builtInTrivyServer: false
+  # -- builtInServerRegistryInsecure is the flag to enable insecure connection from the built-in Trivy server to the registry.
+  builtInServerRegistryInsecure: false
   # -- controllerCacheSyncTimeout the duration to wait for controller resources cache sync (default: 5m).
   controllerCacheSyncTimeout: "5m"
 

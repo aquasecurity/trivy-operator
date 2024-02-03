@@ -94,6 +94,10 @@ func TestNewReadWriter(t *testing.T) {
 	t.Run("Should update SbomReports", func(t *testing.T) {
 		testClient := fake.NewClientBuilder().WithScheme(kubernetesScheme).WithObjects(
 			&v1alpha1.SbomReport{
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: "aquasecurity.github.io/v1alpha1",
+					Kind:       "SbomReport",
+				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:            "deployment-app1-container1",
 					Namespace:       "qa",
@@ -108,6 +112,10 @@ func TestNewReadWriter(t *testing.T) {
 				},
 			},
 			&v1alpha1.SbomReport{
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: "aquasecurity.github.io/v1alpha1",
+					Kind:       "SbomReport",
+				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:            "deployment-app1-container2",
 					Namespace:       "qa",
@@ -125,6 +133,10 @@ func TestNewReadWriter(t *testing.T) {
 		readWriter := sbomreport.NewReadWriter(&resolver)
 		err := readWriter.Write(context.TODO(), []v1alpha1.SbomReport{
 			{
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: "aquasecurity.github.io/v1alpha1",
+					Kind:       "SbomReport",
+				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "deployment-app1-container1",
 					Namespace: "qa",
@@ -138,6 +150,10 @@ func TestNewReadWriter(t *testing.T) {
 				},
 			},
 			{
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: "aquasecurity.github.io/v1alpha1",
+					Kind:       "SbomReport",
+				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "deployment-app1-container2",
 					Namespace: "qa",

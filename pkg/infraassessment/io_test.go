@@ -25,6 +25,10 @@ func TestReadWriter(t *testing.T) {
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := infraassessment.NewReadWriter(&resolver)
 		err := readWriter.WriteReport(context.TODO(), v1alpha1.InfraAssessmentReport{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "InfraAssessmentReport",
+				APIVersion: "aquasecurity.github.io/v1alpha1",
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "role-app",
 				Namespace: "qa",
@@ -73,6 +77,10 @@ func TestReadWriter(t *testing.T) {
 
 	t.Run("Should update InfraAssessmentReport", func(t *testing.T) {
 		testClient := fake.NewClientBuilder().WithScheme(kubernetesScheme).WithObjects(&v1alpha1.InfraAssessmentReport{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "InfraAssessmentReport",
+				APIVersion: "aquasecurity.github.io/v1alpha1",
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:            "role-app",
 				Namespace:       "qa",
@@ -94,6 +102,10 @@ func TestReadWriter(t *testing.T) {
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := infraassessment.NewReadWriter(&resolver)
 		err := readWriter.WriteReport(context.TODO(), v1alpha1.InfraAssessmentReport{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "InfraAssessmentReport",
+				APIVersion: "aquasecurity.github.io/v1alpha1",
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "role-app",
 				Namespace: "qa",

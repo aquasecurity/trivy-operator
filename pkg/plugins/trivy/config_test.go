@@ -715,10 +715,6 @@ func TestPlugin_Init(t *testing.T) {
 		}, &cm)
 		require.NoError(t, err)
 		assert.Equal(t, corev1.ConfigMap{
-			TypeMeta: metav1.TypeMeta{
-				APIVersion: "v1",
-				Kind:       "ConfigMap",
-			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "trivy-operator-trivy-config",
 				Namespace: "trivyoperator-ns",

@@ -11,7 +11,7 @@ import (
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/aquasecurity/trivy-kubernetes/pkg/bom"
-	"github.com/aquasecurity/trivy-kubernetes/pkg/k8s"
+	"github.com/aquasecurity/trivy-kubernetes/pkg/k8s" // nolint:typecheck
 	"github.com/aquasecurity/trivy-kubernetes/pkg/trivyk8s"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"

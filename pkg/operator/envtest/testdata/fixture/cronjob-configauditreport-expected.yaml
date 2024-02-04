@@ -25,9 +25,9 @@ report:
     version: version
   summary:
     criticalCount: 0
-    highCount: 1
+    highCount: 2
     mediumCount: 3
-    lowCount: 12
+    lowCount: 10
   checks:
     - checkID: KSV001
       title: Can elevate its own privileges
@@ -74,7 +74,7 @@ report:
         their local disk. This can limit intrusions, as attackers will not be
         able to tamper with the file system or write foreign executables to
         disk.
-      severity: LOW
+      severity: HIGH
       category: Kubernetes Security Check
       messages:
         - Container 'hello' of CronJob 'hello' should set
@@ -167,19 +167,6 @@ report:
       messages:
         - cronjob hello in default namespace should set metadata.namespace to a
           non-default namespace
-      success: false
-    - checkID: KSV116
-      title: Runs with a root primary or supplementary GID
-      description: According to pod security standard 'Non-root groups', containers
-        should be forbidden from running with a root primary or supplementary
-        GID.
-      severity: LOW
-      category: Kubernetes Security Check
-      messages:
-        - cronjob hello in default namespace should set
-          spec.securityContext.runAsGroup,
-          spec.securityContext.supplementalGroups[*] and
-          spec.securityContext.fsGroup to integer greater than 0
       success: false
     - checkID: KSV118
       title: Default security context configured

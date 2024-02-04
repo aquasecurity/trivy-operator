@@ -9,7 +9,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 )
 
-func cycloneDxBomToReport(cbom cdx.BOM) *v1alpha1.BOM {
+func cycloneDxBomToReport(cbom cdx.BOM, version string) *v1alpha1.BOM {
 	components := make([]*v1alpha1.Component, 0)
 	for _, c := range *cbom.Components {
 		components = append(components, cycloneDxComponentToReportComponent(c))
@@ -19,20 +19,19 @@ func cycloneDxBomToReport(cbom cdx.BOM) *v1alpha1.BOM {
 		SpecVersion:  cbom.SpecVersion.String(),
 		SerialNumber: cbom.SerialNumber,
 		Version:      cbom.Version,
-		Metadata:     cycloneDxMetadataToReportMetadata(cbom.Metadata),
+		Metadata:     cycloneDxMetadataToReportMetadata(cbom.Metadata, version),
 		Components:   components,
 		Dependencies: cycloneDxDependenciesToReportDependencies(cbom.Dependencies),
 	}
 }
 
-func cycloneDxMetadataToReportMetadata(cmetadata *cdx.Metadata) *v1alpha1.Metadata {
-	t := make([]v1alpha1.Tool, 0)
-	for _, ct := range *cmetadata.Tools {
-		t = append(t, v1alpha1.Tool{
-			Vendor:  ct.Vendor,
-			Name:    ct.Name,
-			Version: ct.Version,
-		})
+func cycloneDxMetadataToReportMetadata(cmetadata *cdx.Metadata, version string) *v1alpha1.Metadata {
+	t := []v1alpha1.Tool{
+		v1alpha1.Tool{
+			Vendor:  "aquasecurity",
+			Name:    "trivy",
+			Version: version,
+		},
 	}
 	return &v1alpha1.Metadata{
 		Timestamp: cmetadata.Timestamp,

@@ -11,7 +11,7 @@ import (
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/aquasecurity/trivy-kubernetes/pkg/bom"
-	tk "github.com/aquasecurity/trivy-kubernetes/pkg/k8s"
+	"github.com/aquasecurity/trivy-kubernetes/pkg/k8s"
 	"github.com/aquasecurity/trivy-kubernetes/pkg/trivyk8s"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
@@ -91,7 +91,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 	return func(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 		log := r.Logger.WithValues("node", req.NamespacedName)
 		resourceRef := kube.ObjectRefFromKindAndObjectKey(resourceKind, req.NamespacedName)
-		obj, err := r.ObjectFromObjectRef(ctx, resourceRef)
+		obj, err := r.WorkloadController.ObjectFromObjectRef(ctx, resourceRef)
 		if err != nil {
 			if errors.IsNotFound(err) {
 				log.V(1).Info("Ignoring cached resource that must have been deleted")
@@ -104,13 +104,13 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 		var val any
 		switch v := obj.(type) {
 		case *corev1.Pod:
-			val, err = tk.PodInfo(*v, getLabelSelector(obj))
+			val, err = k8s.PodInfo(*v, getLabelSelector(obj))
 			if err != nil {
 				return ctrl.Result{}, fmt.Errorf("getting %s bom component: %w", resourceKind, err)
 			}
 			key = v.Name
 		case *corev1.Node:
-			val = tk.NodeInfo(*v)
+			val = k8s.NodeInfo(*v)
 			key = v.Name
 		}
 		oldVal, ok := r.clusterCache.Load(key)
@@ -155,7 +155,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		pluginConfig, err := r.GetConfig()
+		pluginConfig, err := r.WorkloadController.GetConfig()
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -176,7 +176,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 		}
 		output := new(bytes.Buffer)
 		w := report.NewCycloneDXWriter(output, cdx.BOMFileFormatJSON, apiVersion)
-		err = w.Write(k8sreport.RootComponent)
+		err = w.Write(ctx, k8sreport.RootComponent)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -187,7 +187,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 		}
 
 		sbomReportData := v1alpha1.SbomReportData{
-			UpdateTimestamp: metav1.NewTime(clock.Now()),
+			UpdateTimestamp: metav1.NewTime(clock.Now(ctx)),
 			Scanner: v1alpha1.Scanner{
 				Name:    v1alpha1.ScannerNameTrivy,
 				Vendor:  "Aqua Security",
@@ -201,12 +201,12 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 			Summary: sbomreport.BomSummary(bomData),
 			Bom:     bomData,
 		}
-		sbomReportBuilder := sbomreport.NewReportBuilder(r.Client.Scheme()).
+		sbomReportBuilder := sbomreport.NewReportBuilder(r.WorkloadController.Client.Scheme()).
 			Container(name).
 			Data(sbomReportData).
 			AdditionalReportLabels(map[string]string{trivyoperator.LabelKbom: kbom})
 		sbomReport := sbomReportBuilder.ClusterReport()
-		return ctrl.Result{}, r.SbomReadWriter.WriteCluster(ctx, []v1alpha1.ClusterSbomReport{sbomReport})
+		return ctrl.Result{}, r.WorkloadController.SbomReadWriter.WriteCluster(ctx, []v1alpha1.ClusterSbomReport{sbomReport})
 	}
 }
 
@@ -233,7 +233,7 @@ func (r *ClusterController) reconcileKbom() reconcile.Func {
 		log := r.Logger.WithValues("sbom", req.NamespacedName)
 		kbom := &v1alpha1.ClusterSbomReport{}
 		log.V(1).Info("Getting node from cache")
-		err := r.Client.Get(ctx, req.NamespacedName, kbom)
+		err := r.WorkloadController.Client.Get(ctx, req.NamespacedName, kbom)
 		if err != nil {
 			if errors.IsNotFound(err) {
 				log.V(1).Info("Ignoring cached kbom that must have been deleted")
@@ -249,7 +249,7 @@ func (r *ClusterController) reconcileKbom() reconcile.Func {
 			Bom: kbom.Report.Bom,
 		}
 		// trigger kbom scan job
-		err = r.SubmitScanJob(ctx, &corev1.Pod{
+		err = r.WorkloadController.SubmitScanJob(ctx, &corev1.Pod{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "ClusterSbomReport",
 				APIVersion: "v1alpha1",
@@ -317,7 +317,7 @@ func (r *ClusterController) reportExist(ctx context.Context, mlabels map[string]
 	var list v1alpha1.ClusterVulnerabilityReportList
 	labels := client.MatchingLabels(mlabels)
 
-	err := r.List(ctx, &list, labels)
+	err := r.WorkloadController.List(ctx, &list, labels)
 	if err != nil {
 		return false
 	}

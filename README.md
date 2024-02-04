@@ -16,7 +16,7 @@
 
 # Introduction
 
-The Trivy Operator leverages [Trivy](https://github.com/aquasecurity/trivy) to continuously scan your Kubernetes cluster for security issues. The scans are summarised in security reports as Kubernetes [Custom Resource Definitions](crd), which become accessible through the Kubernetes API. The Operator does this by watching Kubernetes for state changes and automatically triggering security scans in response. For example, a vulnerability scan is initiated when a new Pod is created.
+The Trivy Operator leverages [Trivy](https://github.com/aquasecurity/trivy) to continuously scan your Kubernetes cluster for security issues. The scans are summarised in security reports as Kubernetes [Custom Resource Definitions], which become accessible through the Kubernetes API. The Operator does this by watching Kubernetes for state changes and automatically triggering security scans in response. For example, a vulnerability scan is initiated when a new Pod is created.
 This way, users can find and view the risks that relate to different resources in a `Kubernetes-native` way.
 
 ## In-cluster Security Scans
@@ -87,6 +87,7 @@ Kubernetes-native ways.
 - Please ensure that you are following our [Code Of Conduct](https://github.com/aquasecurity/community/blob/main/CODE_OF_CONDUCT.md) during any interaction with the Aqua projects and their community.
 
 ---
+
 Trivy-Operator is an [Aqua Security](https://aquasec.com) open source project.  
 Learn about our [Open Source Work and Portfolio].  
 Join the community, and talk to us about any matter in [GitHub Discussions] or [Slack].
@@ -107,7 +108,6 @@ Join the community, and talk to us about any matter in [GitHub Discussions] or [
 [GitHub Discussions]: https://github.com/aquasecurity/trivy-operator/discussions
 [Slack]: https://slack.aquasec.com/
 [Open Source Work and Portfolio]: https://www.aquasec.com/products/open-source-projects/
-
 [Custom Resource Definitions]: https://aquasecurity.github.io/trivy-operator/latest/docs/crds/
 [Documentation]: https://aquasecurity.github.io/trivy-operator/latest
 [Static YAML Manifests]: https://aquasecurity.github.io/trivy-operator/latest/getting-started/installation/kubectl/

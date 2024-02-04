@@ -143,8 +143,8 @@ jobs:
           files: ./itest/trivy-operator/coverage.txt
   e2e-testing:
     name: Run end to end testing
-    needs:
-      - itest-trivy-operator
+    #needs:
+     # - itest-trivy-operator
     runs-on: ubuntu-latest
     env:
       DOCKER_CLI_EXPERIMENTAL: enabled

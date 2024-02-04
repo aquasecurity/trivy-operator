@@ -27,7 +27,7 @@ func cycloneDxBomToReport(cbom cdx.BOM, version string) *v1alpha1.BOM {
 
 func cycloneDxMetadataToReportMetadata(cmetadata *cdx.Metadata, version string) *v1alpha1.Metadata {
 	t := []v1alpha1.Tool{
-		v1alpha1.Tool{
+		{
 			Vendor:  "aquasecurity",
 			Name:    "trivy",
 			Version: version,

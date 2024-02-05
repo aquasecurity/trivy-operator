@@ -33,6 +33,9 @@ spec:
     metadata:
       annotations:
         checksum/config: 7fcc66ace3f98462349856795765021e7bf7a0106f28439a9f6dc74257404370
+        {{- with .Values.operator.serverAdditionalAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       labels:
         {{- with .Values.trivy.podLabels }}
           {{- toYaml . | nindent 8 }}

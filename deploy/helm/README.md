@@ -1,6 +1,6 @@
 # trivy-operator
 
-![Version: 0.20.4](https://img.shields.io/badge/Version-0.20.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.18.3](https://img.shields.io/badge/AppVersion-0.18.3-informational?style=flat-square)
+![Version: 0.20.5](https://img.shields.io/badge/Version-0.20.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.18.4](https://img.shields.io/badge/AppVersion-0.18.4-informational?style=flat-square)
 
 Keeps security report resources updated
 
@@ -39,6 +39,7 @@ Keeps security report resources updated
 | operator.accessGlobalSecretsAndServiceAccount | bool | `true` | accessGlobalSecretsAndServiceAccount The flag to enable access to global secrets/service accounts to allow `vulnerability scan job` to pull images from private registries |
 | operator.batchDeleteDelay | string | `"10s"` | batchDeleteDelay the duration to wait before deleting another batch of config audit reports. |
 | operator.batchDeleteLimit | int | `10` | batchDeleteLimit the maximum number of config audit reports deleted by the operator when the plugin's config has changed. |
+| operator.builtInServerRegistryInsecure | bool | `false` | builtInServerRegistryInsecure is the flag to enable insecure connection from the built-in Trivy server to the registry. |
 | operator.builtInTrivyServer | bool | `false` | builtInTrivyServer The flag enable the usage of built-in trivy server in cluster ,its also override the following trivy params with built-in values trivy.mode = ClientServer and serverURL = http://<serverServiceName>.<trivy operator namespace>:4975 |
 | operator.cacheReportTTL | string | `"120h"` | cacheReportTTL the flag to set how long a cluster sbom report should exist. "" means that the cacheReportTTL feature is disabled |
 | operator.clusterComplianceEnabled | bool | `true` | clusterComplianceEnabled the flag to enable cluster compliance scanner |
@@ -72,6 +73,7 @@ Keeps security report resources updated
 | operator.scanJobsRetryDelay | string | `"30s"` | scanJobsRetryDelay the duration to wait before retrying a failed scan job |
 | operator.scanNodeCollectorLimit | int | `1` | scanNodeCollectorLimit the maximum number of node collector jobs create by the operator |
 | operator.scannerReportTTL | string | `"24h"` | scannerReportTTL the flag to set how long a report should exist. "" means that the ScannerReportTTL feature is disabled |
+| operator.serverAdditionalAnnotations | object | `{}` | serverAdditionalAnnotations the flag to set additional annotations for the trivy server pod |
 | operator.trivyServerHealthCheckCacheExpiration | string | `"10h"` | trivyServerHealthCheckCacheExpiration The flag to set the interval for trivy server health cache before it invalidate |
 | operator.vulnerabilityScannerEnabled | bool | `true` | the flag to enable vulnerability scanner |
 | operator.vulnerabilityScannerScanOnlyCurrentRevisions | bool | `true` | vulnerabilityScannerScanOnlyCurrentRevisions the flag to only create vulnerability scans on the current revision of a deployment. |

@@ -351,7 +351,7 @@ kubectl apply -f https://github.com/operator-framework/operator-lifecycle-manage
 or
 
 ```
-curl -L https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.20.4/install.sh -o install.sh
+curl -L https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.20.5/install.sh -o install.sh
 chmod +x install.sh
 ./install.sh v0.20.0
 ```

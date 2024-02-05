@@ -1,6 +1,6 @@
 # Writing Custom Configuration Audit Policies
 
-trivy-operator ships with a set of [Built-in Configuration Audit Policies] defined as OPA [Rego] policies. You can also
+Trivy-operator ships with a set of [Built-in Configuration Audit Policies] defined as OPA [Rego] policies. You can also
 define custom policies and associate them with applicable Kubernetes resources to extend basic configuration audit
 functionality.
 
@@ -30,25 +30,25 @@ __rego_metadata__ := {
 }
 ```
 
-Note that the `recommended_labels` policy in scoped to the `trivyoperator.policy.k8s.custom` package to avoid naming
+Note that the `recommended_labels` policy is scoped to the `trivyoperator.policy.k8s.custom` package to avoid naming
 collision with built-in policies that are pre-installed with trivy-operator.
 
 Once we've got our metadata defined, we need to create the logic of the policy, which is done in the `deny` or `warn`
 rule.
 
 ```opa
-
-__rego_input__ := {
-	"combine": false,
-	"selector": [{"type": "kubernetes"}],
-}
+recommended_labels := [
+	"app.kubernetes.io/name",
+	"app.kubernetes.io/version",
+]
 
 deny[res] {
-	input.kind == "Pod"
-	some container in input.spec.containers
-	not startswith(container.image, "hooli.com")
-	msg := sprintf("Image '%v' comes from untrusted registry", [container.image])
-	res := result.new(msg, container)
+	provided := {label | input.metadata.labels[label]}
+	required := {label | label := recommended_labels[_]}
+	missing := required - provided
+	count(missing) > 0
+	msg := sprintf("You must provide labels: %v", [missing])
+	res := {"msg": msg}
 }
 ```
 

@@ -1,6 +1,6 @@
 # Settings
 
-Trivy Operator read configuration settings from ConfigMaps, as well as Secrets that holds
+Trivy Operator reads configuration settings from ConfigMaps, as well as Secrets that hold
 confidential settings (such as a GitHub token). Trivy-Operator plugins read configuration and secret data from ConfigMaps
 and Secrets named after the plugin. For example, Trivy configuration is stored in the ConfigMap and Secret named
 `trivy-operator-trivy-config`.
@@ -81,5 +81,6 @@ configuration settings for common use cases. For example, switch Trivy from [Sta
       -p '[{"op": "remove", "path": "/data/trivy.httpProxy"}]'
     ```
 
+[Standalone]: ./docs/vulnerability-scanning/trivy.md#standalone
 [ClientServer]: ./docs/vulnerability-scanning/trivy.md#clientserver
 [tolerations]: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration

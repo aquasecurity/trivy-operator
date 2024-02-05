@@ -1,10 +1,10 @@
 # Metrics
 
-`trivy-operator` exposed a `/metrics` endpoint by default  with metrics for vulnerabilities, exposed secrets,rbacassessment and configaudits.
+`trivy-operator` exposes a `/metrics` endpoint by default with metrics for vulnerabilities, exposed secrets, rbacassessment and configaudits.
 
 ## Report Summary
 
-### Vunerability
+### Vulnerability
 
 A report summary series exposes the count of checks of each status reported in a given `VulnerabilityReport`. For example:
 
@@ -45,14 +45,14 @@ trivy_role_rbacassessments{
 
 ### RbacAssessmentsInfo
 
-Exposes details about RbacAssessments that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_RBAC_ASSESSMENT_INFO_ENABLED" envDefault:"false"` . For example:
+Exposes details about RbacAssessments that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_RBAC_ASSESSMENT_INFO_ENABLED" envDefault:"false"`. For example:
 
 ```shell
 trivy_rbacassessments_info{
     name="role-admin-6d4cf56db6",namespace="default",rbac_assessment_category="car1 category for rbac assessment",rbac_assessment_description="car1 description for rbac assessment",rbac_assessment_id="car1 Id",rbac_assessment_success="true",rbac_assessment_title="car1 rbac assessment title",resource_kind="Role",resource_name="admin-6d4cf56db6",severity="Critical"} 1
 ```
 
-### ExposedsSecrets
+### ExposedSecrets
 
 A report summary series exposes the count of checks of each status reported in a given `ExposedsSecretsReport`. For example:
 
@@ -62,9 +62,9 @@ trivy_image_exposedsecrets{
     } 1
 ```
 
-### ExposedsSecretsInfo
+### ExposedSecretsInfo
 
-Exposes details about secrets that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_EXPOSED_SECRET_INFO_ENABLED" envDefault:"false"` . For example:
+Exposes details about secrets that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_EXPOSED_SECRET_INFO_ENABLED" envDefault:"false"`. For example:
 
 ```shell
 trivy_exposedsecrets_info{
@@ -84,7 +84,7 @@ trivy_resource_infraassessments{
 
 ### InfraAssessmentsInfo
 
-Exposes details about InfraAssessments that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_INFRA_ASSESSMENT_INFO_ENABLED" envDefault:"false"` . For example:
+Exposes details about InfraAssessments that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_INFRA_ASSESSMENT_INFO_ENABLED" envDefault:"false"`. For example:
 
 ```shell
 
@@ -104,7 +104,7 @@ trivy_cluster_compliance{description="National Security Agency - Kubernetes Hard
 
 ### ClusterComplianceInfo
 
-Exposes details about ClusterCompliance that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_CLUSTER_COMPLIANCE_INFO_ENABLED" envDefault:"false"` . For example:
+Exposes details about ClusterCompliance that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_CLUSTER_COMPLIANCE_INFO_ENABLED" envDefault:"false"`. For example:
 
 ```shell
 trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",
@@ -115,7 +115,7 @@ trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster comp
 
 ## Vulnerability ID
 
-Exposing vulnerability ID on metrics by setting the EnvVar: `OPERATOR_METRICS_VULN_ID_ENABLED" envDefault:"false"`
+Exposing vulnerability ID on metrics by setting the EnvVar: `OPERATOR_METRICS_VULN_ID_ENABLED" envDefault:"false"`. For example:
 
 ```shell
 trivy_vulnerability_id{
@@ -125,8 +125,8 @@ trivy_vulnerability_id{
 
 ## Adding Custom Label to Metrics
 
-User might wants to include custom labels to resource that can be exposed and associated with the Prometheus metrics.
-this capability can be added by setting the following helm param.
+User might wants to include custom labels to resources that can be exposed and associated with the Prometheus metrics.
+This capability can be added by setting the following helm param.
 
 Example:
 

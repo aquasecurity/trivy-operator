@@ -16,13 +16,13 @@ Once the Trivy Operator is installed to a Kubernetes cluster, it will start moni
   <figcaption>Workload reconcilers discover K8s controllers, manage scan jobs, and create VulnerabilityReport and ConfigAuditReport objects.</figcaption>
 </figure>
 
-Every Kubernetes Operator defines a desired state. The Operator then works towards creating that state. In the case of the Trivy Operator, the desired state is to generate a security report for every Kubernetes workload in the cluster. The security report is stored a Custom Resource Definition (CRD).
+Every Kubernetes Operator defines a desired state. The Operator then works towards creating that state. In the case of the Trivy Operator, the desired state is to generate a security report for every Kubernetes workload in the cluster. The security report is stored as a Custom Resource Definition (CRD).
 
 Beyond that, the Trivy Operator takes advantage of Kubernetes [garbage collector][k8s-garbage-collection]
 to automatically delete stale reports and trigger rescan. For example, deleting a ReplicaSet will delete its `VulnerabilityReports`, whereas deleting a VulnerabilityReport owned by a ReplicaSet will rescan that ReplicaSet and
 eventually recreate the VulnerabilityReport.
 
-Rescan is also triggered whenever a the configuration of a configuration audit plugin has changed. For example, when a new OPA policy script is added to the Confest plugin config. This is implemented by adding the label named `plugin-config-hash`
+Rescan is also triggered whenever the configuration of a configuration audit plugin has changed. For example, when a new OPA policy script is added to the Confest plugin config. This is implemented by adding the label named `plugin-config-hash`
 to ConfigAuditReport instances. The plugins' config reconciler watches the ConfigMap that holds plugin settings
 and computes a hash from the ConfigMap's data. The hash is then compared with values of the `plugin-config-hash` labels.
 If hashes are not equal then affected ConfigAuditReport objects are deleted, which in turn triggers rescan - this time

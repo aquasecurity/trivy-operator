@@ -1,7 +1,7 @@
 # Configuration Auditing
 
 ## Setting
-The following flags can be set with the `trivy-operator-trivy-config` ConfigMap in order to impact scanning
+The following flags can be set with the `trivy-operator-trivy-config` ConfigMap in order to impact scanning:
 
 | CONFIGMAP KEY                     | DEFAULT                                                                               | DESCRIPTION                                                                                                     |
 |-----------------------------------|---------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
@@ -24,4 +24,3 @@ Additionally, application and infrastructure owners can integrate these reports 
 active remediation.
 
 [Built-in Policies]: ./built-in-policies.md
-

@@ -7,13 +7,13 @@ policy that checks for recommended Kubernetes labels on any resource kind.
 
 ### Processing information
 
-The Trivy Operator pulls the information from the [defsec] respository.
+The Trivy Operator pulls the information from the [trivy-policies] respository.
 
 Once the Trivy Operator is installed inside the Kubernetes cluster, it will perform the following processes:
 
 1. The [node-collector] will collect infrastructure data from node filesystem and processes
 2. It then outputs the data as JSON output 
-3. The the Rego policies (cis-controls) from [defsec] are executed against the infrastructure data (JSON) and return evaluation results as ConfigAudit and Compliance reports
+3. The the Rego policies (cis-controls) from [trivy-policies] are executed against the infrastructure data (JSON) and return evaluation results as ConfigAudit and Compliance reports
 
 ## General
 
@@ -98,7 +98,7 @@ Once the Trivy Operator is installed inside the Kubernetes cluster, it will perf
 
 
 [Writing Custom Configuration Audit Policies]: ./../../tutorials/writing-custom-configuration-audit-policies.md
-[defsec]: https://github.com/aquasecurity/defsec/tree/master/rules/kubernetes/policies/cisbenchmarks
+[trivy-policies]: https://github.com/aquasecurity/trivy-policies/tree/main/checks/kubernetes/cisbenchmarks
 [node-collector]: https://github.com/aquasecurity/k8s-node-collector
 
 [CPU not limited]: https://avd.aquasec.com/misconfig/kubernetes/ksv011/

@@ -30,8 +30,6 @@ kubectl get compliance nsa  -o=jsonpath='{.status}' | jq .
 
 You can create your own custom compliance report. A compliance report is a simple YAML document in the following format:
 
-<summary>Customer compliance report</summary>
-
 ```yaml
 apiVersion: aquasecurity.github.io/v1alpha1
 kind: ClusterComplianceReport

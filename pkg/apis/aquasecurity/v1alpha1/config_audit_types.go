@@ -21,6 +21,7 @@ type ConfigAuditSummary struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:pruning:PreserveUnknownFields
 // +kubebuilder:resource:shortName={configaudit,configaudits}
 // +kubebuilder:printcolumn:name="Scanner",type=string,JSONPath=`.report.scanner.name`,description="The name of the config audit scanner"
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"
@@ -48,6 +49,7 @@ type ConfigAuditReportList struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:pruning:PreserveUnknownFields
 // +kubebuilder:resource:scope=Cluster,shortName={clusterconfigaudit}
 // +kubebuilder:printcolumn:name="Scanner",type=string,JSONPath=`.report.scanner.name`,description="The name of the config audit scanner"
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"

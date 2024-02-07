@@ -8,6 +8,7 @@ import (
 )
 
 // +kubebuilder:object:root=true
+// +kubebuilder:pruning:PreserveUnknownFields
 // +kubebuilder:resource:scope=Cluster,shortName={compliance}
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"

@@ -16,6 +16,7 @@ type SbomSummary struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:pruning:PreserveUnknownFields
 // +kubebuilder:resource:shortName={sbom,sboms}
 // +kubebuilder:printcolumn:name="Repository",type=string,JSONPath=`.report.artifact.repository`,description="The name of image repository"
 // +kubebuilder:printcolumn:name="Tag",type=string,JSONPath=`.report.artifact.tag`,description="The name of image tag"

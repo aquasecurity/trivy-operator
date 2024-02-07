@@ -1,6 +1,6 @@
 # Helm
 
-[Helm], which is de facto standard package manager for Kubernetes, allows installing applications from parameterized
+[Helm], which is the de facto standard package manager for Kubernetes, allows installing applications from parameterized
 YAML manifests called Helm [charts].
 
 To address shortcomings of [static YAML manifests](./kubectl.md) we provide the Helm chart to deploy the Trivy-Operator.
@@ -50,7 +50,7 @@ except `kube-system` and `trivy-system`:
      --set="trivy.ignoreUnfixed=true"
 ```
 
-   There are many [values] in the chart that can be set to configure Trivy-Operator. See the [Customisin[customising] section for more details.
+   There are many [values] in the chart that can be set to configure Trivy-Operator. See the [customising] section for more details.
 
 4. Check that the `trivy-operator` Helm release is created in the `trivy-system` namespace, and it has status
    `deployed`:
@@ -78,9 +78,9 @@ except `kube-system` and `trivy-system`:
 
 ## Install as Helm dependency
 
-There are cases, when potential chart developers want to add the operator as dependency. An example would be the creation of an umbrella chart for an application, which depends on 3d-party charts.
+There are cases, when potential chart developers want to add the operator as a dependency. An example would be the creation of an umbrella chart for an application, which depends on 3d-party charts.
 
-In this case, It maybe not suitable to install the Trivy Operator in the same namespace as the main application. Instead, we can use the Helm value `operator.namespace` to define a namespace where only the operator will be installed. The Operator chart will then either create a new namespace if not existing or use the existing one.
+In this case, it maybe not suitable to install the Trivy Operator in the same namespace as the main application. Instead, we can use the Helm value `operator.namespace` to define a namespace where only the operator will be installed. The Operator chart will then either create a new namespace if not existing or use the existing one.
 
 ## Uninstall
 

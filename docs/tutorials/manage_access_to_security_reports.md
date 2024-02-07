@@ -156,11 +156,11 @@ Even though you can grant access to a single VulnerabilityReport by specifying i
 ClusterRole objects, in practice it's not manageable for these reasons:
 
 1. The name of a ReplicaSet (e.g. `nginx-7967dc8bfd`) and hence the name of the corresponding VulnerabilityReport (e.g.
-   `replicaset-nginx-7967dc8bfd-nginx`) change over time. This requires that Role or ClusterObject will be updated
+   `replicaset-nginx-7967dc8bfd-nginx`) change over time. This requires that Role or ClusterRole will be updated
    respectively.
 2. We create a VulnerabilityReport for each container of a Kubernetes workload. Therefore, managing such fine-grained
    permissions is even more cumbersome.
-3. Last but not least, the naming convention is an implementation details that's likely to change when we add support
+3. Last but not least, the naming convention is an implementation detail that's likely to change when we add support
    for mutable tags or implement caching of scan results.
 
 ```

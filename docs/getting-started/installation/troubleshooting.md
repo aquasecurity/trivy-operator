@@ -4,10 +4,10 @@ The Trivy Operator installs several Kubernetes resources into your Kubernetes cl
 
 Here are the common steps to check whether the operator is running correctly and to troubleshoot common issues.
 
-So in addition to this section, you might want to check [issues](https://github.com/aquasecurity/trivy/issues), [discussion forum](https://github.com/aquasecurity/trivy/discussions), or [Slack](https://slack.aquasec.com) to see if someone from the community had similar problems before.
+In addition to this section, you might want to check [issues](https://github.com/aquasecurity/trivy/issues), [discussion forum](https://github.com/aquasecurity/trivy/discussions), or [Slack](https://slack.aquasec.com) to see if someone from the community had similar problems before.
 
-Also note that Trivy Operator is based on existing Aqua OSS project - [Starboard], and shares some of the design, principles and code with it. Existing content that relates to Starboard Operator might also be relevant for Trivy Operator, and Starboard's [issues](https://github.com/aquasecurity/starboard/issues), [discussion forum](https://github.com/aquasecurity/starboard/discussions), or [Slack](https://slack.aquasec.com) might also be interesting to check.  
-In some cases you might want to refer to [Starboard's Design documents](https://aquasecurity.github.io/starboard/latest/design/)
+Also note that Trivy Operator is based on existing Aqua OSS project - [Starboard](https://github.com/aquasecurity/starboard), and shares some of the design, principles and code with it. Existing content that relates to Starboard Operator might also be relevant for Trivy Operator, and Starboard's [issues](https://github.com/aquasecurity/starboard/issues), [discussion forum](https://github.com/aquasecurity/starboard/discussions), or [Slack](https://slack.aquasec.com) might also be interesting to check.  
+In some cases you might want to refer to [Starboard's Design documents](https://aquasecurity.github.io/starboard/latest/design/).
 
 ## Installation
 
@@ -34,7 +34,7 @@ NAMESPACE            NAME                                         READY   STATUS
 trivy-system     trivy-operator-6c9bd97d58-hsz4g          1/1     Running   5 (19m ago)   30h
 ```
 
-If the pod is in `Failed`, `Pending`, or `Unknown` check the events and the logs of the pod.
+If the pod is in `Failed`, `Pending`, or `Unknown` state check the events and the logs of the pod.
 
 First, check the events, since they might be more descriptive of the problem. However, if the events do not give a clear reason why the pod cannot spin up, then you want to check the logs, which provide more detail.
 
@@ -76,7 +76,7 @@ kubectl logs deployment/trivy-operator -n trivy-system
 
 If this is the case, the Trivy Operator likely does not have the right configurations to access your resource.
 
-## Operator does not Create VulnerabilityReports
+## Operator does not create VulnerabilityReports
 
 VulnerabilityReports are owned and controlled by the immediate Kubernetes workload. Every VulnerabilityReport of a pod is thus, linked to a [ReplicaSet.](./index.md) In case the Trivy Operator does not create a VulnerabilityReport for your workloads, it could be that it is not monitoring the namespace that your workloads are running on.
 

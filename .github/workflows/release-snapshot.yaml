@@ -41,7 +41,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v5
         with:
           version: v1.7.0
-          args: release --snapshot --skip-publish --rm-dist
+          args: release -f=goreleaser-e2e.yaml --snapshot --skip-publish --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COSIGN_EXPERIMENTAL: 1

@@ -21,6 +21,7 @@ type InfraAssessmentSummary struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:pruning:PreserveUnknownFields
 // +kubebuilder:resource:scope=Cluster,shortName={clusterinfraassessment}
 // +kubebuilder:printcolumn:name="Scanner",type=string,JSONPath=`.report.scanner.name`,description="The name of the infra assessement scanner"
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"

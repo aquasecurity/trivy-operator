@@ -21,6 +21,7 @@ type RbacAssessmentSummary struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:pruning:PreserveUnknownFields
 // +kubebuilder:resource:shortName={rbacassessment,rbacassessments}
 // +kubebuilder:printcolumn:name="Scanner",type=string,JSONPath=`.report.scanner.name`,description="The name of the rbac assessment scanner"
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"
@@ -48,6 +49,7 @@ type RbacAssessmentReportList struct {
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:pruning:PreserveUnknownFields
 // +kubebuilder:resource:scope=Cluster,shortName={clusterrbacassessmentreport}
 // +kubebuilder:printcolumn:name="Scanner",type=string,JSONPath=`.report.scanner.name`,description="The name of the rbac assessment scanner"
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"

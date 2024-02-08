@@ -170,6 +170,7 @@ func reportsToResults(checks []v1alpha1.Check, name string, namespace string) tt
 				Title:       check.Title,
 				Description: check.Description,
 				Message:     check.Description,
+				Resolution:  check.Remediation,
 				Severity:    string(check.Severity),
 				Status:      status,
 			},

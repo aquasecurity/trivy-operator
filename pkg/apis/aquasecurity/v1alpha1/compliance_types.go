@@ -216,6 +216,7 @@ func FromDetailReport(sr *report.ComplianceReport) *ComplianceReport {
 					Description: ms.Description,
 					Severity:    Severity(ms.Severity),
 					Category:    "Kubernetes Security Check",
+					Remediation: ms.Resolution,
 					Messages:    []string{ms.Message},
 					Success:     false,
 				})

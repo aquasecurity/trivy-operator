@@ -363,8 +363,9 @@ func getCheck(result scan.Result, id string) v1alpha1.Check {
 		Severity:    v1alpha1.Severity(result.Rule().Severity),
 		Category:    "Kubernetes Security Check",
 
-		Success:  result.Status() == scan.StatusPassed,
-		Messages: []string{result.Description()},
+		Success:     result.Status() == scan.StatusPassed,
+		Messages:    []string{result.Description()},
+		Remediation: result.Rule().Resolution,
 	}
 }
 

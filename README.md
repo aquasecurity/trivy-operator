@@ -66,7 +66,7 @@ Install the Helm Chart:
    helm install trivy-operator aqua/trivy-operator \
      --namespace trivy-system \
      --create-namespace \
-     --version 0.20.5
+     --version 0.20.6
 ```
 
 This will install the Trivy Helm Chart into the `trivy-system` namespace and start triggering the scans.

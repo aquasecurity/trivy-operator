@@ -17,92 +17,120 @@ metadata:
       uid: null
 report:
   checks:
-    - category: Kubernetes Security Check
-      checkID: KCV0022
-      description: Rotate log files on reaching 100 MB or as appropriate.
+    - checkID: KCV0001
+      title: Ensure that the --anonymous-auth argument is set to false
+      description: Disable anonymous requests to the API server.
+      severity: MEDIUM
+      category: Kubernetes Security Check
       messages:
-        - Ensure that the --audit-log-maxsize argument is set to 100 or as
-          appropriate
-      severity: LOW
+        - Ensure that the --anonymous-auth argument is set to false
+      remediation: Set '--anonymous-auth' to 'false'.
       success: false
-      title: Ensure that the --audit-log-maxsize argument is set to 100 or as
+    - checkID: KCV0006
+      title: Ensure that the --kubelet-certificate-authority argument is set as
         appropriate
-    - category: Kubernetes Security Check
-      checkID: KCV0006
       description: Verify kubelet's certificate before establishing connection.
+      severity: LOW
+      category: Kubernetes Security Check
       messages:
         - Ensure that the --kubelet-certificate-authority argument is set as
           appropriate
-      severity: LOW
+      remediation: "Follow the Kubernetes documentation and setup the TLS connection
+        between the apiserver and kubelets. "
       success: false
-      title: Ensure that the --kubelet-certificate-authority argument is set as
-        appropriate
-    - category: Kubernetes Security Check
-      checkID: KCV0001
-      description: Disable anonymous requests to the API server.
-      messages:
-        - Ensure that the --anonymous-auth argument is set to false
-      severity: MEDIUM
-      success: false
-      title: Ensure that the --anonymous-auth argument is set to false
-    - category: Kubernetes Security Check
-      checkID: KCV0020
-      description: Retain the logs for at least 30 days or as appropriate.
-      messages:
-        - Ensure that the --audit-log-maxage argument is set to 30 or as
-          appropriate
-      severity: LOW
-      success: false
-      title: Ensure that the --audit-log-maxage argument is set to 30 or as
-        appropriate
-    - category: Kubernetes Security Check
-      checkID: KCV0019
-      description: Enable auditing on the Kubernetes API Server and set the desired
-        audit log path.
-      messages:
-        - Ensure that the --audit-log-path argument is set
-      severity: LOW
-      success: false
-      title: Ensure that the --audit-log-path argument is set
-    - category: Kubernetes Security Check
-      checkID: KCV0018
-      description: Disable profiling, if not needed.
-      messages:
-        - Ensure that the --profiling argument is set to false
-      severity: LOW
-      success: false
-      title: Ensure that the --profiling argument is set to false
-    - category: Kubernetes Security Check
-      checkID: KCV0021
-      description: Retain 10 or an appropriate number of old log files.
-      messages:
-        - Ensure that the --audit-log-maxbackup argument is set to 10 or as
-          appropriate
-      severity: LOW
-      success: false
-      title: Ensure that the --audit-log-maxbackup argument is set to 10 or as
-        appropriate
-    - category: Kubernetes Security Check
-      checkID: KCV0010
+    - checkID: KCV0010
+      title: Ensure that the admission control plugin EventRateLimit is set
       description: Limit the rate at which the API server accepts requests.
+      severity: LOW
+      category: Kubernetes Security Check
       messages:
         - Ensure that the admission control plugin EventRateLimit is set
-      severity: LOW
+      remediation: Follow the Kubernetes documentation and set the desired limits in a
+        configuration file. Then, edit the API server pod specification file
+        /etc/kubernetes/manifests/kube-apiserver.yaml and set the below
+        parameters.
       success: false
-      title: Ensure that the admission control plugin EventRateLimit is set
-    - category: Kubernetes Security Check
-      checkID: KCV0013
+    - checkID: KCV0013
+      title: Ensure that the admission control plugin SecurityContextDeny is set if
+        PodSecurityPolicy is not used
       description: The SecurityContextDeny admission controller can be used to deny
         pods which make use of some SecurityContext fields which could allow for
         privilege escalation in the cluster. This should be used where
         PodSecurityPolicy is not in place within the cluster.
+      severity: LOW
+      category: Kubernetes Security Check
       messages:
         - Ensure that the admission control plugin SecurityContextDeny is set if
           PodSecurityPolicy is not used
-      severity: LOW
+      remediation: Edit the API server pod specification file
+        /etc/kubernetes/manifests/kube-apiserver.yaml on the Control Plane node
+        and set the --enable-admission-plugins parameter to include
+        SecurityContextDeny, unless PodSecurityPolicy is already in place.
       success: false
-      title: Ensure that the admission control plugin SecurityContextDeny is set if
-        PodSecurityPolicy is not used
+    - checkID: KCV0018
+      title: Ensure that the --profiling argument is set to false
+      description: Disable profiling, if not needed.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Ensure that the --profiling argument is set to false
+      remediation: Edit the API server pod specification file
+        /etc/kubernetes/manifests/kube-apiserver.yaml on the Control Plane node
+        and set the below parameter.
+      success: false
+    - checkID: KCV0019
+      title: Ensure that the --audit-log-path argument is set
+      description: Enable auditing on the Kubernetes API Server and set the desired
+        audit log path.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Ensure that the --audit-log-path argument is set
+      remediation: Edit the API server pod specification file
+        /etc/kubernetes/manifests/kube-apiserver.yaml on the Control Plane node
+        and set the --audit-log-path parameter.
+      success: false
+    - checkID: KCV0020
+      title: Ensure that the --audit-log-maxage argument is set to 30 or as
+        appropriate
+      description: Retain the logs for at least 30 days or as appropriate.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Ensure that the --audit-log-maxage argument is set to 30 or as
+          appropriate
+      remediation: Edit the API server pod specification file
+        /etc/kubernetes/manifests/kube-apiserver.yaml on the Control Plane node
+        and set the --audit-log-maxage parameter to 30 or as an appropriate
+        number of days.
+      success: false
+    - checkID: KCV0021
+      title: Ensure that the --audit-log-maxbackup argument is set to 10 or as
+        appropriate
+      description: Retain 10 or an appropriate number of old log files.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Ensure that the --audit-log-maxbackup argument is set to 10 or as
+          appropriate
+      remediation: Edit the API server pod specification file
+        /etc/kubernetes/manifests/kube-apiserver.yaml on the Control Plane node
+        and set the --audit-log-maxbackup parameter to 10 or to an appropriate
+        value.
+      success: false
+    - checkID: KCV0022
+      title: Ensure that the --audit-log-maxsize argument is set to 100 or as
+        appropriate
+      description: Rotate log files on reaching 100 MB or as appropriate.
+      severity: LOW
+      category: Kubernetes Security Check
+      messages:
+        - Ensure that the --audit-log-maxsize argument is set to 100 or as
+          appropriate
+      remediation: Edit the API server pod specification file
+        /etc/kubernetes/manifests/kube-apiserver.yaml on the Control Plane node
+        and set the --audit-log-maxsize parameter to an appropriate size in MB
+      success: false
   scanner:
     name: Trivy
     vendor: Aqua Security

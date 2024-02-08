@@ -28,6 +28,8 @@ report:
       messages:
         - Role 'proxy' shouldn't have access to manage secrets in namespace
           'default'
+      remediation: Manage namespace secrets are not allowed. Remove resource 'secrets'
+        from role
       success: false
     - checkID: KSV116
       title: Runs with a root primary or supplementary GID
@@ -41,6 +43,8 @@ report:
           spec.securityContext.runAsGroup,
           spec.securityContext.supplementalGroups[*] and
           spec.securityContext.fsGroup to integer greater than 0
+      remediation: Set 'containers[].securityContext.runAsGroup' to a non-zero integer
+        or leave undefined.
       success: false
   scanner:
     name: Trivy

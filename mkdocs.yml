@@ -52,7 +52,7 @@ nav:
           - RbacAssessmentReport: docs/crds/rbacassessment-report.md
           - InfraAssessmentReport: docs/crds/infraassessment-report.md
           - ClusterComplianceReport: docs/crds/clustercompliance-report.md
-          - CluasterVulnerabilityReport: docs/crds/clustervulnerability-report.md
+          - ClusterVulnerabilityReport: docs/crds/clustervulnerability-report.md
           - SbomReport: docs/crds/sbom-report.md
   - Frequently Asked Questions: faq.md
 

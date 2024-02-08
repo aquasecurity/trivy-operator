@@ -2,7 +2,7 @@
 
 # Trivy Operator Overview
 
-The Trivy Operator leverages [Trivy](https://github.com/aquasecurity/trivy) to continuously scan your Kubernetes cluster for security issues. The scans are summarised in security reports as Kubernetes [Custom Resource Definitions](crd), which become accessible through the Kubernetes API. The Operator does this by watching Kubernetes for state changes and automatically triggering security scans in response. For example, a vulnerability scan is initiated when a new Pod is created.
+The Trivy Operator leverages [Trivy](https://github.com/aquasecurity/trivy) to continuously scan your Kubernetes cluster for security issues. The scans are summarised in security reports as Kubernetes [Custom Resource Definitions], which become accessible through the Kubernetes API. The Operator does this by watching Kubernetes for state changes and automatically triggering security scans in response. For example, a vulnerability scan is initiated when a new Pod is created.
 This way, users can find and view the risks that relate to different resources in a `Kubernetes-native` way.
 
 ## In-cluster Security Scans 
@@ -91,7 +91,7 @@ Join the community, and talk to us about any matter in [GitHub Discussions] or [
 [license]: https://github.com/aquasecurity/trivy-operator/blob/main/LICENSE
 [github-all-releases-img]: https://img.shields.io/github/downloads/aquasecurity/trivy-operator/total?logo=github
 [docker-pulls-trivy-operator]: https://img.shields.io/docker/pulls/aquasec/trivy-operator?logo=docker&label=docker%20pulls%20%2F%20trivy%20operator
-[Contributing]: ../CONTRIBUTING.md
+[Contributing]: https://github.com/aquasecurity/trivy-operator/blob/main/CONTRIBUTING.md
 [GitHub Discussions]: https://github.com/aquasecurity/trivy-operator/discussions
 [Slack]: https://slack.aquasec.com/
 [Open Source Work and Portfolio]: https://www.aquasec.com/products/open-source-projects/

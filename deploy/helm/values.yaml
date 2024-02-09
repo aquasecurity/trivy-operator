@@ -157,6 +157,12 @@ operator:
   # -- mergeRbacFindingWithConfigAudit the flag to enable merging rbac finding with config-audit report
   mergeRbacFindingWithConfigAudit: false
 
+  # -- vaulesFromConfigMap name of a ConfigMap to apply OPERATOR_* environment variables. Will override Helm values.
+  valuesFromConfigMap: ""
+
+  # -- valuesFromSecret name of a Secret to apply OPERATOR_* environment variables. Will override Helm AND ConfigMap values.
+  valuesFromSecret: ""
+
 image:
   registry: "ghcr.io"
   repository: "aquasecurity/trivy-operator"

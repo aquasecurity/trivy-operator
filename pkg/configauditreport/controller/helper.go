@@ -59,16 +59,20 @@ func evaluate(ctx context.Context, policies *policy.Policies, resource client.Ob
 		if cd.ReportRecordFailedChecksOnly() && result.Status() == scan.StatusPassed {
 			continue
 		}
+		currentCheck := getCheck(result, id)
+		if len(currentCheck.Messages) == 0 || (len(currentCheck.Messages) == 1 && len(strings.TrimSpace(currentCheck.Messages[0])) == 0) {
+			continue
+		}
 		if infraCheck(id) {
 			if strings.HasPrefix(id, "N/A") {
 				continue
 			}
 			if k8sCoreComponent(resource) {
-				infraChecks = append(infraChecks, getCheck(result, id))
+				infraChecks = append(infraChecks, currentCheck)
 			}
 			continue
 		}
-		checks = append(checks, getCheck(result, id))
+		checks = append(checks, currentCheck)
 	}
 	kind := resource.GetObjectKind().GroupVersionKind().Kind
 	if kube.IsRoleTypes(kube.Kind(kind)) && !c.MergeRbacFindingWithConfigAudit {

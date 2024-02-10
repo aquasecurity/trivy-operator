@@ -28,7 +28,7 @@ kubectl logs deployment/trivy-operator -n trivy-system
 ## Advanced Configuration
 
 You can configure Trivy-Operator to control it's behavior and adapt it to your needs. Aspects of the operator machinery are configured using environment variables on the operator Pod, while aspects of the scanning behavior are controlled by ConfigMaps and Secrets.
-To learn more, please refer to the [Configuration](configuration) documentation.
+To learn more, please refer to the [Configuration] documentation.
 
 ## Uninstall
 
@@ -41,5 +41,4 @@ You can uninstall the operator with the following command:
 kubectl delete -f https://raw.githubusercontent.com/aquasecurity/trivy-operator/{{ git.tag }}/deploy/static/trivy-operator.yaml
 ```
 
-[Settings]: ./../../settings.md
-[Helm]: ./helm.md
+[Configuration]: ./configuration.md

@@ -7,7 +7,7 @@ policy that checks for recommended Kubernetes labels on any resource kind.
 
 ### Processing information
 
-The Trivy Operator pulls the information from the [trivy-policies] respository.
+The Trivy Operator pulls the information from the [trivy-policies] repository.
 
 Once the Trivy Operator is installed inside the Kubernetes cluster, it will perform the following processes:
 

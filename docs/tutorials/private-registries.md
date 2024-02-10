@@ -14,7 +14,7 @@ Note that we will be using a local Kubernetes KinD cluster and a private contain
 
 ## First Option: Filesystem Scanning
 
-For this tutorial, we will use the [Operator Helm Chart.](https://aquasecurity.github.io/trivy-operator/latest/operator/installation/helm/)
+For this tutorial, we will use the [Operator Helm Chart.](https://aquasecurity.github.io/trivy-operator/latest/getting-started/installation/helm/)
 
 The configuration options for the Helm Chart can be found in the [values.yaml](https://github.com/aquasecurity/trivy-operator/blob/main/deploy/helm/values.yaml) manifest.
 Navigate to the section `Trivy.command`. The default will be:

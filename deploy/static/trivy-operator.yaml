@@ -2777,6 +2777,58 @@ metadata:
     app.kubernetes.io/managed-by: kubectl
 data:
 ---
+# Source: trivy-operator/templates/configmaps/trivy-operator-config.yaml
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: trivy-operator-config
+  namespace: trivy-system
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.18.5"
+    app.kubernetes.io/managed-by: kubectl
+data:
+  OPERATOR_LOG_DEV_MODE: "false"
+  OPERATOR_SCAN_JOB_TTL: ""
+  OPERATOR_SCAN_JOB_TIMEOUT: "5m"
+  OPERATOR_CONCURRENT_SCAN_JOBS_LIMIT: "10"
+  OPERATOR_CONCURRENT_NODE_COLLECTOR_LIMIT: "1"
+  OPERATOR_SCAN_JOB_RETRY_AFTER: "30s"
+  OPERATOR_BATCH_DELETE_LIMIT: "10"
+  OPERATOR_BATCH_DELETE_DELAY: "10s"
+  OPERATOR_METRICS_BIND_ADDRESS: ":8080"
+  OPERATOR_METRICS_FINDINGS_ENABLED: "true"
+  OPERATOR_METRICS_VULN_ID_ENABLED: "false"
+  OPERATOR_HEALTH_PROBE_BIND_ADDRESS: ":9090"
+  OPERATOR_VULNERABILITY_SCANNER_ENABLED: "true"
+  OPERATOR_SBOM_GENERATION_ENABLED: "true"
+  OPERATOR_CLUSTER_SBOM_CACHE_ENABLED: "false"
+  OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS: "true"
+  OPERATOR_SCANNER_REPORT_TTL: "24h"
+  OPERATOR_CACHE_REPORT_TTL: "120h"
+  CONTROLLER_CACHE_SYNC_TIMEOUT: "5m"
+  OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED: "true"
+  OPERATOR_RBAC_ASSESSMENT_SCANNER_ENABLED: "true"
+  OPERATOR_INFRA_ASSESSMENT_SCANNER_ENABLED: "true"
+  OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS: "true"
+  OPERATOR_EXPOSED_SECRET_SCANNER_ENABLED: "true"
+  OPERATOR_METRICS_EXPOSED_SECRET_INFO_ENABLED: "false"
+  OPERATOR_METRICS_CONFIG_AUDIT_INFO_ENABLED: "false"
+  OPERATOR_METRICS_RBAC_ASSESSMENT_INFO_ENABLED: "false"
+  OPERATOR_METRICS_INFRA_ASSESSMENT_INFO_ENABLED: "false"
+  OPERATOR_METRICS_IMAGE_INFO_ENABLED: "false"
+  OPERATOR_METRICS_CLUSTER_COMPLIANCE_INFO_ENABLED: "false"
+  OPERATOR_WEBHOOK_BROADCAST_URL: ""
+  OPERATOR_WEBHOOK_BROADCAST_TIMEOUT: "30s"
+  OPERATOR_SEND_DELETED_REPORTS: "false"
+  OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES: "{}"
+  OPERATOR_ACCESS_GLOBAL_SECRETS_SERVICE_ACCOUNTS: "true"
+  OPERATOR_BUILT_IN_TRIVY_SERVER: "false"
+  TRIVY_SERVER_HEALTH_CHECK_CACHE_EXPIRATION: "10h"
+  OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT: "false"
+  OPERATOR_CLUSTER_COMPLIANCE_ENABLED: "true"
+---
 # Source: trivy-operator/templates/configmaps/trivy.yaml
 apiVersion: v1
 kind: ConfigMap
@@ -2880,84 +2932,9 @@ spec:
               value: "pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job"
             - name: OPERATOR_SERVICE_ACCOUNT
               value: "trivy-operator"
-            - name: OPERATOR_LOG_DEV_MODE
-              value: "false"
-            - name: OPERATOR_SCAN_JOB_TTL
-              value: ""
-            - name: OPERATOR_SCAN_JOB_TIMEOUT
-              value: "5m"
-            - name: OPERATOR_CONCURRENT_SCAN_JOBS_LIMIT
-              value: "10"
-            - name: OPERATOR_CONCURRENT_NODE_COLLECTOR_LIMIT
-              value: "1"
-            - name: OPERATOR_SCAN_JOB_RETRY_AFTER
-              value: "30s"
-            - name: OPERATOR_BATCH_DELETE_LIMIT
-              value: "10"
-            - name: OPERATOR_BATCH_DELETE_DELAY
-              value: "10s"
-            - name: OPERATOR_METRICS_BIND_ADDRESS
-              value: ":8080"
-            - name: OPERATOR_METRICS_FINDINGS_ENABLED
-              value: "true"
-            - name: OPERATOR_METRICS_VULN_ID_ENABLED
-              value: "false"
-            - name: OPERATOR_HEALTH_PROBE_BIND_ADDRESS
-              value: ":9090"
-            - name: OPERATOR_VULNERABILITY_SCANNER_ENABLED
-              value: "true"
-            - name: OPERATOR_SBOM_GENERATION_ENABLED
-              value: "true"
-            - name: OPERATOR_CLUSTER_SBOM_CACHE_ENABLED
-              value: "false"
-            - name: OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS
-              value: "true"
-            - name: OPERATOR_SCANNER_REPORT_TTL
-              value: "24h"
-            - name: OPERATOR_CACHE_REPORT_TTL
-              value: "120h"
-            - name: CONTROLLER_CACHE_SYNC_TIMEOUT
-              value: "5m"
-            - name: OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED
-              value: "true"
-            - name: OPERATOR_RBAC_ASSESSMENT_SCANNER_ENABLED
-              value: "true"
-            - name: OPERATOR_INFRA_ASSESSMENT_SCANNER_ENABLED
-              value: "true"
-            - name: OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS
-              value: "true"
-            - name: OPERATOR_EXPOSED_SECRET_SCANNER_ENABLED
-              value: "true"
-            - name: OPERATOR_METRICS_EXPOSED_SECRET_INFO_ENABLED
-              value: "false"
-            - name: OPERATOR_METRICS_CONFIG_AUDIT_INFO_ENABLED
-              value: "false"
-            - name: OPERATOR_METRICS_RBAC_ASSESSMENT_INFO_ENABLED
-              value: "false"
-            - name: OPERATOR_METRICS_INFRA_ASSESSMENT_INFO_ENABLED
-              value: "false"
-            - name: OPERATOR_METRICS_IMAGE_INFO_ENABLED
-              value: "false"  
-            - name: OPERATOR_METRICS_CLUSTER_COMPLIANCE_INFO_ENABLED
-              value: "false"  
-            - name: OPERATOR_WEBHOOK_BROADCAST_URL
-              value: ""
-            - name: OPERATOR_WEBHOOK_BROADCAST_TIMEOUT
-              value: "30s"
-            - name: OPERATOR_SEND_DELETED_REPORTS
-              value: "false"
-            - name: OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES
-              value: "{}"
-            - name: OPERATOR_ACCESS_GLOBAL_SECRETS_SERVICE_ACCOUNTS
-              value: "true"
-            - name: OPERATOR_BUILT_IN_TRIVY_SERVER
-              value: "false"
-            - name: TRIVY_SERVER_HEALTH_CHECK_CACHE_EXPIRATION
-              value: "10h"
-            - name: OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT
-              value: "false"
-            - name: OPERATOR_CLUSTER_COMPLIANCE_ENABLED
-              value: "true"
+          envFrom:
+            - configMapRef:
+                name: trivy-operator-config
           ports:
             - name: metrics
               containerPort: 8080
@@ -3010,6 +2987,25 @@ spec:
   selector:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
+---
+# Source: trivy-operator/templates/rbac/clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: trivy-operator
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.18.5"
+    app.kubernetes.io/managed-by: kubectl
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: trivy-operator
+subjects:
+  - kind: ServiceAccount
+    name: trivy-operator
+    namespace: trivy-system
 ---
 # Source: trivy-operator/templates/rbac/clusterrole.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -3380,11 +3376,12 @@ rules:
   verbs:
     - get
 ---
-# Source: trivy-operator/templates/rbac/clusterrolebinding.yaml
+# Source: trivy-operator/templates/rbac/leader-election-rolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: RoleBinding
 metadata:
-  name: trivy-operator
+  name: trivy-operator-leader-election
+  namespace: trivy-system
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
@@ -3392,8 +3389,8 @@ metadata:
     app.kubernetes.io/managed-by: kubectl
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: trivy-operator
+  kind: Role
+  name: trivy-operator-leader-election
 subjects:
   - kind: ServiceAccount
     name: trivy-operator
@@ -3427,11 +3424,11 @@ rules:
     verbs:
       - create
 ---
-# Source: trivy-operator/templates/rbac/leader-election-rolebinding.yaml
+# Source: trivy-operator/templates/rbac/rolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: trivy-operator-leader-election
+  name: trivy-operator
   namespace: trivy-system
   labels:
     app.kubernetes.io/name: trivy-operator
@@ -3441,7 +3438,7 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: trivy-operator-leader-election
+  name: trivy-operator
 subjects:
   - kind: ServiceAccount
     name: trivy-operator
@@ -3476,26 +3473,6 @@ rules:
       - create
       - get
       - delete
----
-# Source: trivy-operator/templates/rbac/rolebinding.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: trivy-operator
-  namespace: trivy-system
-  labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.18.5"
-    app.kubernetes.io/managed-by: kubectl
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: trivy-operator
-subjects:
-  - kind: ServiceAccount
-    name: trivy-operator
-    namespace: trivy-system
 ---
 # Source: trivy-operator/templates/rbac/view-configauditreports-clusterrole.yaml
 # permissions for end users to view configauditreports

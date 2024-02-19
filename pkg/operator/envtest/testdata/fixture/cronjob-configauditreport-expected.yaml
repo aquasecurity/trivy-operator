@@ -25,9 +25,9 @@ report:
     version: version
   summary:
     criticalCount: 0
-    highCount: 1
+    highCount: 2
     mediumCount: 3
-    lowCount: 12
+    lowCount: 10
   checks:
     - checkID: KSV001
       title: Can elevate its own privileges
@@ -39,7 +39,8 @@ report:
       messages:
         - Container 'hello' of CronJob 'hello' should set
           'securityContext.allowPrivilegeEscalation' to false
-      remediation: Set 'set containers[].securityContext.allowPrivilegeEscalation' to 'false'.
+      remediation: Set 'set containers[].securityContext.allowPrivilegeEscalation' to
+        'false'.
       success: false
     - checkID: KSV003
       title: "Default capabilities: some containers do not drop all"
@@ -75,9 +76,10 @@ report:
     - checkID: KSV014
       title: Root file system is not read-only
       description: An immutable root file system prevents applications from writing to
-        their local disk. This can limit intrusions, as attackers will not be able
-        to tamper with the file system or write foreign executables to disk.
-      severity: LOW
+        their local disk. This can limit intrusions, as attackers will not be
+        able to tamper with the file system or write foreign executables to
+        disk.
+      severity: HIGH
       category: Kubernetes Security Check
       messages:
         - Container 'hello' of CronJob 'hello' should set
@@ -87,19 +89,20 @@ report:
     - checkID: KSV015
       title: CPU requests not specified
       description: When containers have resource requests specified, the scheduler can
-        make better decisions about which nodes to place pods on, and how to deal
-        with resource contention.
+        make better decisions about which nodes to place pods on, and how to
+        deal with resource contention.
       severity: LOW
       category: Kubernetes Security Check
       messages:
-        - Container 'hello' of CronJob 'hello' should set 'resources.requests.cpu'
+        - Container 'hello' of CronJob 'hello' should set
+          'resources.requests.cpu'
       remediation: Set 'containers[].resources.requests.cpu'.
       success: false
     - checkID: KSV016
       title: Memory requests not specified
       description: When containers have memory requests specified, the scheduler can
-        make better decisions about which nodes to place pods on, and how to deal
-        with resource contention.
+        make better decisions about which nodes to place pods on, and how to
+        deal with resource contention.
       severity: LOW
       category: Kubernetes Security Check
       messages:
@@ -113,7 +116,8 @@ report:
       severity: LOW
       category: Kubernetes Security Check
       messages:
-        - Container 'hello' of CronJob 'hello' should set 'resources.limits.memory'
+        - Container 'hello' of CronJob 'hello' should set
+          'resources.limits.memory'
       remediation: Set a limit value under 'containers[].resources.limits.memory'.
       success: false
     - checkID: KSV020
@@ -145,8 +149,8 @@ report:
       severity: LOW
       category: Kubernetes Security Check
       messages:
-        - Either Pod or Container should set 'securityContext.seccompProfile.type'
-          to 'RuntimeDefault'
+        - Either Pod or Container should set
+          'securityContext.seccompProfile.type' to 'RuntimeDefault'
       remediation: Set 'spec.securityContext.seccompProfile.type',
         'spec.containers[*].securityContext.seccompProfile' and
         'spec.initContainers[*].securityContext.seccompProfile' to
@@ -184,20 +188,6 @@ report:
         - cronjob hello in default namespace should set metadata.namespace to a
           non-default namespace
       remediation: Set 'metadata.namespace' to a non-default namespace.
-      success: false
-    - checkID: KSV116
-      title: Runs with a root primary or supplementary GID
-      description: According to pod security standard 'Non-root groups', containers
-        should be forbidden from running with a root primary or supplementary GID.
-      severity: LOW
-      category: Kubernetes Security Check
-      messages:
-        - cronjob hello in default namespace should set
-          spec.securityContext.runAsGroup,
-          spec.securityContext.supplementalGroups[*] and
-          spec.securityContext.fsGroup to integer greater than 0
-      remediation: Set 'containers[].securityContext.runAsGroup' to a non-zero integer
-        or leave undefined.
       success: false
     - checkID: KSV118
       title: Default security context configured

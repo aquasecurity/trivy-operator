@@ -37,22 +37,6 @@ func cycloneDxMetadataToReportMetadata(cmetadata *cdx.Metadata, version string) 
 	}
 }
 
-/*
-t := make([]v1alpha1.Tool, 0)
-	for _, ct := range *cmetadata.Tools {
-		t = append(t, v1alpha1.Tool{
-			Vendor:  ct.Vendor,
-			Name:    ct.Name,
-			Version: ct.Version,
-		})
-	}
-	return &v1alpha1.Metadata{
-		Timestamp: cmetadata.Timestamp,
-		Tools:     &t,
-		Component: cycloneDxComponentToReportComponent(*cmetadata.Component),
-	}
-*/
-
 func cycloneDxComponentToReportComponent(cComp cdx.Component) *v1alpha1.Component {
 	var oe v1alpha1.OrganizationalEntity
 	if cComp.Supplier != nil {

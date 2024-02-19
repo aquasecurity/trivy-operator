@@ -22,19 +22,36 @@ func cycloneDxBomToReport(cbom cdx.BOM, version string) *v1alpha1.BOM {
 }
 
 func cycloneDxMetadataToReportMetadata(cmetadata *cdx.Metadata, version string) *v1alpha1.Metadata {
-	t := []v1alpha1.Tool{
+	t := []v1alpha1.Component{
 		{
-			Vendor:  "aquasecurity",
+			Type:    "application",
+			Group:   "aquasecurity",
 			Name:    "trivy",
 			Version: version,
 		},
 	}
 	return &v1alpha1.Metadata{
 		Timestamp: cmetadata.Timestamp,
-		Tools:     &t,
+		Tools:     v1alpha1.Tools{Components: t},
 		Component: cycloneDxComponentToReportComponent(*cmetadata.Component),
 	}
 }
+
+/*
+t := make([]v1alpha1.Tool, 0)
+	for _, ct := range *cmetadata.Tools {
+		t = append(t, v1alpha1.Tool{
+			Vendor:  ct.Vendor,
+			Name:    ct.Name,
+			Version: ct.Version,
+		})
+	}
+	return &v1alpha1.Metadata{
+		Timestamp: cmetadata.Timestamp,
+		Tools:     &t,
+		Component: cycloneDxComponentToReportComponent(*cmetadata.Component),
+	}
+*/
 
 func cycloneDxComponentToReportComponent(cComp cdx.Component) *v1alpha1.Component {
 	var oe v1alpha1.OrganizationalEntity

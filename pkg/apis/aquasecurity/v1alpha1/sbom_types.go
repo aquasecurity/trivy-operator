@@ -55,7 +55,7 @@ type SbomReportData struct {
 	// Summary is a summary of sbom report.
 	Summary SbomSummary `json:"summary"`
 
-	// Bom isartifact bill of materials.
+	// Bom is artifact bill of materials.
 	Bom BOM `json:"components"`
 }
 
@@ -83,14 +83,12 @@ type Component struct {
 	Properties []Property           `json:"properties,omitempty"`
 }
 
-type Tool struct {
-	Vendor  string `json:"vendor,omitempty"`
-	Name    string `json:"name,omitempty"`
-	Version string `json:"version,omitempty"`
+type Tools struct {
+	Components []Component `json:"components,omitempty"`
 }
 type Metadata struct {
 	Timestamp string     `json:"timestamp,omitempty"`
-	Tools     *[]Tool    `json:"tools,omitempty"`
+	Tools     Tools      `json:"tools,omitempty"`
 	Component *Component `json:"component,omitempty"`
 }
 

@@ -3512,10 +3512,12 @@ report:
         purl: pkg:oci/nginx@sha256%3Af7988fb6c02e0ce69257d9bd9cf37ae20a60f1df7563c3a2a6abe24160306b8d?arch=amd64&repository_url=index.docker.io%2Flibrary%2Fnginx
         supplier: {}
         type: container
-      timestamp: 2023-11-12T18:51:06+00:00
+      timestamp: 2023-11-12T18:51:06.000Z
       tools:
-        - name: trivy
-          vendor: aquasecurity
+        components:
+          - type: application
+            name: trivy
+            vendor: aquasecurity
     serialNumber: urn:uuid:d81232a6-d89d-4533-ba43-228468c411f5
     specVersion: "1.5"
     version: 1
@@ -3528,4 +3530,4 @@ report:
   summary:
     componentsCount: 110
     dependenciesCount: 110
-  updateTimestamp: 2023-11-12T18:51:06Z
+  updateTimestamp: 2023-11-12T18:51:06.000Z

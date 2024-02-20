@@ -1,6 +1,8 @@
 package sbomreport
 
 import (
+	"bufio"
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -163,7 +165,7 @@ func ImageRef(imageRef string) (string, error) {
 }
 
 func BuildSbomReportData(reports ty.Report, clock ext.Clock, registry v1alpha1.Registry, artifact v1alpha1.Artifact, version string) (*v1alpha1.SbomReportData, error) {
-	bom, err := generateSbomFromScanResult(reports)
+	bom, err := generateSbomFromScanResult(reports, version)
 	if err != nil {
 		return nil, err
 	}
@@ -184,29 +186,28 @@ func BuildSbomReportData(reports ty.Report, clock ext.Clock, registry v1alpha1.R
 	}, nil
 }
 
-func generateSbomFromScanResult(report ty.Report) (*v1alpha1.BOM, error) {
+func generateSbomFromScanResult(report ty.Report, version string) (*v1alpha1.BOM, error) {
 	var bom *v1alpha1.BOM
 	if len(report.Results) > 0 && len(report.Results[0].Packages) > 0 {
 		// capture os.Stdout with a writer
-		done := capture()
-		err := tr.Write(context.TODO(), report, fg.Options{
+		options := fg.Options{
 			ReportOptions: fg.ReportOptions{
 				Format: ty.FormatCycloneDX,
 			},
-		})
-		if err != nil {
-			return nil, err
 		}
-		bomWriter, err := done()
+		var sbomBuffer bytes.Buffer
+		sbomWriter := bufio.NewWriter(&sbomBuffer)
+		options.SetOutputWriter(sbomWriter)
+		err := tr.Write(context.TODO(), report, options)
 		if err != nil {
 			return nil, err
 		}
 		var bom cdx.BOM
-		err = json.Unmarshal([]byte(bomWriter), &bom)
+		err = json.Unmarshal(sbomBuffer.Bytes(), &bom)
 		if err != nil {
 			return nil, err
 		}
-		return cycloneDxBomToReport(bom), nil
+		return cycloneDxBomToReport(bom, version), nil
 	}
 	return bom, nil
 }

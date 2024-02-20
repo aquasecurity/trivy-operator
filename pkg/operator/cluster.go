@@ -176,7 +176,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 		}
 		output := new(bytes.Buffer)
 		w := report.NewCycloneDXWriter(output, cdx.BOMFileFormatJSON, apiVersion)
-		err = w.Write(k8sreport.RootComponent)
+		err = w.Write(ctx, k8sreport.RootComponent)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -187,7 +187,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 		}
 
 		sbomReportData := v1alpha1.SbomReportData{
-			UpdateTimestamp: metav1.NewTime(clock.Now()),
+			UpdateTimestamp: metav1.NewTime(clock.Now(ctx)),
 			Scanner: v1alpha1.Scanner{
 				Name:    v1alpha1.ScannerNameTrivy,
 				Vendor:  "Aqua Security",

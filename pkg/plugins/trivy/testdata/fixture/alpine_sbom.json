@@ -6,13 +6,16 @@
     "version": 1,
     "metadata": {
         "timestamp": "2023-11-09T23:34:52+00:00",
-        "tools": [
-            {
-                "vendor": "aquasecurity",
-                "name": "trivy",
-                "version": "0.49.1"
-            }
-        ],
+        "tools": {
+            "components": [
+                {
+                    "type": "application",
+                    "group": "aquasecurity",
+                    "name": "trivy",
+                    "version": "0.49.1"
+                }
+            ]
+        },
         "component": {
             "bom-ref": "pkg:oci/alpine@sha256%3Aeece025e432126ce23f223450a0326fbebde39cdf496a85d8c016293fc851978?arch=amd64&repository_url=index.docker.io%2Flibrary%2Falpine",
             "type": "container",

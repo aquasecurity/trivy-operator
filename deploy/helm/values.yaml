@@ -40,6 +40,9 @@ operator:
   # -- number of old history to retain to allow rollback (if not set, default Kubernetes value is set to 10)
   revisionHistoryLimit: ~
 
+  # -- additional labels for the operator deployment
+  labels: {}
+
   # -- additional labels for the operator pod
   podLabels: {}
 
@@ -320,8 +323,11 @@ trivy:
   # -- storageSize is the size of the trivy server PVC
   storageSize: "5Gi"
 
+  # -- labels is the extra labels to be used for trivy server statefulset
+  labels: {}
+
   # -- podLabels is the extra pod labels to be used for trivy server
-  podLabels:
+  podLabels: {}
 
   # -- priorityClassName is the name of the priority class used for trivy server
   priorityClassName: ""

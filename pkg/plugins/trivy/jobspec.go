@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	GCPCR_Inage_Regex  = `^(gcr\.io.*|^([a-zA-Z0-9-]+)-*-*.docker.pkg.dev.*)`
+	GCPCR_Image_Regex  = `^(us\.|eu\.|asia\.)?gcr\.io.*|^([a-zA-Z0-9-]+)-*-*.docker\.pkg\.dev.*`
 	AWSECR_Image_Regex = "^\\d+\\.dkr\\.ecr\\.(\\w+-\\w+-\\d+)\\.amazonaws\\.com\\/"
 	// SkipDirsAnnotation annotation  example: trivy-operator.aquasecurity.github.io/skip-dirs: "/tmp,/home"
 	SkipDirsAnnotation = "trivy-operator.aquasecurity.github.io/skip-dirs"

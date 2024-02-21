@@ -761,7 +761,7 @@ func createEnvandVolumeForGcr(env *[]corev1.EnvVar, volumeMounts *[]corev1.Volum
 }
 
 func checkGcpCrOrPivateRegistry(imageUrl string) bool {
-	imageRegex := regexp.MustCompile(GCPCR_Inage_Regex)
+	imageRegex := regexp.MustCompile(GCPCR_Image_Regex)
 	return imageRegex.MatchString(imageUrl)
 }
 

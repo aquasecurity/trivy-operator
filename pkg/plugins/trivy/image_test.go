@@ -12,6 +12,14 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
 
+func TestCheckGcpCrOrPrivateRegistry(t *testing.T) {
+	assert.True(t, trivy.CheckGcpCrOrPrivateRegistry("gcr.io/company/application"))
+	assert.True(t, trivy.CheckGcpCrOrPrivateRegistry("us.gcr.io/company/application"))
+	assert.True(t, trivy.CheckGcpCrOrPrivateRegistry("eu.gcr.io/company/application"))
+	assert.True(t, trivy.CheckGcpCrOrPrivateRegistry("asia.gcr.io/company/application"))
+	assert.True(t, trivy.CheckGcpCrOrPrivateRegistry("us-central1-docker.pkg.dev/company/application"))
+}
+
 func TestGetMirroredImage(t *testing.T) {
 	testCases := []struct {
 		name          string

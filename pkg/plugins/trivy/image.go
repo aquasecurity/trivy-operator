@@ -207,7 +207,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 				Value: "true",
 			})
 		}
-		gcrImage := checkGcpCrOrPivateRegistry(c.Image)
+		gcrImage := CheckGcpCrOrPrivateRegistry(c.Image)
 		if _, ok := containersCredentials[c.Name]; ok && secret != nil {
 			registryUsernameKey := fmt.Sprintf("%s.username", c.Name)
 			registryPasswordKey := fmt.Sprintf("%s.password", c.Name)
@@ -433,7 +433,7 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 		}
 
 		if auth, ok := containersCredentials[container.Name]; ok && secret != nil {
-			if checkGcpCrOrPivateRegistry(container.Image) && auth.Username == "_json_key" {
+			if CheckGcpCrOrPrivateRegistry(container.Image) && auth.Username == "_json_key" {
 				registryServiceAccountAuthKey := fmt.Sprintf("%s.password", container.Name)
 				createEnvandVolumeForGcr(&env, &volumeMounts, &volumes, &registryServiceAccountAuthKey, &secret.Name)
 			} else {
@@ -760,7 +760,7 @@ func createEnvandVolumeForGcr(env *[]corev1.EnvVar, volumeMounts *[]corev1.Volum
 	*volumeMounts = append(*volumeMounts, googlecredMount)
 }
 
-func checkGcpCrOrPivateRegistry(imageUrl string) bool {
+func CheckGcpCrOrPrivateRegistry(imageUrl string) bool {
 	imageRegex := regexp.MustCompile(GCPCR_Image_Regex)
 	return imageRegex.MatchString(imageUrl)
 }

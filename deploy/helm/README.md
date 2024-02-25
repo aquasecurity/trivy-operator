@@ -49,6 +49,7 @@ Keeps security report resources updated
 | operator.controllerCacheSyncTimeout | string | `"5m"` | controllerCacheSyncTimeout the duration to wait for controller resources cache sync (default: 5m). |
 | operator.exposedSecretScannerEnabled | bool | `true` | exposedSecretScannerEnabled the flag to enable exposed secret scanner |
 | operator.infraAssessmentScannerEnabled | bool | `true` | infraAssessmentScannerEnabled the flag to enable infra assessment scanner |
+| operator.labels | object | `{}` | additional labels for the operator deployment |
 | operator.leaderElectionId | string | `"trivyoperator-lock"` | leaderElectionId determines the name of the resource that leader election will use for holding the leader lock. |
 | operator.logDevMode | bool | `false` | logDevMode the flag to enable development mode (more human-readable output, extra stack traces and logging information, etc) |
 | operator.mergeRbacFindingWithConfigAudit | bool | `false` | mergeRbacFindingWithConfigAudit the flag to enable merging rbac finding with config-audit report |
@@ -129,11 +130,12 @@ Keeps security report resources updated
 | trivy.insecureRegistries | object | `{}` | The registry to which insecure connections are allowed. There can be multiple registries with different keys. |
 | trivy.javaDbRegistry | string | `"ghcr.io"` | javaDbRegistry is the registry for the Java vulnerability database. |
 | trivy.javaDbRepository | string | `"aquasecurity/trivy-java-db"` |  |
+| trivy.labels | object | `{}` | labels is the extra labels to be used for trivy server statefulset |
 | trivy.mode | string | `"Standalone"` | mode is the Trivy client mode. Either Standalone or ClientServer. Depending on the active mode other settings might be applicable or required. |
 | trivy.noProxy | string | `nil` | noProxy is a comma separated list of IPs and domain names that are not subject to proxy settings. |
 | trivy.nonSslRegistries | object | `{}` | Registries without SSL. There can be multiple registries with different keys. |
 | trivy.offlineScan | bool | `false` | offlineScan is the flag to enable the offline scan functionality in Trivy This will prevent outgoing HTTP requests, e.g. to search.maven.org |
-| trivy.podLabels | string | `nil` | podLabels is the extra pod labels to be used for trivy server |
+| trivy.podLabels | object | `{}` | podLabels is the extra pod labels to be used for trivy server |
 | trivy.priorityClassName | string | `""` | priorityClassName is the name of the priority class used for trivy server |
 | trivy.registry | object | `{"mirror":{}}` | Mirrored registries. There can be multiple registries with different keys. Make sure to quote registries containing dots |
 | trivy.resources | object | `{"limits":{"cpu":"500m","memory":"500M"},"requests":{"cpu":"100m","memory":"100M"}}` | resources resource requests and limits for scan job containers |

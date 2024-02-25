@@ -7,6 +7,9 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-server
     app.kubernetes.io/instance: trivy-server
+    {{- with .Values.trivy.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   podManagementPolicy: "Parallel"
   serviceName: {{ .Values.trivy.serverServiceName }}

@@ -5,7 +5,7 @@ commands:
       ttl="$(kubectl get -n trivy-system
       secrets scan-vulnerabilityreport-db9b87967-regcred \
         -o=jsonpath='{.metadata.annotations.trivy-operator\.aquasecurity\.github\.io/secret-ttl}')"
-      if [ $ttl = "0s" ]
+      if [ $ttl == "0s" ]
 
       then
         echo "Pass: scan job secret ttl ($ttl) match"

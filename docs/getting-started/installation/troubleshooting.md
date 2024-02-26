@@ -267,3 +267,62 @@ When we look at the trivy-operator logs again, we'll see that the error logs ref
 ```
 
 This means that the trivy-operator cannot talk to the internet over port 443 to download the vulnerability database. We need to create a new network policy to allow this exeption.
+
+Before proceding with the creation of our next network policy, it is important to understand a few things. Trivy-operator itself does not download the vulnerability database. Instead, it spawns a couple of scan pods generated via a job that download the vulnerability database over port 443.
+
+We can confirm this by doing a `watch kubectl get pods -n trivy-system` on pods on the trivy-system, then restarting the trivy-operator via `kubectl rollout restart deployment -n trivy-system`:
+
+```
+NAME                                        READY   STATUS    RESTARTS   AGE
+trivy-operator-6b4dc78c5-nzzcm              1/1     Running   0          11s
+scan-vulnerabilityreport-6f9cb46645-pzx7w   1/1     Running   0          8s
+```
+
+Here we see the scanning pod being spawned. We now must get a good label so we can create a network polciy for it. We do so by grabbing the pod name and getting the labels via `yq` while we watch for the pod in another terminal.
+
+```
+kubectl get pods -n trivy-system scan-vulnerabilityreport-6dfb8dc69f-fwpbh -o yaml | yq '.metadata.labels'
+```
+We get the output:
+```
+app.kubernetes.io/managed-by: trivy-operator
+controller-uid: 10aba790-6ee6-4802-81ed-ad77908ea10d
+job-name: scan-vulnerabilityreport-6dfb8dc69f
+resource-spec-hash: 764dd688f
+trivy-operator.resource.kind: ReplicaSet
+trivy-operator.resource.name: trivy-operator-6b65576869
+trivy-operator.resource.namespace: trivy-system
+vulnerabilityReport.scanner: Trivy
+```
+
+We can probably use `app.kubernetes.io/managed-by: trivy-operator`, as this is a label managed by Kubernetes, so we can be sure it will always be there.
+
+We proceed to create the network policy was follows:
+
+```
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-443-trivy-operator
+  namespace: trivy-system
+spec:
+  egress:
+    - ports:
+        - port: 443
+          protocol: TCP
+      to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: trivy-operator
+  policyTypes:
+    - Egress
+```
+
+We use the CIDR `0.0.0.0/0` do denote that we want to allow the target pods to talk to the internet. If we query for the logs again, we'll see that the error is gone. Moreover, if we do a `kubectl get vulnerabilityreport -A`, we'll see that the report for out `nginx` pod has been recently generated:
+
+```
+kubectl get vulnerabilityreport -A | grep nginx
+applications   pod-nginx-nginx                                       library/nginx                      latest                 Trivy     2m28s
+```

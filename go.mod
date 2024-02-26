@@ -374,8 +374,4 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
 )
 
-replace github.com/moby/buildkit => github.com/moby/buildkit v0.12.5
-
-replace github.com/opencontainers/runc => github.com/opencontainers/runc v1.1.12
-
-replace oras.land/oras-go => oras.land/oras-go v1.2.5
+replace helm.sh/helm/v3 => helm.sh/helm/v3 v3.14.2

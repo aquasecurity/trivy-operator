@@ -16,6 +16,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 	"github.com/go-logr/logr"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -151,4 +152,72 @@ func (r *TTLReportReconciler) applicableForDeletion(report client.Object, ttlRep
 		return false
 	}
 	return applicable && (currentPoliciesHash != policiesHash)
+}
+
+type TTLSecretReconciler struct {
+	logr.Logger
+	etc.Config
+	client.Client
+	ext.Clock
+}
+
+func (r *TTLSecretReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	// watch reports for ttl
+	secretTTLResources := make([]kube.Resource, 0)
+	if r.Config.VulnerabilityScannerEnabled || r.Config.ExposedSecretScannerEnabled {
+		secretTTLResources = append(secretTTLResources, kube.Resource{ForObject: &corev1.Secret{}})
+	}
+	installModePredicate, err := predicate.InstallModePredicate(r.Config)
+	if err != nil {
+		return err
+	}
+	for _, reportType := range secretTTLResources {
+		err = ctrl.NewControllerManagedBy(mgr).
+			For(reportType.ForObject, builder.WithPredicates(
+				predicate.ManagedByTrivyOperator,
+				predicate.InNamespace(r.Config.Namespace),
+				installModePredicate)).
+			Complete(r.reconcileSecret(reportType.ForObject))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (r *TTLSecretReconciler) reconcileSecret(scanJobSecret client.Object) reconcile.Func {
+	return func(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+		log := r.Logger.WithValues("secret", req.NamespacedName)
+
+		err := r.Client.Get(ctx, req.NamespacedName, scanJobSecret)
+		if err != nil {
+			if errors.IsNotFound(err) {
+				log.V(1).Info("Ignoring cached report that must have been deleted")
+				return ctrl.Result{}, nil
+			}
+			return ctrl.Result{}, fmt.Errorf("getting secret from cache: %w", err)
+		}
+		ttlSecretAnnotationStr, ok := scanJobSecret.GetAnnotations()[v1alpha1.TTLSecretAnnotation]
+		if !ok {
+			log.V(1).Info("Ignoring report without TTL set")
+			return ctrl.Result{}, nil
+		}
+		secretTTLTime, err := time.ParseDuration(ttlSecretAnnotationStr)
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("failed parsing %v with value %v %w", v1alpha1.TTLSecretAnnotation, ttlSecretAnnotationStr, err)
+		}
+		ttlExpired, durationToTTLExpiration := utils.IsTTLExpired(secretTTLTime, scanJobSecret.GetCreationTimestamp().Time, r.Clock)
+
+		if ttlExpired {
+			log.V(1).Info("Removing secret with expired TTL")
+			err := r.Client.Delete(ctx, scanJobSecret, &client.DeleteOptions{})
+			if err != nil && !errors.IsNotFound(err) {
+				return ctrl.Result{}, err
+			}
+			// Since the secret is deleted there is no reason to requeue
+			return ctrl.Result{}, nil
+		}
+		log.V(1).Info("RequeueAfter", "durationToTTLExpiration", durationToTTLExpiration)
+		return ctrl.Result{RequeueAfter: durationToTTLExpiration}, nil
+	}
 }

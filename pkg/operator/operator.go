@@ -226,6 +226,18 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 	}
 
+	if operatorConfig.ScanSecretTTL != nil {
+		secretTTLReconciler := &TTLSecretReconciler{
+			Logger: ctrl.Log.WithName("reconciler").WithName("ttlreport"),
+			Config: operatorConfig,
+			Client: mgr.GetClient(),
+			Clock:  ext.NewSystemClock(),
+		}
+		if err = secretTTLReconciler.SetupWithManager(mgr); err != nil {
+			return fmt.Errorf("unable to setup secretTTLReconciler reconciler: %w", err)
+		}
+	}
+
 	if operatorConfig.WebhookBroadcastURL != "" {
 		if err = (&webhook.WebhookReconciler{
 			Logger: ctrl.Log.WithName("reconciler").WithName("webhookreporter"),

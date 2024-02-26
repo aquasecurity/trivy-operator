@@ -56,6 +56,9 @@ operator:
   # -- scanJobTTL the set automatic cleanup time after the job is completed
   scanJobTTL: ""
 
+  # -- scanSecretTTL set an automatic cleanup for scan job secrets
+  scanSecretTTL: ""
+
   # -- scanJobTimeout the length of time to wait before giving up on a scan job
   scanJobTimeout: 5m
 

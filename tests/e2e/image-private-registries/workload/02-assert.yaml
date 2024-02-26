@@ -1,0 +1,15 @@
+---
+apiVersion: kuttl.dev/v1beta1
+commands:
+  - script: >
+      ttl="$(kubectl get secrets  -n trivy-system)"
+      if [ "$ttl" == "0s" ]
+
+      then
+        echo "Pass: found matching secret with ttl ($ttl)"
+      else
+        echo "Fail: not found matching ttl ($ttl) should be 0s"
+        exit 1
+      fi
+kind: TestAssert
+timeout: 30

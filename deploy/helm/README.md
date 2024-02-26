@@ -89,8 +89,9 @@ Keeps security report resources updated
 | rbac.create | bool | `true` |  |
 | resources | object | `{}` |  |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true}` | securityContext security context |
-| service | object | `{"annotations":{},"headless":true,"metricsPort":80}` | service only expose a metrics endpoint for prometheus to scrape, trivy-operator does not have a user interface. |
+| service | object | `{"annotations":{},"headless":true,"metricsAppProtocol":"TCP","metricsPort":80}` | service only expose a metrics endpoint for prometheus to scrape, trivy-operator does not have a user interface. |
 | service.annotations | object | `{}` | annotations added to the operator's service |
+| service.metricsAppProtocol | string | `"TCP"` | appProtocol of the monitoring service |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created. |
 | serviceAccount.name | string | `""` | name specifies the name of the k8s Service Account. If not set and create is true, a name is generated using the fullname template. |

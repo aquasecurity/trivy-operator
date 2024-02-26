@@ -3110,6 +3110,7 @@ spec:
       port: 80
       targetPort: metrics
       protocol: TCP
+      appProtocol: TCP
   selector:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator

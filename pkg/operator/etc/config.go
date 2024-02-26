@@ -18,6 +18,7 @@ type Config struct {
 	LogDevMode                                   bool           `env:"OPERATOR_LOG_DEV_MODE" envDefault:"false"`
 	ScanJobTimeout                               time.Duration  `env:"OPERATOR_SCAN_JOB_TIMEOUT" envDefault:"5m"`
 	ScanJobTTL                                   *time.Duration `env:"OPERATOR_SCAN_JOB_TTL"`
+	ScanSecretTTL                                *time.Duration `env:"OPERATOR_SCAN_SECRET_TTL"`
 	ConcurrentScanJobsLimit                      int            `env:"OPERATOR_CONCURRENT_SCAN_JOBS_LIMIT" envDefault:"10"`
 	ConcurrentNodeCollectorLimit                 int            `env:"OPERATOR_CONCURRENT_NODE_COLLECTOR_LIMIT" envDefault:"1"`
 	ScanJobRetryAfter                            time.Duration  `env:"OPERATOR_SCAN_JOB_RETRY_AFTER" envDefault:"30s"`

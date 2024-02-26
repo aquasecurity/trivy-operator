@@ -3,7 +3,7 @@ apiVersion: kuttl.dev/v1beta1
 commands:
   - script: >
       ttl="$(kubectl get secrets regcred-scan-vulnerabilityreport-9845bdc5f-79lb2 -n trivy-system -o jsonpath='{.metadata.annotations.trivy-operator\.aquasecurity\.github\.io/secret-ttl}')"
-      if [ $ttl -eq '0s' ]
+      if [ "$ttl" == "0s" ]
 
       then
         echo "Pass: found matching secret with ttl ($ttl)"

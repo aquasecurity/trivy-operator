@@ -295,9 +295,9 @@ trivy-operator.resource.namespace: trivy-system
 vulnerabilityReport.scanner: Trivy
 ```
 
-We can probably use `app.kubernetes.io/managed-by: trivy-operator`, as this is a label managed by Kubernetes, so we can be sure it will always be there.
+We can probably use `app.kubernetes.io/managed-by: trivy-operator`, as this is a label in a standard Kubernetes recommends.
 
-We proceed to create the network policy was follows:
+We proceed to create the network policy as follows:
 
 ```
 apiVersion: networking.k8s.io/v1
@@ -320,9 +320,60 @@ spec:
     - Egress
 ```
 
-We use the CIDR `0.0.0.0/0` do denote that we want to allow the target pods to talk to the internet. If we query for the logs again, we'll see that the error is gone. Moreover, if we do a `kubectl get vulnerabilityreport -A`, we'll see that the report for out `nginx` pod has been recently generated:
+We use the CIDR `0.0.0.0/0` to denote that we want to allow the target pods to talk to the internet. If we query for the logs again, we'll see that the error is gone. Moreover, if we do a `kubectl get vulnerabilityreport -n applications`, we'll see that the report for the `nginx` pod has been recently generated:
 
 ```
-kubectl get vulnerabilityreport -A | grep nginx
-applications   pod-nginx-nginx                                       library/nginx                      latest                 Trivy     2m28s
+NAME              REPOSITORY      TAG      SCANNER   AGE
+pod-nginx-nginx   library/nginx   latest   Trivy     2m28s
+```
+
+### Trivy-server
+
+When deploying the trivy-operator + trivy-server for downloading the vulnerability database, you will need to create similar network policies to the ones created for the trivy-operator as a standalone component.
+After installing trivy-server in the current cluster, the pod entered a status of `CrashLookBackOff`. Upon inspecting the logs, for the trivy-server statefulset, we counter the following error:
+
+```
+2024-02-28T04:53:50.195Z	FATAL	failed to download vulnerability DB: database download error: OCI repository error: 1 error occurred:
+	* Get "https://ghcr.io/v2/": dial tcp 140.82.114.34:443: connect: connection refused
+```
+
+This means that the trivy-server cannot connect to the image registry over port `443`. This can be fixed by applying a following network policy similar to `allow-egress-443-trivy-operator`, which we created for the trivy-operator, but first we must get the label that will be used to select the pods that the trivy-server generates. We do so by doing a `kubectl get pods trivy-server-0 -n trivy-system --show-labels`, we obtain the following output:
+
+```
+kubectl get pods trivy-server-0 -n trivy-system --show-labels
+NAME             READY   STATUS             RESTARTS       AGE   LABELS
+trivy-server-0   0/1     CrashLoopBackOff   9 (3m4s ago)   24m   app.kubernetes.io/instance=trivy-server,app.kubernetes.io/name=trivy-server,controller-revision-hash=trivy-server-7668b54fc5,statefulset.kubernetes.io/pod-name=trivy-server-0
+```
+
+We can make use of the label `app.kubernetes.io/name=trivy-server`, so the resulting network policy will look like this:
+
+```
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-443-trivy-server
+  namespace: trivy-system
+spec:
+  egress:
+    - ports:
+        - port: 443
+          protocol: TCP
+      to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: trivy-server
+  policyTypes:
+    - Egress
+```
+
+We proceed to restart the trivy-server statefulset with `kubectl rollout restart sts -n trivy-system trivy-server` and see that the error previously seen is gone. Trivy-server was able to download the DB and is listening on port `4954`.
+
+```
+kubectl logs -n trivy-system statefulset/trivy-server
+2024-02-28T05:17:53.590Z	INFO	Need to update DB
+2024-02-28T05:17:53.590Z	INFO	DB Repository: ghcr.io/aquasecurity/trivy-db
+2024-02-28T05:17:53.590Z	INFO	Downloading DB...
+2024-02-28T05:17:57.550Z	INFO	Listening 0.0.0.0:4954...
 ```

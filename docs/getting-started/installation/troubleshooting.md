@@ -219,7 +219,7 @@ If we run `kubectl logs -n trivy-system deployment/trivy-operator`, we'll see th
 NOTE: For faster results, restart the trivy-operator deployment:
 
 ```
-kubectl rollout restart deployment -n trivy-system
+kubectl rollout restart deployment trivy-operator -n trivy-system
 ```
 
 We also notice that there are new errors as part of the logs referencing port `53`:
@@ -337,15 +337,14 @@ After installing trivy-server in the current cluster, the pod entered a status o
 	* Get "https://ghcr.io/v2/": dial tcp 140.82.114.34:443: connect: connection refused
 ```
 
-This means that the trivy-server cannot connect to the image registry over port `443`. This can be fixed by applying a following network policy similar to `allow-egress-443-trivy-operator`, which we created for the trivy-operator, but first we must get the label that will be used to select the pods that the trivy-server generates. We do so by doing a `kubectl get pods trivy-server-0 -n trivy-system --show-labels`, we obtain the following output:
+This means that the trivy-server cannot connect to the image registry over port `443`. This can be fixed by applying a network policy similar to `allow-egress-443-trivy-operator`, which we created for the trivy-operator, but first we must get the label that will be used to select the pods that the trivy-server generates. We do so by doing a `kubectl get pods trivy-0 -n trivy-system --show-labels`, we obtain the following output:
 
 ```
-kubectl get pods trivy-server-0 -n trivy-system --show-labels
-NAME             READY   STATUS             RESTARTS       AGE   LABELS
-trivy-server-0   0/1     CrashLoopBackOff   9 (3m4s ago)   24m   app.kubernetes.io/instance=trivy-server,app.kubernetes.io/name=trivy-server,controller-revision-hash=trivy-server-7668b54fc5,statefulset.kubernetes.io/pod-name=trivy-server-0
+NAME      READY   STATUS    RESTARTS   AGE     LABELS
+trivy-0   1/1     Running   0          3m40s   app.kubernetes.io/instance=trivy,app.kubernetes.io/name=trivy,controller-revision-hash=trivy-7494747496,statefulset.kubernetes.io/pod-name=trivy-0
 ```
 
-We can make use of the label `app.kubernetes.io/name=trivy-server`, so the resulting network policy will look like this:
+We can make use of the label `app.kubernetes.io/name=trivy`, so the resulting network policy will look like this:
 
 ```
 apiVersion: networking.k8s.io/v1
@@ -363,17 +362,84 @@ spec:
             cidr: 0.0.0.0/0
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: trivy-server
+      app.kubernetes.io/name: trivy
   policyTypes:
     - Egress
 ```
 
-We proceed to restart the trivy-server statefulset with `kubectl rollout restart sts -n trivy-system trivy-server` and see that the error previously seen is gone. Trivy-server was able to download the DB and is listening on port `4954`.
+We proceed to restart the trivy-server statefulset with `kubectl rollout restart sts -n trivy-system trivy` and see that the error previously seen is gone. Trivy-server was able to download the DB and is listening on port `4954`.
 
 ```
-kubectl logs -n trivy-system statefulset/trivy-server
+kubectl logs -n trivy-system statefulset/trivy
 2024-02-28T05:17:53.590Z	INFO	Need to update DB
 2024-02-28T05:17:53.590Z	INFO	DB Repository: ghcr.io/aquasecurity/trivy-db
 2024-02-28T05:17:53.590Z	INFO	Downloading DB...
 2024-02-28T05:17:57.550Z	INFO	Listening 0.0.0.0:4954...
 ```
+
+When we restart the trivy-operator to test if everything works as it should, we realize that it is outputting the following error via the logs:
+
+```
+failed to do request: Post \"http://trivy.trivy-system:4954/twirp/trivy.cache.v1.Cache/MissingBlobs\": dial tcp 10.43.158.111:4954: connect: connection refused"
+```
+
+The trivy-operator has to reach out to the trivy-server on port `4954` in order to access the downloaded vulnerability database. We also need to enable that connection via a networkpolicy (you guessed it), we can delete the previously created network policy `allow-egress-443-trivy-operator` via `kubectl delete networkpolicy allow-egress-443-trivy-operator -n trivy-system` and create a new one with a new name that mentions port `4954` to also allow egress traffic to port `4954` and rename it to something that reflects it's new purpose. Last, but not least:
+
+```
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-egress-443-and-4954-trivy-operator
+  namespace: trivy-system
+spec:
+  egress:
+    - ports:
+        - port: 443
+          protocol: TCP
+        - port: 4954
+          protocol: TCP
+      to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/managed-by: trivy-operator
+  policyTypes:
+    - Egress
+```
+
+After having saved the changes to the policy, we can proceed and restart the trivy-operator `kubectl rollout restart deployment trivy-operator -n trivy-system
+`. When looking at the logs for the trivy-operator, we see that there are some errors indicating it still cannot connect to port `4954`:
+
+```
+dial tcp 10.43.158.111:4954: connect: connection refused
+````
+
+So far we have created network policies to allow egress traffic. There is one last missing network policy and it is of type ingress. This network policy will allow the trivy-server to receive traffic on port `4954`.
+
+```
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-ingress-4954-trivy-server
+  namespace: trivy-system
+spec:
+  ingress:
+    - ports:
+        - port: 4954
+          protocol: TCP
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: trivy
+  policyTypes:
+    - Ingress
+```
+
+This network policy uses the appropiate `matchLabels` to only target the trivy-server. When restarting the trivy-operator with `kubectl rollout restart deployment trivy-operator -n trivy-system`, we see that the errors are gone. When doing a `k get vulnerabilityreport -n applications`, we see that there is a newly generated `vulnerabilityreport` for our `nginx` pod:
+
+```
+NAME              REPOSITORY      TAG      SCANNER   AGE
+pod-nginx-nginx   library/nginx   latest   Trivy     12s
+```
+
+We have successfully added all the necessary network policies for our trivy-operator to work on client/server mode.

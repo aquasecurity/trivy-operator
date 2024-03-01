@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
+	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 
 	dbtypes "github.com/aquasecurity/trivy-db/pkg/types"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
@@ -6104,7 +6105,7 @@ default ignore = false`,
 				},
 				ReadOnlyRootFilesystem: ptr.To[bool](true),
 			}
-			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, tc.credentials, securityContext)
+			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, tc.credentials, securityContext, map[string]v1alpha1.SbomReportData{})
 			require.NoError(t, err)
 			assert.Equal(t, tc.expectedJobSpec, jobSpec)
 			assert.Equal(t, len(tc.expectedSecretsData), len(secrets))
@@ -6516,7 +6517,7 @@ default ignore = false`,
 				// Root expected for standalone mode - the user would need to know this
 				RunAsUser: ptr.To[int64](0),
 			}
-			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, tc.credentials, securityContext)
+			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, tc.credentials, securityContext, map[string]v1alpha1.SbomReportData{})
 			require.NoError(t, err)
 			assert.Equal(t, tc.expectedJobSpec, jobSpec)
 			assert.Equal(t, len(tc.expectedSecretsData), len(secrets))
@@ -6541,6 +6542,11 @@ var (
 		Artifact: v1alpha1.Artifact{
 			Repository: "library/alpine",
 			Tag:        "3.10.2",
+		},
+		OS: v1alpha1.OS{
+			Family: "alpine",
+			Name:   "3.10.2",
+			Eosl:   true,
 		},
 		Summary: v1alpha1.VulnerabilitySummary{
 			CriticalCount: 0,
@@ -6642,6 +6648,11 @@ var (
 		Artifact: v1alpha1.Artifact{
 			Repository: "library/alpine",
 			Tag:        "3.10.2",
+		},
+		OS: v1alpha1.OS{
+			Family: "alpine",
+			Name:   "3.10.2",
+			Eosl:   true,
 		},
 		Summary: v1alpha1.VulnerabilitySummary{
 			CriticalCount: 0,
@@ -6853,7 +6864,7 @@ func TestGetScoreFromCVSS(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			score := trivy.GetScoreFromCVSS(trivy.GetCvssV3(tc.cvss))
+			score := vulnerabilityreport.GetScoreFromCVSS(vulnerabilityreport.GetCvssV3(tc.cvss))
 			assert.Equal(t, tc.expectedScore, score)
 		})
 	}
@@ -6863,7 +6874,7 @@ func TestGetCVSSV3(t *testing.T) {
 	testCases := []struct {
 		name     string
 		cvss     dbtypes.VendorCVSS
-		expected map[string]*trivy.CVSS
+		expected map[string]*vulnerabilityreport.CVSS
 	}{
 		{
 			name: "Should return vendor score when vendor v3 score exist",
@@ -6875,7 +6886,7 @@ func TestGetCVSSV3(t *testing.T) {
 					V3Score: 8.3,
 				},
 			},
-			expected: map[string]*trivy.CVSS{
+			expected: map[string]*vulnerabilityreport.CVSS{
 				"nvd":    {V3Score: ptr.To[float64](8.1)},
 				"redhat": {V3Score: ptr.To[float64](8.3)},
 			},
@@ -6890,7 +6901,7 @@ func TestGetCVSSV3(t *testing.T) {
 					V3Score: 0.0,
 				},
 			},
-			expected: map[string]*trivy.CVSS{
+			expected: map[string]*vulnerabilityreport.CVSS{
 				"nvd":    {V3Score: nil},
 				"redhat": {V3Score: nil},
 			},
@@ -6898,13 +6909,13 @@ func TestGetCVSSV3(t *testing.T) {
 		{
 			name:     "Should return nil when cvss doesn't exist",
 			cvss:     dbtypes.VendorCVSS{},
-			expected: map[string]*trivy.CVSS{},
+			expected: map[string]*vulnerabilityreport.CVSS{},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			score := trivy.GetCvssV3(tc.cvss)
+			score := vulnerabilityreport.GetCvssV3(tc.cvss)
 			assert.True(t, reflect.DeepEqual(tc.expected, score))
 		})
 	}
@@ -7012,7 +7023,7 @@ func TestGetContainers(t *testing.T) {
 				Get()
 			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
 			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
-			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil)
+			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil, map[string]v1alpha1.SbomReportData{})
 			assert.NoError(t, err)
 
 			containers := make([]string, 0)
@@ -7364,6 +7375,86 @@ func TestGetSkipJavaDBUpdate(t *testing.T) {
 			got := tc.configData.GetSkipJavaDBUpdate()
 			assert.Equal(t, got, tc.want)
 
+		})
+	}
+}
+
+func TestGetImageScanCacheDir(t *testing.T) {
+	testCases := []struct {
+		name       string
+		configData trivy.Config
+		want       string
+	}{
+		{
+			name: "imageScanCacheDir param set non-default path",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.imageScanCacheDir": "/home/trivy/.cache",
+				},
+			}},
+			want: "/home/trivy/.cache",
+		},
+		{
+			name: "imageScanCacheDir param set as empty string",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.imageScanCacheDir": "",
+				},
+			}},
+			want: "/tmp/trivy/.cache",
+		},
+		{
+			name: "imageScanCacheDir param unset",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{},
+			}},
+			want: "/tmp/trivy/.cache",
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.configData.GetImageScanCacheDir()
+			assert.Equal(t, got, tc.want)
+		})
+	}
+}
+
+func TestGetFilesystemScanCacheDir(t *testing.T) {
+	testCases := []struct {
+		name       string
+		configData trivy.Config
+		want       string
+	}{
+		{
+			name: "filesystemScanCacheDir param set non-default path",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.filesystemScanCacheDir": "/home/trivyoperator/trivy-db",
+				},
+			}},
+			want: "/home/trivyoperator/trivy-db",
+		},
+		{
+			name: "filesystemScanCacheDir param set as empty string",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.filesystemScanCacheDir": "",
+				},
+			}},
+			want: "/var/trivyoperator/trivy-db",
+		},
+		{
+			name: "filesystemScanCacheDir param unset",
+			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{},
+			}},
+			want: "/var/trivyoperator/trivy-db",
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.configData.GetFilesystemScanCacheDir()
+			assert.Equal(t, got, tc.want)
 		})
 	}
 }

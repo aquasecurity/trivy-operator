@@ -84,6 +84,7 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 
 	// Determine which Kubernetes workloads the controller will reconcile and add them to resources
 	targetWorkloads := r.Config.GetTargetWorkloads()
+	targetWorkloads = append(targetWorkloads, strings.ToLower(string(kube.KindIngress)))
 	for _, tw := range targetWorkloads {
 		var resource kube.Resource
 		if err = resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, r.ObjectResolver); err != nil {
@@ -123,16 +124,12 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 	}
 
 	for _, resource := range clusterResources {
-
 		if err = ctrl.NewControllerManagedBy(mgr).WithOptions(controller.Options{
 			CacheSyncTimeout: r.CacheSyncTimeout,
-		}).
-			For(resource.ForObject, builder.WithPredicates(
-				predicate.Not(predicate.ManagedByTrivyOperator),
-				predicate.Not(predicate.IsBeingTerminated),
-			)).
-			Owns(resource.OwnsObject).
-			Complete(r.reconcileResource(resource.Kind)); err != nil {
+		}).For(resource.ForObject, builder.WithPredicates(
+			predicate.Not(predicate.ManagedByTrivyOperator),
+			predicate.Not(predicate.IsBeingTerminated),
+		)).Owns(resource.OwnsObject).Complete(r.reconcileResource(resource.Kind)); err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", resource.Kind, err)
 		}
 	}
@@ -366,8 +363,9 @@ func getCheck(result scan.Result, id string) v1alpha1.Check {
 		Severity:    v1alpha1.Severity(result.Rule().Severity),
 		Category:    "Kubernetes Security Check",
 
-		Success:  result.Status() == scan.StatusPassed,
-		Messages: []string{result.Description()},
+		Success:     result.Status() == scan.StatusPassed,
+		Messages:    []string{result.Description()},
+		Remediation: result.Rule().Resolution,
 	}
 }
 

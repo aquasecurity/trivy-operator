@@ -18,6 +18,7 @@ type Config struct {
 	LogDevMode                                   bool           `env:"OPERATOR_LOG_DEV_MODE" envDefault:"false"`
 	ScanJobTimeout                               time.Duration  `env:"OPERATOR_SCAN_JOB_TIMEOUT" envDefault:"5m"`
 	ScanJobTTL                                   *time.Duration `env:"OPERATOR_SCAN_JOB_TTL"`
+	ScanSecretTTL                                *time.Duration `env:"OPERATOR_SCAN_SECRET_TTL"`
 	ConcurrentScanJobsLimit                      int            `env:"OPERATOR_CONCURRENT_SCAN_JOBS_LIMIT" envDefault:"10"`
 	ConcurrentNodeCollectorLimit                 int            `env:"OPERATOR_CONCURRENT_NODE_COLLECTOR_LIMIT" envDefault:"1"`
 	ScanJobRetryAfter                            time.Duration  `env:"OPERATOR_SCAN_JOB_RETRY_AFTER" envDefault:"30s"`
@@ -30,11 +31,15 @@ type Config struct {
 	MetricsConfigAuditInfo                       bool           `env:"OPERATOR_METRICS_CONFIG_AUDIT_INFO_ENABLED" envDefault:"false"`
 	MetricsRbacAssessmentInfo                    bool           `env:"OPERATOR_METRICS_RBAC_ASSESSMENT_INFO_ENABLED" envDefault:"false"`
 	MetricsInfraAssessmentInfo                   bool           `env:"OPERATOR_METRICS_INFRA_ASSESSMENT_INFO_ENABLED" envDefault:"false"`
+	MetricsImageInfo                             bool           `env:"OPERATOR_METRICS_IMAGE_INFO_ENABLED" envDefault:"false"`
+	MetricsClusterComplianceInfo                 bool           `env:"OPERATOR_METRICS_CLUSTER_COMPLIANCE_INFO_ENABLED" envDefault:"false"`
 	HealthProbeBindAddress                       string         `env:"OPERATOR_HEALTH_PROBE_BIND_ADDRESS" envDefault:":9090"`
 	VulnerabilityScannerEnabled                  bool           `env:"OPERATOR_VULNERABILITY_SCANNER_ENABLED" envDefault:"true"`
 	SbomGenerationEnable                         bool           `env:"OPERATOR_SBOM_GENERATION_ENABLED" envDefault:"true"`
+	ClusterSbomCacheEnable                       bool           `env:"OPERATOR_CLUSTER_SBOM_CACHE_ENABLED" envDefault:"true"`
 	VulnerabilityScannerScanOnlyCurrentRevisions bool           `env:"OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS" envDefault:"true"`
 	ScannerReportTTL                             *time.Duration `env:"OPERATOR_SCANNER_REPORT_TTL" envDefault:"24h"`
+	CacheReportTTL                               *time.Duration `env:"OPERATOR_CACHE_REPORT_TTL" envDefault:"120h"`
 	ClusterComplianceEnabled                     bool           `env:"OPERATOR_CLUSTER_COMPLIANCE_ENABLED" envDefault:"true"`
 	InvokeClusterComplianceOnce                  bool           `env:"OPERATOR_INVOKE_CLUSTER_COMPLIANCE_ONCE" envDefault:"false"` // for testing purposes only
 	ConfigAuditScannerEnabled                    bool           `env:"OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED" envDefault:"true"`

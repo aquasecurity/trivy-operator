@@ -57,6 +57,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr1.Report.Registry.Server = "index.docker.io"
 			vr1.Report.Artifact.Repository = "library/nginx"
 			vr1.Report.Artifact.Tag = "1.16"
+			vr1.Report.OS.Family = "debian"
+			vr1.Report.OS.Name = "10.3"
 			vr1.Report.Summary.CriticalCount = 2
 			vr1.Report.Vulnerabilities = []v1alpha1.Vulnerability{
 				{InstalledVersion: "2.28-10", FixedVersion: "2.28-11", PublishedDate: "2023-06-28T21:15:00Z", LastModifiedDate: "2023-06-28T21:16:00Z", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "libc-bin", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR1-CRITICAL-1", Title: "VR1 Critical vulnerability 1", Score: ptr.To[float64](8.5)},
@@ -73,6 +75,9 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr2.Report.Registry.Server = "quay.io"
 			vr2.Report.Artifact.Repository = "oauth2-proxy/oauth2-proxy"
 			vr2.Report.Artifact.Tag = "v7.2.1"
+			vr2.Report.OS.Family = "alpine"
+			vr2.Report.OS.Name = "3.15.0"
+			vr2.Report.OS.Eosl = true
 			vr2.Report.Summary.CriticalCount = 4
 			vr2.Report.Summary.HighCount = 7
 			vr2.Report.Vulnerabilities = []v1alpha1.Vulnerability{
@@ -99,6 +104,9 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr3.Report.Registry.Server = "k8s.gcr.io"
 			vr3.Report.Artifact.Repository = "ingress-nginx/controller"
 			vr3.Report.Artifact.Digest = "sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8"
+			vr3.Report.OS.Family = "alpine"
+			vr3.Report.OS.Name = "3.14.6"
+			vr3.Report.OS.Eosl = true
 			vr3.Report.Summary.CriticalCount = 1
 			vr3.Report.Vulnerabilities = []v1alpha1.Vulnerability{
 				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-1", Title: "VR3 Critical vulnerability 1", Score: ptr.To[float64](8.4)},
@@ -152,6 +160,20 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_image_vulnerabilities")).
 				To(Succeed())
 		})
+
+		It("should produce correct image os metrics with cluster scope with MetricsImageInfo option enabled", func() {
+			collector.Config.MetricsImageInfo = true
+			const expected = `
+		# HELP trivy_image_info scanned container image information
+		# TYPE trivy_image_info gauge
+		trivy_image_info{container_name="nginx",image_digest="",image_os_eosl="",image_os_family="debian",image_os_name="10.3",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6"} 1
+		trivy_image_info{container_name="proxy",image_digest="",image_os_eosl="true",image_os_family="alpine",image_os_name="3.15.0",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4"} 1
+		trivy_image_info{container_name="controller",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_os_eosl="true",image_os_family="alpine",image_os_name="3.14.6",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller"} 1
+		`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_image_info")).
+				To(Succeed())
+		})
+
 		It("should produce correct metrics with cluster scope with MetricsVulnerabilityId option enabled", func() {
 			collector.Config.MetricsVulnerabilityId = true
 			const expected = `
@@ -248,6 +270,21 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		trivy_image_vulnerabilities{container_name="controller",custom_prefix_ssot="",custom_prefix_tier="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller",severity="Unknown"} 0
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_image_vulnerabilities")).
+				To(Succeed())
+		})
+		It("should produce correct image os metrics with configured labels included using the correct prefix", func() {
+			collector.Config.MetricsImageInfo = true
+			collector.Set(trivyoperator.KeyReportResourceLabels, "tier,ssot")
+			collector.Set(trivyoperator.KeyMetricsResourceLabelsPrefix, "custom_prefix_")
+			collector.metricDescriptors = buildMetricDescriptors(collector.ConfigData) // Force rebuild metricDescriptors again
+			const expected = `
+		# HELP trivy_image_info scanned container image information
+		# TYPE trivy_image_info gauge
+		trivy_image_info{container_name="nginx",custom_prefix_ssot="",custom_prefix_tier="tier-1",image_digest="",image_os_eosl="",image_os_family="debian",image_os_name="10.3",image_registry="index.docker.io",image_repository="library/nginx",image_tag="1.16",name="replicaset-nginx-6d4cf56db6-nginx",namespace="default",resource_kind="ReplicaSet",resource_name="nginx-6d4cf56db6"} 1
+		trivy_image_info{container_name="proxy",custom_prefix_ssot="",custom_prefix_tier="",image_digest="",image_os_eosl="true",image_os_family="alpine",image_os_name="3.15.0",image_registry="quay.io",image_repository="oauth2-proxy/oauth2-proxy",image_tag="v7.2.1",name="replicaset-app-d327abe3c4-proxy",namespace="some-ns",resource_kind="ReplicaSet",resource_name="app-d327abe3c4"} 1
+		trivy_image_info{container_name="controller",custom_prefix_ssot="",custom_prefix_tier="",image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_os_eosl="true",image_os_family="alpine",image_os_name="3.14.6",image_registry="k8s.gcr.io",image_repository="ingress-nginx/controller",image_tag="",name="daemonset-ingress-nginx-controller-controller",namespace="ingress-nginx",resource_kind="DaemonSet",resource_name="ingress-nginx-controller"} 1
+		`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_image_info")).
 				To(Succeed())
 		})
 		It("should produce correct metrics with configured labels included using the correct prefix and sanitized the invalid metric label", func() {
@@ -816,9 +853,62 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 
 	Context("clusterComplianceReport", func() {
 		BeforeEach(func() {
-			car1 := &v1alpha1.ClusterComplianceReport{}
+			car1 := &v1alpha1.ClusterComplianceReport{
+				Status: v1alpha1.ReportStatus{
+					DetailReport:  &v1alpha1.ComplianceReport{},
+					SummaryReport: &v1alpha1.SummaryReport{},
+				},
+			}
 			car1.Spec.Complaince.Title = "nsa"
 			car1.Spec.Complaince.Description = "National Security Agency - Kubernetes Hardening Guidance"
+			car1.Spec.Complaince.Controls = append(car1.Spec.Complaince.Controls,
+				[]v1alpha1.Control{
+					{
+						ID:            "car1 Id",
+						Name:          "car1 cluster compliance name",
+						DefaultStatus: v1alpha1.FailStatus,
+					},
+					{
+						ID:            "car1 Id",
+						Name:          "car1 cluster compliance name",
+						DefaultStatus: v1alpha1.PassStatus,
+					},
+				}...)
+
+			car1.Status.DetailReport.Title = "nsa"
+			car1.Status.DetailReport.Description = "National Security Agency - Kubernetes Hardening Guidance"
+			car1.Status.DetailReport.Results = append(car1.Status.DetailReport.Results,
+				[]*v1alpha1.ControlCheckResult{
+					{
+						ID:            "car1 Id",
+						Name:          "car1 cluster compliance name",
+						DefaultStatus: "FAIL",
+					},
+					{
+						ID:            "car1 Id",
+						Name:          "car1 cluster compliance name",
+						DefaultStatus: "PASS",
+					},
+				}...)
+			failcount := 4
+			passCount := 0
+			car1.Spec.ReportFormat = "summary"
+			car1.Status.SummaryReport.SummaryControls = append(car1.Status.SummaryReport.SummaryControls,
+
+				[]v1alpha1.ControlCheckSummary{
+					{
+						ID:        "car1 Id",
+						Name:      "car1 cluster compliance name",
+						Severity:  "Critical",
+						TotalFail: &failcount,
+					},
+					{
+						ID:        "car1 Id",
+						Name:      "car1 cluster compliance name",
+						Severity:  "Low",
+						TotalFail: &passCount,
+					},
+				}...)
 			car1.Status.Summary.FailCount = 12
 			car1.Status.Summary.PassCount = 15
 
@@ -826,8 +916,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		})
 
 		AssertNoLintIssues()
-
-		It("should produce correct cluster rbac assessment metrics", func() {
+		It("should produce correct cluster compliance metrics", func() {
 			const expected = `
 		# HELP trivy_cluster_compliance cluster compliance report
 		# TYPE trivy_cluster_compliance gauge
@@ -835,6 +924,18 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 15
 		`
 			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_cluster_compliance")).
+				To(Succeed())
+		})
+
+		It("should produce correct cluster complaince metrics - Info", func() {
+			collector.Config.MetricsClusterComplianceInfo = true
+			const expected = `
+		# HELP trivy_compliance_info cluster compliance report Info
+		# TYPE trivy_compliance_info gauge
+		trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",description="National Security Agency - Kubernetes Hardening Guidance",severity="Critical",status="Fail",title="nsa"} 4
+		trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",description="National Security Agency - Kubernetes Hardening Guidance",severity="Low",status="Pass",title="nsa"} 1
+		`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_compliance_info")).
 				To(Succeed())
 		})
 	})

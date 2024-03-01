@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
@@ -25,6 +26,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/webhook"
 	"github.com/bluele/gcache"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/kubernetes"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
@@ -146,46 +148,49 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
 	logsReader := kube.NewLogsReader(clientSet)
 	secretsReader := kube.NewSecretsReader(mgr.GetClient())
+	plugin, pluginContext, err := plugins.NewResolver().
+		WithBuildInfo(buildInfo).
+		WithNamespace(operatorNamespace).
+		WithServiceAccountName(operatorConfig.ServiceAccount).
+		WithConfig(trivyOperatorConfig).
+		WithClient(mgr.GetClient()).
+		WithObjectResolver(&objectResolver).
+		GetVulnerabilityPlugin()
+	if err != nil {
+		return err
+	}
+	err = plugin.Init(pluginContext)
+	if err != nil {
+		return err
+	}
+	pluginConfig, pluginContextConfig := plugins.NewResolver().WithBuildInfo(buildInfo).
+		WithNamespace(operatorNamespace).
+		WithServiceAccountName(operatorConfig.ServiceAccount).
+		WithConfig(trivyOperatorConfig).
+		WithClient(mgr.GetClient()).
+		WithObjectResolver(&objectResolver).
+		GetConfigAuditPlugin()
+	if err != nil {
+		return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
+	}
 
 	if operatorConfig.VulnerabilityScannerEnabled || operatorConfig.ExposedSecretScannerEnabled || operatorConfig.SbomGenerationEnable {
-
 		trivyOperatorConfig.Set(trivyoperator.KeyVulnerabilityScannerEnabled, strconv.FormatBool(operatorConfig.VulnerabilityScannerEnabled))
 		trivyOperatorConfig.Set(trivyoperator.KeyExposedSecretsScannerEnabled, strconv.FormatBool(operatorConfig.ExposedSecretScannerEnabled))
 		trivyOperatorConfig.Set(trivyoperator.KeyGenerateSbom, strconv.FormatBool(operatorConfig.SbomGenerationEnable))
 
-		plugin, pluginContext, err := plugins.NewResolver().
-			WithBuildInfo(buildInfo).
-			WithNamespace(operatorNamespace).
-			WithServiceAccountName(operatorConfig.ServiceAccount).
-			WithConfig(trivyOperatorConfig).
-			WithClient(mgr.GetClient()).
-			WithObjectResolver(&objectResolver).
-			GetVulnerabilityPlugin()
+		wc, err := newWorkloadController(operatorConfig,
+			objectResolver,
+			limitChecker,
+			secretsReader,
+			trivyOperatorConfig,
+			mgr,
+			buildInfo,
+			operatorNamespace, plugin, pluginContext)
 		if err != nil {
 			return err
 		}
-
-		if err = (&vcontroller.WorkloadController{
-			Logger:           ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
-			Config:           operatorConfig,
-			ConfigData:       trivyOperatorConfig,
-			Client:           mgr.GetClient(),
-			ObjectResolver:   objectResolver,
-			LimitChecker:     limitChecker,
-			SecretsReader:    secretsReader,
-			Plugin:           plugin,
-			PluginContext:    pluginContext,
-			CacheSyncTimeout: *operatorConfig.ControllerCacheSyncTimeout,
-			ServerHealthChecker: vcontroller.NewTrivyServerChecker(
-				operatorConfig.TrivyServerHealthCheckCacheExpiration,
-				gcache.New(1).LRU().Build(),
-				vcontroller.NewHttpChecker()),
-			VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(&objectResolver),
-			ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(&objectResolver),
-			SbomReadWriter:          sbomreport.NewReadWriter(&objectResolver),
-			SubmitScanJobChan:       make(chan vcontroller.ScanJobRequest, operatorConfig.ConcurrentScanJobsLimit),
-			ResultScanJobChan:       make(chan vcontroller.ScanJobResult, operatorConfig.ConcurrentScanJobsLimit),
-		}).SetupWithManager(mgr); err != nil {
+		if err = wc.SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup vulnerabilityreport reconciler: %w", err)
 		}
 
@@ -206,17 +211,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	}
 
 	if operatorConfig.ScannerReportTTL != nil {
-		_, pluginContext, err := plugins.NewResolver().
-			WithBuildInfo(buildInfo).
-			WithNamespace(operatorNamespace).
-			WithServiceAccountName(operatorConfig.ServiceAccount).
-			WithConfig(trivyOperatorConfig).
-			WithClient(mgr.GetClient()).
-			WithObjectResolver(&objectResolver).
-			GetVulnerabilityPlugin()
-		if err != nil {
-			return err
-		}
 		ttlReconciler := &TTLReportReconciler{
 			Logger: ctrl.Log.WithName("reconciler").WithName("ttlreport"),
 			Config: operatorConfig,
@@ -224,21 +218,23 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			Clock:  ext.NewSystemClock(),
 		}
 		if operatorConfig.ConfigAuditScannerEnabled {
-			plugin, pluginContextCofig, err := plugins.NewResolver().WithBuildInfo(buildInfo).
-				WithNamespace(operatorNamespace).
-				WithServiceAccountName(operatorConfig.ServiceAccount).
-				WithConfig(trivyOperatorConfig).
-				WithClient(mgr.GetClient()).
-				WithObjectResolver(&objectResolver).
-				GetConfigAuditPlugin()
-			if err != nil {
-				return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
-			}
-			ttlReconciler.PluginContext = pluginContextCofig
-			ttlReconciler.PluginInMemory = plugin
+			ttlReconciler.PluginContext = pluginContextConfig
+			ttlReconciler.PluginInMemory = pluginConfig
 		}
 		if err = ttlReconciler.SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup TTLreport reconciler: %w", err)
+		}
+	}
+
+	if operatorConfig.ScanSecretTTL != nil {
+		secretTTLReconciler := &TTLSecretReconciler{
+			Logger: ctrl.Log.WithName("reconciler").WithName("ttlreport"),
+			Config: operatorConfig,
+			Client: mgr.GetClient(),
+			Clock:  ext.NewSystemClock(),
+		}
+		if err = secretTTLReconciler.SetupWithManager(mgr); err != nil {
+			return fmt.Errorf("unable to setup secretTTLReconciler reconciler: %w", err)
 		}
 	}
 
@@ -251,22 +247,13 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			return fmt.Errorf("unable to setup webhookreporter: %w", err)
 		}
 	}
-
+	var gitVersion string
+	if version, err := clientSet.ServerVersion(); err == nil {
+		gitVersion = strings.TrimPrefix(version.GitVersion, "v")
+		gitVersion = strings.ReplaceAll(gitVersion, "+", "-")
+	}
 	if operatorConfig.ConfigAuditScannerEnabled {
-		plugin, pluginContext, err := plugins.NewResolver().WithBuildInfo(buildInfo).
-			WithNamespace(operatorNamespace).
-			WithServiceAccountName(operatorConfig.ServiceAccount).
-			WithConfig(trivyOperatorConfig).
-			WithClient(mgr.GetClient()).
-			WithObjectResolver(&objectResolver).
-			GetConfigAuditPlugin()
-		if err != nil {
-			return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
-		}
-		var gitVersion string
-		if version, err := clientSet.ServerVersion(); err == nil {
-			gitVersion = strings.TrimPrefix(version.GitVersion, "v")
-		}
+
 		setupLog.Info("Enabling built-in configuration audit scanner")
 		if err = (&controller.ResourceController{
 			Logger:           ctrl.Log.WithName("resourcecontroller"),
@@ -274,7 +261,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			ConfigData:       trivyOperatorConfig,
 			ObjectResolver:   objectResolver,
 			PluginContext:    pluginContext,
-			PluginInMemory:   plugin,
+			PluginInMemory:   pluginConfig,
 			ReadWriter:       configauditreport.NewReadWriter(&objectResolver),
 			RbacReadWriter:   rbacassessment.NewReadWriter(&objectResolver),
 			InfraReadWriter:  infraassessment.NewReadWriter(&objectResolver),
@@ -289,7 +276,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			Config:         operatorConfig,
 			ObjectResolver: objectResolver,
 			PluginContext:  pluginContext,
-			PluginInMemory: plugin,
+			PluginInMemory: pluginConfig,
 			ClusterVersion: gitVersion,
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup resource controller: %w", err)
@@ -302,7 +289,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				ConfigData:       trivyOperatorConfig,
 				ObjectResolver:   objectResolver,
 				PluginContext:    pluginContext,
-				PluginInMemory:   plugin,
+				PluginInMemory:   pluginConfig,
 				LimitChecker:     limitChecker,
 				InfraReadWriter:  infraassessment.NewReadWriter(&objectResolver),
 				BuildInfo:        buildInfo,
@@ -317,7 +304,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				ObjectResolver:  objectResolver,
 				LogsReader:      logsReader,
 				PluginContext:   pluginContext,
-				PluginInMemory:  plugin,
+				PluginInMemory:  pluginConfig,
 				InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
 				BuildInfo:       buildInfo,
 			}).SetupWithManager(mgr); err != nil {
@@ -348,10 +335,84 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 	}
 
+	if operatorConfig.SbomGenerationEnable && operatorConfig.VulnerabilityScannerEnabled {
+		name, err := clusterName()
+		if err != nil {
+			return fmt.Errorf("fetching cluster details: %w", err)
+		}
+		wc, err := newWorkloadController(operatorConfig,
+			objectResolver,
+			limitChecker,
+			secretsReader,
+			trivyOperatorConfig,
+			mgr, buildInfo, operatorNamespace, plugin, pluginContext)
+		if err != nil {
+			return err
+		}
+		cc := &ClusterController{
+			name:               name,
+			clientset:          clientSet,
+			version:            gitVersion,
+			clusterCache:       &sync.Map{},
+			cacheSyncTimeout:   *operatorConfig.ControllerCacheSyncTimeout,
+			WorkloadController: wc,
+		}
+		if err := cc.SetupWithManager(mgr); err != nil {
+			return fmt.Errorf("unable to setup clustercompliancereport reconciler: %w", err)
+		}
+	}
+
 	setupLog.Info("Starting controllers manager")
 	if err := mgr.Start(ctx); err != nil {
 		return fmt.Errorf("starting controllers manager: %w", err)
 	}
 
 	return nil
+}
+
+func clusterName() (string, error) {
+	cf := genericclioptions.NewConfigFlags(true)
+	crf := cf.ToRawKubeConfigLoader()
+	rawCfg, err := crf.RawConfig()
+	if err != nil {
+		return "", err
+	}
+	clusterName := "k8s.io/kubernetes"
+	if len(rawCfg.Contexts) > 0 {
+		clusterName = rawCfg.Contexts[rawCfg.CurrentContext].Cluster
+	}
+	return clusterName, nil
+}
+
+func newWorkloadController(operatorConfig etc.Config,
+	objectResolver kube.ObjectResolver,
+	limitChecker jobs.LimitChecker,
+	secretsReader kube.SecretsReader,
+	trivyOperatorConfig trivyoperator.ConfigData,
+	mgr ctrl.Manager,
+	buildInfo trivyoperator.BuildInfo,
+	operatorNamespace string,
+	plugin vulnerabilityreport.Plugin, pluginContext trivyoperator.PluginContext) (*vcontroller.WorkloadController, error) {
+
+	return &vcontroller.WorkloadController{
+		Logger:           ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
+		Config:           operatorConfig,
+		ConfigData:       trivyOperatorConfig,
+		Client:           mgr.GetClient(),
+		ObjectResolver:   objectResolver,
+		LimitChecker:     limitChecker,
+		SecretsReader:    secretsReader,
+		Plugin:           plugin,
+		PluginContext:    pluginContext,
+		CacheSyncTimeout: *operatorConfig.ControllerCacheSyncTimeout,
+		ServerHealthChecker: vcontroller.NewTrivyServerChecker(
+			operatorConfig.TrivyServerHealthCheckCacheExpiration,
+			gcache.New(1).LRU().Build(),
+			vcontroller.NewHttpChecker()),
+		VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(&objectResolver),
+		ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(&objectResolver),
+		SbomReadWriter:          sbomreport.NewReadWriter(&objectResolver),
+		SubmitScanJobChan:       make(chan vcontroller.ScanJobRequest, operatorConfig.ConcurrentScanJobsLimit),
+		ResultScanJobChan:       make(chan vcontroller.ScanJobResult, operatorConfig.ConcurrentScanJobsLimit),
+	}, nil
 }

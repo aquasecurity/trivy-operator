@@ -1,6 +1,6 @@
 # ClusterComplianceReport
 
-The ClusterComplianceReport is a cluster-scoped resource, which represents the latest compliance control checks results.
+The ClusterComplianceReport is a cluster-scoped resource, which represents the latest compliance control check results.
 The report spec defines a mapping between pre-defined compliance control check ids to security scanners check ids.
 Currently, only `config-audit` security scanners are supported.
 
@@ -1346,7 +1346,7 @@ status:
             "app.kubernetes.io/instance": "trivy-operator",
             "app.kubernetes.io/managed-by": "kubectl",
             "app.kubernetes.io/name": "trivy-operator",
-            "app.kubernetes.io/version": "0.16.4"
+            "app.kubernetes.io/version": "0.18.5"
         },
         "name": "cis",
         "resourceVersion": "8985",

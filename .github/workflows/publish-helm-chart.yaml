@@ -27,14 +27,14 @@ jobs:
         with:
           version: v3.5.0
       - name: Set up python
-        uses: actions/setup-python@65d7f2d534ac1bc67fcd62888c5f4f3d2cb2b236
+        uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c
         with:
           python-version: 3.7
       - name: Setup Chart Linting
         id: lint
-        uses: helm/chart-testing-action@v2.6.0
+        uses: helm/chart-testing-action@v2.6.1
       - name: Setup Kubernetes cluster (KIND)
-        uses: helm/kind-action@v1.8.0 # v1.5.0
+        uses: helm/kind-action@v1.9.0 # v1.5.0
         with:
           version: ${{ env.KIND_VERSION }}
           image: ${{ env.KIND_IMAGE }}
@@ -75,8 +75,8 @@ jobs:
           echo "::set-output name=tag::$latest_tag"
 
       - name: Repository Dispatch Publish docs
-        if: github.event.client_payload.action == 'chart-and-app-release'
-        uses: peter-evans/repository-dispatch@v2
+        if: github.event.client_payload.action == 'chart-and-app-release' && !contains(steps.latest_tag.outputs.tag, 'rc')
+        uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: publish-docs

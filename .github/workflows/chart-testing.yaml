@@ -36,7 +36,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
       - name: Release snapshot
@@ -76,12 +76,12 @@ jobs:
 
           kind load image-archive trivy-operator.tar
       - name: Set up python
-        uses: actions/setup-python@65d7f2d534ac1bc67fcd62888c5f4f3d2cb2b236
+        uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c
         with:
           python-version: 3.7
       - name: Setup chart-testing
         id: lint
-        uses: helm/chart-testing-action@v2.6.0
+        uses: helm/chart-testing-action@v2.6.1
       - name: Run chart-testing
         run: ct lint-and-install --validate-maintainers=false --charts deploy/helm
       - name: Delete kind cluster

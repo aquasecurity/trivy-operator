@@ -1,0 +1,3533 @@
+---
+apiVersion: aquasecurity.github.io/v1alpha1
+kind: ClusterSbomReport
+metadata:
+  labels:
+    resource-image-id: 6df5684d
+  name: 6df5684d
+report:
+  artifact:
+    digest: sha256:295c7be079025306c4f1d65997fcf7adb411c88f139ad1d34b537164aa060369
+    repository: library/nginx
+    tag: 1.14.2
+  components:
+    bomFormat: CycloneDX
+    components:
+      - bom-ref: 2ab629c3-fe9d-4416-ace3-9a301dfb60e0
+        name: debian
+        properties:
+          - name: aquasecurity:trivy:Class
+            value: os-pkgs
+          - name: aquasecurity:trivy:Type
+            value: debian
+        supplier: {}
+        type: operating-system
+        version: "9.8"
+      - bom-ref: pkg:deb/debian/adduser@3.115?arch=all&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+        name: adduser
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: adduser@3.115
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: adduser
+          - name: aquasecurity:trivy:SrcVersion
+            value: "3.115"
+        purl: pkg:deb/debian/adduser@3.115?arch=all&distro=debian-9.8
+        supplier:
+          name: Debian Adduser Developers <adduser-devel@lists.alioth.debian.org>
+        type: library
+        version: "3.115"
+      - bom-ref: pkg:deb/debian/apt@1.4.9?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+        name: apt
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: apt@1.4.9
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: apt
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.4.9
+        purl: pkg:deb/debian/apt@1.4.9?arch=amd64&distro=debian-9.8
+        supplier:
+          name: APT Development Team <deity@lists.debian.org>
+        type: library
+        version: 1.4.9
+      - bom-ref: pkg:deb/debian/base-files@9.9%2Bdeb9u8?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-3.0
+        name: base-files
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: base-files@9.9+deb9u8
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: base-files
+          - name: aquasecurity:trivy:SrcVersion
+            value: 9.9+deb9u8
+        purl: pkg:deb/debian/base-files@9.9%2Bdeb9u8?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Santiago Vila <sanvila@debian.org>
+        type: library
+        version: 9.9+deb9u8
+      - bom-ref: pkg:deb/debian/base-passwd@3.5.43?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+          - license:
+              name: PD
+        name: base-passwd
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: base-passwd@3.5.43
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: base-passwd
+          - name: aquasecurity:trivy:SrcVersion
+            value: 3.5.43
+        purl: pkg:deb/debian/base-passwd@3.5.43?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Colin Watson <cjwatson@debian.org>
+        type: library
+        version: 3.5.43
+      - bom-ref: pkg:deb/debian/bash@4.4-5?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-3.0
+        name: bash
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: bash@4.4-5
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: bash
+          - name: aquasecurity:trivy:SrcRelease
+            value: "5"
+          - name: aquasecurity:trivy:SrcVersion
+            value: "4.4"
+        purl: pkg:deb/debian/bash@4.4-5?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Matthias Klose <doko@debian.org>
+        type: library
+        version: 4.4-5
+      - bom-ref: pkg:deb/debian/bsdutils@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8&epoch=1
+        licenses:
+          - license:
+              name: GPL-2.0
+          - license:
+              name: public-domain
+          - license:
+              name: BSD-4-Clause
+          - license:
+              name: MIT
+          - license:
+              name: BSD-2-Clause
+          - license:
+              name: BSD-3-Clause
+          - license:
+              name: LGPL-2.0
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: GPL-3.0
+          - license:
+              name: LGPL-3.0
+        name: bsdutils
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: bsdutils@1:2.29.2-1+deb9u1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: util-linux
+          - name: aquasecurity:trivy:SrcRelease
+            value: 1+deb9u1
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.29.2
+        purl: pkg:deb/debian/bsdutils@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8&epoch=1
+        supplier:
+          name: Debian util-linux Maintainers <ah-util-linux@debian.org>
+        type: library
+        version: 2.29.2-1+deb9u1
+      - bom-ref: pkg:deb/debian/coreutils@8.26-3?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-3.0
+        name: coreutils
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: coreutils@8.26-3
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: coreutils
+          - name: aquasecurity:trivy:SrcRelease
+            value: "3"
+          - name: aquasecurity:trivy:SrcVersion
+            value: "8.26"
+        purl: pkg:deb/debian/coreutils@8.26-3?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Michael Stone <mstone@debian.org>
+        type: library
+        version: 8.26-3
+      - bom-ref: pkg:deb/debian/dash@0.5.8-2.4?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-3.0
+        name: dash
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: dash@0.5.8-2.4
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: dash
+          - name: aquasecurity:trivy:SrcRelease
+            value: "2.4"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 0.5.8
+        purl: pkg:deb/debian/dash@0.5.8-2.4?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Gerrit Pape <pape@smarden.org>
+        type: library
+        version: 0.5.8-2.4
+      - bom-ref: pkg:deb/debian/debconf@1.5.61?arch=all&distro=debian-9.8
+        licenses:
+          - license:
+              name: BSD-2-Clause
+        name: debconf
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: debconf@1.5.61
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: debconf
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.5.61
+        purl: pkg:deb/debian/debconf@1.5.61?arch=all&distro=debian-9.8
+        supplier:
+          name: Debconf Developers <debconf-devel@lists.alioth.debian.org>
+        type: library
+        version: 1.5.61
+      - bom-ref: pkg:deb/debian/debian-archive-keyring@2017.5?arch=all&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-3.0
+        name: debian-archive-keyring
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: debian-archive-keyring@2017.5
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: debian-archive-keyring
+          - name: aquasecurity:trivy:SrcVersion
+            value: "2017.5"
+        purl: pkg:deb/debian/debian-archive-keyring@2017.5?arch=all&distro=debian-9.8
+        supplier:
+          name: Debian Release Team <packages@release.debian.org>
+        type: library
+        version: "2017.5"
+      - bom-ref: pkg:deb/debian/debianutils@4.8.1.1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-3.0
+        name: debianutils
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: debianutils@4.8.1.1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: debianutils
+          - name: aquasecurity:trivy:SrcVersion
+            value: 4.8.1.1
+        purl: pkg:deb/debian/debianutils@4.8.1.1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Clint Adams <clint@debian.org>
+        type: library
+        version: 4.8.1.1
+      - bom-ref: pkg:deb/debian/diffutils@3.5-3?arch=amd64&distro=debian-9.8&epoch=1
+        licenses:
+          - license:
+              name: GPL-3.0
+          - license:
+              name: GFDL
+        name: diffutils
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: diffutils@1:3.5-3
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcEpoch
+            value: "1"
+          - name: aquasecurity:trivy:SrcName
+            value: diffutils
+          - name: aquasecurity:trivy:SrcRelease
+            value: "3"
+          - name: aquasecurity:trivy:SrcVersion
+            value: "3.5"
+        purl: pkg:deb/debian/diffutils@3.5-3?arch=amd64&distro=debian-9.8&epoch=1
+        supplier:
+          name: Santiago Vila <sanvila@debian.org>
+        type: library
+        version: 3.5-3
+      - bom-ref: pkg:deb/debian/dpkg@1.18.25?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+          - license:
+              name: BSD-2-Clause
+          - license:
+              name: public-domain-s-s-d
+          - license:
+              name: public-domain-md5
+        name: dpkg
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: dpkg@1.18.25
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: dpkg
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.18.25
+        purl: pkg:deb/debian/dpkg@1.18.25?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Dpkg Developers <debian-dpkg@lists.debian.org>
+        type: library
+        version: 1.18.25
+      - bom-ref: pkg:deb/debian/e2fslibs@1.43.4-2?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+          - license:
+              name: LGPL-2.0
+        name: e2fslibs
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: e2fslibs@1.43.4-2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: e2fsprogs
+          - name: aquasecurity:trivy:SrcRelease
+            value: "2"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.43.4
+        purl: pkg:deb/debian/e2fslibs@1.43.4-2?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Theodore Y. Ts'o <tytso@mit.edu>
+        type: library
+        version: 1.43.4-2
+      - bom-ref: pkg:deb/debian/e2fsprogs@1.43.4-2?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+          - license:
+              name: LGPL-2.0
+        name: e2fsprogs
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: e2fsprogs@1.43.4-2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: e2fsprogs
+          - name: aquasecurity:trivy:SrcRelease
+            value: "2"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.43.4
+        purl: pkg:deb/debian/e2fsprogs@1.43.4-2?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Theodore Y. Ts'o <tytso@mit.edu>
+        type: library
+        version: 1.43.4-2
+      - bom-ref: pkg:deb/debian/findutils@4.6.0%2Bgit%2B20161106-2?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-3.0
+          - license:
+              name: GFDL-1.3
+        name: findutils
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: findutils@4.6.0+git+20161106-2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: findutils
+          - name: aquasecurity:trivy:SrcRelease
+            value: "2"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 4.6.0+git+20161106
+        purl: pkg:deb/debian/findutils@4.6.0%2Bgit%2B20161106-2?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Andreas Metzler <ametzler@debian.org>
+        type: library
+        version: 4.6.0+git+20161106-2
+      - bom-ref: pkg:deb/debian/fontconfig-config@2.11.0-6.7?arch=all&distro=debian-9.8
+        name: fontconfig-config
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: fontconfig-config@2.11.0-6.7
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: fontconfig
+          - name: aquasecurity:trivy:SrcRelease
+            value: "6.7"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.11.0
+        purl: pkg:deb/debian/fontconfig-config@2.11.0-6.7?arch=all&distro=debian-9.8
+        supplier:
+          name: Keith Packard <keithp@debian.org>
+        type: library
+        version: 2.11.0-6.7
+      - bom-ref: pkg:deb/debian/fonts-dejavu-core@2.37-1?arch=all&distro=debian-9.8
+        licenses:
+          - license:
+              name: bitstream-vera
+          - license:
+              name: GPL-2.0
+        name: fonts-dejavu-core
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: fonts-dejavu-core@2.37-1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: fonts-dejavu
+          - name: aquasecurity:trivy:SrcRelease
+            value: "1"
+          - name: aquasecurity:trivy:SrcVersion
+            value: "2.37"
+        purl: pkg:deb/debian/fonts-dejavu-core@2.37-1?arch=all&distro=debian-9.8
+        supplier:
+          name: Debian Fonts Task Force <pkg-fonts-devel@lists.alioth.debian.org>
+        type: library
+        version: 2.37-1
+      - bom-ref: pkg:deb/debian/gcc-6-base@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-3.0
+          - license:
+              name: GFDL-1.2
+          - license:
+              name: GPL-2.0
+          - license:
+              name: Artistic
+        name: gcc-6-base
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: gcc-6-base@6.3.0-18+deb9u1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: gcc-6
+          - name: aquasecurity:trivy:SrcRelease
+            value: 18+deb9u1
+          - name: aquasecurity:trivy:SrcVersion
+            value: 6.3.0
+        purl: pkg:deb/debian/gcc-6-base@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian GCC Maintainers <debian-gcc@lists.debian.org>
+        type: library
+        version: 6.3.0-18+deb9u1
+      - bom-ref: pkg:deb/debian/gettext-base@0.19.8.1-2?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-3.0
+          - license:
+              name: LGPL-3.0
+          - license:
+              name: GFDL
+        name: gettext-base
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: gettext-base@0.19.8.1-2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: gettext
+          - name: aquasecurity:trivy:SrcRelease
+            value: "2"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 0.19.8.1
+        purl: pkg:deb/debian/gettext-base@0.19.8.1-2?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Santiago Vila <sanvila@debian.org>
+        type: library
+        version: 0.19.8.1-2
+      - bom-ref: pkg:deb/debian/gpgv@2.1.18-8~deb9u4?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-3.0
+          - license:
+              name: permissive
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: Expat
+          - license:
+              name: BSD-3-Clause
+          - license:
+              name: LGPL-3.0
+          - license:
+              name: RFC-Reference
+          - license:
+              name: TinySCHEME
+        name: gpgv
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: gpgv@2.1.18-8~deb9u4
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: gnupg2
+          - name: aquasecurity:trivy:SrcRelease
+            value: 8~deb9u4
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.1.18
+        purl: pkg:deb/debian/gpgv@2.1.18-8~deb9u4?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian GnuPG Maintainers <pkg-gnupg-maint@lists.alioth.debian.org>
+        type: library
+        version: 2.1.18-8~deb9u4
+      - bom-ref: pkg:deb/debian/grep@2.27-2?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-3.0
+        name: grep
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: grep@2.27-2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: grep
+          - name: aquasecurity:trivy:SrcRelease
+            value: "2"
+          - name: aquasecurity:trivy:SrcVersion
+            value: "2.27"
+        purl: pkg:deb/debian/grep@2.27-2?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Anibal Monsalve Salazar <anibal@debian.org>
+        type: library
+        version: 2.27-2
+      - bom-ref: pkg:deb/debian/gzip@1.6-5%2Bb1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-3.0
+        name: gzip
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: gzip@1.6-5+b1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: gzip
+          - name: aquasecurity:trivy:SrcRelease
+            value: "5"
+          - name: aquasecurity:trivy:SrcVersion
+            value: "1.6"
+        purl: pkg:deb/debian/gzip@1.6-5%2Bb1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Bdale Garbee <bdale@gag.com>
+        type: library
+        version: 1.6-5+b1
+      - bom-ref: pkg:deb/debian/hostname@3.18%2Bb1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+        name: hostname
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: hostname@3.18+b1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: hostname
+          - name: aquasecurity:trivy:SrcVersion
+            value: "3.18"
+        purl: pkg:deb/debian/hostname@3.18%2Bb1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian Hostname Team <hostname-devel@lists.alioth.debian.org>
+        type: library
+        version: 3.18+b1
+      - bom-ref: pkg:deb/debian/init-system-helpers@1.48?arch=all&distro=debian-9.8
+        licenses:
+          - license:
+              name: BSD-3-Clause
+          - license:
+              name: GPL-2.0
+        name: init-system-helpers
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: init-system-helpers@1.48
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: init-system-helpers
+          - name: aquasecurity:trivy:SrcVersion
+            value: "1.48"
+        purl: pkg:deb/debian/init-system-helpers@1.48?arch=all&distro=debian-9.8
+        supplier:
+          name: Debian systemd Maintainers
+            <pkg-systemd-maintainers@lists.alioth.debian.org>
+        type: library
+        version: "1.48"
+      - bom-ref: pkg:deb/debian/libacl1@2.2.52-3%2Bb1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: GPL-3.0
+        name: libacl1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libacl1@2.2.52-3+b1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: acl
+          - name: aquasecurity:trivy:SrcRelease
+            value: "3"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.2.52
+        purl: pkg:deb/debian/libacl1@2.2.52-3%2Bb1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Anibal Monsalve Salazar <anibal@debian.org>
+        type: library
+        version: 2.2.52-3+b1
+      - bom-ref: pkg:deb/debian/libapt-pkg5.0@1.4.9?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+        name: libapt-pkg5.0
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libapt-pkg5.0@1.4.9
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: apt
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.4.9
+        purl: pkg:deb/debian/libapt-pkg5.0@1.4.9?arch=amd64&distro=debian-9.8
+        supplier:
+          name: APT Development Team <deity@lists.debian.org>
+        type: library
+        version: 1.4.9
+      - bom-ref: pkg:deb/debian/libattr1@2.4.47-2%2Bb2?arch=amd64&distro=debian-9.8&epoch=1
+        licenses:
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: GPL-2.0
+        name: libattr1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libattr1@1:2.4.47-2+b2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcEpoch
+            value: "1"
+          - name: aquasecurity:trivy:SrcName
+            value: attr
+          - name: aquasecurity:trivy:SrcRelease
+            value: "2"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.4.47
+        purl: pkg:deb/debian/libattr1@2.4.47-2%2Bb2?arch=amd64&distro=debian-9.8&epoch=1
+        supplier:
+          name: Anibal Monsalve Salazar <anibal@debian.org>
+        type: library
+        version: 2.4.47-2+b2
+      - bom-ref: pkg:deb/debian/libaudit-common@2.6.7-2?arch=all&distro=debian-9.8&epoch=1
+        licenses:
+          - license:
+              name: GPL-2.0
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: GPL-1.0
+        name: libaudit-common
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libaudit-common@1:2.6.7-2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcEpoch
+            value: "1"
+          - name: aquasecurity:trivy:SrcName
+            value: audit
+          - name: aquasecurity:trivy:SrcRelease
+            value: "2"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.6.7
+        purl: pkg:deb/debian/libaudit-common@2.6.7-2?arch=all&distro=debian-9.8&epoch=1
+        supplier:
+          name: Laurent Bigonville <bigon@debian.org>
+        type: library
+        version: 2.6.7-2
+      - bom-ref: pkg:deb/debian/libaudit1@2.6.7-2?arch=amd64&distro=debian-9.8&epoch=1
+        licenses:
+          - license:
+              name: GPL-2.0
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: GPL-1.0
+        name: libaudit1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libaudit1@1:2.6.7-2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcEpoch
+            value: "1"
+          - name: aquasecurity:trivy:SrcName
+            value: audit
+          - name: aquasecurity:trivy:SrcRelease
+            value: "2"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.6.7
+        purl: pkg:deb/debian/libaudit1@2.6.7-2?arch=amd64&distro=debian-9.8&epoch=1
+        supplier:
+          name: Laurent Bigonville <bigon@debian.org>
+        type: library
+        version: 2.6.7-2
+      - bom-ref: pkg:deb/debian/libblkid1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+          - license:
+              name: public-domain
+          - license:
+              name: BSD-4-Clause
+          - license:
+              name: MIT
+          - license:
+              name: BSD-2-Clause
+          - license:
+              name: BSD-3-Clause
+          - license:
+              name: LGPL-2.0
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: GPL-3.0
+          - license:
+              name: LGPL-3.0
+        name: libblkid1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libblkid1@2.29.2-1+deb9u1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: util-linux
+          - name: aquasecurity:trivy:SrcRelease
+            value: 1+deb9u1
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.29.2
+        purl: pkg:deb/debian/libblkid1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian util-linux Maintainers <ah-util-linux@debian.org>
+        type: library
+        version: 2.29.2-1+deb9u1
+      - bom-ref: pkg:deb/debian/libbsd0@0.8.3-1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: BSD-3-Clause
+          - license:
+              name: BSD-4-clause-Niels-Provos
+          - license:
+              name: BSD-4-clause-Christopher-G-Demetriou
+          - license:
+              name: BSD-3-clause-Regents
+          - license:
+              name: BSD-3-clause-Peter-Wemm
+          - license:
+              name: BSD-5-clause-Peter-Wemm
+          - license:
+              name: BSD-2-clause-NetBSD
+          - license:
+              name: BSD-2-Clause
+          - license:
+              name: BSD-2-clause-verbatim
+          - license:
+              name: BSD-2-clause-author
+          - license:
+              name: ISC
+          - license:
+              name: ISC-Original
+          - license:
+              name: Expat
+          - license:
+              name: public-domain-Colin-Plumb
+          - license:
+              name: public-domain
+          - license:
+              name: Beerware
+        name: libbsd0
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libbsd0@0.8.3-1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: libbsd
+          - name: aquasecurity:trivy:SrcRelease
+            value: "1"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 0.8.3
+        purl: pkg:deb/debian/libbsd0@0.8.3-1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Guillem Jover <guillem@debian.org>
+        type: library
+        version: 0.8.3-1
+      - bom-ref: pkg:deb/debian/libbz2-1.0@1.0.6-8.1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+        name: libbz2-1.0
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libbz2-1.0@1.0.6-8.1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: bzip2
+          - name: aquasecurity:trivy:SrcRelease
+            value: "8.1"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.0.6
+        purl: pkg:deb/debian/libbz2-1.0@1.0.6-8.1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Anibal Monsalve Salazar <anibal@debian.org>
+        type: library
+        version: 1.0.6-8.1
+      - bom-ref: pkg:deb/debian/libc-bin@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: GPL-2.0
+        name: libc-bin
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libc-bin@2.24-11+deb9u4
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: glibc
+          - name: aquasecurity:trivy:SrcRelease
+            value: 11+deb9u4
+          - name: aquasecurity:trivy:SrcVersion
+            value: "2.24"
+        purl: pkg:deb/debian/libc-bin@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        supplier:
+          name: GNU Libc Maintainers <debian-glibc@lists.debian.org>
+        type: library
+        version: 2.24-11+deb9u4
+      - bom-ref: pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: GPL-2.0
+        name: libc6
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libc6@2.24-11+deb9u4
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: glibc
+          - name: aquasecurity:trivy:SrcRelease
+            value: 11+deb9u4
+          - name: aquasecurity:trivy:SrcVersion
+            value: "2.24"
+        purl: pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        supplier:
+          name: GNU Libc Maintainers <debian-glibc@lists.debian.org>
+        type: library
+        version: 2.24-11+deb9u4
+      - bom-ref: pkg:deb/debian/libcap-ng0@0.7.7-3%2Bb1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: GPL-2.0
+          - license:
+              name: GPL-3.0
+        name: libcap-ng0
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libcap-ng0@0.7.7-3+b1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: libcap-ng
+          - name: aquasecurity:trivy:SrcRelease
+            value: "3"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 0.7.7
+        purl: pkg:deb/debian/libcap-ng0@0.7.7-3%2Bb1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Pierre Chifflier <pollux@debian.org>
+        type: library
+        version: 0.7.7-3+b1
+      - bom-ref: pkg:deb/debian/libcomerr2@1.43.4-2?arch=amd64&distro=debian-9.8
+        name: libcomerr2
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libcomerr2@1.43.4-2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: e2fsprogs
+          - name: aquasecurity:trivy:SrcRelease
+            value: "2"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.43.4
+        purl: pkg:deb/debian/libcomerr2@1.43.4-2?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Theodore Y. Ts'o <tytso@mit.edu>
+        type: library
+        version: 1.43.4-2
+      - bom-ref: pkg:deb/debian/libdb5.3@5.3.28-12%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        name: libdb5.3
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libdb5.3@5.3.28-12+deb9u1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: db5.3
+          - name: aquasecurity:trivy:SrcRelease
+            value: 12+deb9u1
+          - name: aquasecurity:trivy:SrcVersion
+            value: 5.3.28
+        purl: pkg:deb/debian/libdb5.3@5.3.28-12%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian Berkeley DB Group <pkg-db-devel@lists.alioth.debian.org>
+        type: library
+        version: 5.3.28-12+deb9u1
+      - bom-ref: pkg:deb/debian/libdebconfclient0@0.227?arch=amd64&distro=debian-9.8
+        name: libdebconfclient0
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libdebconfclient0@0.227
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: cdebconf
+          - name: aquasecurity:trivy:SrcVersion
+            value: "0.227"
+        purl: pkg:deb/debian/libdebconfclient0@0.227?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian Install System Team <debian-boot@lists.debian.org>
+        type: library
+        version: "0.227"
+      - bom-ref: pkg:deb/debian/libedit2@3.1-20160903-3?arch=amd64&distro=debian-9.8
+        name: libedit2
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libedit2@3.1-20160903-3
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: libedit
+          - name: aquasecurity:trivy:SrcRelease
+            value: "3"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 3.1-20160903
+        purl: pkg:deb/debian/libedit2@3.1-20160903-3?arch=amd64&distro=debian-9.8
+        supplier:
+          name: LLVM Packaging Team <pkg-llvm-team@lists.alioth.debian.org>
+        type: library
+        version: 3.1-20160903-3
+      - bom-ref: pkg:deb/debian/libexpat1@2.2.0-2%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        name: libexpat1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libexpat1@2.2.0-2+deb9u1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: expat
+          - name: aquasecurity:trivy:SrcRelease
+            value: 2+deb9u1
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.2.0
+        purl: pkg:deb/debian/libexpat1@2.2.0-2%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Laszlo Boszormenyi (GCS) <gcs@debian.org>
+        type: library
+        version: 2.2.0-2+deb9u1
+      - bom-ref: pkg:deb/debian/libfdisk1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+          - license:
+              name: public-domain
+          - license:
+              name: BSD-4-Clause
+          - license:
+              name: MIT
+          - license:
+              name: BSD-2-Clause
+          - license:
+              name: BSD-3-Clause
+          - license:
+              name: LGPL-2.0
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: GPL-3.0
+          - license:
+              name: LGPL-3.0
+        name: libfdisk1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libfdisk1@2.29.2-1+deb9u1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: util-linux
+          - name: aquasecurity:trivy:SrcRelease
+            value: 1+deb9u1
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.29.2
+        purl: pkg:deb/debian/libfdisk1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian util-linux Maintainers <ah-util-linux@debian.org>
+        type: library
+        version: 2.29.2-1+deb9u1
+      - bom-ref: pkg:deb/debian/libfontconfig1@2.11.0-6.7%2Bb1?arch=amd64&distro=debian-9.8
+        name: libfontconfig1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libfontconfig1@2.11.0-6.7+b1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: fontconfig
+          - name: aquasecurity:trivy:SrcRelease
+            value: "6.7"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.11.0
+        purl: pkg:deb/debian/libfontconfig1@2.11.0-6.7%2Bb1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Keith Packard <keithp@debian.org>
+        type: library
+        version: 2.11.0-6.7+b1
+      - bom-ref: pkg:deb/debian/libfreetype6@2.6.3-3.2?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+          - license:
+              name: FTL
+          - license:
+              name: Catharon-OSL
+          - license:
+              name: GZip
+          - license:
+              name: BSD-3-Clause
+          - license:
+              name: BSD-2-Clause
+          - license:
+              name: OpenGroup-BSD-like
+        name: libfreetype6
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libfreetype6@2.6.3-3.2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: freetype
+          - name: aquasecurity:trivy:SrcRelease
+            value: "3.2"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.6.3
+        purl: pkg:deb/debian/libfreetype6@2.6.3-3.2?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Steve Langasek <vorlon@debian.org>
+        type: library
+        version: 2.6.3-3.2
+      - bom-ref: pkg:deb/debian/libgcc1@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8&epoch=1
+        name: libgcc1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libgcc1@1:6.3.0-18+deb9u1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: gcc-6
+          - name: aquasecurity:trivy:SrcRelease
+            value: 18+deb9u1
+          - name: aquasecurity:trivy:SrcVersion
+            value: 6.3.0
+        purl: pkg:deb/debian/libgcc1@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8&epoch=1
+        supplier:
+          name: Debian GCC Maintainers <debian-gcc@lists.debian.org>
+        type: library
+        version: 6.3.0-18+deb9u1
+      - bom-ref: pkg:deb/debian/libgcrypt20@1.7.6-2%2Bdeb9u3?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: LGPL-3.0
+          - license:
+              name: GPL-2.0
+        name: libgcrypt20
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libgcrypt20@1.7.6-2+deb9u3
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: libgcrypt20
+          - name: aquasecurity:trivy:SrcRelease
+            value: 2+deb9u3
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.7.6
+        purl: pkg:deb/debian/libgcrypt20@1.7.6-2%2Bdeb9u3?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian GnuTLS Maintainers <pkg-gnutls-maint@lists.alioth.debian.org>
+        type: library
+        version: 1.7.6-2+deb9u3
+      - bom-ref: pkg:deb/debian/libgd3@2.2.4-2%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GD
+          - license:
+              name: GAP~Makefile.in
+          - license:
+              name: GPL-2.0-with-autoconf-exception
+          - license:
+              name: BSD-3-Clause
+          - license:
+              name: GAP~configure
+          - license:
+              name: MIT
+          - license:
+              name: HPND
+          - license:
+              name: XFIG
+          - license:
+              name: WEBP
+          - license:
+              name: GPL-2.0
+        name: libgd3
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libgd3@2.2.4-2+deb9u4
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: libgd2
+          - name: aquasecurity:trivy:SrcRelease
+            value: 2+deb9u4
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.2.4
+        purl: pkg:deb/debian/libgd3@2.2.4-2%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        supplier:
+          name: GD team <pkg-gd-devel@lists.alioth.debian.org>
+        type: library
+        version: 2.2.4-2+deb9u4
+      - bom-ref: pkg:deb/debian/libgeoip1@1.6.9-4?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: ISC
+        name: libgeoip1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libgeoip1@1.6.9-4
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: geoip
+          - name: aquasecurity:trivy:SrcRelease
+            value: "4"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.6.9
+        purl: pkg:deb/debian/libgeoip1@1.6.9-4?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Patrick Matthäi <pmatthaei@debian.org>
+        type: library
+        version: 1.6.9-4
+      - bom-ref: pkg:deb/debian/libgpg-error0@1.26-2?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.1+
+          - license:
+              name: LGPL-2.1
+        name: libgpg-error0
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libgpg-error0@1.26-2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: libgpg-error
+          - name: aquasecurity:trivy:SrcRelease
+            value: "2"
+          - name: aquasecurity:trivy:SrcVersion
+            value: "1.26"
+        purl: pkg:deb/debian/libgpg-error0@1.26-2?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian GnuPG Maintainers <pkg-gnupg-maint@lists.alioth.debian.org>
+        type: library
+        version: 1.26-2
+      - bom-ref: pkg:deb/debian/libicu57@57.1-6%2Bdeb9u2?arch=amd64&distro=debian-9.8
+        name: libicu57
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libicu57@57.1-6+deb9u2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: icu
+          - name: aquasecurity:trivy:SrcRelease
+            value: 6+deb9u2
+          - name: aquasecurity:trivy:SrcVersion
+            value: "57.1"
+        purl: pkg:deb/debian/libicu57@57.1-6%2Bdeb9u2?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Laszlo Boszormenyi (GCS) <gcs@debian.org>
+        type: library
+        version: 57.1-6+deb9u2
+      - bom-ref: pkg:deb/debian/libjbig0@2.1-3.1%2Bb2?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+        name: libjbig0
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libjbig0@2.1-3.1+b2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: jbigkit
+          - name: aquasecurity:trivy:SrcRelease
+            value: "3.1"
+          - name: aquasecurity:trivy:SrcVersion
+            value: "2.1"
+        purl: pkg:deb/debian/libjbig0@2.1-3.1%2Bb2?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Michael van der Kolff <mvanderkolff@gmail.com>
+        type: library
+        version: 2.1-3.1+b2
+      - bom-ref: pkg:deb/debian/libjpeg62-turbo@1.5.1-2?arch=amd64&distro=debian-9.8&epoch=1
+        licenses:
+          - license:
+              name: BSD-BY-LC-NE
+          - license:
+              name: BSD-3
+          - license:
+              name: Expat
+        name: libjpeg62-turbo
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libjpeg62-turbo@1:1.5.1-2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcEpoch
+            value: "1"
+          - name: aquasecurity:trivy:SrcName
+            value: libjpeg-turbo
+          - name: aquasecurity:trivy:SrcRelease
+            value: "2"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.5.1
+        purl: pkg:deb/debian/libjpeg62-turbo@1.5.1-2?arch=amd64&distro=debian-9.8&epoch=1
+        supplier:
+          name: Ondřej Surý <ondrej@debian.org>
+        type: library
+        version: 1.5.1-2
+      - bom-ref: pkg:deb/debian/liblz4-1@0.0~r131-2%2Bb1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: BSD-2-Clause
+          - license:
+              name: GPL-2.0
+        name: liblz4-1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: liblz4-1@0.0~r131-2+b1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: lz4
+          - name: aquasecurity:trivy:SrcRelease
+            value: "2"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 0.0~r131
+        purl: pkg:deb/debian/liblz4-1@0.0~r131-2%2Bb1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Nobuhiro Iwamatsu <iwamatsu@debian.org>
+        type: library
+        version: 0.0~r131-2+b1
+      - bom-ref: pkg:deb/debian/liblzma5@5.2.2-1.2%2Bb1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: PD
+          - license:
+              name: probably-PD
+          - license:
+              name: GPL-2.0
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: permissive-fsf
+          - license:
+              name: Autoconf
+          - license:
+              name: none
+          - license:
+              name: permissive-nowarranty
+          - license:
+              name: config-h
+          - license:
+              name: LGPL-2.0
+          - license:
+              name: noderivs
+          - license:
+              name: PD-debian
+          - license:
+              name: GPL-3.0
+        name: liblzma5
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: liblzma5@5.2.2-1.2+b1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: xz-utils
+          - name: aquasecurity:trivy:SrcRelease
+            value: "1.2"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 5.2.2
+        purl: pkg:deb/debian/liblzma5@5.2.2-1.2%2Bb1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Jonathan Nieder <jrnieder@gmail.com>
+        type: library
+        version: 5.2.2-1.2+b1
+      - bom-ref: pkg:deb/debian/libmount1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+          - license:
+              name: public-domain
+          - license:
+              name: BSD-4-Clause
+          - license:
+              name: MIT
+          - license:
+              name: BSD-2-Clause
+          - license:
+              name: BSD-3-Clause
+          - license:
+              name: LGPL-2.0
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: GPL-3.0
+          - license:
+              name: LGPL-3.0
+        name: libmount1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libmount1@2.29.2-1+deb9u1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: util-linux
+          - name: aquasecurity:trivy:SrcRelease
+            value: 1+deb9u1
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.29.2
+        purl: pkg:deb/debian/libmount1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian util-linux Maintainers <ah-util-linux@debian.org>
+        type: library
+        version: 2.29.2-1+deb9u1
+      - bom-ref: pkg:deb/debian/libncurses5@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+        name: libncurses5
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libncurses5@6.0+20161126-1+deb9u2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: ncurses
+          - name: aquasecurity:trivy:SrcRelease
+            value: 1+deb9u2
+          - name: aquasecurity:trivy:SrcVersion
+            value: 6.0+20161126
+        purl: pkg:deb/debian/libncurses5@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Craig Small <csmall@debian.org>
+        type: library
+        version: 6.0+20161126-1+deb9u2
+      - bom-ref: pkg:deb/debian/libncursesw5@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+        name: libncursesw5
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libncursesw5@6.0+20161126-1+deb9u2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: ncurses
+          - name: aquasecurity:trivy:SrcRelease
+            value: 1+deb9u2
+          - name: aquasecurity:trivy:SrcVersion
+            value: 6.0+20161126
+        purl: pkg:deb/debian/libncursesw5@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Craig Small <csmall@debian.org>
+        type: library
+        version: 6.0+20161126-1+deb9u2
+      - bom-ref: pkg:deb/debian/libpam-modules-bin@1.1.8-3.6?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-3.0
+        name: libpam-modules-bin
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libpam-modules-bin@1.1.8-3.6
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: pam
+          - name: aquasecurity:trivy:SrcRelease
+            value: "3.6"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.1.8
+        purl: pkg:deb/debian/libpam-modules-bin@1.1.8-3.6?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Steve Langasek <vorlon@debian.org>
+        type: library
+        version: 1.1.8-3.6
+      - bom-ref: pkg:deb/debian/libpam-modules@1.1.8-3.6?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-3.0
+        name: libpam-modules
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libpam-modules@1.1.8-3.6
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: pam
+          - name: aquasecurity:trivy:SrcRelease
+            value: "3.6"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.1.8
+        purl: pkg:deb/debian/libpam-modules@1.1.8-3.6?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Steve Langasek <vorlon@debian.org>
+        type: library
+        version: 1.1.8-3.6
+      - bom-ref: pkg:deb/debian/libpam-runtime@1.1.8-3.6?arch=all&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-3.0
+        name: libpam-runtime
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libpam-runtime@1.1.8-3.6
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: pam
+          - name: aquasecurity:trivy:SrcRelease
+            value: "3.6"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.1.8
+        purl: pkg:deb/debian/libpam-runtime@1.1.8-3.6?arch=all&distro=debian-9.8
+        supplier:
+          name: Steve Langasek <vorlon@debian.org>
+        type: library
+        version: 1.1.8-3.6
+      - bom-ref: pkg:deb/debian/libpam0g@1.1.8-3.6?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-3.0
+        name: libpam0g
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libpam0g@1.1.8-3.6
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: pam
+          - name: aquasecurity:trivy:SrcRelease
+            value: "3.6"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.1.8
+        purl: pkg:deb/debian/libpam0g@1.1.8-3.6?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Steve Langasek <vorlon@debian.org>
+        type: library
+        version: 1.1.8-3.6
+      - bom-ref: pkg:deb/debian/libpcre3@8.39-3?arch=amd64&distro=debian-9.8&epoch=2
+        name: libpcre3
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libpcre3@2:8.39-3
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcEpoch
+            value: "2"
+          - name: aquasecurity:trivy:SrcName
+            value: pcre3
+          - name: aquasecurity:trivy:SrcRelease
+            value: "3"
+          - name: aquasecurity:trivy:SrcVersion
+            value: "8.39"
+        purl: pkg:deb/debian/libpcre3@8.39-3?arch=amd64&distro=debian-9.8&epoch=2
+        supplier:
+          name: Matthew Vernon <matthew@debian.org>
+        type: library
+        version: 8.39-3
+      - bom-ref: pkg:deb/debian/libpng16-16@1.6.28-1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: libpng
+          - license:
+              name: expat
+          - license:
+              name: GPL-2.0
+          - license:
+              name: BSD-like-with-advertising-clause
+        name: libpng16-16
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libpng16-16@1.6.28-1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: libpng1.6
+          - name: aquasecurity:trivy:SrcRelease
+            value: "1"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.6.28
+        purl: pkg:deb/debian/libpng16-16@1.6.28-1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Anibal Monsalve Salazar <anibal@debian.org>
+        type: library
+        version: 1.6.28-1
+      - bom-ref: pkg:deb/debian/libselinux1@2.6-3%2Bb3?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: GPL-2.0
+        name: libselinux1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libselinux1@2.6-3+b3
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: libselinux
+          - name: aquasecurity:trivy:SrcRelease
+            value: "3"
+          - name: aquasecurity:trivy:SrcVersion
+            value: "2.6"
+        purl: pkg:deb/debian/libselinux1@2.6-3%2Bb3?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian SELinux maintainers <selinux-devel@lists.alioth.debian.org>
+        type: library
+        version: 2.6-3+b3
+      - bom-ref: pkg:deb/debian/libsemanage-common@2.6-2?arch=all&distro=debian-9.8
+        licenses:
+          - license:
+              name: LGPL-3.0
+          - license:
+              name: GPL-3.0
+        name: libsemanage-common
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libsemanage-common@2.6-2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: libsemanage
+          - name: aquasecurity:trivy:SrcRelease
+            value: "2"
+          - name: aquasecurity:trivy:SrcVersion
+            value: "2.6"
+        purl: pkg:deb/debian/libsemanage-common@2.6-2?arch=all&distro=debian-9.8
+        supplier:
+          name: Debian SELinux maintainers <selinux-devel@lists.alioth.debian.org>
+        type: library
+        version: 2.6-2
+      - bom-ref: pkg:deb/debian/libsemanage1@2.6-2?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: LGPL-3.0
+          - license:
+              name: GPL-3.0
+        name: libsemanage1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libsemanage1@2.6-2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: libsemanage
+          - name: aquasecurity:trivy:SrcRelease
+            value: "2"
+          - name: aquasecurity:trivy:SrcVersion
+            value: "2.6"
+        purl: pkg:deb/debian/libsemanage1@2.6-2?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian SELinux maintainers <selinux-devel@lists.alioth.debian.org>
+        type: library
+        version: 2.6-2
+      - bom-ref: pkg:deb/debian/libsepol1@2.6-2?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: LGPL-3.0
+          - license:
+              name: GPL-3.0
+        name: libsepol1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libsepol1@2.6-2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: libsepol
+          - name: aquasecurity:trivy:SrcRelease
+            value: "2"
+          - name: aquasecurity:trivy:SrcVersion
+            value: "2.6"
+        purl: pkg:deb/debian/libsepol1@2.6-2?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian SELinux maintainers <selinux-devel@lists.alioth.debian.org>
+        type: library
+        version: 2.6-2
+      - bom-ref: pkg:deb/debian/libsmartcols1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+          - license:
+              name: public-domain
+          - license:
+              name: BSD-4-Clause
+          - license:
+              name: MIT
+          - license:
+              name: BSD-2-Clause
+          - license:
+              name: BSD-3-Clause
+          - license:
+              name: LGPL-2.0
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: GPL-3.0
+          - license:
+              name: LGPL-3.0
+        name: libsmartcols1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libsmartcols1@2.29.2-1+deb9u1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: util-linux
+          - name: aquasecurity:trivy:SrcRelease
+            value: 1+deb9u1
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.29.2
+        purl: pkg:deb/debian/libsmartcols1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian util-linux Maintainers <ah-util-linux@debian.org>
+        type: library
+        version: 2.29.2-1+deb9u1
+      - bom-ref: pkg:deb/debian/libss2@1.43.4-2?arch=amd64&distro=debian-9.8
+        name: libss2
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libss2@1.43.4-2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: e2fsprogs
+          - name: aquasecurity:trivy:SrcRelease
+            value: "2"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.43.4
+        purl: pkg:deb/debian/libss2@1.43.4-2?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Theodore Y. Ts'o <tytso@mit.edu>
+        type: library
+        version: 1.43.4-2
+      - bom-ref: pkg:deb/debian/libssl1.1@1.1.0j-1~deb9u1?arch=amd64&distro=debian-9.8
+        name: libssl1.1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libssl1.1@1.1.0j-1~deb9u1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: openssl
+          - name: aquasecurity:trivy:SrcRelease
+            value: 1~deb9u1
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.1.0j
+        purl: pkg:deb/debian/libssl1.1@1.1.0j-1~deb9u1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian OpenSSL Team <pkg-openssl-devel@lists.alioth.debian.org>
+        type: library
+        version: 1.1.0j-1~deb9u1
+      - bom-ref: pkg:deb/debian/libstdc%2B%2B6@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        name: libstdc++6
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libstdc++6@6.3.0-18+deb9u1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: gcc-6
+          - name: aquasecurity:trivy:SrcRelease
+            value: 18+deb9u1
+          - name: aquasecurity:trivy:SrcVersion
+            value: 6.3.0
+        purl: pkg:deb/debian/libstdc%2B%2B6@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian GCC Maintainers <debian-gcc@lists.debian.org>
+        type: library
+        version: 6.3.0-18+deb9u1
+      - bom-ref: pkg:deb/debian/libsystemd0@232-25%2Bdeb9u9?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: CC0
+          - license:
+              name: GPL-2.0
+          - license:
+              name: Expat
+          - license:
+              name: public-domain
+        name: libsystemd0
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libsystemd0@232-25+deb9u9
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: systemd
+          - name: aquasecurity:trivy:SrcRelease
+            value: 25+deb9u9
+          - name: aquasecurity:trivy:SrcVersion
+            value: "232"
+        purl: pkg:deb/debian/libsystemd0@232-25%2Bdeb9u9?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian systemd Maintainers
+            <pkg-systemd-maintainers@lists.alioth.debian.org>
+        type: library
+        version: 232-25+deb9u9
+      - bom-ref: pkg:deb/debian/libtiff5@4.0.8-2%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: Hylafax
+        name: libtiff5
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libtiff5@4.0.8-2+deb9u4
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: tiff
+          - name: aquasecurity:trivy:SrcRelease
+            value: 2+deb9u4
+          - name: aquasecurity:trivy:SrcVersion
+            value: 4.0.8
+        purl: pkg:deb/debian/libtiff5@4.0.8-2%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Laszlo Boszormenyi (GCS) <gcs@debian.org>
+        type: library
+        version: 4.0.8-2+deb9u4
+      - bom-ref: pkg:deb/debian/libtinfo5@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+        name: libtinfo5
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libtinfo5@6.0+20161126-1+deb9u2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: ncurses
+          - name: aquasecurity:trivy:SrcRelease
+            value: 1+deb9u2
+          - name: aquasecurity:trivy:SrcVersion
+            value: 6.0+20161126
+        purl: pkg:deb/debian/libtinfo5@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Craig Small <csmall@debian.org>
+        type: library
+        version: 6.0+20161126-1+deb9u2
+      - bom-ref: pkg:deb/debian/libudev1@232-25%2Bdeb9u9?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: CC0
+          - license:
+              name: GPL-2.0
+          - license:
+              name: Expat
+          - license:
+              name: public-domain
+        name: libudev1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libudev1@232-25+deb9u9
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: systemd
+          - name: aquasecurity:trivy:SrcRelease
+            value: 25+deb9u9
+          - name: aquasecurity:trivy:SrcVersion
+            value: "232"
+        purl: pkg:deb/debian/libudev1@232-25%2Bdeb9u9?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian systemd Maintainers
+            <pkg-systemd-maintainers@lists.alioth.debian.org>
+        type: library
+        version: 232-25+deb9u9
+      - bom-ref: pkg:deb/debian/libustr-1.0-1@1.0.4-6?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: LGPL-2.0
+          - license:
+              name: BSD-2-Clause
+          - license:
+              name: MIT
+          - license:
+              name: GPL-2.0
+          - license:
+              name: LGPL-2.1
+        name: libustr-1.0-1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libustr-1.0-1@1.0.4-6
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: ustr
+          - name: aquasecurity:trivy:SrcRelease
+            value: "6"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.0.4
+        purl: pkg:deb/debian/libustr-1.0-1@1.0.4-6?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Vaclav Ovsik <vaclav.ovsik@i.cz>
+        type: library
+        version: 1.0.4-6
+      - bom-ref: pkg:deb/debian/libuuid1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+          - license:
+              name: public-domain
+          - license:
+              name: BSD-4-Clause
+          - license:
+              name: MIT
+          - license:
+              name: BSD-2-Clause
+          - license:
+              name: BSD-3-Clause
+          - license:
+              name: LGPL-2.0
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: GPL-3.0
+          - license:
+              name: LGPL-3.0
+        name: libuuid1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: libuuid1@2.29.2-1+deb9u1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: util-linux
+          - name: aquasecurity:trivy:SrcRelease
+            value: 1+deb9u1
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.29.2
+        purl: pkg:deb/debian/libuuid1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian util-linux Maintainers <ah-util-linux@debian.org>
+        type: library
+        version: 2.29.2-1+deb9u1
+      - bom-ref: pkg:deb/debian/libwebp6@0.5.2-1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: Apache-2.0
+        name: libwebp6
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libwebp6@0.5.2-1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: libwebp
+          - name: aquasecurity:trivy:SrcRelease
+            value: "1"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 0.5.2
+        purl: pkg:deb/debian/libwebp6@0.5.2-1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Jeff Breidenbach <jab@debian.org>
+        type: library
+        version: 0.5.2-1
+      - bom-ref: pkg:deb/debian/libx11-6@1.6.4-3%2Bdeb9u1?arch=amd64&distro=debian-9.8&epoch=2
+        name: libx11-6
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libx11-6@2:1.6.4-3+deb9u1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcEpoch
+            value: "2"
+          - name: aquasecurity:trivy:SrcName
+            value: libx11
+          - name: aquasecurity:trivy:SrcRelease
+            value: 3+deb9u1
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.6.4
+        purl: pkg:deb/debian/libx11-6@1.6.4-3%2Bdeb9u1?arch=amd64&distro=debian-9.8&epoch=2
+        supplier:
+          name: Debian X Strike Force <debian-x@lists.debian.org>
+        type: library
+        version: 1.6.4-3+deb9u1
+      - bom-ref: pkg:deb/debian/libx11-data@1.6.4-3%2Bdeb9u1?arch=all&distro=debian-9.8&epoch=2
+        name: libx11-data
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libx11-data@2:1.6.4-3+deb9u1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcEpoch
+            value: "2"
+          - name: aquasecurity:trivy:SrcName
+            value: libx11
+          - name: aquasecurity:trivy:SrcRelease
+            value: 3+deb9u1
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.6.4
+        purl: pkg:deb/debian/libx11-data@1.6.4-3%2Bdeb9u1?arch=all&distro=debian-9.8&epoch=2
+        supplier:
+          name: Debian X Strike Force <debian-x@lists.debian.org>
+        type: library
+        version: 1.6.4-3+deb9u1
+      - bom-ref: pkg:deb/debian/libxau6@1.0.8-1?arch=amd64&distro=debian-9.8&epoch=1
+        name: libxau6
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libxau6@1:1.0.8-1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcEpoch
+            value: "1"
+          - name: aquasecurity:trivy:SrcName
+            value: libxau
+          - name: aquasecurity:trivy:SrcRelease
+            value: "1"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.0.8
+        purl: pkg:deb/debian/libxau6@1.0.8-1?arch=amd64&distro=debian-9.8&epoch=1
+        supplier:
+          name: Debian X Strike Force <debian-x@lists.debian.org>
+        type: library
+        version: 1.0.8-1
+      - bom-ref: pkg:deb/debian/libxcb1@1.12-1?arch=amd64&distro=debian-9.8
+        name: libxcb1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libxcb1@1.12-1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: libxcb
+          - name: aquasecurity:trivy:SrcRelease
+            value: "1"
+          - name: aquasecurity:trivy:SrcVersion
+            value: "1.12"
+        purl: pkg:deb/debian/libxcb1@1.12-1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian X Strike Force <debian-x@lists.debian.org>
+        type: library
+        version: 1.12-1
+      - bom-ref: pkg:deb/debian/libxdmcp6@1.1.2-3?arch=amd64&distro=debian-9.8&epoch=1
+        name: libxdmcp6
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libxdmcp6@1:1.1.2-3
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcEpoch
+            value: "1"
+          - name: aquasecurity:trivy:SrcName
+            value: libxdmcp
+          - name: aquasecurity:trivy:SrcRelease
+            value: "3"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.1.2
+        purl: pkg:deb/debian/libxdmcp6@1.1.2-3?arch=amd64&distro=debian-9.8&epoch=1
+        supplier:
+          name: Debian X Strike Force <debian-x@lists.debian.org>
+        type: library
+        version: 1.1.2-3
+      - bom-ref: pkg:deb/debian/libxml2@2.9.4%2Bdfsg1-2.2%2Bdeb9u2?arch=amd64&distro=debian-9.8
+        name: libxml2
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libxml2@2.9.4+dfsg1-2.2+deb9u2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: libxml2
+          - name: aquasecurity:trivy:SrcRelease
+            value: 2.2+deb9u2
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.9.4+dfsg1
+        purl: pkg:deb/debian/libxml2@2.9.4%2Bdfsg1-2.2%2Bdeb9u2?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian XML/SGML Group <debian-xml-sgml-pkgs@lists.alioth.debian.org>
+        type: library
+        version: 2.9.4+dfsg1-2.2+deb9u2
+      - bom-ref: pkg:deb/debian/libxpm4@3.5.12-1?arch=amd64&distro=debian-9.8&epoch=1
+        name: libxpm4
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libxpm4@1:3.5.12-1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcEpoch
+            value: "1"
+          - name: aquasecurity:trivy:SrcName
+            value: libxpm
+          - name: aquasecurity:trivy:SrcRelease
+            value: "1"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 3.5.12
+        purl: pkg:deb/debian/libxpm4@3.5.12-1?arch=amd64&distro=debian-9.8&epoch=1
+        supplier:
+          name: Debian X Strike Force <debian-x@lists.debian.org>
+        type: library
+        version: 3.5.12-1
+      - bom-ref: pkg:deb/debian/libxslt1.1@1.1.29-2.1?arch=amd64&distro=debian-9.8
+        name: libxslt1.1
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: libxslt1.1@1.1.29-2.1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: libxslt
+          - name: aquasecurity:trivy:SrcRelease
+            value: "2.1"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.1.29
+        purl: pkg:deb/debian/libxslt1.1@1.1.29-2.1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian XML/SGML Group <debian-xml-sgml-pkgs@lists.alioth.debian.org>
+        type: library
+        version: 1.1.29-2.1
+      - bom-ref: pkg:deb/debian/login@4.4-4.1?arch=amd64&distro=debian-9.8&epoch=1
+        licenses:
+          - license:
+              name: GPL-2.0
+        name: login
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: login@1:4.4-4.1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcEpoch
+            value: "1"
+          - name: aquasecurity:trivy:SrcName
+            value: shadow
+          - name: aquasecurity:trivy:SrcRelease
+            value: "4.1"
+          - name: aquasecurity:trivy:SrcVersion
+            value: "4.4"
+        purl: pkg:deb/debian/login@4.4-4.1?arch=amd64&distro=debian-9.8&epoch=1
+        supplier:
+          name: Shadow package maintainers <pkg-shadow-devel@lists.alioth.debian.org>
+        type: library
+        version: 4.4-4.1
+      - bom-ref: pkg:deb/debian/lsb-base@9.20161125?arch=all&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+          - license:
+              name: BSD-3-Clause
+        name: lsb-base
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: lsb-base@9.20161125
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: lsb
+          - name: aquasecurity:trivy:SrcVersion
+            value: "9.20161125"
+        purl: pkg:deb/debian/lsb-base@9.20161125?arch=all&distro=debian-9.8
+        supplier:
+          name: Debian LSB Team <debian-lsb@lists.debian.org>
+        type: library
+        version: "9.20161125"
+      - bom-ref: pkg:deb/debian/mawk@1.3.3-17%2Bb3?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+        name: mawk
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: mawk@1.3.3-17+b3
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: mawk
+          - name: aquasecurity:trivy:SrcRelease
+            value: "17"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.3.3
+        purl: pkg:deb/debian/mawk@1.3.3-17%2Bb3?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Steve Langasek <vorlon@debian.org>
+        type: library
+        version: 1.3.3-17+b3
+      - bom-ref: pkg:deb/debian/mount@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+          - license:
+              name: public-domain
+          - license:
+              name: BSD-4-Clause
+          - license:
+              name: MIT
+          - license:
+              name: BSD-2-Clause
+          - license:
+              name: BSD-3-Clause
+          - license:
+              name: LGPL-2.0
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: GPL-3.0
+          - license:
+              name: LGPL-3.0
+        name: mount
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: mount@2.29.2-1+deb9u1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: util-linux
+          - name: aquasecurity:trivy:SrcRelease
+            value: 1+deb9u1
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.29.2
+        purl: pkg:deb/debian/mount@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian util-linux Maintainers <ah-util-linux@debian.org>
+        type: library
+        version: 2.29.2-1+deb9u1
+      - bom-ref: pkg:deb/debian/multiarch-support@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: GPL-2.0
+        name: multiarch-support
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: multiarch-support@2.24-11+deb9u4
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: glibc
+          - name: aquasecurity:trivy:SrcRelease
+            value: 11+deb9u4
+          - name: aquasecurity:trivy:SrcVersion
+            value: "2.24"
+        purl: pkg:deb/debian/multiarch-support@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        supplier:
+          name: GNU Libc Maintainers <debian-glibc@lists.debian.org>
+        type: library
+        version: 2.24-11+deb9u4
+      - bom-ref: pkg:deb/debian/ncurses-base@6.0%2B20161126-1%2Bdeb9u2?arch=all&distro=debian-9.8
+        name: ncurses-base
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: ncurses-base@6.0+20161126-1+deb9u2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: ncurses
+          - name: aquasecurity:trivy:SrcRelease
+            value: 1+deb9u2
+          - name: aquasecurity:trivy:SrcVersion
+            value: 6.0+20161126
+        purl: pkg:deb/debian/ncurses-base@6.0%2B20161126-1%2Bdeb9u2?arch=all&distro=debian-9.8
+        supplier:
+          name: Craig Small <csmall@debian.org>
+        type: library
+        version: 6.0+20161126-1+deb9u2
+      - bom-ref: pkg:deb/debian/ncurses-bin@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+        name: ncurses-bin
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: ncurses-bin@6.0+20161126-1+deb9u2
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: ncurses
+          - name: aquasecurity:trivy:SrcRelease
+            value: 1+deb9u2
+          - name: aquasecurity:trivy:SrcVersion
+            value: 6.0+20161126
+        purl: pkg:deb/debian/ncurses-bin@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Craig Small <csmall@debian.org>
+        type: library
+        version: 6.0+20161126-1+deb9u2
+      - bom-ref: pkg:deb/debian/nginx-module-geoip@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+        name: nginx-module-geoip
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: nginx-module-geoip@1.14.2-1~stretch
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: nginx-module-geoip
+          - name: aquasecurity:trivy:SrcRelease
+            value: 1~stretch
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.14.2
+        purl: pkg:deb/debian/nginx-module-geoip@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Sergey Budnevitch <sb@nginx.com>
+        type: library
+        version: 1.14.2-1~stretch
+      - bom-ref: pkg:deb/debian/nginx-module-image-filter@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+        name: nginx-module-image-filter
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: nginx-module-image-filter@1.14.2-1~stretch
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: nginx-module-image-filter
+          - name: aquasecurity:trivy:SrcRelease
+            value: 1~stretch
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.14.2
+        purl: pkg:deb/debian/nginx-module-image-filter@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Sergey Budnevitch <sb@nginx.com>
+        type: library
+        version: 1.14.2-1~stretch
+      - bom-ref: pkg:deb/debian/nginx-module-njs@1.14.2.0.2.6-1~stretch?arch=amd64&distro=debian-9.8
+        name: nginx-module-njs
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: nginx-module-njs@1.14.2.0.2.6-1~stretch
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: nginx-module-njs
+          - name: aquasecurity:trivy:SrcRelease
+            value: 1~stretch
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.14.2.0.2.6
+        purl: pkg:deb/debian/nginx-module-njs@1.14.2.0.2.6-1~stretch?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Sergey Budnevitch <sb@nginx.com>
+        type: library
+        version: 1.14.2.0.2.6-1~stretch
+      - bom-ref: pkg:deb/debian/nginx-module-xslt@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+        name: nginx-module-xslt
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: nginx-module-xslt@1.14.2-1~stretch
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: nginx-module-xslt
+          - name: aquasecurity:trivy:SrcRelease
+            value: 1~stretch
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.14.2
+        purl: pkg:deb/debian/nginx-module-xslt@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Sergey Budnevitch <sb@nginx.com>
+        type: library
+        version: 1.14.2-1~stretch
+      - bom-ref: pkg:deb/debian/nginx@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+        name: nginx
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: nginx@1.14.2-1~stretch
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: nginx
+          - name: aquasecurity:trivy:SrcRelease
+            value: 1~stretch
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.14.2
+        purl: pkg:deb/debian/nginx@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Sergey Budnevitch <sb@nginx.com>
+        type: library
+        version: 1.14.2-1~stretch
+      - bom-ref: pkg:deb/debian/passwd@4.4-4.1?arch=amd64&distro=debian-9.8&epoch=1
+        licenses:
+          - license:
+              name: GPL-2.0
+        name: passwd
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: passwd@1:4.4-4.1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcEpoch
+            value: "1"
+          - name: aquasecurity:trivy:SrcName
+            value: shadow
+          - name: aquasecurity:trivy:SrcRelease
+            value: "4.1"
+          - name: aquasecurity:trivy:SrcVersion
+            value: "4.4"
+        purl: pkg:deb/debian/passwd@4.4-4.1?arch=amd64&distro=debian-9.8&epoch=1
+        supplier:
+          name: Shadow package maintainers <pkg-shadow-devel@lists.alioth.debian.org>
+        type: library
+        version: 4.4-4.1
+      - bom-ref: pkg:deb/debian/perl-base@5.24.1-3%2Bdeb9u5?arch=amd64&distro=debian-9.8
+        name: perl-base
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: perl-base@5.24.1-3+deb9u5
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: perl
+          - name: aquasecurity:trivy:SrcRelease
+            value: 3+deb9u5
+          - name: aquasecurity:trivy:SrcVersion
+            value: 5.24.1
+        purl: pkg:deb/debian/perl-base@5.24.1-3%2Bdeb9u5?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Niko Tyni <ntyni@debian.org>
+        type: library
+        version: 5.24.1-3+deb9u5
+      - bom-ref: pkg:deb/debian/sed@4.4-1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-3.0
+        name: sed
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: sed@4.4-1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: sed
+          - name: aquasecurity:trivy:SrcRelease
+            value: "1"
+          - name: aquasecurity:trivy:SrcVersion
+            value: "4.4"
+        purl: pkg:deb/debian/sed@4.4-1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Clint Adams <clint@debian.org>
+        type: library
+        version: 4.4-1
+      - bom-ref: pkg:deb/debian/sensible-utils@0.0.9%2Bdeb9u1?arch=all&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+        name: sensible-utils
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: sensible-utils@0.0.9+deb9u1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: sensible-utils
+          - name: aquasecurity:trivy:SrcVersion
+            value: 0.0.9+deb9u1
+        purl: pkg:deb/debian/sensible-utils@0.0.9%2Bdeb9u1?arch=all&distro=debian-9.8
+        supplier:
+          name: Anibal Monsalve Salazar <anibal@debian.org>
+        type: library
+        version: 0.0.9+deb9u1
+      - bom-ref: pkg:deb/debian/sysvinit-utils@2.88dsf-59.9?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+        name: sysvinit-utils
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: sysvinit-utils@2.88dsf-59.9
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: sysvinit
+          - name: aquasecurity:trivy:SrcRelease
+            value: "59.9"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.88dsf
+        purl: pkg:deb/debian/sysvinit-utils@2.88dsf-59.9?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian sysvinit maintainers <pkg-sysvinit-devel@lists.alioth.debian.org>
+        type: library
+        version: 2.88dsf-59.9
+      - bom-ref: pkg:deb/debian/tar@1.29b-1.1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-3.0
+          - license:
+              name: GPL-2.0
+        name: tar
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: tar@1.29b-1.1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: tar
+          - name: aquasecurity:trivy:SrcRelease
+            value: "1.1"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.29b
+        purl: pkg:deb/debian/tar@1.29b-1.1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Bdale Garbee <bdale@gag.com>
+        type: library
+        version: 1.29b-1.1
+      - bom-ref: pkg:deb/debian/tzdata@2018i-0%2Bdeb9u1?arch=all&distro=debian-9.8
+        name: tzdata
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: tzdata@2018i-0+deb9u1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: tzdata
+          - name: aquasecurity:trivy:SrcRelease
+            value: 0+deb9u1
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2018i
+        purl: pkg:deb/debian/tzdata@2018i-0%2Bdeb9u1?arch=all&distro=debian-9.8
+        supplier:
+          name: GNU Libc Maintainers <debian-glibc@lists.debian.org>
+        type: library
+        version: 2018i-0+deb9u1
+      - bom-ref: pkg:deb/debian/ucf@3.0036?arch=all&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+        name: ucf
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:0f23e58bd0b7c74311703e20c21c690a6847e62240ed456f8821f4c067d3659b
+          - name: aquasecurity:trivy:PkgID
+            value: ucf@3.0036
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: ucf
+          - name: aquasecurity:trivy:SrcVersion
+            value: "3.0036"
+        purl: pkg:deb/debian/ucf@3.0036?arch=all&distro=debian-9.8
+        supplier:
+          name: Manoj Srivastava <srivasta@debian.org>
+        type: library
+        version: "3.0036"
+      - bom-ref: pkg:deb/debian/util-linux@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        licenses:
+          - license:
+              name: GPL-2.0
+          - license:
+              name: public-domain
+          - license:
+              name: BSD-4-Clause
+          - license:
+              name: MIT
+          - license:
+              name: BSD-2-Clause
+          - license:
+              name: BSD-3-Clause
+          - license:
+              name: LGPL-2.0
+          - license:
+              name: LGPL-2.1
+          - license:
+              name: GPL-3.0
+          - license:
+              name: LGPL-3.0
+        name: util-linux
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: util-linux@2.29.2-1+deb9u1
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcName
+            value: util-linux
+          - name: aquasecurity:trivy:SrcRelease
+            value: 1+deb9u1
+          - name: aquasecurity:trivy:SrcVersion
+            value: 2.29.2
+        purl: pkg:deb/debian/util-linux@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        supplier:
+          name: Debian util-linux Maintainers <ah-util-linux@debian.org>
+        type: library
+        version: 2.29.2-1+deb9u1
+      - bom-ref: pkg:deb/debian/zlib1g@1.2.8.dfsg-5?arch=amd64&distro=debian-9.8&epoch=1
+        name: zlib1g
+        properties:
+          - name: aquasecurity:trivy:LayerDiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda
+          - name: aquasecurity:trivy:LayerDigest
+            value: sha256:27833a3ba0a545deda33bb01eaf95a14d05d43bf30bce9267d92d17f069fe897
+          - name: aquasecurity:trivy:PkgID
+            value: zlib1g@1:1.2.8.dfsg-5
+          - name: aquasecurity:trivy:PkgType
+            value: debian
+          - name: aquasecurity:trivy:SrcEpoch
+            value: "1"
+          - name: aquasecurity:trivy:SrcName
+            value: zlib
+          - name: aquasecurity:trivy:SrcRelease
+            value: "5"
+          - name: aquasecurity:trivy:SrcVersion
+            value: 1.2.8.dfsg
+        purl: pkg:deb/debian/zlib1g@1.2.8.dfsg-5?arch=amd64&distro=debian-9.8&epoch=1
+        supplier:
+          name: Mark Brown <broonie@debian.org>
+        type: library
+        version: 1.2.8.dfsg-5
+    dependencies:
+      - dependsOn:
+          - pkg:deb/debian/adduser@3.115?arch=all&distro=debian-9.8
+          - pkg:deb/debian/apt@1.4.9?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/base-files@9.9%2Bdeb9u8?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/base-passwd@3.5.43?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/bash@4.4-5?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/bsdutils@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/coreutils@8.26-3?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/dash@0.5.8-2.4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/debconf@1.5.61?arch=all&distro=debian-9.8
+          - pkg:deb/debian/debian-archive-keyring@2017.5?arch=all&distro=debian-9.8
+          - pkg:deb/debian/debianutils@4.8.1.1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/diffutils@3.5-3?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/dpkg@1.18.25?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/e2fslibs@1.43.4-2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/e2fsprogs@1.43.4-2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/findutils@4.6.0%2Bgit%2B20161106-2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/fontconfig-config@2.11.0-6.7?arch=all&distro=debian-9.8
+          - pkg:deb/debian/fonts-dejavu-core@2.37-1?arch=all&distro=debian-9.8
+          - pkg:deb/debian/gcc-6-base@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/gettext-base@0.19.8.1-2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/gpgv@2.1.18-8~deb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/grep@2.27-2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/gzip@1.6-5%2Bb1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/hostname@3.18%2Bb1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/init-system-helpers@1.48?arch=all&distro=debian-9.8
+          - pkg:deb/debian/libacl1@2.2.52-3%2Bb1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libapt-pkg5.0@1.4.9?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libattr1@2.4.47-2%2Bb2?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/libaudit-common@2.6.7-2?arch=all&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/libaudit1@2.6.7-2?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/libblkid1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libbsd0@0.8.3-1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libbz2-1.0@1.0.6-8.1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libc-bin@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libcap-ng0@0.7.7-3%2Bb1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libcomerr2@1.43.4-2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libdb5.3@5.3.28-12%2Bdeb9u1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libdebconfclient0@0.227?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libedit2@3.1-20160903-3?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libexpat1@2.2.0-2%2Bdeb9u1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libfdisk1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libfontconfig1@2.11.0-6.7%2Bb1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libfreetype6@2.6.3-3.2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libgcc1@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/libgcrypt20@1.7.6-2%2Bdeb9u3?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libgd3@2.2.4-2%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libgeoip1@1.6.9-4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libgpg-error0@1.26-2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libicu57@57.1-6%2Bdeb9u2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libjbig0@2.1-3.1%2Bb2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libjpeg62-turbo@1.5.1-2?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/liblz4-1@0.0~r131-2%2Bb1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/liblzma5@5.2.2-1.2%2Bb1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libmount1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libncurses5@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libncursesw5@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libpam-modules-bin@1.1.8-3.6?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libpam-modules@1.1.8-3.6?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libpam-runtime@1.1.8-3.6?arch=all&distro=debian-9.8
+          - pkg:deb/debian/libpam0g@1.1.8-3.6?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libpcre3@8.39-3?arch=amd64&distro=debian-9.8&epoch=2
+          - pkg:deb/debian/libpng16-16@1.6.28-1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libselinux1@2.6-3%2Bb3?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libsemanage-common@2.6-2?arch=all&distro=debian-9.8
+          - pkg:deb/debian/libsemanage1@2.6-2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libsepol1@2.6-2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libsmartcols1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libss2@1.43.4-2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libssl1.1@1.1.0j-1~deb9u1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libstdc%2B%2B6@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libsystemd0@232-25%2Bdeb9u9?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libtiff5@4.0.8-2%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libtinfo5@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libudev1@232-25%2Bdeb9u9?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libustr-1.0-1@1.0.4-6?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libuuid1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libwebp6@0.5.2-1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libx11-6@1.6.4-3%2Bdeb9u1?arch=amd64&distro=debian-9.8&epoch=2
+          - pkg:deb/debian/libx11-data@1.6.4-3%2Bdeb9u1?arch=all&distro=debian-9.8&epoch=2
+          - pkg:deb/debian/libxau6@1.0.8-1?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/libxcb1@1.12-1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libxdmcp6@1.1.2-3?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/libxml2@2.9.4%2Bdfsg1-2.2%2Bdeb9u2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libxpm4@3.5.12-1?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/libxslt1.1@1.1.29-2.1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/login@4.4-4.1?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/lsb-base@9.20161125?arch=all&distro=debian-9.8
+          - pkg:deb/debian/mawk@1.3.3-17%2Bb3?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/mount@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/multiarch-support@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/ncurses-base@6.0%2B20161126-1%2Bdeb9u2?arch=all&distro=debian-9.8
+          - pkg:deb/debian/ncurses-bin@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/nginx-module-geoip@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/nginx-module-image-filter@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/nginx-module-njs@1.14.2.0.2.6-1~stretch?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/nginx-module-xslt@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/nginx@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/passwd@4.4-4.1?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/perl-base@5.24.1-3%2Bdeb9u5?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/sed@4.4-1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/sensible-utils@0.0.9%2Bdeb9u1?arch=all&distro=debian-9.8
+          - pkg:deb/debian/sysvinit-utils@2.88dsf-59.9?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/tar@1.29b-1.1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/tzdata@2018i-0%2Bdeb9u1?arch=all&distro=debian-9.8
+          - pkg:deb/debian/ucf@3.0036?arch=all&distro=debian-9.8
+          - pkg:deb/debian/util-linux@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/zlib1g@1.2.8.dfsg-5?arch=amd64&distro=debian-9.8&epoch=1
+        ref: 2ab629c3-fe9d-4416-ace3-9a301dfb60e0
+      - dependsOn:
+          - pkg:deb/debian/debconf@1.5.61?arch=all&distro=debian-9.8
+          - pkg:deb/debian/passwd@4.4-4.1?arch=amd64&distro=debian-9.8&epoch=1
+        ref: pkg:deb/debian/adduser@3.115?arch=all&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/adduser@3.115?arch=all&distro=debian-9.8
+          - pkg:deb/debian/debian-archive-keyring@2017.5?arch=all&distro=debian-9.8
+          - pkg:deb/debian/gpgv@2.1.18-8~deb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/init-system-helpers@1.48?arch=all&distro=debian-9.8
+          - pkg:deb/debian/libapt-pkg5.0@1.4.9?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libgcc1@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/libstdc%2B%2B6@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/apt@1.4.9?arch=amd64&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/base-files@9.9%2Bdeb9u8?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libdebconfclient0@0.227?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/base-passwd@3.5.43?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/base-files@9.9%2Bdeb9u8?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/debianutils@4.8.1.1?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/bash@4.4-5?arch=amd64&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/bsdutils@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8&epoch=1
+      - dependsOn: []
+        ref: pkg:deb/debian/coreutils@8.26-3?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/debianutils@4.8.1.1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/dpkg@1.18.25?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/dash@0.5.8-2.4?arch=amd64&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/debconf@1.5.61?arch=all&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/gpgv@2.1.18-8~deb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/debian-archive-keyring@2017.5?arch=all&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/sensible-utils@0.0.9%2Bdeb9u1?arch=all&distro=debian-9.8
+        ref: pkg:deb/debian/debianutils@4.8.1.1?arch=amd64&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/diffutils@3.5-3?arch=amd64&distro=debian-9.8&epoch=1
+      - dependsOn:
+          - pkg:deb/debian/tar@1.29b-1.1?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/dpkg@1.18.25?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/e2fslibs@1.43.4-2?arch=amd64&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/e2fsprogs@1.43.4-2?arch=amd64&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/findutils@4.6.0%2Bgit%2B20161106-2?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/debconf@1.5.61?arch=all&distro=debian-9.8
+          - pkg:deb/debian/fonts-dejavu-core@2.37-1?arch=all&distro=debian-9.8
+          - pkg:deb/debian/ucf@3.0036?arch=all&distro=debian-9.8
+        ref: pkg:deb/debian/fontconfig-config@2.11.0-6.7?arch=all&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/fonts-dejavu-core@2.37-1?arch=all&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/gcc-6-base@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/gettext-base@0.19.8.1-2?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libbz2-1.0@1.0.6-8.1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libgcrypt20@1.7.6-2%2Bdeb9u3?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libgpg-error0@1.26-2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/zlib1g@1.2.8.dfsg-5?arch=amd64&distro=debian-9.8&epoch=1
+        ref: pkg:deb/debian/gpgv@2.1.18-8~deb9u4?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/dpkg@1.18.25?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/grep@2.27-2?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/dpkg@1.18.25?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/gzip@1.6-5%2Bb1?arch=amd64&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/hostname@3.18%2Bb1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/perl-base@5.24.1-3%2Bdeb9u5?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/init-system-helpers@1.48?arch=all&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libattr1@2.4.47-2%2Bb2?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libacl1@2.2.52-3%2Bb1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libbz2-1.0@1.0.6-8.1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libgcc1@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/liblz4-1@0.0~r131-2%2Bb1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/liblzma5@5.2.2-1.2%2Bb1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libstdc%2B%2B6@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/zlib1g@1.2.8.dfsg-5?arch=amd64&distro=debian-9.8&epoch=1
+        ref: pkg:deb/debian/libapt-pkg5.0@1.4.9?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libattr1@2.4.47-2%2Bb2?arch=amd64&distro=debian-9.8&epoch=1
+      - dependsOn: []
+        ref: pkg:deb/debian/libaudit-common@2.6.7-2?arch=all&distro=debian-9.8&epoch=1
+      - dependsOn:
+          - pkg:deb/debian/libaudit-common@2.6.7-2?arch=all&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libcap-ng0@0.7.7-3%2Bb1?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libaudit1@2.6.7-2?arch=amd64&distro=debian-9.8&epoch=1
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libuuid1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libblkid1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libbsd0@0.8.3-1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libbz2-1.0@1.0.6-8.1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libc-bin@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libgcc1@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8&epoch=1
+        ref: pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libcap-ng0@0.7.7-3%2Bb1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libcomerr2@1.43.4-2?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libdb5.3@5.3.28-12%2Bdeb9u1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libdebconfclient0@0.227?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libbsd0@0.8.3-1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libncurses5@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libtinfo5@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libedit2@3.1-20160903-3?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libexpat1@2.2.0-2%2Bdeb9u1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libblkid1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libuuid1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libfdisk1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/fontconfig-config@2.11.0-6.7?arch=all&distro=debian-9.8
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libexpat1@2.2.0-2%2Bdeb9u1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libfreetype6@2.6.3-3.2?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libfontconfig1@2.11.0-6.7%2Bb1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libpng16-16@1.6.28-1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/zlib1g@1.2.8.dfsg-5?arch=amd64&distro=debian-9.8&epoch=1
+        ref: pkg:deb/debian/libfreetype6@2.6.3-3.2?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/gcc-6-base@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libgcc1@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8&epoch=1
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libgpg-error0@1.26-2?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libgcrypt20@1.7.6-2%2Bdeb9u3?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libfontconfig1@2.11.0-6.7%2Bb1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libfreetype6@2.6.3-3.2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libjpeg62-turbo@1.5.1-2?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/libpng16-16@1.6.28-1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libtiff5@4.0.8-2%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libwebp6@0.5.2-1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libx11-6@1.6.4-3%2Bdeb9u1?arch=amd64&distro=debian-9.8&epoch=2
+          - pkg:deb/debian/libxpm4@3.5.12-1?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/zlib1g@1.2.8.dfsg-5?arch=amd64&distro=debian-9.8&epoch=1
+        ref: pkg:deb/debian/libgd3@2.2.4-2%2Bdeb9u4?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libgeoip1@1.6.9-4?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libgpg-error0@1.26-2?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libgcc1@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/libstdc%2B%2B6@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libicu57@57.1-6%2Bdeb9u2?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libjbig0@2.1-3.1%2Bb2?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libjpeg62-turbo@1.5.1-2?arch=amd64&distro=debian-9.8&epoch=1
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/liblz4-1@0.0~r131-2%2Bb1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/liblzma5@5.2.2-1.2%2Bb1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libblkid1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libselinux1@2.6-3%2Bb3?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libmount1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libtinfo5@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libncurses5@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libtinfo5@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libncursesw5@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libaudit1@2.6.7-2?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libpam0g@1.1.8-3.6?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libselinux1@2.6-3%2Bb3?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libpam-modules-bin@1.1.8-3.6?arch=amd64&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/libpam-modules@1.1.8-3.6?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/debconf@1.5.61?arch=all&distro=debian-9.8
+          - pkg:deb/debian/libpam-modules@1.1.8-3.6?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libpam-runtime@1.1.8-3.6?arch=all&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/debconf@1.5.61?arch=all&distro=debian-9.8
+          - pkg:deb/debian/libaudit1@2.6.7-2?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libpam0g@1.1.8-3.6?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libpcre3@8.39-3?arch=amd64&distro=debian-9.8&epoch=2
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/zlib1g@1.2.8.dfsg-5?arch=amd64&distro=debian-9.8&epoch=1
+        ref: pkg:deb/debian/libpng16-16@1.6.28-1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libpcre3@8.39-3?arch=amd64&distro=debian-9.8&epoch=2
+        ref: pkg:deb/debian/libselinux1@2.6-3%2Bb3?arch=amd64&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/libsemanage-common@2.6-2?arch=all&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libaudit1@2.6.7-2?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/libbz2-1.0@1.0.6-8.1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libselinux1@2.6-3%2Bb3?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libsemanage-common@2.6-2?arch=all&distro=debian-9.8
+          - pkg:deb/debian/libsepol1@2.6-2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libustr-1.0-1@1.0.4-6?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libsemanage1@2.6-2?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libsepol1@2.6-2?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libsmartcols1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libcomerr2@1.43.4-2?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libss2@1.43.4-2?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/debconf@1.5.61?arch=all&distro=debian-9.8
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libssl1.1@1.1.0j-1~deb9u1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/gcc-6-base@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libgcc1@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8&epoch=1
+        ref: pkg:deb/debian/libstdc%2B%2B6@6.3.0-18%2Bdeb9u1?arch=amd64&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/libsystemd0@232-25%2Bdeb9u9?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libjbig0@2.1-3.1%2Bb2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libjpeg62-turbo@1.5.1-2?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/liblzma5@5.2.2-1.2%2Bb1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/zlib1g@1.2.8.dfsg-5?arch=amd64&distro=debian-9.8&epoch=1
+        ref: pkg:deb/debian/libtiff5@4.0.8-2%2Bdeb9u4?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libtinfo5@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libudev1@232-25%2Bdeb9u9?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libustr-1.0-1@1.0.4-6?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/passwd@4.4-4.1?arch=amd64&distro=debian-9.8&epoch=1
+        ref: pkg:deb/debian/libuuid1@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libwebp6@0.5.2-1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libx11-data@1.6.4-3%2Bdeb9u1?arch=all&distro=debian-9.8&epoch=2
+          - pkg:deb/debian/libxcb1@1.12-1?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libx11-6@1.6.4-3%2Bdeb9u1?arch=amd64&distro=debian-9.8&epoch=2
+      - dependsOn: []
+        ref: pkg:deb/debian/libx11-data@1.6.4-3%2Bdeb9u1?arch=all&distro=debian-9.8&epoch=2
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libxau6@1.0.8-1?arch=amd64&distro=debian-9.8&epoch=1
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libxau6@1.0.8-1?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/libxdmcp6@1.1.2-3?arch=amd64&distro=debian-9.8&epoch=1
+        ref: pkg:deb/debian/libxcb1@1.12-1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libbsd0@0.8.3-1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libxdmcp6@1.1.2-3?arch=amd64&distro=debian-9.8&epoch=1
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libicu57@57.1-6%2Bdeb9u2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/liblzma5@5.2.2-1.2%2Bb1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/zlib1g@1.2.8.dfsg-5?arch=amd64&distro=debian-9.8&epoch=1
+        ref: pkg:deb/debian/libxml2@2.9.4%2Bdfsg1-2.2%2Bdeb9u2?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libx11-6@1.6.4-3%2Bdeb9u1?arch=amd64&distro=debian-9.8&epoch=2
+        ref: pkg:deb/debian/libxpm4@3.5.12-1?arch=amd64&distro=debian-9.8&epoch=1
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libgcrypt20@1.7.6-2%2Bdeb9u3?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libxml2@2.9.4%2Bdfsg1-2.2%2Bdeb9u2?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/libxslt1.1@1.1.29-2.1?arch=amd64&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/login@4.4-4.1?arch=amd64&distro=debian-9.8&epoch=1
+      - dependsOn: []
+        ref: pkg:deb/debian/lsb-base@9.20161125?arch=all&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/mawk@1.3.3-17%2Bb3?arch=amd64&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/mount@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/multiarch-support@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/ncurses-base@6.0%2B20161126-1%2Bdeb9u2?arch=all&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/ncurses-bin@6.0%2B20161126-1%2Bdeb9u2?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libgeoip1@1.6.9-4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/nginx@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/nginx-module-geoip@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libgd3@2.2.4-2%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/nginx@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/nginx-module-image-filter@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libedit2@3.1-20160903-3?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libpcre3@8.39-3?arch=amd64&distro=debian-9.8&epoch=2
+          - pkg:deb/debian/nginx@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/nginx-module-njs@1.14.2.0.2.6-1~stretch?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libxml2@2.9.4%2Bdfsg1-2.2%2Bdeb9u2?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libxslt1.1@1.1.29-2.1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/nginx@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/nginx-module-xslt@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/adduser@3.115?arch=all&distro=debian-9.8
+          - pkg:deb/debian/init-system-helpers@1.48?arch=all&distro=debian-9.8
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libpcre3@8.39-3?arch=amd64&distro=debian-9.8&epoch=2
+          - pkg:deb/debian/libssl1.1@1.1.0j-1~deb9u1?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/lsb-base@9.20161125?arch=all&distro=debian-9.8
+          - pkg:deb/debian/zlib1g@1.2.8.dfsg-5?arch=amd64&distro=debian-9.8&epoch=1
+        ref: pkg:deb/debian/nginx@1.14.2-1~stretch?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libaudit1@2.6.7-2?arch=amd64&distro=debian-9.8&epoch=1
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libpam-modules@1.1.8-3.6?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libpam0g@1.1.8-3.6?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libselinux1@2.6-3%2Bb3?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/libsemanage1@2.6-2?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/passwd@4.4-4.1?arch=amd64&distro=debian-9.8&epoch=1
+      - dependsOn: []
+        ref: pkg:deb/debian/perl-base@5.24.1-3%2Bdeb9u5?arch=amd64&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/sed@4.4-1?arch=amd64&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/sensible-utils@0.0.9%2Bdeb9u1?arch=all&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/init-system-helpers@1.48?arch=all&distro=debian-9.8
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/util-linux@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/sysvinit-utils@2.88dsf-59.9?arch=amd64&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/tar@1.29b-1.1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/debconf@1.5.61?arch=all&distro=debian-9.8
+        ref: pkg:deb/debian/tzdata@2018i-0%2Bdeb9u1?arch=all&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/coreutils@8.26-3?arch=amd64&distro=debian-9.8
+          - pkg:deb/debian/debconf@1.5.61?arch=all&distro=debian-9.8
+        ref: pkg:deb/debian/ucf@3.0036?arch=all&distro=debian-9.8
+      - dependsOn: []
+        ref: pkg:deb/debian/util-linux@2.29.2-1%2Bdeb9u1?arch=amd64&distro=debian-9.8
+      - dependsOn:
+          - pkg:deb/debian/libc6@2.24-11%2Bdeb9u4?arch=amd64&distro=debian-9.8
+        ref: pkg:deb/debian/zlib1g@1.2.8.dfsg-5?arch=amd64&distro=debian-9.8&epoch=1
+      - dependsOn:
+          - 2ab629c3-fe9d-4416-ace3-9a301dfb60e0
+        ref: pkg:oci/nginx@sha256%3Af7988fb6c02e0ce69257d9bd9cf37ae20a60f1df7563c3a2a6abe24160306b8d?arch=amd64&repository_url=index.docker.io%2Flibrary%2Fnginx
+    metadata:
+      component:
+        bom-ref: pkg:oci/nginx@sha256%3Af7988fb6c02e0ce69257d9bd9cf37ae20a60f1df7563c3a2a6abe24160306b8d?arch=amd64&repository_url=index.docker.io%2Flibrary%2Fnginx
+        name: nginx:1.14.2
+        properties:
+          - name: aquasecurity:trivy:DiffID
+            value: sha256:5dacd731af1b0386ead06c8b1feff9f65d9e0bdfec032d2cd0bc03690698feda,sha256:b8f18c3b860b067be09836beadd676a0aa1e784ec28cf730986859b4146c344a,sha256:82ae01d5004e2143b642b1a008624e7521c73ab18e5776a22f18a172b9dbec80
+          - name: aquasecurity:trivy:ImageID
+            value: sha256:295c7be079025306c4f1d65997fcf7adb411c88f139ad1d34b537164aa060369
+          - name: aquasecurity:trivy:RepoDigest
+            value: nginx@sha256:f7988fb6c02e0ce69257d9bd9cf37ae20a60f1df7563c3a2a6abe24160306b8d
+          - name: aquasecurity:trivy:RepoTag
+            value: nginx:1.14.2
+          - name: aquasecurity:trivy:SchemaVersion
+            value: "2"
+        purl: pkg:oci/nginx@sha256%3Af7988fb6c02e0ce69257d9bd9cf37ae20a60f1df7563c3a2a6abe24160306b8d?arch=amd64&repository_url=index.docker.io%2Flibrary%2Fnginx
+        supplier: {}
+        type: container
+      timestamp: 2023-11-12T18:51:06.000Z
+      tools:
+        components:
+          - type: application
+            name: trivy
+            vendor: aquasecurity
+    serialNumber: urn:uuid:d81232a6-d89d-4533-ba43-228468c411f5
+    specVersion: "1.5"
+    version: 1
+  registry:
+    server: index.docker.io
+  scanner:
+    name: Trivy
+    vendor: Aqua Security
+    version: 0.49.1
+  summary:
+    componentsCount: 110
+    dependenciesCount: 110
+  updateTimestamp: 2023-11-12T18:51:06.000Z

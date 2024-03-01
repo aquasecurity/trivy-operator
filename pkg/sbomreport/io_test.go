@@ -94,6 +94,10 @@ func TestNewReadWriter(t *testing.T) {
 	t.Run("Should update SbomReports", func(t *testing.T) {
 		testClient := fake.NewClientBuilder().WithScheme(kubernetesScheme).WithObjects(
 			&v1alpha1.SbomReport{
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: "aquasecurity.github.io/v1alpha1",
+					Kind:       "SbomReport",
+				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:            "deployment-app1-container1",
 					Namespace:       "qa",
@@ -108,6 +112,10 @@ func TestNewReadWriter(t *testing.T) {
 				},
 			},
 			&v1alpha1.SbomReport{
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: "aquasecurity.github.io/v1alpha1",
+					Kind:       "SbomReport",
+				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:            "deployment-app1-container2",
 					Namespace:       "qa",
@@ -125,6 +133,10 @@ func TestNewReadWriter(t *testing.T) {
 		readWriter := sbomreport.NewReadWriter(&resolver)
 		err := readWriter.Write(context.TODO(), []v1alpha1.SbomReport{
 			{
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: "aquasecurity.github.io/v1alpha1",
+					Kind:       "SbomReport",
+				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "deployment-app1-container1",
 					Namespace: "qa",
@@ -138,6 +150,10 @@ func TestNewReadWriter(t *testing.T) {
 				},
 			},
 			{
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: "aquasecurity.github.io/v1alpha1",
+					Kind:       "SbomReport",
+				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "deployment-app1-container2",
 					Namespace: "qa",
@@ -258,4 +274,46 @@ func TestNewReadWriter(t *testing.T) {
 			"deployment-my-deploy-my-container-02": true,
 		}, reports)
 	})
+}
+
+func TestImageRef(t *testing.T) {
+	testCases := []struct {
+		name    string
+		imageID string
+		want    string
+	}{
+		{
+			name:    "get image ref with libary",
+			imageID: "index.docker.io/library/alpine:3.12.0",
+
+			want: "56bcdb7c95",
+		},
+		{
+			name:    "get image ref without libary",
+			imageID: "index.docker.io/alpine:3.12.0",
+
+			want: "56bcdb7c95",
+		},
+		{
+			name:    "get image ref without index",
+			imageID: "docker.io/rancher/local-path-provisioner:v0.0.14",
+
+			want: "79b568748c",
+		},
+		{
+			name:    "get image ref non docker registry",
+			imageID: "k8s.gcr.io/kube-apiserver:v1.21.1",
+
+			want: "6857f776bb",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			ref, err := sbomreport.ImageRef(tc.imageID)
+			assert.NoError(t, err)
+			assert.Equal(t, ref, tc.want)
+		})
+
+	}
 }

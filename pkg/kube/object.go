@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	ocpappsv1 "github.com/openshift/api/apps/v1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -59,6 +60,7 @@ const (
 	KindClusterRoleBindings      Kind = "ClusterRoleBinding"
 	KindCustomResourceDefinition Kind = "CustomResourceDefinition"
 	KindNode                     Kind = "Node"
+	KindClusterSbomReport        Kind = "ClusterSbomReport"
 )
 
 const (
@@ -348,6 +350,8 @@ func (o *ObjectResolver) ObjectFromObjectRef(ctx context.Context, ref ObjectRef)
 		obj = o.CompatibleMgr.GetSupportedObjectByKind(KindCronJob, &batchv1.CronJob{})
 	case KindJob:
 		obj = &batchv1.Job{}
+	case KindNode:
+		obj = &corev1.Node{}
 	case KindService:
 		obj = &corev1.Service{}
 	case KindConfigMap:
@@ -370,6 +374,8 @@ func (o *ObjectResolver) ObjectFromObjectRef(ctx context.Context, ref ObjectRef)
 		obj = &rbacv1.ClusterRoleBinding{}
 	case KindCustomResourceDefinition:
 		obj = &apiextensionsv1.CustomResourceDefinition{}
+	case KindClusterSbomReport:
+		obj = &v1alpha1.ClusterSbomReport{}
 	default:
 		return nil, fmt.Errorf("unknown kind: %s", ref.Kind)
 	}
@@ -723,6 +729,8 @@ func (r *Resource) GetWorkloadResource(kind string, object client.Object, resolv
 		*r = Resource{Kind: KindCronJob, ForObject: resolver.GetSupportedObjectByKind(KindCronJob, &batchv1.CronJob{}), OwnsObject: object}
 	case "job":
 		*r = Resource{Kind: KindJob, ForObject: &batchv1.Job{}, OwnsObject: object}
+	case "ingress":
+		*r = Resource{Kind: KindIngress, ForObject: &networkingv1.Ingress{}, OwnsObject: object}
 	default:
 		return fmt.Errorf("workload of kind %s is not supported", kind)
 	}

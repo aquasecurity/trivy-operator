@@ -236,7 +236,7 @@ var (
 	trivyScanner = v1alpha1.Scanner{
 		Name:    v1alpha1.ScannerNameTrivy,
 		Vendor:  "Aqua Security",
-		Version: "0.16.4",
+		Version: "0.18.5",
 	}
 )
 
@@ -288,6 +288,10 @@ func (b *VulnerabilityReportBuilder) Build() *v1alpha1.VulnerabilityReport {
 			Artifact: v1alpha1.Artifact{
 				Repository: "library/nginx",
 				Tag:        "1.16",
+			},
+			OS: v1alpha1.OS{
+				Family: "debian",
+				Name:   "10.3",
 			},
 			Summary: v1alpha1.VulnerabilitySummary{
 				MediumCount: 1,

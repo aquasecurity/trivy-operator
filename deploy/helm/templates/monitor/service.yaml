@@ -16,4 +16,5 @@ spec:
       port: {{ .Values.service.metricsPort }}
       targetPort: metrics
       protocol: TCP
+      appProtocol: {{ .Values.service.metricsAppProtocol }}
   selector: {{- include "trivy-operator.selectorLabels" . | nindent 4 }}

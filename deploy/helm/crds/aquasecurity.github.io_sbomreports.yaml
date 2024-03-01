@@ -87,7 +87,7 @@ spec:
                     type: string
                 type: object
               components:
-                description: Bom isartifact bill of materials.
+                description: Bom is artifact bill of materials.
                 properties:
                   bomFormat:
                     type: string
@@ -247,16 +247,79 @@ spec:
                       timestamp:
                         type: string
                       tools:
-                        items:
-                          properties:
-                            name:
-                              type: string
-                            vendor:
-                              type: string
-                            version:
-                              type: string
-                          type: object
-                        type: array
+                        properties:
+                          components:
+                            items:
+                              properties:
+                                bom-ref:
+                                  type: string
+                                group:
+                                  type: string
+                                hashes:
+                                  items:
+                                    properties:
+                                      alg:
+                                        type: string
+                                      content:
+                                        type: string
+                                    type: object
+                                  type: array
+                                licenses:
+                                  items:
+                                    properties:
+                                      expression:
+                                        type: string
+                                      license:
+                                        properties:
+                                          id:
+                                            type: string
+                                          name:
+                                            type: string
+                                          url:
+                                            type: string
+                                        type: object
+                                    type: object
+                                  type: array
+                                name:
+                                  type: string
+                                properties:
+                                  items:
+                                    properties:
+                                      name:
+                                        type: string
+                                      value:
+                                        type: string
+                                    type: object
+                                  type: array
+                                purl:
+                                  type: string
+                                supplier:
+                                  properties:
+                                    contact:
+                                      items:
+                                        properties:
+                                          email:
+                                            type: string
+                                          name:
+                                            type: string
+                                          phone:
+                                            type: string
+                                        type: object
+                                      type: array
+                                    name:
+                                      type: string
+                                    url:
+                                      items:
+                                        type: string
+                                      type: array
+                                  type: object
+                                type:
+                                  type: string
+                                version:
+                                  type: string
+                              type: object
+                            type: array
+                        type: object
                     type: object
                   serialNumber:
                     type: string
@@ -323,6 +386,7 @@ spec:
         required:
         - report
         type: object
+        x-kubernetes-preserve-unknown-fields: true
     served: true
     storage: true
     subresources: {}

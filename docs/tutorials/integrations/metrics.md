@@ -1,16 +1,16 @@
 # Metrics
 
-`trivy-operator` exposed a `/metrics` endpoint by default  with metrics for vulnerabilities, exposed secrets,rbacassessment and configaudits.
+`trivy-operator` exposes a `/metrics` endpoint by default with metrics for vulnerabilities, exposed secrets, rbacassessment and configaudits.
 
 ## Report Summary
 
-### Vunerability
+### Vulnerability
 
 A report summary series exposes the count of checks of each status reported in a given `VulnerabilityReport`. For example:
 
 ```shell
 trivy_image_vulnerabilities{
-    container_name="coredns",image_digest="",image_registry="index.docker.io",image_repository="rancher/coredns-coredns",image_tag="1.8.3",name="replicaset-coredns-6488c6fcc6-coredns",namespace="kube-system",resource_kind="ReplicaSet",resource_name="coredns-6488c6fcc6",severity="High"
+    container_name="coredns",image_digest="",image_registry="index.docker.io",image_os_eosl="",image_os_family="",image_os_name="",image_repository="rancher/coredns-coredns",image_tag="1.8.3",name="replicaset-coredns-6488c6fcc6-coredns",namespace="kube-system",resource_kind="ReplicaSet",resource_name="coredns-6488c6fcc6",severity="High"
     } 10
 ```
 
@@ -45,14 +45,14 @@ trivy_role_rbacassessments{
 
 ### RbacAssessmentsInfo
 
-Exposes details about RbacAssessments that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_RBAC_ASSESSMENT_INFO_ENABLED" envDefault:"false"` . For example:
+Exposes details about RbacAssessments that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_RBAC_ASSESSMENT_INFO_ENABLED" envDefault:"false"`. For example:
 
 ```shell
 trivy_rbacassessments_info{
     name="role-admin-6d4cf56db6",namespace="default",rbac_assessment_category="car1 category for rbac assessment",rbac_assessment_description="car1 description for rbac assessment",rbac_assessment_id="car1 Id",rbac_assessment_success="true",rbac_assessment_title="car1 rbac assessment title",resource_kind="Role",resource_name="admin-6d4cf56db6",severity="Critical"} 1
 ```
 
-### ExposedsSecrets
+### ExposedSecrets
 
 A report summary series exposes the count of checks of each status reported in a given `ExposedsSecretsReport`. For example:
 
@@ -62,9 +62,9 @@ trivy_image_exposedsecrets{
     } 1
 ```
 
-### ExposedsSecretsInfo
+### ExposedSecretsInfo
 
-Exposes details about secrets that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_EXPOSED_SECRET_INFO_ENABLED" envDefault:"false"` . For example:
+Exposes details about secrets that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_EXPOSED_SECRET_INFO_ENABLED" envDefault:"false"`. For example:
 
 ```shell
 trivy_exposedsecrets_info{
@@ -83,12 +83,16 @@ trivy_resource_infraassessments{
 ```
 
 ### InfraAssessmentsInfo
-Exposes details about InfraAssessments that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_INFRA_ASSESSMENT_INFO_ENABLED" envDefault:"false"` . For example:
+
+Exposes details about InfraAssessments that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_INFRA_ASSESSMENT_INFO_ENABLED" envDefault:"false"`. For example:
+
 ```shell
+
 trivy_infraassessments_info{
     name="pod-kube-apiserver-minikube-6d4cf56db6",namespace="kube-system",infra_assessment_category="car1 category for infra assessment",infra_assessment_description="car1 description for infra assessment",infra_assessment_id="car1 Id",infra_assessment_success="true",infra_assessment_title="car1 infra assessment title",resource_kind="Pod",resource_name="kube-apiserver-minikube-6d4cf56db6",severity="Critical"
     } 1
 ```
+
 ### ClusterComplianceReport
 
 A report summary series exposes the count of checks of each status reported in a given `ClusterComplianceReport`. For example:
@@ -98,9 +102,20 @@ trivy_cluster_compliance{description="National Security Agency - Kubernetes Hard
 trivy_cluster_compliance{description="National Security Agency - Kubernetes Hardening Guidance",status="Pass",title="nsa"} 17
 ```
 
+### ClusterComplianceInfo
+
+Exposes details about ClusterCompliance that were discovered in images, enable by setting the EnvVar: `OPERATOR_METRICS_CLUSTER_COMPLIANCE_INFO_ENABLED" envDefault:"false"`. For example:
+
+```shell
+trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",
+    description="National Security Agency - Kubernetes Hardening Guidance",severity="MEDIUM",status="Fail",title="nsa"} 1
+trivy_compliance_info{compliance_id="car1 Id",compliance_name="car1 cluster compliance name",
+    description="National Security Agency - Kubernetes Hardening Guidance",severity="LOW",status="Pass",title="nsa"} 1
+```
+
 ## Vulnerability ID
 
-Exposing vulnerability ID on metrics by setting the EnvVar: `OPERATOR_METRICS_VULN_ID_ENABLED" envDefault:"false"`
+Exposing vulnerability ID on metrics by setting the EnvVar: `OPERATOR_METRICS_VULN_ID_ENABLED" envDefault:"false"`. For example:
 
 ```shell
 trivy_vulnerability_id{
@@ -110,8 +125,8 @@ trivy_vulnerability_id{
 
 ## Adding Custom Label to Metrics
 
-User might wants to include custom labels to resource that can be exposed and associated with the Prometheus metrics.
-this capability can be added by setting the following helm param.
+User might wants to include custom labels to resources that can be exposed and associated with the Prometheus metrics.
+This capability can be added by setting the following helm param.
 
 Example:
 

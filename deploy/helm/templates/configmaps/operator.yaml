@@ -74,3 +74,4 @@ data:
   {{- with .Values.nodeCollector.imagePullSecret }}
   node.collector.imagePullSecret: "{{ . }}"
   {{- end }}
+  node.collector.nodeSelector: {{ .Values.nodeCollector.useNodeSelector | quote }}

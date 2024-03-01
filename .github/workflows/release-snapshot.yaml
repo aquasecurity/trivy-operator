@@ -32,16 +32,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
       - name: Install cosign
-        uses: sigstore/cosign-installer@v3.1.2
+        uses: sigstore/cosign-installer@v3.4.0
       - name: Release snapshot
         uses: goreleaser/goreleaser-action@v5
         with:
           version: v1.7.0
-          args: release --snapshot --skip-publish --rm-dist
+          args: release -f=goreleaser-e2e.yaml --snapshot --skip-publish --rm-dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COSIGN_EXPERIMENTAL: 1

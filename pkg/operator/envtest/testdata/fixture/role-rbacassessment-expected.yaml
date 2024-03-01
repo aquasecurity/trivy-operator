@@ -28,19 +28,8 @@ report:
       messages:
         - Role 'proxy' shouldn't have access to manage secrets in namespace
           'default'
-      success: false
-    - checkID: KSV116
-      title: Runs with a root primary or supplementary GID
-      description: According to pod security standard 'Non-root groups', containers
-        should be forbidden from running with a root primary or supplementary
-        GID.
-      severity: LOW
-      category: Kubernetes Security Check
-      messages:
-        - role proxy in default namespace should set
-          spec.securityContext.runAsGroup,
-          spec.securityContext.supplementalGroups[*] and
-          spec.securityContext.fsGroup to integer greater than 0
+      remediation: Manage namespace secrets are not allowed. Remove resource 'secrets'
+        from role
       success: false
   scanner:
     name: Trivy
@@ -49,5 +38,5 @@ report:
   summary:
     criticalCount: 0
     highCount: 0
-    lowCount: 1
+    lowCount: 0
     mediumCount: 1

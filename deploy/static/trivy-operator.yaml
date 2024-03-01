@@ -251,6 +251,7 @@ spec:
             - updateTimestamp
             type: object
         type: object
+        x-kubernetes-preserve-unknown-fields: true
     served: true
     storage: true
     subresources:
@@ -425,6 +426,7 @@ spec:
         required:
         - report
         type: object
+        x-kubernetes-preserve-unknown-fields: true
     served: true
     storage: true
     subresources: {}
@@ -597,6 +599,7 @@ spec:
         required:
         - report
         type: object
+        x-kubernetes-preserve-unknown-fields: true
     served: true
     storage: true
     subresources: {}
@@ -769,6 +772,681 @@ spec:
         required:
         - report
         type: object
+        x-kubernetes-preserve-unknown-fields: true
+    served: true
+    storage: true
+    subresources: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.9.2
+  creationTimestamp: null
+  name: clustersbomreports.aquasecurity.github.io
+spec:
+  group: aquasecurity.github.io
+  names:
+    kind: ClusterSbomReport
+    listKind: ClusterSbomReportList
+    plural: clustersbomreports
+    shortNames:
+    - clustersbom
+    singular: clustersbomreport
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - description: The name of image repository
+      jsonPath: .report.artifact.repository
+      name: Repository
+      type: string
+    - description: The name of image tag
+      jsonPath: .report.artifact.tag
+      name: Tag
+      type: string
+    - description: The name of the sbom generation scanner
+      jsonPath: .report.scanner.name
+      name: Scanner
+      type: string
+    - description: The age of the report
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - description: The number of dependencies in bom
+      jsonPath: .report.summary.componentsCount
+      name: Components
+      priority: 1
+      type: integer
+    - description: The the number of components in bom
+      jsonPath: .report.summary.dependenciesCount
+      name: Dependencies
+      priority: 1
+      type: integer
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ClusterSbomReport summarizes components and dependencies found
+          in container image
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          report:
+            description: Report is the actual sbom report data.
+            properties:
+              artifact:
+                description: Artifact represents a standalone, executable package
+                  of software that includes everything needed to run an application.
+                properties:
+                  digest:
+                    description: Digest is a unique and immutable identifier of an
+                      Artifact.
+                    type: string
+                  mimeType:
+                    description: MimeType represents a type and format of an Artifact.
+                    type: string
+                  repository:
+                    description: Repository is the name of the repository in the Artifact
+                      registry.
+                    type: string
+                  tag:
+                    description: Tag is a mutable, human-readable string used to identify
+                      an Artifact.
+                    type: string
+                type: object
+              components:
+                description: Bom is artifact bill of materials.
+                properties:
+                  bomFormat:
+                    type: string
+                  components:
+                    items:
+                      properties:
+                        bom-ref:
+                          type: string
+                        group:
+                          type: string
+                        hashes:
+                          items:
+                            properties:
+                              alg:
+                                type: string
+                              content:
+                                type: string
+                            type: object
+                          type: array
+                        licenses:
+                          items:
+                            properties:
+                              expression:
+                                type: string
+                              license:
+                                properties:
+                                  id:
+                                    type: string
+                                  name:
+                                    type: string
+                                  url:
+                                    type: string
+                                type: object
+                            type: object
+                          type: array
+                        name:
+                          type: string
+                        properties:
+                          items:
+                            properties:
+                              name:
+                                type: string
+                              value:
+                                type: string
+                            type: object
+                          type: array
+                        purl:
+                          type: string
+                        supplier:
+                          properties:
+                            contact:
+                              items:
+                                properties:
+                                  email:
+                                    type: string
+                                  name:
+                                    type: string
+                                  phone:
+                                    type: string
+                                type: object
+                              type: array
+                            name:
+                              type: string
+                            url:
+                              items:
+                                type: string
+                              type: array
+                          type: object
+                        type:
+                          type: string
+                        version:
+                          type: string
+                      type: object
+                    type: array
+                  dependencies:
+                    items:
+                      properties:
+                        dependsOn:
+                          items:
+                            type: string
+                          type: array
+                        ref:
+                          type: string
+                      type: object
+                    type: array
+                  metadata:
+                    properties:
+                      component:
+                        properties:
+                          bom-ref:
+                            type: string
+                          group:
+                            type: string
+                          hashes:
+                            items:
+                              properties:
+                                alg:
+                                  type: string
+                                content:
+                                  type: string
+                              type: object
+                            type: array
+                          licenses:
+                            items:
+                              properties:
+                                expression:
+                                  type: string
+                                license:
+                                  properties:
+                                    id:
+                                      type: string
+                                    name:
+                                      type: string
+                                    url:
+                                      type: string
+                                  type: object
+                              type: object
+                            type: array
+                          name:
+                            type: string
+                          properties:
+                            items:
+                              properties:
+                                name:
+                                  type: string
+                                value:
+                                  type: string
+                              type: object
+                            type: array
+                          purl:
+                            type: string
+                          supplier:
+                            properties:
+                              contact:
+                                items:
+                                  properties:
+                                    email:
+                                      type: string
+                                    name:
+                                      type: string
+                                    phone:
+                                      type: string
+                                  type: object
+                                type: array
+                              name:
+                                type: string
+                              url:
+                                items:
+                                  type: string
+                                type: array
+                            type: object
+                          type:
+                            type: string
+                          version:
+                            type: string
+                        type: object
+                      timestamp:
+                        type: string
+                      tools:
+                        properties:
+                          components:
+                            items:
+                              properties:
+                                bom-ref:
+                                  type: string
+                                group:
+                                  type: string
+                                hashes:
+                                  items:
+                                    properties:
+                                      alg:
+                                        type: string
+                                      content:
+                                        type: string
+                                    type: object
+                                  type: array
+                                licenses:
+                                  items:
+                                    properties:
+                                      expression:
+                                        type: string
+                                      license:
+                                        properties:
+                                          id:
+                                            type: string
+                                          name:
+                                            type: string
+                                          url:
+                                            type: string
+                                        type: object
+                                    type: object
+                                  type: array
+                                name:
+                                  type: string
+                                properties:
+                                  items:
+                                    properties:
+                                      name:
+                                        type: string
+                                      value:
+                                        type: string
+                                    type: object
+                                  type: array
+                                purl:
+                                  type: string
+                                supplier:
+                                  properties:
+                                    contact:
+                                      items:
+                                        properties:
+                                          email:
+                                            type: string
+                                          name:
+                                            type: string
+                                          phone:
+                                            type: string
+                                        type: object
+                                      type: array
+                                    name:
+                                      type: string
+                                    url:
+                                      items:
+                                        type: string
+                                      type: array
+                                  type: object
+                                type:
+                                  type: string
+                                version:
+                                  type: string
+                              type: object
+                            type: array
+                        type: object
+                    type: object
+                  serialNumber:
+                    type: string
+                  specVersion:
+                    type: string
+                  version:
+                    type: integer
+                required:
+                - bomFormat
+                - specVersion
+                type: object
+              registry:
+                description: Registry is the registry the Artifact was pulled from.
+                properties:
+                  server:
+                    description: Server the FQDN of registry server.
+                    type: string
+                type: object
+              scanner:
+                description: Scanner is the scanner that generated this report.
+                properties:
+                  name:
+                    description: Name the name of the scanner.
+                    type: string
+                  vendor:
+                    description: Vendor the name of the vendor providing the scanner.
+                    type: string
+                  version:
+                    description: Version the version of the scanner.
+                    type: string
+                required:
+                - name
+                - vendor
+                - version
+                type: object
+              summary:
+                description: Summary is a summary of sbom report.
+                properties:
+                  componentsCount:
+                    description: ComponentsCount is the number of components in bom.
+                    minimum: 0
+                    type: integer
+                  dependenciesCount:
+                    description: DependenciesCount is the number of dependencies in
+                      bom.
+                    minimum: 0
+                    type: integer
+                required:
+                - componentsCount
+                - dependenciesCount
+                type: object
+              updateTimestamp:
+                description: UpdateTimestamp is a timestamp representing the server
+                  time in UTC when this report was updated.
+                format: date-time
+                type: string
+            required:
+            - artifact
+            - components
+            - scanner
+            - summary
+            - updateTimestamp
+            type: object
+        required:
+        - report
+        type: object
+    served: true
+    storage: true
+    subresources: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.9.2
+  creationTimestamp: null
+  name: clustervulnerabilityreports.aquasecurity.github.io
+spec:
+  group: aquasecurity.github.io
+  names:
+    kind: ClusterVulnerabilityReport
+    listKind: ClusterVulnerabilityReportList
+    plural: clustervulnerabilityreports
+    shortNames:
+    - clustervuln
+    singular: clustervulnerabilityreport
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - description: The name of image repository
+      jsonPath: .report.artifact.repository
+      name: Repository
+      type: string
+    - description: The name of image tag
+      jsonPath: .report.artifact.tag
+      name: Tag
+      type: string
+    - description: The name of the vulnerability scanner
+      jsonPath: .report.scanner.name
+      name: Scanner
+      type: string
+    - description: The age of the report
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - description: The number of critical vulnerabilities
+      jsonPath: .report.summary.criticalCount
+      name: Critical
+      priority: 1
+      type: integer
+    - description: The number of high vulnerabilities
+      jsonPath: .report.summary.highCount
+      name: High
+      priority: 1
+      type: integer
+    - description: The number of medium vulnerabilities
+      jsonPath: .report.summary.mediumCount
+      name: Medium
+      priority: 1
+      type: integer
+    - description: The number of low vulnerabilities
+      jsonPath: .report.summary.lowCount
+      name: Low
+      priority: 1
+      type: integer
+    - description: The number of unknown vulnerabilities
+      jsonPath: .report.summary.unknownCount
+      name: Unknown
+      priority: 1
+      type: integer
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ClusterVulnerabilityReport summarizes vulnerabilities in application
+          dependencies and operating system packages built into container images.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          report:
+            description: Report is the actual vulnerability report data.
+            properties:
+              artifact:
+                description: Artifact represents a standalone, executable package
+                  of software that includes everything needed to run an application.
+                properties:
+                  digest:
+                    description: Digest is a unique and immutable identifier of an
+                      Artifact.
+                    type: string
+                  mimeType:
+                    description: MimeType represents a type and format of an Artifact.
+                    type: string
+                  repository:
+                    description: Repository is the name of the repository in the Artifact
+                      registry.
+                    type: string
+                  tag:
+                    description: Tag is a mutable, human-readable string used to identify
+                      an Artifact.
+                    type: string
+                type: object
+              os:
+                description: OS information of the artifact
+                properties:
+                  eosl:
+                    description: Eosl is true if OS version has reached end of service
+                      life
+                    type: boolean
+                  family:
+                    description: Operating System Family
+                    type: string
+                  name:
+                    description: Name or version of the OS
+                    type: string
+                type: object
+              registry:
+                description: Registry is the registry the Artifact was pulled from.
+                properties:
+                  server:
+                    description: Server the FQDN of registry server.
+                    type: string
+                type: object
+              scanner:
+                description: Scanner is the scanner that generated this report.
+                properties:
+                  name:
+                    description: Name the name of the scanner.
+                    type: string
+                  vendor:
+                    description: Vendor the name of the vendor providing the scanner.
+                    type: string
+                  version:
+                    description: Version the version of the scanner.
+                    type: string
+                required:
+                - name
+                - vendor
+                - version
+                type: object
+              summary:
+                description: Summary is a summary of Vulnerability counts grouped
+                  by Severity.
+                properties:
+                  criticalCount:
+                    description: CriticalCount is the number of vulnerabilities with
+                      Critical Severity.
+                    minimum: 0
+                    type: integer
+                  highCount:
+                    description: HighCount is the number of vulnerabilities with High
+                      Severity.
+                    minimum: 0
+                    type: integer
+                  lowCount:
+                    description: LowCount is the number of vulnerabilities with Low
+                      Severity.
+                    minimum: 0
+                    type: integer
+                  mediumCount:
+                    description: MediumCount is the number of vulnerabilities with
+                      Medium Severity.
+                    minimum: 0
+                    type: integer
+                  noneCount:
+                    description: NoneCount is the number of packages without any vulnerability.
+                    minimum: 0
+                    type: integer
+                  unknownCount:
+                    description: UnknownCount is the number of vulnerabilities with
+                      unknown severity.
+                    minimum: 0
+                    type: integer
+                required:
+                - criticalCount
+                - highCount
+                - lowCount
+                - mediumCount
+                - unknownCount
+                type: object
+              updateTimestamp:
+                description: UpdateTimestamp is a timestamp representing the server
+                  time in UTC when this report was updated.
+                format: date-time
+                type: string
+              vulnerabilities:
+                description: Vulnerabilities is a list of operating system (OS) or
+                  application software Vulnerability items found in the Artifact.
+                items:
+                  description: Vulnerability is the spec for a vulnerability record.
+                  properties:
+                    class:
+                      type: string
+                    cvss:
+                      additionalProperties:
+                        properties:
+                          V2Score:
+                            type: number
+                          V2Vector:
+                            type: string
+                          V3Score:
+                            type: number
+                          V3Vector:
+                            type: string
+                        type: object
+                      type: object
+                    cvsssource:
+                      type: string
+                    description:
+                      type: string
+                    fixedVersion:
+                      description: FixedVersion indicates the version of the Resource
+                        in which this vulnerability has been fixed.
+                      type: string
+                    installedVersion:
+                      description: InstalledVersion indicates the installed version
+                        of the Resource.
+                      type: string
+                    lastModifiedDate:
+                      description: LastModifiedDate indicates the last date CVE has
+                        been modified.
+                      type: string
+                    links:
+                      items:
+                        type: string
+                      type: array
+                    packagePath:
+                      type: string
+                    packageType:
+                      type: string
+                    primaryLink:
+                      type: string
+                    publishedDate:
+                      description: PublishedDate indicates the date of published CVE.
+                      type: string
+                    resource:
+                      description: Resource is a vulnerable package, application,
+                        or library.
+                      type: string
+                    score:
+                      type: number
+                    severity:
+                      description: Severity level of a vulnerability or a configuration
+                        audit check.
+                      enum:
+                      - CRITICAL
+                      - HIGH
+                      - MEDIUM
+                      - LOW
+                      - UNKNOWN
+                      type: string
+                    target:
+                      type: string
+                    title:
+                      type: string
+                    vulnerabilityID:
+                      description: VulnerabilityID the vulnerability identifier.
+                      type: string
+                  required:
+                  - fixedVersion
+                  - installedVersion
+                  - lastModifiedDate
+                  - publishedDate
+                  - resource
+                  - severity
+                  - title
+                  - vulnerabilityID
+                  type: object
+                type: array
+            required:
+            - artifact
+            - os
+            - scanner
+            - summary
+            - updateTimestamp
+            - vulnerabilities
+            type: object
+        required:
+        - report
+        type: object
+        x-kubernetes-preserve-unknown-fields: true
     served: true
     storage: true
     subresources: {}
@@ -943,6 +1621,7 @@ spec:
         required:
         - report
         type: object
+        x-kubernetes-preserve-unknown-fields: true
     served: true
     storage: true
     subresources: {}
@@ -1149,6 +1828,7 @@ spec:
         required:
         - report
         type: object
+        x-kubernetes-preserve-unknown-fields: true
     served: true
     storage: true
     subresources: {}
@@ -1495,6 +2175,7 @@ spec:
         required:
         - report
         type: object
+        x-kubernetes-preserve-unknown-fields: true
     served: true
     storage: true
     subresources: {}
@@ -1587,7 +2268,7 @@ spec:
                     type: string
                 type: object
               components:
-                description: Bom isartifact bill of materials.
+                description: Bom is artifact bill of materials.
                 properties:
                   bomFormat:
                     type: string
@@ -1747,16 +2428,79 @@ spec:
                       timestamp:
                         type: string
                       tools:
-                        items:
-                          properties:
-                            name:
-                              type: string
-                            vendor:
-                              type: string
-                            version:
-                              type: string
-                          type: object
-                        type: array
+                        properties:
+                          components:
+                            items:
+                              properties:
+                                bom-ref:
+                                  type: string
+                                group:
+                                  type: string
+                                hashes:
+                                  items:
+                                    properties:
+                                      alg:
+                                        type: string
+                                      content:
+                                        type: string
+                                    type: object
+                                  type: array
+                                licenses:
+                                  items:
+                                    properties:
+                                      expression:
+                                        type: string
+                                      license:
+                                        properties:
+                                          id:
+                                            type: string
+                                          name:
+                                            type: string
+                                          url:
+                                            type: string
+                                        type: object
+                                    type: object
+                                  type: array
+                                name:
+                                  type: string
+                                properties:
+                                  items:
+                                    properties:
+                                      name:
+                                        type: string
+                                      value:
+                                        type: string
+                                    type: object
+                                  type: array
+                                purl:
+                                  type: string
+                                supplier:
+                                  properties:
+                                    contact:
+                                      items:
+                                        properties:
+                                          email:
+                                            type: string
+                                          name:
+                                            type: string
+                                          phone:
+                                            type: string
+                                        type: object
+                                      type: array
+                                    name:
+                                      type: string
+                                    url:
+                                      items:
+                                        type: string
+                                      type: array
+                                  type: object
+                                type:
+                                  type: string
+                                version:
+                                  type: string
+                              type: object
+                            type: array
+                        type: object
                     type: object
                   serialNumber:
                     type: string
@@ -1823,6 +2567,7 @@ spec:
         required:
         - report
         type: object
+        x-kubernetes-preserve-unknown-fields: true
     served: true
     storage: true
     subresources: {}
@@ -1927,6 +2672,20 @@ spec:
                   tag:
                     description: Tag is a mutable, human-readable string used to identify
                       an Artifact.
+                    type: string
+                type: object
+              os:
+                description: OS information of the artifact
+                properties:
+                  eosl:
+                    description: Eosl is true if OS version has reached end of service
+                      life
+                    type: boolean
+                  family:
+                    description: Operating System Family
+                    type: string
+                  name:
+                    description: Name or version of the OS
                     type: string
                 type: object
               registry:
@@ -2084,6 +2843,7 @@ spec:
                 type: array
             required:
             - artifact
+            - os
             - scanner
             - summary
             - updateTimestamp
@@ -2104,7 +2864,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.4"
+    app.kubernetes.io/version: "0.18.5"
     app.kubernetes.io/managed-by: kubectl
 ---
 # Source: trivy-operator/templates/configmaps/operator.yaml
@@ -2116,7 +2876,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.4"
+    app.kubernetes.io/version: "0.18.5"
     app.kubernetes.io/managed-by: kubectl
 data:
   nodeCollector.volumes: "[{\"hostPath\":{\"path\":\"/var/lib/etcd\"},\"name\":\"var-lib-etcd\"},{\"hostPath\":{\"path\":\"/var/lib/kubelet\"},\"name\":\"var-lib-kubelet\"},{\"hostPath\":{\"path\":\"/var/lib/kube-scheduler\"},\"name\":\"var-lib-kube-scheduler\"},{\"hostPath\":{\"path\":\"/var/lib/kube-controller-manager\"},\"name\":\"var-lib-kube-controller-manager\"},{\"hostPath\":{\"path\":\"/etc/systemd\"},\"name\":\"etc-systemd\"},{\"hostPath\":{\"path\":\"/lib/systemd\"},\"name\":\"lib-systemd\"},{\"hostPath\":{\"path\":\"/etc/kubernetes\"},\"name\":\"etc-kubernetes\"},{\"hostPath\":{\"path\":\"/etc/cni/net.d/\"},\"name\":\"etc-cni-netd\"}]"
@@ -2127,7 +2887,8 @@ data:
   configAuditReports.scanner: "Trivy"
   compliance.failEntriesLimit: "10"
   report.recordFailedChecksOnly: "true"
-  node.collector.imageRef: "ghcr.io/aquasecurity/node-collector:0.0.8"
+  node.collector.imageRef: "ghcr.io/aquasecurity/node-collector:0.1.2"
+  node.collector.nodeSelector: "true"
 ---
 # Source: trivy-operator/templates/configmaps/policies.yaml
 apiVersion: v1
@@ -2138,9 +2899,61 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.4"
+    app.kubernetes.io/version: "0.18.5"
     app.kubernetes.io/managed-by: kubectl
 data:
+---
+# Source: trivy-operator/templates/configmaps/trivy-operator-config.yaml
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: trivy-operator-config
+  namespace: trivy-system
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.18.5"
+    app.kubernetes.io/managed-by: kubectl
+data:
+  OPERATOR_LOG_DEV_MODE: "false"
+  OPERATOR_SCAN_JOB_TTL: ""
+  OPERATOR_SCAN_JOB_TIMEOUT: "5m"
+  OPERATOR_CONCURRENT_SCAN_JOBS_LIMIT: "10"
+  OPERATOR_CONCURRENT_NODE_COLLECTOR_LIMIT: "1"
+  OPERATOR_SCAN_JOB_RETRY_AFTER: "30s"
+  OPERATOR_BATCH_DELETE_LIMIT: "10"
+  OPERATOR_BATCH_DELETE_DELAY: "10s"
+  OPERATOR_METRICS_BIND_ADDRESS: ":8080"
+  OPERATOR_METRICS_FINDINGS_ENABLED: "true"
+  OPERATOR_METRICS_VULN_ID_ENABLED: "false"
+  OPERATOR_HEALTH_PROBE_BIND_ADDRESS: ":9090"
+  OPERATOR_VULNERABILITY_SCANNER_ENABLED: "true"
+  OPERATOR_SBOM_GENERATION_ENABLED: "true"
+  OPERATOR_CLUSTER_SBOM_CACHE_ENABLED: "false"
+  OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS: "true"
+  OPERATOR_SCANNER_REPORT_TTL: "24h"
+  OPERATOR_CACHE_REPORT_TTL: "120h"
+  CONTROLLER_CACHE_SYNC_TIMEOUT: "5m"
+  OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED: "true"
+  OPERATOR_RBAC_ASSESSMENT_SCANNER_ENABLED: "true"
+  OPERATOR_INFRA_ASSESSMENT_SCANNER_ENABLED: "true"
+  OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS: "true"
+  OPERATOR_EXPOSED_SECRET_SCANNER_ENABLED: "true"
+  OPERATOR_METRICS_EXPOSED_SECRET_INFO_ENABLED: "false"
+  OPERATOR_METRICS_CONFIG_AUDIT_INFO_ENABLED: "false"
+  OPERATOR_METRICS_RBAC_ASSESSMENT_INFO_ENABLED: "false"
+  OPERATOR_METRICS_INFRA_ASSESSMENT_INFO_ENABLED: "false"
+  OPERATOR_METRICS_IMAGE_INFO_ENABLED: "false"
+  OPERATOR_METRICS_CLUSTER_COMPLIANCE_INFO_ENABLED: "false"
+  OPERATOR_WEBHOOK_BROADCAST_URL: ""
+  OPERATOR_WEBHOOK_BROADCAST_TIMEOUT: "30s"
+  OPERATOR_SEND_DELETED_REPORTS: "false"
+  OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES: "{}"
+  OPERATOR_ACCESS_GLOBAL_SECRETS_SERVICE_ACCOUNTS: "true"
+  OPERATOR_BUILT_IN_TRIVY_SERVER: "false"
+  TRIVY_SERVER_HEALTH_CHECK_CACHE_EXPIRATION: "10h"
+  OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT: "false"
+  OPERATOR_CLUSTER_COMPLIANCE_ENABLED: "true"
 ---
 # Source: trivy-operator/templates/configmaps/trivy.yaml
 apiVersion: v1
@@ -2151,19 +2964,23 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.4"
+    app.kubernetes.io/version: "0.18.5"
     app.kubernetes.io/managed-by: kubectl
 data:
   trivy.repository: "ghcr.io/aquasecurity/trivy"
-  trivy.tag: "0.45.1"
+  trivy.tag: "0.49.1"
   trivy.imagePullPolicy: "IfNotPresent"
   trivy.additionalVulnerabilityReportFields: ""
   trivy.severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
   trivy.slow: "true"
   trivy.skipJavaDBUpdate: "false"
+  trivy.includeDevDeps: "false"
+  trivy.imageScanCacheDir: "/tmp/trivy/.cache"
+  trivy.filesystemScanCacheDir: "/var/trivyoperator/trivy-db"
   trivy.dbRepository: "ghcr.io/aquasecurity/trivy-db"
   trivy.javaDbRepository: "ghcr.io/aquasecurity/trivy-java-db"
   trivy.command: "image"
+  trivy.sbomSources: ""
   trivy.dbRepositoryInsecure: "false"
   trivy.useBuiltinRegoPolicies: "true"
   trivy.supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
@@ -2183,7 +3000,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.4"
+    app.kubernetes.io/version: "0.18.5"
     app.kubernetes.io/managed-by: kubectl
 ---
 # Source: trivy-operator/templates/secrets/trivy.yaml
@@ -2195,7 +3012,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.4"
+    app.kubernetes.io/version: "0.18.5"
     app.kubernetes.io/managed-by: kubectl
 data:
 ---
@@ -2208,7 +3025,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.4"
+    app.kubernetes.io/version: "0.18.5"
     app.kubernetes.io/managed-by: kubectl
 spec:
   replicas: 1
@@ -2228,7 +3045,7 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: "trivy-operator"
-          image: "ghcr.io/aquasecurity/trivy-operator:0.16.4"
+          image: "ghcr.io/aquasecurity/trivy-operator:0.18.5"
           imagePullPolicy: IfNotPresent
           env:
             - name: OPERATOR_NAMESPACE
@@ -2241,76 +3058,9 @@ spec:
               value: "pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job"
             - name: OPERATOR_SERVICE_ACCOUNT
               value: "trivy-operator"
-            - name: OPERATOR_LOG_DEV_MODE
-              value: "false"
-            - name: OPERATOR_SCAN_JOB_TTL
-              value: ""
-            - name: OPERATOR_SCAN_JOB_TIMEOUT
-              value: "5m"
-            - name: OPERATOR_CONCURRENT_SCAN_JOBS_LIMIT
-              value: "10"
-            - name: OPERATOR_CONCURRENT_NODE_COLLECTOR_LIMIT
-              value: "1"
-            - name: OPERATOR_SCAN_JOB_RETRY_AFTER
-              value: "30s"
-            - name: OPERATOR_BATCH_DELETE_LIMIT
-              value: "10"
-            - name: OPERATOR_BATCH_DELETE_DELAY
-              value: "10s"
-            - name: OPERATOR_METRICS_BIND_ADDRESS
-              value: ":8080"
-            - name: OPERATOR_METRICS_FINDINGS_ENABLED
-              value: "true"
-            - name: OPERATOR_METRICS_VULN_ID_ENABLED
-              value: "false"
-            - name: OPERATOR_HEALTH_PROBE_BIND_ADDRESS
-              value: ":9090"
-            - name: OPERATOR_VULNERABILITY_SCANNER_ENABLED
-              value: "true"
-            - name: OPERATOR_SBOM_GENERATION_ENABLED
-              value: "true"
-            - name: OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS
-              value: "true"
-            - name: OPERATOR_SCANNER_REPORT_TTL
-              value: "24h"
-            - name: CONTROLLER_CACHE_SYNC_TIMEOUT
-              value: "5m"
-            - name: OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED
-              value: "true"
-            - name: OPERATOR_RBAC_ASSESSMENT_SCANNER_ENABLED
-              value: "true"
-            - name: OPERATOR_INFRA_ASSESSMENT_SCANNER_ENABLED
-              value: "true"
-            - name: OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS
-              value: "true"
-            - name: OPERATOR_EXPOSED_SECRET_SCANNER_ENABLED
-              value: "true"
-            - name: OPERATOR_METRICS_EXPOSED_SECRET_INFO_ENABLED
-              value: "false"
-            - name: OPERATOR_METRICS_CONFIG_AUDIT_INFO_ENABLED
-              value: "false"
-            - name: OPERATOR_METRICS_RBAC_ASSESSMENT_INFO_ENABLED
-              value: "false"
-            - name: OPERATOR_METRICS_INFRA_ASSESSMENT_INFO_ENABLED
-              value: "false"   
-            - name: OPERATOR_WEBHOOK_BROADCAST_URL
-              value: ""
-            - name: OPERATOR_WEBHOOK_BROADCAST_TIMEOUT
-              value: "30s"
-            - name: OPERATOR_SEND_DELETED_REPORTS
-              value: "false"
-            - name: OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES
-              value: "{}"
-            - name: OPERATOR_ACCESS_GLOBAL_SECRETS_SERVICE_ACCOUNTS
-              value: "true"
-            - name: OPERATOR_BUILT_IN_TRIVY_SERVER
-              value: "false"
-            - name: TRIVY_SERVER_HEALTH_CHECK_CACHE_EXPIRATION
-              value: "10h"
-            - name: OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT
-              value: "false"
-            - name: OPERATOR_CLUSTER_COMPLIANCE_ENABLED
-              value: "true"
+          envFrom:
+            - configMapRef:
+                name: trivy-operator-config
           ports:
             - name: metrics
               containerPort: 8080
@@ -2349,7 +3099,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.4"
+    app.kubernetes.io/version: "0.18.5"
     app.kubernetes.io/managed-by: kubectl
 spec:
   
@@ -2360,6 +3110,7 @@ spec:
       port: 80
       targetPort: metrics
       protocol: TCP
+      appProtocol: TCP
   selector:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
@@ -2553,6 +3304,30 @@ rules:
 - apiGroups:
   - aquasecurity.github.io
   resources:
+  - clustersbomreports
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aquasecurity.github.io
+  resources:
+  - clustervulnerabilityreports
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aquasecurity.github.io
+  resources:
   - configauditreports
   verbs:
   - create
@@ -2702,6 +3477,12 @@ rules:
   - serviceaccounts
   verbs:
   - get
+- apiGroups:
+    - ""
+  resources:
+    - nodes/proxy
+  verbs:
+    - get
 ---
 # Source: trivy-operator/templates/rbac/clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -2711,7 +3492,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.4"
+    app.kubernetes.io/version: "0.18.5"
     app.kubernetes.io/managed-by: kubectl
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -2732,7 +3513,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.4"
+    app.kubernetes.io/version: "0.18.5"
     app.kubernetes.io/managed-by: kubectl
 rules:
   - apiGroups:
@@ -2759,7 +3540,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.4"
+    app.kubernetes.io/version: "0.18.5"
     app.kubernetes.io/managed-by: kubectl
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -2779,7 +3560,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.4"
+    app.kubernetes.io/version: "0.18.5"
     app.kubernetes.io/managed-by: kubectl
 rules:
   - apiGroups:
@@ -2809,7 +3590,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.4"
+    app.kubernetes.io/version: "0.18.5"
     app.kubernetes.io/managed-by: kubectl
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -2829,7 +3610,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.4"
+    app.kubernetes.io/version: "0.18.5"
     app.kubernetes.io/managed-by: kubectl
     rbac.authorization.k8s.io/aggregate-to-view: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
@@ -2854,7 +3635,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.4"
+    app.kubernetes.io/version: "0.18.5"
     app.kubernetes.io/managed-by: kubectl
     rbac.authorization.k8s.io/aggregate-to-view: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
@@ -2879,7 +3660,7 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.4"
+    app.kubernetes.io/version: "0.18.5"
     app.kubernetes.io/managed-by: kubectl
     rbac.authorization.k8s.io/aggregate-to-view: "true"
     rbac.authorization.k8s.io/aggregate-to-edit: "true"
@@ -2904,5 +3685,5 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.16.4"
+    app.kubernetes.io/version: "0.18.5"
     app.kubernetes.io/managed-by: kubectl

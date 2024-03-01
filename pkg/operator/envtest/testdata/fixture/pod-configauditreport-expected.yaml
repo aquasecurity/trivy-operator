@@ -25,9 +25,9 @@ report:
     version: version
   summary:
     criticalCount: 0
-    highCount: 1
+    highCount: 2
     mediumCount: 3
-    lowCount: 12
+    lowCount: 10
   checks:
     - checkID: KSV001
       title: Can elevate its own privileges
@@ -39,6 +39,8 @@ report:
       messages:
         - Container 'app' of Pod 'my-pod' should set
           'securityContext.allowPrivilegeEscalation' to false
+      remediation: Set 'set containers[].securityContext.allowPrivilegeEscalation' to
+        'false'.
       success: false
     - checkID: KSV003
       title: "Default capabilities: some containers do not drop all"
@@ -49,6 +51,7 @@ report:
       messages:
         - Container 'app' of Pod 'my-pod' should add 'ALL' to
           'securityContext.capabilities.drop'
+      remediation: Add 'ALL' to containers[].securityContext.capabilities.drop.
       success: false
     - checkID: KSV011
       title: CPU not limited
@@ -57,6 +60,7 @@ report:
       category: Kubernetes Security Check
       messages:
         - Container 'app' of Pod 'my-pod' should set 'resources.limits.cpu'
+      remediation: Set a limit value under 'containers[].resources.limits.cpu'.
       success: false
     - checkID: KSV012
       title: Runs as root user
@@ -67,6 +71,7 @@ report:
       messages:
         - Container 'app' of Pod 'my-pod' should set
           'securityContext.runAsNonRoot' to true
+      remediation: Set 'containers[].securityContext.runAsNonRoot' to true.
       success: false
     - checkID: KSV014
       title: Root file system is not read-only
@@ -74,11 +79,12 @@ report:
         their local disk. This can limit intrusions, as attackers will not be
         able to tamper with the file system or write foreign executables to
         disk.
-      severity: LOW
+      severity: HIGH
       category: Kubernetes Security Check
       messages:
         - Container 'app' of Pod 'my-pod' should set
           'securityContext.readOnlyRootFilesystem' to true
+      remediation: Change 'containers[].securityContext.readOnlyRootFilesystem' to 'true'.
       success: false
     - checkID: KSV015
       title: CPU requests not specified
@@ -89,6 +95,7 @@ report:
       category: Kubernetes Security Check
       messages:
         - Container 'app' of Pod 'my-pod' should set 'resources.requests.cpu'
+      remediation: Set 'containers[].resources.requests.cpu'.
       success: false
     - checkID: KSV016
       title: Memory requests not specified
@@ -99,6 +106,7 @@ report:
       category: Kubernetes Security Check
       messages:
         - Container 'app' of Pod 'my-pod' should set 'resources.requests.memory'
+      remediation: Set 'containers[].resources.requests.memory'.
       success: false
     - checkID: KSV018
       title: Memory not limited
@@ -107,6 +115,7 @@ report:
       category: Kubernetes Security Check
       messages:
         - Container 'app' of Pod 'my-pod' should set 'resources.limits.memory'
+      remediation: Set a limit value under 'containers[].resources.limits.memory'.
       success: false
     - checkID: KSV020
       title: Runs with UID <= 10000
@@ -117,6 +126,7 @@ report:
       messages:
         - Container 'app' of Pod 'my-pod' should set 'securityContext.runAsUser'
           > 10000
+      remediation: Set 'containers[].securityContext.runAsUser' to an integer > 10000.
       success: false
     - checkID: KSV021
       title: Runs with GID <= 10000
@@ -127,6 +137,7 @@ report:
       messages:
         - Container 'app' of Pod 'my-pod' should set
           'securityContext.runAsGroup' > 10000
+      remediation: Set 'containers[].securityContext.runAsGroup' to an integer > 10000.
       success: false
     - checkID: KSV030
       title: Runtime/Default Seccomp profile not set
@@ -137,6 +148,10 @@ report:
       messages:
         - Either Pod or Container should set
           'securityContext.seccompProfile.type' to 'RuntimeDefault'
+      remediation: Set 'spec.securityContext.seccompProfile.type',
+        'spec.containers[*].securityContext.seccompProfile' and
+        'spec.initContainers[*].securityContext.seccompProfile' to
+        'RuntimeDefault' or undefined.
       success: false
     - checkID: KSV104
       title: Seccomp policies disabled
@@ -146,6 +161,8 @@ report:
       messages:
         - container app of pod my-pod in default namespace should specify a
           seccomp profile
+      remediation: Specify seccomp either by annotation or by seccomp profile type
+        having allowed values as per pod security standards
       success: false
     - checkID: KSV106
       title: Container capabilities must only include NET_BIND_SERVICE
@@ -155,6 +172,9 @@ report:
       category: Kubernetes Security Check
       messages:
         - container should drop all
+      remediation: Set 'spec.containers[*].securityContext.capabilities.drop' to 'ALL'
+        and only add 'NET_BIND_SERVICE' to
+        'spec.containers[*].securityContext.capabilities.add'.
       success: false
     - checkID: KSV110
       title: Workloads in the default namespace
@@ -164,19 +184,7 @@ report:
       messages:
         - pod my-pod in default namespace should set metadata.namespace to a
           non-default namespace
-      success: false
-    - checkID: KSV116
-      title: Runs with a root primary or supplementary GID
-      description: According to pod security standard 'Non-root groups', containers
-        should be forbidden from running with a root primary or supplementary
-        GID.
-      severity: LOW
-      category: Kubernetes Security Check
-      messages:
-        - pod my-pod in default namespace should set
-          spec.securityContext.runAsGroup,
-          spec.securityContext.supplementalGroups[*] and
-          spec.securityContext.fsGroup to integer greater than 0
+      remediation: Set 'metadata.namespace' to a non-default namespace.
       success: false
     - checkID: KSV118
       title: Default security context configured
@@ -189,4 +197,8 @@ report:
       messages:
         - pod my-pod in default namespace is using the default security context,
           which allows root privileges
+      remediation: To enhance security, it is strongly recommended not to rely on the
+        default security context. Instead, it is advisable to explicitly define
+        the required security parameters (such as runAsNonRoot, capabilities,
+        readOnlyRootFilesystem, etc.) within the security context.
       success: false

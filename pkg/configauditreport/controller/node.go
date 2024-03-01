@@ -161,18 +161,22 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 			return ctrl.Result{}, fmt.Errorf("getting scan job priority class name: %w", err)
 		}
 		nodeCollectorImageRef := r.GetTrivyOperatorConfig().NodeCollectorImageRef()
+		useNodeSelector := r.GetTrivyOperatorConfig().UseNodeCollectorNodeSelector()
 		coll := j.NewCollector(cluster,
 			j.WithJobTemplateName(j.NodeCollectorName),
 			j.WithName(r.getNodeCollectorName(node)),
 			j.WithJobNamespace(on),
 			j.WithServiceAccount(r.ServiceAccount),
+			j.WithCollectorTimeout(r.Config.ScanJobTimeout),
 			j.WithJobTolerations(jobTolerations),
 			j.WithPodSpecSecurityContext(scanJobSecurityContext),
 			j.WithContainerSecurityContext(scanJobContainerSecurityContext),
 			j.WithPodImagePullSecrets(r.GetNodeCollectorImagePullsecret()),
+			j.WithNodeConfig(true),
 			j.WithJobAnnotation(scanJobAnnotations),
 			j.WithImageRef(nodeCollectorImageRef),
 			j.WithVolumes(nodeCollectorVolumes),
+			j.WithUseNodeSelector(useNodeSelector),
 			j.WithPodPriorityClassName(scanJobPodPriorityClassName),
 			j.WithVolumesMount(nodeCollectorVolumeMounts),
 			j.WithContainerResourceRequirements(&requirements),

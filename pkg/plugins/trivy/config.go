@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
+	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 
@@ -27,6 +28,7 @@ const (
 	keyTrivyMode                                = "trivy.mode"
 	keyTrivyAdditionalVulnerabilityReportFields = "trivy.additionalVulnerabilityReportFields"
 	keyTrivyCommand                             = "trivy.command"
+	keyTrivySbomSources                         = "trivy.sbomSources"
 	KeyTrivySeverity                            = "trivy.severity"
 	keyTrivySlow                                = "trivy.slow"
 	keyTrivyVulnType                            = "trivy.vulnType"
@@ -42,11 +44,14 @@ const (
 	keyTrivyHTTPSProxy                          = "trivy.httpsProxy"
 	keyTrivyNoProxy                             = "trivy.noProxy"
 	keyTrivySslCertDir                          = "trivy.sslCertDir"
+	keyIncludeDevDeps                           = "trivy.includeDevDeps"
 	// nolint:gosec // This is not a secret, but a configuration value.
 	keyTrivyGitHubToken          = "trivy.githubToken"
 	keyTrivySkipFiles            = "trivy.skipFiles"
 	keyTrivySkipDirs             = "trivy.skipDirs"
 	keyTrivyDBRepository         = "trivy.dbRepository"
+	keyTrivyDBRepositoryUsername = "trivy.dbRepositoryUsername"
+	keyTrivyDBRepositoryPassword = "trivy.dbRepositoryPassword" // #nosec G101
 	keyTrivyJavaDBRepository     = "trivy.javaDbRepository"
 	keyTrivyDBRepositoryInsecure = "trivy.dbRepositoryInsecure"
 
@@ -56,6 +61,8 @@ const (
 	keyTrivyServerURL              = "trivy.serverURL"
 	keyTrivyClientServerSkipUpdate = "trivy.clientServerSkipUpdate"
 	keyTrivySkipJavaDBUpdate       = "trivy.skipJavaDBUpdate"
+	keyTrivyImageScanCacheDir      = "trivy.imageScanCacheDir"
+	keyTrivyFilesystemScanCacheDir = "trivy.filesystemScanCacheDir"
 	// nolint:gosec // This is not a secret, but a configuration value.
 	keyTrivyServerTokenHeader = "trivy.serverTokenHeader"
 	keyTrivyServerInsecure    = "trivy.serverInsecure"
@@ -76,8 +83,8 @@ type Config struct {
 	trivyoperator.PluginConfig
 }
 
-func (c Config) GetAdditionalVulnerabilityReportFields() AdditionalFields {
-	addFields := AdditionalFields{}
+func (c Config) GetAdditionalVulnerabilityReportFields() vulnerabilityreport.AdditionalFields {
+	addFields := vulnerabilityreport.AdditionalFields{}
 
 	fields, ok := c.Data[keyTrivyAdditionalVulnerabilityReportFields]
 	if !ok {
@@ -193,6 +200,26 @@ func (c Config) GetClientServerSkipUpdate() bool {
 	return boolVal
 }
 
+func (c Config) GetIncludeDevDeps() bool {
+	val, ok := c.Data[keyIncludeDevDeps]
+	if !ok {
+		return false
+	}
+	boolVal, err := strconv.ParseBool(val)
+	if err != nil {
+		return false
+	}
+	return boolVal
+}
+
+func (c Config) GetSbomSources() string {
+	val, ok := c.Data[keyTrivySbomSources]
+	if !ok {
+		return ""
+	}
+	return val
+}
+
 func (c Config) GetSkipJavaDBUpdate() bool {
 	val, ok := c.Data[keyTrivySkipJavaDBUpdate]
 	if !ok {
@@ -203,6 +230,28 @@ func (c Config) GetSkipJavaDBUpdate() bool {
 		return false
 	}
 	return boolVal
+}
+
+func (c Config) TrivyDBRepositoryCredentialsSet() bool {
+	_, userOk := c.Data[keyTrivyDBRepositoryUsername]
+	_, passOk := c.Data[keyTrivyDBRepositoryPassword]
+	return userOk && passOk
+}
+
+func (c Config) GetImageScanCacheDir() string {
+	val, ok := c.Data[keyTrivyImageScanCacheDir]
+	if !ok || val == "" {
+		return "/tmp/trivy/.cache"
+	}
+	return val
+}
+
+func (c Config) GetFilesystemScanCacheDir() string {
+	val, ok := c.Data[keyTrivyFilesystemScanCacheDir]
+	if !ok || val == "" {
+		return "/var/trivyoperator/trivy-db"
+	}
+	return val
 }
 
 func (c Config) GetServerInsecure() bool {

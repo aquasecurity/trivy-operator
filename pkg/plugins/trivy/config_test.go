@@ -8,6 +8,7 @@ import (
 
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 
@@ -87,12 +88,12 @@ func TestConfig_GetAdditionalVulnerabilityReportFields(t *testing.T) {
 	testCases := []struct {
 		name             string
 		configData       Config
-		additionalFields AdditionalFields
+		additionalFields vulnerabilityreport.AdditionalFields
 	}{
 		{
 			name:             "no additional fields are set",
 			configData:       Config{PluginConfig: trivyoperator.PluginConfig{}},
-			additionalFields: AdditionalFields{},
+			additionalFields: vulnerabilityreport.AdditionalFields{},
 		},
 		{
 			name: "all additional fields are set",
@@ -101,7 +102,7 @@ func TestConfig_GetAdditionalVulnerabilityReportFields(t *testing.T) {
 					"trivy.additionalVulnerabilityReportFields": "PackageType,PkgPath,Class,Target,Links,Description,CVSS",
 				},
 			}},
-			additionalFields: AdditionalFields{Description: true, Links: true, CVSS: true, Class: true, PackageType: true, PkgPath: true, Target: true},
+			additionalFields: vulnerabilityreport.AdditionalFields{Description: true, Links: true, CVSS: true, Class: true, PackageType: true, PkgPath: true, Target: true},
 		},
 		{
 			name: "some additional fields are set",
@@ -110,7 +111,7 @@ func TestConfig_GetAdditionalVulnerabilityReportFields(t *testing.T) {
 					"trivy.additionalVulnerabilityReportFields": "PackageType,Target,Links,CVSS",
 				},
 			}},
-			additionalFields: AdditionalFields{Links: true, CVSS: true, PackageType: true, Target: true},
+			additionalFields: vulnerabilityreport.AdditionalFields{Links: true, CVSS: true, PackageType: true, Target: true},
 		},
 	}
 
@@ -714,10 +715,6 @@ func TestPlugin_Init(t *testing.T) {
 		}, &cm)
 		require.NoError(t, err)
 		assert.Equal(t, corev1.ConfigMap{
-			TypeMeta: metav1.TypeMeta{
-				APIVersion: "v1",
-				Kind:       "ConfigMap",
-			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "trivy-operator-trivy-config",
 				Namespace: "trivyoperator-ns",
@@ -728,7 +725,7 @@ func TestPlugin_Init(t *testing.T) {
 			},
 			Data: map[string]string{
 				"trivy.repository":                DefaultImageRepository,
-				"trivy.tag":                       "0.45.1",
+				"trivy.tag":                       "0.49.1",
 				"trivy.severity":                  DefaultSeverity,
 				"trivy.slow":                      "true",
 				"trivy.mode":                      string(Standalone),
@@ -878,6 +875,74 @@ func TestPlugin_FindIgnorePolicyKey(t *testing.T) {
 				},
 			}
 			assert.Equal(t, tc.expectedKey, config.FindIgnorePolicyKey(workload))
+		})
+	}
+}
+
+func TestPlugin_GetIncludeDevDeps(t *testing.T) {
+
+	testCases := []struct {
+		name       string
+		configData map[string]string
+		want       bool
+	}{
+		{
+			name: "includeDevDeps enabled",
+			configData: map[string]string{
+				"trivy.includeDevDeps": "true",
+			},
+			want: true,
+		},
+		{
+			name: "includeDevDeps not set",
+			configData: map[string]string{
+				"trivy.includeDevDeps": "false",
+			},
+			want: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			config := Config{
+				trivyoperator.PluginConfig{
+					Data: tc.configData,
+				},
+			}
+			got := config.GetIncludeDevDeps()
+			assert.Equal(t, got, tc.want)
+		})
+	}
+}
+
+func TestPlugin_GetSbomSources(t *testing.T) {
+	testCases := []struct {
+		name       string
+		configData map[string]string
+		want       string
+	}{
+		{
+			name:       "GetSbomSources not set",
+			configData: map[string]string{},
+			want:       "",
+		},
+		{
+			name: "GetSbomSources with oci and rekor",
+			configData: map[string]string{
+				"trivy.sbomSources": "oci,rekor",
+			},
+			want: "oci,rekor",
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			config := Config{
+				trivyoperator.PluginConfig{
+					Data: tc.configData,
+				},
+			}
+			got := config.GetSbomSources()
+			assert.Equal(t, got, tc.want)
 		})
 	}
 }

@@ -70,7 +70,7 @@ default      └─VulnerabilityReport/replicaset-nginx-78449c65d4-nginx  -     
 </details>
 
 !!! note
-The [tree] command is a kubectl plugin to browse Kubernetes object hierarchies as a tree.
+    The [tree] command is a kubectl plugin to browse Kubernetes object hierarchies as a tree.
 
 Moving forward, let's update the container image of the `nginx` Deployment from `nginx:1.16` to `nginx:1.17`. This will
 trigger a rolling update of the Deployment and eventually create another ReplicaSet.
@@ -173,20 +173,18 @@ No resources found in default namespace.
 </details>
 
 !!! Tip
-Use `vuln` and `configaudit` as short names for `vulnerabilityreports` and `configauditreports` resources.
+    Use `vuln` and `configaudit` as short names for `vulnerabilityreports` and `configauditreports` resources.
 
 !!! Note
-The validity period for VulnerabilityReports by setting the duration as the value of the
-`OPERATOR_SCANNER_REPORT_TTL` environment variable. The value is set to `24h` by default.
+    The validity period for VulnerabilityReports by setting the duration as the value of the
+    `OPERATOR_SCANNER_REPORT_TTL` environment variable. The value is set to `24h` by default.
 
-The reports will be deleted after 24 hours. When a VulnerabilityReport gets deleted Trivy-Operator will automatically rescan the resource.
-
-
+    The reports will be deleted after 24 hours. When a VulnerabilityReport gets deleted Trivy-Operator will automatically rescan the resource.
 
 ## What's Next?
 
 - Find out how the operator scans workloads that use container images from [Private Registries].
-- By default, the operator uses Trivy as [Vulnerability Scanner] and Polaris as [Configuration Checker], but you can
+- By default, the operator uses Trivy as Vulnerability Scanner and Polaris as Configuration Checker, but you can
   choose other tools that are integrated with Trivy-Operator or even implement you own plugin.
 
 [minikube]: https://minikube.sigs.k8s.io/docs/
@@ -194,3 +192,4 @@ The reports will be deleted after 24 hours. When a VulnerabilityReport gets dele
 [microk8s]: https://microk8s.io/
 [Kubernetes playground]: http://labs.play-with-k8s.com/
 [tree]: https://github.com/ahmetb/kubectl-tree
+[Private Registries]: ./../docs/vulnerability-scanning/private-registries.md

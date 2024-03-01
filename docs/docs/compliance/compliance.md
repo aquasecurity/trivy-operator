@@ -13,7 +13,7 @@ The compliance report is composed of two parts :
 
 - `status`: represents the compliance control checks results
 
-- `report types` : compliance report can be produced in two formats , summary and detail (all)
+- `report types` : compliance report can be produced in two formats, summary and detail (all)
 
 Spec can be customized by amending the control checks `report type (summary / all)` , `severity` and `cron` expression (report execution interval).
 As an example, let's enter `vi` edit mode and change the `cron` expression.
@@ -26,9 +26,9 @@ Once the report has been generated, you can fetch and review its results section
 kubectl get compliance nsa  -o=jsonpath='{.status}' | jq .
 ```
 
-## You can create your own custom compliance report. A compliance report is a simple YAML document in the following format:
+## Custom compliance reports
 
-<summary>customer compliance report</summary>
+You can create your own custom compliance report. A compliance report is a simple YAML document in the following format:
 
 ```yaml
 apiVersion: aquasecurity.github.io/v1alpha1
@@ -56,7 +56,7 @@ spec:
       name: Non-root containers # Name for the control (appears in the report as is). Any one-line name.
       severity: MEDIUM  (note that checks severity isn't used)
 ```
- 
+
 ## Built in reports
 
 The following reports are available out of the box:

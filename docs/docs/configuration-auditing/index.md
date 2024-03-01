@@ -1,8 +1,7 @@
 # Configuration Auditing
 
-
 ## Setting
-the following flags can be set with the `trivy-operator-trivy-cofnig` configmap in order to impact scanning
+The following flags can be set with the `trivy-operator-trivy-config` ConfigMap in order to impact scanning:
 
 | CONFIGMAP KEY                     | DEFAULT                                                                               | DESCRIPTION                                                                                                     |
 |-----------------------------------|---------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
@@ -16,7 +15,7 @@ improperly creates a high-impact security and compliance risk. DevOps, and platf
 continuously assess build artifacts, workloads, and infrastructure against configuration hardening standards to
 remediate any violations.
 
-trivy-operator configuration audit capabilities are purpose-built for Kubernetes environments. In particular, trivy
+trivy-operator configuration audit capabilities are purpose-built for Kubernetes environments. In particular, the Trivy
 Operator continuously checks images, workloads, and Kubernetes infrastructure components against common configurations
 security standards and generates detailed assessment reports, which are then stored in the default Kubernetes database.
 
@@ -25,4 +24,3 @@ Additionally, application and infrastructure owners can integrate these reports 
 active remediation.
 
 [Built-in Policies]: ./built-in-policies.md
-

@@ -535,7 +535,9 @@ warn[res] {
 				"policy.invalid.kinds": "Workload",
 				"policy.invalid.rego":  "$^&!",
 			},
-			expectedError: "failed to run policy checks on resources",
+			expectedError: `failed to load rego policies from [externalPolicies]: 1 error occurred: externalPolicies/file_0.rego:1: rego_parse_error: illegal token
+	$^&!
+	^`,
 		},
 		{
 			name: "Should return error when library cannot be parsed",
@@ -564,7 +566,9 @@ warn[res] {
 			policies: map[string]string{
 				"library.utils.rego": "$^&!",
 			},
-			expectedError: "failed to run policy checks on resources",
+			expectedError: `failed to load rego policies from [externalPolicies]: 1 error occurred: externalPolicies/file_0.rego:1: rego_parse_error: illegal token
+	$^&!
+	^`,
 		},
 		{
 			name:          "Should eval deny rule with any resource and multiple messages",
@@ -746,6 +750,9 @@ deny[res] {
 			log := ctrl.Log.WithName("resourcecontroller")
 			checks, err := policy.NewPolicies(tc.policies, newTestConfig(tc.useBuiltInPolicies), log, "1.27.1").Eval(context.TODO(), tc.resource)
 			if tc.expectedError != "" {
+				if tc.expectedError == "failed to run policy checks on resources" {
+					fmt.Println(err.Error())
+				}
 				g.Expect(err).To(MatchError(tc.expectedError))
 			} else {
 				g.Expect(err).ToNot(HaveOccurred())

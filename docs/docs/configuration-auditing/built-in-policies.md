@@ -7,13 +7,13 @@ policy that checks for recommended Kubernetes labels on any resource kind.
 
 ### Processing information
 
-The Trivy Operator pulls the information from the [defsec] respository.
+The Trivy Operator pulls the information from the [trivy-policies] repository.
 
 Once the Trivy Operator is installed inside the Kubernetes cluster, it will perform the following processes:
 
 1. The [node-collector] will collect infrastructure data from node filesystem and processes
 2. It then outputs the data as JSON output 
-3. The the Rego policies (cis-controls) from [defsec] are executed against the infrastructure data ( JSON ) and return evaluation results as ConfigAudit and Compliance reports
+3. The the Rego policies (cis-controls) from [trivy-policies] are executed against the infrastructure data (JSON) and return evaluation results as ConfigAudit and Compliance reports
 
 ## General
 
@@ -38,11 +38,11 @@ Once the Trivy Operator is installed inside the Kubernetes cluster, it will perf
 |----------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|---------------|
 | [Unused capabilities should be dropped (drop any)]             | Security best practices require containers to run with minimal required capabilities.                                                    | Workload      |
 | [hostAliases is set]                                           | Managing /etc/hosts aliases can prevent the container engine from modifying the file after a pod’s containers have already been started. | Workload      |
-| [User Pods should not be placed in kube-system namespace]      | ensure that User pods are not placed in kube-system namespace                                                                            | Workload      |
-| [Protecting Pod service account tokens]                        | ensure that Pod specifications disable the secret token being mounted by setting automountServiceAccountToken: false                     | Workload      |
-| [Selector usage in network policies]                           | ensure that network policies selectors are applied to pods or namespaces to restricted ingress and egress traffic within the pod network | NetworkPolicy |
-| [limit range usage]                                            | ensure limit range policy has configure in order to limit resource usage for namespaces or nodes                                         | LimitRange    |
-| [resource quota usage]                                         | ensure resource quota policy has configure in order to limit aggregate resource usage within namespace                                   | ResourceQuota |
+| [User Pods should not be placed in kube-system namespace]      | Ensure that User pods are not placed in kube-system namespace                                                                            | Workload      |
+| [Protecting Pod service account tokens]                        | Ensure that Pod specifications disable the secret token being mounted by setting automountServiceAccountToken: false                     | Workload      |
+| [Selector usage in network policies]                           | Ensure that network policies selectors are applied to pods or namespaces to restricted ingress and egress traffic within the pod network | NetworkPolicy |
+| [limit range usage]                                            | Ensure limit range policy has configure in order to limit resource usage for namespaces or nodes                                         | LimitRange    |
+| [resource quota usage]                                         | Ensure resource quota policy has configure in order to limit aggregate resource usage within namespace                                   | ResourceQuota |
 | [All container images must start with the *.azurecr.io domain] | Containers should only use images from trusted registries.                                                                               | Workload      |
 | [All container images must start with a GCR domain]            | Containers should only use images from trusted GCR registries.                                                                           | Workload      |
 
@@ -97,7 +97,8 @@ Once the Trivy Operator is installed inside the Kubernetes cluster, it will perf
 | [View All Secrets]                       | Do not allow users in a rolebinding to add other users to their rolebindings                                        | Role/ClusterRole |
 
 
-[defsec]: https://github.com/aquasecurity/defsec/tree/master/rules/kubernetes/policies/cisbenchmarks
+[Writing Custom Configuration Audit Policies]: ./../../tutorials/writing-custom-configuration-audit-policies.md
+[trivy-policies]: https://github.com/aquasecurity/trivy-policies/tree/main/checks/kubernetes/cisbenchmarks
 [node-collector]: https://github.com/aquasecurity/k8s-node-collector
 
 [CPU not limited]: https://avd.aquasec.com/misconfig/kubernetes/ksv011/
@@ -141,8 +142,6 @@ Once the Trivy Operator is installed inside the Kubernetes cluster, it will perf
 [Runs as root user]: https://avd.aquasec.com/misconfig/kubernetes/ksv012/
 [A root primary or supplementary GID set]: https://avd.aquasec.com/misconfig/kubernetes/ksv029/
 [Default Seccomp profile not set]: https://avd.aquasec.com/misconfig/kubernetes/ksv030/
-
-
 
 [Allow Role Clusterrolebindings Associate Privileged Cluster Role]: https://avd.aquasec.com/misconfig/rbac/general/avd-ksv-0052/
 [Deny Create Update Malicious Pod]: https://avd.aquasec.com/misconfig/rbac/general/avd-ksv-0048/

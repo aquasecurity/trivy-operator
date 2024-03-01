@@ -1,0 +1,12 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestSuite
+commands:
+  - command: helm install trivy-operator ./deploy/helm --namespace trivy-system
+      --create-namespace --set="image.tag=e2e"
+      --set="operator.sbomGenerationEnabled=true"
+      --set="trivyOperator.reportResourceLabels=team"
+testDirs:
+  - tests/e2e/cluster
+timeout: 240
+kindNodeCache: true

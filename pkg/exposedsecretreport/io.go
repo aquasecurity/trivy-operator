@@ -4,8 +4,10 @@ import (
 	"context"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -87,4 +89,36 @@ func (r *readWriter) FindByOwner(ctx context.Context, owner kube.ObjectRef) ([]v
 	}
 
 	return list.DeepCopy().Items, nil
+}
+
+func BuildExposedSecretsReportData(clock ext.Clock, registry v1alpha1.Registry, artifact v1alpha1.Artifact, version string, secrets []v1alpha1.ExposedSecret) v1alpha1.ExposedSecretReportData {
+	return v1alpha1.ExposedSecretReportData{
+		UpdateTimestamp: metav1.NewTime(clock.Now()),
+		Scanner: v1alpha1.Scanner{
+			Name:    v1alpha1.ScannerNameTrivy,
+			Vendor:  "Aqua Security",
+			Version: version,
+		},
+		Registry: registry,
+		Artifact: artifact,
+		Summary:  secretSummary(secrets),
+		Secrets:  secrets,
+	}
+}
+
+func secretSummary(secrets []v1alpha1.ExposedSecret) v1alpha1.ExposedSecretSummary {
+	var s v1alpha1.ExposedSecretSummary
+	for _, v := range secrets {
+		switch v.Severity {
+		case v1alpha1.SeverityCritical:
+			s.CriticalCount++
+		case v1alpha1.SeverityHigh:
+			s.HighCount++
+		case v1alpha1.SeverityMedium:
+			s.MediumCount++
+		case v1alpha1.SeverityLow:
+			s.LowCount++
+		}
+	}
+	return s
 }

@@ -1,5 +1,12 @@
 {
   "SchemaVersion": 2,
+  "Metadata": {
+    "OS": {
+      "Family": "alpine",
+      "Name": "3.10.2",
+      "EOSL": true
+    }
+  },
   "Results": [
     {
       "Target": "alpine:3.10.2 (alpine 3.10.2)",

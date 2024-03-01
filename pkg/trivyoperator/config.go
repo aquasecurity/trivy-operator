@@ -82,6 +82,7 @@ const (
 	KeyNodeCollectorImageRef               = "node.collector.imageRef"
 	KeyNodeCollectorImagePullSecret        = "node.collector.imagePullSecret"
 	KeyAdditionalReportLabels              = "report.additionalLabels"
+	KeyNodeCollectorNodeSelector           = "node.collector.nodeSelector"
 )
 
 // ConfigData holds Trivy-operator configuration settings as a set of key-value
@@ -103,7 +104,7 @@ func GetDefaultConfig() ConfigData {
 		KeyScanJobcompressLogs:          "true",
 		keyComplianceFailEntriesLimit:   "10",
 		KeyReportRecordFailedChecksOnly: "true",
-		KeyNodeCollectorImageRef:        "ghcr.io/aquasecurity/node-collector:0.0.6",
+		KeyNodeCollectorImageRef:        "ghcr.io/aquasecurity/node-collector:0.1.2",
 	}
 }
 
@@ -154,13 +155,13 @@ func (c ConfigData) VulnerabilityScanJobsInSameNamespace() bool {
 	return c.getBoolKey(KeyVulnerabilityScansInSameNamespace)
 }
 
-func (c ConfigData) GetConfigAuditReportsScanner() (Scanner, error) {
+func (c ConfigData) GetConfigAuditReportsScanner() Scanner {
 	var ok bool
 	var value string
 	if value, ok = c[keyConfigAuditReportsScanner]; !ok {
-		return "", fmt.Errorf("property %s not set", keyConfigAuditReportsScanner)
+		return Scanner("Trivy")
 	}
-	return Scanner(value), nil
+	return Scanner(value)
 }
 
 func (c ConfigData) GetScanJobTolerations() ([]corev1.Toleration, error) {
@@ -180,6 +181,14 @@ func (c ConfigData) GetNodeCollectorImagePullsecret() []corev1.LocalObjectRefere
 		imagePullSecrets = append(imagePullSecrets, corev1.LocalObjectReference{Name: imagePullSecretValue})
 	}
 	return imagePullSecrets
+}
+
+func (c ConfigData) UseNodeCollectorNodeSelector() bool {
+	val, ok := c[KeyNodeCollectorNodeSelector]
+	if !ok {
+		return true
+	}
+	return val == "true"
 }
 
 func (c ConfigData) GetNodeCollectorVolumes() ([]corev1.Volume, error) {

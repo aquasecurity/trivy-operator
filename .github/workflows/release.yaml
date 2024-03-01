@@ -23,11 +23,11 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
       - name: Install tools
-        uses: aquaproj/aqua-installer@v2.1.2
+        uses: aquaproj/aqua-installer@v2.3.0
         with:
           aqua_version: v1.25.0
       - name: Run unit tests
@@ -42,11 +42,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
       - name: Install tools
-        uses: aquaproj/aqua-installer@v2.1.2
+        uses: aquaproj/aqua-installer@v2.3.0
         with:
           aqua_version: v1.25.0
       - name: Setup Kubernetes cluster (KIND)
@@ -91,11 +91,11 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
       - name: Install cosign
-        uses: sigstore/cosign-installer@v3.1.2
+        uses: sigstore/cosign-installer@v3.4.0
       - name: Login to docker.io registry
         uses: docker/login-action@v3.0.0
         with:
@@ -123,7 +123,7 @@ jobs:
           COSIGN_EXPERIMENTAL: 1
       - name: Repository Dispatch Publish Helm Chart
         if: ${{ steps.latest_tag.outputs.tag == steps.chart_version.outputs.app_version }}
-        uses: peter-evans/repository-dispatch@v2
+        uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: publish-chart

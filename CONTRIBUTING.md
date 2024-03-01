@@ -4,25 +4,31 @@ These guidelines will help you get started with the Trivy-operator project.
 
 ## Table of Contents
 
-- [Contribution Workflow](#contribution-workflow)
-  - [Issues and Discussions](#issues-and-discussions)
-  - [Pull Requests](#pull-requests)
-- [Set up your Development Environment](#set-up-your-development-environment)
-- [Build Binaries](#build-binaries)
-- [Testing](#testing)
-  - [Run Tests](#run-tests)
-  - [Run Integration Tests](#run-integration-tests)
-  - [Cove Coverage](#code-coverage)
-- [Custom Resource Definitions](#custom-resource-definitions)
-  - [Generating code and manifests](#generating-code-and-manifests)
-- [Test Trivy Operator](#test-trivy-operator)
-  - [In Cluster](#in-cluster)
-  - [Out of Cluster](#out-of-cluster)
-- [Update Static YAML Manifests](#update-static-yaml-manifests)
-- [Operator Lifecycle Manager (OLM)](#operator-lifecycle-manager-olm)
-  - [Install OLM](#install-olm)
-  - [Build the Catalog Image](#build-the-catalog-image)
-  - [Register the Catalog Image](#register-the-catalog-image)
+- [Contributing](#contributing)
+  - [Table of Contents](#table-of-contents)
+  - [Contribution Workflow](#contribution-workflow)
+    - [Issues and Discussions](#issues-and-discussions)
+    - [Pull Requests](#pull-requests)
+      - [Conventional Commits](#conventional-commits)
+  - [Set up your Development Environment](#set-up-your-development-environment)
+  - [Build Binaries](#build-binaries)
+  - [Testing](#testing)
+    - [Run unit Tests](#run-unit-tests)
+    - [Run Operator envtest](#run-operator-envtest)
+    - [Run Integration Tests](#run-integration-tests)
+    - [Run  End to End Tests](#run--end-to-end-tests)
+    - [Code Coverage](#code-coverage)
+  - [Custom Resource Definitions](#custom-resource-definitions)
+    - [Generating code and manifests](#generating-code-and-manifests)
+  - [Test Trivy Operator](#test-trivy-operator)
+    - [In cluster](#in-cluster)
+    - [Out of cluster](#out-of-cluster)
+  - [Update Static YAML Manifests](#update-static-yaml-manifests)
+  - [Update helm docs](#update-helm-docs)
+  - [Operator Lifecycle Manager (OLM)](#operator-lifecycle-manager-olm)
+    - [Install OLM](#install-olm)
+    - [Build the Catalog Image](#build-the-catalog-image)
+    - [Register the Catalog Image](#register-the-catalog-image)
 
 ## Contribution Workflow
 
@@ -78,7 +84,7 @@ If you only run test using the Magefile
 run some of these integration tests using `go test` or from your IDE, you'll
 have to
 [install kubebuiler-tools](https://book.kubebuilder.io/reference/envtest.html#installation).
-[install magefile](https://magefile.org)  or use `go run mage.go <goal>` 
+[install magefile](https://magefile.org)  or use `go run mage.go <goal>`
 
 ## Build Binaries
 
@@ -126,9 +132,9 @@ To open the test coverage report in your web browser, run:
 go tool cover -html=coverage.txt
 ```
 
-### Run operator envtest
+### Run Operator envtest
 
-The operator envtest spin us partial k8s components (api-server, etcd) and test controllers for reousce, workload, ttl, rbac and more
+The Operator envtest spin us partial k8s components (api-server, etcd) and test controllers for reousce, workload, ttl, rbac and more
 
 ```
 mage test:envtest
@@ -345,7 +351,7 @@ kubectl apply -f https://github.com/operator-framework/operator-lifecycle-manage
 or
 
 ```
-curl -L https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.20.3/install.sh -o install.sh
+curl -L https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.20.6/install.sh -o install.sh
 chmod +x install.sh
 ./install.sh v0.20.0
 ```

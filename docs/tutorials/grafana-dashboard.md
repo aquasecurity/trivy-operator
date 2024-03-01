@@ -92,7 +92,7 @@ Next, we can install the operator with the following command:
 helm install trivy-operator aqua/trivy-operator \
   --namespace trivy-system \
   --create-namespace \
-  --version 0.16.4 \
+  --version {{ var.chart_version }} \
   --values trivy-values.yaml
 ```
 
@@ -143,15 +143,15 @@ Run the following command to port-forward the Trivy Operator Service:
 kubectl port-forward service/trivy-operator -n trivy-system 5000:80
 ```
 
-Once you open the '<http://localhost:5000/metrics>' you should see all the metrics gathered from the operator. However, this is obviously not the prettiest way of looking at them. Thus, the next sections will show you how to query metrics through Prometheus and visualise them in Grafana.
+Once you open <http://localhost:5000/metrics> you should see all the metrics gathered from the operator. However, this is obviously not the prettiest way of looking at them. Thus, the next sections will show you how to query metrics through Prometheus and visualise them in Grafana.
 
 ### Query Trivy Operator Metrics in Prometheus
 
-Open the Prometheus Dashboard at 'localhost:9090' through the port-forwarding done in the previous section of this tutorial.
+Open the Prometheus Dashboard at http://localhost:9090 through the port-forwarding done in the previous section of this tutorial.
 
-At this point, navigate to: `Status` < `Targets` -- and make sure that the Trivy endpoint is healthy and Prometheus can scrape its metrics.
+At this point, navigate to: `Status` < `Targets` - and make sure that the Trivy endpoint is healthy and Prometheus can scrape its metrics.
 
-Next, head back to 'Graph' -- <http://localhost:9090/graph>. Here you can already query certain metrics from the Trivy Operator. The query language used is basic PromQL.
+Next, head back to 'Graph' - http://localhost:9090/graph. Here you can already query certain metrics from the Trivy Operator. The query language used is basic [PromQL](https://prometheus.io/docs/prometheus/latest/querying/basics/).
 There are lots of guides online that can give you inspiration. Try for instance the following queries:
 
 Total vulnerabilities found in your cluster:
@@ -176,21 +176,20 @@ sum(trivy_image_exposedsecrets)
 
 Lastly, we want to visualise the security issues within our cluster in a Grafana Dashboard.
 
-For this, navigate to the Grafana URL '<http://localhost:3000>'.
+For this, navigate to the Grafana URL http://localhost:3000.
 
-Username: admin
+Username: admin  
 Password: prom-operator
 
 Note that the password will be different, depending on how you called the Helm Chart installation of the kube-prometheus-stack Helm Chart earlier in the tutorial.
 
-Next, navigate to `Dashboards` < `Browse`
+Next, navigate to `Dashboards` < `Browse`.
 
 Once you see all the default Dashboards, click `New`, then `Import`.
 
-Here, we will paste the ID of the Aqua Trivy Dashboard:
-`17813`
+Here, we will paste the ID of the Aqua Trivy Dashboard: `17813`
 
-The link to the Dashboard in Grafana is [the following.](https://grafana.com/grafana/dashboards/17813)
+The link to the dashboard in Grafana is [the following.](https://grafana.com/grafana/dashboards/17813)
 
 Once pasted, you should see the following Dashboard as part of your Dashboard list: `Trivy Operator Dashboard`
 

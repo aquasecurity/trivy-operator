@@ -53,7 +53,7 @@ jobs:
           ignore-unfixed: true
           severity: 'CRITICAL,HIGH'
       - name: Notify dedicated teams channel
-        uses: jdcargile/ms-teams-notification@v1.3
+        uses: jdcargile/ms-teams-notification@v1.4
         if: failure()
         with:
           github-token: ${{ secrets.ORG_REPO_TOKEN }}

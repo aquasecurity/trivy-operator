@@ -300,7 +300,7 @@ trivy-operator.resource.namespace: trivy-system
 vulnerabilityReport.scanner: Trivy
 ```
 
-We can probably use `app.kubernetes.io/managed-by: trivy-operator`, as this is a label in a standard Kubernetes recommends.
+We can probably use `app.kubernetes.io/managed-by: trivy-operator`, as this is a label in a standard format Kubernetes recommends.
 
 We proceed to create the network policy as follows:
 

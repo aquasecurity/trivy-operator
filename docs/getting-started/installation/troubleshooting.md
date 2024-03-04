@@ -111,9 +111,9 @@ For example, by default in the [Helm Chart](./helm.md) values, the following Kub
 `"pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job"`.
 
 
-## Installing the Operator in a cluster with default deny-all egress/ingress network policies across all namespaces
+## Installing the Operator in a namespace with default deny-all egress/ingress network policies
 
-If you are trying to install the Trivy-Operator in an environment where there are default deny-all egress/ingress network policies (see example below), you might need to configure some extra network policies yourself to make sure the traffic can flow as expected and the operator does not enter an error state.
+If you are trying to install the Trivy-Operator in a namespace where there are default deny-all egress/ingress network policies (see example below), you might need to configure some extra network policies yourself to make sure the traffic can flow as expected and the operator does not enter an error state.
 
 ```yaml
 ---

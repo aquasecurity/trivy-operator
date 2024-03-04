@@ -115,7 +115,7 @@ For example, by default in the [Helm Chart](./helm.md) values, the following Kub
 
 If you are trying to install the Trivy-Operator in an environment where there are default deny-all egress/ingress network policies (see example below), you might need to configure some extra network policies yourself to make sure the traffic can flow as expected and the operator does not enter an error state.
 
-```
+```yaml
 ---
 kind: NetworkPolicy
 metadata:
@@ -149,20 +149,20 @@ Next step is to create the pod with vulnerabilities. To do this we can run the f
 
 At this point, we should expect the Trivy Operator to generate the `VulnerabilityReports` custom resources in our `applications` namespace. However, if we try to get these resources across the `applications` namespace, we'll see that we won't get any reports:
 
-```
+```sh
 kubectl get vulnerabilityreports -n applications
 No resources found in applications namespace.
 ```
 
 If we look at the `get pods` command, the description of the trivy-operator pod and its logs, we'll see some interesting messages that will help us understand why the reports aren't being generated.
 
-```
+```sh
 kubectl get pods -n trivy-system
 NAME                              READY   STATUS             RESTARTS        AGE
 trivy-operator-846f8c6446-clzlk   0/1     CrashLoopBackOff   6 (2m41s ago)   8m28s
 ```
 
-```
+```sh
 kubectl describe pods trivy-operator-846f8c6446-clzlk -n trivy-system | grep Events -A 10
 Events:
   Type     Reason     Age                    From               Message
@@ -176,7 +176,7 @@ Events:
 
 The pod is in a `CrashLoopBackOff` state, and the description confirms that the container is constantly being restarted.
 
-```
+```sh
 kubectl logs trivy-operator-846f8c6446-clzlk -n trivy-system
 2023/11/21 06:04:02 maxprocs: Leaving GOMAXPROCS=2: CPU quota undefined
 {"level":"info","ts":"2023-11-21T06:04:02Z","logger":"main","msg":"Starting operator","buildInfo":{"Version":"0.16.4","Commit":"c2f0e0f4f773f090f61c07489fd6dc062d465b2d","Date":"2023-10-29T08:18:47Z","Executable":""}}
@@ -188,12 +188,14 @@ unable to run trivy operator: failed getting configmap: trivy-operator: Get "htt
 We see that the trivy-operator is correctly configured to watch all namespaces, that means that the `VulnerabilityReports` should be generated across all namespaces, including the `applications` namespace.
 
 The first red flag that something is wrong with the networking configuration can be found in the following message:
-```
+
+```sh
 unable to run trivy operator: failed getting configmap: trivy-operator: Get "https://10.43.0.1:443/api/v1/namespaces/trivy-system/configmaps/trivy-operator": dial tcp 10.43.0.1:443: connect: connection refused
 ```
 
 The IP address in context `10.43.0.1` belongs to the kube-api. We can confirm so by looking for the service called `kubernetes`:
-```
+
+```sh
 kubectl get svc kubernetes
 NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
 kubernetes   ClusterIP   10.43.0.1    <none>        443/TCP   28d
@@ -201,7 +203,7 @@ kubernetes   ClusterIP   10.43.0.1    <none>        443/TCP   28d
 
 Basically, the trivy-operator cannot reach the kube-api to execute the calls looking for different resources. In example above, we can see that the trivy-operator was looking for the trivy-operator configmap in the trivy-system. Our first task will be to enable traffic between the trivy-operator pods and the kube-api service so that the trivy-operator can successfully get what it needs from the kube-api.
 
-```
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -219,19 +221,19 @@ If we run `kubectl logs -n trivy-system deployment/trivy-operator`, we'll see th
 
 NOTE: For faster results, restart the trivy-operator deployment:
 
-```
+```sh
 kubectl rollout restart deployment trivy-operator -n trivy-system
 ```
 
 We also notice that there are new errors as part of the logs referencing port `53`:
 
-```
+```sh
 failed to download vulnerability DB: database download error: OCI repository error: 1 error occurred:\n\t* Get \"https://ghcr.io/v2/\": dial tcp: lookup ghcr.io on 10.43.0.10:53:
 ```
 
 This means that the trivy-operator cannot resolve DNS records. The cause of this is the fact that the traffic to the `kube-dns` service residing in the `kube-system` namespace is disabled because of the `deny-all` egress network policies in the `trivy-system` namespace. We can confirm this by running the following command and to the svc information:
 
-```
+```sh
 kubectl get svc -n kube-system kube-dns
 NAME       TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE
 kube-dns   ClusterIP   10.43.0.10   <none>        53/UDP,53/TCP,9153/TCP   20m
@@ -239,7 +241,7 @@ kube-dns   ClusterIP   10.43.0.10   <none>        53/UDP,53/TCP,9153/TCP   20m
 
 To remediate this issue, we'll need to create a network policy allowing traffic on port `53` to the `kube-system` namespace. This will allow the trivy-systems to perforn DNS lookups via the `core-dns` pods. 
 
-```
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -263,7 +265,7 @@ spec:
 
 When we look at the trivy-operator logs again, we'll see that the error logs referencing the port `53` are gone. Now we see a new error mentioning port `443`:
 
-```
+```sh
 {"level":"error","ts":"2024-02-25T07:46:25Z","logger":"reconciler.scan job","msg":"Scan job container","job":"trivy-system/scan-vulnerabilityreport-57ff7d8c55","container":"1bad6981-ddcb-4845-98cd-e8bb5b25926c","status.reason":"Error","status.message":"2024-02-25T07:46:22.300Z\t\u001b[34mINFO\u001b[0m\tNeed to update DB\n2024-02-25T07:46:22.300Z\t\u001b[34mINFO\u001b[0m\tDB Repository: ghcr.io/aquasecurity/trivy-db\n2024-02-25T07:46:22.300Z\t\u001b[34mINFO\u001b[0m\tDownloading DB...\n2024-02-25T07:46:22.816Z\t\u001b[31mFATAL\u001b[0m\tinit error: DB error: failed to download vulnerability DB: database download error: oci download error: failed to fetch the layer: Get \"https://pkg-containers.githubusercontent.com/ghcr1/blobs/sha256:2f0f866f6f274de192d9dfcd752c892e2099126fe0362dc8b4c7bb0b7e75956d?se=2024-02-25T07%3A55%3A00Z&sig=r9L1Phopnozwr%2B5TOTj8tF7D7bixyUqdsJNDESU1TPI%3D&sp=r&spr=https&sr=b&sv=2019-12-12\": dial tcp 185.199.111.154:443: connect: connection refused\n"
 ```
 
@@ -273,7 +275,7 @@ Before proceeding with the creation of our next network policy, it is important 
 
 We can confirm this by doing a `watch kubectl get pods -n trivy-system` on pods on the trivy-system, then restarting the trivy-operator via `kubectl rollout restart deployment -n trivy-system`:
 
-```
+```sh
 NAME                                        READY   STATUS    RESTARTS   AGE
 trivy-operator-6b4dc78c5-nzzcm              1/1     Running   0          11s
 scan-vulnerabilityreport-6f9cb46645-pzx7w   1/1     Running   0          8s
@@ -281,11 +283,13 @@ scan-vulnerabilityreport-6f9cb46645-pzx7w   1/1     Running   0          8s
 
 Here we see the scanning pod being spawned. We now must get a good label so we can create a network policy for it. We do so by grabbing the pod name and getting the labels via `yq` while we watch for the pod in another terminal.
 
-```
+```sh
 kubectl get pods -n trivy-system scan-vulnerabilityreport-6dfb8dc69f-fwpbh -o yaml | yq '.metadata.labels'
 ```
+
 We get the output:
-```
+
+```sh
 app.kubernetes.io/managed-by: trivy-operator
 controller-uid: 10aba790-6ee6-4802-81ed-ad77908ea10d
 job-name: scan-vulnerabilityreport-6dfb8dc69f
@@ -300,7 +304,7 @@ We can probably use `app.kubernetes.io/managed-by: trivy-operator`, as this is a
 
 We proceed to create the network policy as follows:
 
-```
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -323,7 +327,7 @@ spec:
 
 We use the CIDR `0.0.0.0/0` to denote that we want to allow the target pods to talk to any IP address, and we specify port `443` as the allowed port. If we query for the logs again, we'll see that the error is gone. Moreover, if we do a `kubectl get vulnerabilityreport -n applications`, we'll see that the report for the `nginx` pod has been recently generated:
 
-```
+```sh
 NAME              REPOSITORY      TAG      SCANNER   AGE
 pod-nginx-nginx   library/nginx   latest   Trivy     2m28s
 ```
@@ -333,21 +337,21 @@ pod-nginx-nginx   library/nginx   latest   Trivy     2m28s
 When deploying the trivy-operator + trivy-server for downloading the vulnerability database, you will need to create similar network policies to the ones created for the trivy-operator as a standalone component.
 After installing trivy-server in the current cluster, the pod entered a status of `CrashLookBackOff`. Upon inspecting the logs, for the trivy-server statefulset, we counter the following error:
 
-```
+```sh
 2024-02-28T04:53:50.195Z	FATAL	failed to download vulnerability DB: database download error: OCI repository error: 1 error occurred:
   * Get "https://ghcr.io/v2/": dial tcp 140.82.114.34:443: connect: connection refused
 ```
 
 This means that the trivy-server cannot connect to the image registry over port `443`. This can be fixed by applying a network policy like `allow-egress-443-trivy-operator`, which we created for the trivy-operator, but first we must get the label that will be used to select the pods that the trivy-server generates. We do so by doing a `kubectl get pods trivy-0 -n trivy-system --show-labels`, we obtain the following output:
 
-```
+```sh
 NAME      READY   STATUS    RESTARTS   AGE     LABELS
 trivy-0   1/1     Running   0          3m40s   app.kubernetes.io/instance=trivy,app.kubernetes.io/name=trivy,controller-revision-hash=trivy-7494747496,statefulset.kubernetes.io/pod-name=trivy-0
 ```
 
 We can make use of the label `app.kubernetes.io/name=trivy`, so the resulting network policy will look like this:
 
-```
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -370,7 +374,7 @@ spec:
 
 We proceed to restart the trivy-server statefulset with `kubectl rollout restart sts -n trivy-system trivy` and see that the error previously seen is gone. Trivy-server was able to download the DB and is listening on port `4954`.
 
-```
+```sh
 kubectl logs -n trivy-system statefulset/trivy
 2024-02-28T05:17:53.590Z	INFO	Need to update DB
 2024-02-28T05:17:53.590Z	INFO	DB Repository: ghcr.io/aquasecurity/trivy-db
@@ -380,13 +384,13 @@ kubectl logs -n trivy-system statefulset/trivy
 
 When we restart the trivy-operator to test if everything works as it should, we realize that it is outputting the following error via the logs:
 
-```
+```sh
 failed to do request: Post \"http://trivy.trivy-system:4954/twirp/trivy.cache.v1.Cache/MissingBlobs\": dial tcp 10.43.158.111:4954: connect: connection refused"
 ```
 
 The trivy-operator has to reach out to the trivy-server on port `4954` in order to access the downloaded vulnerability database. We also need to enable that connection via a networkpolicy (you guessed it), we can delete the previously created network policy `allow-egress-443-trivy-operator` via `kubectl delete networkpolicy allow-egress-443-trivy-operator -n trivy-system` and create a new one with a new name that mentions port `4954` to also allow egress traffic to port `4954` and rename it to something that reflects its new purpose. Last, but not least:
 
-```
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -412,13 +416,13 @@ spec:
 After having saved the changes to the policy, we can proceed and restart the trivy-operator `kubectl rollout restart deployment trivy-operator -n trivy-system
 `. When looking at the logs for the trivy-operator, we see that there are some errors indicating it still cannot connect to port `4954`:
 
-```
+```sh
 dial tcp 10.43.158.111:4954: connect: connection refused
 ```
 
 So far we have created network policies to allow egress traffic. There is one last missing network policy and it is of type ingress. This network policy will allow the trivy-server to receive traffic on port `4954`.
 
-```
+```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -438,7 +442,7 @@ spec:
 
 This network policy uses the appropiate `matchLabels` to only target the trivy-server. When restarting the trivy-operator with `kubectl rollout restart deployment trivy-operator -n trivy-system`, we see that the errors are gone. When doing a `kubectl get vulnerabilityreport -n applications`, we see that there is a newly generated `vulnerabilityreport` for our `nginx` pod:
 
-```
+```sh
 NAME              REPOSITORY      TAG      SCANNER   AGE
 pod-nginx-nginx   library/nginx   latest   Trivy     12s
 ```

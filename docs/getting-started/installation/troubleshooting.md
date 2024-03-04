@@ -414,7 +414,7 @@ After having saved the changes to the policy, we can proceed and restart the tri
 
 ```
 dial tcp 10.43.158.111:4954: connect: connection refused
-````
+```
 
 So far we have created network policies to allow egress traffic. There is one last missing network policy and it is of type ingress. This network policy will allow the trivy-server to receive traffic on port `4954`.
 

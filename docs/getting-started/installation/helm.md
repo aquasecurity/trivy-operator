@@ -41,6 +41,15 @@ except `kube-system` and `trivy-system`:
      --version {{ var.chart_version }}
 ```
 
+   Or install the chart from the Aqua chart repository **using the OCI registry**:
+
+```sh
+   helm install trivy-operator oci://ghcr.io/aquasecurity/helm-charts/trivy-operator \
+     --namespace trivy-system \
+     --create-namespace \
+     --version {{ var.chart_version }}
+```
+
    Configuration options can be passed using the `--set` parameter. To list only the fixed vulnerabilities in the cluster, one can use the following command.
 
 ```sh

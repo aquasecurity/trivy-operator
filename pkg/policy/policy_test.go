@@ -748,7 +748,7 @@ deny[res] {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			checks, err := policy.NewPolicies(tc.policies, newTestConfig(tc.useBuiltInPolicies), log, "1.27.1").Eval(context.TODO(), tc.resource)
+			checks, err := policy.NewPolicies(tc.policies, newTestConfig(tc.useBuiltInPolicies), log, "1.27.1").Eval(context.TODO(), tc.resource,[]string{})
 			if tc.expectedError != "" {
 				if tc.expectedError == "failed to run policy checks on resources" {
 					fmt.Println(err.Error())

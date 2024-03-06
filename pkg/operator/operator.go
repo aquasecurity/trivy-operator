@@ -3,6 +3,8 @@ package operator
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -18,6 +20,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins"
+	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -253,11 +256,32 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		gitVersion = strings.ReplaceAll(gitVersion, "+", "-")
 	}
 	if operatorConfig.ConfigAuditScannerEnabled {
+		policyPath, err := policy.NewPolicyLoader(trivyOperatorConfig.PolicyBundleOciRef(), "cache").GetBuiltInPolicies(context.Background())
+		if err != nil {
+			return fmt.Errorf("failed to donwload policies: %w", err)
+		}
+		fileList := []string{}
+		policiesList := make([]string, 0)
+		err = filepath.Walk(policyPath[0], func(path string, f os.FileInfo, err error) error {
+			if strings.Contains(path, "/kubernetes/") { // load only k8s policies
+				fileList = append(fileList, path)
+			}
+			return nil
+		})
+
+		for _, file := range fileList {
+			data, err := os.ReadFile(file)
+			if err != nil {
+				continue
+			}
+			policiesList = append(policiesList, string(data))
+		}
 
 		setupLog.Info("Enabling built-in configuration audit scanner")
 		if err = (&controller.ResourceController{
 			Logger:           ctrl.Log.WithName("resourcecontroller"),
 			Config:           operatorConfig,
+			PolicyPath:       policiesList,
 			ConfigData:       trivyOperatorConfig,
 			ObjectResolver:   objectResolver,
 			PluginContext:    pluginContext,
@@ -300,6 +324,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			if err = (&controller.NodeCollectorJobController{
 				Logger:          ctrl.Log.WithName("node-collectorontroller"),
 				Config:          operatorConfig,
+				PolicyPath:      policiesList,
 				ConfigData:      trivyOperatorConfig,
 				ObjectResolver:  objectResolver,
 				LogsReader:      logsReader,

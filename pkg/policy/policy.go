@@ -180,7 +180,7 @@ func (p *Policies) rbacDisabled(rbacEnable bool, kind string) bool {
 }
 
 // Eval evaluates Rego policies with Kubernetes resource client.Object as input.
-func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[]byte) (scan.Results, error) {
+func (p *Policies) Eval(ctx context.Context, resource client.Object, pp []string, inputs ...[]byte) (scan.Results, error) {
 	if resource == nil {
 		return nil, fmt.Errorf("resource must not be nil")
 	}
@@ -198,12 +198,14 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[
 		return scan.Results{}, fmt.Errorf(PoliciesNotFoundError)
 	}
 	if hasExternalPolicies {
-		// add externalPolicies files
-		err = createPolicyInputFS(memfs, policiesFolder, externalPolicies, regoExt)
-		if err != nil {
-			return nil, err
-		}
+		pp = append(pp, externalPolicies...)
 	}
+	// add externalPolicies files
+	err = createPolicyInputFS(memfs, policiesFolder, pp, regoExt)
+	if err != nil {
+		return nil, err
+	}
+
 	var inputResource []byte
 	if err != nil {
 		return nil, err
@@ -230,8 +232,7 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[
 	if err != nil {
 		return nil, err
 	}
-	scanner := kubernetes.NewScanner(getScannerOptions(hasExternalPolicies,
-		p.cac.GetUseBuiltinRegoPolicies(),
+	scanner := kubernetes.NewScanner(getScannerOptions(
 		policiesFolder,
 		dataPaths,
 		dataFS)...)
@@ -263,13 +264,12 @@ func (r *Policies) HasSeverity(resultSeverity severity.Severity) bool {
 	return strings.Contains(defaultSeverity, string(resultSeverity))
 }
 
-func getScannerOptions(hasExternalPolicies bool, useDefaultPolicies bool, policiesFolder string, dataPaths []string, dataFS fs.FS) []options.ScannerOption {
-	optionsArray := []options.ScannerOption{options.ScannerWithEmbeddedPolicies(useDefaultPolicies)}
-	if hasExternalPolicies {
-		optionsArray = append(optionsArray, options.ScannerWithPolicyDirs(policiesFolder))
-		optionsArray = append(optionsArray, options.ScannerWithPolicyNamespaces(externalPoliciesNamespace))
-	}
-	optionsArray = append(optionsArray, options.ScannerWithEmbeddedLibraries(true))
+func getScannerOptions(policiesFolder string, dataPaths []string, dataFS fs.FS) []options.ScannerOption {
+	optionsArray := []options.ScannerOption{options.ScannerWithEmbeddedPolicies(false)}
+
+	optionsArray = append(optionsArray, options.ScannerWithPolicyDirs(policiesFolder))
+
+	optionsArray = append(optionsArray, options.ScannerWithEmbeddedLibraries(false))
 	optionsArray = append(optionsArray, options.ScannerWithDataDirs(dataPaths...))
 	optionsArray = append(optionsArray, options.ScannerWithDataFilesystem(dataFS))
 	return optionsArray

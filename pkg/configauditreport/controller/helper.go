@@ -40,9 +40,9 @@ func Policies(ctx context.Context, config etc.Config, c client.Client, cac confi
 	return policy.NewPolicies(cm.Data, cac, log, version), nil
 }
 
-func evaluate(ctx context.Context, policies *policy.Policies, resource client.Object, bi trivyoperator.BuildInfo, cd trivyoperator.ConfigData, c etc.Config, inputs ...[]byte) (Misconfiguration, error) {
+func evaluate(ctx context.Context, policies *policy.Policies, resource client.Object, bi trivyoperator.BuildInfo, cd trivyoperator.ConfigData, pp []string, c etc.Config, inputs ...[]byte) (Misconfiguration, error) {
 	misconfiguration := Misconfiguration{}
-	results, err := policies.Eval(ctx, resource, inputs...)
+	results, err := policies.Eval(ctx, resource, pp, inputs...)
 	if err != nil {
 		return Misconfiguration{}, err
 	}

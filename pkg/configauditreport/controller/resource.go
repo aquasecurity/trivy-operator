@@ -39,6 +39,7 @@ import (
 type ResourceController struct {
 	logr.Logger
 	etc.Config
+	PolicyPath []string
 	trivyoperator.ConfigData
 	kube.ObjectResolver
 	trivyoperator.PluginContext
@@ -225,7 +226,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			log.V(1).Info("Configuration audit report exists")
 			return ctrl.Result{}, nil
 		}
-		misConfigData, err := evaluate(ctx, policies, resource, r.BuildInfo, r.ConfigData, r.Config)
+		misConfigData, err := evaluate(ctx, policies, resource, r.BuildInfo, r.ConfigData,r.PolicyPath,r.Config)
 		if err != nil {
 			if err.Error() == policy.PoliciesNotFoundError {
 				return ctrl.Result{}, nil

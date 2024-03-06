@@ -71,6 +71,7 @@ data:
   trivy.serverURL: {{ printf "http://%s.%s:%s" .Values.trivy.serverServiceName (include "trivy-operator.namespace" .) "4954"  | quote }}
   {{- end }}
   node.collector.imageRef: "{{ include "global.imageRegistry" . | default .Values.nodeCollector.registry }}/{{ .Values.nodeCollector.repository }}:{{ .Values.nodeCollector.tag }}"
+  policies.Bundle.ociRef: "{{ .Values.policiesBundle.registry }}/{{ .Values.policiesBundle.repository }}:{{ .Values.policiesBundle.tag }}"
   {{- with .Values.nodeCollector.imagePullSecret }}
   node.collector.imagePullSecret: "{{ . }}"
   {{- end }}

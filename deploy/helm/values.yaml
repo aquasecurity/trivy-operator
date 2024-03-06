@@ -482,7 +482,7 @@ trivy:
 
   # -- The Flag to enable the usage of builtin rego policies by default
   #
-  useBuiltinRegoPolicies: "true"
+  useBuiltinRegoPolicies: "false"
 
   # -- The Flag is the list of supported kinds separated by comma delimiter to be scanned by the config audit scanner
   #

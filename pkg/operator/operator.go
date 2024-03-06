@@ -256,27 +256,28 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		gitVersion = strings.ReplaceAll(gitVersion, "+", "-")
 	}
 	if operatorConfig.ConfigAuditScannerEnabled {
-		policyPath, err := policy.NewPolicyLoader(trivyOperatorConfig.PolicyBundleOciRef(), "tmp").GetBuiltInPolicies(context.Background())
-		if err != nil {
-			return fmt.Errorf("failed to donwload policies: %w", err)
-		}
-		fileList := []string{}
 		policiesList := make([]string, 0)
-		err = filepath.Walk(policyPath[0], func(path string, f os.FileInfo, err error) error {
-			if strings.Contains(path, "/kubernetes/") { // load only k8s policies
-				fileList = append(fileList, path)
-			}
-			return nil
-		})
-
-		for _, file := range fileList {
-			data, err := os.ReadFile(file)
+		if pc, err := pluginConfig.NewConfigForConfigAudit(pluginContext); err == nil && !pc.GetUseBuiltinRegoPolicies() {
+			policyPath, err := policy.NewPolicyLoader(trivyOperatorConfig.PolicyBundleOciRef(), "tmp").GetBuiltInPolicies(context.Background())
 			if err != nil {
-				continue
+				return fmt.Errorf("failed to donwload policies: %w", err)
 			}
-			policiesList = append(policiesList, string(data))
-		}
+			fileList := []string{}
+			err = filepath.Walk(policyPath[0], func(path string, f os.FileInfo, err error) error {
+				if strings.Contains(path, "/kubernetes/") { // load only k8s policies
+					fileList = append(fileList, path)
+				}
+				return nil
+			})
 
+			for _, file := range fileList {
+				data, err := os.ReadFile(file)
+				if err != nil {
+					continue
+				}
+				policiesList = append(policiesList, string(data))
+			}
+		}
 		setupLog.Info("Enabling built-in configuration audit scanner")
 		if err = (&controller.ResourceController{
 			Logger:           ctrl.Log.WithName("resourcecontroller"),

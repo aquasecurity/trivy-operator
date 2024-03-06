@@ -193,11 +193,8 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, pp []string
 		return nil, fmt.Errorf("failed listing externalPolicies by kind: %s: %w", resourceKind, err)
 	}
 	memfs := memoryfs.New()
-	hasExternalPolicies := len(externalPolicies) > 0
-	if !hasExternalPolicies && !p.cac.GetUseBuiltinRegoPolicies() {
-		return scan.Results{}, fmt.Errorf(PoliciesNotFoundError)
-	}
-	if hasExternalPolicies {
+
+	if len(externalPolicies) > 0 {
 		pp = append(pp, externalPolicies...)
 	}
 	// add externalPolicies files
@@ -232,7 +229,7 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, pp []string
 	if err != nil {
 		return nil, err
 	}
-	scanner := kubernetes.NewScanner(getScannerOptions(
+	scanner := kubernetes.NewScanner(getScannerOptions(len(pp) > 0,
 		policiesFolder,
 		dataPaths,
 		dataFS)...)
@@ -264,12 +261,14 @@ func (r *Policies) HasSeverity(resultSeverity severity.Severity) bool {
 	return strings.Contains(defaultSeverity, string(resultSeverity))
 }
 
-func getScannerOptions(policiesFolder string, dataPaths []string, dataFS fs.FS) []options.ScannerOption {
+func getScannerOptions(usebuiltInPolicies bool, policiesFolder string, dataPaths []string, dataFS fs.FS) []options.ScannerOption {
 	optionsArray := []options.ScannerOption{options.ScannerWithEmbeddedPolicies(false)}
 
 	optionsArray = append(optionsArray, options.ScannerWithPolicyDirs(policiesFolder))
-
-	optionsArray = append(optionsArray, options.ScannerWithEmbeddedLibraries(false))
+	if !usebuiltInPolicies {
+		optionsArray = append(optionsArray, options.ScannerWithEmbeddedPolicies(false))
+		optionsArray = append(optionsArray, options.ScannerWithEmbeddedLibraries(false))
+	}
 	optionsArray = append(optionsArray, options.ScannerWithDataDirs(dataPaths...))
 	optionsArray = append(optionsArray, options.ScannerWithDataFilesystem(dataFS))
 	return optionsArray

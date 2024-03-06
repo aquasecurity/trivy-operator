@@ -2,7 +2,6 @@ package policy
 
 import (
 	"context"
-	"path/filepath"
 	"sync"
 
 	mp "github.com/aquasecurity/trivy/pkg/policy"

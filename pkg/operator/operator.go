@@ -256,7 +256,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		gitVersion = strings.ReplaceAll(gitVersion, "+", "-")
 	}
 	if operatorConfig.ConfigAuditScannerEnabled {
-		policyPath, err := policy.NewPolicyLoader(trivyOperatorConfig.PolicyBundleOciRef(), "cache").GetBuiltInPolicies(context.Background())
+		policyPath, err := policy.NewPolicyLoader(trivyOperatorConfig.PolicyBundleOciRef(), "tmp").GetBuiltInPolicies(context.Background())
 		if err != nil {
 			return fmt.Errorf("failed to donwload policies: %w", err)
 		}

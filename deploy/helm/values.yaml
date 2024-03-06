@@ -567,12 +567,12 @@ securityContext:
       - ALL
 
 volumeMounts: 
-  - mountPath: /cache
+  - mountPath: /tmp # do not remove , required for policies bundle
     name: cache-policies
     readOnly: false
 
 volumes:
-  - name: cache-policies
+  - name: cache-policies # do not remove , required for policies bundle
     emptyDir: {}
 
 resources: {}

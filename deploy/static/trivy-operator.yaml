@@ -2888,6 +2888,7 @@ data:
   compliance.failEntriesLimit: "10"
   report.recordFailedChecksOnly: "true"
   node.collector.imageRef: "ghcr.io/aquasecurity/node-collector:0.1.2"
+  policies.Bundle.ociRef: "ghcr.io/aquasecurity/trivy-policies:0"
   node.collector.nodeSelector: "true"
 ---
 # Source: trivy-operator/templates/configmaps/policies.yaml
@@ -3045,7 +3046,7 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: "trivy-operator"
-          image: "ghcr.io/aquasecurity/trivy-operator:0.18.5"
+          image: "chenkeinan/trivy-operator:capkg"
           imagePullPolicy: IfNotPresent
           env:
             - name: OPERATOR_NAMESPACE
@@ -3089,6 +3090,13 @@ spec:
               - ALL
             privileged: false
             readOnlyRootFilesystem: true
+          volumeMounts:
+            - mountPath: /cache
+              name: cache-policies
+              readOnly: false
+      volumes:
+        - emptyDir: {}
+          name: cache-policies
 ---
 # Source: trivy-operator/templates/monitor/service.yaml
 apiVersion: v1

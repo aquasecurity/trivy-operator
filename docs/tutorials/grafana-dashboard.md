@@ -96,6 +96,17 @@ helm install trivy-operator aqua/trivy-operator \
   --values trivy-values.yaml
 ```
 
+Or install the chart **using the OCI registry**:
+
+```sh
+helm install trivy-operator oci://ghcr.io/aquasecurity/helm-charts/trivy-operator \
+  --namespace trivy-system \
+  --create-namespace \
+  --version {{ var.chart_version }} \
+  --values trivy-values.yaml
+```
+
+
 Ensure that you can see the following success message:
 
 ```

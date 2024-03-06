@@ -49,7 +49,10 @@ guide to see how vulnerability and configuration audit reports are generated aut
 
 ### Quick Start
 
-The Trivy Operator can be installed easily through the [Helm Chart](https://aquasecurity.github.io/trivy-operator/latest/getting-started/installation/helm/):
+The Trivy Operator can be installed easily through the [Helm Chart](https://aquasecurity.github.io/trivy-operator/latest/getting-started/installation/helm/).
+The Helm Chart can be downloaded by one of the two options:
+
+#### Option 1: Install from traditional helm chart repository
 
 Add the Aqua chart repository:
 
@@ -62,6 +65,17 @@ Install the Helm Chart:
 
 ```sh
    helm install trivy-operator aqua/trivy-operator \
+     --namespace trivy-system \
+     --create-namespace \
+     --version 0.20.6
+```
+
+#### Option 2: Install from OCI registry (supported in Helm v3.8.0+)
+
+Install the Helm Chart:
+
+```sh
+   helm install trivy-operator oci://ghcr.io/aquasecurity/helm-charts/trivy-operator \
      --namespace trivy-system \
      --create-namespace \
      --version 0.20.6

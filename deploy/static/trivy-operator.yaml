@@ -3046,7 +3046,7 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: "trivy-operator"
-          image: "chenkeinan/trivy-operator:capkg"
+          image: "ghcr.io/aquasecurity/trivy-operator:0.18.5"
           imagePullPolicy: IfNotPresent
           env:
             - name: OPERATOR_NAMESPACE
@@ -3091,7 +3091,7 @@ spec:
             privileged: false
             readOnlyRootFilesystem: true
           volumeMounts:
-            - mountPath: /cache
+            - mountPath: /tmp
               name: cache-policies
               readOnly: false
       volumes:

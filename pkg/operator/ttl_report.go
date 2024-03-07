@@ -139,7 +139,7 @@ func (r *TTLReportReconciler) applicableForDeletion(report client.Object, ttlRep
 	if err != nil {
 		return false
 	}
-	policies, err := control.Policies(context.Background(), r.Config, r.Client, cac, r.Logger)
+	policies, err := control.Policies(context.Background(), r.Config, r.Client, cac, r.Logger, nil)
 	if err != nil {
 		return false
 	}

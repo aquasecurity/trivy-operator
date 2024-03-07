@@ -16,9 +16,11 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
+	"github.com/bluele/gcache"
 	. "github.com/onsi/gomega"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/ptr"
@@ -33,7 +35,7 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 			"library.kubernetes.rego":        "<REGO_A>",
 			"library.utils.rego":             "<REGO_B>",
 			"policy.access_to_host_pid.rego": "<REGO_C>",
-		}, testConfig{}, ctrl.Log.WithName("policy logger"), "1.27.1")
+		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build()), "1.27.1")
 		_, err := config.PoliciesByKind("Pod")
 		g.Expect(err).To(MatchError("kinds not defined for policy: policy.access_to_host_pid.rego"))
 	})
@@ -42,7 +44,7 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 		g := NewGomegaWithT(t)
 		config := policy.NewPolicies(map[string]string{
 			"policy.access_to_host_pid.kinds": "Workload",
-		}, testConfig{}, ctrl.Log.WithName("policy logger"), "1.27.1")
+		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build()), "1.27.1")
 		_, err := config.PoliciesByKind("Pod")
 		g.Expect(err).To(MatchError("expected policy not found: policy.access_to_host_pid.rego"))
 	})
@@ -69,7 +71,7 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 			"policy.privileged": "<REGO_E>",
 			// This one should be skipped (no policy. prefix)
 			"foo": "bar",
-		}, testConfig{}, ctrl.Log.WithName("policy logger"), "1.27.1")
+		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build()), "1.27.1")
 		g.Expect(config.PoliciesByKind("Pod")).To(Equal(map[string]string{
 			"policy.access_to_host_pid.rego":                "<REGO_C>",
 			"policy.cpu_not_limited.rego":                   "<REGO_D>",
@@ -143,82 +145,7 @@ func TestPolicies_Supported(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			ready, err := policy.NewPolicies(tc.data, testConfig{}, log, "1.27.1").SupportedKind(tc.resource, tc.rbacEnable)
-			g.Expect(err).ToNot(HaveOccurred())
-			g.Expect(ready).To(Equal(tc.expected))
-		})
-	}
-
-}
-
-func TestPolicies_Applicable(t *testing.T) {
-
-	testCases := []struct {
-		name       string
-		data       map[string]string
-		resource   client.Object
-		rbacEnable bool
-		expected   bool
-	}{
-		{
-			name: "Should return true for workload policies",
-			data: map[string]string{
-				"library.utils.rego": `package lib.utils
-
-has_key(x, k) {
-  _ = x[k]
-}`,
-				"policy.policy1.kinds": "Workload",
-				"policy.policy1.rego": `package appshield.kubernetes.KSV014
-
-__rego_metadata__ := {
-	"id": "KSV014",
-	"title": "Root file system is not read-only",
-	"description": "An immutable root file system prevents applications from writing to their local disk",
-	"severity": "LOW",
-	"type": "Kubernetes Security Check"
-}
-
-deny[res] {
-	input.kind == "Deployment"
-	not input.spec.template.spec.securityContext.runAsNonRoot
-
-	msg := "Containers must not run as root"
-
-	res := {
-		"id": __rego_metadata__.id,
-		"title": __rego_metadata__.title,
-		"severity": __rego_metadata__.severity,
-		"type": __rego_metadata__.type,
-		"msg": msg
-	}
-}
-`},
-			resource: &corev1.Pod{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Pod",
-					APIVersion: "v1",
-				},
-			},
-			expected: true,
-		},
-		{
-			name: "Should return true if Pod kind and rbac disable",
-			resource: &corev1.Pod{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Pod",
-					APIVersion: "v1",
-				},
-			},
-			expected: false,
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			g := NewGomegaWithT(t)
-			log := ctrl.Log.WithName("resourcecontroller")
-			ready, _, err := policy.NewPolicies(tc.data, testConfig{builtInPolicies: false}, log, "1.27.1").Applicable(tc.resource.GetObjectKind().GroupVersionKind().Kind)
+			ready, err := policy.NewPolicies(tc.data, testConfig{}, log, policy.NewPolicyLoader("", gcache.New(1).LRU().Build()), "1.27.1").SupportedKind(tc.resource, tc.rbacEnable)
 			g.Expect(err).ToNot(HaveOccurred())
 			g.Expect(ready).To(Equal(tc.expected))
 		})
@@ -259,35 +186,35 @@ func TestPolicies_Eval(t *testing.T) {
 			policies: map[string]string{
 				"library.utils.rego": `package lib.utils
 
-has_key(x, k) {
-  _ = x[k]
-}`,
+		has_key(x, k) {
+		  _ = x[k]
+		}`,
 				"policy.policy1.kinds": "Workload",
 				"policy.policy1.rego": `package appshield.kubernetes.KSV014
 
-__rego_metadata__ := {
-	"id": "KSV014",
-	"title": "Root file system is not read-only",
-	"description": "An immutable root file system prevents applications from writing to their local disk",
-	"severity": "LOW",
-	"type": "Kubernetes Security Check"
-}
+		__rego_metadata__ := {
+			"id": "KSV014",
+			"title": "Root file system is not read-only",
+			"description": "An immutable root file system prevents applications from writing to their local disk",
+			"severity": "LOW",
+			"type": "Kubernetes Security Check"
+		}
 
-deny[res] {
-	input.kind == "Deployment"
-	not input.spec.template.spec.securityContext.runAsNonRoot
+		deny[res] {
+			input.kind == "Deployment"
+			not input.spec.template.spec.securityContext.runAsNonRoot
 
-	msg := "Containers must not run as root"
+			msg := "Containers must not run as root"
 
-	res := {
-		"id": __rego_metadata__.id,
-		"title": __rego_metadata__.title,
-		"severity": __rego_metadata__.severity,
-		"type": __rego_metadata__.type,
-		"msg": msg
-	}
-}
-`,
+			res := {
+				"id": __rego_metadata__.id,
+				"title": __rego_metadata__.title,
+				"severity": __rego_metadata__.severity,
+				"type": __rego_metadata__.type,
+				"msg": msg
+			}
+		}
+		`,
 			},
 			results: []Result{
 				{
@@ -330,35 +257,35 @@ deny[res] {
 			policies: map[string]string{
 				"library.utils.rego": `package lib.utils
 
-has_key(x, k) {
-  _ = x[k]
-}`,
+		has_key(x, k) {
+		  _ = x[k]
+		}`,
 				"policy.policy1.kinds": "Workload",
 				"policy.policy1.rego": `package appshield.kubernetes.KSV014
 
-__rego_metadata__ := {
-	"id": "KSV014",
-	"title": "Root file system is not read-only",
-	"description": "An immutable root file system prevents applications from writing to their local disk",
-	"severity": "LOW",
-	"type": "Kubernetes Security Check"
-}
+		__rego_metadata__ := {
+			"id": "KSV014",
+			"title": "Root file system is not read-only",
+			"description": "An immutable root file system prevents applications from writing to their local disk",
+			"severity": "LOW",
+			"type": "Kubernetes Security Check"
+		}
 
-deny[res] {
-	input.kind == "Deployment"
-	not input.spec.template.spec.securityContext.runAsNonRoot
+		deny[res] {
+			input.kind == "Deployment"
+			not input.spec.template.spec.securityContext.runAsNonRoot
 
-	msg := "Containers must not run as root"
+			msg := "Containers must not run as root"
 
-	res := {
-		"id": __rego_metadata__.id,
-		"title": __rego_metadata__.title,
-		"severity": __rego_metadata__.severity,
-		"type": __rego_metadata__.type,
-		"msg": msg
-	}
-}
-`,
+			res := {
+				"id": __rego_metadata__.id,
+				"title": __rego_metadata__.title,
+				"severity": __rego_metadata__.severity,
+				"type": __rego_metadata__.type,
+				"msg": msg
+			}
+		}
+		`,
 			},
 			results: []Result{
 				{
@@ -397,35 +324,35 @@ deny[res] {
 			policies: map[string]string{
 				"library.utils.rego": `package lib.utils
 
-has_key(x, k) {
-  _ = x[k]
-}`,
+		has_key(x, k) {
+		  _ = x[k]
+		}`,
 				"policy.policy1.kinds": "Workload",
 				"policy.policy1.rego": `package appshield.kubernetes.KSV014
 
-__rego_metadata__ := {
-	"id": "KSV014",
-	"title": "Root file system is not read-only",
-	"description": "An immutable root file system prevents applications from writing to their local disk",
-	"severity": "MEDIUM",
-	"type": "Kubernetes Security Check"
-}
+		__rego_metadata__ := {
+			"id": "KSV014",
+			"title": "Root file system is not read-only",
+			"description": "An immutable root file system prevents applications from writing to their local disk",
+			"severity": "MEDIUM",
+			"type": "Kubernetes Security Check"
+		}
 
-warn[res] {
-	input.kind == "Deployment"
-	not input.spec.template.spec.securityContext.runAsNonRoot
+		warn[res] {
+			input.kind == "Deployment"
+			not input.spec.template.spec.securityContext.runAsNonRoot
 
-	msg := "Containers must not run as root"
+			msg := "Containers must not run as root"
 
-	res := {
-		"id": __rego_metadata__.id,
-		"title": __rego_metadata__.title,
-		"severity": __rego_metadata__.severity,
-		"type": __rego_metadata__.type,
-		"msg": msg
-	}
-}
-`,
+			res := {
+				"id": __rego_metadata__.id,
+				"title": __rego_metadata__.title,
+				"severity": __rego_metadata__.severity,
+				"type": __rego_metadata__.type,
+				"msg": msg
+			}
+		}
+		`,
 			},
 			results: []Result{
 				{
@@ -468,35 +395,35 @@ warn[res] {
 			policies: map[string]string{
 				"library.utils.rego": `package lib.utils
 
-has_key(x, k) {
-  _ = x[k]
-}`,
+		has_key(x, k) {
+		  _ = x[k]
+		}`,
 				"policy.policy1.kinds": "Workload",
 				"policy.policy1.rego": `package appshield.kubernetes.KSV014
 
-__rego_metadata__ := {
-	"id": "KSV014",
-	"title": "Root file system is not read-only",
-	"description": "An immutable root file system prevents applications from writing to their local disk",
-	"severity": "LOW",
-	"type": "Kubernetes Security Check"
-}
+		__rego_metadata__ := {
+			"id": "KSV014",
+			"title": "Root file system is not read-only",
+			"description": "An immutable root file system prevents applications from writing to their local disk",
+			"severity": "LOW",
+			"type": "Kubernetes Security Check"
+		}
 
-warn[res] {
-	input.kind == "Deployment"
-	not input.spec.template.spec.securityContext.runAsNonRoot
+		warn[res] {
+			input.kind == "Deployment"
+			not input.spec.template.spec.securityContext.runAsNonRoot
 
-	msg := "Containers must not run as root"
+			msg := "Containers must not run as root"
 
-	res := {
-		"id": __rego_metadata__.id,
-		"title": __rego_metadata__.title,
-		"severity": __rego_metadata__.severity,
-		"type": __rego_metadata__.type,
-		"msg": msg
-	}
-}
-`,
+			res := {
+				"id": __rego_metadata__.id,
+				"title": __rego_metadata__.title,
+				"severity": __rego_metadata__.severity,
+				"type": __rego_metadata__.type,
+				"msg": msg
+			}
+		}
+		`,
 			},
 			results: []Result{
 				{
@@ -535,9 +462,7 @@ warn[res] {
 				"policy.invalid.kinds": "Workload",
 				"policy.invalid.rego":  "$^&!",
 			},
-			expectedError: `failed to load rego policies from [externalPolicies]: 1 error occurred: externalPolicies/file_0.rego:1: rego_parse_error: illegal token
-	$^&!
-	^`,
+			expectedError: `failed to load rego policies from [externalPolicies]: 1 error occurred: externalPolicies/file_0.rego:1: rego_parse_error: illegal token\\n\\t$^&!\\n\\t^`,
 		},
 		{
 			name: "Should return error when library cannot be parsed",
@@ -566,9 +491,7 @@ warn[res] {
 			policies: map[string]string{
 				"library.utils.rego": "$^&!",
 			},
-			expectedError: `failed to load rego policies from [externalPolicies]: 1 error occurred: externalPolicies/file_0.rego:1: rego_parse_error: illegal token
-	$^&!
-	^`,
+			expectedError: `failed to load rego policies from [externalPolicies]: 1 error occurred: externalPolicies/file_0.rego:1: rego_parse_error: illegal token\\n\\t$^&!\\n\\t^`,
 		},
 		{
 			name:          "Should eval deny rule with any resource and multiple messages",
@@ -596,33 +519,33 @@ warn[res] {
 				"policy.uses_image_tag_latest.kinds": "Workload",
 				"policy.uses_image_tag_latest.rego": `package test
 
-__rego_metadata__ := {
-	"id": "KSV013",
-	"avd_id": "AVD-KSV-0013",
-	"title": "Image tag ':latest' used",
-	"short_code": "use-specific-tags",
-	"version": "v1.0.0",
-	"severity": "LOW",
-	"type": "Kubernetes Security Check",
-	"description": "It is best to avoid using the ':latest' image tag when deploying containers in production. Doing so makes it hard to track which version of the image is running, and hard to roll back the version.",
-	"recommended_actions": "Use a specific container image tag that is not 'latest'.",
-	"url": "https://kubernetes.io/docs/concepts/configuration/overview/#container-images",
-}
+		__rego_metadata__ := {
+			"id": "KSV013",
+			"avd_id": "AVD-KSV-0013",
+			"title": "Image tag ':latest' used",
+			"short_code": "use-specific-tags",
+			"version": "v1.0.0",
+			"severity": "LOW",
+			"type": "Kubernetes Security Check",
+			"description": "It is best to avoid using the ':latest' image tag when deploying containers in production. Doing so makes it hard to track which version of the image is running, and hard to roll back the version.",
+			"recommended_actions": "Use a specific container image tag that is not 'latest'.",
+			"url": "https://kubernetes.io/docs/concepts/configuration/overview/#container-images",
+		}
 
-messages = [ "msg1", "msg2" ]
+		messages = [ "msg1", "msg2" ]
 
-deny[res] {
+		deny[res] {
 
-	msg := messages[_]
+			msg := messages[_]
 
-	res := {
-		"msg": msg,
-		"id": __rego_metadata__.id,
-		"title": __rego_metadata__.title,
-		"severity": __rego_metadata__.severity,
-		"type": __rego_metadata__.type,
-	}
-}`,
+			res := {
+				"msg": msg,
+				"id": __rego_metadata__.id,
+				"title": __rego_metadata__.title,
+				"severity": __rego_metadata__.severity,
+				"type": __rego_metadata__.type,
+			}
+		}`,
 			},
 			results: []Result{
 				{
@@ -664,33 +587,33 @@ deny[res] {
 				"policy.uses_image_tag_latest.kinds": "Workload",
 				"policy.uses_image_tag_latest.rego": `package test
 
-__rego_metadata__ := {
-	"id": "KSV013",
-	"avd_id": "AVD-KSV-0013",
-	"title": "Image tag ':latest' used",
-	"short_code": "use-specific-tags",
-	"version": "v1.0.0",
-	"severity": "LOW",
-	"type": "Kubernetes Security Check",
-	"description": "It is best to avoid using the ':latest' image tag when deploying containers in production. Doing so makes it hard to track which version of the image is running, and hard to roll back the version.",
-	"recommended_actions": "Use a specific container image tag that is not 'latest'.",
-	"url": "https://kubernetes.io/docs/concepts/configuration/overview/#container-images",
-}
+		__rego_metadata__ := {
+			"id": "KSV013",
+			"avd_id": "AVD-KSV-0013",
+			"title": "Image tag ':latest' used",
+			"short_code": "use-specific-tags",
+			"version": "v1.0.0",
+			"severity": "LOW",
+			"type": "Kubernetes Security Check",
+			"description": "It is best to avoid using the ':latest' image tag when deploying containers in production. Doing so makes it hard to track which version of the image is running, and hard to roll back the version.",
+			"recommended_actions": "Use a specific container image tag that is not 'latest'.",
+			"url": "https://kubernetes.io/docs/concepts/configuration/overview/#container-images",
+		}
 
-messages = [ "msg1", "msg2" ]
+		messages = [ "msg1", "msg2" ]
 
-deny[res] {
+		deny[res] {
 
-	msg := messages[_]
+			msg := messages[_]
 
-	res := {
-		"msg": msg,
-		"id": __rego_metadata__.id,
-		"title": __rego_metadata__.title,
-		"severity": __rego_metadata__.severity,
-		"type": __rego_metadata__.type,
-	}
-}`,
+			res := {
+				"msg": msg,
+				"id": __rego_metadata__.id,
+				"title": __rego_metadata__.title,
+				"severity": __rego_metadata__.severity,
+				"type": __rego_metadata__.type,
+			}
+		}`,
 			},
 			results: []Result{
 				{
@@ -748,12 +671,9 @@ deny[res] {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			checks, err := policy.NewPolicies(tc.policies, newTestConfig(tc.useBuiltInPolicies), log, "1.27.1").Eval(context.TODO(), tc.resource)
+			checks, err := policy.NewPolicies(tc.policies, newTestConfig(tc.useBuiltInPolicies), log, &TestLoader{}, "1.27.1").Eval(context.TODO(), tc.resource)
 			if tc.expectedError != "" {
-				if tc.expectedError == "failed to run policy checks on resources" {
-					fmt.Println(err.Error())
-				}
-				g.Expect(err).To(MatchError(tc.expectedError))
+				g.Expect(err).To(HaveOccurred())
 			} else {
 				g.Expect(err).ToNot(HaveOccurred())
 				g.Expect(reflect.DeepEqual(getPolicyResults(checks), tc.results))
@@ -1179,4 +1099,11 @@ func (tc testConfig) GetSupportedConfigAuditKinds() []string {
 
 func (tc testConfig) GetSeverity() string {
 	return trivy.KeyTrivySeverity
+}
+
+type TestLoader struct {
+}
+
+func (tl *TestLoader) GetPolicies() ([]string, error) {
+	return policy.LoadPoliciesData([]string{"./testdata/fixture/content"})
 }

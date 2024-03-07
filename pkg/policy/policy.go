@@ -32,7 +32,7 @@ const (
 	keySuffixKinds   = ".kinds"
 	keySuffixRego    = ".rego"
 
-	PoliciesNotFoundError = "no policies found"
+	PoliciesNotFoundError = "failed to load rego policies from [externalPolicies]: stat externalPolicies: file does not exist"
 )
 
 const (
@@ -50,13 +50,15 @@ type Policies struct {
 	log            logr.Logger
 	cac            configauditreport.ConfigAuditConfig
 	clusterVersion string
+	policyLoader   Loader
 }
 
-func NewPolicies(data map[string]string, cac configauditreport.ConfigAuditConfig, log logr.Logger, serverVersion string) *Policies {
+func NewPolicies(data map[string]string, cac configauditreport.ConfigAuditConfig, log logr.Logger, pl Loader, serverVersion string) *Policies {
 	return &Policies{
 		data:           data,
 		log:            log,
 		cac:            cac,
+		policyLoader:   pl,
 		clusterVersion: serverVersion,
 	}
 }
@@ -193,21 +195,25 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[
 		return nil, fmt.Errorf("failed listing externalPolicies by kind: %s: %w", resourceKind, err)
 	}
 	memfs := memoryfs.New()
-	hasExternalPolicies := len(externalPolicies) > 0
-	if !hasExternalPolicies && !p.cac.GetUseBuiltinRegoPolicies() {
-		return scan.Results{}, fmt.Errorf(PoliciesNotFoundError)
-	}
-	if hasExternalPolicies {
-		// add externalPolicies files
-		err = createPolicyInputFS(memfs, policiesFolder, externalPolicies, regoExt)
+	policies := []string{}
+	if p.cac.GetUseBuiltinRegoPolicies() {
+		policies, err = p.policyLoader.GetPolicies()
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to load policies : %w", err)
 		}
 	}
-	var inputResource []byte
+	if len(externalPolicies) > 0 {
+		policies = append(policies, externalPolicies...)
+	}
+	if len(policies) == 0 {
+		return nil, fmt.Errorf("no policies found for kind: %s", resourceKind)
+	}
+	// add externalPolicies files
+	err = createPolicyInputFS(memfs, policiesFolder, policies, regoExt)
 	if err != nil {
 		return nil, err
 	}
+	var inputResource []byte
 	if len(inputs) > 0 {
 		inputResource = inputs[0]
 	} else {
@@ -230,17 +236,14 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[
 	if err != nil {
 		return nil, err
 	}
-	scanner := kubernetes.NewScanner(getScannerOptions(hasExternalPolicies,
-		p.cac.GetUseBuiltinRegoPolicies(),
-		policiesFolder,
-		dataPaths,
-		dataFS)...)
+	so := scannerOptions(policiesFolder, dataPaths, dataFS)
+	scanner := kubernetes.NewScanner(so...)
 	scanResult, err := scanner.ScanFS(ctx, memfs, inputFolder)
 	if err != nil {
 		return nil, err
 	}
 	// special case when lib return nil for both checks and error
-	if scanResult == nil && err == nil {
+	if scanResult == nil {
 		return nil, fmt.Errorf("failed to run policy checks on resources")
 	}
 	return scanResult, nil
@@ -263,15 +266,14 @@ func (r *Policies) HasSeverity(resultSeverity severity.Severity) bool {
 	return strings.Contains(defaultSeverity, string(resultSeverity))
 }
 
-func getScannerOptions(hasExternalPolicies bool, useDefaultPolicies bool, policiesFolder string, dataPaths []string, dataFS fs.FS) []options.ScannerOption {
-	optionsArray := []options.ScannerOption{options.ScannerWithEmbeddedPolicies(useDefaultPolicies)}
-	if hasExternalPolicies {
-		optionsArray = append(optionsArray, options.ScannerWithPolicyDirs(policiesFolder))
-		optionsArray = append(optionsArray, options.ScannerWithPolicyNamespaces(externalPoliciesNamespace))
+func scannerOptions(policiesFolder string, dataPaths []string, dataFS fs.FS) []options.ScannerOption {
+	optionsArray := []options.ScannerOption{
+		options.ScannerWithEmbeddedPolicies(false),
+		options.ScannerWithEmbeddedLibraries(false),
+		options.ScannerWithPolicyDirs(policiesFolder),
+		options.ScannerWithDataDirs(dataPaths...),
+		options.ScannerWithDataFilesystem(dataFS),
 	}
-	optionsArray = append(optionsArray, options.ScannerWithEmbeddedLibraries(true))
-	optionsArray = append(optionsArray, options.ScannerWithDataDirs(dataPaths...))
-	optionsArray = append(optionsArray, options.ScannerWithDataFilesystem(dataFS))
 	return optionsArray
 }
 

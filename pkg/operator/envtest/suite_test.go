@@ -24,6 +24,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
+	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
@@ -115,11 +116,12 @@ var _ = BeforeSuite(func() {
 	Expect(err).ToNot(HaveOccurred())
 	err = pluginContext.EnsureConfig(trivyoperator.PluginConfig{
 		Data: map[string]string{
-			"trivy.repository":   trivy.DefaultImageRepository,
-			"trivy.tag":          "0.35.0",
-			"trivy.mode":         string(trivy.Standalone),
-			"trivy.slow":         "true",
-			"trivy.dbRepository": trivy.DefaultDBRepository,
+			"trivy.repository":             trivy.DefaultImageRepository,
+			"trivy.tag":                    "0.35.0",
+			"trivy.mode":                   string(trivy.Standalone),
+			"trivy.slow":                   "true",
+			"trivy.dbRepository":           trivy.DefaultDBRepository,
+			"trivy.useBuiltinRegoPolicies": "true",
 		},
 	})
 	Expect(err).ToNot(HaveOccurred())
@@ -160,6 +162,7 @@ var _ = BeforeSuite(func() {
 		Logger:          ctrl.Log.WithName("resourcecontroller"),
 		Config:          config,
 		ConfigData:      trivyOperatorConfig,
+		PolicyLoader:    &TestLoader{},
 		ObjectResolver:  objectResolver,
 		PluginContext:   pluginContext,
 		PluginInMemory:  pluginca,
@@ -209,4 +212,11 @@ func loadResource(obj runtime.Object, filename string) error {
 		return err
 	}
 	return yaml.UnmarshalStrict(yamlFile, obj)
+}
+
+type TestLoader struct {
+}
+
+func (tl *TestLoader) GetPolicies() ([]string, error) {
+	return policy.LoadPoliciesData([]string{"./testdata/content"})
 }

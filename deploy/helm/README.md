@@ -86,6 +86,11 @@ Keeps security report resources updated
 | operator.webhookSendDeletedReports | bool | `false` | webhookSendDeletedReports the flag to enable sending deleted reports if webhookBroadcastURL is enabled |
 | podAnnotations | object | `{}` | podAnnotations annotations added to the operator's pod |
 | podSecurityContext | object | `{}` |  |
+| policiesBundle.registry | string | `"ghcr.io"` | registry of the policies bundle |
+| policiesBundle.registryPassword | string | `nil` | registryPassword is the password for the registry |
+| policiesBundle.registryUser | string | `nil` | registryUser is the user for the registry |
+| policiesBundle.repository | string | `"aquasecurity/trivy-policies"` | repository of the policies bundle |
+| policiesBundle.tag | int | `0` | tag version of the policies bundle |
 | priorityClassName | string | `""` | priorityClassName set the operator priorityClassName |
 | rbac.create | bool | `true` |  |
 | resources | object | `{}` |  |
@@ -184,6 +189,9 @@ Keeps security report resources updated
 | trivyOperator.skipInitContainers | bool | `false` | skipInitContainers when this flag is set to true, the initContainers will be skipped for the scanner and node collector pods |
 | trivyOperator.skipResourceByLabels | string | `""` | skipResourceByLabels comma-separated labels keys which trivy-operator will skip scanning on resources with matching labels |
 | trivyOperator.vulnerabilityReportsPlugin | string | `"Trivy"` | vulnerabilityReportsPlugin the name of the plugin that generates vulnerability reports `Trivy` |
-| volumeMounts | list | `[]` |  |
-| volumes | list | `[]` |  |
+| volumeMounts[0].mountPath | string | `"/tmp"` |  |
+| volumeMounts[0].name | string | `"cache-policies"` |  |
+| volumeMounts[0].readOnly | bool | `false` |  |
+| volumes[0].emptyDir | object | `{}` |  |
+| volumes[0].name | string | `"cache-policies"` |  |
 

@@ -111,11 +111,21 @@ func (p *Policies) PoliciesByKind(kind string) (map[string]string, error) {
 }
 
 func (p *Policies) Hash(kind string) (string, error) {
-	modules, err := p.ModulesByKind(kind)
+	externalPolicies, err := p.ModulePolicyByKind(kind)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed listing externalPolicies by kind: %s: %w", kind, err)
 	}
-	return kube.ComputeHash(modules), nil
+	policies := []string{}
+	if p.cac.GetUseBuiltinRegoPolicies() {
+		policies, err = p.policyLoader.GetPolicies()
+		if err != nil {
+			return "", fmt.Errorf("failed to load policies : %w", err)
+		}
+	}
+	if len(externalPolicies) > 0 {
+		policies = append(policies, externalPolicies...)
+	}
+	return kube.ComputeHash(policies), nil
 }
 
 func (p *Policies) ModulesByKind(kind string) (map[string]string, error) {

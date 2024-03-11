@@ -366,7 +366,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			WorkloadController: wc,
 		}
 		if err := cc.SetupWithManager(mgr); err != nil {
-			return fmt.Errorf("unable to setup clustercompliancereport reconciler: %w", err)
+			return fmt.Errorf("unable to setup cluster reconciler: %w", err)
 		}
 	}
 

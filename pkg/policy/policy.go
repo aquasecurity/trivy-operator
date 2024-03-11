@@ -111,19 +111,9 @@ func (p *Policies) PoliciesByKind(kind string) (map[string]string, error) {
 }
 
 func (p *Policies) Hash(kind string) (string, error) {
-	externalPolicies, err := p.ModulePolicyByKind(kind)
+	policies, err := p.loadPolicies(kind)
 	if err != nil {
-		return "", fmt.Errorf("failed listing externalPolicies by kind: %s: %w", kind, err)
-	}
-	policies := []string{}
-	if p.cac.GetUseBuiltinRegoPolicies() {
-		policies, err = p.policyLoader.GetPolicies()
-		if err != nil {
-			return "", fmt.Errorf("failed to load policies : %w", err)
-		}
-	}
-	if len(externalPolicies) > 0 {
-		policies = append(policies, externalPolicies...)
+		return "", fmt.Errorf("failed to load bult-in / external policies: %s: %w", kind, err)
 	}
 	return kube.ComputeHash(policies), nil
 }
@@ -138,16 +128,28 @@ func (p *Policies) ModulesByKind(kind string) (map[string]string, error) {
 	}
 	return modules, nil
 }
-func (p *Policies) ModulePolicyByKind(kind string) ([]string, error) {
+func (p *Policies) loadPolicies(kind string) ([]string, error) {
+	// read external policies
 	modByKind, err := p.ModulesByKind(kind)
 	if err != nil {
 		return nil, err
 	}
-	policy := make([]string, 0, len(modByKind))
+	externalPolicies := make([]string, 0, len(modByKind))
 	for _, mod := range modByKind {
-		policy = append(policy, mod)
+		externalPolicies = append(externalPolicies, mod)
 	}
-	return policy, nil
+	policies := make([]string, 0)
+	// read built-in policies
+	if p.cac.GetUseBuiltinRegoPolicies() {
+		policies, err = p.policyLoader.GetPolicies()
+		if err != nil {
+			return nil, err
+		}
+	}
+	if len(externalPolicies) > 0 {
+		policies = append(policies, externalPolicies...)
+	}
+	return policies, nil
 }
 
 // Applicable check if policies exist either built in or via policies configmap
@@ -200,25 +202,15 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[
 	if resourceKind == "" {
 		return nil, fmt.Errorf("resource kind must not be blank")
 	}
-	externalPolicies, err := p.ModulePolicyByKind(resourceKind)
+	policies, err := p.loadPolicies(resourceKind)
 	if err != nil {
 		return nil, fmt.Errorf("failed listing externalPolicies by kind: %s: %w", resourceKind, err)
-	}
-	memfs := memoryfs.New()
-	policies := []string{}
-	if p.cac.GetUseBuiltinRegoPolicies() {
-		policies, err = p.policyLoader.GetPolicies()
-		if err != nil {
-			return nil, fmt.Errorf("failed to load policies : %w", err)
-		}
-	}
-	if len(externalPolicies) > 0 {
-		policies = append(policies, externalPolicies...)
 	}
 	if len(policies) == 0 {
 		return nil, fmt.Errorf("no policies found for kind: %s", resourceKind)
 	}
-	// add externalPolicies files
+	memfs := memoryfs.New()
+	// add add policies to in-memory filesystem
 	err = createPolicyInputFS(memfs, policiesFolder, policies, regoExt)
 	if err != nil {
 		return nil, err
@@ -236,7 +228,7 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[
 			}
 		}
 	}
-	// add input files
+	// add resource input to in-memory filesystem
 	err = createPolicyInputFS(memfs, inputFolder, []string{string(inputResource)}, yamlExt)
 	if err != nil {
 		return nil, err

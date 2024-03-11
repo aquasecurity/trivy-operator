@@ -1,8 +1,6 @@
 package operator_test
 
 import (
-	//"encoding/json"
-	//"fmt"
 	"sort"
 
 	. "github.com/onsi/ginkgo/v2"

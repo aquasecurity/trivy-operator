@@ -27,7 +27,7 @@ report:
     criticalCount: 0
     highCount: 2
     mediumCount: 3
-    lowCount: 10
+    lowCount: 9
   checks:
     - checkID: KSV001
       title: Can elevate its own privileges
@@ -159,8 +159,8 @@ report:
       severity: MEDIUM
       category: Kubernetes Security Check
       messages:
-        - container app of pod my-pod in default namespace should specify a
-          seccomp profile
+        - container "app" of pod "my-pod" in "default" namespace should specify
+          a seccomp profile
       remediation: Specify seccomp either by annotation or by seccomp profile type
         having allowed values as per pod security standards
       success: false
@@ -175,16 +175,6 @@ report:
       remediation: Set 'spec.containers[*].securityContext.capabilities.drop' to 'ALL'
         and only add 'NET_BIND_SERVICE' to
         'spec.containers[*].securityContext.capabilities.add'.
-      success: false
-    - checkID: KSV110
-      title: Workloads in the default namespace
-      description: Checks whether a workload is running in the default namespace.
-      severity: LOW
-      category: Kubernetes Security Check
-      messages:
-        - pod my-pod in default namespace should set metadata.namespace to a
-          non-default namespace
-      remediation: Set 'metadata.namespace' to a non-default namespace.
       success: false
     - checkID: KSV118
       title: Default security context configured

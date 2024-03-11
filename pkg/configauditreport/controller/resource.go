@@ -39,6 +39,7 @@ import (
 type ResourceController struct {
 	logr.Logger
 	etc.Config
+	PolicyLoader policy.Loader
 	trivyoperator.ConfigData
 	kube.ObjectResolver
 	trivyoperator.PluginContext
@@ -172,7 +173,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger, r.ClusterVersion)
+		policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger, r.PolicyLoader, r.ClusterVersion)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
 		}

@@ -80,6 +80,9 @@ const (
 	KeyMetricsResourceLabelsPrefix         = "metrics.resourceLabelsPrefix"
 	KeyTrivyServerURL                      = "trivy.serverURL"
 	KeyNodeCollectorImageRef               = "node.collector.imageRef"
+	KeyPoliciesBundleOciRef                = "policies.bundle.oci.ref"
+	KeyPoliciesBundleOciUser               = "policies.bundle.oci.user"
+	KeyPoliciesBundleOciPassword           = "policies.bundle.oci.password"
 	KeyNodeCollectorImagePullSecret        = "node.collector.imagePullSecret"
 	KeyAdditionalReportLabels              = "report.additionalLabels"
 	KeyNodeCollectorNodeSelector           = "node.collector.nodeSelector"
@@ -105,6 +108,7 @@ func GetDefaultConfig() ConfigData {
 		keyComplianceFailEntriesLimit:   "10",
 		KeyReportRecordFailedChecksOnly: "true",
 		KeyNodeCollectorImageRef:        "ghcr.io/aquasecurity/node-collector:0.1.2",
+		KeyPoliciesBundleOciRef:         "ghcr.io/aquasecurity/trivy-policies:0",
 	}
 }
 
@@ -372,6 +376,17 @@ func (c ConfigData) NodeCollectorImageRef() string {
 	return c[KeyNodeCollectorImageRef]
 }
 
+func (c ConfigData) PolicyBundleOciRef() string {
+	return c[KeyPoliciesBundleOciRef]
+}
+
+func (c ConfigData) PolicyBundleOciUser() string {
+	return c[KeyPoliciesBundleOciUser]
+}
+
+func (c ConfigData) PolicyBundleOciPassword() string {
+	return c[KeyPoliciesBundleOciPassword]
+}
 func (c ConfigData) GeTrivyServerURL() string {
 	return c[KeyTrivyServerURL]
 }

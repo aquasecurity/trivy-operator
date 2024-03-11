@@ -566,16 +566,16 @@ securityContext:
     drop:
       - ALL
 
-volumeMounts: []
-# Example:
-#  - mountPath: /tmp
-#    name: tmp-data
-#    readOnly: false
+volumeMounts:
+  # do not remove , required for policies bundle
+  - mountPath: /tmp
+    name: cache-policies
+    readOnly: false
 
-volumes: []
-# Example:
-#  - name: tmp-data
-#    emptyDir: {}
+volumes:
+  # do not remove , required for policies bundle
+  - name: cache-policies
+    emptyDir: {}
 
 resources: {}
   # -- We usually recommend not to specify default resources and to leave this as a conscious
@@ -602,6 +602,19 @@ priorityClassName: ""
 
   # -- automountServiceAccountToken the flag to enable automount for service account token
 automountServiceAccountToken: true
+
+policiesBundle:
+  # -- registry of the policies bundle
+  registry: ghcr.io
+  # -- repository of the policies bundle
+  repository: aquasecurity/trivy-policies
+  # -- tag version of the policies bundle
+  tag: 0
+   # -- registryUser is the user for the registry
+  registryUser: ~
+  # -- registryPassword is the password for the registry
+  registryPassword: ~
+
 
 nodeCollector:
   # -- useNodeSelector determine if to use nodeSelector (by auto detecting node name) with node-collector scan job

@@ -18,12 +18,16 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins"
+	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 	vcontroller "github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/webhook"
+	"github.com/aquasecurity/trivy/pkg/fanal/types"
+	"github.com/aquasecurity/trivy/pkg/oci"
+	mp "github.com/aquasecurity/trivy/pkg/policy"
 	"github.com/bluele/gcache"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
@@ -31,7 +35,6 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -170,9 +173,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		WithClient(mgr.GetClient()).
 		WithObjectResolver(&objectResolver).
 		GetConfigAuditPlugin()
-	if err != nil {
-		return fmt.Errorf("initializing %s plugin: %w", pluginContext.GetName(), err)
-	}
 
 	if operatorConfig.VulnerabilityScannerEnabled || operatorConfig.ExposedSecretScannerEnabled || operatorConfig.SbomGenerationEnable {
 		trivyOperatorConfig.Set(trivyoperator.KeyVulnerabilityScannerEnabled, strconv.FormatBool(operatorConfig.VulnerabilityScannerEnabled))
@@ -184,9 +184,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			limitChecker,
 			secretsReader,
 			trivyOperatorConfig,
-			mgr,
-			buildInfo,
-			operatorNamespace, plugin, pluginContext)
+			mgr, plugin, pluginContext)
 		if err != nil {
 			return err
 		}
@@ -209,13 +207,18 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			return fmt.Errorf("unable to setup scan job  reconciler: %w", err)
 		}
 	}
+	policyLoader, err := buildPolicyLoader(trivyOperatorConfig)
+	if err != nil {
+		return fmt.Errorf("unable to constract policy loader: %w", err)
+	}
 
 	if operatorConfig.ScannerReportTTL != nil {
 		ttlReconciler := &TTLReportReconciler{
-			Logger: ctrl.Log.WithName("reconciler").WithName("ttlreport"),
-			Config: operatorConfig,
-			Client: mgr.GetClient(),
-			Clock:  ext.NewSystemClock(),
+			Logger:       ctrl.Log.WithName("reconciler").WithName("ttlreport"),
+			PolicyLoader: policyLoader,
+			Config:       operatorConfig,
+			Client:       mgr.GetClient(),
+			Clock:        ext.NewSystemClock(),
 		}
 		if operatorConfig.ConfigAuditScannerEnabled {
 			ttlReconciler.PluginContext = pluginContextConfig
@@ -252,12 +255,17 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		gitVersion = strings.TrimPrefix(version.GitVersion, "v")
 		gitVersion = strings.ReplaceAll(gitVersion, "+", "-")
 	}
-	if operatorConfig.ConfigAuditScannerEnabled {
 
+	if operatorConfig.ConfigAuditScannerEnabled {
+		_, err = policyLoader.GetPolicies()
+		if err != nil {
+			return fmt.Errorf("unable to load built-in policies: %w", err)
+		}
 		setupLog.Info("Enabling built-in configuration audit scanner")
 		if err = (&controller.ResourceController{
 			Logger:           ctrl.Log.WithName("resourcecontroller"),
 			Config:           operatorConfig,
+			PolicyLoader:     policyLoader,
 			ConfigData:       trivyOperatorConfig,
 			ObjectResolver:   objectResolver,
 			PluginContext:    pluginContext,
@@ -274,6 +282,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		if err = (&controller.PolicyConfigController{
 			Logger:         ctrl.Log.WithName("resourcecontroller"),
 			Config:         operatorConfig,
+			PolicyLoader:   policyLoader,
 			ObjectResolver: objectResolver,
 			PluginContext:  pluginContext,
 			PluginInMemory: pluginConfig,
@@ -303,6 +312,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				ConfigData:      trivyOperatorConfig,
 				ObjectResolver:  objectResolver,
 				LogsReader:      logsReader,
+				PolicyLoader:    policyLoader,
 				PluginContext:   pluginContext,
 				PluginInMemory:  pluginConfig,
 				InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
@@ -345,7 +355,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			limitChecker,
 			secretsReader,
 			trivyOperatorConfig,
-			mgr, buildInfo, operatorNamespace, plugin, pluginContext)
+			mgr, plugin, pluginContext)
 		if err != nil {
 			return err
 		}
@@ -358,7 +368,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			WorkloadController: wc,
 		}
 		if err := cc.SetupWithManager(mgr); err != nil {
-			return fmt.Errorf("unable to setup clustercompliancereport reconciler: %w", err)
+			return fmt.Errorf("unable to setup cluster reconciler: %w", err)
 		}
 	}
 
@@ -390,8 +400,6 @@ func newWorkloadController(operatorConfig etc.Config,
 	secretsReader kube.SecretsReader,
 	trivyOperatorConfig trivyoperator.ConfigData,
 	mgr ctrl.Manager,
-	buildInfo trivyoperator.BuildInfo,
-	operatorNamespace string,
 	plugin vulnerabilityreport.Plugin, pluginContext trivyoperator.PluginContext) (*vcontroller.WorkloadController, error) {
 
 	return &vcontroller.WorkloadController{
@@ -415,4 +423,25 @@ func newWorkloadController(operatorConfig etc.Config,
 		SubmitScanJobChan:       make(chan vcontroller.ScanJobRequest, operatorConfig.ConcurrentScanJobsLimit),
 		ResultScanJobChan:       make(chan vcontroller.ScanJobResult, operatorConfig.ConcurrentScanJobsLimit),
 	}, nil
+}
+
+func buildPolicyLoader(tc trivyoperator.ConfigData) (policy.Loader, error) {
+	registryUser := tc.PolicyBundleOciUser()
+	registryPassword := tc.PolicyBundleOciPassword()
+	artifact, err := oci.NewArtifact(tc.PolicyBundleOciRef(), true, types.RegistryOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("OCI artifact error: %w", err)
+	}
+	if registryUser != "" && registryPassword != "" {
+		artifact.RegistryOptions = types.RegistryOptions{
+			Credentials: []types.Credential{
+				{
+					Username: registryUser,
+					Password: registryPassword,
+				},
+			},
+		}
+	}
+	policyLoader := policy.NewPolicyLoader(tc.PolicyBundleOciRef(), gcache.New(1).LRU().Build(), mp.WithOCIArtifact(artifact))
+	return policyLoader, nil
 }

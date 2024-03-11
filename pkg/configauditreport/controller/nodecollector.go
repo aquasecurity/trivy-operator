@@ -11,6 +11,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	. "github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
+	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/go-logr/logr"
 	batchv1 "k8s.io/api/batch/v1"
@@ -32,6 +33,7 @@ type NodeCollectorJobController struct {
 	etc.Config
 	kube.ObjectResolver
 	kube.LogsReader
+	PolicyLoader policy.Loader
 	trivyoperator.ConfigData
 	trivyoperator.PluginContext
 	configauditreport.PluginInMemory
@@ -133,7 +135,7 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 	if err != nil {
 		return err
 	}
-	policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger)
+	policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger, r.PolicyLoader)
 	if err != nil {
 		return fmt.Errorf("getting policies: %w", err)
 	}

@@ -2888,6 +2888,7 @@ data:
   compliance.failEntriesLimit: "10"
   report.recordFailedChecksOnly: "true"
   node.collector.imageRef: "ghcr.io/aquasecurity/node-collector:0.1.2"
+  policies.bundle.oci.ref: "ghcr.io/aquasecurity/trivy-policies:0"
   node.collector.nodeSelector: "true"
 ---
 # Source: trivy-operator/templates/configmaps/policies.yaml
@@ -3002,6 +3003,7 @@ metadata:
     app.kubernetes.io/instance: trivy-operator
     app.kubernetes.io/version: "0.18.5"
     app.kubernetes.io/managed-by: kubectl
+data:
 ---
 # Source: trivy-operator/templates/secrets/trivy.yaml
 apiVersion: v1
@@ -3089,6 +3091,13 @@ spec:
               - ALL
             privileged: false
             readOnlyRootFilesystem: true
+          volumeMounts:
+            - mountPath: /tmp
+              name: cache-policies
+              readOnly: false
+      volumes:
+        - emptyDir: {}
+          name: cache-policies
 ---
 # Source: trivy-operator/templates/monitor/service.yaml
 apiVersion: v1

@@ -15,6 +15,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
+	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -28,6 +29,7 @@ import (
 type TTLReportReconciler struct {
 	logr.Logger
 	etc.Config
+	PolicyLoader policy.Loader
 	trivyoperator.PluginContext
 	client.Client
 	configauditreport.PluginInMemory
@@ -139,7 +141,7 @@ func (r *TTLReportReconciler) applicableForDeletion(report client.Object, ttlRep
 	if err != nil {
 		return false
 	}
-	policies, err := control.Policies(context.Background(), r.Config, r.Client, cac, r.Logger)
+	policies, err := control.Policies(context.Background(), r.Config, r.Client, cac, r.Logger, r.PolicyLoader)
 	if err != nil {
 		return false
 	}

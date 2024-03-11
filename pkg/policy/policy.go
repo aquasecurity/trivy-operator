@@ -113,7 +113,7 @@ func (p *Policies) PoliciesByKind(kind string) (map[string]string, error) {
 func (p *Policies) Hash(kind string) (string, error) {
 	policies, err := p.loadPolicies(kind)
 	if err != nil {
-		return "", fmt.Errorf("failed to load bult-in / external policies: %s: %w", kind, err)
+		return "", fmt.Errorf("failed to load built-in / external policies: %s: %w", kind, err)
 	}
 	return kube.ComputeHash(policies), nil
 }
@@ -195,13 +195,7 @@ func (p *Policies) rbacDisabled(rbacEnable bool, kind string) bool {
 
 // Eval evaluates Rego policies with Kubernetes resource client.Object as input.
 func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[]byte) (scan.Results, error) {
-	if resource == nil {
-		return nil, fmt.Errorf("resource must not be nil")
-	}
 	resourceKind := resource.GetObjectKind().GroupVersionKind().Kind
-	if resourceKind == "" {
-		return nil, fmt.Errorf("resource kind must not be blank")
-	}
 	policies, err := p.loadPolicies(resourceKind)
 	if err != nil {
 		return nil, fmt.Errorf("failed listing externalPolicies by kind: %s: %w", resourceKind, err)
@@ -215,18 +209,9 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[
 	if err != nil {
 		return nil, err
 	}
-	var inputResource []byte
-	if len(inputs) > 0 {
-		inputResource = inputs[0]
-	} else {
-		if jsonManifest, ok := resource.GetAnnotations()["kubectl.kubernetes.io/last-applied-configuration"]; ok {
-			inputResource = []byte(jsonManifest) // required for outdated-api when k8s convert resources
-		} else {
-			inputResource, err = json.Marshal(resource)
-			if err != nil {
-				return nil, err
-			}
-		}
+	inputResource, err := resourceBytes(resource, inputs)
+	if err != nil {
+		return nil, err
 	}
 	// add resource input to in-memory filesystem
 	err = createPolicyInputFS(memfs, inputFolder, []string{string(inputResource)}, yamlExt)
@@ -249,6 +234,24 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[
 		return nil, fmt.Errorf("failed to run policy checks on resources")
 	}
 	return scanResult, nil
+}
+
+func resourceBytes(resource client.Object, inputs [][]byte) ([]byte, error) {
+	var inputResource []byte
+	var err error
+	if len(inputs) > 0 {
+		inputResource = inputs[0]
+	} else {
+		if jsonManifest, ok := resource.GetAnnotations()["kubectl.kubernetes.io/last-applied-configuration"]; ok {
+			inputResource = []byte(jsonManifest) // required for outdated-api when k8s convert resources
+		} else {
+			inputResource, err = json.Marshal(resource)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	return inputResource, nil
 }
 
 // GetResultID return the result id found in aliases (legacy) otherwise use AvdID

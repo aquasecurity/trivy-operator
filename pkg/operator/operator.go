@@ -207,13 +207,18 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			return fmt.Errorf("unable to setup scan job  reconciler: %w", err)
 		}
 	}
+	policyLoader, err := buildPolicyLoader(trivyOperatorConfig)
+	if err != nil {
+		return fmt.Errorf("unable to constract policy loader: %w", err)
+	}
 
 	if operatorConfig.ScannerReportTTL != nil {
 		ttlReconciler := &TTLReportReconciler{
-			Logger: ctrl.Log.WithName("reconciler").WithName("ttlreport"),
-			Config: operatorConfig,
-			Client: mgr.GetClient(),
-			Clock:  ext.NewSystemClock(),
+			Logger:       ctrl.Log.WithName("reconciler").WithName("ttlreport"),
+			PolicyLoader: policyLoader,
+			Config:       operatorConfig,
+			Client:       mgr.GetClient(),
+			Clock:        ext.NewSystemClock(),
 		}
 		if operatorConfig.ConfigAuditScannerEnabled {
 			ttlReconciler.PluginContext = pluginContextConfig
@@ -250,11 +255,8 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		gitVersion = strings.TrimPrefix(version.GitVersion, "v")
 		gitVersion = strings.ReplaceAll(gitVersion, "+", "-")
 	}
+
 	if operatorConfig.ConfigAuditScannerEnabled {
-		policyLoader, err := buildPolicyLoader(trivyOperatorConfig)
-		if err != nil {
-			return fmt.Errorf("unable to constract policy loader: %w", err)
-		}
 		_, err = policyLoader.GetPolicies()
 		if err != nil {
 			return fmt.Errorf("unable to load built-in policies: %w", err)

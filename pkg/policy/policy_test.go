@@ -439,17 +439,6 @@ func TestPolicies_Eval(t *testing.T) {
 			},
 		},
 		{
-			name:          "Should return error when resource is nil",
-			resource:      nil,
-			expectedError: "resource must not be nil",
-		},
-		{
-			name:          "Should return error when resource kind is blank",
-			resource:      &appsv1.Deployment{},
-			policies:      map[string]string{},
-			expectedError: "resource kind must not be blank",
-		},
-		{
 			name: "Should return error when policy cannot be parsed",
 			resource: &appsv1.Deployment{
 				TypeMeta: metav1.TypeMeta{

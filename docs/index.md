@@ -5,7 +5,7 @@
 The Trivy Operator leverages [Trivy](https://github.com/aquasecurity/trivy) to continuously scan your Kubernetes cluster for security issues. The scans are summarised in security reports as Kubernetes [Custom Resource Definitions], which become accessible through the Kubernetes API. The Operator does this by watching Kubernetes for state changes and automatically triggering security scans in response. For example, a vulnerability scan is initiated when a new Pod is created.
 This way, users can find and view the risks that relate to different resources in a `Kubernetes-native` way.
 
-## In-cluster Security Scans 
+## In-cluster Security Scans
 
 The Trivy Operator automatically generates and updates security reports. These reports are generated in response to new workload and other changes on a Kubernetes cluster, generating the following reports:
 
@@ -14,7 +14,7 @@ The Trivy Operator automatically generates and updates security reports. These r
 - Exposed Secret Scans: Automated secret scans which find and detail the location of exposed Secrets within your cluster.
 - RBAC scans: Role Based Access Control scans provide detailed information on the access rights of the different resources installed.
 - K8s core component infra assessment scan Kubernetes infra core components (etcd,apiserver,scheduler,controller-manager and etc) setting and configuration.
-- k8s outdated api validation - a configaudit check will validate if the resource api has been deprecated and planned for removal 
+- k8s outdated api validation - a configaudit check will validate if the resource api has been deprecated and planned for removal
 - Compliance reports
   - NSA, CISA Kubernetes Hardening Guidance v1.1 cybersecurity technical report is produced.
   - CIS Kubernetes Benchmark v1.23 cybersecurity technical report is produced.
@@ -66,7 +66,7 @@ Install the Helm Chart:
    helm install trivy-operator oci://ghcr.io/aquasecurity/helm-charts/trivy-operator \
      --namespace trivy-system \
      --create-namespace \
-     --version 0.20.6
+     --version 0.21.0-rc
 ```
 
 This will install the Trivy Helm Chart into the `trivy-system` namespace and start triggering the scans.
@@ -82,40 +82,21 @@ At this early stage we would love your feedback on the overall concept of Trivy-
 contributions integrating different security tools so that users can access security information in standard,
 Kubernetes-native ways.
 
-* See [Contributing] for information about setting up your development environment, and the contribution workflow that
+- See [Contributing] for information about setting up your development environment, and the contribution workflow that
   we expect.
-* Please ensure that you are following our [Code Of Conduct](https://github.com/aquasecurity/community/blob/main/CODE_OF_CONDUCT.md) during any interaction with the Aqua projects and their community.
+- Please ensure that you are following our [Code Of Conduct](https://github.com/aquasecurity/community/blob/main/CODE_OF_CONDUCT.md) during any interaction with the Aqua projects and their community.
 
 ---
 Trivy-Operator is an [Aqua Security](https://aquasec.com) open source project.  
 Learn about our [Open Source Work and Portfolio].  
 Join the community, and talk to us about any matter in [GitHub Discussions] or [Slack].
 
-[release-img]: https://img.shields.io/github/release/aquasecurity/trivy-operator.svg?logo=github
-[release]: https://github.com/aquasecurity/trivy-operator/releases
-[action-build-img]: https://github.com/aquasecurity/trivy-operator/actions/workflows/build.yaml/badge.svg
-[action-build]: https://github.com/aquasecurity/trivy-operator/actions/workflows/build.yaml
-[action-release-snapshot-img]: https://github.com/aquasecurity/trivy-operator/actions/workflows/release-snapshot.yaml/badge.svg
-[action-release-snapshot]: https://github.com/aquasecurity/trivy-operator/actions/workflows/release-snapshot.yaml
-[cov-img]: https://codecov.io/github/aquasecurity/trivy-operator/branch/main/graph/badge.svg
-[cov]: https://codecov.io/github/aquasecurity/trivy-operator
-[report-card-img]: https://goreportcard.com/badge/github.com/aquasecurity/trivy-operator
-[report-card]: https://goreportcard.com/report/github.com/aquasecurity/trivy-operator
-[license-img]: https://img.shields.io/github/license/aquasecurity/trivy-operator.svg
-[license]: https://github.com/aquasecurity/trivy-operator/blob/main/LICENSE
-[github-all-releases-img]: https://img.shields.io/github/downloads/aquasecurity/trivy-operator/total?logo=github
-[docker-pulls-trivy-operator]: https://img.shields.io/docker/pulls/aquasec/trivy-operator?logo=docker&label=docker%20pulls%20%2F%20trivy%20operator
 [Contributing]: https://github.com/aquasecurity/trivy-operator/blob/main/CONTRIBUTING.md
 [GitHub Discussions]: https://github.com/aquasecurity/trivy-operator/discussions
 [Slack]: https://slack.aquasec.com/
 [Open Source Work and Portfolio]: https://www.aquasec.com/products/open-source-projects/
 
 [Custom Resource Definitions]: https://aquasecurity.github.io/trivy-operator/latest/docs/crds/
-[Go module]: https://pkg.go.dev/github.com/aquasecurity/trivy-operator/pkg
 [Documentation]: https://aquasecurity.github.io/trivy-operator/latest
 [Static YAML Manifests]: https://aquasecurity.github.io/trivy-operator/latest/getting-started/installation/kubectl/
 [getting-started-operator]: https://aquasecurity.github.io/trivy-operator/latest/
-[Kubernetes operator]: https://aquasecurity.github.io/trivy-operator/latest
-
-[Lens Extension]: https://github.com/aquasecurity/trivy-operator-lens-extension
-[kubectl]: https://kubernetes.io/docs/reference/kubectl

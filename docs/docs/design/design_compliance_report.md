@@ -542,7 +542,7 @@ metadata:
   name: clustercompliancereports.aquasecurity.github.io
   labels:
     app.kubernetes.io/managed-by: trivy-operator
-    app.kubernetes.io/version: "0.18.5"
+    app.kubernetes.io/version: "v0.19.0-rc"
 spec:
   group: aquasecurity.github.io
   scope: Cluster
@@ -678,7 +678,7 @@ metadata:
   name: clustercompliancedetailreports.aquasecurity.github.io
   labels:
     app.kubernetes.io/managed-by: trivy-operator
-    app.kubernetes.io/version: "0.18.5"
+    app.kubernetes.io/version: "v0.19.0-rc"
 spec:
   group: aquasecurity.github.io
   versions:

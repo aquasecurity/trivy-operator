@@ -129,5 +129,5 @@ We can't use something like ownerReference since it would delete all vulnerabili
   a gate.
 * Both Trivy-Operator CLI and Trivy-Operator Operator can read and leverage ClusterVulnerabilityReports.
 
-[Standalone]: https://aquasecurity.github.io/trivy-operator/v0.18.5/integrations/vulnerability-scanners/trivy/#standalone
-[ClientServer]: https://aquasecurity.github.io/trivy-operator/v0.18.5/integrations/vulnerability-scanners/trivy/#clientserver
+[Standalone]: https://aquasecurity.github.io/trivy-operator/v0.19.0-rc/integrations/vulnerability-scanners/trivy/#standalone
+[ClientServer]: https://aquasecurity.github.io/trivy-operator/v0.19.0-rc/integrations/vulnerability-scanners/trivy/#clientserver

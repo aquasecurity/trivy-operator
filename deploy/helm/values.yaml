@@ -73,7 +73,7 @@ operator:
 
   # -- the flag to enable vulnerability scanner
   vulnerabilityScannerEnabled: true
-  # -- the flag to enable sbom generation
+  # -- the flag to enable sbom generation, required for enabling ClusterVulnerabilityReports
   sbomGenerationEnabled: true
   # -- the flag to enable cluster sbom cache generation
   clusterSbomCacheEnabled: false
@@ -99,7 +99,7 @@ operator:
   batchDeleteDelay: 10s
   # -- accessGlobalSecretsAndServiceAccount The flag to enable access to global secrets/service accounts to allow `vulnerability scan job` to pull images from private registries
   accessGlobalSecretsAndServiceAccount: true
-  # -- builtInTrivyServer The flag enable the usage of built-in trivy server in cluster ,its also override the following trivy params with built-in values
+  # -- builtInTrivyServer The flag enables the usage of built-in trivy server in cluster. It also overrides the following trivy params with built-in values
   # trivy.mode = ClientServer and serverURL = http://<serverServiceName>.<trivy operator namespace>:4975
   builtInTrivyServer: false
   # -- builtInServerRegistryInsecure is the flag to enable insecure connection from the built-in Trivy server to the registry.

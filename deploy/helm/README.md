@@ -40,7 +40,7 @@ Keeps security report resources updated
 | operator.batchDeleteDelay | string | `"10s"` | batchDeleteDelay the duration to wait before deleting another batch of config audit reports. |
 | operator.batchDeleteLimit | int | `10` | batchDeleteLimit the maximum number of config audit reports deleted by the operator when the plugin's config has changed. |
 | operator.builtInServerRegistryInsecure | bool | `false` | builtInServerRegistryInsecure is the flag to enable insecure connection from the built-in Trivy server to the registry. |
-| operator.builtInTrivyServer | bool | `false` | builtInTrivyServer The flag enable the usage of built-in trivy server in cluster ,its also override the following trivy params with built-in values trivy.mode = ClientServer and serverURL = http://<serverServiceName>.<trivy operator namespace>:4975 |
+| operator.builtInTrivyServer | bool | `false` | builtInTrivyServer The flag enables the usage of built-in trivy server in cluster. It also overrides the following trivy params with built-in values trivy.mode = ClientServer and serverURL = http://<serverServiceName>.<trivy operator namespace>:4975 |
 | operator.cacheReportTTL | string | `"120h"` | cacheReportTTL the flag to set how long a cluster sbom report should exist. "" means that the cacheReportTTL feature is disabled |
 | operator.clusterComplianceEnabled | bool | `true` | clusterComplianceEnabled the flag to enable cluster compliance scanner |
 | operator.clusterSbomCacheEnabled | bool | `false` | the flag to enable cluster sbom cache generation |
@@ -67,7 +67,7 @@ Keeps security report resources updated
 | operator.rbacAssessmentScannerEnabled | bool | `true` | rbacAssessmentScannerEnabled the flag to enable rbac assessment scanner |
 | operator.replicas | int | `1` | replicas the number of replicas of the operator's pod |
 | operator.revisionHistoryLimit | string | `nil` | number of old history to retain to allow rollback (if not set, default Kubernetes value is set to 10) |
-| operator.sbomGenerationEnabled | bool | `true` | the flag to enable sbom generation |
+| operator.sbomGenerationEnabled | bool | `true` | the flag to enable sbom generation, required for enabling ClusterVulnerabilityReports |
 | operator.scanJobTTL | string | `""` | scanJobTTL the set automatic cleanup time after the job is completed |
 | operator.scanJobTimeout | string | `"5m"` | scanJobTimeout the length of time to wait before giving up on a scan job |
 | operator.scanJobsConcurrentLimit | int | `10` | scanJobsConcurrentLimit the maximum number of scan jobs create by the operator |

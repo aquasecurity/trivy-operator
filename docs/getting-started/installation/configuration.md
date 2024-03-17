@@ -69,6 +69,7 @@ To change the target namespace from all namespaces to the `default` namespace ed
 |---|---|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `vulnerabilityReports.scanner`| `Trivy`| The name of the plugin that generates vulnerability reports. Either `Trivy` or `Aqua`.                                                                                                                                                                                                          |
 | `vulnerabilityReports.scanJobsInSameNamespace` | `"false"`| Whether to run vulnerability scan jobs in same namespace of workload. Set `"true"` to enable.                                                                                                                                                                                                   |
+| `scanJob.affinity`   | N/A| JSON representation of the [affinity] to be applied to the scanner pods and node-collector. Example: `'{"nodeAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"kubernetes.io/os","operator":"In","values":["linux"]}]},{"matchExpressions":[{"key":"virtual-kubelet.io/provider","operator":"DoesNotExist"}]}]}}}'`
 | `scanJob.tolerations`| N/A| JSON representation of the [tolerations] to be applied to the scanner pods and node-collector so that they can run on nodes with matching taints. Example: `'[{"key":"key1", "operator":"Equal", "value":"value1", "effect":"NoSchedule"}]'`
 | `nodeCollector.volumeMounts`| see helm/values.yaml | node-collector pod volumeMounts definition for collecting config files information
 | `nodeCollector.volumes`| see helm/values.yaml | node-collector pod volumes definition for collecting config files information                                                                       |
@@ -132,6 +133,7 @@ kubectl patch cm trivy-operator-trivy-config -n trivy-system \
   -p '[{"op": "remove", "path": "/data/trivy.httpProxy"}]'
 ```
 
+[affinity]: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
 [tolerations]: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration
 
 [prometheus]: https://github.com/prometheus

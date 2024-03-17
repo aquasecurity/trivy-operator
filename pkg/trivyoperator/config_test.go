@@ -76,6 +76,75 @@ func TestConfigData_GetConfigAuditReportsScanner(t *testing.T) {
 	}
 }
 
+func TestConfigData_GetScanJobAffinity(t *testing.T) {
+	testCases := []struct {
+		name        string
+		config      trivyoperator.ConfigData
+		expected    *corev1.Affinity
+		expectError string
+	}{
+		{
+			name:     "no scanJob.affinity in ConfigData",
+			config:   trivyoperator.ConfigData{},
+			expected: nil,
+		},
+		{
+			name:        "scanJob.affinity value is not json",
+			config:      trivyoperator.ConfigData{"scanJob.affinity": `lolwut`},
+			expected:    nil,
+			expectError: "invalid character 'l' looking for beginning of value",
+		},
+		{
+			name:     "empty JSON array",
+			config:   trivyoperator.ConfigData{"scanJob.affinity": `{}`},
+			expected: &corev1.Affinity{},
+		},
+		{
+			name: "valid affinity",
+			config: trivyoperator.ConfigData{
+				"scanJob.affinity": `{"nodeAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"kubernetes.io/os","operator":"In","values":["linux"]}]},{"matchExpressions":[{"key":"virtual-kubelet.io/provider","operator":"DoesNotExist"}]}]}}}`,
+			},
+			expected: &corev1.Affinity{
+				NodeAffinity: &corev1.NodeAffinity{
+					RequiredDuringSchedulingIgnoredDuringExecution: &corev1.NodeSelector{
+						NodeSelectorTerms: []corev1.NodeSelectorTerm{
+							{
+								MatchExpressions: []corev1.NodeSelectorRequirement{
+									{
+										Key:      "kubernetes.io/os",
+										Operator: corev1.NodeSelectorOpIn,
+										Values:   []string{"linux"},
+									},
+								},
+							},
+							{
+								MatchExpressions: []corev1.NodeSelectorRequirement{
+									{
+										Key:      "virtual-kubelet.io/provider",
+										Operator: corev1.NodeSelectorOpDoesNotExist,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := tc.config.GetScanJobAffinity()
+			if tc.expectError != "" {
+				assert.Error(t, err, "unexpected end of JSON input", tc.name)
+			} else {
+				assert.NoError(t, err, tc.name)
+			}
+			assert.Equal(t, tc.expected, got, tc.name)
+		})
+	}
+}
+
 func TestConfigData_GetScanJobTolerations(t *testing.T) {
 	testCases := []struct {
 		name        string

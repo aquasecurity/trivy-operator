@@ -59,6 +59,7 @@ const (
 	keyVulnerabilityReportsScanner       = "vulnerabilityReports.scanner"
 	KeyVulnerabilityScansInSameNamespace = "vulnerabilityReports.scanJobsInSameNamespace"
 	keyConfigAuditReportsScanner         = "configAuditReports.scanner"
+	keyScanJobAffinity                   = "scanJob.affinity"
 	keyScanJobTolerations                = "scanJob.tolerations"
 	KeyScanJobcompressLogs               = "scanJob.compressLogs"
 	KeyNodeCollectorVolumes              = "nodeCollector.volumes"
@@ -168,6 +169,20 @@ func (c ConfigData) GetConfigAuditReportsScanner() Scanner {
 	return Scanner(value)
 }
 
+func (c ConfigData) GetScanJobAffinity() (*corev1.Affinity, error) {
+	if c[keyScanJobAffinity] == "" {
+		return nil, nil
+	}
+
+	scanJobAffinity := &corev1.Affinity{}
+	err := json.Unmarshal([]byte(c[keyScanJobAffinity]), scanJobAffinity)
+	if err != nil {
+		return nil, fmt.Errorf("failed parsing incorrectly formatted custom scan pod template affinity: %s", c[keyScanJobAffinity])
+	}
+
+	return scanJobAffinity, nil
+}
+
 func (c ConfigData) GetScanJobTolerations() ([]corev1.Toleration, error) {
 	var scanJobTolerations []corev1.Toleration
 	if c[keyScanJobTolerations] == "" {
@@ -219,7 +234,7 @@ func (c ConfigData) GetScanJobNodeSelector() (map[string]string, error) {
 	}
 
 	if err := json.Unmarshal([]byte(c[keyScanJobNodeSelector]), &scanJobNodeSelector); err != nil {
-		return scanJobNodeSelector, fmt.Errorf("failed to parse incorrect job template nodeSelector %s: %w", c[keyScanJobNodeSelector], err)
+		return scanJobNodeSelector, fmt.Errorf("failed to parse incorrect pod template nodeSelector %s: %w", c[keyScanJobNodeSelector], err)
 	}
 
 	return scanJobNodeSelector, nil

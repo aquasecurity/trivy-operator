@@ -63,7 +63,7 @@ var _ = BeforeSuite(func() {
 
 	By("bootstrapping test environment")
 	testEnv = &envtest.Environment{
-		CRDDirectoryPaths:     []string{filepath.Join("..", "..", "..", "deploy", "helm", "crds")},
+		CRDDirectoryPaths:     []string{filepath.Join("..", "..", "deploy", "helm", "crds")},
 		ErrorIfCRDPathMissing: true,
 	}
 	testEnv.ControlPlaneStartTimeout = 60 * time.Second

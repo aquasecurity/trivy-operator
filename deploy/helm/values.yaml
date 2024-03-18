@@ -394,9 +394,9 @@ trivy:
 
   # -- ignoreFile can be used to tell Trivy to ignore vulnerabilities by ID (one per line)
   ignoreFile: ~
-  # ignoreFile: |
-  #   CVE-1970-0001
-  #   CVE-1970-0002
+  # ignoreFile:
+  #   - CVE-1970-0001
+  #   - CVE-1970-0002
 
   # -- ignorePolicy can be used to tell Trivy to ignore vulnerabilities by a policy
   # If multiple policies would match, then the most specific one has precedence over the others.

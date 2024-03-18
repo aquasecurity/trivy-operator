@@ -111,7 +111,7 @@ func TestGetContainerImagesFromJob(t *testing.T) {
 					"trivy-operator.container-images": `{"nginx":"nginx:1.16","sidecar":"sidecar:1.32.7"}`,
 				},
 			},
-		})
+		}, []string{"nginx", "sidecar"}...)
 		require.NoError(t, err)
 		assert.Equal(t, kube.ContainerImages{
 			"nginx":   "nginx:1.16",

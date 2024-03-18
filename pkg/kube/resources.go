@@ -52,7 +52,7 @@ func GetContainerImagesFromContainersList(containers []corev1.Container) Contain
 // to container images from the specified v1.Job.
 // The mapping is encoded as JSON value of the AnnotationContainerImages
 // annotation.
-func GetContainerImagesFromJob(job *batchv1.Job) (ContainerImages, error) {
+func GetContainerImagesFromJob(job *batchv1.Job, completedContainers ...string) (ContainerImages, error) {
 	var containerImagesAsJSON string
 	var ok bool
 
@@ -64,7 +64,14 @@ func GetContainerImagesFromJob(job *batchv1.Job) (ContainerImages, error) {
 	if err != nil {
 		return nil, fmt.Errorf("parsing annotation: %s: %w", trivyoperator.AnnotationContainerImages, err)
 	}
-	return containerImages, nil
+	completed := make(map[string]string)
+	for _, container := range completedContainers {
+		if c, ok := containerImages[container]; ok {
+			completed[container] = c
+		}
+
+	}
+	return completed, nil
 }
 
 // ComputeHash returns a hash value calculated from a given object.

@@ -498,7 +498,7 @@ func TestConfigData_GetScanJobNodeSelector(t *testing.T) {
 				"scanJob.nodeSelector": "{dlzm",
 			},
 			expected:    map[string]string{},
-			expectError: "failed to parse incorrect job template nodeSelector {dlzm: invalid character 'd' looking for beginning of object key string",
+			expectError: "failed to parse incorrect pod template nodeSelector {dlzm: invalid character 'd' looking for beginning of object key string",
 		},
 	}
 

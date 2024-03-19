@@ -184,7 +184,7 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 			j.WithUseNodeSelector(useNodeSelector),
 			j.WithPodPriorityClassName(scanJobPodPriorityClassName),
 			j.WithVolumesMount(nodeCollectorVolumeMounts),
-			j.WithContainerResourceRequirements(&requirements),
+			j.WithContainerResourceRequirements(requirements),
 			j.WithJobLabels(map[string]string{
 				trivyoperator.LabelNodeInfoCollector: "Trivy",
 				trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,

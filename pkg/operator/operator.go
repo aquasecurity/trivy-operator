@@ -207,9 +207,12 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			return fmt.Errorf("unable to setup scan job  reconciler: %w", err)
 		}
 	}
-	policyLoader, err := buildPolicyLoader(trivyOperatorConfig)
-	if err != nil {
-		return fmt.Errorf("unable to constract policy loader: %w", err)
+	var policyLoader policy.Loader
+	if operatorConfig.ConfigAuditScannerEnabled {
+		policyLoader, err = buildPolicyLoader(trivyOperatorConfig)
+		if err != nil {
+			return fmt.Errorf("unable to constract policy loader: %w", err)
+		}
 	}
 
 	if operatorConfig.ScannerReportTTL != nil {

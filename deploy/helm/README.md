@@ -1,6 +1,6 @@
 # trivy-operator
 
-![Version: 0.21.0](https://img.shields.io/badge/Version-0.21.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.19.0](https://img.shields.io/badge/AppVersion-0.19.0-informational?style=flat-square)
+![Version: 0.21.1](https://img.shields.io/badge/Version-0.21.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.19.1](https://img.shields.io/badge/AppVersion-0.19.1-informational?style=flat-square)
 
 Keeps security report resources updated
 
@@ -174,7 +174,7 @@ Keeps security report resources updated
 | trivyOperator.additionalReportLabels | string | `""` | additionalReportLabels comma-separated representation of the labels which the user wants the scanner pods to be labeled with. Example: `foo=bar,env=stage` will labeled the reports with the labels `foo: bar` and `env: stage` |
 | trivyOperator.configAuditReportsPlugin | string | `"Trivy"` | configAuditReportsPlugin the name of the plugin that generates config audit reports. |
 | trivyOperator.metricsResourceLabelsPrefix | string | `"k8s_label_"` | metricsResourceLabelsPrefix Prefix that will be prepended to the labels names indicated in `reportResourceLabels` when including them in the Prometheus metrics |
-| trivyOperator.policiesConfig | string | `""` | policiesConfig Custom Rego Policies to be used by the config audit scanner See https://github.com/aquasecurity/trivy-operator/blob/main/docs/tutorials/writing-custom-configuration-audit-policies.md for more details. |
+| trivyOperator.policiesConfig | string | `""` | policiesConfig Custom Rego Policies to be used by the config audit scanner See <https://github.com/aquasecurity/trivy-operator/blob/main/docs/tutorials/writing-custom-configuration-audit-policies.md> for more details. |
 | trivyOperator.reportRecordFailedChecksOnly | bool | `true` | reportRecordFailedChecksOnly flag is to record only failed checks on misconfiguration reports (config-audit and rbac assessment) |
 | trivyOperator.reportResourceLabels | string | `""` | reportResourceLabels comma-separated scanned resource labels which the user wants to include in the Prometheus metrics report. Example: `owner,app` |
 | trivyOperator.scanJobAffinity | list | `[]` | scanJobAffinity affinity to be applied to the scanner pods and node-collector |
@@ -195,4 +195,3 @@ Keeps security report resources updated
 | volumeMounts[0].readOnly | bool | `false` |  |
 | volumes[0].emptyDir | object | `{}` |  |
 | volumes[0].name | string | `"cache-policies"` |  |
-

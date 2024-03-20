@@ -79,7 +79,7 @@ data:
   {{- end }}
   {{- if .Values.trivy.ignoreFile }}
   trivy.ignoreFile: |
-  {{- range .Values.trivy.ignoreFile }}
+{{- range .Values.trivy.ignoreFile }}
     {{ . | indent 4 }}
   {{- end }}
   {{- end }}
@@ -95,7 +95,7 @@ data:
   {{- else }}
   trivy.mode: {{ .Values.trivy.mode | quote }}
   {{- if eq .Values.trivy.mode "ClientServer" }}
-  trivy.serverURL: {{ required ".Values.trivy.serverURL is required" .Values.trivy.serverURL | quote }}
+  trivy.serverURL: {{ required ".Values.trivy.serverUrl is required" .Values.trivy.serverUrl | quote }}
   {{- with .Values.trivy.clientServerSkipUpdate }}
   trivy.clientServerSkipUpdate: {{ . | quote }}
   {{- end }}

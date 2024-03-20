@@ -44,7 +44,7 @@ metadata:
 report:
   artifact:
     repository: fluxcd/source-controller
-    tag: v0.19.0
+    tag: v0.19.1
   registry:
     server: ghcr.io
   scanner:

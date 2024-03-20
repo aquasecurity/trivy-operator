@@ -183,12 +183,18 @@ image:
 # -- service only expose a metrics endpoint for prometheus to scrape,
 # trivy-operator does not have a user interface.
 service:
+  # -- if true, the Service doesn't allocate any IP
   headless: true
+  # -- port exposed by the Service
   metricsPort: 80
   # -- annotations added to the operator's service
   annotations: {}
   # -- appProtocol of the monitoring service
   metricsAppProtocol: TCP
+  # -- the Service type
+  type: ClusterIP
+  # -- the nodeport to use when service type is LoadBalancer or NodePort. If not set, Kubernetes automatically select one.
+  nodePort:
 
 # -- Prometheus ServiceMonitor configuration -- to install the trivy operator with the ServiceMonitor
 # you must have Prometheus already installed and running. If you do not have Prometheus installed, enabling this will

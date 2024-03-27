@@ -622,6 +622,11 @@ policiesBundle:
   registryUser: ~
   # -- registryPassword is the password for the registry
   registryPassword: ~
+  # -- existingSecret if a secret containing registry credentials that have been created outside the chart (e.g external-secrets, sops, etc...).
+  # Keys must be at least one of the following: policies.bundle.oci.user, policies.bundle.oci.password
+  # Overrides policiesBundle.registryUser, policiesBundle.registryPassword values.
+  # Note: The secret has to be named "trivy-operator".
+  existingSecret: false
 
 
 nodeCollector:

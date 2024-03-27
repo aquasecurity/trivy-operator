@@ -91,6 +91,7 @@ Keeps security report resources updated
 | policiesBundle.registryUser | string | `nil` | registryUser is the user for the registry |
 | policiesBundle.repository | string | `"aquasecurity/trivy-policies"` | repository of the policies bundle |
 | policiesBundle.tag | int | `0` | tag version of the policies bundle |
+| policiesBundle.existingSecret | bool | `false` | Specify wether to use an existing secret |
 | priorityClassName | string | `""` | priorityClassName set the operator priorityClassName |
 | rbac.create | bool | `true` |  |
 | resources | object | `{}` |  |

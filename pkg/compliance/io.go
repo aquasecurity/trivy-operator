@@ -151,9 +151,9 @@ func misconfigReportToTrivyResults(cli client.Client, ctx context.Context) ([]tt
 func reportsToResults(checks []v1alpha1.Check, name string, namespace string) ttypes.Results {
 	results := ttypes.Results{}
 	for _, check := range checks {
-		status := ttypes.StatusFailure
+		status := ttypes.MisconfStatusFailure
 		if check.Success {
-			status = ttypes.StatusPassed
+			status = ttypes.MisconfStatusPassed
 		}
 		id := check.ID
 		if !strings.HasPrefix(check.ID, "AVD-") {

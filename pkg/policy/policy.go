@@ -10,17 +10,17 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/aquasecurity/defsec/pkg/severity"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
+	"github.com/aquasecurity/trivy/pkg/iac/severity"
 	"github.com/aquasecurity/trivy/pkg/mapfs"
 
 	"github.com/go-logr/logr"
 	"github.com/liamg/memoryfs"
 
-	"github.com/aquasecurity/defsec/pkg/scan"
-	"github.com/aquasecurity/defsec/pkg/scanners/options"
-	"github.com/aquasecurity/trivy-iac/pkg/scanners/kubernetes"
+	"github.com/aquasecurity/trivy/pkg/iac/scan"
+	"github.com/aquasecurity/trivy/pkg/iac/scanners/kubernetes"
+	"github.com/aquasecurity/trivy/pkg/iac/scanners/options"
 
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"sigs.k8s.io/controller-runtime/pkg/client"

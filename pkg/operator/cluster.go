@@ -176,7 +176,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 		}
 		output := new(bytes.Buffer)
 		w := report.NewCycloneDXWriter(output, cdx.BOMFileFormatJSON, apiVersion)
-		err = w.Write(ctx, k8sreport.RootComponent)
+		err = w.Write(ctx, k8sreport.BOM)
 		if err != nil {
 			return ctrl.Result{}, err
 		}

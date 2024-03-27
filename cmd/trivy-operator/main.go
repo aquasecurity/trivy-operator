@@ -32,20 +32,23 @@ var (
 
 // main is the entrypoint of the Trivy Operator executable command.
 func main() {
-	if err := run(); err != nil {
+	// Fetch operator configuration early.
+	operatorConfig, err := etc.GetOperatorConfig()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error getting operator config: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Initialize the logger based on the LogDevMode from the config.
+	log.SetLogger(zap.New(zap.UseDevMode(operatorConfig.LogDevMode)))
+
+	if err := run(operatorConfig); err != nil {
 		fmt.Fprintf(os.Stderr, "unable to run trivy operator: %v\n", err)
 		os.Exit(1)
 	}
 }
 
-func run() error {
-	operatorConfig, err := etc.GetOperatorConfig()
-	if err != nil {
-		return fmt.Errorf("getting operator config: %w", err)
-	}
-
-	log.SetLogger(zap.New(zap.UseDevMode(operatorConfig.LogDevMode)))
-
+func run(operatorConfig etc.Config) error {
 	setupLog.Info("Starting operator", "buildInfo", buildInfo)
 
 	return operator.Start(ctrl.SetupSignalHandler(), buildInfo, operatorConfig)

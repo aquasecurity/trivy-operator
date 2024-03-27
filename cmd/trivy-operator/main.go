@@ -47,6 +47,6 @@ func run() error {
 	log.SetLogger(zap.New(zap.UseDevMode(operatorConfig.LogDevMode)))
 
 	setupLog.Info("Starting operator", "buildInfo", buildInfo)
-
+	
 	return operator.Start(ctrl.SetupSignalHandler(), buildInfo, operatorConfig)
 }

@@ -260,10 +260,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	}
 
 	if operatorConfig.ConfigAuditScannerEnabled {
-		_, err = policyLoader.GetPolicies()
-		if err != nil {
-			return fmt.Errorf("unable to load built-in policies: %w", err)
-		}
 		setupLog.Info("Enabling built-in configuration audit scanner")
 		if err = (&controller.ResourceController{
 			Logger:           ctrl.Log.WithName("resourcecontroller"),

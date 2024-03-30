@@ -1,7 +1,7 @@
 package trivy_operator
 
 import (
-	. "github.com/aquasecurity/trivy-operator/itest/trivy-operator/behavior"
+	. "github.com/aquasecurity/trivy-operator/tests/itest/trivy-operator/behavior"
 	. "github.com/onsi/ginkgo/v2"
 )
 

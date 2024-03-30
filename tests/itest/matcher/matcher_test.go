@@ -5,7 +5,7 @@ import (
 
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/itest/matcher"
+	"github.com/aquasecurity/trivy-operator/tests/itest/matcher"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	appsv1 "k8s.io/api/apps/v1"

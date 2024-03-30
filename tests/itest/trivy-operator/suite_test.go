@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/aquasecurity/trivy-operator/tests/itest/helper"
-	"github.com/aquasecurity/trivy-operator/tests/itest/trivy-operator/behavior"
 	"github.com/aquasecurity/trivy-operator/pkg/operator"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy-operator/tests/itest/helper"
+	"github.com/aquasecurity/trivy-operator/tests/itest/trivy-operator/behavior"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	corev1 "k8s.io/api/core/v1"

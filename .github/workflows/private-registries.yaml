@@ -104,12 +104,12 @@ jobs:
           ./get_helm.sh
       - name: image private registries via pod image pull secret tests
         run: >
-          ./bin/kuttl test --start-kind=false --config tests/config/image-private-registries.yaml
+          ./bin/kuttl test --start-kind=false --config tests/e2e/config/image-private-registries.yaml
 
           ./tests/resources-cleanup-private.sh > /dev/null 2>&1
       - name: image private registries via service account image pull secret tests
         run: >
-          ./bin/kuttl test --start-kind=false --config tests/config/image-private-registries-sa.yaml
+          ./bin/kuttl test --start-kind=false --config tests/e2e/config/image-private-registries-sa.yaml
 
           ./tests/resources-cleanup-private.sh > /dev/null 2>&1
       - name: Delete kind cluster

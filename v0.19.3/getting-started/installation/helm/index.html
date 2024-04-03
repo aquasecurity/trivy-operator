@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.15+insiders-4.53.3">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17+insiders-4.53.5">
     
     
       
@@ -31,7 +31,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.458d28d0.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ab3d5eaf.min.css">
       
       
 
@@ -2105,13 +2105,13 @@ except <code>kube-system</code> and <code>trivy-system</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="w">   </span>helm<span class="w"> </span>install<span class="w"> </span>trivy-operator<span class="w"> </span>aqua/trivy-operator<span class="w"> </span><span class="se">\</span>
 <span class="w">     </span>--namespace<span class="w"> </span>trivy-system<span class="w"> </span><span class="se">\</span>
 <span class="w">     </span>--create-namespace<span class="w"> </span><span class="se">\</span>
-<span class="w">     </span>--version<span class="w"> </span><span class="m">0</span>.21.2
+<span class="w">     </span>--version<span class="w"> </span><span class="m">0</span>.21.3
 </code></pre></div>
 <p>Or install the chart from the Aqua chart repository <strong>using the OCI registry</strong>:</p>
 <div class="highlight"><pre><span></span><code><span class="w">   </span>helm<span class="w"> </span>install<span class="w"> </span>trivy-operator<span class="w"> </span>oci://ghcr.io/aquasecurity/helm-charts/trivy-operator<span class="w"> </span><span class="se">\</span>
 <span class="w">     </span>--namespace<span class="w"> </span>trivy-system<span class="w"> </span><span class="se">\</span>
 <span class="w">     </span>--create-namespace<span class="w"> </span><span class="se">\</span>
-<span class="w">     </span>--version<span class="w"> </span><span class="m">0</span>.21.2
+<span class="w">     </span>--version<span class="w"> </span><span class="m">0</span>.21.3
 </code></pre></div>
 <p>Configuration options can be passed using the <code>--set</code> parameter. To list only the fixed vulnerabilities in the cluster, one can use the following command.</p>
 <div class="highlight"><pre><span></span><code><span class="w">      </span>helm<span class="w"> </span>install<span class="w"> </span>trivy-operator<span class="w"> </span>./deploy/helm<span class="w"> </span><span class="se">\</span>
@@ -2126,7 +2126,7 @@ except <code>kube-system</code> and <code>trivy-system</code>:</p>
 </ol>
 <div class="highlight"><pre><span></span><code><span class="w">   </span>$<span class="w"> </span>helm<span class="w"> </span>list<span class="w"> </span>-n<span class="w"> </span>trivy-system
 <span class="w">   </span>NAME<span class="w">                 </span>NAMESPACE<span class="w">           </span>REVISION<span class="w">    </span>UPDATED<span class="w">                                 </span>STATUS<span class="w">      </span>CHART<span class="w">                       </span>APP<span class="w"> </span>VERSION
-<span class="w">   </span>trivy-operator<span class="w">   </span>trivy-system<span class="w">    </span><span class="m">1</span><span class="w">           </span><span class="m">2021</span>-01-27<span class="w"> </span><span class="m">20</span>:09:53.158961<span class="w"> </span>+0100<span class="w"> </span>CET<span class="w">    </span>deployed<span class="w">    </span>trivy-operator-0.21.2<span class="w">   </span><span class="m">0</span>.19.3
+<span class="w">   </span>trivy-operator<span class="w">   </span>trivy-system<span class="w">    </span><span class="m">1</span><span class="w">           </span><span class="m">2021</span>-01-27<span class="w"> </span><span class="m">20</span>:09:53.158961<span class="w"> </span>+0100<span class="w"> </span>CET<span class="w">    </span>deployed<span class="w">    </span>trivy-operator-0.21.3<span class="w">   </span><span class="m">0</span>.19.3
 </code></pre></div>
 <p>To confirm that the operator is running, check that the <code>trivy-operator</code> Deployment in the <code>trivy-system</code>
    namespace is available and all its containers are ready:</p>
@@ -2232,7 +2232,7 @@ except <code>kube-system</code> and <code>trivy-system</code>:</p>
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections"], "search": "../../../assets/javascripts/workers/search.1e90e0fb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"method": "mike", "provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.a255a381.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.1135ae9f.min.js"></script>
       
     
   </body>

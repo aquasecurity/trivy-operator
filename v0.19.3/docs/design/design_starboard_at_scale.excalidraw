@@ -11835,7 +11835,7 @@
       "versionNonce": 596868769,
       "isDeleted": false,
       "boundElementIds": null,
-      "text": "apiVersion: batch/v1\nkind: Job\nmetadata:\n  name: scan-vulnerabilityreport-<workload hash>\n  namespace: trivy-system\nspec:\n  template:\n    spec:\n      containers:\n      - name: nginx\n        image: aquasec/trivy:0.19.2\n        command: [\"trivy\",  \"image\", \"nginx:1.16\"]\n      restartPolicy: Never\n  backoffLimit: 1",
+      "text": "apiVersion: batch/v1\nkind: Job\nmetadata:\n  name: scan-vulnerabilityreport-<workload hash>\n  namespace: trivy-system\nspec:\n  template:\n    spec:\n      containers:\n      - name: nginx\n        image: aquasec/trivy:0.19.3\n        command: [\"trivy\",  \"image\", \"nginx:1.16\"]\n      restartPolicy: Never\n  backoffLimit: 1",
       "fontSize": 20,
       "fontFamily": 3,
       "textAlign": "left",
@@ -11895,7 +11895,7 @@
       "boundElementIds": [],
       "fontSize": 20,
       "fontFamily": 3,
-      "text": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: scan-vulnerabilityreport-<workload hash>-<pod-hash>\n  namespace: trivy-system\nspec:\n  containers:\n    - name: nginx\n      image: aquasec/trivy:0.19.2\n      command: [\"trivy\",  \"image\", \"nginx:1.16\"]\n",
+      "text": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: scan-vulnerabilityreport-<workload hash>-<pod-hash>\n  namespace: trivy-system\nspec:\n  containers:\n    - name: nginx\n      image: aquasec/trivy:0.19.3\n      command: [\"trivy\",  \"image\", \"nginx:1.16\"]\n",
       "baseline": 259,
       "textAlign": "left",
       "verticalAlign": "top"

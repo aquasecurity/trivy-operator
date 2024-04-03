@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.15+insiders-4.53.3">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17+insiders-4.53.5">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.458d28d0.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ab3d5eaf.min.css">
       
       
 
@@ -1981,8 +1981,8 @@ Job is expensive, Trivy-Operator does not reuse scan results in any way.
 For example, if a workload refers to the image that has already been scanned,
 Trivy-Operator will go ahead and create another (similar) K8s Job.</p>
 <p>To some extent, the problem of wasteful and long-running K8s Jobs can be
-mitigated by using Trivy-Operator with Trivy in the <a href="https://aquasecurity.github.io/trivy-operator/v0.19.2/integrations/vulnerability-scanners/trivy/#clientserver">ClientServer</a> mode instead of
-the default <a href="https://aquasecurity.github.io/trivy-operator/v0.19.2/integrations/vulnerability-scanners/trivy/#standalone">Standalone</a> mode. In this case a configured Trivy server will cache
+mitigated by using Trivy-Operator with Trivy in the <a href="https://aquasecurity.github.io/trivy-operator/v0.19.3/integrations/vulnerability-scanners/trivy/#clientserver">ClientServer</a> mode instead of
+the default <a href="https://aquasecurity.github.io/trivy-operator/v0.19.3/integrations/vulnerability-scanners/trivy/#standalone">Standalone</a> mode. In this case a configured Trivy server will cache
 results of scanning image layers. However, there is still unnecessary overhead
 for managing K8s Jobs and communication between Trivy client and server.
 (The only real difference is that some Jobs may complete faster for already scanned
@@ -2124,7 +2124,7 @@ We can't use something like ownerReference since it would delete all vulnerabili
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections"], "search": "../../../assets/javascripts/workers/search.1e90e0fb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"method": "mike", "provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.a255a381.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.1135ae9f.min.js"></script>
       
     
   </body>

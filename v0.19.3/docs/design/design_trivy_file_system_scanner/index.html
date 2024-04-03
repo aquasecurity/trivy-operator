@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.15+insiders-4.53.3">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17+insiders-4.53.5">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.458d28d0.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ab3d5eaf.min.css">
       
       
 
@@ -1922,7 +1922,7 @@
   <a href="#tldr" class="md-nav__link">
     <span class="md-ellipsis">
       
-        TL;DR;
+        TL;DR
       
     </span>
   </a>
@@ -1994,15 +1994,17 @@ runtime on cluster nodes. Therefore, to scan images from private registries Triv
 on workloads or on service accounts used by the workloads, and passes them down to Trivy executable as <code>TRIVY_USERNAME</code>
 and <code>TRIVY_PASSWORD</code> environment variables.</p>
 <p>Since ImagePullSecrets are not the only way to provide registry credential, the following alternatives are not
-currently supported by Trivy-Operator:
-1. Pre-pulled images
-2. <a href="https://kubernetes.io/docs/concepts/containers/images/#configuring-nodes-to-authenticate-to-a-private-registry">Configuring nodes to authenticate to a private registry</a>
-3. Vendor-specific or local extension. For example, methods described on <a href="https://docs.aws.amazon.com/AmazonECR/latest/userguide/registry_auth.html">AWS ECR Private registry authentication</a>.</p>
+currently supported by Trivy-Operator:</p>
+<ol>
+<li>Pre-pulled images</li>
+<li><a href="https://kubernetes.io/docs/concepts/containers/images/#configuring-nodes-to-authenticate-to-a-private-registry">Configuring nodes to authenticate to a private registry</a></li>
+<li>Vendor-specific or local extension. For example, methods described on <a href="https://docs.aws.amazon.com/AmazonECR/latest/userguide/registry_auth.html">AWS ECR Private registry authentication</a>.</li>
+</ol>
 <p>Even though we could resolve some of above-mentioned limitations with hostPath volume mounts to the container runtime
 socket, it would have its own disadvantages that we are trying to avoid. For example, more permissions to schedule scan
-Jobs and additional information about cluster's infrastructure such as location of the container runtime socket. </p>
+Jobs and additional information about cluster's infrastructure such as location of the container runtime socket.</p>
 <h2 id="solution">Solution</h2>
-<h3 id="tldr">TL;DR;</h3>
+<h3 id="tldr">TL;DR</h3>
 <p>Use Trivy filesystem scanning to scan container images. The main idea, which is discussed in this proposal, is to
 schedule a scan Job on the same cluster node where the scanned workload. This allows Trivy to scan a filesystem of
 the container image which is already cached on that node without pulling the image from a remote registry. What's more,
@@ -2082,10 +2084,10 @@ ImagePullSecret. (Alternatively, ImagePullSecret can be attached to a service ac
 <span class="w">          </span><span class="nt">emptyDir</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"> </span><span class="p p-Indicator">}</span>
 <span class="w">      </span><span class="nt">initContainers</span><span class="p">:</span>
 <span class="w">        </span><span class="c1"># The trivy-get-binary init container is used to copy out the trivy executable</span>
-<span class="w">        </span><span class="c1"># binary from the upstream Trivy container image, i.e. aquasec/trivy:0.19.2,</span>
+<span class="w">        </span><span class="c1"># binary from the upstream Trivy container image, i.e. aquasec/trivy:0.19.3,</span>
 <span class="w">        </span><span class="c1"># to a shared emptyDir volume.</span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-get-binary</span>
-<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aquasec/trivy:0.19.2</span>
+<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aquasec/trivy:0.19.3</span>
 <span class="w">          </span><span class="nt">command</span><span class="p">:</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cp</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-v</span>
@@ -2100,7 +2102,7 @@ ImagePullSecret. (Alternatively, ImagePullSecret can be attached to a service ac
 <span class="w">        </span><span class="c1"># This won&#39;t be required once Trivy supports ClientServer mode</span>
 <span class="w">        </span><span class="c1"># for the fs subcommand.</span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-download-db</span>
-<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aquasec/trivy:0.19.2</span>
+<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aquasec/trivy:0.19.3</span>
 <span class="w">          </span><span class="nt">command</span><span class="p">:</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/trivy-operator/trivy</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">--download-db-only</span>
@@ -2203,7 +2205,7 @@ on the <code>kube-control-plane</code> node.)</p>
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections"], "search": "../../../assets/javascripts/workers/search.1e90e0fb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"method": "mike", "provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.a255a381.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.1135ae9f.min.js"></script>
       
     
   </body>

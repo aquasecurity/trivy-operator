@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.15+insiders-4.53.3">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17+insiders-4.53.5">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.458d28d0.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ab3d5eaf.min.css">
       
       
 
@@ -2000,7 +2000,7 @@ method to provide access to registry, then trivy operator has challenges to scan
  If user wants to get these images scanned using Trivy operator then currently we have only one way to do that.
  User has to associate IAM role to trivy-operator service account, so with when scan job run with <code>trivy-operator</code>service
  account, then Trivy will get appropriate permission to pull the image. To know more on how this mechanism works, please
- refer to the documents <a href="https://aquasecurity.github.io/trivy-operator/v0.19.2/integrations/managed-registries/#amazon-elastic-container-registry-ecr">ECR registry configuration</a>, <a href="https://docs.aws.amazon.com/eks/latest/userguide/specify-service-account-role.html">IAM role to service account</a>, but, trivy cannot use permission
+ refer to the documents <a href="https://aquasecurity.github.io/trivy-operator/v0.19.3/integrations/managed-registries/#amazon-elastic-container-registry-ecr">ECR registry configuration</a>, <a href="https://docs.aws.amazon.com/eks/latest/userguide/specify-service-account-role.html">IAM role to service account</a>, but, trivy cannot use permission
  set on service account of workload.  </li>
 </ul>
 <p>Recently, there is one option added in Trivy plugin with <a href="https://github.com/aquasecurity/trivy-operator/blob/main/docs/design/design_trivy_file_system_scanner.md">Trivy fs command</a>, In which Trivy scans the image which is
@@ -2141,7 +2141,7 @@ will monitor job, and it will parse the result based on completion state of job.
 <span class="w">          </span><span class="nt">emptyDir</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="w"> </span><span class="p p-Indicator">}</span>
 <span class="w">      </span><span class="nt">initContainers</span><span class="p">:</span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-get-binary</span>
-<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aquasec/trivy:0.19.2</span>
+<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aquasec/trivy:0.19.3</span>
 <span class="w">          </span><span class="nt">command</span><span class="p">:</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cp</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-v</span>
@@ -2151,7 +2151,7 @@ will monitor job, and it will parse the result based on completion state of job.
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">scan-volume</span>
 <span class="w">              </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/trivy-operator</span>
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-download-db</span>
-<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aquasec/trivy:0.19.2</span>
+<span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aquasec/trivy:0.19.3</span>
 <span class="w">          </span><span class="nt">command</span><span class="p">:</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/var/trivy-operator/trivy</span>
 <span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">--download-db-only</span>
@@ -2241,7 +2241,7 @@ then scan job will be blocked due to the PSP.</li>
     <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections"], "search": "../../../assets/javascripts/workers/search.1e90e0fb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"method": "mike", "provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.a255a381.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.1135ae9f.min.js"></script>
       
     
   </body>

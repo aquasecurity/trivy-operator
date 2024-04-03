@@ -13,17 +13,18 @@ and `TRIVY_PASSWORD` environment variables.
 
 Since ImagePullSecrets are not the only way to provide registry credential, the following alternatives are not
 currently supported by Trivy-Operator:
+
 1. Pre-pulled images
 2. [Configuring nodes to authenticate to a private registry]
 3. Vendor-specific or local extension. For example, methods described on [AWS ECR Private registry authentication].
 
 Even though we could resolve some of above-mentioned limitations with hostPath volume mounts to the container runtime
 socket, it would have its own disadvantages that we are trying to avoid. For example, more permissions to schedule scan
-Jobs and additional information about cluster's infrastructure such as location of the container runtime socket. 
+Jobs and additional information about cluster's infrastructure such as location of the container runtime socket.
 
 ## Solution
 
-### TL;DR;
+### TL;DR
 
 Use Trivy filesystem scanning to scan container images. The main idea, which is discussed in this proposal, is to
 schedule a scan Job on the same cluster node where the scanned workload. This allows Trivy to scan a filesystem of
@@ -89,7 +90,7 @@ spec:
       containers:
         - name: nginx
           image: example.registry.com/nginx:1.16
-``` 
+```
 
 To scan the `nginx` container of the `nginx` Deployment, Trivy-Operator will create the following scan Job in the
 `trivy-system` namespace and observe it until it's Completed or Failed.
@@ -116,10 +117,10 @@ spec:
           emptyDir: { }
       initContainers:
         # The trivy-get-binary init container is used to copy out the trivy executable
-        # binary from the upstream Trivy container image, i.e. aquasec/trivy:0.19.2,
+        # binary from the upstream Trivy container image, i.e. aquasec/trivy:0.19.3,
         # to a shared emptyDir volume.
         - name: trivy-get-binary
-          image: aquasec/trivy:0.19.2
+          image: aquasec/trivy:0.19.3
           command:
             - cp
             - -v
@@ -134,7 +135,7 @@ spec:
         # This won't be required once Trivy supports ClientServer mode
         # for the fs subcommand.
         - name: trivy-download-db
-          image: aquasec/trivy:0.19.2
+          image: aquasec/trivy:0.19.3
           command:
             - /var/trivy-operator/trivy
             - --download-db-only
@@ -198,4 +199,3 @@ Trivy must run as root so the scan Job defined the `securityContext` with the `r
 [AWS ECR Private registry authentication]: https://docs.aws.amazon.com/AmazonECR/latest/userguide/registry_auth.html
 [AlwaysPullImages]: https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/#alwayspullimages
 [kfox1111]: https://github.com/kfox1111
-

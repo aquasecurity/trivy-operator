@@ -44,13 +44,13 @@ metadata:
 report:
   artifact:
     repository: fluxcd/source-controller
-    tag: v0.19.2
+    tag: v0.19.3
   registry:
     server: ghcr.io
   scanner:
     name: Trivy
     vendor: Aqua Security
-    version: 0.19.2
+    version: 0.19.3
   summary:
     criticalCount: 0
     highCount: 0

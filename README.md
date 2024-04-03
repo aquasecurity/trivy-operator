@@ -67,7 +67,7 @@ Install the Helm Chart:
    helm install trivy-operator aqua/trivy-operator \
      --namespace trivy-system \
      --create-namespace \
-     --version 0.21.2
+     --version 0.21.3
 ```
 
 #### Option 2: Install from OCI registry (supported in Helm v3.8.0+)
@@ -78,7 +78,7 @@ Install the Helm Chart:
    helm install trivy-operator oci://ghcr.io/aquasecurity/helm-charts/trivy-operator \
      --namespace trivy-system \
      --create-namespace \
-     --version 0.21.2
+     --version 0.21.3
 ```
 
 This will install the Trivy Helm Chart into the `trivy-system` namespace and start triggering the scans.

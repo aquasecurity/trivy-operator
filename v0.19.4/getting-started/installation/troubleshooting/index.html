@@ -1,0 +1,2531 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Kubernetes-native security toolkit">
+      
+      
+      
+        <link rel="canonical" href="https://aquasecurity.github.io/trivy-operator/v0.19.4/getting-started/installation/troubleshooting/">
+      
+      
+        <link rel="prev" href="../configuration/">
+      
+      
+        <link rel="next" href="../../../settings/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17+insiders-4.53.5">
+    
+    
+      
+        <title>Troubleshooting - Trivy Operator</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ab3d5eaf.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#troubleshooting-the-trivy-operator" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Trivy Operator" class="md-header__button md-logo" aria-label="Trivy Operator" data-md-component="logo">
+      
+  <img src="../../../images/logo-white.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Trivy Operator
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Troubleshooting
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/aquasecurity/trivy-operator" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../.." class="md-tabs__link">
+          
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../tutorials/writing-custom-configuration-audit-policies/" class="md-tabs__link">
+          
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../docs/" class="md-tabs__link">
+          
+  
+  Docs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../faq/" class="md-tabs__link">
+        
+  
+    
+  
+  Frequently Asked Questions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Trivy Operator" class="md-nav__button md-logo" aria-label="Trivy Operator" data-md-component="logo">
+      
+  <img src="../../../images/logo-white.svg" alt="logo">
+
+    </a>
+    Trivy Operator
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/aquasecurity/trivy-operator" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1_2" id="__nav_1_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Installation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../kubectl/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    kubectl
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../helm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Helm
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../olm/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Operator Lifecycle Manager
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../upgrade/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Upgrade
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operator-pod-not-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operator Pod Not Running
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#imagepullbackoff-or-errimagepull" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ImagePullBackOff or ErrImagePull
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#crashloopbackoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CrashLoopBackOff
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reconciliation-error" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reconciliation Error
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operator-does-not-create-vulnerabilityreports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operator does not create VulnerabilityReports
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-the-operator-in-a-namespace-with-default-deny-all-egressingress-network-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installing the Operator in a namespace with default deny-all egress/ingress network policies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Installing the Operator in a namespace with default deny-all egress/ingress network policies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#trivy-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trivy-server
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../settings/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_1_3" id="__nav_1_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Quick Start
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../quick-start/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/writing-custom-configuration-audit-policies/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing Custom Configuration Audit Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/manage_access_to_security_reports/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Manage Access to Security Reports
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/microk8s/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Using the Trivy Operator addon in microk8s
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/private-registries/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Operator Access to Private Registries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/grafana-dashboard/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Trivy Operator Dashboard in Grafana
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_6" id="__nav_2_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Integrations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Integrations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/integrations/metrics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/integrations/lens/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Lens Extension
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/integrations/webhook/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Webhook Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../tutorials/integrations/policy-reporter/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Policy Reporter Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Docs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Docs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Vulnerability Scanning
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Vulnerability Scanning
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/vulnerability-scanning/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/vulnerability-scanning/trivy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Trivy Scanner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/vulnerability-scanning/private-registries/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Private Registries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/vulnerability-scanning/managed-registries/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Managed Registries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Auditing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Configuration Auditing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/configuration-auditing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/configuration-auditing/built-in-policies/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Built-in Configuration Audit Policies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Compliance Report
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Compliance Report
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/compliance/compliance/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom Resource Definitions
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Custom Resource Definitions
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/crds/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/crds/vulnerability-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    VulnerabilityReport
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/crds/configaudit-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    ConfigAuditReport
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/crds/exposedsecret-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    ExposedSecretReport
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/crds/rbacassessment-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    RbacAssessmentReport
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/crds/infraassessment-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    InfraAssessmentReport
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/crds/clustercompliance-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    ClusterComplianceReport
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/crds/clustervulnerability-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    ClusterVulnerabilityReport
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docs/crds/sbom-report/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    SbomReport
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../faq/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    
+  
+    Frequently Asked Questions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operator-pod-not-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operator Pod Not Running
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#imagepullbackoff-or-errimagepull" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ImagePullBackOff or ErrImagePull
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#crashloopbackoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CrashLoopBackOff
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reconciliation-error" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reconciliation Error
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operator-does-not-create-vulnerabilityreports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operator does not create VulnerabilityReports
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-the-operator-in-a-namespace-with-default-deny-all-egressingress-network-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installing the Operator in a namespace with default deny-all egress/ingress network policies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Installing the Operator in a namespace with default deny-all egress/ingress network policies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#trivy-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trivy-server
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="troubleshooting-the-trivy-operator">Troubleshooting the Trivy Operator</h1>
+<p>The Trivy Operator installs several Kubernetes resources into your Kubernetes cluster.</p>
+<p>Here are the common steps to check whether the operator is running correctly and to troubleshoot common issues.</p>
+<p>In addition to this section, you might want to check <a href="https://github.com/aquasecurity/trivy/issues">issues</a>, <a href="https://github.com/aquasecurity/trivy/discussions">discussion forum</a>, or <a href="https://slack.aquasec.com">Slack</a> to see if someone from the community had similar problems before.</p>
+<p>Also note that Trivy Operator is based on existing Aqua OSS project - <a href="https://github.com/aquasecurity/starboard">Starboard</a>, and shares some of the design, principles and code with it. Existing content that relates to Starboard Operator might also be relevant for Trivy Operator, and Starboard's <a href="https://github.com/aquasecurity/starboard/issues">issues</a>, <a href="https://github.com/aquasecurity/starboard/discussions">discussion forum</a>, or <a href="https://slack.aquasec.com">Slack</a> might also be interesting to check.<br />
+In some cases you might want to refer to <a href="https://aquasecurity.github.io/starboard/latest/design/">Starboard's Design documents</a>.</p>
+<h2 id="installation">Installation</h2>
+<p>Make sure that the latest version of the Trivy Operator is installed. For this, have a look at the installation <a href="../helm/">options.</a></p>
+<p>For instance, if your are using the Helm deployment, you need to check the Helm Chart version deployed to your cluster. You can check the Helm Chart version with the following command:
+<div class="highlight"><pre><span></span><code>helm list -n trivy-system
+</code></pre></div></p>
+<h2 id="operator-pod-not-running">Operator Pod Not Running</h2>
+<p>The Trivy Operator will run a pod inside your cluster. If you have followed the installation guide, you will have installed the Operator to the <code>trivy-system</code>.</p>
+<p>Make sure that the pod is in the <code>Running</code> status:
+<div class="highlight"><pre><span></span><code>kubectl get pods -n trivy-system
+</code></pre></div></p>
+<p>This is how it will look if it is running okay:</p>
+<div class="highlight"><pre><span></span><code>NAMESPACE            NAME                                         READY   STATUS    RESTARTS      AGE
+trivy-system     trivy-operator-6c9bd97d58-hsz4g          1/1     Running   5 (19m ago)   30h
+</code></pre></div>
+<p>If the pod is in <code>Failed</code>, <code>Pending</code>, or <code>Unknown</code> state check the events and the logs of the pod.</p>
+<p>First, check the events, since they might be more descriptive of the problem. However, if the events do not give a clear reason why the pod cannot spin up, then you want to check the logs, which provide more detail.</p>
+<div class="highlight"><pre><span></span><code>kubectl describe pod &lt;POD-NAME&gt; -n trivy-system
+</code></pre></div>
+<p>To check the logs, use the following command:
+<div class="highlight"><pre><span></span><code>kubectl logs deployment/trivy-operator -n trivy-system
+</code></pre></div></p>
+<p>If your pod is not running, try to look for errors as they can give an indication on the problem.</p>
+<p>If there are too many logs messages, try deleting the Trivy pod and observe its behavior upon restarting. A new pod should spin up automatically after deleting the failed pod.</p>
+<h2 id="imagepullbackoff-or-errimagepull">ImagePullBackOff or ErrImagePull</h2>
+<p>Check the status of the Trivy Operator pod running inside of your Kubernetes cluster. If the Status is ImagePullBackOff or ErrImagePull, it means that the Operator either</p>
+<ul>
+<li>tries to access the wrong image</li>
+<li>cannot pull the image from the registry</li>
+</ul>
+<p>Make sure that you are providing the right resources upon installing the Trivy Operator.</p>
+<h2 id="crashloopbackoff">CrashLoopBackOff</h2>
+<p>If your pod is in <code>CrashLoopBackOff</code>, it is likely the case that the pod cannot be scheduled on the Kubernetes node that it is trying to schedule on.
+In this case, you want to investigate further whether there is an issue with the node. It could for instance be the case that the node does not have sufficient resources.</p>
+<h2 id="reconciliation-error">Reconciliation Error</h2>
+<p>It could happen that the pod appears to be running normally but does not reconcile the resources inside of your Kubernetes cluster.</p>
+<p>Check the logs for Reconciliation errors:
+<div class="highlight"><pre><span></span><code>kubectl logs deployment/trivy-operator -n trivy-system
+</code></pre></div></p>
+<p>If this is the case, the Trivy Operator likely does not have the right configurations to access your resource.</p>
+<h2 id="operator-does-not-create-vulnerabilityreports">Operator does not create VulnerabilityReports</h2>
+<p>VulnerabilityReports are owned and controlled by the immediate Kubernetes workload. Every VulnerabilityReport of a pod is thus, linked to a <a href="../">ReplicaSet.</a> In case the Trivy Operator does not create a VulnerabilityReport for your workloads, it could be that it is not monitoring the namespace that your workloads are running on.</p>
+<p>An easy way to check this is by looking for the <code>ClusterRoleBinding</code> for the Trivy Operator:</p>
+<div class="highlight"><pre><span></span><code>kubectl get ClusterRoleBinding | grep &quot;trivy-operator&quot;
+</code></pre></div>
+<p>Alternatively, you could use the <code>kubectl-who-can</code> <a href="https://github.com/aquasecurity/kubectl-who-can">plugin by Aqua</a>:</p>
+<div class="highlight"><pre><span></span><code><span class="gp">$ </span>kubectl<span class="w"> </span>who-can<span class="w"> </span>list<span class="w"> </span>vulnerabilityreports
+<span class="go">No subjects found with permissions to list vulnerabilityreports assigned through RoleBindings</span>
+
+<span class="go">CLUSTERROLEBINDING                           SUBJECT                         TYPE            SA-NAMESPACE</span>
+<span class="go">cluster-admin                                system:masters                  Group</span>
+<span class="go">trivy-operator                           trivy-operator              ServiceAccount  trivy-system</span>
+<span class="go">system:controller:generic-garbage-collector  generic-garbage-collector       ServiceAccount  kube-system</span>
+<span class="go">system:controller:namespace-controller       namespace-controller            ServiceAccount  kube-system</span>
+<span class="go">system:controller:resourcequota-controller   resourcequota-controller        ServiceAccount  kube-system</span>
+<span class="go">system:kube-controller-manager               system:kube-controller-manager  User</span>
+</code></pre></div>
+<p>If the <code>ClusterRoleBinding</code> does not exist, Trivy currently cannot monitor any namespace outside of the <code>trivy-system</code> namespace.</p>
+<p>For instance, if you are using the <a href="../helm/">Helm Chart</a>, you want to make sure to set the <code>targetNamespace</code> to the namespace that you want the Operator to monitor.</p>
+<p>The operator also could not be configured to scan the workload you are expecting. Check to make sure <code>OPERATOR_TARGET_WORKLOADS</code> is set correctly in your configuration. This allows you to specify which workload types to be scanned. </p>
+<p>For example, by default in the <a href="../helm/">Helm Chart</a> values, the following Kubernetes workloads are configured to be scanned
+<code>"pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job"</code>.</p>
+<h2 id="installing-the-operator-in-a-namespace-with-default-deny-all-egressingress-network-policies">Installing the Operator in a namespace with default deny-all egress/ingress network policies</h2>
+<p>If you are trying to install the Trivy-Operator in a namespace where there are default deny-all egress/ingress network policies (see example below), you might need to configure some extra network policies yourself to make sure the traffic can flow as expected and the operator does not enter an error state.</p>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NetworkPolicy</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default-deny-egress</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-system</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">podSelector</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">policyTypes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Egress</span>
+<span class="nn">---</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">networking.k8s.io/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NetworkPolicy</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default-deny-ingress</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-system</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">podSelector</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">policyTypes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ingress</span>
+</code></pre></div>
+<p>Notice how the namespace is <code>trivy-system</code>, the above network policies are assuming that you installed the <code>trivy-operator</code> (and <code>trivy-server</code> when applicable) there. Keep in mind these same network policies might be part of other namespaces (like kube-system or default) where important Kubernetes components live, such as the coredns and/or the default Kubernetes service.</p>
+<p>We'll now create a namespace where we will deploy our pod with vulnerabilities. This namespace will be called <em>applications</em></p>
+<p><code>kubectl create namespace applications</code></p>
+<p>Next step is to create the pod with vulnerabilities. To do this we can run the following command:</p>
+<p><code>kubectl run nginx -n applications</code></p>
+<p>At this point, we should expect the Trivy Operator to generate the <code>VulnerabilityReports</code> custom resources in our <code>applications</code> namespace. However, if we try to get these resources across the <code>applications</code> namespace, we'll see that we won't get any reports:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>vulnerabilityreports<span class="w"> </span>-n<span class="w"> </span>applications
+No<span class="w"> </span>resources<span class="w"> </span>found<span class="w"> </span><span class="k">in</span><span class="w"> </span>applications<span class="w"> </span>namespace.
+</code></pre></div>
+<p>If we look at the <code>get pods</code> command, the description of the trivy-operator pod and its logs, we'll see some interesting messages that will help us understand why the reports aren't being generated.</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>trivy-system
+NAME<span class="w">                              </span>READY<span class="w">   </span>STATUS<span class="w">             </span>RESTARTS<span class="w">        </span>AGE
+trivy-operator-846f8c6446-clzlk<span class="w">   </span><span class="m">0</span>/1<span class="w">     </span>CrashLoopBackOff<span class="w">   </span><span class="m">6</span><span class="w"> </span><span class="o">(</span>2m41s<span class="w"> </span>ago<span class="o">)</span><span class="w">   </span>8m28s
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>describe<span class="w"> </span>pods<span class="w"> </span>trivy-operator-846f8c6446-clzlk<span class="w"> </span>-n<span class="w"> </span>trivy-system<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>Events<span class="w"> </span>-A<span class="w"> </span><span class="m">10</span>
+Events:
+<span class="w">  </span>Type<span class="w">     </span>Reason<span class="w">     </span>Age<span class="w">                    </span>From<span class="w">               </span>Message
+<span class="w">  </span>----<span class="w">     </span>------<span class="w">     </span>----<span class="w">                   </span>----<span class="w">               </span>-------
+<span class="w">  </span>Normal<span class="w">   </span>Scheduled<span class="w">  </span>7m11s<span class="w">                  </span>default-scheduler<span class="w">  </span>Successfully<span class="w"> </span>assigned<span class="w"> </span>trivy-system/trivy-operator-846f8c6446-clzlk<span class="w"> </span>to<span class="w"> </span>k3d-kon-test-server-0
+<span class="w">  </span>Normal<span class="w">   </span>Created<span class="w">    </span>6m26s<span class="w"> </span><span class="o">(</span>x4<span class="w"> </span>over<span class="w"> </span>7m11s<span class="o">)</span><span class="w">  </span>kubelet<span class="w">            </span>Created<span class="w"> </span>container<span class="w"> </span>trivy-operator
+<span class="w">  </span>Normal<span class="w">   </span>Started<span class="w">    </span>6m26s<span class="w"> </span><span class="o">(</span>x4<span class="w"> </span>over<span class="w"> </span>7m11s<span class="o">)</span><span class="w">  </span>kubelet<span class="w">            </span>Started<span class="w"> </span>container<span class="w"> </span>trivy-operator
+<span class="w">  </span>Normal<span class="w">   </span>Pulled<span class="w">     </span>5m38s<span class="w"> </span><span class="o">(</span>x5<span class="w"> </span>over<span class="w"> </span>7m11s<span class="o">)</span><span class="w">  </span>kubelet<span class="w">            </span>Container<span class="w"> </span>image<span class="w"> </span><span class="s2">&quot;ghcr.io/aquasecurity/trivy-operator:0.16.4&quot;</span><span class="w"> </span>already<span class="w"> </span>present<span class="w"> </span>on<span class="w"> </span>machine
+<span class="w">  </span>Warning<span class="w">  </span>BackOff<span class="w">    </span>2m4s<span class="w"> </span><span class="o">(</span>x32<span class="w"> </span>over<span class="w"> </span>7m9s<span class="o">)</span><span class="w">   </span>kubelet<span class="w">            </span>Back-off<span class="w"> </span>restarting<span class="w"> </span>failed<span class="w"> </span>container<span class="w"> </span>trivy-operator<span class="w"> </span><span class="k">in</span><span class="w"> </span>pod<span class="w"> </span>trivy-operator-846f8c6446-clzlk_trivy-system<span class="o">(</span>ddbfdf6d-751b-4137-860e-5561c71b6f8d<span class="o">)</span>
+</code></pre></div>
+<p>The pod is in a <code>CrashLoopBackOff</code> state, and the description confirms that the container is constantly being restarted.</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>logs<span class="w"> </span>trivy-operator-846f8c6446-clzlk<span class="w"> </span>-n<span class="w"> </span>trivy-system
+<span class="m">2023</span>/11/21<span class="w"> </span><span class="m">06</span>:04:02<span class="w"> </span>maxprocs:<span class="w"> </span>Leaving<span class="w"> </span><span class="nv">GOMAXPROCS</span><span class="o">=</span><span class="m">2</span>:<span class="w"> </span>CPU<span class="w"> </span>quota<span class="w"> </span>undefined
+<span class="o">{</span><span class="s2">&quot;level&quot;</span>:<span class="s2">&quot;info&quot;</span>,<span class="s2">&quot;ts&quot;</span>:<span class="s2">&quot;2023-11-21T06:04:02Z&quot;</span>,<span class="s2">&quot;logger&quot;</span>:<span class="s2">&quot;main&quot;</span>,<span class="s2">&quot;msg&quot;</span>:<span class="s2">&quot;Starting operator&quot;</span>,<span class="s2">&quot;buildInfo&quot;</span>:<span class="o">{</span><span class="s2">&quot;Version&quot;</span>:<span class="s2">&quot;0.16.4&quot;</span>,<span class="s2">&quot;Commit&quot;</span>:<span class="s2">&quot;c2f0e0f4f773f090f61c07489fd6dc062d465b2d&quot;</span>,<span class="s2">&quot;Date&quot;</span>:<span class="s2">&quot;2023-10-29T08:18:47Z&quot;</span>,<span class="s2">&quot;Executable&quot;</span>:<span class="s2">&quot;&quot;</span><span class="o">}}</span>
+<span class="o">{</span><span class="s2">&quot;level&quot;</span>:<span class="s2">&quot;info&quot;</span>,<span class="s2">&quot;ts&quot;</span>:<span class="s2">&quot;2023-11-21T06:04:02Z&quot;</span>,<span class="s2">&quot;logger&quot;</span>:<span class="s2">&quot;operator&quot;</span>,<span class="s2">&quot;msg&quot;</span>:<span class="s2">&quot;Resolved install mode&quot;</span>,<span class="s2">&quot;install mode&quot;</span>:<span class="s2">&quot;AllNamespaces&quot;</span>,<span class="s2">&quot;operator namespace&quot;</span>:<span class="s2">&quot;trivy-system&quot;</span>,<span class="s2">&quot;target namespaces&quot;</span>:<span class="o">[]</span>,<span class="s2">&quot;exclude namespaces&quot;</span>:<span class="s2">&quot;&quot;</span>,<span class="s2">&quot;target workloads&quot;</span>:<span class="o">[</span><span class="s2">&quot;pod&quot;</span>,<span class="s2">&quot;replicaset&quot;</span>,<span class="s2">&quot;replicationcontroller&quot;</span>,<span class="s2">&quot;statefulset&quot;</span>,<span class="s2">&quot;daemonset&quot;</span>,<span class="s2">&quot;cronjob&quot;</span>,<span class="s2">&quot;job&quot;</span><span class="o">]}</span>
+<span class="o">{</span><span class="s2">&quot;level&quot;</span>:<span class="s2">&quot;info&quot;</span>,<span class="s2">&quot;ts&quot;</span>:<span class="s2">&quot;2023-11-21T06:04:02Z&quot;</span>,<span class="s2">&quot;logger&quot;</span>:<span class="s2">&quot;operator&quot;</span>,<span class="s2">&quot;msg&quot;</span>:<span class="s2">&quot;Watching all namespaces&quot;</span><span class="o">}</span>
+unable<span class="w"> </span>to<span class="w"> </span>run<span class="w"> </span>trivy<span class="w"> </span>operator:<span class="w"> </span>failed<span class="w"> </span>getting<span class="w"> </span>configmap:<span class="w"> </span>trivy-operator:<span class="w"> </span>Get<span class="w"> </span><span class="s2">&quot;https://10.43.0.1:443/api/v1/namespaces/trivy-system/configmaps/trivy-operator&quot;</span>:<span class="w"> </span>dial<span class="w"> </span>tcp<span class="w"> </span><span class="m">10</span>.43.0.1:443:<span class="w"> </span>connect:<span class="w"> </span>connection<span class="w"> </span>refused
+</code></pre></div>
+<p>We see that the trivy-operator is correctly configured to watch all namespaces, that means that the <code>VulnerabilityReports</code> should be generated across all namespaces, including the <code>applications</code> namespace.</p>
+<p>The first red flag that something is wrong with the networking configuration can be found in the following message:</p>
+<div class="highlight"><pre><span></span><code>unable<span class="w"> </span>to<span class="w"> </span>run<span class="w"> </span>trivy<span class="w"> </span>operator:<span class="w"> </span>failed<span class="w"> </span>getting<span class="w"> </span>configmap:<span class="w"> </span>trivy-operator:<span class="w"> </span>Get<span class="w"> </span><span class="s2">&quot;https://10.43.0.1:443/api/v1/namespaces/trivy-system/configmaps/trivy-operator&quot;</span>:<span class="w"> </span>dial<span class="w"> </span>tcp<span class="w"> </span><span class="m">10</span>.43.0.1:443:<span class="w"> </span>connect:<span class="w"> </span>connection<span class="w"> </span>refused
+</code></pre></div>
+<p>The IP address in context <code>10.43.0.1</code> belongs to the kube-api. We can confirm so by looking for the service called <code>kubernetes</code>:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>svc<span class="w"> </span>kubernetes
+NAME<span class="w">         </span>TYPE<span class="w">        </span>CLUSTER-IP<span class="w">   </span>EXTERNAL-IP<span class="w">   </span>PORT<span class="o">(</span>S<span class="o">)</span><span class="w">   </span>AGE
+kubernetes<span class="w">   </span>ClusterIP<span class="w">   </span><span class="m">10</span>.43.0.1<span class="w">    </span>&lt;none&gt;<span class="w">        </span><span class="m">443</span>/TCP<span class="w">   </span>28d
+</code></pre></div>
+<p>Basically, the trivy-operator cannot reach the kube-api to execute the calls looking for different resources. In example above, we can see that the trivy-operator was looking for the trivy-operator configmap in the trivy-system. Our first task will be to enable traffic between the trivy-operator pods and the kube-api service so that the trivy-operator can successfully get what it needs from the kube-api.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">networking.k8s.io/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NetworkPolicy</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow-egress-from-trivy-system-to-kube-api</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-system</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">podSelector</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">egress</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">to</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">ipBlock</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">cidr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.43.0.1/32</span>
+</code></pre></div>
+<p>If we run <code>kubectl logs -n trivy-system deployment/trivy-operator</code>, we'll see that the error referncing <code>10.43.0.1:443</code> has disappeared. This means that we have successfully enabled all outbound traffic between the trivy-system namespace and the kube-api.</p>
+<p>NOTE: For faster results, restart the trivy-operator deployment:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>rollout<span class="w"> </span>restart<span class="w"> </span>deployment<span class="w"> </span>trivy-operator<span class="w"> </span>-n<span class="w"> </span>trivy-system
+</code></pre></div>
+<p>We also notice that there are new errors as part of the logs referencing port <code>53</code>:</p>
+<div class="highlight"><pre><span></span><code>failed<span class="w"> </span>to<span class="w"> </span>download<span class="w"> </span>vulnerability<span class="w"> </span>DB:<span class="w"> </span>database<span class="w"> </span>download<span class="w"> </span>error:<span class="w"> </span>OCI<span class="w"> </span>repository<span class="w"> </span>error:<span class="w"> </span><span class="m">1</span><span class="w"> </span>error<span class="w"> </span>occurred:<span class="se">\n\t</span>*<span class="w"> </span>Get<span class="w"> </span><span class="se">\&quot;</span>https://ghcr.io/v2/<span class="se">\&quot;</span>:<span class="w"> </span>dial<span class="w"> </span>tcp:<span class="w"> </span>lookup<span class="w"> </span>ghcr.io<span class="w"> </span>on<span class="w"> </span><span class="m">10</span>.43.0.10:53:
+</code></pre></div>
+<p>This means that the trivy-operator cannot resolve DNS records. The cause of this is the fact that the traffic to the <code>kube-dns</code> service residing in the <code>kube-system</code> namespace is disabled because of the <code>deny-all</code> egress network policies in the <code>trivy-system</code> namespace. We can confirm this by running the following command and to the svc information:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>svc<span class="w"> </span>-n<span class="w"> </span>kube-system<span class="w"> </span>kube-dns
+NAME<span class="w">       </span>TYPE<span class="w">        </span>CLUSTER-IP<span class="w">   </span>EXTERNAL-IP<span class="w">   </span>PORT<span class="o">(</span>S<span class="o">)</span><span class="w">                  </span>AGE
+kube-dns<span class="w">   </span>ClusterIP<span class="w">   </span><span class="m">10</span>.43.0.10<span class="w">   </span>&lt;none&gt;<span class="w">        </span><span class="m">53</span>/UDP,53/TCP,9153/TCP<span class="w">   </span>20m
+</code></pre></div>
+<p>To remediate this issue, we'll need to create a network policy allowing traffic on port <code>53</code> to the <code>kube-system</code> namespace. This will allow the trivy-systems to perforn DNS lookups via the <code>core-dns</code> pods. </p>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">networking.k8s.io/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NetworkPolicy</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default-egress-allow-kube-system-dns</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-system</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">egress</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">53</span>
+<span class="w">          </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TCP</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">53</span>
+<span class="w">          </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UDP</span>
+<span class="w">      </span><span class="nt">to</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">namespaceSelector</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">matchLabels</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">kubernetes.io/metadata.name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kube-system</span>
+<span class="w">  </span><span class="nt">podSelector</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">policyTypes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Egress</span>
+</code></pre></div>
+<p>When we look at the trivy-operator logs again, we'll see that the error logs referencing the port <code>53</code> are gone. Now we see a new error mentioning port <code>443</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="o">{</span><span class="s2">&quot;level&quot;</span>:<span class="s2">&quot;error&quot;</span>,<span class="s2">&quot;ts&quot;</span>:<span class="s2">&quot;2024-02-25T07:46:25Z&quot;</span>,<span class="s2">&quot;logger&quot;</span>:<span class="s2">&quot;reconciler.scan job&quot;</span>,<span class="s2">&quot;msg&quot;</span>:<span class="s2">&quot;Scan job container&quot;</span>,<span class="s2">&quot;job&quot;</span>:<span class="s2">&quot;trivy-system/scan-vulnerabilityreport-57ff7d8c55&quot;</span>,<span class="s2">&quot;container&quot;</span>:<span class="s2">&quot;1bad6981-ddcb-4845-98cd-e8bb5b25926c&quot;</span>,<span class="s2">&quot;status.reason&quot;</span>:<span class="s2">&quot;Error&quot;</span>,<span class="s2">&quot;status.message&quot;</span>:<span class="s2">&quot;2024-02-25T07:46:22.300Z\t\u001b[34mINFO\u001b[0m\tNeed to update DB\n2024-02-25T07:46:22.300Z\t\u001b[34mINFO\u001b[0m\tDB Repository: ghcr.io/aquasecurity/trivy-db\n2024-02-25T07:46:22.300Z\t\u001b[34mINFO\u001b[0m\tDownloading DB...\n2024-02-25T07:46:22.816Z\t\u001b[31mFATAL\u001b[0m\tinit error: DB error: failed to download vulnerability DB: database download error: oci download error: failed to fetch the layer: Get \&quot;https://pkg-containers.githubusercontent.com/ghcr1/blobs/sha256:2f0f866f6f274de192d9dfcd752c892e2099126fe0362dc8b4c7bb0b7e75956d?se=2024-02-25T07%3A55%3A00Z&amp;sig=r9L1Phopnozwr%2B5TOTj8tF7D7bixyUqdsJNDESU1TPI%3D&amp;sp=r&amp;spr=https&amp;sr=b&amp;sv=2019-12-12\&quot;: dial tcp 185.199.111.154:443: connect: connection refused\n&quot;</span>
+</code></pre></div>
+<p>This means that the trivy-operator cannot talk to the internet over port 443 to download the vulnerability database. We need to create a new network policy to allow this exception.</p>
+<p>Before proceeding with the creation of our next network policy, it is important to understand a few things. Trivy-operator itself does not download the vulnerability database. Instead, it spawns a couple of scan pods generated via a job that download the vulnerability database over port <code>443</code>.</p>
+<p>We can confirm this by doing a <code>watch kubectl get pods -n trivy-system</code> on pods on the trivy-system, then restarting the trivy-operator via <code>kubectl rollout restart deployment -n trivy-system</code>:</p>
+<div class="highlight"><pre><span></span><code>NAME<span class="w">                                        </span>READY<span class="w">   </span>STATUS<span class="w">    </span>RESTARTS<span class="w">   </span>AGE
+trivy-operator-6b4dc78c5-nzzcm<span class="w">              </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>11s
+scan-vulnerabilityreport-6f9cb46645-pzx7w<span class="w">   </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>8s
+</code></pre></div>
+<p>Here we see the scanning pod being spawned. We now must get a good label so we can create a network policy for it. We do so by grabbing the pod name and getting the labels via <code>yq</code> while we watch for the pod in another terminal.</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>trivy-system<span class="w"> </span>scan-vulnerabilityreport-6dfb8dc69f-fwpbh<span class="w"> </span>-o<span class="w"> </span>yaml<span class="w"> </span><span class="p">|</span><span class="w"> </span>yq<span class="w"> </span><span class="s1">&#39;.metadata.labels&#39;</span>
+</code></pre></div>
+<p>We get the output:</p>
+<div class="highlight"><pre><span></span><code>app.kubernetes.io/managed-by:<span class="w"> </span>trivy-operator
+controller-uid:<span class="w"> </span>10aba790-6ee6-4802-81ed-ad77908ea10d
+job-name:<span class="w"> </span>scan-vulnerabilityreport-6dfb8dc69f
+resource-spec-hash:<span class="w"> </span>764dd688f
+trivy-operator.resource.kind:<span class="w"> </span>ReplicaSet
+trivy-operator.resource.name:<span class="w"> </span>trivy-operator-6b65576869
+trivy-operator.resource.namespace:<span class="w"> </span>trivy-system
+vulnerabilityReport.scanner:<span class="w"> </span>Trivy
+</code></pre></div>
+<p>We can probably use <code>app.kubernetes.io/managed-by: trivy-operator</code>, as this is a label in a standard format Kubernetes recommends.</p>
+<p>We proceed to create the network policy as follows:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">networking.k8s.io/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NetworkPolicy</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow-egress-443-trivy-operator</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-system</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">egress</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">443</span>
+<span class="w">          </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TCP</span>
+<span class="w">      </span><span class="nt">to</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">ipBlock</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">cidr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0.0.0/0</span>
+<span class="w">  </span><span class="nt">podSelector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">app.kubernetes.io/managed-by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-operator</span>
+<span class="w">  </span><span class="nt">policyTypes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Egress</span>
+</code></pre></div>
+<p>We use the CIDR <code>0.0.0.0/0</code> to denote that we want to allow the target pods to talk to any IP address, and we specify port <code>443</code> as the allowed port. If we query for the logs again, we'll see that the error is gone. Moreover, if we do a <code>kubectl get vulnerabilityreport -n applications</code>, we'll see that the report for the <code>nginx</code> pod has been recently generated:</p>
+<div class="highlight"><pre><span></span><code>NAME<span class="w">              </span>REPOSITORY<span class="w">      </span>TAG<span class="w">      </span>SCANNER<span class="w">   </span>AGE
+pod-nginx-nginx<span class="w">   </span>library/nginx<span class="w">   </span>latest<span class="w">   </span>Trivy<span class="w">     </span>2m28s
+</code></pre></div>
+<h3 id="trivy-server">Trivy-server</h3>
+<p>When deploying the trivy-operator + trivy-server for downloading the vulnerability database, you will need to create similar network policies to the ones created for the trivy-operator as a standalone component.
+After installing trivy-server in the current cluster, the pod entered a status of <code>CrashLookBackOff</code>. Upon inspecting the logs, for the trivy-server statefulset, we counter the following error:</p>
+<div class="highlight"><pre><span></span><code><span class="m">2024</span>-02-28T04:53:50.195Z<span class="w">    </span>FATAL<span class="w">   </span>failed<span class="w"> </span>to<span class="w"> </span>download<span class="w"> </span>vulnerability<span class="w"> </span>DB:<span class="w"> </span>database<span class="w"> </span>download<span class="w"> </span>error:<span class="w"> </span>OCI<span class="w"> </span>repository<span class="w"> </span>error:<span class="w"> </span><span class="m">1</span><span class="w"> </span>error<span class="w"> </span>occurred:
+<span class="w">  </span>*<span class="w"> </span>Get<span class="w"> </span><span class="s2">&quot;https://ghcr.io/v2/&quot;</span>:<span class="w"> </span>dial<span class="w"> </span>tcp<span class="w"> </span><span class="m">140</span>.82.114.34:443:<span class="w"> </span>connect:<span class="w"> </span>connection<span class="w"> </span>refused
+</code></pre></div>
+<p>This means that the trivy-server cannot connect to the image registry over port <code>443</code>. This can be fixed by applying a network policy like <code>allow-egress-443-trivy-operator</code>, which we created for the trivy-operator, but first we must get the label that will be used to select the pods that the trivy-server generates. We do so by doing a <code>kubectl get pods trivy-0 -n trivy-system --show-labels</code>, we obtain the following output:</p>
+<div class="highlight"><pre><span></span><code>NAME<span class="w">      </span>READY<span class="w">   </span>STATUS<span class="w">    </span>RESTARTS<span class="w">   </span>AGE<span class="w">     </span>LABELS
+trivy-0<span class="w">   </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>3m40s<span class="w">   </span>app.kubernetes.io/instance<span class="o">=</span>trivy,app.kubernetes.io/name<span class="o">=</span>trivy,controller-revision-hash<span class="o">=</span>trivy-7494747496,statefulset.kubernetes.io/pod-name<span class="o">=</span>trivy-0
+</code></pre></div>
+<p>We can make use of the label <code>app.kubernetes.io/name=trivy</code>, so the resulting network policy will look like this:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">networking.k8s.io/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NetworkPolicy</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow-egress-443-trivy-server</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-system</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">egress</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">443</span>
+<span class="w">          </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TCP</span>
+<span class="w">      </span><span class="nt">to</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">ipBlock</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">cidr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0.0.0/0</span>
+<span class="w">  </span><span class="nt">podSelector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">app.kubernetes.io/name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy</span>
+<span class="w">  </span><span class="nt">policyTypes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Egress</span>
+</code></pre></div>
+<p>We proceed to restart the trivy-server statefulset with <code>kubectl rollout restart sts -n trivy-system trivy</code> and see that the error previously seen is gone. Trivy-server was able to download the DB and is listening on port <code>4954</code>.</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>logs<span class="w"> </span>-n<span class="w"> </span>trivy-system<span class="w"> </span>statefulset/trivy
+<span class="m">2024</span>-02-28T05:17:53.590Z<span class="w">    </span>INFO<span class="w">    </span>Need<span class="w"> </span>to<span class="w"> </span>update<span class="w"> </span>DB
+<span class="m">2024</span>-02-28T05:17:53.590Z<span class="w">    </span>INFO<span class="w">    </span>DB<span class="w"> </span>Repository:<span class="w"> </span>ghcr.io/aquasecurity/trivy-db
+<span class="m">2024</span>-02-28T05:17:53.590Z<span class="w">    </span>INFO<span class="w">    </span>Downloading<span class="w"> </span>DB...
+<span class="m">2024</span>-02-28T05:17:57.550Z<span class="w">    </span>INFO<span class="w">    </span>Listening<span class="w"> </span><span class="m">0</span>.0.0.0:4954...
+</code></pre></div>
+<p>When we restart the trivy-operator to test if everything works as it should, we realize that it is outputting the following error via the logs:</p>
+<div class="highlight"><pre><span></span><code>failed<span class="w"> </span>to<span class="w"> </span><span class="k">do</span><span class="w"> </span>request:<span class="w"> </span>Post<span class="w"> </span><span class="se">\&quot;</span>http://trivy.trivy-system:4954/twirp/trivy.cache.v1.Cache/MissingBlobs<span class="se">\&quot;</span>:<span class="w"> </span>dial<span class="w"> </span>tcp<span class="w"> </span><span class="m">10</span>.43.158.111:4954:<span class="w"> </span>connect:<span class="w"> </span>connection<span class="w"> </span>refused<span class="s2">&quot;</span>
+</code></pre></div>
+<p>The trivy-operator has to reach out to the trivy-server on port <code>4954</code> in order to access the downloaded vulnerability database. We also need to enable that connection via a networkpolicy (you guessed it), we can delete the previously created network policy <code>allow-egress-443-trivy-operator</code> via <code>kubectl delete networkpolicy allow-egress-443-trivy-operator -n trivy-system</code> and create a new one with a new name that mentions port <code>4954</code> to also allow egress traffic to port <code>4954</code> and rename it to something that reflects its new purpose. Last, but not least:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">networking.k8s.io/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NetworkPolicy</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow-egress-443-and-4954-trivy-operator</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-system</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">egress</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">443</span>
+<span class="w">          </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TCP</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4954</span>
+<span class="w">          </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TCP</span>
+<span class="w">      </span><span class="nt">to</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">ipBlock</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">cidr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0.0.0/0</span>
+<span class="w">  </span><span class="nt">podSelector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">app.kubernetes.io/managed-by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-operator</span>
+<span class="w">  </span><span class="nt">policyTypes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Egress</span>
+</code></pre></div>
+<p>After having saved the changes to the policy, we can proceed and restart the trivy-operator <code>kubectl rollout restart deployment trivy-operator -n trivy-system</code>. When looking at the logs for the trivy-operator, we see that there are some errors indicating it still cannot connect to port <code>4954</code>:</p>
+<div class="highlight"><pre><span></span><code>dial<span class="w"> </span>tcp<span class="w"> </span><span class="m">10</span>.43.158.111:4954:<span class="w"> </span>connect:<span class="w"> </span>connection<span class="w"> </span>refused
+</code></pre></div>
+<p>So far we have created network policies to allow egress traffic. There is one last missing network policy and it is of type ingress. This network policy will allow the trivy-server to receive traffic on port <code>4954</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">networking.k8s.io/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NetworkPolicy</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow-ingress-4954-trivy-server</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy-system</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ingress</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4954</span>
+<span class="w">          </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TCP</span>
+<span class="w">  </span><span class="nt">podSelector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">app.kubernetes.io/name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trivy</span>
+<span class="w">  </span><span class="nt">policyTypes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ingress</span>
+</code></pre></div>
+<p>This network policy uses the appropiate <code>matchLabels</code> to only target the trivy-server. When restarting the trivy-operator with <code>kubectl rollout restart deployment trivy-operator -n trivy-system</code>, we see that the errors are gone. When doing a <code>kubectl get vulnerabilityreport -n applications</code>, we see that there is a newly generated <code>vulnerabilityreport</code> for our <code>nginx</code> pod:</p>
+<div class="highlight"><pre><span></span><code>NAME<span class="w">              </span>REPOSITORY<span class="w">      </span>TAG<span class="w">      </span>SCANNER<span class="w">   </span>AGE
+pod-nginx-nginx<span class="w">   </span>library/nginx<span class="w">   </span>latest<span class="w">   </span>Trivy<span class="w">     </span>12s
+</code></pre></div>
+<p>We have successfully added all the necessary network policies for our trivy-operator to work on client/server mode.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright 2019-2022 Aqua Security Software Ltd.
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections"], "search": "../../../assets/javascripts/workers/search.1e90e0fb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"method": "mike", "provider": "mike"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.1135ae9f.min.js"></script>
+      
+    
+  </body>
+</html>

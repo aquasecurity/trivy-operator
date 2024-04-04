@@ -371,10 +371,8 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 	}
 
-	ctxWithTimeout, cancel := context.WithTimeout(ctx, *operatorConfig.ControllerCacheSyncTimeout)
-	defer cancel()
 	setupLog.Info("Starting controllers manager")
-	if err := mgr.Start(ctxWithTimeout); err != nil {
+	if err := mgr.Start(ctx); err != nil {
 		return fmt.Errorf("starting controllers manager: %w", err)
 	}
 

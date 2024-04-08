@@ -40,6 +40,9 @@ operator:
   # -- number of old history to retain to allow rollback (if not set, default Kubernetes value is set to 10)
   revisionHistoryLimit: ~
 
+  # -- additional annotations for the operator deployment
+  annotations: {}
+
   # -- additional labels for the operator deployment
   labels: {}
 

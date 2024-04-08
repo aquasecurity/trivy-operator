@@ -3,6 +3,9 @@ kind: Deployment
 metadata:
   name: {{ include "trivy-operator.fullname" . }}
   namespace: {{ include "trivy-operator.namespace" . }}
+  {{- with .Values.operator.annotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+  {{- end }}
   labels: 
     {{- include "trivy-operator.labels" . | nindent 4 }}
     {{- with .Values.operator.labels }}

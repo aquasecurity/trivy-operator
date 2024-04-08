@@ -409,13 +409,29 @@ trivy:
   # -- ignorePolicy can be used to tell Trivy to ignore vulnerabilities by a policy
   # If multiple policies would match, then the most specific one has precedence over the others.
   # See https://aquasecurity.github.io/trivy/latest/docs/configuration/filtering/#by-open-policy-agent for more details.
+  # See https://github.com/aquasecurity/trivy/blob/v0.19.2/contrib/example_policy/basic.rego for more details on ignorePolicy filtering.
   #
   # ignorePolicy.application.my-app-.: |
-  #   # applies to all workloads in namespace "application" with the name pattern "my-app-*"
+  #  package trivy
+
+  #  import data.lib.trivy
+
+  #  default ignore = true
+  # applies to all workloads in namespace "application" with the name pattern "my-app-*"
   # ignorePolicy.kube-system: |
-  #   # applies to all workloads in namespace "kube-system"
+  #  package trivy
+
+  #  import data.lib.trivy
+
+  #  default ignore = true
+  # applies to all workloads in namespace "kube-system"
   # ignorePolicy: |
-  #   # applies to all other workloads
+  #  package trivy
+
+  #  import data.lib.trivy
+
+  #  default ignore = true
+  # applies to all other workloads
 
   # -- vulnType can be used to tell Trivy to filter vulnerabilities by a pkg-type (library, os)
   vulnType: ~

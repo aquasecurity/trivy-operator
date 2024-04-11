@@ -200,14 +200,15 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[
 	if err != nil {
 		return nil, fmt.Errorf("failed listing externalPolicies by kind: %s: %w", resourceKind, err)
 	}
-	if len(policies) == 0 {
-		return nil, fmt.Errorf("no policies found for kind: %s", resourceKind)
-	}
+
 	memfs := memoryfs.New()
-	// add add policies to in-memory filesystem
-	err = createPolicyInputFS(memfs, policiesFolder, policies, regoExt)
-	if err != nil {
-		return nil, err
+	hasPolicies := len(policies) > 0
+	if hasPolicies {
+		// add add policies to in-memory filesystem
+		err = createPolicyInputFS(memfs, policiesFolder, policies, regoExt)
+		if err != nil {
+			return nil, err
+		}
 	}
 	inputResource, err := resourceBytes(resource, inputs)
 	if err != nil {
@@ -223,7 +224,7 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[
 	if err != nil {
 		return nil, err
 	}
-	so := scannerOptions(policiesFolder, dataPaths, dataFS)
+	so := scannerOptions(policiesFolder, dataPaths, dataFS, hasPolicies)
 	scanner := kubernetes.NewScanner(so...)
 	scanResult, err := scanner.ScanFS(ctx, memfs, inputFolder)
 	if err != nil {
@@ -271,13 +272,15 @@ func (r *Policies) HasSeverity(resultSeverity severity.Severity) bool {
 	return strings.Contains(defaultSeverity, string(resultSeverity))
 }
 
-func scannerOptions(policiesFolder string, dataPaths []string, dataFS fs.FS) []options.ScannerOption {
+func scannerOptions(policiesFolder string, dataPaths []string, dataFS fs.FS, hasPolicies bool) []options.ScannerOption {
 	optionsArray := []options.ScannerOption{
-		options.ScannerWithEmbeddedPolicies(false),
-		options.ScannerWithEmbeddedLibraries(false),
 		options.ScannerWithPolicyDirs(policiesFolder),
 		options.ScannerWithDataDirs(dataPaths...),
 		options.ScannerWithDataFilesystem(dataFS),
+	}
+	if !hasPolicies {
+		optionsArray = append(optionsArray, options.ScannerWithEmbeddedPolicies(true))
+		optionsArray = append(optionsArray, options.ScannerWithEmbeddedLibraries(true))
 	}
 	return optionsArray
 }

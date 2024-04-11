@@ -12,7 +12,9 @@ import (
 
 	mp "github.com/aquasecurity/trivy/pkg/policy"
 	"github.com/bluele/gcache"
+	"github.com/go-logr/logr"
 	"golang.org/x/xerrors"
+	ctrl "sigs.k8s.io/controller-runtime"
 )
 
 const (
@@ -29,6 +31,7 @@ type policyLoader struct {
 	cache      gcache.Cache
 	expiration *time.Duration
 	options    []mp.Option
+	logger     logr.Logger
 }
 
 func NewPolicyLoader(pr string, cache gcache.Cache, opts ...mp.Option) Loader {
@@ -38,10 +41,12 @@ func NewPolicyLoader(pr string, cache gcache.Cache, opts ...mp.Option) Loader {
 		cache:      cache,
 		options:    opts,
 		expiration: &expiration,
+		logger:     ctrl.Log.WithName("policyLoader"),
 	}
 }
 
 func (pl *policyLoader) GetPolicies() ([]string, error) {
+	log := pl.logger.WithValues("Get misconfig bundle policies")
 	var policies []string
 	var ok bool
 	val, err := pl.getPoliciesFromCache()
@@ -51,6 +56,7 @@ func (pl *policyLoader) GetPolicies() ([]string, error) {
 		}
 		policies, err = pl.LoadPolicies()
 		if err != nil {
+			log.V(1).Error(err, "failed to load policies")
 			return []string{}, nil
 		}
 		return policies, nil

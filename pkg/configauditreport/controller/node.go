@@ -125,7 +125,7 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting job affinity: %w", err)
 		}
-		jobTolerations, err := r.GetScanJobTolerations()
+		nodeTolerations, err := r.GetNodeCollectorTolerations()
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting job tolerations: %w", err)
 		}
@@ -173,7 +173,7 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 			j.WithServiceAccount(r.ServiceAccount),
 			j.WithCollectorTimeout(r.Config.ScanJobTimeout),
 			j.WithJobAffinity(jobAffinity),
-			j.WithJobTolerations(jobTolerations),
+			j.WithJobTolerations(nodeTolerations),
 			j.WithPodSpecSecurityContext(scanJobSecurityContext),
 			j.WithContainerSecurityContext(scanJobContainerSecurityContext),
 			j.WithPodImagePullSecrets(r.GetNodeCollectorImagePullsecret()),

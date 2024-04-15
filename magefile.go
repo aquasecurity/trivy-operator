@@ -64,7 +64,7 @@ var (
 	ENVTEST        = filepath.Join(LOCALBIN, "setup-envtest")
 
 	// Controller Tools Version
-	CONTROLLER_TOOLS_VERSION = "v0.9.2"
+	CONTROLLER_TOOLS_VERSION = "v0.14.0"
 )
 
 // Function to get the current working directory using os.Getwd()

@@ -661,7 +661,7 @@ nodeCollector:
   imagePullSecret: ~
   # -- excludeNodes comma-separated node labels that the node-collector job should exclude from scanning (example kubernetes.io/arch=arm64,team=dev)
   excludeNodes:
-  # -- scanJobTolerations tolerations to be applied to the node-collector so that they can run on nodes with matching taints
+  # -- tolerations to be applied to the node-collector so that they can run on nodes with matching taints
   tolerations: []
   # -- If you do want to specify tolerations, uncomment the following lines, adjust them as necessary, and remove the
   # square brackets after 'scanJobTolerations:'.

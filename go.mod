@@ -7,7 +7,7 @@ toolchain go1.22.0
 require (
 	github.com/CycloneDX/cyclonedx-go v0.8.0
 	github.com/aquasecurity/trivy v0.50.1
-	github.com/aquasecurity/trivy-kubernetes v0.6.6-0.20240403110607-a34923270723
+	github.com/aquasecurity/trivy-kubernetes v0.6.6
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc

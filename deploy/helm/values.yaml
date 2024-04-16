@@ -227,7 +227,7 @@ trivyOperator:
   scanJobCompressLogs: true
   # -- scanJobAffinity affinity to be applied to the scanner pods and node-collector
   scanJobAffinity: []
-  # -- scanJobTolerations tolerations to be applied to the scanner pods and node-collector so that they can run on nodes with matching taints
+  # -- scanJobTolerations tolerations to be applied to the scanner pods so that they can run on nodes with matching taints
   scanJobTolerations: []
   # -- If you do want to specify tolerations, uncomment the following lines, adjust them as necessary, and remove the
   # square brackets after 'scanJobTolerations:'.
@@ -235,7 +235,6 @@ trivyOperator:
   #   operator: "Equal"
   #   value: "value1"
   #   effect: "NoSchedule"
-
   # -- scanJobNodeSelector nodeSelector to be applied to the scanner pods so that they can run on nodes with matching labels
   scanJobNodeSelector: {}
   # -- If you do want to specify nodeSelector, uncomment the following lines, adjust them as necessary, and remove the
@@ -662,6 +661,14 @@ nodeCollector:
   imagePullSecret: ~
   # -- excludeNodes comma-separated node labels that the node-collector job should exclude from scanning (example kubernetes.io/arch=arm64,team=dev)
   excludeNodes:
+  # -- tolerations to be applied to the node-collector so that they can run on nodes with matching taints
+  tolerations: []
+  # -- If you do want to specify tolerations, uncomment the following lines, adjust them as necessary, and remove the
+  # square brackets after 'scanJobTolerations:'.
+  # - key: "key1"
+  #   operator: "Equal"
+  #   value: "value1"
+  #   effect: "NoSchedule"
   # -- node-collector pod volume mounts definition for collecting config files information
   volumeMounts:
     - name: var-lib-etcd

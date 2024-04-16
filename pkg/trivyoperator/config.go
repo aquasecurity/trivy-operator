@@ -61,6 +61,7 @@ const (
 	keyConfigAuditReportsScanner         = "configAuditReports.scanner"
 	keyScanJobAffinity                   = "scanJob.affinity"
 	keyScanJobTolerations                = "scanJob.tolerations"
+	keyNodeCollectorTolerations          = "nodeCollector.tolerations"
 	KeyScanJobcompressLogs               = "scanJob.compressLogs"
 	KeyNodeCollectorVolumes              = "nodeCollector.volumes"
 	KeyNodeCollectorExcludeNodes         = "nodeCollector.excludeNodes"
@@ -191,6 +192,16 @@ func (c ConfigData) GetScanJobTolerations() ([]corev1.Toleration, error) {
 	err := json.Unmarshal([]byte(c[keyScanJobTolerations]), &scanJobTolerations)
 
 	return scanJobTolerations, err
+}
+
+func (c ConfigData) GetNodeCollectorTolerations() ([]corev1.Toleration, error) {
+	var nodeCollectorTolerations []corev1.Toleration
+	if c[keyNodeCollectorTolerations] == "" {
+		return nodeCollectorTolerations, nil
+	}
+	err := json.Unmarshal([]byte(c[keyNodeCollectorTolerations]), &nodeCollectorTolerations)
+
+	return nodeCollectorTolerations, err
 }
 
 func (c ConfigData) GetNodeCollectorImagePullsecret() []corev1.LocalObjectReference {

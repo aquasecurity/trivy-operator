@@ -88,9 +88,17 @@ extra:
   version:
     method: mike
     provider: mike
+    default: latest
   var:
     prev_git_tag: "v0.19.3"
     chart_version: "0.21.4"
+  social:
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/AquaTrivy
+    - icon: fontawesome/brands/github
+      link: https://github.com/aquasecurity/trivy
+    - icon: fontawesome/brands/slack
+      link: https://github.com/aquasecurity/trivy
 
 plugins:
   - search

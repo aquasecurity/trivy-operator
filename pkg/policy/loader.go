@@ -46,7 +46,7 @@ func NewPolicyLoader(pr string, cache gcache.Cache, opts ...mp.Option) Loader {
 }
 
 func (pl *policyLoader) GetPolicies() ([]string, error) {
-	log := pl.logger.WithValues("Get misconfig bundle policies")
+	log := pl.logger.WithName("Get misconfig bundle policies")
 	var policies []string
 	var ok bool
 	val, err := pl.getPoliciesFromCache()

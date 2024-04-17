@@ -633,7 +633,7 @@ policiesBundle:
   # -- registry of the policies bundle
   registry: ghcr.io
   # -- repository of the policies bundle
-  repository: aquasecurity/trivy-policies
+  repository: aquasecurity/trivy-checks
   # -- tag version of the policies bundle
   tag: 0
    # -- registryUser is the user for the registry

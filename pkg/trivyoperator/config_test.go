@@ -380,6 +380,107 @@ func TestConfigData_TestConfigData_GetNodeCollectorVolumeMounts(t *testing.T) {
 	}
 }
 
+func TestConfigData_GetScanJobCustomVolumes(t *testing.T) {
+	testCases := []struct {
+		name        string
+		config      trivyoperator.ConfigData
+		expected    []corev1.Volume
+		expectError string
+	}{
+		{
+			name:     "no scan Job volumes in ConfigData",
+			config:   trivyoperator.ConfigData{},
+			expected: []corev1.Volume(nil),
+		},
+		{
+			name:        "scan Job volumes value is not json",
+			config:      trivyoperator.ConfigData{"scanJob.customVolumes": `lolwut`},
+			expected:    []corev1.Volume(nil),
+			expectError: "invalid character 'l' looking for beginning of value",
+		},
+		{
+			name:     "empty JSON array",
+			config:   trivyoperator.ConfigData{"scanJob.customVolumes": `[]`},
+			expected: []corev1.Volume{},
+		},
+		{
+			name:   " JSON with valid data",
+			config: trivyoperator.ConfigData{"scanJob.customVolumes": `[{"hostPath":{"path":"/var/lib/etcd"},"name":"var-lib-etcd"}]`},
+			expected: []corev1.Volume{
+				{
+					Name: "var-lib-etcd",
+					VolumeSource: corev1.VolumeSource{
+						HostPath: &corev1.HostPathVolumeSource{
+							Path: "/var/lib/etcd",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := tc.config.GetScanJobCustomVolumes()
+			if tc.expectError != "" {
+				assert.Error(t, err, "unexpected end of JSON input", tc.name)
+			} else {
+				assert.NoError(t, err, tc.name)
+			}
+			assert.Equal(t, tc.expected, got, tc.name)
+		})
+	}
+}
+
+func TestConfigData_GetScanJobcustomVolumeMounts(t *testing.T) {
+	testCases := []struct {
+		name        string
+		config      trivyoperator.ConfigData
+		expected    []corev1.VolumeMount
+		expectError string
+	}{
+		{
+			name:     "no scan job volume mounts in ConfigData",
+			config:   trivyoperator.ConfigData{},
+			expected: []corev1.VolumeMount(nil),
+		},
+		{
+			name:        "no scan job volume mounts value is not json",
+			config:      trivyoperator.ConfigData{"scanJob.customVolumesMount": `lolwut`},
+			expected:    []corev1.VolumeMount(nil),
+			expectError: "invalid character 'l' looking for beginning of value",
+		},
+		{
+			name:     "empty JSON array",
+			config:   trivyoperator.ConfigData{"scanJob.customVolumesMount": `[]`},
+			expected: []corev1.VolumeMount{},
+		},
+		{
+			name:   " JSON with valid data",
+			config: trivyoperator.ConfigData{"scanJob.customVolumesMount": `[{"mountPath":"/var/lib/etcd","name":"var-lib-etcd","readOnly":true}]`},
+			expected: []corev1.VolumeMount{
+				{
+					Name:      "var-lib-etcd",
+					MountPath: "/var/lib/etcd",
+					ReadOnly:  true,
+				},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := tc.config.GetScanJobCustomVolumeMounts()
+			if tc.expectError != "" {
+				assert.Error(t, err, "unexpected end of JSON input", tc.name)
+			} else {
+				assert.NoError(t, err, tc.name)
+			}
+			assert.Equal(t, tc.expected, got, tc.name)
+		})
+	}
+}
+
 func TestAutomountServiceAccountToken(t *testing.T) {
 	testCases := []struct {
 		name     string

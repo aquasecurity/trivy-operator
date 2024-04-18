@@ -66,8 +66,11 @@ const (
 	KeyNodeCollectorVolumes              = "nodeCollector.volumes"
 	KeyNodeCollectorExcludeNodes         = "nodeCollector.excludeNodes"
 	KeyNodeCollectorVolumeMounts         = "nodeCollector.volumeMounts"
-	keyScanJobNodeSelector               = "scanJob.nodeSelector"
-	keyScanJobAnnotations                = "scanJob.annotations"
+	KeyScanJobCustomVolumesMount         = "scanJob.customVolumesMount"
+	KeyScanJobCustomVolumes              = "scanJob.customVolumes"
+
+	keyScanJobNodeSelector = "scanJob.nodeSelector"
+	keyScanJobAnnotations  = "scanJob.annotations"
 	//nolint
 	keyscanJobAutomountServiceAccountToken = "scanJob.automountServiceAccountToken"
 	keySkipInitContainers                  = "scanJob.skipInitContainers"
@@ -235,6 +238,23 @@ func (c ConfigData) GetGetNodeCollectorVolumeMounts() ([]corev1.VolumeMount, err
 		return volumesMount, nil
 	}
 	err := json.Unmarshal([]byte(c[KeyNodeCollectorVolumeMounts]), &volumesMount)
+	return volumesMount, err
+}
+
+func (c ConfigData) GetScanJobCustomVolumes() ([]corev1.Volume, error) {
+	var volumes []corev1.Volume
+	if c[KeyScanJobCustomVolumes] == "" {
+		return volumes, nil
+	}
+	err := json.Unmarshal([]byte(c[KeyScanJobCustomVolumes]), &volumes)
+	return volumes, err
+}
+func (c ConfigData) GetScanJobCustomVolumeMounts() ([]corev1.VolumeMount, error) {
+	var volumesMount []corev1.VolumeMount
+	if c[KeyScanJobCustomVolumesMount] == "" {
+		return volumesMount, nil
+	}
+	err := json.Unmarshal([]byte(c[KeyScanJobCustomVolumesMount]), &volumesMount)
 	return volumesMount, err
 }
 

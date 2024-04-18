@@ -188,6 +188,8 @@ Keeps security report resources updated
 | trivyOperator.scanJobAnnotations | string | `""` | scanJobAnnotations comma-separated representation of the annotations which the user wants the scanner pods to be annotated with. Example: `foo=bar,env=stage` will annotate the scanner pods with the annotations `foo: bar` and `env: stage` |
 | trivyOperator.scanJobAutomountServiceAccountToken | bool | `false` | scanJobAutomountServiceAccountToken the flag to enable automount for service account token on scan job |
 | trivyOperator.scanJobCompressLogs | bool | `true` | scanJobCompressLogs control whether scanjob output should be compressed or plain |
+| trivyOperator.scanJobCustomVolumes | list | `[]` | scanJobCustomVolumes add custom volumes to the scan job |
+| trivyOperator.scanJobCustomVolumesMount | list | `[]` | scanJobCustomVolumesMount add custom volumes mount to the scan job |
 | trivyOperator.scanJobNodeSelector | object | `{}` | scanJobNodeSelector nodeSelector to be applied to the scanner pods so that they can run on nodes with matching labels |
 | trivyOperator.scanJobPodPriorityClassName | string | `""` | scanJobPodPriorityClassName Priority class name to be set on the pods created by trivy operator jobs. This accepts a string value |
 | trivyOperator.scanJobPodTemplateContainerSecurityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true}` | scanJobPodTemplateContainerSecurityContext SecurityContext the user wants the scanner and node collector containers (and their initContainers) to be amended with. |

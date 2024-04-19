@@ -243,6 +243,19 @@ trivyOperator:
   #   cpu: sandylake
   #   teamOwner: operators
 
+  # -- scanJobCustomVolumesMount add custom volumes mount to the scan job
+  scanJobCustomVolumesMount: []
+  #  - name: var-lib-etcd
+  #    mountPath: /var/lib/etcd
+  #    readOnly: true
+
+  # -- scanJobCustomVolumes add custom volumes to the scan job
+  scanJobCustomVolumes: []
+  #  - name: var-lib-etcd
+  #    hostPath:
+  #    path: /var/lib/etcd
+
+
   # -- scanJobAutomountServiceAccountToken the flag to enable automount for service account token on scan job
   scanJobAutomountServiceAccountToken: false
 

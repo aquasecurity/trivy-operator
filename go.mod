@@ -170,7 +170,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-getter v1.7.4 // indirect
+	github.com/hashicorp/go-getter v1.7.3 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-safetemp v1.0.0 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
@@ -375,6 +375,6 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
 )
 
-replace helm.sh/helm/v3 => helm.sh/helm/v3 v3.14.2
-
 replace github.com/testcontainers/testcontainers-go => github.com/testcontainers/testcontainers-go v0.23.0
+
+replace github.com/hashicorp/go-getter => github.com/hashicorp/go-getter v1.7.4

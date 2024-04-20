@@ -375,6 +375,6 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
 )
 
-replace helm.sh/helm/v3 => helm.sh/helm/v3 v3.14.2
-
 replace github.com/testcontainers/testcontainers-go => github.com/testcontainers/testcontainers-go v0.23.0
+
+replace github.com/hashicorp/go-getter => github.com/hashicorp/go-getter v1.7.4

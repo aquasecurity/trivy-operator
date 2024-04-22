@@ -1,3 +1,4 @@
+{{- if .Values.operator.clusterComplianceEnabled }}
 apiVersion: aquasecurity.github.io/v1alpha1
 kind: ClusterComplianceReport
 metadata:
@@ -98,3 +99,4 @@ spec:
         checks:
           - id: avd-ksv-0026
         severity: 'MEDIUM'
+{{- end }}

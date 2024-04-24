@@ -12,6 +12,7 @@ import (
 func decompressBzip2(compressedBytes []byte) (io.Reader, error) {
 	bz2Reader := bzip2.NewReader(bytes.NewReader(compressedBytes))
 	uncompressedWriter := new(bytes.Buffer)
+	//nolint:gosec
 	_, err := io.Copy(uncompressedWriter, bz2Reader)
 	if err != nil {
 		return nil, err

@@ -45,9 +45,9 @@ type readWriter struct {
 // NewReadWriter constructs a new ReadWriter which is using the client package
 // provided by the controller-runtime libraries for interacting with the
 // Kubernetes API server.
-func NewReadWriter(ObjectResolver *kube.ObjectResolver) ReadWriter {
+func NewReadWriter(objectResolver *kube.ObjectResolver) ReadWriter {
 	return &readWriter{
-		ObjectResolver: ObjectResolver,
+		ObjectResolver: objectResolver,
 	}
 }
 

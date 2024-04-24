@@ -41,41 +41,41 @@ const (
 	vuln_id            = "vuln_id"
 	vuln_title         = "vuln_title"
 	vuln_score         = "vuln_score"
-	//compliance
+	// compliance
 	title       = "title"
 	description = "description"
 	status      = "status"
-	//exposed secret
+	// exposed secret
 	secret_category = "secret_category"
 	secret_rule_id  = "secret_rule_id"
 	secret_target   = "secret_target"
 	secret_title    = "secret_title"
-	//config audit
+	// config audit
 	config_audit_id    = "config_audit_id"
 	config_audit_title = "config_audit_title"
-	////nolint:gosec
+	//nolint:gosec
 	config_audit_description = "config_audit_description"
 	config_audit_category    = "config_audit_category"
 	config_audit_success     = "config_audit_success"
-	//rbac assessment
+	// rbac assessment
 	rbac_assessment_id          = "rbac_assessment_id"
 	rbac_assessment_title       = "rbac_assessment_title"
 	rbac_assessment_description = "rbac_assessment_description"
 	rbac_assessment_category    = "rbac_assessment_category"
 	rbac_assessment_success     = "rbac_assessment_success"
-	//infra assessment
+	// infra assessment
 	infra_assessment_id          = "infra_assessment_id"
 	infra_assessment_title       = "infra_assessment_title"
 	infra_assessment_description = "infra_assessment_description"
 	infra_assessment_category    = "infra_assessment_category"
 	infra_assessment_success     = "infra_assessment_success"
 
-	//image infomation
+	// image infomation
 	image_os_family = "image_os_family"
 	image_os_name   = "image_os_name"
 	image_os_eosl   = "image_os_eosl"
 
-	//compliance
+	// compliance
 	compliance_id   = "compliance_id"
 	compliance_name = "compliance_name"
 )

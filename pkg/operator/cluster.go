@@ -115,7 +115,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 		}
 		oldVal, ok := r.clusterCache.Load(key)
 		if ok && oldVal != nil {
-			//resource has not changed
+			// resource has not changed
 			if kube.ComputeHash(oldVal) == kube.ComputeHash(val) {
 				return ctrl.Result{}, nil
 			}
@@ -297,7 +297,7 @@ func (r *ClusterController) numOfCoreComponentPodsAndNodes(ctx context.Context) 
 		if err != nil {
 			return 0, 0, err
 		}
-		corePodsCount = corePodsCount + len(pods.Items)
+		corePodsCount += len(pods.Items)
 	}
 
 	addonPods, err := r.clientset.CoreV1().Pods("").List(ctx, metav1.ListOptions{LabelSelector: trivyoperator.LabelAddon})

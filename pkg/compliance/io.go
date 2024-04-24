@@ -158,10 +158,10 @@ func reportsToResults(checks []v1alpha1.Check, name string, namespace string) tt
 		id := check.ID
 		if !strings.HasPrefix(check.ID, "AVD-") {
 			if strings.HasPrefix(check.ID, "KSV") {
-				id = fmt.Sprintf("%s-%s-%s", "AVD", "KSV", strings.Replace(check.ID, "KSV", "0", -1))
+				id = fmt.Sprintf("%s-%s-%s", "AVD", "KSV", strings.ReplaceAll(check.ID, "KCV", ""))
 			}
 			if strings.HasPrefix(check.ID, "KCV") {
-				id = fmt.Sprintf("%s-%s-%s", "AVD", "KCV", strings.Replace(check.ID, "KCV", "", -1))
+				id = fmt.Sprintf("%s-%s-%s", "AVD", "KCV", strings.ReplaceAll(check.ID, "KCV", ""))
 			}
 		}
 		misconfigResult := ttypes.Result{Target: fmt.Sprintf("%s/%s", namespace, name),

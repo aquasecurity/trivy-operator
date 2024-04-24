@@ -6,7 +6,7 @@ toolchain go1.22.0
 
 require (
 	github.com/CycloneDX/cyclonedx-go v0.8.0
-	github.com/aquasecurity/trivy v0.50.1
+	github.com/aquasecurity/trivy v0.50.2
 	github.com/aquasecurity/trivy-kubernetes v0.6.6-0.20240403110607-a34923270723
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
@@ -160,7 +160,7 @@ require (
 	github.com/google/licenseclassifier/v2 v2.0.0 // indirect
 	github.com/google/s2a-go v0.1.7 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
-	github.com/google/wire v0.5.0 // indirect
+	github.com/google/wire v0.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
@@ -170,7 +170,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-getter v1.7.3 // indirect
+	github.com/hashicorp/go-getter v1.7.4 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-safetemp v1.0.0 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
@@ -376,5 +376,3 @@ require (
 )
 
 replace github.com/testcontainers/testcontainers-go => github.com/testcontainers/testcontainers-go v0.23.0
-
-replace github.com/hashicorp/go-getter => github.com/hashicorp/go-getter v1.7.4

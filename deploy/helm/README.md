@@ -138,7 +138,7 @@ Keeps security report resources updated
 | trivy.image.pullPolicy | string | `"IfNotPresent"` | pullPolicy is the imge pull policy used for trivy image , valid values are (Always, Never, IfNotPresent) |
 | trivy.image.registry | string | `"ghcr.io"` | registry of the Trivy image |
 | trivy.image.repository | string | `"aquasecurity/trivy"` | repository of the Trivy image |
-| trivy.image.tag | string | `"0.50.1"` | tag version of the Trivy image |
+| trivy.image.tag | string | `"0.50.2"` | tag version of the Trivy image |
 | trivy.imageScanCacheDir | string | `"/tmp/trivy/.cache"` | imageScanCacheDir the flag to set custom path for trivy image scan `cache-dir` parameter. Only applicable in image scan mode. |
 | trivy.includeDevDeps | bool | `false` | includeDevDeps include development dependencies in the report (supported: npm, yarn) (default: false) note: this flag is only applicable when trivy.command is set to filesystem |
 | trivy.insecureRegistries | object | `{}` | The registry to which insecure connections are allowed. There can be multiple registries with different keys. |
@@ -181,7 +181,7 @@ Keeps security report resources updated
 | trivyOperator.additionalReportLabels | string | `""` | additionalReportLabels comma-separated representation of the labels which the user wants the scanner pods to be labeled with. Example: `foo=bar,env=stage` will labeled the reports with the labels `foo: bar` and `env: stage` |
 | trivyOperator.configAuditReportsPlugin | string | `"Trivy"` | configAuditReportsPlugin the name of the plugin that generates config audit reports. |
 | trivyOperator.metricsResourceLabelsPrefix | string | `"k8s_label_"` | metricsResourceLabelsPrefix Prefix that will be prepended to the labels names indicated in `reportResourceLabels` when including them in the Prometheus metrics |
-| trivyOperator.policiesConfig | string | `""` | policiesConfig Custom Rego Policies to be used by the config audit scanner See https://github.com/aquasecurity/trivy-operator/blob/main/docs/tutorials/writing-custom-configuration-audit-policies.md for more details. |
+| trivyOperator.policiesConfig | string | `""` | policiesConfig Custom Rego Policies to be used by the config audit scanner See <https://github.com/aquasecurity/trivy-operator/blob/main/docs/tutorials/writing-custom-configuration-audit-policies.md> for more details. |
 | trivyOperator.reportRecordFailedChecksOnly | bool | `true` | reportRecordFailedChecksOnly flag is to record only failed checks on misconfiguration reports (config-audit and rbac assessment) |
 | trivyOperator.reportResourceLabels | string | `""` | reportResourceLabels comma-separated scanned resource labels which the user wants to include in the Prometheus metrics report. Example: `owner,app` |
 | trivyOperator.scanJobAffinity | list | `[]` | scanJobAffinity affinity to be applied to the scanner pods and node-collector |
@@ -204,4 +204,3 @@ Keeps security report resources updated
 | volumeMounts[0].readOnly | bool | `false` |  |
 | volumes[0].emptyDir | object | `{}` |  |
 | volumes[0].name | string | `"cache-policies"` |  |
-

@@ -416,8 +416,6 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 				Value: ignorePolicyMountPath,
 			})
 		}
-		// fmt.Sprintf("sbom-%s.json", imageName),
-		//createVolumeSbomFiles(&volumeMounts, &volumes, &registryServiceAccountAuthKey, &secret.Name)
 
 		region := CheckAwsEcrPrivateRegistry(container.Image)
 		if region != "" {
@@ -764,9 +762,9 @@ func getUniqueScanResultFileName(name string) string {
 	return fmt.Sprintf("result_%s.json", name)
 }
 
-func CheckAwsEcrPrivateRegistry(ImageUrl string) string {
-	if len(regexp.MustCompile(AWSECR_Image_Regex).FindAllStringSubmatch(ImageUrl, -1)) != 0 {
-		return regexp.MustCompile(AWSECR_Image_Regex).FindAllStringSubmatch(ImageUrl, -1)[0][1]
+func CheckAwsEcrPrivateRegistry(imageURL string) string {
+	if len(regexp.MustCompile(AWSECR_Image_Regex).FindAllStringSubmatch(imageURL, -1)) != 0 {
+		return regexp.MustCompile(AWSECR_Image_Regex).FindAllStringSubmatch(imageURL, -1)[0][1]
 	}
 	return ""
 }

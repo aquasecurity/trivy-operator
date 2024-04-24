@@ -10,17 +10,21 @@ As an example, let's install the Operator from the OperatorHub catalog in the `t
 configure it to watch the `default` namespaces:
 
 1. Install the Operator Lifecycle Manager:
+
    ```
-   curl -L https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.20.0/install.sh -o install.sh
+   curl -L https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.20.1/install.sh -o install.sh
    chmod +x install.sh
-   ./install.sh v0.20.0
+   ./install.sh v0.20.1
    ```
 
 2. Create the namespace to install the operator in:
+
    ```
    kubectl create ns trivy-system
    ```
+
 3. Create the OperatorGroup to select all namespaces:
+
    ```
    cat << EOF | kubectl apply -f -
    apiVersion: operators.coreos.com/v1
@@ -30,7 +34,9 @@ configure it to watch the `default` namespaces:
      namespace: trivy-system
    EOF
    ```
+
 4. Install the operator by creating the Subscription:
+
    ```
    cat << EOF | kubectl apply -f -
    apiVersion: operators.coreos.com/v1alpha1
@@ -50,23 +56,29 @@ configure it to watch the `default` namespaces:
          value: "kube-system"
    EOF
    ```
+
    The operator will be installed in the `trivy-system` namespace and will select all namespaces, except
-   `kube-system` and `trivy-system`. 
+   `kube-system` and `trivy-system`.
 
 5. After install, watch the operator come up using the following command:
+
    ```console
    $ kubectl get clusterserviceversions -n trivy-system
    NAME                        DISPLAY              VERSION   REPLACES                     PHASE
    trivy-operator.{{ git.tag }}  Trivy Operator   {{ git.tag[1:] }}    trivy-operator.{{ var.prev_git_tag }}   Succeeded
    ```
+
    If the above command succeeds and the ClusterServiceVersion has transitioned from `Installing` to `Succeeded` phase
    you will also find the operator's Deployment in the same namespace where the Subscription is:
+
    ```console
    $ kubectl get deployments -n trivy-system
    NAME                 READY   UP-TO-DATE   AVAILABLE   AGE
    trivy-operator   1/1     1            1           11m
    ```
+
    If for some reason it's not ready yet, check the logs of the Deployment for errors:
+
    ```
    kubectl logs deployment/trivy-operator -n trivy-system
    ```

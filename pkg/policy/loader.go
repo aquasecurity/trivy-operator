@@ -80,11 +80,11 @@ func (pl *policyLoader) LoadPolicies() ([]string, error) {
 
 	policyPath, err := pl.getBuiltInPolicies(context.Background())
 	if err != nil {
-		return []string{}, fmt.Errorf("failed to donwload policies: %w", err)
+		return []string{}, fmt.Errorf("failed to download policies: %w", err)
 	}
 	policiesData, err := LoadPoliciesData(policyPath)
 	if err != nil {
-		return []string{}, fmt.Errorf("failed to donwload policies: %w", err)
+		return []string{}, fmt.Errorf("failed to download policies: %w", err)
 	}
 	_ = pl.cache.SetWithExpire(bundlePolicies, policiesData, *pl.expiration)
 	return policiesData, nil

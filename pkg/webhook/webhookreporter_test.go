@@ -20,6 +20,7 @@ func Test_sendReports(t *testing.T) {
 		inputReport   any
 		timeout       time.Duration
 		expectedError string
+		headerValues  http.Header
 	}{
 		{
 			name: "happy path, vuln report data",
@@ -38,7 +39,8 @@ func Test_sendReports(t *testing.T) {
 					},
 				},
 			},
-			timeout: time.Hour,
+			timeout:      time.Hour,
+			headerValues: http.Header{},
 		},
 		{
 			name: "happy path, secret report data",
@@ -55,7 +57,8 @@ func Test_sendReports(t *testing.T) {
 					},
 				},
 			},
-			timeout: time.Hour,
+			timeout:      time.Hour,
+			headerValues: http.Header{},
 		},
 		{
 			name: "sad path, timeout occurs",
@@ -64,12 +67,14 @@ func Test_sendReports(t *testing.T) {
 			},
 			timeout:       time.Nanosecond,
 			expectedError: "context deadline exceeded (Client.Timeout exceeded while awaiting headers)",
+			headerValues:  http.Header{},
 		},
 		{
 			name:          "sad path, bad report",
 			inputReport:   math.Inf(1),
 			timeout:       time.Hour,
 			expectedError: `failed to marshal reports`,
+			headerValues:  http.Header{},
 		},
 	}
 
@@ -80,7 +85,7 @@ func Test_sendReports(t *testing.T) {
 				assert.JSONEq(t, tc.want, string(b))
 			}))
 			defer ts.Close()
-			gotError := sendReport(tc.inputReport, ts.URL, tc.timeout)
+			gotError := sendReport(tc.inputReport, ts.URL, tc.timeout, tc.headerValues)
 			switch {
 			case tc.expectedError != "":
 				assert.ErrorContains(t, gotError, tc.expectedError, tc.name)

@@ -1,6 +1,7 @@
 package etc_test
 
 import (
+	"net/http"
 	"testing"
 
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
@@ -100,6 +101,35 @@ func TestOperator_ResolveInstallMode(t *testing.T) {
 			default:
 				require.EqualError(t, err, tc.expectedError)
 			}
+		})
+	}
+}
+
+func TestOperator_GetWebhookBroadcastCustomHeaders(t *testing.T) {
+	testCases := []struct {
+		name                                  string
+		operator                              etc.Config
+		expectedWebhookBroadcastCustomHeaders http.Header
+	}{
+		{
+			name: "Should return single custom header",
+			operator: etc.Config{
+				WebhookBroadcastCustomHeaders: "x-api-key:trivy",
+			},
+			expectedWebhookBroadcastCustomHeaders: http.Header{"X-Api-Key": {"trivy"}},
+		},
+		{
+			name: "Should return multiple custom headers",
+			operator: etc.Config{
+				WebhookBroadcastCustomHeaders: "x-api-key:trivy,X-Api-User:trivy-operator,X-API-TOKEN:trivy-token",
+			},
+			expectedWebhookBroadcastCustomHeaders: http.Header{"X-Api-Key": {"trivy"}, "X-Api-User": {"trivy-operator"}, "X-Api-Token": {"trivy-token"}},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.expectedWebhookBroadcastCustomHeaders, tc.operator.GetWebhookBroadcastCustomHeaders())
 		})
 	}
 }

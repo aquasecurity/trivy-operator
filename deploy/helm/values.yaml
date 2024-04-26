@@ -157,6 +157,9 @@ operator:
   # -- webhookBroadcastTimeout the flag to set timeout for webhook requests if webhookBroadcastURL is enabled
   webhookBroadcastTimeout: 30s
 
+  # -- webhookBroadcastCustomHeaders the flag to set webhook endpoint sent with custom defined headers if webhookBroadcastURL is enabled
+  webhookBroadcastCustomHeaders: ""
+
   # -- webhookSendDeletedReports the flag to enable sending deleted reports if webhookBroadcastURL is enabled
   webhookSendDeletedReports: false
 

@@ -83,6 +83,7 @@ Keeps security report resources updated
 | operator.valuesFromSecret | string | `""` | valuesFromSecret name of a Secret to apply OPERATOR_* environment variables. Will override Helm AND ConfigMap values. |
 | operator.vulnerabilityScannerEnabled | bool | `true` | the flag to enable vulnerability scanner |
 | operator.vulnerabilityScannerScanOnlyCurrentRevisions | bool | `true` | vulnerabilityScannerScanOnlyCurrentRevisions the flag to only create vulnerability scans on the current revision of a deployment. |
+| operator.webhookBroadcastCustomHeaders | string | `""` | webhookBroadcastCustomHeaders the flag to set webhook endpoint sent with custom defined headers if webhookBroadcastURL is enabled |
 | operator.webhookBroadcastTimeout | string | `"30s"` | webhookBroadcastTimeout the flag to set timeout for webhook requests if webhookBroadcastURL is enabled |
 | operator.webhookBroadcastURL | string | `""` | webhookBroadcastURL the flag to set reports should be sent to a webhook endpoint. "" means that the webhookBroadcastURL feature is disabled |
 | operator.webhookSendDeletedReports | bool | `false` | webhookSendDeletedReports the flag to enable sending deleted reports if webhookBroadcastURL is enabled |

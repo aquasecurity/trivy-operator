@@ -3,6 +3,7 @@ package etc
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -51,6 +52,7 @@ type Config struct {
 	ExposedSecretScannerEnabled                  bool           `env:"OPERATOR_EXPOSED_SECRET_SCANNER_ENABLED" envDefault:"true"`
 	WebhookBroadcastURL                          string         `env:"OPERATOR_WEBHOOK_BROADCAST_URL"`
 	WebhookBroadcastTimeout                      *time.Duration `env:"OPERATOR_WEBHOOK_BROADCAST_TIMEOUT" envDefault:"30s"`
+	WebhookBroadcastCustomHeaders                string         `env:"OPERATOR_WEBHOOK_BROADCAST_CUSTOM_HEADERS"`
 	WebhookSendDeletedReports                    bool           `env:"OPERATOR_SEND_DELETED_REPORTS" envDefault:"false"`
 	TargetWorkloads                              string         `env:"OPERATOR_TARGET_WORKLOADS" envDefault:"Pod,ReplicaSet,ReplicationController,StatefulSet,DaemonSet,CronJob,Job"`
 	AccessGlobalSecretsAndServiceAccount         bool           `env:"OPERATOR_ACCESS_GLOBAL_SECRETS_SERVICE_ACCOUNTS" envDefault:"true"`
@@ -101,6 +103,23 @@ func (c Config) GetPrivateRegistryScanSecretsNames() (map[string]string, error) 
 		}
 	}
 	return secretsInfoMap, nil
+}
+
+func (c Config) GetWebhookBroadcastCustomHeaders() http.Header {
+	customHeaders := c.WebhookBroadcastCustomHeaders
+	headers := http.Header{}
+
+	if customHeaders != "" {
+		for _, header := range strings.Split(customHeaders, ",") {
+			s := strings.SplitN(header, ":", 2)
+			if len(s) != 2 {
+				continue
+			}
+			headers.Set(s[0], s[1])
+		}
+	}
+
+	return headers
 }
 
 func (c Config) GetTargetWorkloads() []string {

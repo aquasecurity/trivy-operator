@@ -37,6 +37,7 @@ data:
   OPERATOR_METRICS_CLUSTER_COMPLIANCE_INFO_ENABLED: {{ .Values.operator.metricsClusterComplianceInfo | quote }}
   OPERATOR_WEBHOOK_BROADCAST_URL: {{ .Values.operator.webhookBroadcastURL | quote }}
   OPERATOR_WEBHOOK_BROADCAST_TIMEOUT: {{ .Values.operator.webhookBroadcastTimeout | quote }}
+  OPERATOR_WEBHOOK_BROADCAST_CUSTOM_HEADERS: {{ .Values.operator.webhookBroadcastCustomHeaders | quote }}
   OPERATOR_SEND_DELETED_REPORTS: {{ .Values.operator.webhookSendDeletedReports | quote }}
   OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES: {{ .Values.operator.privateRegistryScanSecretsNames | toJson | quote }}
   OPERATOR_ACCESS_GLOBAL_SECRETS_SERVICE_ACCOUNTS: {{ .Values.operator.accessGlobalSecretsAndServiceAccount | quote }}

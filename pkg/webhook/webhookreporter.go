@@ -91,16 +91,18 @@ func (r *WebhookReconciler) reconcileReport(reportType client.Object) reconcile.
 			return ctrl.Result{}, nil
 		}
 
+		webhookBroadcastCustomHeaders := r.Config.GetWebhookBroadcastCustomHeaders()
+
 		if r.WebhookSendDeletedReports {
 			msg := WebhookMsg{OperatorObject: reportType, Verb: verb}
 
-			return ctrl.Result{}, sendReport(msg, r.WebhookBroadcastURL, *r.WebhookBroadcastTimeout)
+			return ctrl.Result{}, sendReport(msg, r.WebhookBroadcastURL, *r.WebhookBroadcastTimeout, webhookBroadcastCustomHeaders)
 		}
-		return ctrl.Result{}, sendReport(reportType, r.WebhookBroadcastURL, *r.WebhookBroadcastTimeout)
+		return ctrl.Result{}, sendReport(reportType, r.WebhookBroadcastURL, *r.WebhookBroadcastTimeout, webhookBroadcastCustomHeaders)
 	}
 }
 
-func sendReport[T any](reports T, endpoint string, timeout time.Duration) error {
+func sendReport[T any](reports T, endpoint string, timeout time.Duration, headerValues http.Header) error {
 	b, err := json.Marshal(reports)
 	if err != nil {
 		return fmt.Errorf("failed to marshal reports: %w", err)
@@ -108,7 +110,16 @@ func sendReport[T any](reports T, endpoint string, timeout time.Duration) error 
 	hc := http.Client{
 		Timeout: timeout,
 	}
-	_, err = hc.Post(endpoint, "application/json", bytes.NewBuffer(b))
+
+	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(b))
+	if err != nil {
+		return fmt.Errorf("failed to make a new request: %w", err)
+	}
+
+	headerValues.Set("Content-Type", "application/json")
+	req.Header = headerValues
+
+	_, err = hc.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to send reports to endpoint: %w", err)
 	}

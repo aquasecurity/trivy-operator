@@ -31,7 +31,7 @@ require (
 	k8s.io/client-go v0.30.0
 	k8s.io/kubectl v0.29.3 // indirect
 	k8s.io/utils v0.0.0-20231127182322-b307cd553661
-	sigs.k8s.io/controller-runtime v0.17.1-0.20240423173400-ed81fa696dea
+	sigs.k8s.io/controller-runtime v0.18.0
 	sigs.k8s.io/yaml v1.4.0
 )
 

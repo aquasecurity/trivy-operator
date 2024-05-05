@@ -431,8 +431,9 @@ func buildPolicyLoader(tc trivyoperator.ConfigData) (policy.Loader, error) {
 	if err != nil {
 		return nil, fmt.Errorf("OCI artifact error: %w", err)
 	}
+	ro := types.RegistryOptions{}
 	if registryUser != "" && registryPassword != "" {
-		artifact.RegistryOptions = types.RegistryOptions{
+		ro = types.RegistryOptions{
 			Credentials: []types.Credential{
 				{
 					Username: registryUser,
@@ -440,7 +441,8 @@ func buildPolicyLoader(tc trivyoperator.ConfigData) (policy.Loader, error) {
 				},
 			},
 		}
+		artifact.RegistryOptions = ro
 	}
-	policyLoader := policy.NewPolicyLoader(tc.PolicyBundleOciRef(), gcache.New(1).LRU().Build(), mp.WithOCIArtifact(artifact))
+	policyLoader := policy.NewPolicyLoader(tc.PolicyBundleOciRef(), gcache.New(1).LRU().Build(), ro, mp.WithOCIArtifact(artifact))
 	return policyLoader, nil
 }

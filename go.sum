@@ -300,16 +300,28 @@ github.com/aquasecurity/testdocker v0.0.0-20230111101738-e741bda259da h1:pj/adfN
 github.com/aquasecurity/testdocker v0.0.0-20230111101738-e741bda259da/go.mod h1:852lbQLpK2nCwlR4ZLYIccxYCfoQao6q9Nl6tjz54v8=
 github.com/aquasecurity/tml v0.6.1 h1:y2ZlGSfrhnn7t4ZJ/0rotuH+v5Jgv6BDDO5jB6A9gwo=
 github.com/aquasecurity/tml v0.6.1/go.mod h1:OnYMWY5lvI9ejU7yH9LCberWaaTBW7hBFsITiIMY2yY=
+<<<<<<< HEAD
 github.com/aquasecurity/trivy v0.50.4 h1:6+r30EnhodXLdzQimGwsU1iDZmrU+8xuTM6zjQ5ZUmM=
 github.com/aquasecurity/trivy v0.50.4/go.mod h1:XfQq9o0sQF25HHzgRFZT2fImCAOt+VCqE8m1d+jxt9U=
+=======
+github.com/aquasecurity/trivy v0.51.2-0.20240511000140-a126e1075a44 h1:ZIQrS9hSm/MvBUt9ivT5dkoatLbdTNBX0EIm7Yc1GHU=
+github.com/aquasecurity/trivy v0.51.2-0.20240511000140-a126e1075a44/go.mod h1:+en2+Lc04HLB5AOl+fBgQ34vR1aqtKVUL8rh7gb3bwI=
+github.com/aquasecurity/trivy-checks v0.10.5-0.20240430045208-6cc735de6b9e h1:s0P4VeCqb7tWw06/L1cZ5/42AWy6VZFuLZ96THPJmmM=
+github.com/aquasecurity/trivy-checks v0.10.5-0.20240430045208-6cc735de6b9e/go.mod h1:UIFQxYlKcL7EGhNVicFmZ6XxZ2UpFZU7bNKEv/Y/6XM=
+>>>>>>> 4a1f12fa (chore: bump trivy-0.51.1)
 github.com/aquasecurity/trivy-db v0.0.0-20231020043206-3770774790ce h1:53T1cV67meZOWb/AepAHRGrUH7ZwhulLIXravz0lFp4=
 github.com/aquasecurity/trivy-db v0.0.0-20231020043206-3770774790ce/go.mod h1:cj9/QmD9N3OZnKQMp+/DvdV+ym3HyIkd4e+F0ZM3ZGs=
 github.com/aquasecurity/trivy-java-db v0.0.0-20240109071736-184bd7481d48 h1:JVgBIuIYbwG+ekC5lUHUpGJboPYiCcxiz06RCtz8neI=
 github.com/aquasecurity/trivy-java-db v0.0.0-20240109071736-184bd7481d48/go.mod h1:Ldya37FLi0e/5Cjq2T5Bty7cFkzUDwTcPeQua+2M8i8=
+<<<<<<< HEAD
 github.com/aquasecurity/trivy-kubernetes v0.6.6-0.20240403110607-a34923270723 h1:COxbt3jSRm7jMKWJ3/c316T8lSG132AHuRL7YKBti2g=
 github.com/aquasecurity/trivy-kubernetes v0.6.6-0.20240403110607-a34923270723/go.mod h1:m3O8Vs/1mbzrcvSrFwZ8Qy9UQtH6O3xO5bJqhmMoXIQ=
 github.com/aquasecurity/trivy-policies v0.10.0 h1:QONOsIFi6+WyB+7NGMBQeCgMFcRg6RV9dTBBpeOFDxU=
 github.com/aquasecurity/trivy-policies v0.10.0/go.mod h1:7WU0GTUqtQxqQ+FV3JAy7lskQQZU6lp7Mz1i8GEapFw=
+=======
+github.com/aquasecurity/trivy-kubernetes v0.6.7-0.20240507080745-f6c5fb0a3f3f h1:IJkhrSrlpemDZ+tPLKlJeuuK64yFcLqpTdQa4v173zA=
+github.com/aquasecurity/trivy-kubernetes v0.6.7-0.20240507080745-f6c5fb0a3f3f/go.mod h1:5uAM0CbAlVBTWc4yKCDHtl7zCwZMMYfL7erBnP3gwkI=
+>>>>>>> 4a1f12fa (chore: bump trivy-0.51.1)
 github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0 h1:jfIu9sQUG6Ig+0+Ap1h4unLjW6YQJpKZVmUzxsD4E/Q=
 github.com/arbovm/levenshtein v0.0.0-20160628152529-48b4e1c0c4d0/go.mod h1:t2tdKJDJF9BV14lnkjHmOQgcvEKgtqs5a1N3LNdJhGE=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5 h1:0CwZNZbxp69SHPdPJAN/hZIm0C4OItdklCFmMRWYpio=

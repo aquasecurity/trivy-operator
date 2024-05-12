@@ -4,8 +4,13 @@ go 1.22.0
 
 require (
 	github.com/CycloneDX/cyclonedx-go v0.8.0
+<<<<<<< HEAD
 	github.com/aquasecurity/trivy v0.50.4
 	github.com/aquasecurity/trivy-kubernetes v0.6.6-0.20240403110607-a34923270723
+=======
+	github.com/aquasecurity/trivy v0.51.2-0.20240511000140-a126e1075a44
+	github.com/aquasecurity/trivy-kubernetes v0.6.7-0.20240507080745-f6c5fb0a3f3f
+>>>>>>> 4a1f12fa (chore: bump trivy-0.51.1)
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc

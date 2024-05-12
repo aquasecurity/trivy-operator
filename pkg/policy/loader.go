@@ -4,17 +4,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
-	"sync"
-	"time"
-
+	"github.com/aquasecurity/trivy/pkg/fanal/types"
 	mp "github.com/aquasecurity/trivy/pkg/policy"
 	"github.com/bluele/gcache"
 	"github.com/go-logr/logr"
 	"golang.org/x/xerrors"
+	"os"
+	"path/filepath"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"strings"
+	"sync"
+	"time"
 )
 
 const (
@@ -26,22 +26,24 @@ type Loader interface {
 }
 
 type policyLoader struct {
-	PolicyRepo string
-	mutex      sync.RWMutex
-	cache      gcache.Cache
-	expiration *time.Duration
-	options    []mp.Option
-	logger     logr.Logger
+	PolicyRepo      string
+	mutex           sync.RWMutex
+	cache           gcache.Cache
+	expiration      *time.Duration
+	options         []mp.Option
+	logger          logr.Logger
+	RegistryOptions types.RegistryOptions
 }
 
-func NewPolicyLoader(pr string, cache gcache.Cache, opts ...mp.Option) Loader {
+func NewPolicyLoader(pr string, cache gcache.Cache, registryOptions types.RegistryOptions, opts ...mp.Option) Loader {
 	expiration := 24 * time.Hour
 	return &policyLoader{
-		PolicyRepo: pr,
-		cache:      cache,
-		options:    opts,
-		expiration: &expiration,
-		logger:     ctrl.Log.WithName("policyLoader"),
+		PolicyRepo:      pr,
+		cache:           cache,
+		options:         opts,
+		expiration:      &expiration,
+		logger:          ctrl.Log.WithName("policyLoader"),
+		RegistryOptions: registryOptions,
 	}
 }
 
@@ -96,7 +98,7 @@ func (pl *policyLoader) getBuiltInPolicies(ctx context.Context) ([]string, error
 		return nil, xerrors.Errorf("policy client error: %w", err)
 	}
 
-	if err = client.DownloadBuiltinPolicies(ctx); err != nil {
+	if err = client.DownloadBuiltinPolicies(ctx, pl.RegistryOptions); err != nil {
 		return nil, xerrors.Errorf("failed to download built-in policies: %w", err)
 	}
 	return client.LoadBuiltinPolicies()

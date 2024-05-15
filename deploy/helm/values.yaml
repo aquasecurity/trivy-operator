@@ -522,9 +522,13 @@ trivy:
   #
   dbRepositoryInsecure: "false"
 
-  # -- The Flag to enable the usage of builtin rego policies by default
+  # -- The Flag to enable the usage of builtin rego policies by default, these policies are downloaded by default from ghcr.io/aquasecurity/trivy-checks
   #
   useBuiltinRegoPolicies: "true"
+
+  # -- useEmbeddedRegoPolicies The Flag to enable the usage of embedded rego policies, this should be used as fallback for air-gapped environments
+  #
+  useEmbeddedRegoPolicies: "false"
 
   # -- The Flag is the list of supported kinds separated by comma delimiter to be scanned by the config audit scanner
   #

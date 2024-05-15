@@ -1070,7 +1070,8 @@ func (a resultSort) Less(i, j int) bool { return a[i].Metadata.ID < a[j].Metadat
 func (a resultSort) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 
 type testConfig struct {
-	builtInPolicies bool
+	builtInPolicies  bool
+	embeddedPolicies bool
 }
 
 func newTestConfig(builtInPolicies bool) testConfig {
@@ -1080,6 +1081,11 @@ func newTestConfig(builtInPolicies bool) testConfig {
 // GetUseBuiltinRegoPolicies return trivy config which associated to configauditreport plugin
 func (tc testConfig) GetUseBuiltinRegoPolicies() bool {
 	return tc.builtInPolicies
+}
+
+// GetUseBuiltinRegoPolicies return trivy config which associated to configauditreport plugin
+func (tc testConfig) GetUseEmbeddedRegoPolicies() bool {
+	return tc.embeddedPolicies
 }
 
 // GetSupportedConfigAuditKinds list of supported kinds to be scanned by the config audit scanner

@@ -5,7 +5,7 @@ go 1.22.0
 require (
 	github.com/CycloneDX/cyclonedx-go v0.8.0
 	github.com/aquasecurity/trivy v0.51.2-0.20240511000140-a126e1075a44
-	github.com/aquasecurity/trivy-kubernetes v0.6.7-0.20240507080745-f6c5fb0a3f3f
+	github.com/aquasecurity/trivy-kubernetes v0.6.7-0.20240516051533-4c5a4aad13b7
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
@@ -29,7 +29,7 @@ require (
 	k8s.io/apimachinery v0.30.0
 	k8s.io/cli-runtime v0.30.0
 	k8s.io/client-go v0.30.0
-	k8s.io/kubectl v0.29.3 // indirect
+	k8s.io/kubectl v0.30.0 // indirect
 	k8s.io/utils v0.0.0-20231127182322-b307cd553661
 	sigs.k8s.io/controller-runtime v0.18.1
 	sigs.k8s.io/yaml v1.4.0

@@ -158,7 +158,7 @@ func (p *Policies) Applicable(resourceKind string) (bool, string, error) {
 	if err != nil {
 		return false, "", err
 	}
-	if !HasExternalPolicies && !p.cac.GetUseBuiltinRegoPolicies() {
+	if !HasExternalPolicies && !p.cac.GetUseBuiltinRegoPolicies() && !p.cac.GetUseEmbeddedRegoPolicies() {
 		return false, fmt.Sprintf("no policies found for kind %s", resourceKind), nil
 	}
 	return true, "", nil
@@ -224,7 +224,7 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[
 	if err != nil {
 		return nil, err
 	}
-	so := scannerOptions(policiesFolder, dataPaths, dataFS, hasPolicies)
+	so := p.scannerOptions(policiesFolder, dataPaths, dataFS, hasPolicies)
 	scanner := kubernetes.NewScanner(so...)
 	scanResult, err := scanner.ScanFS(ctx, memfs, inputFolder)
 	if err != nil {
@@ -272,15 +272,16 @@ func (r *Policies) HasSeverity(resultSeverity severity.Severity) bool {
 	return strings.Contains(defaultSeverity, string(resultSeverity))
 }
 
-func scannerOptions(policiesFolder string, dataPaths []string, dataFS fs.FS, hasPolicies bool) []options.ScannerOption {
+func (p *Policies) scannerOptions(policiesFolder string, dataPaths []string, dataFS fs.FS, hasPolicies bool) []options.ScannerOption {
 	optionsArray := []options.ScannerOption{
-		options.ScannerWithPolicyDirs(policiesFolder),
 		options.ScannerWithDataDirs(dataPaths...),
 		options.ScannerWithDataFilesystem(dataFS),
 	}
-	if !hasPolicies {
+	if !hasPolicies && p.cac.GetUseEmbeddedRegoPolicies() {
 		optionsArray = append(optionsArray, options.ScannerWithEmbeddedPolicies(true))
 		optionsArray = append(optionsArray, options.ScannerWithEmbeddedLibraries(true))
+	} else {
+		optionsArray = append(optionsArray, options.ScannerWithPolicyDirs(policiesFolder))
 	}
 	return optionsArray
 }

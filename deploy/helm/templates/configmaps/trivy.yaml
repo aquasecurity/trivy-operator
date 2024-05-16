@@ -67,6 +67,9 @@ data:
   {{- with .Values.trivy.useBuiltinRegoPolicies }}
   trivy.useBuiltinRegoPolicies: {{ . | quote }}
   {{- end }}
+  {{- with .Values.trivy.useEmbeddedRegoPolicies }}
+  trivy.useEmbeddedRegoPolicies: {{ . | quote }}
+  {{- end }}
   {{- with .Values.trivy.offlineScan }}
   trivy.offlineScan: {{ . | quote }}
   {{- end }}

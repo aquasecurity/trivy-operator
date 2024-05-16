@@ -3040,6 +3040,7 @@ data:
   trivy.sbomSources: ""
   trivy.dbRepositoryInsecure: "false"
   trivy.useBuiltinRegoPolicies: "true"
+  trivy.useEmbeddedRegoPolicies: "false"
   trivy.supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
   trivy.timeout: "5m0s"
   trivy.mode: "Standalone"

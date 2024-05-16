@@ -56,6 +56,7 @@ const (
 	keyTrivyDBRepositoryInsecure = "trivy.dbRepositoryInsecure"
 
 	keyTrivyUseBuiltinRegoPolicies    = "trivy.useBuiltinRegoPolicies"
+	keyTrivyUseEmbeddedRegoPolicies   = "trivy.useEmbeddedRegoPolicies"
 	keyTrivySupportedConfigAuditKinds = "trivy.supportedConfigAuditKinds"
 
 	keyTrivyServerURL              = "trivy.serverURL"
@@ -275,6 +276,17 @@ func (c Config) GetUseBuiltinRegoPolicies() bool {
 	boolVal, err := strconv.ParseBool(val)
 	if err != nil {
 		return true
+	}
+	return boolVal
+}
+func (c Config) GetUseEmbeddedRegoPolicies() bool {
+	val, ok := c.Data[keyTrivyUseEmbeddedRegoPolicies]
+	if !ok {
+		return false
+	}
+	boolVal, err := strconv.ParseBool(val)
+	if err != nil {
+		return false
 	}
 	return boolVal
 }

@@ -77,6 +77,7 @@ const (
 	KeyScanJobContainerSecurityContext     = "scanJob.podTemplateContainerSecurityContext"
 	keyScanJobPodSecurityContext           = "scanJob.podTemplatePodSecurityContext"
 	keyScanJobPodTemplateLabels            = "scanJob.podTemplateLabels"
+	keyScanJobExcludeImags                 = "scanJob.excludeImages"
 	KeyScanJobPodPriorityClassName         = "scanJob.podPriorityClassName"
 	keyComplianceFailEntriesLimit          = "compliance.failEntriesLimit"
 	keySkipResourceByLabels                = "skipResourceByLabels"
@@ -195,6 +196,20 @@ func (c ConfigData) GetScanJobTolerations() ([]corev1.Toleration, error) {
 	err := json.Unmarshal([]byte(c[keyScanJobTolerations]), &scanJobTolerations)
 
 	return scanJobTolerations, err
+}
+
+func (c ConfigData) ExcludeImages() []string {
+	patterns := make([]string, 0)
+	if excludeImagesPattern, ok := c[keyScanJobExcludeImags]; ok {
+		for _, s := range strings.Split(excludeImagesPattern, ",") {
+			if len(strings.TrimSpace(s)) == 0 {
+				continue
+			}
+			patterns = append(patterns, strings.TrimSpace(s))
+		}
+		return patterns
+	}
+	return []string{}
 }
 
 func (c ConfigData) GetNodeCollectorTolerations() ([]corev1.Toleration, error) {

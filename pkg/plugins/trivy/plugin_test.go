@@ -7458,3 +7458,43 @@ func TestGetFilesystemScanCacheDir(t *testing.T) {
 		})
 	}
 }
+
+func TestExcludeImages(t *testing.T) {
+	testCases := []struct {
+		name           string
+		excludePattern []string
+		imageName      string
+		want           bool
+	}{
+		{
+			name:           "exclude images single pattern match",
+			excludePattern: []string{"docker.io/*/*"},
+			imageName:      "docker.io/library/alpine:3.10.2",
+			want:           true,
+		},
+		{
+			name:           "exclude images multi pattern match",
+			excludePattern: []string{"docker.io/*/*", "ecr.io/*/*"},
+			imageName:      "docker.io/library/alpine:3.10.2",
+			want:           true,
+		},
+		{
+			name:           "exclude images multi pattern no match",
+			excludePattern: []string{"docker.io/*", "ecr.io/*/*"},
+			imageName:      "docker.io/library/alpine:3.10.2",
+			want:           false,
+		},
+		{
+			name:           "exclude images no pattern",
+			excludePattern: []string{},
+			imageName:      "docker.io/library/alpine:3.10.2",
+			want:           false,
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := trivy.ExcludeImages(tc.excludePattern, tc.imageName)
+			assert.Equal(t, got, tc.want)
+		})
+	}
+}

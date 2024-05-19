@@ -3,6 +3,7 @@ package trivy
 import (
 	"encoding/json"
 	"io"
+	"path/filepath"
 
 	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
 	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
@@ -246,4 +247,16 @@ func (p *plugin) parseOSRef(reports ty.Report) v1alpha1.OS {
 	}
 
 	return os
+}
+
+func ExcludeImages(excludeImagesPattern []string, imageName string) bool {
+	if len(excludeImagesPattern) == 0 {
+		return false
+	}
+	for _, pattern := range excludeImagesPattern {
+		if matched, err := filepath.Match(pattern, imageName); err == nil && matched {
+			return true
+		}
+	}
+	return false
 }

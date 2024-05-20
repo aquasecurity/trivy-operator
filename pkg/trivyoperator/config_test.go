@@ -1108,3 +1108,39 @@ func TestConfigData_ExposedSecretsScannerEnabled(t *testing.T) {
 		})
 	}
 }
+
+func TestConfigData_GetExcludeImages(t *testing.T) {
+	testCases := []struct {
+		name     string
+		key      string
+		value    string
+		expected []string
+	}{
+		{
+			name:     "multi pattern",
+			key:      "scanJob.excludeImages",
+			value:    "docker.io/*, ecr.io/*/*",
+			expected: []string{"docker.io/*", "ecr.io/*/*"},
+		},
+		{
+			name:     "single pattern",
+			key:      "scanJob.excludeImages",
+			value:    "docker.io/*",
+			expected: []string{"docker.io/*"},
+		},
+		{
+			name:     "no pattern",
+			key:      "scanJob.excludeImages",
+			value:    "",
+			expected: []string{},
+		},
+	}
+	for _, tc := range testCases {
+		configData := trivyoperator.ConfigData{}
+		t.Run(tc.name, func(t *testing.T) {
+			configData.Set(tc.key, tc.value)
+			got := configData.ExcludeImages()
+			assert.Equal(t, tc.expected, got)
+		})
+	}
+}

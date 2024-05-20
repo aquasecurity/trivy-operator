@@ -3,6 +3,7 @@ package trivy
 import (
 	"encoding/json"
 	"io"
+	"path/filepath"
 
 	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
 	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
@@ -246,4 +247,17 @@ func (p *plugin) parseOSRef(reports ty.Report) v1alpha1.OS {
 	}
 
 	return os
+}
+
+// ExcludeImage checks if the image should be excluded from scanning based on the excludeImagePattern (glob pattern)
+func ExcludeImage(excludeImagePattern []string, imageName string) bool {
+	if len(excludeImagePattern) == 0 {
+		return false
+	}
+	for _, pattern := range excludeImagePattern {
+		if matched, err := filepath.Match(pattern, imageName); err == nil && matched {
+			return true
+		}
+	}
+	return false
 }

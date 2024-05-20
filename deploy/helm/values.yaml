@@ -317,6 +317,10 @@ trivyOperator:
   # See https://github.com/aquasecurity/trivy-operator/blob/main/docs/tutorials/writing-custom-configuration-audit-policies.md for more details.
   policiesConfig: ""
 
+  # -- excludeImages is comma separated glob patterns for excluding images from scanning.
+  # Example: pattern: `k8s.gcr.io/*/*` will exclude image: `k8s.gcr.io/coredns/coredns:v1.8.0`.
+  excludeImages: ""
+
 trivy:
   # -- createConfig indicates whether to create config objects
   createConfig: true

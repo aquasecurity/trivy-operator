@@ -36,6 +36,9 @@ data:
   {{- with .Values.trivyOperator.skipInitContainers }}
   scanJob.skipInitContainers: {{ . | quote }}
   {{- end }}
+  {{- with .Values.trivyOperator.excludeImages }}
+  scanJob.excludeImages: {{ . | quote }}
+  {{- end }}
   {{- with .Values.nodeCollector.excludeNodes }}
   nodeCollector.excludeNodes: {{ . | quote }}
   {{- end }}

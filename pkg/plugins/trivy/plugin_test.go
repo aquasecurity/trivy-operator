@@ -7474,8 +7474,8 @@ func TestExcludeImages(t *testing.T) {
 		},
 		{
 			name:           "exclude images multi pattern match",
-			excludePattern: []string{"docker.io/*/*", "ecr.io/*/*"},
-			imageName:      "docker.io/library/alpine:3.10.2",
+			excludePattern: []string{"docker.io/*/*", "k8s.gcr.io/*/*"},
+			imageName:      "k8s.gcr.io/coredns/coredns:v1.8.0",
 			want:           true,
 		},
 		{

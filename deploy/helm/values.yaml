@@ -317,9 +317,9 @@ trivyOperator:
   # See https://github.com/aquasecurity/trivy-operator/blob/main/docs/tutorials/writing-custom-configuration-audit-policies.md for more details.
   policiesConfig: ""
 
-  # -- exludeImages is a glob patterns for excluding images from scanning.
+  # -- excludeImages is a glob patterns for excluding images from scanning.
   # Example: `acr.azurecr.io/*/*` will exclude images from azure container registry.
-  exludeImages: ""
+  excludeImages: ""
 
 trivy:
   # -- createConfig indicates whether to create config objects

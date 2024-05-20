@@ -49,3 +49,8 @@ data:
   OPERATOR_LEADER_ELECTION_ENABLED: "true"
   OPERATOR_LEADER_ELECTION_ID: {{ .Values.operator.leaderElectionId | quote }}
 {{- end }}
+{{- if or (or .Values.operator.httpProxy .Values.operator.httpsProxy) .Values.operator.noProxy }}
+  HTTP_PROXY: {{ .Values.operator.httpProxy | quote }}
+  HTTPS_PROXY: {{ .Values.operator.httpsProxy | quote }}
+  NO_PROXY: {{ .Values.operator.noProxy | quote }}
+{{- end }}

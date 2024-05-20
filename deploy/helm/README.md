@@ -50,6 +50,8 @@ Keeps security report resources updated
 | operator.configAuditScannerScanOnlyCurrentRevisions | bool | `true` | configAuditScannerScanOnlyCurrentRevisions the flag to only create config audit scans on the current revision of a deployment. |
 | operator.controllerCacheSyncTimeout | string | `"5m"` | controllerCacheSyncTimeout the duration to wait for controller resources cache sync (default: 5m). |
 | operator.exposedSecretScannerEnabled | bool | `true` | exposedSecretScannerEnabled the flag to enable exposed secret scanner |
+| operator.httpProxy | string | `nil` | httpProxy is the HTTP proxy used by Trivy operator to download the default policies from GitHub. |
+| operator.httpsProxy | string | `nil` | httpsProxy is the HTTPS proxy used by Trivy operator to download the default policies from GitHub. |
 | operator.infraAssessmentScannerEnabled | bool | `true` | infraAssessmentScannerEnabled the flag to enable infra assessment scanner |
 | operator.labels | object | `{}` | additional labels for the operator deployment |
 | operator.leaderElectionId | string | `"trivyoperator-lock"` | leaderElectionId determines the name of the resource that leader election will use for holding the leader lock. |
@@ -64,6 +66,7 @@ Keeps security report resources updated
 | operator.metricsRbacAssessmentInfo | bool | `false` | MetricsRbacAssessmentInfo the flag to enable metrics about Rbac Assessment be aware of metrics cardinality is significantly increased with this feature enabled. |
 | operator.metricsVulnIdEnabled | bool | `false` | metricsVulnIdEnabled the flag to enable metrics about cve vulns id be aware of metrics cardinality is significantly increased with this feature enabled. |
 | operator.namespace | string | `""` | namespace to install the operator, defaults to the .Release.Namespace |
+| operator.noProxy | string | `nil` | noProxy is a comma separated list of IPs and domain names that are not subject to proxy settings. |
 | operator.podLabels | object | `{}` | additional labels for the operator pod |
 | operator.privateRegistryScanSecretsNames | object | `{}` | privateRegistryScanSecretsNames is map of namespace:secrets, secrets are comma seperated which can be used to authenticate in private registries in case if there no imagePullSecrets provided example : {"mynamespace":"mySecrets,anotherSecret"} |
 | operator.rbacAssessmentScannerEnabled | bool | `true` | rbacAssessmentScannerEnabled the flag to enable rbac assessment scanner |

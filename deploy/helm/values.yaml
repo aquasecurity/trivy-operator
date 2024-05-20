@@ -169,6 +169,15 @@ operator:
   # -- mergeRbacFindingWithConfigAudit the flag to enable merging rbac finding with config-audit report
   mergeRbacFindingWithConfigAudit: false
 
+  # -- httpProxy is the HTTP proxy used by Trivy operator to download the default policies from GitHub.
+  httpProxy: ~
+
+  # -- httpsProxy is the HTTPS proxy used by Trivy operator to download the default policies from GitHub.
+  httpsProxy: ~
+
+  # -- noProxy is a comma separated list of IPs and domain names that are not subject to proxy settings.
+  noProxy: ~
+
   # -- vaulesFromConfigMap name of a ConfigMap to apply OPERATOR_* environment variables. Will override Helm values.
   valuesFromConfigMap: ""
 

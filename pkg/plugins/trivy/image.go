@@ -157,7 +157,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 	}
 
 	for _, c := range containersSpec {
-		if ExcludeImages(ctx.GetTrivyOperatorConfig().ExcludeImages(), c.Image) {
+		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), c.Image) {
 			continue
 		}
 		env := []corev1.EnvVar{

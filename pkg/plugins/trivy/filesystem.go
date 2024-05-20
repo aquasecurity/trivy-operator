@@ -380,7 +380,7 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 	}
 
 	for _, c := range getContainers(spec) {
-		if ExcludeImages(ctx.GetTrivyOperatorConfig().ExcludeImages(), c.Image) {
+		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), c.Image) {
 			continue
 		}
 		env := []corev1.EnvVar{

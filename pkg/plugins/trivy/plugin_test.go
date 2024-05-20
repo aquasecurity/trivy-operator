@@ -7493,7 +7493,7 @@ func TestExcludeImages(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := trivy.ExcludeImages(tc.excludePattern, tc.imageName)
+			got := trivy.ExcludeImage(tc.excludePattern, tc.imageName)
 			assert.Equal(t, got, tc.want)
 		})
 	}

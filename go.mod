@@ -4,7 +4,7 @@ go 1.22.3
 
 require (
 	github.com/CycloneDX/cyclonedx-go v0.8.0
-	github.com/aquasecurity/trivy v0.51.2-0.20240511000140-a126e1075a44
+	github.com/aquasecurity/trivy v0.51.2
 	github.com/aquasecurity/trivy-kubernetes v0.6.7-0.20240516083642-d65248d04515
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1

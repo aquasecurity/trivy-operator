@@ -440,6 +440,7 @@ func buildPolicyLoader(tc trivyoperator.ConfigData) (policy.Loader, error) {
 					Password: registryPassword,
 				},
 			},
+			Insecure: tc.PolicyBundleInsecure(),
 		}
 		artifact.RegistryOptions = ro
 	}

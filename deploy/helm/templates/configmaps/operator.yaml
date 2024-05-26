@@ -87,7 +87,9 @@ data:
   {{- end }}
   node.collector.imageRef: "{{ include "global.imageRegistry" . | default .Values.nodeCollector.registry }}/{{ .Values.nodeCollector.repository }}:{{ .Values.nodeCollector.tag }}"
   policies.bundle.oci.ref: "{{ .Values.policiesBundle.registry }}/{{ .Values.policiesBundle.repository }}:{{ .Values.policiesBundle.tag }}"
+  policies.bundle.insecure: {{ .Values.policiesBundle.insecure | quote }}
   {{- with .Values.nodeCollector.imagePullSecret }}
   node.collector.imagePullSecret: "{{ . }}"
   {{- end }}
+
   node.collector.nodeSelector: {{ .Values.nodeCollector.useNodeSelector | quote }}

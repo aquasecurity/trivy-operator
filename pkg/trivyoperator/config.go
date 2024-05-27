@@ -87,6 +87,7 @@ const (
 	KeyTrivyServerURL                      = "trivy.serverURL"
 	KeyNodeCollectorImageRef               = "node.collector.imageRef"
 	KeyPoliciesBundleOciRef                = "policies.bundle.oci.ref"
+	KeyPoliciesBundleInsecure              = "policies.bundle.insecure"
 	KeyPoliciesBundleOciUser               = "policies.bundle.oci.user"
 	KeyPoliciesBundleOciPassword           = "policies.bundle.oci.password"
 	KeyNodeCollectorImagePullSecret        = "node.collector.imagePullSecret"
@@ -439,6 +440,9 @@ func (c ConfigData) NodeCollectorImageRef() string {
 
 func (c ConfigData) PolicyBundleOciRef() string {
 	return c[KeyPoliciesBundleOciRef]
+}
+func (c ConfigData) PolicyBundleInsecure() bool {
+	return c.getBoolKey(KeyPoliciesBundleInsecure)
 }
 
 func (c ConfigData) PolicyBundleOciUser() string {

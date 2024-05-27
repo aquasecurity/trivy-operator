@@ -2944,6 +2944,8 @@ data:
   report.recordFailedChecksOnly: "true"
   node.collector.imageRef: "ghcr.io/aquasecurity/node-collector:0.2.1"
   policies.bundle.oci.ref: "ghcr.io/aquasecurity/trivy-checks:0"
+  policies.bundle.insecure: "false"
+
   node.collector.nodeSelector: "true"
 ---
 # Source: trivy-operator/templates/configmaps/policies.yaml

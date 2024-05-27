@@ -93,6 +93,7 @@ Keeps security report resources updated
 | podAnnotations | object | `{}` | podAnnotations annotations added to the operator's pod |
 | podSecurityContext | object | `{}` |  |
 | policiesBundle.existingSecret | bool | `false` | existingSecret if a secret containing registry credentials that have been created outside the chart (e.g external-secrets, sops, etc...). Keys must be at least one of the following: policies.bundle.oci.user, policies.bundle.oci.password Overrides policiesBundle.registryUser, policiesBundle.registryPassword values. Note: The secret has to be named "trivy-operator". |
+| policiesBundle.insecure | bool | `false` | insecure is the flag to enable insecure connection to the policy bundle registry |
 | policiesBundle.registry | string | `"ghcr.io"` | registry of the policies bundle |
 | policiesBundle.registryPassword | string | `nil` | registryPassword is the password for the registry |
 | policiesBundle.registryUser | string | `nil` | registryUser is the user for the registry |

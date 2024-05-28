@@ -22,3 +22,5 @@ output/*
 ## yamllint logfile
 yamllint-*
 kubeconfig
+## policies folder
+cmd/trivy-operator/tmp/

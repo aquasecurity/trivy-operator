@@ -266,7 +266,7 @@ trivyOperator:
   #  - name: var-lib-etcd
   #    hostPath:
   #    path: /var/lib/etcd
-  
+
   # -- useGCRServiceAccount the flag to enable the usage of GCR service account for scanning images in GCR
   useGCRServiceAccount: true
   # -- scanJobAutomountServiceAccountToken the flag to enable automount for service account token on scan job

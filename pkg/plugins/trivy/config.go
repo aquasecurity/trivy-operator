@@ -271,7 +271,7 @@ func (c Config) GetDBRepositoryInsecure() bool {
 func (c Config) GetUseBuiltinRegoPolicies() bool {
 	val, ok := c.Data[keyTrivyUseBuiltinRegoPolicies]
 	if !ok {
-		return true
+		return false
 	}
 	boolVal, err := strconv.ParseBool(val)
 	if err != nil {

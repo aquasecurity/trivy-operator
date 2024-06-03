@@ -4,7 +4,7 @@ go 1.22.3
 
 require (
 	github.com/CycloneDX/cyclonedx-go v0.8.0
-	github.com/aquasecurity/trivy v0.51.4
+	github.com/aquasecurity/trivy v0.52.0
 	github.com/aquasecurity/trivy-kubernetes v0.6.7-0.20240516083642-d65248d04515
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
@@ -43,7 +43,7 @@ require (
 
 require (
 	cloud.google.com/go v0.112.1 // indirect
-	cloud.google.com/go/compute v1.25.0 // indirect
+	cloud.google.com/go/compute v1.25.1 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	cloud.google.com/go/iam v1.1.6 // indirect
 	cloud.google.com/go/storage v1.39.1 // indirect
@@ -62,7 +62,7 @@ require (
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
 	github.com/AzureAD/microsoft-authentication-library-for-go v1.2.2 // indirect
-	github.com/BurntSushi/toml v1.3.2 // indirect
+	github.com/BurntSushi/toml v1.4.0 // indirect
 	github.com/GoogleCloudPlatform/docker-credential-gcr v2.0.5+incompatible // indirect
 	github.com/Intevation/gval v1.3.0 // indirect
 	github.com/Intevation/jsonpath v0.2.1 // indirect
@@ -82,7 +82,7 @@ require (
 	github.com/aquasecurity/go-version v0.0.0-20210121072130-637058cfe492 // indirect
 	github.com/aquasecurity/table v1.8.0 // indirect
 	github.com/aquasecurity/tml v0.6.1 // indirect
-	github.com/aquasecurity/trivy-checks v0.10.5-0.20240430045208-6cc735de6b9e // indirect
+	github.com/aquasecurity/trivy-checks v0.11.0 // indirect
 	github.com/aquasecurity/trivy-java-db v0.0.0-20240109071736-184bd7481d48 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.27.0 // indirect
@@ -111,7 +111,7 @@ require (
 	github.com/bitnami/go-version v0.0.0-20231130084017-bb00604d650c // indirect
 	github.com/bmatcuk/doublestar/v4 v4.6.1 // indirect
 	github.com/briandowns/spinner v1.23.0 // indirect
-	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
+	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/chai2010/gettext-go v1.0.2 // indirect
 	github.com/cheggaaa/pb/v3 v3.1.5 // indirect
 	github.com/cloudflare/circl v1.3.7 // indirect
@@ -173,7 +173,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-safetemp v1.0.0 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
-	github.com/hashicorp/go-version v1.6.0 // indirect
+	github.com/hashicorp/go-version v1.7.0 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/huandu/xstrings v1.4.0 // indirect
@@ -266,26 +266,27 @@ require (
 	go.mongodb.org/mongo-driver v1.14.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.49.0 // indirect
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0 // indirect
-	go.opentelemetry.io/otel v1.24.0 // indirect
-	go.opentelemetry.io/otel/metric v1.24.0 // indirect
-	go.opentelemetry.io/otel/sdk v1.24.0 // indirect
-	go.opentelemetry.io/otel/trace v1.24.0 // indirect
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.52.0 // indirect
+	go.opentelemetry.io/otel v1.27.0 // indirect
+	go.opentelemetry.io/otel/metric v1.27.0 // indirect
+	go.opentelemetry.io/otel/sdk v1.27.0 // indirect
+	go.opentelemetry.io/otel/trace v1.27.0 // indirect
 	go.starlark.net v0.0.0-20231016134836-22325403fcb3 // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
 	google.golang.org/api v0.172.0 // indirect
 	google.golang.org/genproto v0.0.0-20240311173647-c811ad7063a7 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240311173647-c811ad7063a7 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240318140521-94a12d6c2237 // indirect
-	google.golang.org/grpc v1.63.2 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240520151616-dc85e6b867a5 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240515191416-fc5f0ca64291 // indirect
+	google.golang.org/grpc v1.64.0 // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.28 // indirect
 	gopkg.in/evanphx/json-patch.v5 v5.7.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.0 // indirect
-	helm.sh/helm/v3 v3.15.0 // indirect
+	helm.sh/helm/v3 v3.15.1 // indirect
 	k8s.io/apiserver v0.30.1 // indirect
+	mvdan.cc/sh/v3 v3.8.0 // indirect
 	oras.land/oras-go v1.2.5 // indirect
 	sigs.k8s.io/kustomize/api v0.15.0 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.15.0 // indirect

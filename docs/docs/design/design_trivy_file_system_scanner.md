@@ -117,10 +117,10 @@ spec:
           emptyDir: { }
       initContainers:
         # The trivy-get-binary init container is used to copy out the trivy executable
-        # binary from the upstream Trivy container image, i.e. aquasec/trivy:0.21.1,
+        # binary from the upstream Trivy container image, i.e. aquasec/trivy:0.21.2,
         # to a shared emptyDir volume.
         - name: trivy-get-binary
-          image: aquasec/trivy:0.21.1
+          image: aquasec/trivy:0.21.2
           command:
             - cp
             - -v
@@ -135,7 +135,7 @@ spec:
         # This won't be required once Trivy supports ClientServer mode
         # for the fs subcommand.
         - name: trivy-download-db
-          image: aquasec/trivy:0.21.1
+          image: aquasec/trivy:0.21.2
           command:
             - /var/trivy-operator/trivy
             - --download-db-only

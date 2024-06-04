@@ -167,7 +167,7 @@ spec:
           emptyDir: { }
       initContainers:
         - name: trivy-get-binary
-          image: aquasec/trivy:0.21.1
+          image: aquasec/trivy:0.21.2
           command:
             - cp
             - -v
@@ -177,7 +177,7 @@ spec:
             - name: scan-volume
               mountPath: /var/trivy-operator
         - name: trivy-download-db
-          image: aquasec/trivy:0.21.1
+          image: aquasec/trivy:0.21.2
           command:
             - /var/trivy-operator/trivy
             - --download-db-only
@@ -219,6 +219,6 @@ With this approach trivy operator will not have to worry about managing(create/d
     - As we will run scan job with service account of workload and if there are some very strict PSP defined in the cluster
     then scan job will be blocked due to the PSP.
   
-[ECR registry configuration]: https://aquasecurity.github.io/trivy-operator/v0.21.1/integrations/managed-registries/#amazon-elastic-container-registry-ecr
+[ECR registry configuration]: https://aquasecurity.github.io/trivy-operator/v0.21.2/integrations/managed-registries/#amazon-elastic-container-registry-ecr
 [IAM role to service account]: https://docs.aws.amazon.com/eks/latest/userguide/specify-service-account-role.html
 [Trivy fs command]: https://github.com/aquasecurity/trivy-operator/blob/main/docs/design/design_trivy_file_system_scanner.md

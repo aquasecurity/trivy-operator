@@ -36,6 +36,7 @@ const (
 	resource           = "resource"
 	package_type       = "package_type"
 	pkg_path           = "pkg_path"
+	target             = "target"
 	class              = "class"
 	severity           = "severity"
 	vuln_id            = "vuln_id"
@@ -274,6 +275,7 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		severity,
 		package_type,
 		pkg_path,
+		target,
 		class,
 		vuln_id,
 		vuln_title,
@@ -635,7 +637,7 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 				vulnLabelValues[7] = r.Report.Artifact.Tag
 				vulnLabelValues[8] = r.Report.Artifact.Digest
 				for i, label := range c.GetReportResourceLabels() {
-					vulnLabelValues[i+21] = r.Labels[label]
+					vulnLabelValues[i+22] = r.Labels[label]
 				}
 				var vulnList = make(map[string]bool)
 				for _, vuln := range r.Report.Vulnerabilities {
@@ -651,12 +653,13 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 					vulnLabelValues[14] = NewSeverityLabel(vuln.Severity).Label
 					vulnLabelValues[15] = vuln.PackageType
 					vulnLabelValues[16] = vuln.PkgPath
-					vulnLabelValues[17] = vuln.Class
-					vulnLabelValues[18] = vuln.VulnerabilityID
-					vulnLabelValues[19] = vuln.Title
-					vulnLabelValues[20] = ""
+					vulnLabelValues[17] = vuln.Target
+					vulnLabelValues[18] = vuln.Class
+					vulnLabelValues[19] = vuln.VulnerabilityID
+					vulnLabelValues[20] = vuln.Title
+					vulnLabelValues[21] = ""
 					if vuln.Score != nil {
-						vulnLabelValues[20] = strconv.FormatFloat(*vuln.Score, 'f', -1, 64)
+						vulnLabelValues[21] = strconv.FormatFloat(*vuln.Score, 'f', -1, 64)
 					}
 					metrics <- prometheus.MustNewConstMetric(c.vulnIdDesc, prometheus.GaugeValue, float64(1), vulnLabelValues...)
 				}

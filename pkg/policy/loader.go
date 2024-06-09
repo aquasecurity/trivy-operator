@@ -108,7 +108,7 @@ func LoadPoliciesData(policyPath []string) ([]string, error) {
 	policiesList := []string{}
 	fileList := []string{}
 	err := filepath.Walk(policyPath[0], func(path string, f os.FileInfo, err error) error {
-		if strings.Contains(path, "/kubernetes/") { // load only k8s policies
+		if strings.Contains(path, "policies/kubernetes/") { // load only k8s policies
 			fileList = append(fileList, path)
 		}
 		return nil

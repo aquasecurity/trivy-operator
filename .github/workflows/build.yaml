@@ -163,7 +163,7 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Release snapshot
-        uses: goreleaser/goreleaser-action@v5
+        uses: goreleaser/goreleaser-action@v6
         with:
           version: v1.7.0
           args: release -f=goreleaser-e2e.yaml --snapshot --skip-publish --rm-dist

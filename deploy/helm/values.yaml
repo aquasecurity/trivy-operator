@@ -594,6 +594,7 @@ trivy:
 
 compliance:
   # -- failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report
+  # this limit is for preventing the report from being too large per control checks
   failEntriesLimit: 10
   # -- reportType this flag control the type of report generated (summary or all)
   reportType: summary

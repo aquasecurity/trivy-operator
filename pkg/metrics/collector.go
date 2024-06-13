@@ -641,7 +641,7 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 				}
 				var vulnList = make(map[string]bool)
 				for _, vuln := range r.Report.Vulnerabilities {
-					vulnKey := vuln.VulnerabilityID + vuln.Target + vuln.PkgPath
+					vulnKey := vuln.VulnerabilityID + "|" + vuln.Target + "|" + vuln.PkgPath
 					if vulnList[vulnKey] {
 						continue
 					}

@@ -3,6 +3,7 @@ package metrics
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -543,6 +544,36 @@ func getDynamicConfigLabels(config trivyoperator.ConfigData) []string {
 	return labels
 }
 
+// constructVulnKey constructs a unique key for a vulnerability based on its ID, target, and package path.
+// The key is used to ensure that each vulnerability is uniquely identified even if it appears in multiple
+// binaries or paths.
+//
+// Parameters:
+// - vulnID: The unique identifier for the vulnerability (e.g., CVE ID).
+// - target: The target location of the vulnerability (e.g., binary file path).
+// - pkgPath: The package path of the vulnerability (e.g., library or module path).
+//
+// Returns:
+// - A string representing the unique key for the vulnerability.
+//
+// The key is constructed by concatenating the non-empty components (vulnID, target, pkgPath) with a "|" separator.
+// This approach ensures that even if target and pkgPath have identical names or are empty, the key remains unique and valid.
+//
+// Example usage:
+// key := constructVulnKey("CVE-2024-1234", "usr/local/bin", "package/path")
+// This will return: "CVE-2024-1234-P:usr/local/bin-T:package/path"
+func constructVulnKey(vulnID, target, pkgPath string) string {
+	var parts []string
+	parts = append(parts, vulnID)
+	if target != "" {
+		parts = append(parts, "T:"+target)
+	}
+	if pkgPath != "" {
+		parts = append(parts, "P:"+pkgPath)
+	}
+	return strings.Join(parts, "-")
+}
+
 func (c *ResourcesMetricsCollector) SetupWithManager(mgr ctrl.Manager) error {
 	return mgr.Add(c)
 }
@@ -641,7 +672,7 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 				}
 				var vulnList = make(map[string]bool)
 				for _, vuln := range r.Report.Vulnerabilities {
-					vulnKey := vuln.VulnerabilityID + "|" + vuln.Target + "|" + vuln.PkgPath
+					vulnKey := constructVulnKey(vuln.VulnerabilityID, vuln.Target, vuln.PkgPath)
 					if vulnList[vulnKey] {
 						continue
 					}

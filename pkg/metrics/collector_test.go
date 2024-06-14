@@ -42,6 +42,20 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		})
 	}
 
+	Context("constructVulnKey", func() {
+		DescribeTable("should construct the correct key",
+			func(vulnID, target, pkgPath, expectedKey string) {
+				key := constructVulnKey(vulnID, target, pkgPath)
+				Expect(key).To(Equal(expectedKey))
+			},
+			Entry("when all parameters are provided", "CVE-2024-1234", "usr/local/bin", "package/path", "CVE-2024-1234-T:usr/local/bin-P:package/path"),
+			Entry("when target is empty", "CVE-2024-1234", "", "package/path", "CVE-2024-1234-P:package/path"),
+			Entry("when pkgPath is empty", "CVE-2024-1234", "usr/local/bin", "", "CVE-2024-1234-T:usr/local/bin"),
+			Entry("when both target and pkgPath are empty", "CVE-2024-1234", "", "", "CVE-2024-1234"),
+			Entry("when target and pkgPath have identical names", "CVE-2024-1234", "identical", "identical", "CVE-2024-1234-T:identical-P:identical"),
+		)
+	})
+
 	Context("VulnerabilityReport", func() {
 		BeforeEach(func() {
 			vr1 := &v1alpha1.VulnerabilityReport{}

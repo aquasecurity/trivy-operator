@@ -2948,19 +2948,6 @@ data:
 
   node.collector.nodeSelector: "true"
 ---
-# Source: trivy-operator/templates/configmaps/policies.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: trivy-operator-policies-config
-  namespace: trivy-system
-  labels:
-    app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.21.3"
-    app.kubernetes.io/managed-by: kubectl
-data:
----
 # Source: trivy-operator/templates/configmaps/trivy-operator-config.yaml
 kind: ConfigMap
 apiVersion: v1

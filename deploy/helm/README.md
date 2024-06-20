@@ -133,6 +133,7 @@ Keeps security report resources updated
 | trivy.dbRepositoryPassword | string | `nil` | The password for dbRepository authentication  |
 | trivy.dbRepositoryUsername | string | `nil` | The username for dbRepository authentication  |
 | trivy.debug | bool | `false` | debug One of `true` or `false`. Enables debug mode. |
+| trivy.externalRegoPoliciesEnabled | bool | `false` | The Flag to enable the usage of external rego policies, this should be used when the user wants to use their own rego policies  |
 | trivy.filesystemScanCacheDir | string | `"/var/trivyoperator/trivy-db"` | filesystemScanCacheDir the flag to set custom path for trivy filesystem scan `cache-dir` parameter. Only applicable in filesystem scan mode. |
 | trivy.githubToken | string | `nil` | githubToken is the GitHub access token used by Trivy to download the vulnerabilities database from GitHub. Only applicable in Standalone mode. |
 | trivy.httpProxy | string | `nil` | httpProxy is the HTTP proxy used by Trivy to download the vulnerabilities database from GitHub. |

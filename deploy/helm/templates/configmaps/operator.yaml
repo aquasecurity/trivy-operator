@@ -33,9 +33,7 @@ data:
   {{- with .Values.trivyOperator.scanJobAutomountServiceAccountToken }}
   scanJob.automountServiceAccountToken: {{ . | quote }}
   {{- end }}
-  {{- with .Values.trivyOperator.useGCRServiceAccount }}
-  scanJob.useGCRServiceAccount: {{ . | quote }}
-  {{- end }}
+  scanJob.useGCRServiceAccount: {{ .Values.trivyOperator.useGCRServiceAccount | quote }}
   {{- with .Values.trivyOperator.skipInitContainers }}
   scanJob.skipInitContainers: {{ . | quote }}
   {{- end }}

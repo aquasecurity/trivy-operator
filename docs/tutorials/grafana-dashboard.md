@@ -186,7 +186,7 @@ sum(trivy_image_exposedsecrets)
 ### Set up Grafana Dashboard for Trivy Operator Metrics
 
 Lastly, we want to visualise the security issues within our cluster in a Grafana Dashboard.
-You can either do that manually in Grafana, or through the Helm Chart. 
+You can either do that manually in Grafana, or using the Helm chart. 
 
 The link to the dashboard in Grafana is [the following.](https://grafana.com/grafana/dashboards/17813)
 
@@ -235,6 +235,6 @@ grafana:
         datasource: Prometheus
 ```
 
-When the Helm Chart has been applied, you should see the dashboard as part of your Dashboard list. It is named `Trivy Operator Dashboard`.
+When the Helm chart has been applied, you should see the dashboard as part of your Dashboard list. It is named `Trivy Operator Dashboard`.
 
 ![Trivy Operator Dashbaord in Grafana Screenshot](../images/trivy-grafana.png)

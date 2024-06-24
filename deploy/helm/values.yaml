@@ -76,6 +76,8 @@ operator:
 
   # -- the flag to enable vulnerability scanner
   vulnerabilityScannerEnabled: true
+  # -- the flag to enable vulnerability reports being saved to the cluster (etcd)
+  vulnerabilityScannerReportsPersistanceEnabled: true
   # -- the flag to enable sbom generation, required for enabling ClusterVulnerabilityReports
   sbomGenerationEnabled: true
   # -- the flag to enable cluster sbom cache generation

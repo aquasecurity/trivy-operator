@@ -18,6 +18,7 @@ data:
   OPERATOR_METRICS_VULN_ID_ENABLED: {{ .Values.operator.metricsVulnIdEnabled | quote }}
   OPERATOR_HEALTH_PROBE_BIND_ADDRESS: ":9090"
   OPERATOR_VULNERABILITY_SCANNER_ENABLED: {{ .Values.operator.vulnerabilityScannerEnabled | quote }}
+  OPERATOR_VULNERABILITY_SCANNER_REPORTS_PERSISTANCE_ENABLED: {{ .Values.operator.vulnerabilityScannerReportsPersistanceEnabled | quote }}
   OPERATOR_SBOM_GENERATION_ENABLED: {{ .Values.operator.sbomGenerationEnabled | quote }}
   OPERATOR_CLUSTER_SBOM_CACHE_ENABLED: {{ .Values.operator.clusterSbomCacheEnabled | quote }}
   OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS: {{ .Values.operator.vulnerabilityScannerScanOnlyCurrentRevisions | quote }}

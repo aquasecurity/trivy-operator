@@ -1,7 +1,7 @@
 # SbomReport
 
-An instance of the SbomReport represents the latest sbom (software bill of metarials) found in a container image of a given
-Kubernetes workload. It consists of a list of OS package and application bil of metarial with a summary of
+An instance of the SbomReport represents the latest SBOM (Software Bill of Materials) found in a container image of a given
+Kubernetes workload. It consists of a list of OS package and application bill of materials with a summary of
 components and dependencies. For a multi-container workload trivy-operator creates multiple instances
 of SbomReports in the workload's namespace with the owner reference set to that workload.
 Each report follows the naming convention `<workload kind>-<workload name>-<container-name>`.

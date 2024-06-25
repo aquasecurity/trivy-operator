@@ -186,7 +186,7 @@ sum(trivy_image_exposedsecrets)
 ### Set up Grafana Dashboard for Trivy Operator Metrics
 
 Lastly, we want to visualise the security issues within our cluster in a Grafana Dashboard.
-You can either do that manually in Grafana, or using the Helm chart. 
+You can either do that manually in Grafana, or using the Grafana Helm chart. 
 
 The link to the dashboard in Grafana is [the following.](https://grafana.com/grafana/dashboards/17813)
 
@@ -208,7 +208,7 @@ Here, we will paste the ID of the Aqua Trivy Dashboard: `17813`
 Once pasted, you should see the following dashboard as part of your Dashboard list: `Trivy Operator Dashboard`
 
 
-#### Using the Helm Chart
+#### Using the Grafana Helm Chart
 
 The Grafana Helm chart supports importing the dashboard. To import the dashbaord using the ID, the Helm chart requires both a dashboard provider, as well as the dashboard itself as shown in the snippet below.
 In the [Grafana Helm chart documentation](https://github.com/grafana/helm-charts/tree/main/charts/grafana#import-dashboards), you find examples of importing a dashboard with the dashboard ID. 

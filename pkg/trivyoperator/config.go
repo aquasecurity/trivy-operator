@@ -68,6 +68,7 @@ const (
 	KeyNodeCollectorVolumeMounts         = "nodeCollector.volumeMounts"
 	KeyScanJobCustomVolumesMount         = "scanJob.customVolumesMount"
 	KeyScanJobCustomVolumes              = "scanJob.customVolumes"
+	KeyScanJobUseGCRServiceAccount       = "scanJob.UseGCRServiceAccount"
 
 	keyScanJobNodeSelector = "scanJob.nodeSelector"
 	keyScanJobAnnotations  = "scanJob.annotations"
@@ -317,6 +318,14 @@ func (c ConfigData) GetScanJobContainerSecurityContext() (*corev1.SecurityContex
 
 func (c ConfigData) GetScanJobAutomountServiceAccountToken() bool {
 	return c.getBoolKey(keyscanJobAutomountServiceAccountToken)
+}
+
+func (c ConfigData) GetScanJobUseGCRServiceAccount() bool {
+	val, ok := c[KeyScanJobUseGCRServiceAccount]
+	if !ok {
+		return true
+	}
+	return val == "true"
 }
 
 func (c ConfigData) GetSkipInitContainers() bool {

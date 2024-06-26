@@ -3,6 +3,9 @@ package controller
 import (
 	"time"
 
+	"context"
+	"fmt"
+	trivy_checks "github.com/aquasecurity/trivy-checks"
 	j "github.com/aquasecurity/trivy-kubernetes/pkg/jobs"
 	"github.com/aquasecurity/trivy-kubernetes/pkg/k8s"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
@@ -11,10 +14,8 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 	. "github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
+	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-
-	"context"
-	"fmt"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
@@ -38,6 +39,7 @@ import (
 type NodeReconciler struct {
 	logr.Logger
 	etc.Config
+	PolicyLoader policy.Loader
 	trivyoperator.ConfigData
 	kube.ObjectResolver
 	trivyoperator.PluginContext
@@ -164,6 +166,11 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting scan job priority class name: %w", err)
 		}
+		_, bundlePath, err := r.PolicyLoader.GetPoliciesAndBundlePath()
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("getting policies and bundle path: %w", err)
+		}
+
 		nodeCollectorImageRef := r.GetTrivyOperatorConfig().NodeCollectorImageRef()
 		useNodeSelector := r.GetTrivyOperatorConfig().UseNodeCollectorNodeSelector()
 		coll := j.NewCollector(cluster,
@@ -182,6 +189,9 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 			j.WithImageRef(nodeCollectorImageRef),
 			j.WithVolumes(nodeCollectorVolumes),
 			j.WithUseNodeSelector(useNodeSelector),
+			j.WithCommandsPath(bundlePath),
+			j.WithEmbeddedCommandFileSystem(trivy_checks.EmbeddedK8sCommandsFileSystem),
+			j.WithEmbeddedNodeConfigFilesystem(trivy_checks.EmbeddedK8sCommandsFileSystem),
 			j.WithPodPriorityClassName(scanJobPodPriorityClassName),
 			j.WithVolumesMount(nodeCollectorVolumeMounts),
 			j.WithContainerResourceRequirements(requirements),

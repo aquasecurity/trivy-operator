@@ -294,6 +294,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			if err = (&controller.NodeReconciler{
 				Logger:           ctrl.Log.WithName("node-reconciler"),
 				Config:           operatorConfig,
+				PolicyLoader:     policyLoader,
 				ConfigData:       trivyOperatorConfig,
 				ObjectResolver:   objectResolver,
 				PluginContext:    pluginContext,
@@ -445,5 +446,9 @@ func buildPolicyLoader(tc trivyoperator.ConfigData) (policy.Loader, error) {
 		artifact.RegistryOptions = ro
 	}
 	policyLoader := policy.NewPolicyLoader(tc.PolicyBundleOciRef(), gcache.New(1).LRU().Build(), ro, mp.WithOCIArtifact(artifact))
+	_, _, err = policyLoader.GetPoliciesAndBundlePath()
+	if err != nil {
+		return nil, fmt.Errorf("failed to load policies: %w", err)
+	}
 	return policyLoader, nil
 }

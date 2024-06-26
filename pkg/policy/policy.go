@@ -141,7 +141,7 @@ func (p *Policies) loadPolicies(kind string) ([]string, error) {
 	policies := make([]string, 0)
 	// read built-in policies
 	if p.cac.GetUseBuiltinRegoPolicies() {
-		policies, err = p.policyLoader.GetPolicies()
+		policies, _, err = p.policyLoader.GetPoliciesAndBundlePath()
 		if err != nil {
 			return nil, err
 		}

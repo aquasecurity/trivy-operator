@@ -205,12 +205,12 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 				Value: "true",
 			})
 		}
-		gcrImage := CheckGcpCrOrPrivateRegistry(c.Image)
 		if _, ok := containersCredentials[c.Name]; ok && secret != nil {
 			registryUsernameKey := fmt.Sprintf("%s.username", c.Name)
 			registryPasswordKey := fmt.Sprintf("%s.password", c.Name)
 			secretName := secret.Name
-			if gcrImage {
+			if CheckGcpCrOrPrivateRegistry(c.Image) &&
+				trivyoperator.GetDefaultConfig().GetScanJobUseGCRServiceAccount() {
 				createEnvandVolumeForGcr(&env, &volumeMounts, &volumes, &registryPasswordKey, &secretName)
 			} else {
 				env = append(env, corev1.EnvVar{

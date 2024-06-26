@@ -206,6 +206,7 @@ Keeps security report resources updated
 | trivyOperator.scanJobTolerations | list | `[]` | scanJobTolerations tolerations to be applied to the scanner pods so that they can run on nodes with matching taints |
 | trivyOperator.skipInitContainers | bool | `false` | skipInitContainers when this flag is set to true, the initContainers will be skipped for the scanner and node collector pods |
 | trivyOperator.skipResourceByLabels | string | `""` | skipResourceByLabels comma-separated labels keys which trivy-operator will skip scanning on resources with matching labels |
+| trivyOperator.useGCRServiceAccount | bool | `true` | useGCRServiceAccount the flag to enable the usage of GCR service account for scanning images in GCR |
 | trivyOperator.vulnerabilityReportsPlugin | string | `"Trivy"` | vulnerabilityReportsPlugin the name of the plugin that generates vulnerability reports `Trivy` |
 | volumeMounts[0].mountPath | string | `"/tmp"` |  |
 | volumeMounts[0].name | string | `"cache-policies"` |  |

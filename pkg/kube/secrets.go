@@ -124,7 +124,7 @@ const (
 type SecretsReader interface {
 	ListByLocalObjectReferences(ctx context.Context, refs []corev1.LocalObjectReference, ns string) ([]corev1.Secret, error)
 	ListImagePullSecretsByPodSpec(ctx context.Context, spec corev1.PodSpec, ns string) ([]corev1.Secret, error)
-	CredentialsByServer(ctx context.Context, workload client.Object, secretsInfo map[string]string, multiSecretSupport bool) (map[string]docker.Auth, error)
+	CredentialsByServer(ctx context.Context, workload client.Object, secretsInfo map[string]string, multiSecretSupport bool, globalAccessEnabled bool) (map[string]docker.Auth, error)
 }
 
 // NewSecretsReader constructs a new SecretsReader which is using the client
@@ -208,19 +208,28 @@ func (r *secretsReader) GetSecretsFromEnv(ctx context.Context, secretsInfo map[s
 	return secretsFromEnv, nil
 }
 
-func (r *secretsReader) CredentialsByServer(ctx context.Context, workload client.Object, secretsInfo map[string]string, multiSecretSupport bool) (map[string]docker.Auth, error) {
-	spec, err := GetPodSpec(workload)
-	if err != nil {
-		return nil, fmt.Errorf("getting Pod template: %w", err)
+func (r *secretsReader) CredentialsByServer(ctx context.Context, workload client.Object, secretsInfo map[string]string, multiSecretSupport bool, globalAccessEnabled bool) (map[string]docker.Auth, error) {
+	var imagePullSecrets []corev1.Secret
+
+	if globalAccessEnabled {
+		spec, err := GetPodSpec(workload)
+		if err != nil {
+			return nil, fmt.Errorf("getting Pod template: %w", err)
+		}
+
+		imagePullSecretsFromSpec, err := r.ListImagePullSecretsByPodSpec(ctx, spec, workload.GetNamespace())
+		if err != nil {
+			return nil, err
+		}
+
+		imagePullSecrets = append(imagePullSecrets, imagePullSecretsFromSpec...)
 	}
-	imagePullSecrets, err := r.ListImagePullSecretsByPodSpec(ctx, spec, workload.GetNamespace())
-	if err != nil {
-		return nil, err
-	}
+
 	secretsFromEnv, err := r.GetSecretsFromEnv(ctx, secretsInfo)
 	if err != nil {
 		return nil, err
 	}
+
 	imagePullSecrets = append(imagePullSecrets, secretsFromEnv...)
 
 	return MapDockerRegistryServersToAuths(imagePullSecrets, multiSecretSupport)

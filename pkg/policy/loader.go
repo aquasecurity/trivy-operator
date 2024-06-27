@@ -92,18 +92,17 @@ func (pl *policyLoader) getPoliciesFromCache() (interface{}, interface{}, error)
 func (pl *policyLoader) LoadPoliciesAndCommands() ([]string, []string, error) {
 	pl.mutex.Lock()
 	defer pl.mutex.Unlock()
-
-	bundlePath, err := pl.getBuiltInPolicies(context.Background())
+	bundlePaths, err := pl.getBuiltInPolicies(context.Background())
 	if err != nil {
 		return []string{}, []string{}, fmt.Errorf("failed to download policies: %w", err)
 	}
-	contentData, err := LoadPoliciesData(bundlePath)
+	contentData, err := LoadPoliciesData(bundlePaths)
 	if err != nil {
 		return []string{}, []string{}, fmt.Errorf("failed to download policies: %w", err)
 	}
 	_ = pl.cache.SetWithExpire(bundlePolicies, contentData, *pl.expiration)
-	_ = pl.cache.SetWithExpire(bundlePath, bundlePath, *pl.expiration)
-	return contentData, bundlePath, nil
+	_ = pl.cache.SetWithExpire(bundlePath, bundlePaths, *pl.expiration)
+	return contentData, bundlePaths, nil
 }
 
 func (pl *policyLoader) getBuiltInPolicies(ctx context.Context) ([]string, error) {

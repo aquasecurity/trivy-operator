@@ -31,7 +31,7 @@ Keeps security report resources updated
 | nodeCollector.imagePullSecret | string | `nil` | imagePullSecret is the secret name to be used when pulling node-collector image from private registries example : reg-secret It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace |
 | nodeCollector.registry | string | `"ghcr.io"` | registry of the node-collector image |
 | nodeCollector.repository | string | `"aquasecurity/node-collector"` | repository of the node-collector image |
-| nodeCollector.tag | string | `"0.2.1"` | tag version of the node-collector image |
+| nodeCollector.tag | string | `"0.3.1"` | tag version of the node-collector image |
 | nodeCollector.tolerations | list | `[]` | tolerations to be applied to the node-collector so that they can run on nodes with matching taints |
 | nodeCollector.useNodeSelector | bool | `true` | useNodeSelector determine if to use nodeSelector (by auto detecting node name) with node-collector scan job |
 | nodeCollector.volumeMounts | list | `[{"mountPath":"/var/lib/etcd","name":"var-lib-etcd","readOnly":true},{"mountPath":"/var/lib/kubelet","name":"var-lib-kubelet","readOnly":true},{"mountPath":"/var/lib/kube-scheduler","name":"var-lib-kube-scheduler","readOnly":true},{"mountPath":"/var/lib/kube-controller-manager","name":"var-lib-kube-controller-manager","readOnly":true},{"mountPath":"/etc/systemd","name":"etc-systemd","readOnly":true},{"mountPath":"/lib/systemd/","name":"lib-systemd","readOnly":true},{"mountPath":"/etc/kubernetes","name":"etc-kubernetes","readOnly":true},{"mountPath":"/etc/cni/net.d/","name":"etc-cni-netd","readOnly":true}]` | node-collector pod volume mounts definition for collecting config files information |

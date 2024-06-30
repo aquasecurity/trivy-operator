@@ -1,3 +1,4 @@
+{{- if .Values.operator.clusterComplianceEnabled }}
 apiVersion: aquasecurity.github.io/v1alpha1
 kind: ClusterComplianceReport
 metadata:
@@ -417,3 +418,4 @@ spec:
       description: It is Best Practice to restrict or fence untrusted workloads when running in a multi-tenant environment.
       checks: null
       severity: MEDIUM
+{{- end }}

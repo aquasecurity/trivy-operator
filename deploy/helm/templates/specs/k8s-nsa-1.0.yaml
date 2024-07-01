@@ -1,4 +1,4 @@
-{{- if .Values.operator.clusterComplianceEnabled }}
+{{- if .Values.compliance.specs | has "k8s-nsa-1.0"}}
 ---
 apiVersion: aquasecurity.github.io/v1alpha1
 kind: ClusterComplianceReport

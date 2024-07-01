@@ -1,4 +1,4 @@
-{{- if .Values.operator.clusterComplianceEnabled }}
+{{- if .Values.compliance.specs | has "k8s-pss-restricted-0.1"}}
 ---
 apiVersion: aquasecurity.github.io/v1alpha1
 kind: ClusterComplianceReport

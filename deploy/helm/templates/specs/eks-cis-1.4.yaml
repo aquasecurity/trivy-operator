@@ -1,4 +1,4 @@
-{{- if .Values.operator.clusterComplianceEnabled }}
+{{- if .Values.compliance.specs | has "eks-cis-1.4"}}
 apiVersion: aquasecurity.github.io/v1alpha1
 kind: ClusterComplianceReport
 metadata:

@@ -1,4 +1,4 @@
-{{- if .Values.operator.clusterComplianceEnabled }}
+{{- if .Values.compliance.specs | has "rke2-cis-1.24"}}
 ---
 apiVersion: aquasecurity.github.io/v1alpha1
 kind: ClusterComplianceReport

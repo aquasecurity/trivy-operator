@@ -263,7 +263,6 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 			if sbomreportData, ok := clusterSboms[c.Name]; ok {
 				secretName := fmt.Sprintf("sbom-%s", c.Name)
 				secret, err := CreateSbomDataAsSecret(sbomreportData.Bom, secretName)
-				fmt.Println(string(secret.Data["bom"]))
 				if err != nil {
 					return corev1.PodSpec{}, nil, err
 				}

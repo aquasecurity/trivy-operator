@@ -604,7 +604,7 @@ compliance:
   # -- cron this flag control the cron interval for compliance report generation
   cron: 0 */6 * * *
   # -- specs is a list of compliance specs to be used by the cluster compliance scanner
-  specs: 
+  specs:
     - k8s-cis-1.23
     - k8s-nsa-1.0
     - k8s-pss-baseline-0.1

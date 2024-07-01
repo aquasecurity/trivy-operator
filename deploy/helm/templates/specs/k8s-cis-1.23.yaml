@@ -14,7 +14,7 @@ spec:
   cron: {{ .Values.compliance.cron | quote }}
   reportType: {{ .Values.compliance.reportType | quote }}
   compliance:
-    id: k8s
+    id: k8s-cis-1.23
     title: CIS Kubernetes Benchmarks v1.23
     description: CIS Kubernetes Benchmarks
     platform: k8s

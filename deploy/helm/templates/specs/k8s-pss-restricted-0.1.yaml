@@ -10,10 +10,8 @@ metadata:
     app.kubernetes.io/version: 0.21.3
     app.kubernetes.io/managed-by: kubectl
 spec:
-  cron:
-    "{ .Values.compliance.cron | quote }": null
-  reportType:
-    "{ .Values.compliance.reportType | quote }": null
+  cron: {{ .Values.compliance.cron | quote}}
+  reportType: {{ .Values.compliance.reportType | quote}}
   compliance:
     id: k8s-pss-restricted-0.1
     platform: k8s

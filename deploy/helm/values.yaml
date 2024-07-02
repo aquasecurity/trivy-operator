@@ -340,7 +340,7 @@ trivy:
     # -- repository of the Trivy image
     repository: aquasecurity/trivy
     # -- tag version of the Trivy image
-    tag: 0.52.0
+    tag: 0.53.0
     # -- imagePullSecret is the secret name to be used when pulling trivy image from private registries example : reg-secret
     # It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace
     imagePullSecret: ~
@@ -603,6 +603,18 @@ compliance:
   reportType: summary
   # -- cron this flag control the cron interval for compliance report generation
   cron: 0 */6 * * *
+  # -- specs is a list of compliance specs to be used by the cluster compliance scanner
+  #  - k8s-cis-1.23
+  #  - k8s-nsa-1.0
+  #  - k8s-pss-baseline-0.1
+  #  - k8s-pss-restricted-0.1
+  #  - eks-cis-1.4
+  #  - rke2-cis-1.24
+  specs:
+    - k8s-cis-1.23
+    - k8s-nsa-1.0
+    - k8s-pss-baseline-0.1
+    - k8s-pss-restricted-0.1
 
 rbac:
   create: true
@@ -694,7 +706,7 @@ nodeCollector:
   # -- repository of the node-collector image
   repository: aquasecurity/node-collector
   # -- tag version of the node-collector image
-  tag: 0.2.1
+  tag: 0.3.1
   # -- imagePullSecret is the secret name to be used when pulling node-collector image from private registries example : reg-secret
   # It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace
   imagePullSecret: ~

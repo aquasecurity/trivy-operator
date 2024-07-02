@@ -294,6 +294,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			if err = (&controller.NodeReconciler{
 				Logger:           ctrl.Log.WithName("node-reconciler"),
 				Config:           operatorConfig,
+				PolicyLoader:     policyLoader,
 				ConfigData:       trivyOperatorConfig,
 				ObjectResolver:   objectResolver,
 				PluginContext:    pluginContext,

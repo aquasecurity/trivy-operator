@@ -217,6 +217,10 @@ func loadResource(obj runtime.Object, filename string) error {
 type TestLoader struct {
 }
 
-func (tl *TestLoader) GetPolicies() ([]string, error) {
-	return policy.LoadPoliciesData([]string{"./testdata/content"})
+func (tl *TestLoader) GetPoliciesAndBundlePath() ([]string, []string, error) {
+	policies, err := policy.LoadPoliciesData([]string{"./testdata/content"})
+	if err != nil {
+		return nil, nil, err
+	}
+	return policies, nil, nil
 }

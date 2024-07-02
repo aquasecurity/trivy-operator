@@ -39,6 +39,8 @@ type Complaince struct {
 	Description      string   `json:"description"`
 	Version          string   `json:"version"`
 	RelatedResources []string `json:"relatedResources"`
+	Platform         string   `json:"platform"`
+	SpecType         string   `json:"type"`
 	// Control represent the cps controls data and mapping checks
 	Controls []Control `json:"controls"`
 }
@@ -50,6 +52,8 @@ type Control struct {
 	Name        string      `json:"name"`
 	Description string      `json:"description,omitempty"`
 	Checks      []SpecCheck `json:"checks,omitempty"`
+	// +optional
+	Commands []Commands `json:"commands,omitempty"`
 	// define the severity of the control
 	// +kubebuilder:validation:Enum={CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN}
 	Severity Severity `json:"severity"`
@@ -61,6 +65,12 @@ type Control struct {
 // SpecCheck represent the scanner who perform the control check
 type SpecCheck struct {
 	// id define the check id as produced by scanner
+	ID string `json:"id"`
+}
+
+// Commands represent the commands to be executed by the node-collector
+type Commands struct {
+	// id define the commands id
 	ID string `json:"id"`
 }
 

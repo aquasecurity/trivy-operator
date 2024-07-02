@@ -79,6 +79,18 @@ spec:
                             - id
                             type: object
                           type: array
+                        commands:
+                          items:
+                            description: Commands represent the commands to be executed
+                              by the node-collector
+                            properties:
+                              id:
+                                description: id define the commands id
+                                type: string
+                            required:
+                            - id
+                            type: object
+                          type: array
                         defaultStatus:
                           description: define the default value for check status in
                             case resource not found
@@ -113,11 +125,15 @@ spec:
                     type: string
                   id:
                     type: string
+                  platform:
+                    type: string
                   relatedResources:
                     items:
                       type: string
                     type: array
                   title:
+                    type: string
+                  type:
                     type: string
                   version:
                     type: string
@@ -125,8 +141,10 @@ spec:
                 - controls
                 - description
                 - id
+                - platform
                 - relatedResources
                 - title
+                - type
                 - version
                 type: object
               cron:
@@ -2943,7 +2961,7 @@ data:
   configAuditReports.scanner: "Trivy"
   compliance.failEntriesLimit: "10"
   report.recordFailedChecksOnly: "true"
-  node.collector.imageRef: "ghcr.io/aquasecurity/node-collector:0.2.1"
+  node.collector.imageRef: "ghcr.io/aquasecurity/node-collector:0.3.1"
   policies.bundle.oci.ref: "ghcr.io/aquasecurity/trivy-checks:0"
   policies.bundle.insecure: "false"
 
@@ -3015,7 +3033,7 @@ metadata:
     app.kubernetes.io/managed-by: kubectl
 data:
   trivy.repository: "ghcr.io/aquasecurity/trivy"
-  trivy.tag: "0.52.0"
+  trivy.tag: "0.53.0"
   trivy.imagePullPolicy: "IfNotPresent"
   trivy.additionalVulnerabilityReportFields: ""
   trivy.severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"

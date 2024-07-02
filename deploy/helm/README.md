@@ -17,7 +17,7 @@ Keeps security report resources updated
 | compliance.cron | string | `"0 */6 * * *"` | cron this flag control the cron interval for compliance report generation |
 | compliance.failEntriesLimit | int | `10` | failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report this limit is for preventing the report from being too large per control checks |
 | compliance.reportType | string | `"summary"` | reportType this flag control the type of report generated (summary or all) |
-| compliance.specs | list | `["k8s-cis-1.23","k8s-nsa-1.0","k8s-pss-baseline-0.1","k8s-pss-restricted-0.1"]` | specs is a list of compliance specs to be used by the cluster compliance scanner |
+| compliance.specs | list | `["k8s-cis-1.23","k8s-nsa-1.0","k8s-pss-baseline-0.1","k8s-pss-restricted-0.1"]` | specs is a list of compliance specs to be used by the cluster compliance scanner  - k8s-cis-1.23  - k8s-nsa-1.0  - k8s-pss-baseline-0.1  - k8s-pss-restricted-0.1  - eks-cis-1.4  - rke2-cis-1.24 |
 | excludeNamespaces | string | `""` | excludeNamespaces is a comma separated list of namespaces (or glob patterns) to be excluded from scanning. Only applicable in the all namespaces install mode, i.e. when the targetNamespaces values is a blank string. |
 | fullnameOverride | string | `""` | fullnameOverride override operator full name |
 | global | object | `{"image":{"registry":""}}` | global values provide a centralized configuration for 'image.registry', reducing the potential for errors. If left blank, the chart will default to the individually set 'image.registry' values |

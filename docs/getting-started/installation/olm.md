@@ -12,9 +12,9 @@ configure it to watch the `default` namespaces:
 1. Install the Operator Lifecycle Manager:
 
    ```
-   curl -L https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.21.3/install.sh -o install.sh
+   curl -L https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.22.0/install.sh -o install.sh
    chmod +x install.sh
-   ./install.sh v0.21.3
+   ./install.sh v0.22.0
    ```
 
 2. Create the namespace to install the operator in:

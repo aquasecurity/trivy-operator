@@ -25,26 +25,25 @@ spec:
         name: Enable audit Logs (Manual)
         description: >
           Control plane logs provide visibility into operation of the EKS
-          Control plane components systems. 
+          Control plane components systems.
 
-          The API server audit logs record all accepted and rejected requests in the cluster. 
+          The API server audit logs record all accepted and rejected requests in the cluster.
 
-          When enabled via EKS configuration the control plane logs for a cluster are exported to a CloudWatch 
+          When enabled via EKS configuration the control plane logs for a cluster are exported to a CloudWatch
 
           Log Group for persistence.
-        checks: null
         severity: MEDIUM
       - id: 3.1.1
         name: Ensure that the kubeconfig file permissions are set to 644 or more
           restrictive (Manual)
         description: >
           If kubelet is running, and if it is configured by a kubeconfig
-          file, ensure that the proxy kubeconfig 
+          file, ensure that the proxy kubeconfig
 
           file has permissions of 644 or more restrictive
 
 
-          Check with the following command: 
+          Check with the following command:
 
           > sudo systemctl status kubelet
         checks:
@@ -153,7 +152,6 @@ spec:
           events not being logged, however the unlimited setting of 0 could result in a denial of
 
           service on the kubelet.
-        checks: null
         severity: HIGH
       - id: 3.2.8
         name: Ensure that the --rotate-certificates argument is not present or is set to
@@ -183,7 +181,6 @@ spec:
           to ensure that it is a container-optimized OS like Amazon Bottlerocket; or connect to the
 
           worker node and check its OS.
-        checks: null
         severity: HIGH
       - id: 4.1.1
         name: Ensure that the cluster-admin role is only used where required (Automated)
@@ -244,14 +241,12 @@ spec:
           As such, access to create new pods should be restricted to the smallest possible group
 
           of users.
-        checks: null
         severity: HIGH
       - id: 4.1.5
         name: Ensure that default service accounts are not actively used. (Manual)
         description: The default service account should not be used to ensure that
           rights granted to applications can be more easily audited and
           reviewed.
-        checks: null
         severity: HIGH
       - id: 4.1.6
         name: Ensure that Service Account Tokens are only mounted where necessary
@@ -261,7 +256,6 @@ spec:
           the workload
 
           running in the pod explicitly needs to communicate with the API server
-        checks: null
         severity: HIGH
       - id: 4.1.7
         name: Avoid use of system:masters group (Manual)
@@ -272,7 +266,6 @@ spec:
           or service account, except where strictly necessary (e.g. bootstrapping access prior to
 
           RBAC being fully available)
-        checks: null
         severity: CRITICAL
       - id: 4.1.8
         name: Limit use of the Bind, Impersonate and Escalate permissions in the
@@ -361,7 +354,6 @@ spec:
           support Network Policies it may not be possible to effectively restrict traffic in the
 
           cluster
-        checks: null
         severity: MEDIUM
       - id: 4.3.2
         name: Ensure that all Namespaces have Network Policies defined (Automated)
@@ -374,10 +366,9 @@ spec:
           (Manual)
         description: >
           Kubernetes supports mounting secrets as data volumes or as
-          environment variables. 
+          environment variables.
 
           Minimize the use of environment variable secrets.
-        checks: null
         severity: MEDIUM
       - id: 4.4.2
         name: Consider external secret storage (Manual)
@@ -392,13 +383,11 @@ spec:
           access to and use of secrets, and encrypts secrets. Some solutions also make it easier
 
           to rotate secrets
-        checks: null
         severity: MEDIUM
       - id: 4.5.1
         name: Create administrative boundaries between resources using namespaces
           (Manual)
         description: Use namespaces to isolate your Kubernetes objects.
-        checks: null
         severity: MEDIUM
       - id: 4.5.2
         name: Apply Security Context to Your Pods and Containers (Automated)
@@ -427,13 +416,11 @@ spec:
         name: Ensure Image Vulnerability Scanning using Amazon ECR image scanning or a
           third party provider (Automated)
         description: Scan images being deployed to Amazon EKS for vulnerabilities.
-        checks: null
         severity: MEDIUM
       - id: 5.1.2
         name: Minimize user access to Amazon ECR (Manual)
         description: Restrict user access to Amazon ECR, limiting interaction with build
           images to only authorized personnel and service accounts.
-        checks: null
         severity: MEDIUM
       - id: 5.1.3
         name: Minimize cluster access to read-only for Amazon ECR (Manual)
@@ -442,12 +429,10 @@ spec:
           Role to only allow
 
           read-only access to Amazon ECR
-        checks: null
         severity: MEDIUM
       - id: 5.1.4
         name: Minimize Container Registries to only those approved (Manual)
         description: Use approved container registries.
-        checks: null
         severity: MEDIUM
       - id: 5.2.1
         name: Prefer using dedicated EKS Service Accounts (Manual)
@@ -458,34 +443,29 @@ spec:
           Amazon EKS APIs. Each Kubernetes workload that needs to authenticate to other AWS
 
           services using AWS IAM should be provisioned with a dedicated Service account.
-        checks: null
         severity: MEDIUM
       - id: 5.3.1
         name: Ensure Kubernetes Secrets are encrypted using Customer Master Keys (CMKs)
           managed in AWS KMS (Manual)
         description: Encrypt Kubernetes secrets, stored in etcd, using secrets
           encryption feature during Amazon EKS cluster creation.
-        checks: null
         severity: MEDIUM
       - id: 5.4.1
         name: Restrict Access to the Control Plane Endpoint (Manual)
         description: Enable Endpoint Private Access to restrict access to the cluster's
           control plane to only an allowlist of authorized IPs
-        checks: null
         severity: MEDIUM
       - id: 5.4.2
         name: Ensure clusters are created with Private Endpoint Enabled and Public
           Access Disabled (Manual)
         description: Disable access to the Kubernetes API from outside the node network
           if it is not required.
-        checks: null
         severity: MEDIUM
       - id: 5.4.3
         name: Ensure clusters are created with Private Nodes (Manual)
         description: Disable public IP addresses for cluster nodes, so that they only
           have private IP addresses. Private Nodes are nodes with no public IP
           addresses.
-        checks: null
         severity: MEDIUM
       - id: 5.4.4
         name: Ensure Network Policy is Enabled and set as appropriate (Manual)
@@ -502,12 +482,10 @@ spec:
           enforce the specified policies. Policies are translated into sets of allowed and disallowed
 
           IP pairs. These pairs are then programmed as IPTable filter rules
-        checks: null
         severity: MEDIUM
       - id: 5.4.5
         name: Encrypt traffic to HTTPS load balancers with TLS certificates (Manual)
         description: Encrypt traffic to HTTPS load balancers using TLS certificates.
-        checks: null
         severity: MEDIUM
       - id: 5.5.1
         name: Manage Kubernetes RBAC users with AWS IAM Authenticator for Kubernetes or
@@ -521,12 +499,10 @@ spec:
           work with Amazon EKS by installing the AWS IAM Authenticator for Kubernetes and
 
           modifying your kubectl configuration file to use it for authentication
-        checks: null
         severity: MEDIUM
       - id: 5.6.1
         name: Consider Fargate for running untrusted workloads (Manual)
         description: It is Best Practice to restrict or fence untrusted workloads when
           running in a multi-tenant environment.
-        checks: null
         severity: MEDIUM
 {{- end }}

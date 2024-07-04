@@ -144,7 +144,7 @@ spec:
       description: Ensure that the admin.conf file has permissions of 600
       checks:
         - id: AVD-KCV-0060
-      commands: 
+      commands:
         - id: CMD-0013
       severity: CRITICAL
     - id: 1.1.14
@@ -152,7 +152,7 @@ spec:
       description: Ensure that the admin.conf file ownership is set to root:root
       checks:
         - id: AVD-KCV-0061
-      commands: 
+      commands:
         - id: CMD-0014
       severity: CRITICAL
     - id: 1.1.15
@@ -507,20 +507,17 @@ spec:
         authentication. However as there is no way to revoke these certificates
         when a user leaves an organization or loses their credential, they are
         not suitable for this purpose
-      checks: null
       severity: HIGH
     - id: 3.2.1
       name: Ensure that a minimal audit policy is created (Manual)
       description: Kubernetes can audit the details of requests made to the API
         server. The --audit- policy-file flag must be set for this logging to be
         enabled.
-      checks: null
       severity: HIGH
     - id: 3.2.2
       name: Ensure that the audit policy covers key security concerns (Manual)
       description: Ensure that the audit policy created for the cluster covers key
         security concerns
-      checks: null
       severity: HIGH
     - id: 4.1.1
       name: Ensure that the kubelet service file permissions are set to 600 or more
@@ -861,7 +858,6 @@ spec:
       description: There are a variety of CNI plugins available for Kubernetes. If the
         CNI in use does not support Network Policies it may not be possible to
         effectively restrict traffic in the cluster
-      checks: null
       severity: MEDIUM
     - id: 5.3.2
       name: Ensure that all Namespaces have Network Policies defined
@@ -874,26 +870,22 @@ spec:
         (Manual)
       description: Kubernetes supports mounting secrets as data volumes or as
         environment variables. Minimize the use of environment variable secrets
-      checks: null
       severity: MEDIUM
     - id: 5.4.2
       name: Consider external secret storage (Manual)
       description: Consider the use of an external secrets storage and management
         system, instead of using Kubernetes Secrets directly, if you have more
         complex secret management needs
-      checks: null
       severity: MEDIUM
     - id: 5.5.1
       name: Configure Image Provenance using ImagePolicyWebhook admission controller
         (Manual)
       description: Configure Image Provenance for your deployment
-      checks: null
       severity: MEDIUM
     - id: 5.7.1
       name: Create administrative boundaries between resources using namespaces
         (Manual)
       description: Use namespaces to isolate your Kubernetes objects
-      checks: null
       severity: MEDIUM
     - id: 5.7.2
       name: Ensure that the seccomp profile is set to docker/default in your pod

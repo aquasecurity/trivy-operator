@@ -595,8 +595,8 @@ trivy:
     # -- the number of replicas of the trivy-server
     replicas: 1
 
-    # -- valuesFromSecret name of a Secret to apply TRIVY_* environment variables. Will override Helm AND ConfigMap values.
-    valuesFromSecret: ""
+  # -- valuesFromSecret name of a Secret to apply TRIVY_* environment variables. Will override Helm AND ConfigMap values.
+  valuesFromSecret: ""
 
 compliance:
   # -- failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report

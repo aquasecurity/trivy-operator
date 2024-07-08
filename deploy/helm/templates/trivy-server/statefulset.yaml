@@ -87,6 +87,10 @@ spec:
                 name: trivy-operator-trivy-config
             - secretRef:
                 name: trivy-operator-trivy-config
+            {{- if .Values.trivy.valuesFromSecret }}
+            - secretRef:
+                name: {{ .Values.trivy.valuesFromSecret }}
+            {{- end }}
           ports:
             - name: trivy-http
               containerPort: 4954

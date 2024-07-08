@@ -54,12 +54,14 @@ The values of the `OPERATOR_NAMESPACE` and `OPERATOR_TARGET_NAMESPACES` determin
 
 ## Configuration from custom ConfigMap and/or Secret
 
-When deployed with the Helm Chart, the environment variables for the Operator Configuration are applied from the `trivy-operator-config` ConfigMap. It is possible to provide a custom ConfigMap and/or Secret to override these values.
+When deployed with the Helm Chart, the environment variables for the Operator and Trivy Configuration are applied from the `trivy-operator-config` and `trivy-operator-trivy-config` ConfigMaps. It is possible to provide a custom ConfigMap and/or Secret to override these values.
 This is especially useful or even required, when configuration cannot be set through the Helm values, for example when some of the data is retrieved from external sources like Vault or other secret management systems in Cloud Provider environments.
 To apply values from a custom ConfigMap and/or Secret, the according Helm values need to be set:
 
 - `operator.valuesFromConfigMap`: The name of the ConfigMap to apply the values from. Will override the values `trivy-operator-config` ConfigMap.
 - `operator.valuesFromSecret`: The name of the Secret to apply the values from. Will override values from the `trivy-operator-config` AND `operator.valuesFromConfigMap` (if defined) ConfigMap.
+- `trivy.valuesFromConfigMap`: The name of the ConfigMap to apply the values from. Will override the values `trivy-operator-trivy-config` ConfigMap.
+- `trivy.valuesFromSecret`: The name of the Secret to apply the values from. Will override values from the `trivy-operator-trivy-config`  AND `trivy.valuesFromConfigMap` (if defined) ConfigMap.
 
 ## Example - configure namespaces to scan
 

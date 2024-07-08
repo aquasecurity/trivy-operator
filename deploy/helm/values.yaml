@@ -595,6 +595,9 @@ trivy:
     # -- the number of replicas of the trivy-server
     replicas: 1
 
+  # -- vaulesFromConfigMap name of a ConfigMap to apply TRIVY_* environment variables. Will override Helm values.
+  valuesFromConfigMap: ""
+
   # -- valuesFromSecret name of a Secret to apply TRIVY_* environment variables. Will override Helm AND ConfigMap values.
   valuesFromSecret: ""
 

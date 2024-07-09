@@ -3,8 +3,6 @@ apiVersion: aquasecurity.github.io/v1alpha1
 kind: ClusterComplianceReport
 metadata:
   name: k8s-cis-1.23
-  platform: k8s
-  type: cis
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator

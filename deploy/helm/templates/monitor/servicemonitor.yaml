@@ -19,7 +19,9 @@ spec:
     - {{ include "trivy-operator.namespace" . }}
   {{- end }}
   selector:
-    matchLabels: {{- include "trivy-operator.selectorLabels" . | nindent 6 }}
+    matchLabels: {{- if .Values.serviceMonitor.selectorOverride }}
+    {{- with .Values.serviceMonitor.selectorOverride }} {{- toYaml . | nindent 6 }} {{- end }}
+    {{- else }} {{- include "trivy-operator.selectorLabels" . | nindent 6 }} {{- end }}
   endpoints:
   - honorLabels: {{ .Values.serviceMonitor.honorLabels }}
     port: metrics

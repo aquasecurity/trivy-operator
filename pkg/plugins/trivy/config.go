@@ -107,6 +107,8 @@ func (c Config) GetAdditionalVulnerabilityReportFields() vulnerabilityreport.Add
 			addFields.PackageType = true
 		case "PackagePath":
 			addFields.PkgPath = true
+		case "SeveritySource":
+			addFields.SeveritySource = true
 		}
 	}
 	return addFields

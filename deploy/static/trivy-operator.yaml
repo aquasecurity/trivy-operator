@@ -2896,6 +2896,9 @@ spec:
                       - LOW
                       - UNKNOWN
                       type: string
+                    severitySource:
+                      description: SeveritySource is the data source of the severity value.
+                      type: string
                     target:
                       type: string
                     title:

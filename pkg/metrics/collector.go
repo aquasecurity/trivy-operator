@@ -2,13 +2,11 @@ package metrics
 
 import (
 	"context"
-	"strconv"
-	"strings"
-
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/go-logr/logr"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -544,36 +542,6 @@ func getDynamicConfigLabels(config trivyoperator.ConfigData) []string {
 	return labels
 }
 
-// constructVulnKey constructs a unique key for a vulnerability based on its ID, target, and package path.
-// The key is used to ensure that each vulnerability is uniquely identified even if it appears in multiple
-// binaries or paths.
-//
-// Parameters:
-// - vulnID: The unique identifier for the vulnerability (e.g., CVE ID).
-// - target: The target location of the vulnerability (e.g., binary file path).
-// - pkgPath: The package path of the vulnerability (e.g., library or module path).
-//
-// Returns:
-// - A string representing the unique key for the vulnerability.
-//
-// The key is constructed by concatenating the non-empty components (vulnID, target, pkgPath) with a "|" separator.
-// This approach ensures that even if target and pkgPath have identical names or are empty, the key remains unique and valid.
-//
-// Example usage:
-// key := constructVulnKey("CVE-2024-1234", "usr/local/bin", "package/path")
-// This will return: "CVE-2024-1234-P:usr/local/bin-T:package/path"
-func constructVulnKey(vulnID, target, pkgPath string) string {
-	var parts []string
-	parts = append(parts, vulnID)
-	if target != "" {
-		parts = append(parts, "T:"+target)
-	}
-	if pkgPath != "" {
-		parts = append(parts, "P:"+pkgPath)
-	}
-	return strings.Join(parts, "-")
-}
-
 func (c *ResourcesMetricsCollector) SetupWithManager(mgr ctrl.Manager) error {
 	return mgr.Add(c)
 }
@@ -657,44 +625,42 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 			continue
 		}
 		for _, r := range reports.Items {
-			if c.Config.MetricsVulnerabilityId {
-				vulnLabelValues[0] = r.Namespace
-				vulnLabelValues[1] = r.Name
-				vulnLabelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
-				vulnLabelValues[3] = r.Labels[trivyoperator.LabelResourceName]
-				vulnLabelValues[4] = r.Labels[trivyoperator.LabelContainerName]
-				vulnLabelValues[5] = r.Report.Registry.Server
-				vulnLabelValues[6] = r.Report.Artifact.Repository
-				vulnLabelValues[7] = r.Report.Artifact.Tag
-				vulnLabelValues[8] = r.Report.Artifact.Digest
-				for i, label := range c.GetReportResourceLabels() {
-					vulnLabelValues[i+22] = r.Labels[label]
+			vulnLabelValues[0] = r.Namespace
+			vulnLabelValues[1] = r.Name
+			vulnLabelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
+			vulnLabelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			vulnLabelValues[4] = r.Labels[trivyoperator.LabelContainerName]
+			vulnLabelValues[5] = r.Report.Registry.Server
+			vulnLabelValues[6] = r.Report.Artifact.Repository
+			vulnLabelValues[7] = r.Report.Artifact.Tag
+			vulnLabelValues[8] = r.Report.Artifact.Digest
+			for i, label := range c.GetReportResourceLabels() {
+				vulnLabelValues[i+22] = r.Labels[label]
+			}
+			var vulnList = make(map[string]bool)
+			for _, vuln := range r.Report.Vulnerabilities {
+				vulnKey := kube.ComputeHash(vuln)
+				if vulnList[vulnKey] {
+					continue
 				}
-				var vulnList = make(map[string]bool)
-				for _, vuln := range r.Report.Vulnerabilities {
-					vulnKey := constructVulnKey(vuln.VulnerabilityID, vuln.Target, vuln.PkgPath)
-					if vulnList[vulnKey] {
-						continue
-					}
-					vulnList[vulnKey] = true
-					vulnLabelValues[9] = vuln.InstalledVersion
-					vulnLabelValues[10] = vuln.FixedVersion
-					vulnLabelValues[11] = vuln.PublishedDate
-					vulnLabelValues[12] = vuln.LastModifiedDate
-					vulnLabelValues[13] = vuln.Resource
-					vulnLabelValues[14] = NewSeverityLabel(vuln.Severity).Label
-					vulnLabelValues[15] = vuln.PackageType
-					vulnLabelValues[16] = vuln.PkgPath
-					vulnLabelValues[17] = vuln.Target
-					vulnLabelValues[18] = vuln.Class
-					vulnLabelValues[19] = vuln.VulnerabilityID
-					vulnLabelValues[20] = vuln.Title
-					vulnLabelValues[21] = ""
-					if vuln.Score != nil {
-						vulnLabelValues[21] = strconv.FormatFloat(*vuln.Score, 'f', -1, 64)
-					}
-					metrics <- prometheus.MustNewConstMetric(c.vulnIdDesc, prometheus.GaugeValue, float64(1), vulnLabelValues...)
+				vulnList[vulnKey] = true
+				vulnLabelValues[9] = vuln.InstalledVersion
+				vulnLabelValues[10] = vuln.FixedVersion
+				vulnLabelValues[11] = vuln.PublishedDate
+				vulnLabelValues[12] = vuln.LastModifiedDate
+				vulnLabelValues[13] = vuln.Resource
+				vulnLabelValues[14] = NewSeverityLabel(vuln.Severity).Label
+				vulnLabelValues[15] = vuln.PackageType
+				vulnLabelValues[16] = vuln.PkgPath
+				vulnLabelValues[17] = vuln.Target
+				vulnLabelValues[18] = vuln.Class
+				vulnLabelValues[19] = vuln.VulnerabilityID
+				vulnLabelValues[20] = vuln.Title
+				vulnLabelValues[21] = ""
+				if vuln.Score != nil {
+					vulnLabelValues[21] = strconv.FormatFloat(*vuln.Score, 'f', -1, 64)
 				}
+				metrics <- prometheus.MustNewConstMetric(c.vulnIdDesc, prometheus.GaugeValue, float64(1), vulnLabelValues...)
 			}
 		}
 	}

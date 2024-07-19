@@ -83,6 +83,7 @@ serviceMonitor:
 trivy:
   ignoreUnfixed: true
 service:
+  # disabled ensures that the pod gets a ClusterIP.
   headless: false    
 ```
 

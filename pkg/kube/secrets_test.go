@@ -448,7 +448,7 @@ func Test_secretsReader_CredentialsByServer(t *testing.T) {
 			},
 		}
 
-		auths, err := sr.CredentialsByServer(context.Background(), &pod, map[string]string{
+		auths, err := sr.CredentialsByServer(t.Context(), &pod, map[string]string{
 			"default": "regcred",
 		}, true, true)
 		require.NoError(t, err)

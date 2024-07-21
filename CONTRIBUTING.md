@@ -134,7 +134,7 @@ go tool cover -html=coverage.txt
 
 ### Run Operator envtest
 
-The Operator envtest spin us partial k8s components (api-server, etcd) and test controllers for reousce, workload, ttl, rbac and more
+The Operator envtest spins up partial k8s components (api-server, etcd) and test controllers for resource, workload, ttl, rbac and more
 
 ```
 mage test:envtest

@@ -17,6 +17,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func TestMapDockerRegistryServersToAuths(t *testing.T) {
@@ -360,15 +361,9 @@ func loadResource(filePath string, resource interface{}) error {
 }
 
 func Test_secretsReader_CredentialsByServer(t *testing.T) {
-	t.Run("Test with service account and secret with same registry domain should map container images to Docker authentication credentials from Pod secret", func(t *testing.T) {
+	t.Run("Test with no secrets or serviceaccounts configured and globalAccess disabled should not map any credentials", func(t *testing.T) {
 
-		var secret corev1.Secret
-		err := loadResource("./testdata/fixture/secret_same_domain.json", &secret)
-		require.NoError(t, err)
-		var sa corev1.ServiceAccount
-		err = loadResource("./testdata/fixture/sa_with_image_pull_secret_same_domain.json", &sa)
-		require.NoError(t, err)
-		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(&secret).WithObjects(&sa).Build()
+		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).Build()
 		sr := kube.NewSecretsReader(client)
 		pod := corev1.Pod{
 			Spec: corev1.PodSpec{
@@ -380,13 +375,87 @@ func Test_secretsReader_CredentialsByServer(t *testing.T) {
 			},
 		}
 
+		auths, err := sr.CredentialsByServer(context.Background(), &pod, map[string]string{}, false, false)
+		require.NoError(t, err)
+		assert.Equal(t, 0, len(auths))
+	})
+
+	t.Run("Test with secrets configured but globalAccess disabled should map container images to Docker authentication credentials from serviceaccount secret", func(t *testing.T) {
+
+		var secret corev1.Secret
+		err := loadResource("./testdata/fixture/secret_same_domain.json", &secret)
+		require.NoError(t, err)
+		var imagePullSecret corev1.Secret
+		err = loadResource("./testdata/fixture/secret_same_domain_imagePullSecret.json", &imagePullSecret)
+		require.NoError(t, err)
+		var sa corev1.ServiceAccount
+		err = loadResource("./testdata/fixture/sa_with_image_pull_secret_same_domain.json", &sa)
+		require.NoError(t, err)
+		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(&secret).WithObjects(&sa).WithObjects(&imagePullSecret).Build()
+		sr := kube.NewSecretsReader(client)
+		pod := corev1.Pod{
+			Spec: corev1.PodSpec{
+				Containers: []corev1.Container{
+					{
+						Image: "quay.io/nginx:1.16",
+					},
+				},
+				ImagePullSecrets: []corev1.LocalObjectReference{
+					{
+						Name: "private-regcred",
+					},
+				},
+			},
+		}
+
 		auths, err := sr.CredentialsByServer(context.Background(), &pod, map[string]string{
 			"default": "regcred",
-		}, false)
+		}, false, false)
 		require.NoError(t, err)
 		assert.Equal(t, 1, len(auths))
 		assert.Equal(t, map[string]docker.Auth{
 			"quay.io": {Auth: "dXNlcjpBZG1pbjEyMzQ1", Username: "user", Password: "Admin12345"},
+		}, auths)
+	})
+
+	t.Run("Test with secrets configured and globalAccess enabled should map container images to Docker authentication credentials from serviceaccount and imagePullSecret", func(t *testing.T) {
+
+		var secret corev1.Secret
+		err := loadResource("./testdata/fixture/secret_same_domain.json", &secret)
+		require.NoError(t, err)
+		var imagePullSecret corev1.Secret
+		err = loadResource("./testdata/fixture/secret_same_domain_imagePullSecret.json", &imagePullSecret)
+		require.NoError(t, err)
+		var sa corev1.ServiceAccount
+		err = loadResource("./testdata/fixture/sa_with_image_pull_secret_same_domain.json", &sa)
+		require.NoError(t, err)
+		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(&secret).WithObjects(&sa).WithObjects(&imagePullSecret).Build()
+		sr := kube.NewSecretsReader(client)
+		pod := corev1.Pod{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: "default",
+			},
+			Spec: corev1.PodSpec{
+				Containers: []corev1.Container{
+					{
+						Image: "quay.io/nginx:1.16",
+					},
+				},
+				ImagePullSecrets: []corev1.LocalObjectReference{
+					{
+						Name: "private-regcred",
+					},
+				},
+			},
+		}
+
+		auths, err := sr.CredentialsByServer(context.Background(), &pod, map[string]string{
+			"default": "regcred",
+		}, true, true)
+		require.NoError(t, err)
+		assert.Equal(t, 1, len(auths))
+		assert.Equal(t, map[string]docker.Auth{
+			"quay.io": {Auth: "", Username: "admin,user", Password: "Password12345,Admin12345"},
 		}, auths)
 	})
 }

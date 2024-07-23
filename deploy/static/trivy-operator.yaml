@@ -2906,6 +2906,19 @@ spec:
                     vulnerabilityID:
                       description: VulnerabilityID the vulnerability identifier.
                       type: string
+                    dataSource:
+                      description: DataSource is the data source of the vulnerability data.
+                      type: object
+                      properties:
+                        id:
+                          description: ID is the identifier of the data source.
+                          type: string
+                        name:
+                          description: Name is the name of the data source.
+                          type: string
+                        url:
+                          description: URL is the URL of the data source.
+                          type: string
                   required:
                   - fixedVersion
                   - installedVersion

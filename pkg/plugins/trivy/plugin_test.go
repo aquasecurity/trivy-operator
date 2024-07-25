@@ -6859,7 +6859,7 @@ func TestGetScoreFromCVSS(t *testing.T) {
 			expectedSource:   "redhat",
 		},
 		{
-			name: "Should return nil when vendor and nvd both v3 scores are nil",
+			name: "Should return 3.7 and debian source when vendor and nvd v3 scores are nil based on ordered preference",
 			cvss: dbtypes.VendorCVSS{
 				"nvd": {
 					V3Score: 0.0,
@@ -6867,11 +6867,17 @@ func TestGetScoreFromCVSS(t *testing.T) {
 				"redhat": {
 					V3Score: 0.0,
 				},
+				"debian": {
+					V3Score: 3.7,
+				},
+				"ubuntu": {
+					V3Score: 3.8,
+				},
 			},
 			severitySource:   "",
-			preferredSources: []string{"nvd", "redhat"},
-			expectedScore:    nil,
-			expectedSource:   "",
+			preferredSources: []string{"nvd", "redhat", "debian", "ubuntu"},
+			expectedScore:    ptr.To[float64](3.7),
+			expectedSource:   "debian",
 		},
 		{
 			name:             "Should return nil when cvss doesn't exist",

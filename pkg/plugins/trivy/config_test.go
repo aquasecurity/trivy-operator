@@ -360,24 +360,28 @@ func TestConfig_GetResourceRequirements(t *testing.T) {
 			config: Config{
 				PluginConfig: trivyoperator.PluginConfig{
 					Data: map[string]string{
-						"trivy.dbRepository":              DefaultDBRepository,
-						"trivy.javaDbRepository":          DefaultJavaDBRepository,
-						"trivy.resources.requests.cpu":    "800m",
-						"trivy.resources.requests.memory": "200M",
-						"trivy.resources.limits.cpu":      "600m",
-						"trivy.resources.limits.memory":   "700M",
+						"trivy.dbRepository":                         DefaultDBRepository,
+						"trivy.javaDbRepository":                     DefaultJavaDBRepository,
+						"trivy.resources.requests.cpu":               "800m",
+						"trivy.resources.requests.memory":            "200Mi",
+						"trivy.resources.requests.ephemeral-storage": "500Mi",
+						"trivy.resources.limits.cpu":                 "600m",
+						"trivy.resources.limits.memory":              "700Mi",
+						"trivy.resources.limits.ephemeral-storage":   "1Gi",
 					},
 				},
 			},
 			expectedError: "",
 			expectedRequirements: corev1.ResourceRequirements{
 				Requests: corev1.ResourceList{
-					corev1.ResourceCPU:    resource.MustParse("800m"),
-					corev1.ResourceMemory: resource.MustParse("200M"),
+					corev1.ResourceCPU:              resource.MustParse("800m"),
+					corev1.ResourceMemory:           resource.MustParse("200Mi"),
+					corev1.ResourceEphemeralStorage: resource.MustParse("500Mi"),
 				},
 				Limits: corev1.ResourceList{
-					corev1.ResourceCPU:    resource.MustParse("600m"),
-					corev1.ResourceMemory: resource.MustParse("700M"),
+					corev1.ResourceCPU:              resource.MustParse("600m"),
+					corev1.ResourceMemory:           resource.MustParse("700Mi"),
+					corev1.ResourceEphemeralStorage: resource.MustParse("1Gi"),
 				},
 			},
 		},
@@ -391,6 +395,72 @@ func TestConfig_GetResourceRequirements(t *testing.T) {
 				},
 			},
 			expectedError: "parsing resource definition trivy.resources.requests.cpu: roughly 100 quantities must match the regular expression '^([+-]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$'",
+		},
+		{
+			name: "Should return error if memory value is invalid",
+			config: Config{
+				PluginConfig: trivyoperator.PluginConfig{
+					Data: map[string]string{
+						"trivy.resources.requests.memory": "100InvalidUnit",
+					},
+				},
+			},
+			expectedError: "parsing resource definition trivy.resources.requests.memory: 100InvalidUnit quantities must match the regular expression '^([+-]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$'",
+		},
+		{
+			name: "Should return error if parsed memory value does not match original value",
+			config: Config{
+				PluginConfig: trivyoperator.PluginConfig{
+					Data: map[string]string{
+						"trivy.resources.requests.memory": "1288490188800m",
+					},
+				},
+			},
+			expectedError: "invalid value 1288490188800m for key trivy.resources.requests.memory, should be specified in units like Ki, Mi, Gi, etc",
+		},
+		{
+			name: "Should return error if CPU value is negative",
+			config: Config{
+				PluginConfig: trivyoperator.PluginConfig{
+					Data: map[string]string{
+						"trivy.resources.requests.cpu": "-500m",
+					},
+				},
+			},
+			expectedError: "CPU value -500m must be a positive number",
+		},
+		{
+			name: "Should return error if memory value is negative",
+			config: Config{
+				PluginConfig: trivyoperator.PluginConfig{
+					Data: map[string]string{
+						"trivy.resources.requests.memory": "-200Mi",
+					},
+				},
+			},
+			expectedError: "trivy.resources.requests.memory value -200Mi must be a positive number",
+		},
+		{
+			name: "Should return error if ephemeral storage value is negative",
+			config: Config{
+				PluginConfig: trivyoperator.PluginConfig{
+					Data: map[string]string{
+						"trivy.resources.requests.ephemeral-storage": "-1Gi",
+					},
+				},
+			},
+			expectedError: "trivy.resources.requests.ephemeral-storage value -1Gi must be a positive number",
+		},
+		{
+			name: "Should return error if ephemeral storage value is invalid",
+			config: Config{
+				PluginConfig: trivyoperator.PluginConfig{
+					Data: map[string]string{
+						"trivy.resources.requests.ephemeral-storage": "500InvalidUnit",
+					},
+				},
+			},
+			expectedError: "parsing resource definition trivy.resources.requests.ephemeral-storage: 500InvalidUnit quantities must match the regular expression '^([+-]?[0-9.]+)([eEinumkKMGTP]*[-+]?[0-9]*)$'",
 		},
 	}
 	for _, tc := range testCases {
@@ -735,9 +805,9 @@ func TestPlugin_Init(t *testing.T) {
 				"trivy.useBuiltinRegoPolicies":    "true",
 				"trivy.supportedConfigAuditKinds": SupportedConfigAuditKinds,
 				"trivy.resources.requests.cpu":    "100m",
-				"trivy.resources.requests.memory": "100M",
+				"trivy.resources.requests.memory": "100Mi",
 				"trivy.resources.limits.cpu":      "500m",
-				"trivy.resources.limits.memory":   "500M",
+				"trivy.resources.limits.memory":   "500Mi",
 			},
 		}, cm)
 	})
@@ -880,7 +950,6 @@ func TestPlugin_FindIgnorePolicyKey(t *testing.T) {
 }
 
 func TestPlugin_GetIncludeDevDeps(t *testing.T) {
-
 	testCases := []struct {
 		name       string
 		configData map[string]string

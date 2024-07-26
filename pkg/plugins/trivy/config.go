@@ -535,7 +535,7 @@ func (c Config) setResourceLimit(configKey string, k8sResourceList *corev1.Resou
 			return fmt.Errorf("parsing resource definition %s: %s %w", configKey, value, err)
 		}
 
-		// Ensure memory and ephemerial storage is set in valid units and the value is positive
+		// Ensure memory and ephemeral storage is set in valid units and the value is positive
 		if k8sResourceName == corev1.ResourceMemory || k8sResourceName == corev1.ResourceEphemeralStorage {
 			allowedUnits := []string{"Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "K", "M", "G", "T", "P", "E"}
 			valid := false

@@ -22,6 +22,7 @@ data:
   OPERATOR_CLUSTER_SBOM_CACHE_ENABLED: {{ .Values.operator.clusterSbomCacheEnabled | quote }}
   OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS: {{ .Values.operator.vulnerabilityScannerScanOnlyCurrentRevisions | quote }}
   OPERATOR_SCANNER_REPORT_TTL: {{ .Values.operator.scannerReportTTL | quote }}
+  OPERATOR_SCANNER_SECRET_TTL: {{ .Values.operator.scanSecretTTL | quote }}
   OPERATOR_CACHE_REPORT_TTL: {{ .Values.operator.cacheReportTTL | quote }}
   CONTROLLER_CACHE_SYNC_TIMEOUT: {{ .Values.operator.controllerCacheSyncTimeout | quote }}
   OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED: {{ .Values.operator.configAuditScannerEnabled | quote }}

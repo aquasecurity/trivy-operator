@@ -229,6 +229,8 @@ serviceMonitor:
   honorLabels: true
   # -- EndpointAdditionalProperties allows setting additional properties on the endpoint such as relabelings, metricRelabelings etc.
   endpointAdditionalProperties: {}
+  # -- selectorOverride allows to override the matchLabel selector
+  selectorOverride: {}
 
 trivyOperator:
   # -- vulnerabilityReportsPlugin the name of the plugin that generates vulnerability reports `Trivy`

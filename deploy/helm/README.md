@@ -121,6 +121,7 @@ Keeps security report resources updated
 | serviceMonitor.interval | string | `nil` | Interval at which metrics should be scraped. If not specified Prometheus’ global scrape interval is used. |
 | serviceMonitor.labels | object | `{}` | Additional labels for the serviceMonitor |
 | serviceMonitor.namespace | string | `nil` | The namespace where Prometheus expects to find service monitors |
+| serviceMonitor.selectorOverride | object | `{}` | To override the default matchLabels |
 | targetNamespaces | string | `""` | targetNamespace defines where you want trivy-operator to operate. By default, it's a blank string to select all namespaces, but you can specify another namespace, or a comma separated list of namespaces. |
 | targetWorkloads | string | `"pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job"` | targetWorkloads is a comma seperated list of Kubernetes workload resources to be included in the vulnerability and config-audit scans if left blank, all workload resources will be scanned |
 | tolerations | list | `[]` | tolerations set the operator tolerations |

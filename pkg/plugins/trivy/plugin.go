@@ -91,9 +91,9 @@ func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 			keyTrivyUseBuiltinRegoPolicies:    "true",
 			keyTrivySupportedConfigAuditKinds: SupportedConfigAuditKinds,
 			keyResourcesRequestsCPU:           "100m",
-			keyResourcesRequestsMemory:        "100M",
+			keyResourcesRequestsMemory:        "100Mi",
 			keyResourcesLimitsCPU:             "500m",
-			keyResourcesLimitsMemory:          "500M",
+			keyResourcesLimitsMemory:          "500Mi",
 		},
 	})
 }

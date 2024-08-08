@@ -68,7 +68,7 @@ const (
 	KeyNodeCollectorVolumeMounts         = "nodeCollector.volumeMounts"
 	KeyScanJobCustomVolumesMount         = "scanJob.customVolumesMount"
 	KeyScanJobCustomVolumes              = "scanJob.customVolumes"
-	KeyScanJobUseGCRServiceAccount       = "scanJob.UseGCRServiceAccount"
+	KeyScanJobUseGCRServiceAccount       = "scanJob.useGCRServiceAccount"
 
 	keyScanJobNodeSelector = "scanJob.nodeSelector"
 	keyScanJobAnnotations  = "scanJob.annotations"

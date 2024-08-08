@@ -1419,6 +1419,18 @@ spec:
                       type: object
                     cvsssource:
                       type: string
+                    dataSource:
+                      description: DataSource represents the source of vulnerability
+                        data.
+                      properties:
+                        id:
+                          description: SourceID represents data source such as NVD.
+                          type: string
+                        name:
+                          type: string
+                        url:
+                          type: string
+                      type: object
                     description:
                       type: string
                     fixedVersion:
@@ -1461,6 +1473,9 @@ spec:
                       - MEDIUM
                       - LOW
                       - UNKNOWN
+                      type: string
+                    severitySource:
+                      description: SourceID represents data source such as NVD.
                       type: string
                     target:
                       type: string
@@ -2853,6 +2868,18 @@ spec:
                       type: object
                     cvsssource:
                       type: string
+                    dataSource:
+                      description: DataSource represents the source of vulnerability
+                        data.
+                      properties:
+                        id:
+                          description: SourceID represents data source such as NVD.
+                          type: string
+                        name:
+                          type: string
+                        url:
+                          type: string
+                      type: object
                     description:
                       type: string
                     fixedVersion:
@@ -2895,6 +2922,9 @@ spec:
                       - MEDIUM
                       - LOW
                       - UNKNOWN
+                      type: string
+                    severitySource:
+                      description: SourceID represents data source such as NVD.
                       type: string
                     target:
                       type: string

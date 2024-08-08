@@ -233,7 +233,7 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 			return cas.LowCount
 		},
 	}
-	complainceStatuses := map[string]func(vs v1alpha1.ComplianceSummary) int{
+	complianceStatuses := map[string]func(vs v1alpha1.ComplianceSummary) int{
 		StatusFail().Label: func(cas v1alpha1.ComplianceSummary) int {
 			return cas.FailCount
 		},
@@ -500,7 +500,7 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		configAuditSeverities:     configAuditSeverities,
 		rbacAssessmentSeverities:  rbacAssessmentSeverities,
 		infraAssessmentSeverities: infraAssessmentSeverities,
-		complianceStatuses:        complainceStatuses,
+		complianceStatuses:        complianceStatuses,
 
 		imageVulnLabels:           imageVulnLabels,
 		vulnIdLabels:              vulnIdLabels,
@@ -945,8 +945,8 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceReports(ctx context.
 		return
 	}
 	for _, r := range reports.Items {
-		labelValues[0] = r.Spec.Complaince.Title
-		labelValues[1] = r.Spec.Complaince.Description
+		labelValues[0] = r.Spec.Compliance.Title
+		labelValues[1] = r.Spec.Compliance.Description
 		for i, label := range c.GetReportResourceLabels() {
 			labelValues[i+3] = r.Labels[label]
 		}
@@ -1003,8 +1003,8 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceInfoReports(ctx cont
 			continue
 		}
 		if c.Config.MetricsClusterComplianceInfo {
-			labelValues[0] = r.Spec.Complaince.Title
-			labelValues[1] = r.Spec.Complaince.Description
+			labelValues[0] = r.Spec.Compliance.Title
+			labelValues[1] = r.Spec.Compliance.Description
 			if r.Status.SummaryReport != nil {
 				for _, summary := range r.Status.SummaryReport.SummaryControls {
 					if summary.TotalFail == nil {

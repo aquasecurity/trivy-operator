@@ -883,9 +883,9 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 					SummaryReport: &v1alpha1.SummaryReport{},
 				},
 			}
-			car1.Spec.Complaince.Title = "nsa"
-			car1.Spec.Complaince.Description = "National Security Agency - Kubernetes Hardening Guidance"
-			car1.Spec.Complaince.Controls = append(car1.Spec.Complaince.Controls,
+			car1.Spec.Compliance.Title = "nsa"
+			car1.Spec.Compliance.Description = "National Security Agency - Kubernetes Hardening Guidance"
+			car1.Spec.Compliance.Controls = append(car1.Spec.Compliance.Controls,
 				[]v1alpha1.Control{
 					{
 						ID:            "car1 Id",
@@ -951,7 +951,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 				To(Succeed())
 		})
 
-		It("should produce correct cluster complaince metrics - Info", func() {
+		It("should produce correct cluster compliance metrics - Info", func() {
 			collector.Config.MetricsClusterComplianceInfo = true
 			const expected = `
 		# HELP trivy_compliance_info cluster compliance report Info

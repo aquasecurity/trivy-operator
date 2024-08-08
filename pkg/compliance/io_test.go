@@ -53,7 +53,7 @@ func TestGenerateComplianceReport(t *testing.T) {
 			ObjectMeta: v1.ObjectMeta{Name: "nsa"},
 			Spec: v1alpha1.ReportSpec{
 				ReportFormat: "summary",
-				Complaince: v1alpha1.Complaince{
+				Compliance: v1alpha1.Compliance{
 					ID:    "nsa",
 					Title: "nsa",
 					Controls: []v1alpha1.Control{
@@ -151,7 +151,7 @@ func TestGenerateComplianceReport(t *testing.T) {
 			ObjectMeta: v1.ObjectMeta{Name: "nsa"},
 			Spec: v1alpha1.ReportSpec{
 				ReportFormat: "all",
-				Complaince: v1alpha1.Complaince{
+				Compliance: v1alpha1.Compliance{
 					ID:    "nsa",
 					Title: "nsa",
 					Controls: []v1alpha1.Control{

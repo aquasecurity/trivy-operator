@@ -35,7 +35,7 @@ import (
 //	NodeReconciler reconciles corev1.Node and corev1.Job objects
 //
 // to collect cluster nodes information (fileSystem permission and process arguments)
-// the node information will be evaluated by the complaince control checks per relevant reports, examples: cis-benchmark and nsa
+// the node information will be evaluated by the compliance control checks per relevant reports, examples: cis-benchmark and nsa
 type NodeReconciler struct {
 	logr.Logger
 	etc.Config

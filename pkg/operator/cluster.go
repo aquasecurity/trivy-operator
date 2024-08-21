@@ -48,7 +48,7 @@ const (
 //	ClusterReconciler reconciles corev1.Node and corev1.Pod objects
 //
 // to collect cluster nodes and cluster core components (api-server,kubelet,etcd and more) infomation for vulnerability scanning
-// the node information will be evaluated by the complaince control checks per relevant reports, examples: cis-benchmark and nsa
+// the node information will be evaluated by the compliance control checks per relevant reports, examples: cis-benchmark and nsa
 type ClusterController struct {
 	logr.Logger
 	*vc.WorkloadController

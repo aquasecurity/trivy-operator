@@ -30,10 +30,10 @@ type ReportSpec struct {
 	Cron string `json:"cron"`
 	// +kubebuilder:validation:Enum={summary,all}
 	ReportFormat ReportType `json:"reportType"`
-	Complaince   Complaince `json:"compliance"`
+	Compliance   Compliance `json:"compliance"`
 }
 
-type Complaince struct {
+type Compliance struct {
 	ID               string   `json:"id"`
 	Title            string   `json:"title"`
 	Description      string   `json:"description"`
@@ -166,8 +166,8 @@ type ComplianceCheck struct {
 	Success bool `json:"success"`
 }
 
-// ToComplainceSpec map data from crd compliance spec to trivy compliance spec
-func ToComplainceSpec(cSpec Complaince) spec.ComplianceSpec {
+// ToComplianceSpec map data from crd compliance spec to trivy compliance spec
+func ToComplianceSpec(cSpec Compliance) spec.ComplianceSpec {
 	specControls := make([]defsecTypes.Control, 0)
 	for _, control := range cSpec.Controls {
 		sChecks := make([]defsecTypes.SpecCheck, 0)

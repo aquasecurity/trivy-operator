@@ -54,16 +54,16 @@ func (w *cm) createComplianceReport(ctx context.Context, reportSpec v1alpha1.Rep
 	reportStatus.UpdateTimestamp = metav1.NewTime(ext.NewSystemClock().Now())
 	r := v1alpha1.ClusterComplianceReport{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: strings.ToLower(reportSpec.Complaince.ID),
+			Name: strings.ToLower(reportSpec.Compliance.ID),
 		},
 		Status: reportStatus,
 	}
 	var existing v1alpha1.ClusterComplianceReport
 	err := w.client.Get(ctx, types.NamespacedName{
-		Name: strings.ToLower(reportSpec.Complaince.ID),
+		Name: strings.ToLower(reportSpec.Compliance.ID),
 	}, &existing)
 	if err != nil {
-		return nil, fmt.Errorf("compliance crd with name %s is missing", reportSpec.Complaince.ID)
+		return nil, fmt.Errorf("compliance crd with name %s is missing", reportSpec.Compliance.ID)
 	}
 	copied := existing.DeepCopy()
 	copied.Labels = r.Labels
@@ -75,7 +75,7 @@ func (w *cm) createComplianceReport(ctx context.Context, reportSpec v1alpha1.Rep
 
 // BuildComplianceReport build compliance based on report type {summary | detail}
 func (w *cm) buildComplianceReport(spec v1alpha1.ReportSpec, complianceResults []ttypes.Results) (v1alpha1.ReportStatus, error) {
-	trivyCompSpec := v1alpha1.ToComplainceSpec(spec.Complaince)
+	trivyCompSpec := v1alpha1.ToComplianceSpec(spec.Compliance)
 	cr, err := report.BuildComplianceReport(complianceResults, trivyCompSpec)
 	if err != nil {
 		return v1alpha1.ReportStatus{}, err

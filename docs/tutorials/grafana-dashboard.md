@@ -207,7 +207,7 @@ Once pasted, you should see the following dashboard as part of your Dashboard li
 
 #### Using the Grafana Helm Chart
 
-The Grafana Helm chart supports importing the dashboard. To import the dashbaord using the ID, the Helm chart requires both a dashboard provider, as well as the dashboard itself as shown in the snippet below.
+The Grafana Helm chart supports importing the dashboard. To import the dashboard using the ID, the Helm chart requires both a dashboard provider, as well as the dashboard itself as shown in the snippet below.
 In the [Grafana Helm chart documentation](https://github.com/grafana/helm-charts/tree/main/charts/grafana#import-dashboards), you find examples of importing a dashboard with the dashboard ID. 
 
 ```yaml

@@ -10,7 +10,7 @@ data:
   OPERATOR_SCAN_JOB_TIMEOUT: {{ .Values.operator.scanJobTimeout | quote }}
   OPERATOR_CONCURRENT_SCAN_JOBS_LIMIT: {{ .Values.operator.scanJobsConcurrentLimit | quote }}
   OPERATOR_CONCURRENT_NODE_COLLECTOR_LIMIT: {{ .Values.operator.scanNodeCollectorLimit | quote }}
-  OPERATOR_SCAN_JOB_RETRY_AFTER: {{ .Values.operator.scanJobsRetryDelay | quote }}
+  OPERATOR_SCAN_JOB_RETRY_AFTER: {{ .Values.operator.scanJobsRetryAfter | quote }}
   OPERATOR_BATCH_DELETE_LIMIT: {{ .Values.operator.batchDeleteLimit | quote }}
   OPERATOR_BATCH_DELETE_DELAY: {{ .Values.operator.batchDeleteDelay | quote }}
   OPERATOR_METRICS_BIND_ADDRESS: ":8080"

@@ -77,7 +77,7 @@ Keeps security report resources updated
 | operator.scanJobTTL | string | `""` | scanJobTTL the set automatic cleanup time after the job is completed |
 | operator.scanJobTimeout | string | `"5m"` | scanJobTimeout the length of time to wait before giving up on a scan job |
 | operator.scanJobsConcurrentLimit | int | `10` | scanJobsConcurrentLimit the maximum number of scan jobs create by the operator |
-| operator.scanJobsRetryDelay | string | `"30s"` | scanJobsRetryDelay the duration to wait before retrying a failed scan job |
+| operator.scanJobsRetryAfter | string | `"30s"` | scanJobsRetryAfter the duration to wait before retrying a failed scan job |
 | operator.scanNodeCollectorLimit | int | `1` | scanNodeCollectorLimit the maximum number of node collector jobs create by the operator |
 | operator.scanSecretTTL | string | `""` | scanSecretTTL set an automatic cleanup for scan job secrets |
 | operator.scannerReportTTL | string | `"24h"` | scannerReportTTL the flag to set how long a report should exist. "" means that the ScannerReportTTL feature is disabled |

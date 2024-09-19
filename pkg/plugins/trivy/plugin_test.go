@@ -6797,9 +6797,12 @@ func TestPlugin_ParseReportData(t *testing.T) {
 
 func TestGetScoreFromCVSS(t *testing.T) {
 	testCases := []struct {
-		name          string
-		cvss          dbtypes.VendorCVSS
-		expectedScore *float64
+		name             string
+		cvss             dbtypes.VendorCVSS
+		severitySource   string
+		preferredSources []string
+		expectedScore    *float64
+		expectedSource   string
 	}{
 		{
 			name: "Should return nvd score when nvd and vendor v3 score exist",
@@ -6811,7 +6814,10 @@ func TestGetScoreFromCVSS(t *testing.T) {
 					V3Score: 8.3,
 				},
 			},
-			expectedScore: ptr.To[float64](8.1),
+			severitySource:   "",
+			preferredSources: []string{"nvd", "redhat"},
+			expectedScore:    ptr.To[float64](8.1),
+			expectedSource:   "nvd",
 		},
 		{
 			name: "Should return nvd score when vendor v3 score is nil",
@@ -6823,7 +6829,10 @@ func TestGetScoreFromCVSS(t *testing.T) {
 					V3Score: 0.0,
 				},
 			},
-			expectedScore: ptr.To[float64](8.1),
+			severitySource:   "",
+			preferredSources: []string{"nvd", "redhat"},
+			expectedScore:    ptr.To[float64](8.1),
+			expectedSource:   "nvd",
 		},
 		{
 			name: "Should return nvd score when vendor doesn't exist",
@@ -6832,7 +6841,10 @@ func TestGetScoreFromCVSS(t *testing.T) {
 					V3Score: 8.1,
 				},
 			},
-			expectedScore: ptr.To[float64](8.1),
+			severitySource:   "",
+			preferredSources: []string{"nvd", "redhat"},
+			expectedScore:    ptr.To[float64](8.1),
+			expectedSource:   "nvd",
 		},
 		{
 			name: "Should return vendor score when nvd doesn't exist",
@@ -6841,10 +6853,13 @@ func TestGetScoreFromCVSS(t *testing.T) {
 					V3Score: 8.1,
 				},
 			},
-			expectedScore: ptr.To[float64](8.1),
+			severitySource:   "",
+			preferredSources: []string{"nvd", "redhat"},
+			expectedScore:    ptr.To[float64](8.1),
+			expectedSource:   "redhat",
 		},
 		{
-			name: "Should return nil when vendor and nvd both v3 scores are nil",
+			name: "Should return 3.7 and debian source when vendor and nvd v3 scores are nil based on ordered preference",
 			cvss: dbtypes.VendorCVSS{
 				"nvd": {
 					V3Score: 0.0,
@@ -6852,20 +6867,33 @@ func TestGetScoreFromCVSS(t *testing.T) {
 				"redhat": {
 					V3Score: 0.0,
 				},
+				"debian": {
+					V3Score: 3.7,
+				},
+				"ubuntu": {
+					V3Score: 3.8,
+				},
 			},
-			expectedScore: nil,
+			severitySource:   "",
+			preferredSources: []string{"nvd", "redhat", "debian", "ubuntu"},
+			expectedScore:    ptr.To[float64](3.7),
+			expectedSource:   "debian",
 		},
 		{
-			name:          "Should return nil when cvss doesn't exist",
-			cvss:          dbtypes.VendorCVSS{},
-			expectedScore: nil,
+			name:             "Should return nil when cvss doesn't exist",
+			cvss:             dbtypes.VendorCVSS{},
+			severitySource:   "",
+			preferredSources: []string{"nvd", "redhat"},
+			expectedScore:    nil,
+			expectedSource:   "",
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			score := vulnerabilityreport.GetScoreFromCVSS(vulnerabilityreport.GetCvssV3(tc.cvss))
+			score, source := vulnerabilityreport.GetScoreFromCVSS(vulnerabilityreport.GetCvssV3(tc.cvss), tc.severitySource, tc.preferredSources)
 			assert.Equal(t, tc.expectedScore, score)
+			assert.Equal(t, tc.expectedSource, source)
 		})
 	}
 }

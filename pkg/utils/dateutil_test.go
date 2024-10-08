@@ -1,10 +1,11 @@
 package utils
 
 import (
-	"github.com/aquasecurity/trivy-operator/pkg/ext"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNextCronDuration(t *testing.T) {
@@ -22,7 +23,7 @@ func TestNextCronDuration(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tm, err := parseTime(tt.creationTime)
 			if err != nil {
-				t.Errorf(err.Error())
+				t.Error(err.Error())
 			}
 			duration, err := NextCronDuration(tt.cron, tm, ext.NewSystemClock())
 			if err != nil {

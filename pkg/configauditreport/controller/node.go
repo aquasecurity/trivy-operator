@@ -5,6 +5,7 @@ import (
 
 	"context"
 	"fmt"
+
 	trivy_checks "github.com/aquasecurity/trivy-checks"
 	j "github.com/aquasecurity/trivy-kubernetes/pkg/jobs"
 	"github.com/aquasecurity/trivy-kubernetes/pkg/k8s"
@@ -12,7 +13,6 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
-	. "github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -59,10 +59,12 @@ func (r *NodeReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 
-	return ctrl.NewControllerManagedBy(mgr).WithOptions(controller.Options{
-		CacheSyncTimeout: r.CacheSyncTimeout,
-	}).
-		For(&corev1.Node{}, builder.WithPredicates(IsLinuxNode, predicate.Not((excludeNodePredicate)))).
+	return ctrl.NewControllerManagedBy(mgr).
+		Named("node-reconciler").
+		WithOptions(controller.Options{
+			CacheSyncTimeout: r.CacheSyncTimeout,
+		}).
+		For(&corev1.Node{}, builder.WithPredicates(predicate.IsLinuxNode, predicate.Not((excludeNodePredicate)))).
 		Owns(&v1alpha1.ClusterInfraAssessmentReport{}).
 		Complete(r.reconcileNodes())
 }

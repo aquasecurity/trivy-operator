@@ -3,6 +3,8 @@ package operator
 import (
 	"context"
 	"fmt"
+	"reflect"
+	"strings"
 	"time"
 
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
@@ -54,6 +56,9 @@ func (r *TTLReportReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	if r.Config.InfraAssessmentScannerEnabled {
 		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.InfraAssessmentReport{}})
 	}
+	if r.Config.SbomGenerationEnable {
+		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.SbomReport{}})
+	}
 	if r.Config.ClusterSbomCacheEnable {
 		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.ClusterSbomReport{}})
 	}
@@ -62,7 +67,12 @@ func (r *TTLReportReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 	for _, reportType := range ttlResources {
+		// Extract the kind of the report using reflection
+		typeName := reflect.TypeOf(reportType.ForObject).Elem().Name()
+		kind := strings.ToLower(typeName)
+
 		err = ctrl.NewControllerManagedBy(mgr).
+			Named(fmt.Sprintf("ttl-report-reconciler-%s", kind)).
 			For(reportType.ForObject, builder.WithPredicates(
 				predicate.Not(predicate.IsBeingTerminated),
 				installModePredicate)).
@@ -120,7 +130,7 @@ func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespa
 
 func (r *TTLReportReconciler) applicableForDeletion(report client.Object, ttlReportAnnotationStr string) bool {
 	reportKind := report.GetObjectKind().GroupVersionKind().Kind
-	if reportKind == "VulnerabilityReport" || reportKind == "ExposedSecretReport" || reportKind == "ClusterSbomReport" {
+	if reportKind == "VulnerabilityReport" || reportKind == "ExposedSecretReport" || reportKind == "ClusterSbomReport" || reportKind == "SbomReport" {
 		return true
 	}
 	if ttlReportAnnotationStr == time.Duration(0).String() { // check if it marked as historical report

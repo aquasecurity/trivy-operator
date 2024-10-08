@@ -19,8 +19,8 @@ jobs:
     # this job will only run if the PR has been merged
     if: github.event.client_payload.action == 'chart-release' || github.event.client_payload.action == 'chart-and-app-release'
     permissions:
-      contents: write  # for peter-evans/repository-dispatch to create a repository dispatch event
-      packages: write  # to push OCI chart package to GitHub Registry
+      contents: write # for peter-evans/repository-dispatch to create a repository dispatch event
+      packages: write # to push OCI chart package to GitHub Registry
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -74,7 +74,6 @@ jobs:
           user_email: aqua-bot@users.noreply.github.com
           user_name: "aqua-bot"
 
-        # OCI registry as helm repository (helm 3.8+)
       - name: Login to GHCR
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:

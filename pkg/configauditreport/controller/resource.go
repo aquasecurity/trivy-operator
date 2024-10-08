@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"strings"
 	"time"
 
@@ -125,24 +126,43 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 	}
 
 	for _, resource := range clusterResources {
-		if err = ctrl.NewControllerManagedBy(mgr).WithOptions(controller.Options{
-			CacheSyncTimeout: r.CacheSyncTimeout,
-		}).For(resource.ForObject, builder.WithPredicates(
-			predicate.Not(predicate.ManagedByTrivyOperator),
-			predicate.Not(predicate.IsBeingTerminated),
-		)).Owns(resource.OwnsObject).Complete(r.reconcileResource(resource.Kind)); err != nil {
+		typeName := reflect.TypeOf(resource.ForObject).Elem().Name()
+		kind := strings.ToLower(typeName)
+
+		// Log the controller name for debugging
+		r.Logger.Info("Setting up cluster resource controller", "controllerName", fmt.Sprintf("resource-controller-%s", kind))
+
+		if err = ctrl.NewControllerManagedBy(mgr).
+			WithOptions(controller.Options{
+				CacheSyncTimeout: r.CacheSyncTimeout,
+			}).
+			Named(fmt.Sprintf("resource-controller-%s", kind)).
+			For(resource.ForObject, builder.WithPredicates(
+				predicate.Not(predicate.ManagedByTrivyOperator),
+				predicate.Not(predicate.IsBeingTerminated),
+			)).
+			Owns(resource.OwnsObject).
+			Complete(r.reconcileResource(resource.Kind)); err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", resource.Kind, err)
 		}
 	}
 
 	return nil
-
 }
 
 func (r *ResourceController) buildControlMgr(mgr ctrl.Manager, configResource kube.Resource, installModePredicate k8s_predicate.Predicate) *builder.Builder {
-	return ctrl.NewControllerManagedBy(mgr).WithOptions(controller.Options{
-		CacheSyncTimeout: r.CacheSyncTimeout,
-	}).
+	// Extract the kind using reflection
+	typeName := reflect.TypeOf(configResource.ForObject).Elem().Name()
+	kind := strings.ToLower(typeName)
+
+	// Log the controller name for debugging
+	r.Logger.Info("Setting up controller", "controllerName", fmt.Sprintf("resource-controller-%s", kind))
+
+	return ctrl.NewControllerManagedBy(mgr).
+		WithOptions(controller.Options{
+			CacheSyncTimeout: r.CacheSyncTimeout,
+		}).
+		Named(fmt.Sprintf("resource-controller-%s", kind)).
 		For(configResource.ForObject, builder.WithPredicates(
 			predicate.Not(predicate.ManagedByTrivyOperator),
 			predicate.Not(predicate.IsLeaderElectionResource),

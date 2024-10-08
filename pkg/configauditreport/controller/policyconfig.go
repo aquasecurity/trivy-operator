@@ -3,6 +3,8 @@ package controller
 import (
 	"context"
 	"fmt"
+	"reflect"
+	"strings"
 
 	rbacv1 "k8s.io/api/rbac/v1"
 
@@ -69,7 +71,13 @@ func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 
 	resources = append(resources, workloadResources...)
 	for _, configResource := range resources {
+		// Extract the kind of the resource
+		typeName := reflect.TypeOf(configResource.ForObject).Elem().Name()
+		kind := strings.ToLower(typeName)
+
+		// Assign a unique name to the controller
 		if err := ctrl.NewControllerManagedBy(mgr).
+			Named(fmt.Sprintf("policy-config-controller-%s", kind)).
 			For(&corev1.ConfigMap{}, builder.WithPredicates(
 				predicate.Not(predicate.IsBeingTerminated),
 				predicate.HasName(trivyoperator.PoliciesConfigMapName),
@@ -78,7 +86,6 @@ func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 			Complete(r.reconcileConfig(configResource.Kind)); err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", configResource.Kind, err)
 		}
-
 	}
 
 	clusterResources := []kube.Resource{
@@ -88,13 +95,16 @@ func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 	}
 
 	for _, resource := range clusterResources {
-		err := ctrl.NewControllerManagedBy(mgr).
+		typeName := reflect.TypeOf(resource.ForObject).Elem().Name()
+		kind := strings.ToLower(typeName)
+
+		if err := ctrl.NewControllerManagedBy(mgr).
+			Named(fmt.Sprintf("policy-config-controller-%s", kind)).
 			For(&corev1.ConfigMap{}, builder.WithPredicates(
 				predicate.Not(predicate.IsBeingTerminated),
 				predicate.HasName(trivyoperator.PoliciesConfigMapName),
 				predicate.InNamespace(r.Config.Namespace))).
-			Complete(r.reconcileClusterConfig(resource.Kind))
-		if err != nil {
+			Complete(r.reconcileClusterConfig(resource.Kind)); err != nil {
 			return err
 		}
 	}

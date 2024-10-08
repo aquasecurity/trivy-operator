@@ -1,13 +1,16 @@
 linters:
-#  disable:
-#    - 
   enable:
     - errorlint
     - gocritic
     - gosec
+    - misspell
 linters-settings:
   gocritic:
     enabled-checks:
       - importShadow
+  misspell:
+    locale: US
+    ignore-words:
+      - "importas" # linter name
 run:
   timeout: 5m

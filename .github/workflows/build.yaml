@@ -22,8 +22,8 @@ on:
       - LICENSE
       - NOTICE
 env:
-  KIND_VERSION: v0.17.0
-  KIND_IMAGE: kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6
+  KIND_VERSION: v0.24.0
+  KIND_IMAGE: kindest/node:v1.31.0@sha256:53df588e04085fd41ae12de0c3fe4c72f7013bba32a20e7325357a1ac94ba865
   GO_VERSION: '1.23'
 permissions: {}
 concurrency:
@@ -49,8 +49,8 @@ jobs:
         with:
           args: --verbose
           version: v1.61.0
-      # - name: Verify YAML code
-      #   uses: ibiqlik/action-yamllint@v3
+      - name: Verify YAML code
+        uses: ibiqlik/action-yamllint@v3
       - name: Vendor Go modules
         run: go mod tidy
       - name: Verify all generated

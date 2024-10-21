@@ -72,7 +72,7 @@ func (r *NodeCollectorJobController) reconcileJobs() reconcile.Func {
 		}
 
 		switch jobCondition := job.Status.Conditions[0].Type; jobCondition {
-		case batchv1.JobComplete:
+		case batchv1.JobComplete, batchv1.JobSuccessCriteriaMet:
 			err = r.processCompleteScanJob(ctx, job)
 		case batchv1.JobFailed:
 			err = r.processFailedScanJob(ctx, job)

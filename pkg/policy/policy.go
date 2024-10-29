@@ -18,6 +18,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/liamg/memoryfs"
 
+	"github.com/aquasecurity/trivy/pkg/iac/rego"
 	"github.com/aquasecurity/trivy/pkg/iac/scan"
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/kubernetes"
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/options"
@@ -274,14 +275,14 @@ func (r *Policies) HasSeverity(resultSeverity severity.Severity) bool {
 
 func (p *Policies) scannerOptions(policiesFolder string, dataPaths []string, dataFS fs.FS, hasPolicies bool) []options.ScannerOption {
 	optionsArray := []options.ScannerOption{
-		options.ScannerWithDataDirs(dataPaths...),
-		options.ScannerWithDataFilesystem(dataFS),
+		rego.WithDataFilesystem(dataFS),
+		rego.WithDataDirs(dataPaths...),
 	}
 	if !hasPolicies && p.cac.GetUseEmbeddedRegoPolicies() {
-		optionsArray = append(optionsArray, options.ScannerWithEmbeddedPolicies(true))
-		optionsArray = append(optionsArray, options.ScannerWithEmbeddedLibraries(true))
+		optionsArray = append(optionsArray, rego.WithEmbeddedPolicies(true))
+		optionsArray = append(optionsArray, rego.WithEmbeddedLibraries(true))
 	} else {
-		optionsArray = append(optionsArray, options.ScannerWithPolicyDirs(policiesFolder))
+		optionsArray = append(optionsArray, rego.WithPolicyDirs(policiesFolder))
 	}
 	return optionsArray
 }

@@ -428,10 +428,7 @@ func newWorkloadController(operatorConfig etc.Config,
 func buildPolicyLoader(tc trivyoperator.ConfigData) (policy.Loader, error) {
 	registryUser := tc.PolicyBundleOciUser()
 	registryPassword := tc.PolicyBundleOciPassword()
-	artifact, err := oci.NewArtifact(tc.PolicyBundleOciRef(), true, types.RegistryOptions{})
-	if err != nil {
-		return nil, fmt.Errorf("OCI artifact error: %w", err)
-	}
+	artifact := oci.NewArtifact(tc.PolicyBundleOciRef(), types.RegistryOptions{})
 	ro := types.RegistryOptions{}
 	if registryUser != "" && registryPassword != "" {
 		ro = types.RegistryOptions{

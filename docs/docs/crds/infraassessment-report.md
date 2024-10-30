@@ -24,9 +24,9 @@ metadata:
   labels:
     plugin-config-hash: 659b7b9c46
     resource-spec-hash: 56fd79dd67
-    trivy-operator.resource.kind: Pod
-    trivy-operator.resource.name: kube-apiserver-minikube
-    trivy-operator.resource.namespace: kube-system
+    annotation.trivy-operator.resource.kind: Pod
+    annotation.trivy-operator.resource.name: kube-apiserver-minikube
+    annotation.trivy-operator.resource.namespace: kube-system
   name: pod-kube-apiserver-minikube
   namespace: kube-system
   ownerReferences:

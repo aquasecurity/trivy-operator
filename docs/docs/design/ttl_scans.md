@@ -36,10 +36,10 @@ metadata:
     trivy-operator.aquasecurity.github.io/report-ttl: 24h
   labels:
     resource-spec-hash: 86b58dcb99
-    trivy-operator.container.name: manager
-    trivy-operator.resource.kind: ReplicaSet
-    trivy-operator.resource.name: source-controller-b5d5cfdf4
-    trivy-operator.resource.namespace: flux-system
+    annotation.trivy-operator.container.name: manager
+    annotation.trivy-operator.resource.kind: ReplicaSet
+    annotation.trivy-operator.resource.name: source-controller-b5d5cfdf4
+    annotation.trivy-operator.resource.namespace: flux-system
   name: replicaset-source-controller-b5d5cfdf4-manager
 report:
   artifact:

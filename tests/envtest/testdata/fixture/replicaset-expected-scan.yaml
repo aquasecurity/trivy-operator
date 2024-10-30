@@ -8,9 +8,9 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: trivy-operator
     resource-spec-hash: <HASH>
-    trivy-operator.resource.kind: ReplicaSet
-    trivy-operator.resource.name: wordpress-84bbf6f4dd
-    trivy-operator.resource.namespace: default
+    annotation.trivy-operator.resource.kind: ReplicaSet
+    annotation.trivy-operator.resource.name: wordpress-84bbf6f4dd
+    annotation.trivy-operator.resource.namespace: default
     vulnerabilityReport.scanner: Trivy
   name: scan-vulnerabilityreport-5668c4b796
 spec:
@@ -29,9 +29,9 @@ spec:
         controller-uid: <CONTROLLER-UID>
         job-name: scan-vulnerabilityreport-5668c4b796
         resource-spec-hash: <HASH>
-        trivy-operator.resource.kind: ReplicaSet
-        trivy-operator.resource.name: wordpress-84bbf6f4dd
-        trivy-operator.resource.namespace: default
+        annotation.trivy-operator.resource.kind: ReplicaSet
+        annotation.trivy-operator.resource.name: wordpress-84bbf6f4dd
+        annotation.trivy-operator.resource.namespace: default
         vulnerabilityReport.scanner: Trivy
     spec:
       affinity:

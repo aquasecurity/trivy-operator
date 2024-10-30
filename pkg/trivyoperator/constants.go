@@ -25,6 +25,7 @@ const (
 	LabelResourceNamespace = "annotation.trivy-operator.resource.namespace"
 	LabelContainerName     = "annotation.trivy-operator.container.name"
 	LabelResourceSpecHash  = "annotation.resource-spec-hash"
+	LabelControllerUid     = "annotation.controller-uid"
 	LabelPluginConfigHash  = "plugin-config-hash"
 	LabelResourceImageID   = "resource-image-id"
 	LabelReusedReport      = "reused-report"

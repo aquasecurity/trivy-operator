@@ -10,8 +10,8 @@ wordpress Deployment with the following command:
 
 ```text
 kubectl get vulnerabilityreports \
-  -l trivy-operator.resource.kind=Deployment \
-  -l trivy-operator.resource.name=wordpress
+  -l annotation.trivy-operator.resource.kind=Deployment \
+  -l annotation.trivy-operator.resource.name=wordpress
 ```
 
 Beyond that, for each instance of the VulnerabilityReports we set the owner

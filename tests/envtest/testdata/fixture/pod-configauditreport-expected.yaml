@@ -6,9 +6,9 @@ metadata:
   labels:
     plugin-config-hash: <HASH>
     resource-spec-hash: <HASH>
-    trivy-operator.resource.kind: Pod
-    trivy-operator.resource.name: my-pod
-    trivy-operator.resource.namespace: default
+    annotation.trivy-operator.resource.kind: Pod
+    annotation.trivy-operator.resource.name: my-pod
+    annotation.trivy-operator.resource.namespace: default
   name: pod-my-pod
   namespace: default
   ownerReferences:

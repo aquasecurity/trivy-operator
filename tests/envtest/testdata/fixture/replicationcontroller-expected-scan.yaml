@@ -8,9 +8,9 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: trivy-operator
     resource-spec-hash: <HASH>
-    trivy-operator.resource.kind: ReplicationController
-    trivy-operator.resource.name: nginx
-    trivy-operator.resource.namespace: default
+    annotation.trivy-operator.resource.kind: ReplicationController
+    annotation.trivy-operator.resource.name: nginx
+    annotation.trivy-operator.resource.namespace: default
     vulnerabilityReport.scanner: Trivy
   name: scan-vulnerabilityreport-5dfc565d7b
 spec:
@@ -29,9 +29,9 @@ spec:
         controller-uid: <CONTROLLER-UID>
         job-name: scan-vulnerabilityreport-5dfc565d7b
         resource-spec-hash: <HASH>
-        trivy-operator.resource.kind: ReplicationController
-        trivy-operator.resource.name: nginx
-        trivy-operator.resource.namespace: default
+        annotation.trivy-operator.resource.kind: ReplicationController
+        annotation.trivy-operator.resource.name: nginx
+        annotation.trivy-operator.resource.namespace: default
         vulnerabilityReport.scanner: Trivy
     spec:
       affinity:

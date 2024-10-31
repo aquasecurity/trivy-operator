@@ -8,9 +8,9 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: trivy-operator
     resource-spec-hash: <HASH>
-    trivy-operator.resource.kind: Job
-    trivy-operator.resource.name: pi
-    trivy-operator.resource.namespace: default
+    annotation.trivy-operator.resource.kind: Job
+    annotation.trivy-operator.resource.name: pi
+    annotation.trivy-operator.resource.namespace: default
     vulnerabilityReport.scanner: Trivy
   name: scan-vulnerabilityreport-5664bcd7b8
 spec:
@@ -29,9 +29,9 @@ spec:
         controller-uid: <CONTROLLER-UID>
         job-name: scan-vulnerabilityreport-5664bcd7b8
         resource-spec-hash: <HASH>
-        trivy-operator.resource.kind: Job
-        trivy-operator.resource.name: pi
-        trivy-operator.resource.namespace: default
+        annotation.trivy-operator.resource.kind: Job
+        annotation.trivy-operator.resource.name: pi
+        annotation.trivy-operator.resource.namespace: default
         vulnerabilityReport.scanner: Trivy
     spec:
       affinity:

@@ -4,8 +4,8 @@ kind: InfraAssessmentReport
 metadata:
   generation: 1
   labels:
-    trivy-operator.resource.kind: Pod
-    trivy-operator.resource.namespace: kube-system
+    annotation.trivy-operator.resource.kind: Pod
+    annotation.trivy-operator.resource.namespace: kube-system
   name: pod-my-pod-kube-apiserver
   namespace: kube-system
   ownerReferences:

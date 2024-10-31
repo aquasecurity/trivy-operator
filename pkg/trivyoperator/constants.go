@@ -19,12 +19,13 @@ const (
 )
 
 const (
-	LabelResourceKind      = "trivy-operator.resource.kind"
-	LabelResourceName      = "trivy-operator.resource.name"
-	LabelResourceNameHash  = "trivy-operator.resource.name-hash"
-	LabelResourceNamespace = "trivy-operator.resource.namespace"
-	LabelContainerName     = "trivy-operator.container.name"
-	LabelResourceSpecHash  = "resource-spec-hash"
+	LabelResourceKind      = "annotation.trivy-operator.resource.kind"
+	LabelResourceName      = "annotation.trivy-operator.resource.name"
+	LabelResourceNameHash  = "annotation.trivy-operator.resource.name-hash"
+	LabelResourceNamespace = "annotation.trivy-operator.resource.namespace"
+	LabelContainerName     = "annotation.trivy-operator.container.name"
+	LabelResourceSpecHash  = "annotation.resource-spec-hash"
+	LabelControllerUid     = "annotation.controller-uid"
 	LabelPluginConfigHash  = "plugin-config-hash"
 	LabelResourceImageID   = "resource-image-id"
 	LabelReusedReport      = "reused-report"

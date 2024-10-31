@@ -8,9 +8,9 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: trivy-operator
     resource-spec-hash: <HASH>
-    trivy-operator.resource.kind: DaemonSet
-    trivy-operator.resource.name: fluentd-elasticsearch
-    trivy-operator.resource.namespace: default
+    annotation.trivy-operator.resource.kind: DaemonSet
+    annotation.trivy-operator.resource.name: fluentd-elasticsearch
+    annotation.trivy-operator.resource.namespace: default
     vulnerabilityReport.scanner: Trivy
   name: scan-vulnerabilityreport-6556c475f8
 spec:
@@ -29,9 +29,9 @@ spec:
         controller-uid: <CONTROLLER-UID>
         job-name: scan-vulnerabilityreport-6556c475f8
         resource-spec-hash: <HASH>
-        trivy-operator.resource.kind: DaemonSet
-        trivy-operator.resource.name: fluentd-elasticsearch
-        trivy-operator.resource.namespace: default
+        annotation.trivy-operator.resource.kind: DaemonSet
+        annotation.trivy-operator.resource.name: fluentd-elasticsearch
+        annotation.trivy-operator.resource.namespace: default
         vulnerabilityReport.scanner: Trivy
     spec:
       affinity:

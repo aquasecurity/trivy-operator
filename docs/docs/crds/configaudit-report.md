@@ -16,9 +16,9 @@ metadata:
   name: replicaset-nginx-6d4cf56db6
   namespace: default
   labels:
-    trivy-operator.resource.kind: ReplicaSet
-    trivy-operator.resource.name: nginx-6d4cf56db6
-    trivy-operator.resource.namespace: default
+    annotation.trivy-operator.resource.kind: ReplicaSet
+    annotation.trivy-operator.resource.name: nginx-6d4cf56db6
+    annotation.trivy-operator.resource.namespace: default
     plugin-config-hash: 7f65d98b75
     resource-spec-hash: 7cb64cb677
   uid: d5cf8847-c96d-4534-beb9-514a34230302

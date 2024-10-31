@@ -134,8 +134,8 @@ var _ = Describe("Workload controller", func() {
 		ca.Kind = "RbacAssessmentReport"
 		ca.UID = ""
 		ca.SetLabels(map[string]string{
-			"trivy-operator.resource.kind": "Role",
-			"trivy-operator.resource.name": "proxy",
+			"annotation.trivy-operator.resource.kind": "Role",
+			"annotation.trivy-operator.resource.name": "proxy",
 		})
 		ca.ResourceVersion = ""
 		ca.CreationTimestamp = metav1.Time{}
@@ -168,8 +168,8 @@ var _ = Describe("Workload controller", func() {
 		ca.Kind = "InfraAssessmentReport"
 		ca.UID = ""
 		ca.SetLabels(map[string]string{
-			"trivy-operator.resource.kind":      "Pod",
-			"trivy-operator.resource.namespace": "kube-system",
+			"annotation.trivy-operator.resource.kind":      "Pod",
+			"annotation.trivy-operator.resource.namespace": "kube-system",
 		})
 		ca.ResourceVersion = ""
 		ca.CreationTimestamp = metav1.Time{}

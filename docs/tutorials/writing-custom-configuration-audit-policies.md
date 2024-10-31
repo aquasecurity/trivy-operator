@@ -173,9 +173,9 @@ apiVersion: aquasecurity.github.io/v1alpha1
 kind: ConfigAuditReport
 metadata:
   labels:
-    trivy-operator.resource.kind: ConfigMap
-    trivy-operator.resource.name: test
-    trivy-operator.resource.namespace: default
+    annotation.trivy-operator.resource.kind: ConfigMap
+    annotation.trivy-operator.resource.name: test
+    annotation.trivy-operator.resource.namespace: default
     plugin-config-hash: df767ff5f
     resource-spec-hash: 7c96769cf
   name: configmap-test

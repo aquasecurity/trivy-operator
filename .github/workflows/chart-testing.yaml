@@ -23,6 +23,7 @@ jobs:
   chart-testing:
     name: Run chart testing
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     env:
       DOCKER_CLI_EXPERIMENTAL: enabled
     steps:

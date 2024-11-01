@@ -1415,6 +1415,10 @@ spec:
                             type: number
                           V3Vector:
                             type: string
+                          V40Score:
+                            type: number
+                          V40Vector:
+                            type: string
                         type: object
                       type: object
                     cvsssource:
@@ -2848,6 +2852,10 @@ spec:
                           V3Score:
                             type: number
                           V3Vector:
+                            type: string
+                          V40Score:
+                            type: number
+                          V40Vector:
                             type: string
                         type: object
                       type: object

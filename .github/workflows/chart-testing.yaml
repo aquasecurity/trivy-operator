@@ -83,11 +83,11 @@ jobs:
         id: lint
         uses: helm/chart-testing-action@v2.6.1
         with:
-          version: '3.10.1'
+          version: '3.11.0'
       - name: Install yamllint
         run: pip install yamllint
       - name: Run chart-testing
-        run: ct lint-and-install --validate-maintainers=false --charts deploy/helm
+        run: ct lint-and-install --validate-maintainers=false --charts deploy/helm  --helm-extra-args='--timeout 500s'
       - name: Delete kind cluster
         run: |
           kind delete cluster

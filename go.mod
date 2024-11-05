@@ -4,8 +4,8 @@ go 1.22.3
 
 require (
 	github.com/CycloneDX/cyclonedx-go v0.9.1
-	github.com/aquasecurity/trivy v0.56.2
-	github.com/aquasecurity/trivy-kubernetes v0.6.7-0.20240707095038-0300bc49b68b
+	github.com/aquasecurity/trivy v0.57.0
+	github.com/aquasecurity/trivy-kubernetes v0.6.7-0.20241029051843-2606b7e0f0b4
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
@@ -24,19 +24,19 @@ require (
 	go.uber.org/automaxprocs v1.5.3
 	go.uber.org/multierr v1.11.0
 	golang.org/x/net v0.29.0
-	k8s.io/api v0.31.0
+	k8s.io/api v0.31.2
 	k8s.io/apiextensions-apiserver v0.31.0
-	k8s.io/apimachinery v0.31.0
-	k8s.io/cli-runtime v0.31.0
-	k8s.io/client-go v0.31.0
-	k8s.io/kubectl v0.31.0 // indirect
+	k8s.io/apimachinery v0.31.2
+	k8s.io/cli-runtime v0.31.2
+	k8s.io/client-go v0.31.2
+	k8s.io/kubectl v0.31.2 // indirect
 	k8s.io/utils v0.0.0-20240711033017-18e509b52bc8
 	sigs.k8s.io/controller-runtime v0.19.1
 	sigs.k8s.io/yaml v1.4.0
 )
 
 require (
-	github.com/aquasecurity/trivy-checks v1.2.1
+	github.com/aquasecurity/trivy-checks v1.2.2
 	github.com/aws/aws-sdk-go v1.55.5
 	github.com/magefile/mage v1.15.0
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028
@@ -395,7 +395,7 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	k8s.io/component-base v0.31.0 // indirect
+	k8s.io/component-base v0.31.2 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20240228011516-70dd3763d340 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect

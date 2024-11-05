@@ -22,8 +22,7 @@ concurrency:
 jobs:
   chart-testing:
     name: Run chart testing
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    runs-on: ubuntu-22.04
     env:
       DOCKER_CLI_EXPERIMENTAL: enabled
     steps:

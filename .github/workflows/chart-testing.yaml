@@ -83,8 +83,6 @@ jobs:
       - name: Setup chart-testing
         id: lint
         uses: helm/chart-testing-action@v2.6.1
-        with:
-          version: '3.11.0'
       - name: Install yamllint
         run: pip install yamllint
       - name: Run chart-testing

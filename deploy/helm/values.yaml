@@ -185,8 +185,8 @@ operator:
   valuesFromSecret: ""
 
 image:
-  registry: "ghcr.io"
-  repository: "aquasecurity/trivy-operator"
+  registry: "docker.io"
+  repository: "aquasec/trivy-operator"
   # -- tag is an override of the image tag, which is by default set by the
   # appVersion field in Chart.yaml.
   tag: ""
@@ -336,9 +336,9 @@ trivy:
   createConfig: true
   image:
     # -- registry of the Trivy image
-    registry: ghcr.io
+    registry: docker.io
     # -- repository of the Trivy image
-    repository: aquasecurity/trivy
+    repository: aquasec/trivy
     # -- tag version of the Trivy image
     tag: 0.57.0
     # -- imagePullSecret is the secret name to be used when pulling trivy image from private registries example : reg-secret

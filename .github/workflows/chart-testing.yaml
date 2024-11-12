@@ -23,7 +23,6 @@ jobs:
   chart-testing:
     name: Run chart testing
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
     env:
       DOCKER_CLI_EXPERIMENTAL: enabled
     steps:
@@ -86,7 +85,7 @@ jobs:
       - name: Install yamllint
         run: pip install yamllint
       - name: Run chart-testing
-        run: ct lint-and-install --validate-maintainers=false --charts deploy/helm  --helm-extra-args='--timeout 900s'
+        run: ct lint-and-install --validate-maintainers=false --charts deploy/helm
       - name: Delete kind cluster
         run: |
           kind delete cluster

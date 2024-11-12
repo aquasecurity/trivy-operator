@@ -3040,7 +3040,7 @@ metadata:
     app.kubernetes.io/version: "0.22.0"
     app.kubernetes.io/managed-by: kubectl
 data:
-  trivy.repository: "docker.io/aquasec/trivy"
+  trivy.repository: "ghcr.io/aquasecurity/trivy"
   trivy.tag: "0.57.0"
   trivy.imagePullPolicy: "IfNotPresent"
   trivy.additionalVulnerabilityReportFields: ""
@@ -3120,7 +3120,7 @@ spec:
       automountServiceAccountToken: true
       containers:
         - name: "trivy-operator"
-          image: "docker.io/aquasec/trivy-operator:0.22.0"
+          image: "ghcr.io/aquasecurity/trivy-operator:0.22.0"
           imagePullPolicy: IfNotPresent
           env:
             - name: OPERATOR_NAMESPACE

@@ -35,6 +35,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	controllerconfig "sigs.k8s.io/controller-runtime/pkg/config"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -59,6 +60,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		"target workloads", operatorConfig.GetTargetWorkloads())
 
 	// Set the default manager options.
+	skipNameValidation := true
 	options := manager.Options{
 		Scheme:                 trivyoperator.NewScheme(),
 		Metrics:                metricsserver.Options{BindAddress: operatorConfig.MetricsBindAddress},
@@ -71,6 +73,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				},
 			},
 		},
+		Controller: controllerconfig.Controller{SkipNameValidation: &skipNameValidation},
 	}
 
 	if operatorConfig.LeaderElectionEnabled {

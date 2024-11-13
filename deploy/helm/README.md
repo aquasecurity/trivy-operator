@@ -99,7 +99,7 @@ Keeps security report resources updated
 | policiesBundle.registryPassword | string | `nil` | registryPassword is the password for the registry |
 | policiesBundle.registryUser | string | `nil` | registryUser is the user for the registry |
 | policiesBundle.repository | string | `"aquasecurity/trivy-checks"` | repository of the policies bundle |
-| policiesBundle.tag | int | `0` | tag version of the policies bundle |
+| policiesBundle.tag | int | `1` | tag version of the policies bundle |
 | priorityClassName | string | `""` | priorityClassName set the operator priorityClassName |
 | rbac.create | bool | `true` |  |
 | resources | object | `{}` |  |

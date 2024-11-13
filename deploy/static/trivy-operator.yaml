@@ -2970,7 +2970,7 @@ data:
   compliance.failEntriesLimit: "10"
   report.recordFailedChecksOnly: "true"
   node.collector.imageRef: "ghcr.io/aquasecurity/node-collector:0.3.1"
-  policies.bundle.oci.ref: "ghcr.io/aquasecurity/trivy-checks:0"
+  policies.bundle.oci.ref: "ghcr.io/aquasecurity/trivy-checks:1"
   policies.bundle.insecure: "false"
 
   node.collector.nodeSelector: "true"

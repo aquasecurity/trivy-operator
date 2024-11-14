@@ -538,13 +538,13 @@ trivy:
 
   # -- The Flag to enable the usage of builtin rego policies by default, these policies are downloaded by default from ghcr.io/aquasecurity/trivy-checks
   #
-  useBuiltinRegoPolicies: "true"
+  useBuiltinRegoPolicies: "false"
   # -- The Flag to enable the usage of external rego policies config-map, this should be used when the user wants to use their own rego policies
   #
   externalRegoPoliciesEnabled: false
   # -- To enable the usage of embedded rego policies, set the flag useEmbeddedRegoPolicies. This should serve as a fallback for air-gapped environments.
   # When useEmbeddedRegoPolicies is set to true, useBuiltinRegoPolicies should be set to false.
-  useEmbeddedRegoPolicies: "false"
+  useEmbeddedRegoPolicies: "true"
 
   # -- The Flag is the list of supported kinds separated by comma delimiter to be scanned by the config audit scanner
   #

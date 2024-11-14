@@ -183,8 +183,8 @@ Keeps security report resources updated
 | trivy.storageSize | string | `"5Gi"` | storageSize is the size of the trivy server PVC |
 | trivy.supportedConfigAuditKinds | string | `"Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"` | The Flag is the list of supported kinds separated by comma delimiter to be scanned by the config audit scanner  |
 | trivy.timeout | string | `"5m0s"` | timeout is the duration to wait for scan completion. |
-| trivy.useBuiltinRegoPolicies | string | `"true"` | The Flag to enable the usage of builtin rego policies by default, these policies are downloaded by default from ghcr.io/aquasecurity/trivy-checks  |
-| trivy.useEmbeddedRegoPolicies | string | `"false"` | To enable the usage of embedded rego policies, set the flag useEmbeddedRegoPolicies. This should serve as a fallback for air-gapped environments. When useEmbeddedRegoPolicies is set to true, useBuiltinRegoPolicies should be set to false. |
+| trivy.useBuiltinRegoPolicies | string | `"false"` | The Flag to enable the usage of builtin rego policies by default, these policies are downloaded by default from ghcr.io/aquasecurity/trivy-checks  |
+| trivy.useEmbeddedRegoPolicies | string | `"true"` | To enable the usage of embedded rego policies, set the flag useEmbeddedRegoPolicies. This should serve as a fallback for air-gapped environments. When useEmbeddedRegoPolicies is set to true, useBuiltinRegoPolicies should be set to false. |
 | trivy.valuesFromConfigMap | string | `""` | vaulesFromConfigMap name of a ConfigMap to apply TRIVY_* environment variables. Will override Helm values. |
 | trivy.valuesFromSecret | string | `""` | valuesFromSecret name of a Secret to apply TRIVY_* environment variables. Will override Helm AND ConfigMap values. |
 | trivy.vulnType | string | `nil` | vulnType can be used to tell Trivy to filter vulnerabilities by a pkg-type (library, os) |

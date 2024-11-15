@@ -517,8 +517,8 @@ trivy:
   serverCustomHeaders: ~
   # serverCustomHeaders: "foo=bar"
 
-  dbRegistry: "ghcr.io"
-  dbRepository: "aquasecurity/trivy-db"
+  dbRegistry: "mirror.gcr.io"
+  dbRepository: "aquasec/trivy-db"
 
   # -- The username for dbRepository authentication
   #
@@ -529,8 +529,8 @@ trivy:
   dbRepositoryPassword: ~
 
   # -- javaDbRegistry is the registry for the Java vulnerability database.
-  javaDbRegistry: "ghcr.io"
-  javaDbRepository: "aquasecurity/trivy-java-db"
+  javaDbRegistry: "mirror.gcr.io"
+  javaDbRepository: "aquasec/trivy-java-db"
 
   # -- The Flag to enable insecure connection for downloading trivy-db via proxy (air-gaped env)
   #

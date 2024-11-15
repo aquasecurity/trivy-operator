@@ -128,8 +128,8 @@ Keeps security report resources updated
 | trivy.clientServerSkipUpdate | bool | `false` | clientServerSkipUpdate is the flag to enable skip databases update for Trivy client. Only applicable in ClientServer mode. |
 | trivy.command | string | `"image"` | command. One of `image`, `filesystem` or `rootfs` scanning, depending on the target type required for the scan. For 'filesystem' and `rootfs` scanning, ensure that the `trivyOperator.scanJobPodTemplateContainerSecurityContext` is configured to run as the root user (runAsUser = 0). |
 | trivy.createConfig | bool | `true` | createConfig indicates whether to create config objects |
-| trivy.dbRegistry | string | `"ghcr.io"` |  |
-| trivy.dbRepository | string | `"aquasecurity/trivy-db"` |  |
+| trivy.dbRegistry | string | `"mirror.gcr.io"` |  |
+| trivy.dbRepository | string | `"aquasec/trivy-db"` |  |
 | trivy.dbRepositoryInsecure | string | `"false"` | The Flag to enable insecure connection for downloading trivy-db via proxy (air-gaped env)  |
 | trivy.dbRepositoryPassword | string | `nil` | The password for dbRepository authentication  |
 | trivy.dbRepositoryUsername | string | `nil` | The username for dbRepository authentication  |
@@ -149,8 +149,8 @@ Keeps security report resources updated
 | trivy.imageScanCacheDir | string | `"/tmp/trivy/.cache"` | imageScanCacheDir the flag to set custom path for trivy image scan `cache-dir` parameter. Only applicable in image scan mode. |
 | trivy.includeDevDeps | bool | `false` | includeDevDeps include development dependencies in the report (supported: npm, yarn) (default: false) note: this flag is only applicable when trivy.command is set to filesystem |
 | trivy.insecureRegistries | object | `{}` | The registry to which insecure connections are allowed. There can be multiple registries with different keys. |
-| trivy.javaDbRegistry | string | `"ghcr.io"` | javaDbRegistry is the registry for the Java vulnerability database. |
-| trivy.javaDbRepository | string | `"aquasecurity/trivy-java-db"` |  |
+| trivy.javaDbRegistry | string | `"mirror.gcr.io"` | javaDbRegistry is the registry for the Java vulnerability database. |
+| trivy.javaDbRepository | string | `"aquasec/trivy-java-db"` |  |
 | trivy.labels | object | `{}` | labels is the extra labels to be used for trivy server statefulset |
 | trivy.mode | string | `"Standalone"` | mode is the Trivy client mode. Either Standalone or ClientServer. Depending on the active mode other settings might be applicable or required. |
 | trivy.noProxy | string | `nil` | noProxy is a comma separated list of IPs and domain names that are not subject to proxy settings. |

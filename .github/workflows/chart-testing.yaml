@@ -22,7 +22,7 @@ concurrency:
 jobs:
   chart-testing:
     name: Run chart testing
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       DOCKER_CLI_EXPERIMENTAL: enabled
     steps:
@@ -82,6 +82,8 @@ jobs:
       - name: Setup chart-testing
         id: lint
         uses: helm/chart-testing-action@v2.6.1
+      - name: Install yamllint
+        run: pip install yamllint
       - name: Run chart-testing
         run: ct lint-and-install --validate-maintainers=false --charts deploy/helm
       - name: Delete kind cluster

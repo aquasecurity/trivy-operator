@@ -1415,6 +1415,10 @@ spec:
                             type: number
                           V3Vector:
                             type: string
+                          V40Score:
+                            type: number
+                          V40Vector:
+                            type: string
                         type: object
                       type: object
                     cvsssource:
@@ -2849,6 +2853,10 @@ spec:
                             type: number
                           V3Vector:
                             type: string
+                          V40Score:
+                            type: number
+                          V40Vector:
+                            type: string
                         type: object
                       type: object
                     cvsssource:
@@ -2962,7 +2970,7 @@ data:
   compliance.failEntriesLimit: "10"
   report.recordFailedChecksOnly: "true"
   node.collector.imageRef: "ghcr.io/aquasecurity/node-collector:0.3.1"
-  policies.bundle.oci.ref: "ghcr.io/aquasecurity/trivy-checks:0"
+  policies.bundle.oci.ref: "ghcr.io/aquasecurity/trivy-checks:1"
   policies.bundle.insecure: "false"
 
   node.collector.nodeSelector: "true"
@@ -3033,7 +3041,7 @@ metadata:
     app.kubernetes.io/managed-by: kubectl
 data:
   trivy.repository: "ghcr.io/aquasecurity/trivy"
-  trivy.tag: "0.53.0"
+  trivy.tag: "0.57.1"
   trivy.imagePullPolicy: "IfNotPresent"
   trivy.additionalVulnerabilityReportFields: ""
   trivy.severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
@@ -3042,13 +3050,13 @@ data:
   trivy.includeDevDeps: "false"
   trivy.imageScanCacheDir: "/tmp/trivy/.cache"
   trivy.filesystemScanCacheDir: "/var/trivyoperator/trivy-db"
-  trivy.dbRepository: "ghcr.io/aquasecurity/trivy-db"
-  trivy.javaDbRepository: "ghcr.io/aquasecurity/trivy-java-db"
+  trivy.dbRepository: "mirror.gcr.io/aquasec/trivy-db"
+  trivy.javaDbRepository: "mirror.gcr.io/aquasec/trivy-java-db"
   trivy.command: "image"
   trivy.sbomSources: ""
   trivy.dbRepositoryInsecure: "false"
-  trivy.useBuiltinRegoPolicies: "true"
-  trivy.useEmbeddedRegoPolicies: "false"
+  trivy.useBuiltinRegoPolicies: "false"
+  trivy.useEmbeddedRegoPolicies: "true"
   trivy.supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
   trivy.timeout: "5m0s"
   trivy.mode: "Standalone"

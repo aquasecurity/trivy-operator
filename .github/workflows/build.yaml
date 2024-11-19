@@ -265,6 +265,11 @@ jobs:
         run: >
           ./bin/kuttl test --start-kind=false --config tests/e2e/config/cluster-scan.yaml
 
+      - name: The job has failed - print the logs
+        if: ${{ failure() }}
+        run: >
+          kubectl logs -n trivy-system deployment/trivy-operator
+
       - name: Delete kind cluster
         run: |
           kind delete cluster

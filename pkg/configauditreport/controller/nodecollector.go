@@ -72,9 +72,9 @@ func (r *NodeCollectorJobController) reconcileJobs() reconcile.Func {
 		}
 
 		switch jobCondition := job.Status.Conditions[0].Type; jobCondition {
-		case batchv1.JobComplete:
+		case batchv1.JobComplete, batchv1.JobSuccessCriteriaMet:
 			err = r.processCompleteScanJob(ctx, job)
-		case batchv1.JobFailed:
+		case batchv1.JobFailed, batchv1.JobFailureTarget:
 			err = r.processFailedScanJob(ctx, job)
 		default:
 			err = fmt.Errorf("unrecognized scan job condition: %v", jobCondition)

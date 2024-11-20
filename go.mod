@@ -1,6 +1,6 @@
 module github.com/aquasecurity/trivy-operator
 
-go 1.22.3
+go 1.22.7
 
 require (
 	github.com/CycloneDX/cyclonedx-go v0.9.1

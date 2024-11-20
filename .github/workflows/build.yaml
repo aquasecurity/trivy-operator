@@ -41,7 +41,7 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Install tools
-        uses: aquaproj/aqua-installer@v3.0.1
+        uses: aquaproj/aqua-installer@v3.0.2
         with:
           aqua_version: v1.25.0
       - name: Verify Go code
@@ -70,7 +70,7 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Install tools
-        uses: aquaproj/aqua-installer@v3.0.1
+        uses: aquaproj/aqua-installer@v3.0.2
         with:
           aqua_version: v1.25.0
       - name: Run unit tests
@@ -93,7 +93,7 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Install tools
-        uses: aquaproj/aqua-installer@v3.0.1
+        uses: aquaproj/aqua-installer@v3.0.2
         with:
           aqua_version: v1.25.0
       - name: Run envtest
@@ -116,7 +116,7 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Install tools
-        uses: aquaproj/aqua-installer@v3.0.1
+        uses: aquaproj/aqua-installer@v3.0.2
         with:
           aqua_version: v1.25.0
       - name: Setup Kubernetes cluster (KIND)

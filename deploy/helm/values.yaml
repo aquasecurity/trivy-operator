@@ -686,9 +686,9 @@ automountServiceAccountToken: true
 
 policiesBundle:
   # -- registry of the policies bundle
-  registry: ghcr.io
+  registry: mirror.gcr.io
   # -- repository of the policies bundle
-  repository: aquasecurity/trivy-checks
+  repository: aquasec/trivy-checks
   # -- tag version of the policies bundle
   tag: 1
    # -- registryUser is the user for the registry

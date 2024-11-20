@@ -32,7 +32,7 @@ concurrency:
 jobs:
   private-registry-testing:
     name: private registry testing
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       DOCKER_CLI_EXPERIMENTAL: enabled
     steps:

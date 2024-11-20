@@ -99,7 +99,7 @@ Keeps security report resources updated
 | policiesBundle.registryPassword | string | `nil` | registryPassword is the password for the registry |
 | policiesBundle.registryUser | string | `nil` | registryUser is the user for the registry |
 | policiesBundle.repository | string | `"aquasecurity/trivy-checks"` | repository of the policies bundle |
-| policiesBundle.tag | int | `0` | tag version of the policies bundle |
+| policiesBundle.tag | int | `1` | tag version of the policies bundle |
 | priorityClassName | string | `""` | priorityClassName set the operator priorityClassName |
 | rbac.create | bool | `true` |  |
 | resources | object | `{}` |  |
@@ -128,8 +128,8 @@ Keeps security report resources updated
 | trivy.clientServerSkipUpdate | bool | `false` | clientServerSkipUpdate is the flag to enable skip databases update for Trivy client. Only applicable in ClientServer mode. |
 | trivy.command | string | `"image"` | command. One of `image`, `filesystem` or `rootfs` scanning, depending on the target type required for the scan. For 'filesystem' and `rootfs` scanning, ensure that the `trivyOperator.scanJobPodTemplateContainerSecurityContext` is configured to run as the root user (runAsUser = 0). |
 | trivy.createConfig | bool | `true` | createConfig indicates whether to create config objects |
-| trivy.dbRegistry | string | `"ghcr.io"` |  |
-| trivy.dbRepository | string | `"aquasecurity/trivy-db"` |  |
+| trivy.dbRegistry | string | `"mirror.gcr.io"` |  |
+| trivy.dbRepository | string | `"aquasec/trivy-db"` |  |
 | trivy.dbRepositoryInsecure | string | `"false"` | The Flag to enable insecure connection for downloading trivy-db via proxy (air-gaped env)  |
 | trivy.dbRepositoryPassword | string | `nil` | The password for dbRepository authentication  |
 | trivy.dbRepositoryUsername | string | `nil` | The username for dbRepository authentication  |
@@ -145,12 +145,12 @@ Keeps security report resources updated
 | trivy.image.pullPolicy | string | `"IfNotPresent"` | pullPolicy is the imge pull policy used for trivy image , valid values are (Always, Never, IfNotPresent) |
 | trivy.image.registry | string | `"ghcr.io"` | registry of the Trivy image |
 | trivy.image.repository | string | `"aquasecurity/trivy"` | repository of the Trivy image |
-| trivy.image.tag | string | `"0.53.0"` | tag version of the Trivy image |
+| trivy.image.tag | string | `"0.57.1"` | tag version of the Trivy image |
 | trivy.imageScanCacheDir | string | `"/tmp/trivy/.cache"` | imageScanCacheDir the flag to set custom path for trivy image scan `cache-dir` parameter. Only applicable in image scan mode. |
 | trivy.includeDevDeps | bool | `false` | includeDevDeps include development dependencies in the report (supported: npm, yarn) (default: false) note: this flag is only applicable when trivy.command is set to filesystem |
 | trivy.insecureRegistries | object | `{}` | The registry to which insecure connections are allowed. There can be multiple registries with different keys. |
-| trivy.javaDbRegistry | string | `"ghcr.io"` | javaDbRegistry is the registry for the Java vulnerability database. |
-| trivy.javaDbRepository | string | `"aquasecurity/trivy-java-db"` |  |
+| trivy.javaDbRegistry | string | `"mirror.gcr.io"` | javaDbRegistry is the registry for the Java vulnerability database. |
+| trivy.javaDbRepository | string | `"aquasec/trivy-java-db"` |  |
 | trivy.labels | object | `{}` | labels is the extra labels to be used for trivy server statefulset |
 | trivy.mode | string | `"Standalone"` | mode is the Trivy client mode. Either Standalone or ClientServer. Depending on the active mode other settings might be applicable or required. |
 | trivy.noProxy | string | `nil` | noProxy is a comma separated list of IPs and domain names that are not subject to proxy settings. |
@@ -183,8 +183,8 @@ Keeps security report resources updated
 | trivy.storageSize | string | `"5Gi"` | storageSize is the size of the trivy server PVC |
 | trivy.supportedConfigAuditKinds | string | `"Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"` | The Flag is the list of supported kinds separated by comma delimiter to be scanned by the config audit scanner  |
 | trivy.timeout | string | `"5m0s"` | timeout is the duration to wait for scan completion. |
-| trivy.useBuiltinRegoPolicies | string | `"true"` | The Flag to enable the usage of builtin rego policies by default, these policies are downloaded by default from ghcr.io/aquasecurity/trivy-checks  |
-| trivy.useEmbeddedRegoPolicies | string | `"false"` | To enable the usage of embedded rego policies, set the flag useEmbeddedRegoPolicies. This should serve as a fallback for air-gapped environments. When useEmbeddedRegoPolicies is set to true, useBuiltinRegoPolicies should be set to false. |
+| trivy.useBuiltinRegoPolicies | string | `"false"` | The Flag to enable the usage of builtin rego policies by default, these policies are downloaded by default from ghcr.io/aquasecurity/trivy-checks  |
+| trivy.useEmbeddedRegoPolicies | string | `"true"` | To enable the usage of embedded rego policies, set the flag useEmbeddedRegoPolicies. This should serve as a fallback for air-gapped environments. When useEmbeddedRegoPolicies is set to true, useBuiltinRegoPolicies should be set to false. |
 | trivy.valuesFromConfigMap | string | `""` | vaulesFromConfigMap name of a ConfigMap to apply TRIVY_* environment variables. Will override Helm values. |
 | trivy.valuesFromSecret | string | `""` | valuesFromSecret name of a Secret to apply TRIVY_* environment variables. Will override Helm AND ConfigMap values. |
 | trivy.vulnType | string | `nil` | vulnType can be used to tell Trivy to filter vulnerabilities by a pkg-type (library, os) |

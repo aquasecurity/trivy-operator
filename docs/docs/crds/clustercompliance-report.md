@@ -36,7 +36,7 @@ metadata:
     app.kubernetes.io/instance: trivy-operator
     app.kubernetes.io/managed-by: kubectl
     app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/version: 0.8.0
+    app.kubernetes.io/version: 0.23.0
   name: nsa
   resourceVersion: "69736"
   uid: d9991808-fb2f-4756-842f-8e9205e85b71
@@ -346,7 +346,7 @@ metadata:
     app.kubernetes.io/instance: trivy-operator
     app.kubernetes.io/managed-by: kubectl
     app.kubernetes.io/name: trivy-operator
-    app.kubernetes.io/version: 0.8.0
+    app.kubernetes.io/version: 0.23.0
   name: nsa
   resourceVersion: "50896"
   uid: d9991808-fb2f-4756-842f-8e9205e85b71

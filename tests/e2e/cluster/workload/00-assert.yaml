@@ -2,7 +2,7 @@
 apiVersion: kuttl.dev/v1beta1
 commands:
   - script: >
-      cnt="$(kubectl get clustervulnerabilityreports.aquasecurity.github.io clustersbomreport-557764dbc-k8s-cluster \
+      cnt="$(kubectl get clustervulnerabilityreports.aquasecurity.github.io clustersbomreport-6789697bc-k8s-cluster \
         -o=jsonpath='{.report.summary.highCount}')"
       if [ $cnt -gt 0 ]
 

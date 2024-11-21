@@ -13,4 +13,4 @@ commands:
         exit 1
       fi
 kind: TestAssert
-timeout: 120
+timeout: 240

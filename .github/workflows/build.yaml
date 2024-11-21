@@ -269,15 +269,25 @@ jobs:
         if: ${{ failure() }}
         run: >
           kubectl logs -n trivy-system deployment/trivy-operator
+
           kubectl get vulnerabilityreports.aquasecurity.github.io
+
           kubectl get configauditreports.aquasecurity.github.io
+
           kubectl get clusterconfigauditreports.aquasecurity.github.io
+
           kubectl get rbacassessmentreports.aquasecurity.github.io
+
           kubectl get infraassessmentreports.aquasecurity.github.io
+
           kubectl get clusterrbacassessmentreports.aquasecurity.github.io
+
           kubectl get sbomreports.aquasecurity.github.io
+
           kubectl get clustersbomreports.aquasecurity.github.io
+
           kubectl get clustervulnerabilityreports.aquasecurity.github.io
+
       - name: Delete kind cluster
         run: |
           kind delete cluster

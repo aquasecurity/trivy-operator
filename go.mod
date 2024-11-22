@@ -25,7 +25,7 @@ require (
 	go.uber.org/multierr v1.11.0
 	golang.org/x/net v0.29.0
 	k8s.io/api v0.31.2
-	k8s.io/apiextensions-apiserver v0.31.0
+	k8s.io/apiextensions-apiserver v0.31.2
 	k8s.io/apimachinery v0.31.2
 	k8s.io/cli-runtime v0.31.2
 	k8s.io/client-go v0.31.2
@@ -315,7 +315,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.0 // indirect
 	helm.sh/helm/v3 v3.16.1 // indirect
-	k8s.io/apiserver v0.31.0 // indirect
+	k8s.io/apiserver v0.31.2 // indirect
 	mvdan.cc/sh/v3 v3.10.0 // indirect
 	oras.land/oras-go v1.2.5 // indirect
 	sigs.k8s.io/kustomize/api v0.17.2 // indirect

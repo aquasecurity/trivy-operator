@@ -344,16 +344,16 @@ chart, then run `mage generate:docs` to ensure the helm docs are up-to-date.
 To install [Operator Lifecycle Manager] (OLM) run:
 
 ```
-kubectl apply -f https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.22.0/crds.yaml
-kubectl apply -f https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.22.0/olm.yaml
+kubectl apply -f https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.30.0/crds.yaml
+kubectl apply -f https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.30.0/olm.yaml
 ```
 
 or
 
 ```
-curl -L https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.21.4/install.sh -o install.sh
+curl -L https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.30.0/install.sh -o install.sh
 chmod +x install.sh
-./install.sh v0.22.0
+./install.sh v0.30.0
 ```
 
 ### Build the Catalog Image

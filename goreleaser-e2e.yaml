@@ -28,7 +28,7 @@ archives:
 checksum:
   name_template: checksums.txt
 snapshot:
-  name_template: "{{ .FullCommit }}"
+  version_template: "{{ .FullCommit }}"
 changelog:
   sort: asc
   filters:

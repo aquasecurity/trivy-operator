@@ -1,3 +1,5 @@
+version: 2
+project_name: trivy_operator
 release:
   draft: false
   prerelease: auto

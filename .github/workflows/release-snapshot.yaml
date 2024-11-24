@@ -40,8 +40,8 @@ jobs:
       - name: Release snapshot
         uses: goreleaser/goreleaser-action@v6
         with:
-          version: v1.7.0
-          args: release -f=goreleaser-e2e.yaml --snapshot --skip-publish --rm-dist
+          version: v2.4.8
+          args: release -f=goreleaser-e2e.yaml --snapshot --skip=publish --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COSIGN_EXPERIMENTAL: 1

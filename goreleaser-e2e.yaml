@@ -1,4 +1,5 @@
 version: 2
+
 project_name: build_e2e
 release:
   draft: false

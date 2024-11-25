@@ -76,7 +76,7 @@ jobs:
 
           kind load image-archive trivy-operator.tar
       - name: Set up python
-        uses: actions/setup-python@39cd14951b08e74b54015e9e001cdefcf80e669f
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
         with:
           python-version: 3.7
       - name: Setup chart-testing

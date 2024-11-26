@@ -11,7 +11,7 @@ on:
       - mkdocs.yml
       - LICENSE
       - NOTICE
-  pull_request:
+  pull_request_target:
     branches:
       - main
     paths-ignore:
@@ -77,8 +77,8 @@ jobs:
 
           kubectl create secret docker-registry artcred \
             --docker-server=https://index.docker.io/v1 \
-            --docker-username="private-dockerhub" \
-            --docker-password="password-dockerhub" \
+            --docker-username=${{ secrets.DOCKERHUB_USER }} \
+            --docker-password=${{ secrets.DOCKERHUB_TOKEN }} \
             --docker-email=private@gmail.com \
             -n private
       - name: Load operator image to cluster

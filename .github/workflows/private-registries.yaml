@@ -11,7 +11,7 @@ on:
       - mkdocs.yml
       - LICENSE
       - NOTICE
-  pull_request_target:
+  pull_request:
     branches:
       - main
     paths-ignore:

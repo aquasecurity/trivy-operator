@@ -111,7 +111,7 @@ spec:
                   key: trivy.noProxy
                   name: trivy-operator-trivy-config
                   optional: true
-          image: ghcr.io/aquasecurity/trivy:0.35.0
+          image: mirror.gcr.io/aquasec/trivy:0.35.0
           imagePullPolicy: IfNotPresent
           name: pi
           terminationMessagePath: /dev/termination-log
@@ -131,7 +131,7 @@ spec:
             - image
             - --download-db-only
             - --db-repository
-            - ghcr.io/aquasecurity/trivy-db
+            - mirror.gcr.io/aquasec/trivy-db
           command:
             - trivy
           env:
@@ -159,7 +159,7 @@ spec:
                   key: trivy.githubToken
                   name: trivy-operator-trivy-config
                   optional: true
-          image: "ghcr.io/aquasecurity/trivy:0.35.0"
+          image: "mirror.gcr.io/aquasec/trivy:0.35.0"
           imagePullPolicy: IfNotPresent
           name: <INIT-CONTAINER-NAME>
           terminationMessagePath: /dev/termination-log

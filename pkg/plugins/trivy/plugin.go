@@ -34,9 +34,9 @@ const (
 )
 
 const (
-	DefaultImageRepository  = "ghcr.io/aquasecurity/trivy"
-	DefaultDBRepository     = "ghcr.io/aquasecurity/trivy-db"
-	DefaultJavaDBRepository = "ghcr.io/aquasecurity/trivy-java-db"
+	DefaultImageRepository  = "mirror.gcr.io/aquasec/trivy"
+	DefaultDBRepository     = "mirror.gcr.io/aquasec/trivy-db"
+	DefaultJavaDBRepository = "mirror.gcr.io/aquasec/trivy-java-db"
 	DefaultSeverity         = "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
 )
 

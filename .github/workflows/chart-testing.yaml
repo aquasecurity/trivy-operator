@@ -69,10 +69,10 @@ jobs:
           cmd: yq -i '.appVersion = "ct"' ./deploy/helm/Chart.yaml
       - name: Load operator image to cluster
         run: >
-          docker tag ghcr.io/aquasecurity/trivy-operator:${{ github.sha }}-amd64
-          ghcr.io/aquasecurity/trivy-operator:ct
+          docker tag mirror.gcr.io/aquasec/trivy-operator:${{ github.sha }}-amd64
+          mirror.gcr.io/aquasec/trivy-operator:ct
 
-          docker save -o trivy-operator.tar ghcr.io/aquasecurity/trivy-operator:ct
+          docker save -o trivy-operator.tar mirror.gcr.io/aquasec/trivy-operator:ct
 
           kind load image-archive trivy-operator.tar
       - name: Set up python

@@ -83,10 +83,10 @@ jobs:
             -n private
       - name: Load operator image to cluster
         run: >
-          docker tag ghcr.io/aquasecurity/trivy-operator:${{ github.sha }}-amd64
-          ghcr.io/aquasecurity/trivy-operator:e2e
+          docker tag mirror.gcr.io/aquasec/trivy-operator:${{ github.sha }}-amd64
+          mirror.gcr.io/aquasec/trivy-operator:e2e
 
-          docker save -o trivy-operator.tar ghcr.io/aquasecurity/trivy-operator:e2e
+          docker save -o trivy-operator.tar mirror.gcr.io/aquasec/trivy-operator:e2e
 
           kind load image-archive trivy-operator.tar
       - name: Init E2E tests (Install kuttl & helm)

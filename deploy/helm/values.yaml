@@ -185,8 +185,8 @@ operator:
   valuesFromSecret: ""
 
 image:
-  registry: "ghcr.io"
-  repository: "aquasecurity/trivy-operator"
+  registry: "mirror.gcr.io"
+  repository: "aquasec/trivy-operator"
   # -- tag is an override of the image tag, which is by default set by the
   # appVersion field in Chart.yaml.
   tag: ""
@@ -336,7 +336,7 @@ trivy:
   createConfig: true
   image:
     # -- registry of the Trivy image
-    registry: ghcr.io
+    registry: mirror.gcr.io
     # -- repository of the Trivy image
     repository: aquasecurity/trivy
     # -- tag version of the Trivy image
@@ -536,7 +536,7 @@ trivy:
   #
   dbRepositoryInsecure: "false"
 
-  # -- The Flag to enable the usage of builtin rego policies by default, these policies are downloaded by default from ghcr.io/aquasecurity/trivy-checks
+  # -- The Flag to enable the usage of builtin rego policies by default, these policies are downloaded by default from mirror.gcr.io/aquasec/trivy-checks
   #
   useBuiltinRegoPolicies: "false"
   # -- The Flag to enable the usage of external rego policies config-map, this should be used when the user wants to use their own rego policies

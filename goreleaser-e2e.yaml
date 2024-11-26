@@ -1,6 +1,4 @@
-version: 2
-
-project_name: build_e2e
+---
 release:
   draft: false
   prerelease: auto
@@ -28,7 +26,7 @@ archives:
 checksum:
   name_template: checksums.txt
 snapshot:
-  version_template: "{{ .FullCommit }}"
+  name_template: "{{ .FullCommit }}"
 changelog:
   sort: asc
   filters:

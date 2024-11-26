@@ -88,9 +88,9 @@ have to
 
 ## Build Binaries
 
-| Binary               | Image                                          | Description                                                   |
-|----------------------|------------------------------------------------|---------------------------------------------------------------|
-| `trivy-operator`     | `ghcr.io/aquasecurity/trivy-operator:dev`         | Trivy Operator                                                |
+| Binary           | Image                                     | Description    |
+|------------------|-------------------------------------------|----------------|
+| `trivy-operator` | `mirror.gcr.io/aquasec/trivy-operator:dev` | Trivy Operator |
 
 To build all Trivy-operator binary, run:
 

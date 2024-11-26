@@ -42,8 +42,9 @@ jobs:
       - name: Release snapshot
         uses: goreleaser/goreleaser-action@v6
         with:
-          version: v1.7.0
-          args: release -f=goreleaser-e2e.yaml --snapshot --skip-publish --rm-dist
+          version: v2.4.8
+          args: release -f=goreleaser-e2e.yaml --snapshot --skip=publish --clean
+
       - name: Install kind and create cluster
         run: |
           curl -Lo ./kind https://kind.sigs.k8s.io/dl/${{ env.KIND_VERSION }}/kind-linux-amd64
@@ -69,10 +70,10 @@ jobs:
           cmd: yq -i '.appVersion = "ct"' ./deploy/helm/Chart.yaml
       - name: Load operator image to cluster
         run: >
-          docker tag ghcr.io/aquasecurity/trivy-operator:${{ github.sha }}-amd64
-          ghcr.io/aquasecurity/trivy-operator:ct
+          docker tag mirror.gcr.io/aquasec/trivy-operator:${{ github.sha }}-amd64
+          mirror.gcr.io/aquasec/trivy-operator:ct
 
-          docker save -o trivy-operator.tar ghcr.io/aquasecurity/trivy-operator:ct
+          docker save -o trivy-operator.tar mirror.gcr.io/aquasec/trivy-operator:ct
 
           kind load image-archive trivy-operator.tar
       - name: Set up python

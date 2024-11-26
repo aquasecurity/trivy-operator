@@ -23,8 +23,8 @@ Keeps security report resources updated
 | global | object | `{"image":{"registry":""}}` | global values provide a centralized configuration for 'image.registry', reducing the potential for errors. If left blank, the chart will default to the individually set 'image.registry' values |
 | image.pullPolicy | string | `"IfNotPresent"` | pullPolicy set the operator pullPolicy |
 | image.pullSecrets | list | `[]` | pullSecrets set the operator pullSecrets |
-| image.registry | string | `"ghcr.io"` |  |
-| image.repository | string | `"aquasecurity/trivy-operator"` |  |
+| image.registry | string | `"mirror.gcr.io"` |  |
+| image.repository | string | `"aquasec/trivy-operator"` |  |
 | image.tag | string | `""` | tag is an override of the image tag, which is by default set by the appVersion field in Chart.yaml. |
 | managedBy | string | `"Helm"` | managedBy is similar to .Release.Service but allows to overwrite the value |
 | nameOverride | string | `""` | nameOverride override operator name |
@@ -143,8 +143,8 @@ Keeps security report resources updated
 | trivy.ignoreUnfixed | bool | `false` | ignoreUnfixed is the flag to show only fixed vulnerabilities in vulnerabilities reported by Trivy. Set to true to enable it.  |
 | trivy.image.imagePullSecret | string | `nil` | imagePullSecret is the secret name to be used when pulling trivy image from private registries example : reg-secret It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace |
 | trivy.image.pullPolicy | string | `"IfNotPresent"` | pullPolicy is the imge pull policy used for trivy image , valid values are (Always, Never, IfNotPresent) |
-| trivy.image.registry | string | `"ghcr.io"` | registry of the Trivy image |
-| trivy.image.repository | string | `"aquasecurity/trivy"` | repository of the Trivy image |
+| trivy.image.registry | string | `"mirror.gcr.io"` | registry of the Trivy image |
+| trivy.image.repository | string | `"aquasec/trivy"` | repository of the Trivy image |
 | trivy.image.tag | string | `"0.57.1"` | tag version of the Trivy image |
 | trivy.imageScanCacheDir | string | `"/tmp/trivy/.cache"` | imageScanCacheDir the flag to set custom path for trivy image scan `cache-dir` parameter. Only applicable in image scan mode. |
 | trivy.includeDevDeps | bool | `false` | includeDevDeps include development dependencies in the report (supported: npm, yarn) (default: false) note: this flag is only applicable when trivy.command is set to filesystem |
@@ -183,7 +183,7 @@ Keeps security report resources updated
 | trivy.storageSize | string | `"5Gi"` | storageSize is the size of the trivy server PVC |
 | trivy.supportedConfigAuditKinds | string | `"Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"` | The Flag is the list of supported kinds separated by comma delimiter to be scanned by the config audit scanner  |
 | trivy.timeout | string | `"5m0s"` | timeout is the duration to wait for scan completion. |
-| trivy.useBuiltinRegoPolicies | string | `"false"` | The Flag to enable the usage of builtin rego policies by default, these policies are downloaded by default from ghcr.io/aquasecurity/trivy-checks  |
+| trivy.useBuiltinRegoPolicies | string | `"false"` | The Flag to enable the usage of builtin rego policies by default, these policies are downloaded by default from mirror.gcr.io/aquasec/trivy-checks  |
 | trivy.useEmbeddedRegoPolicies | string | `"true"` | To enable the usage of embedded rego policies, set the flag useEmbeddedRegoPolicies. This should serve as a fallback for air-gapped environments. When useEmbeddedRegoPolicies is set to true, useBuiltinRegoPolicies should be set to false. |
 | trivy.valuesFromConfigMap | string | `""` | vaulesFromConfigMap name of a ConfigMap to apply TRIVY_* environment variables. Will override Helm values. |
 | trivy.valuesFromSecret | string | `""` | valuesFromSecret name of a Secret to apply TRIVY_* environment variables. Will override Helm AND ConfigMap values. |

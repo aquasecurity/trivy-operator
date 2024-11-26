@@ -11,7 +11,7 @@ on:
       - mkdocs.yml
       - LICENSE
       - NOTICE
-  pull_request_target:
+  pull_request:
     branches:
       - main
     paths-ignore:
@@ -52,8 +52,8 @@ jobs:
       - name: Release snapshot
         uses: goreleaser/goreleaser-action@v6
         with:
-          version: v1.7.0
-          args: release -f=goreleaser-e2e.yaml --snapshot --skip-publish --rm-dist
+          version: v2.4.8
+          args: release -f=goreleaser-e2e.yaml --snapshot --skip=publish --clean
       - name: Install kind and create cluster
         run: >
           curl -Lo ./kind https://kind.sigs.k8s.io/dl/${{ env.KIND_VERSION

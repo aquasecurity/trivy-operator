@@ -338,7 +338,7 @@ trivy:
     # -- registry of the Trivy image
     registry: mirror.gcr.io
     # -- repository of the Trivy image
-    repository: aquasecurity/trivy
+    repository: aquasec/trivy
     # -- tag version of the Trivy image
     tag: 0.57.1
     # -- imagePullSecret is the secret name to be used when pulling trivy image from private registries example : reg-secret

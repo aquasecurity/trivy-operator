@@ -54,6 +54,7 @@ jobs:
         with:
           version: v2.4.8
           args: release -f=goreleaser-e2e.yaml --snapshot --skip=publish --clean
+
       - name: Install kind and create cluster
         run: >
           curl -Lo ./kind https://kind.sigs.k8s.io/dl/${{ env.KIND_VERSION

@@ -77,8 +77,8 @@ jobs:
 
           kubectl create secret docker-registry artcred \
             --docker-server=https://index.docker.io/v1 \
-            --docker-username=${{ secrets.DOCKERHUB_USER }} \
-            --docker-password=${{ secrets.DOCKERHUB_TOKEN }} \
+            --docker-username="private-dockerhub" \
+            --docker-password="password-dockerhub" \
             --docker-email=private@gmail.com \
             -n private
       - name: Load operator image to cluster

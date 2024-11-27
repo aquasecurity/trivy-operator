@@ -95,7 +95,7 @@ have to
 To build all Trivy-operator binary, run:
 
 ```
-mage build:all
+mage build:binary
 ```
 
 This uses the `go build` command and builds binaries in the `./bin` directory.

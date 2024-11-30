@@ -45,7 +45,7 @@ jobs:
         with:
           aqua_version: v1.25.0
       - name: Verify Go code
-        uses: golangci/golangci-lint-action@v6.1.0
+        uses: golangci/golangci-lint-action@v6.1.1
         with:
           args: --verbose
           version: v1.57.2

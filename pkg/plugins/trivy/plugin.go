@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"path/filepath"
+	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
 	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
@@ -154,7 +155,15 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 		return vulnReport, secretReport, nil, err
 	}
 
-	registry, artifact, err := p.parseImageRef(imageRef, reports.Metadata.ImageID)
+	// Note: every Docker image is associated with 2 different SHAs:
+	// - image digest (this is what K8s shows in imageID field in kubectl get pod -o yaml) - and, for example,
+	// kube-prometheus-stack reports this value in kube_pod_container_info metric
+	// - image ID (this is what is visible in 'docker image ls command')
+	// Execute docker image ls --digests --no-trunc <image> to see both digest and ID.
+	// See https://stackoverflow.com/questions/56364643/whats-the-difference-between-a-docker-images-image-id-and-its-digest
+	var imageDigest = strings.Split(reports.Metadata.RepoDigests[0], "@")[1]
+
+	registry, artifact, err := p.parseImageRef(imageRef, imageDigest)
 	if err != nil {
 		return vulnReport, secretReport, nil, err
 	}
@@ -212,7 +221,7 @@ func (p *plugin) NewConfigForConfigAudit(ctx trivyoperator.PluginContext) (confi
 	return getConfig(ctx)
 }
 
-func (p *plugin) parseImageRef(imageRef string, imageID string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
+func (p *plugin) parseImageRef(imageRef string, imageDigest string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
 	ref, err := containerimage.ParseReference(imageRef)
 	if err != nil {
 		return v1alpha1.Registry{}, v1alpha1.Artifact{}, err
@@ -230,7 +239,7 @@ func (p *plugin) parseImageRef(imageRef string, imageID string) (v1alpha1.Regist
 		artifact.Digest = t.DigestStr()
 	}
 	if len(artifact.Digest) == 0 {
-		artifact.Digest = imageID
+		artifact.Digest = imageDigest
 	}
 	return registry, artifact, nil
 }

@@ -42,7 +42,7 @@ func (r *logsReader) GetLogsByJobAndContainerName(ctx context.Context, job *batc
 
 	return r.clientset.CoreV1().Pods(pod.Namespace).
 		GetLogs(pod.Name, &corev1.PodLogOptions{
-			Follow:    true,
+			Follow:    false,
 			Container: containerName,
 		}).Stream(ctx)
 }

@@ -3,7 +3,7 @@ module github.com/aquasecurity/trivy-operator
 go 1.22.7
 
 require (
-	github.com/CycloneDX/cyclonedx-go v0.9.1
+	github.com/CycloneDX/cyclonedx-go v0.9.2
 	github.com/aquasecurity/trivy v0.57.1
 	github.com/aquasecurity/trivy-kubernetes v0.6.7-0.20241029051843-2606b7e0f0b4
 	github.com/bluele/gcache v0.0.2
@@ -20,7 +20,7 @@ require (
 	github.com/onsi/gomega v1.34.2
 	github.com/openshift/api v0.0.0-20231025170628-b8a18fdc040d
 	github.com/prometheus/client_golang v1.20.5
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	go.uber.org/automaxprocs v1.6.0
 	go.uber.org/multierr v1.11.0
 	golang.org/x/net v0.32.0

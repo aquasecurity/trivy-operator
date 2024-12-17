@@ -120,7 +120,10 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 		volumes = append(volumes, *volume)
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
-	initContainer := corev1.Container{
+
+	initContainers := []corev1.Container{}
+
+	initContainers = append(initContainers, corev1.Container{
 		Name:                     p.idGenerator.GenerateID(),
 		Image:                    trivyImageRef,
 		ImagePullPolicy:          corev1.PullPolicy(config.GetImagePullPolicy()),
@@ -140,6 +143,30 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 		Resources:       requirements,
 		SecurityContext: securityContext,
 		VolumeMounts:    volumeMounts,
+	})
+
+	if !config.GetSkipJavaDBUpdate() && config.TrivyDBRepositoryCredentialsSet() {
+		initContainers = append(initContainers, corev1.Container{
+			Name:                     p.idGenerator.GenerateID(),
+			Image:                    trivyImageRef,
+			ImagePullPolicy:          corev1.PullPolicy(config.GetImagePullPolicy()),
+			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
+			Env:                      initContainerEnvVar(trivyConfigName, config),
+			Command: []string{
+				"trivy",
+			},
+			Args: []string{
+				"--cache-dir",
+				cacheDir,
+				"image",
+				"--download-java-db-only",
+				"--java-db-repository",
+				config.GetJavaDBRepository(),
+			},
+			Resources:       requirements,
+			SecurityContext: securityContext,
+			VolumeMounts:    volumeMounts,
+		})
 	}
 
 	var containers []corev1.Container
@@ -293,7 +320,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 		ServiceAccountName:           ctx.GetServiceAccountName(),
 		AutomountServiceAccountToken: ptr.To[bool](getAutomountServiceAccountToken(ctx)),
 		Volumes:                      volumes,
-		InitContainers:               []corev1.Container{initContainer},
+		InitContainers:               initContainers,
 		Containers:                   containers,
 		SecurityContext:              &corev1.PodSecurityContext{},
 	}, secrets, nil

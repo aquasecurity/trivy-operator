@@ -7039,6 +7039,136 @@ func TestGetContainers(t *testing.T) {
 	}
 }
 
+func TestGetInitContainers(t *testing.T) {
+	workloadSpec := &appsv1.ReplicaSet{
+		Spec: appsv1.ReplicaSetSpec{
+			Template: corev1.PodTemplateSpec{
+
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{Name: "container1", Image: "busybox:1.34.1"},
+					},
+				},
+			},
+		},
+	}
+
+	testCases := []struct {
+		name       string
+		configData map[string]string
+	}{
+		{
+			name: "Standalone mode with image command java-db from private registry",
+			configData: map[string]string{
+				"trivy.dbRepository":     trivy.DefaultDBRepository,
+				"trivy.javaDbRepository": "my-private-registry.io/aquasec/trivy-java-db",
+				"trivy.skipJavaDBUpdate": "false",
+				"trivy.repository":       "gcr.io/aquasec/trivy",
+				"trivy.tag":              "0.35.0",
+				"trivy.mode":             string(trivy.Standalone),
+				"trivy.command":          string(trivy.Image),
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			fakeclient := fake.NewClientBuilder().WithObjects(
+				&corev1.ConfigMap{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "trivy-operator-trivy-config",
+						Namespace: "trivyoperator-ns",
+					},
+					Data: tc.configData,
+				},
+				&corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "trivy-operator-trivy-config",
+						Namespace: "trivyoperator-ns",
+					},
+					Data: map[string][]byte{
+						"trivy.dbRepositoryUsername": []byte("my-username"),
+						"trivy.dbRepositoryPassword": []byte("my-password"),
+					},
+				},
+			).Build()
+
+			pluginContext := trivyoperator.NewPluginContext().
+				WithName(trivy.Plugin).
+				WithNamespace("trivyoperator-ns").
+				WithServiceAccountName("trivyoperator-sa").
+				WithClient(fakeclient).
+				Get()
+
+			config, err := pluginContext.GetConfig()
+			if err != nil {
+				t.Fatalf("failed to get config: %v", err)
+			}
+			config.SecretData = map[string][]byte{
+				"my-username": []byte("my-username"),
+				"my-password": []byte("my-password"),
+			}
+
+			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
+			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
+			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil, map[string]v1alpha1.SbomReportData{})
+			assert.NoError(t, err)
+
+			assert.Len(t, jobSpec.InitContainers, 2)
+			// Assert first init container to download trivy-db from private registry
+			trivyDbInitContainer := jobSpec.InitContainers[0]
+
+			containsDownloadDBOnly := false
+			for _, arg := range trivyDbInitContainer.Args {
+				if arg == "--download-db-only" {
+					containsDownloadDBOnly = true
+					break
+				}
+			}
+			assert.True(t, containsDownloadDBOnly, "Expected first init container to only download try-db")
+
+			hasTrivyUsername := false
+			hasTrivyPassword := false
+			for _, envVar := range trivyDbInitContainer.Env {
+				if envVar.Name == "TRIVY_USERNAME" {
+					hasTrivyUsername = true
+				}
+				if envVar.Name == "TRIVY_PASSWORD" {
+					hasTrivyPassword = true
+				}
+			}
+			assert.True(t, hasTrivyUsername, "Expected init container to have username env var for private trivy-db registry")
+			assert.True(t, hasTrivyPassword, "Expected init container to have password env var for private trivy-db registry")
+
+			// Assert second init container to download java-db from private registry
+			javaDbInitContainer := jobSpec.InitContainers[1]
+
+			containsDownloadJavaDBOnly := false
+			for _, arg := range javaDbInitContainer.Args {
+				if arg == "--download-java-db-only" {
+					containsDownloadJavaDBOnly = true
+					break
+				}
+			}
+			assert.True(t, containsDownloadJavaDBOnly, "Expected second init container to only download java-db")
+
+			hasTrivyUsername = false
+			hasTrivyPassword = false
+			for _, envVar := range javaDbInitContainer.Env {
+				if envVar.Name == "TRIVY_USERNAME" {
+					hasTrivyUsername = true
+				}
+				if envVar.Name == "TRIVY_PASSWORD" {
+					hasTrivyPassword = true
+				}
+			}
+			assert.True(t, hasTrivyUsername, "Expected init container to have username env var for private java-db registry")
+			assert.True(t, hasTrivyPassword, "Expected init container to have password env var for private java-db registry")
+
+		})
+	}
+}
+
 func getReportAsString(fixture string) string {
 	f, err := os.Open("./testdata/fixture/" + fixture)
 	if err != nil {

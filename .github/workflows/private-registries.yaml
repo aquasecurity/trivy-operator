@@ -32,7 +32,7 @@ concurrency:
 jobs:
   private-registry-testing:
     name: private registry testing
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       DOCKER_CLI_EXPERIMENTAL: enabled
     steps:
@@ -52,8 +52,8 @@ jobs:
       - name: Release snapshot
         uses: goreleaser/goreleaser-action@v6
         with:
-          version: v1.7.0
-          args: release -f=goreleaser-e2e.yaml --snapshot --skip-publish --rm-dist
+          version: v2.4.8
+          args: release -f=goreleaser-e2e.yaml --snapshot --skip=publish --clean
       - name: Install kind and create cluster
         run: >
           curl -Lo ./kind https://kind.sigs.k8s.io/dl/${{ env.KIND_VERSION
@@ -83,10 +83,10 @@ jobs:
             -n private
       - name: Load operator image to cluster
         run: >
-          docker tag ghcr.io/aquasecurity/trivy-operator:${{ github.sha }}-amd64
-          ghcr.io/aquasecurity/trivy-operator:e2e
+          docker tag mirror.gcr.io/aquasec/trivy-operator:${{ github.sha }}-amd64
+          mirror.gcr.io/aquasec/trivy-operator:e2e
 
-          docker save -o trivy-operator.tar ghcr.io/aquasecurity/trivy-operator:e2e
+          docker save -o trivy-operator.tar mirror.gcr.io/aquasec/trivy-operator:e2e
 
           kind load image-archive trivy-operator.tar
       - name: Init E2E tests (Install kuttl & helm)

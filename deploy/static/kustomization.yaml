@@ -3,6 +3,6 @@ kind: Kustomization
 resources:
   - trivy-operator.yaml
 images:
-  - name: ghcr.io/aquasecurity/trivy-operator
+  - name: mirror.gcr.io/aquasec/trivy-operator
     newName: aquasecurity/trivy-operator
     newTag: dev

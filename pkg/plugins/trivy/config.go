@@ -233,6 +233,14 @@ func (c Config) GetSkipJavaDBUpdate() bool {
 	return boolVal
 }
 
+func (c Config) GetJavaDBRepository() string {
+	val, ok := c.Data[keyTrivyJavaDBRepository]
+	if !ok {
+		return ""
+	}
+	return val
+}
+
 func (c Config) TrivyDBRepositoryCredentialsSet() bool {
 	_, userOk := c.SecretData[keyTrivyDBRepositoryUsername]
 	_, passOk := c.SecretData[keyTrivyDBRepositoryPassword]

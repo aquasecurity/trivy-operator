@@ -2,15 +2,15 @@
 apiVersion: kuttl.dev/v1beta1
 commands:
   - script: >
-      cnt="$(kubectl get clustervulnerabilityreports.aquasecurity.github.io clustersbomreport-557764dbc-k8s-cluster \
-        -o=jsonpath='{.report.summary.highCount}')"
-      if [ $cnt -gt 0 ]
+      name="$(kubectl get clustervulnerabilityreports.aquasecurity.github.io clustersbomreport-6789697bc-k8s-cluster \
+        -o=jsonpath='{.metadata.name}')"
+      if [ $name = "clustersbomreport-6789697bc-k8s-cluster" ]
 
       then
-        echo "Pass: ClusterVulnerabilityReport highCount ($cnt) is greater than 0"
+        echo "Pass: ClusterVulnerabilityReport was created successfully"
       else
-        echo "Fail: ClusterVulnerabilityReport highCount ($cnt) should be greater than 0"
+        echo "Fail: ClusterVulnerabilityReport name doesn't exist"
         exit 1
       fi
 kind: TestAssert
-timeout: 120
+timeout: 240

@@ -30,11 +30,13 @@ import (
 	mp "github.com/aquasecurity/trivy/pkg/policy"
 	"github.com/bluele/gcache"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/kubernetes"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	controllerconfig "sigs.k8s.io/controller-runtime/pkg/config"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -59,6 +61,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		"target workloads", operatorConfig.GetTargetWorkloads())
 
 	// Set the default manager options.
+	skipNameValidation := true
 	options := manager.Options{
 		Scheme:                 trivyoperator.NewScheme(),
 		Metrics:                metricsserver.Options{BindAddress: operatorConfig.MetricsBindAddress},
@@ -71,6 +74,24 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				},
 			},
 		},
+		Cache: cache.Options{
+			DefaultTransform: func(obj interface{}) (interface{}, error) {
+				obj, err := cache.TransformStripManagedFields()(obj)
+				if err != nil {
+					return obj, err
+				}
+				if metaObj, ok := obj.(metav1.ObjectMetaAccessor); ok {
+					annotations := metaObj.GetObjectMeta().GetAnnotations()
+					if annotations != nil {
+						delete(annotations, "kubectl.kubernetes.io/last-applied-configuration")
+						metaObj.GetObjectMeta().SetAnnotations(annotations)
+					}
+				}
+
+				return obj, nil
+			},
+		},
+		Controller: controllerconfig.Controller{SkipNameValidation: &skipNameValidation},
 	}
 
 	if operatorConfig.LeaderElectionEnabled {
@@ -428,10 +449,7 @@ func newWorkloadController(operatorConfig etc.Config,
 func buildPolicyLoader(tc trivyoperator.ConfigData) (policy.Loader, error) {
 	registryUser := tc.PolicyBundleOciUser()
 	registryPassword := tc.PolicyBundleOciPassword()
-	artifact, err := oci.NewArtifact(tc.PolicyBundleOciRef(), true, types.RegistryOptions{})
-	if err != nil {
-		return nil, fmt.Errorf("OCI artifact error: %w", err)
-	}
+	artifact := oci.NewArtifact(tc.PolicyBundleOciRef(), types.RegistryOptions{})
 	ro := types.RegistryOptions{}
 	if registryUser != "" && registryPassword != "" {
 		ro = types.RegistryOptions{

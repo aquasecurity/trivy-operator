@@ -638,9 +638,8 @@ serviceAccount:
 # -- podAnnotations annotations added to the operator's pod
 podAnnotations: {}
 
-podSecurityContext:
-  {}
-  # fsGroup: 2000
+podSecurityContext: {}
+# fsGroup: 2000
 
 # -- securityContext security context
 securityContext:
@@ -662,18 +661,18 @@ volumes:
   - name: cache-policies
     emptyDir: {}
 
-resources:
-  {}
-  # -- We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+resources: {}
+# -- We usually recommend not to specify default resources and to leave this as a conscious
+# choice for the user. This also increases chances charts run on environments with little
+# resources, such as Minikube. If you do want to specify resources, uncomment the following
+# lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+# limits:
+#   cpu: 100m
+#   memory: 128Mi
+# requests:
+#   cpu: 100m
+#   memory: 128Mi
+
 # -- nodeSelector set the operator nodeSelector
 nodeSelector: {}
 
@@ -684,10 +683,9 @@ tolerations: []
 affinity: {}
 
 # -- priorityClassName set the operator priorityClassName
-priorityClassName:
-  ""
+priorityClassName: ""
 
-  # -- automountServiceAccountToken the flag to enable automount for service account token
+# -- automountServiceAccountToken the flag to enable automount for service account token
 automountServiceAccountToken: true
 
 policiesBundle:
@@ -697,7 +695,7 @@ policiesBundle:
   repository: aquasec/trivy-checks
   # -- tag version of the policies bundle
   tag: 1
-   # -- registryUser is the user for the registry
+  # -- registryUser is the user for the registry
   registryUser: ~
   # -- registryPassword is the password for the registry
   registryPassword: ~

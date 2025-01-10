@@ -22,7 +22,7 @@ func TestNextCronDuration(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tm, err := parseTime(tt.creationTime)
 			if err != nil {
-				t.Errorf(err.Error())
+				t.Error(err.Error())
 			}
 			duration, err := NextCronDuration(tt.cron, tm, ext.NewSystemClock())
 			if err != nil {

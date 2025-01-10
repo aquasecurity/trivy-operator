@@ -24,7 +24,7 @@ on:
 env:
   KIND_VERSION: v0.24.0
   KIND_IMAGE: kindest/node:v1.31.2
-  GO_VERSION: '1.22'
+  GO_VERSION: '1.23'
 permissions: {}
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -48,7 +48,7 @@ jobs:
         uses: golangci/golangci-lint-action@v6.1.1
         with:
           args: --verbose
-          version: v1.57.2
+          version: v1.61
           skip-pkg-cache: true
           skip-build-cache: true
       - name: Verify YAML code

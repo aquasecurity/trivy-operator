@@ -452,17 +452,15 @@ func buildPolicyLoader(tc trivyoperator.ConfigData) (policy.Loader, error) {
 	artifact := oci.NewArtifact(tc.PolicyBundleOciRef(), types.RegistryOptions{})
 	ro := types.RegistryOptions{}
 	if registryUser != "" && registryPassword != "" {
-		ro = types.RegistryOptions{
-			Credentials: []types.Credential{
-				{
-					Username: registryUser,
-					Password: registryPassword,
-				},
+		ro.Credentials = []types.Credential{
+			{
+				Username: registryUser,
+				Password: registryPassword,
 			},
-			Insecure: tc.PolicyBundleInsecure(),
 		}
-		artifact.RegistryOptions = ro
 	}
+	ro.Insecure = tc.PolicyBundleInsecure()
+	artifact.RegistryOptions = ro
 	policyLoader := policy.NewPolicyLoader(tc.PolicyBundleOciRef(), gcache.New(1).LRU().Build(), ro, mp.WithOCIArtifact(artifact))
 	return policyLoader, nil
 }

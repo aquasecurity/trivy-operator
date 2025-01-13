@@ -28,11 +28,11 @@ require (
 	go.uber.org/multierr v1.11.0
 	golang.org/x/net v0.34.0
 	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9
-	k8s.io/api v0.31.3
+	k8s.io/api v0.32.0
 	k8s.io/apiextensions-apiserver v0.31.3
 	k8s.io/apimachinery v0.32.0
-	k8s.io/cli-runtime v0.31.3
-	k8s.io/client-go v0.31.3
+	k8s.io/cli-runtime v0.32.0
+	k8s.io/client-go v0.32.0
 	k8s.io/kubectl v0.31.3 // indirect
 	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738
 	sigs.k8s.io/controller-runtime v0.19.2
@@ -306,7 +306,6 @@ require (
 	go.opentelemetry.io/otel/metric v1.33.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.33.0 // indirect
 	go.opentelemetry.io/otel/trace v1.33.0 // indirect
-	go.starlark.net v0.0.0-20231016134836-22325403fcb3 // indirect
 	golang.org/x/mod v0.22.0 // indirect
 	golang.org/x/sync v0.10.0 // indirect
 	google.golang.org/api v0.206.0 // indirect
@@ -323,8 +322,8 @@ require (
 	k8s.io/apiserver v0.31.3 // indirect
 	mvdan.cc/sh/v3 v3.10.0 // indirect
 	oras.land/oras-go v1.2.5 // indirect
-	sigs.k8s.io/kustomize/api v0.17.2 // indirect
-	sigs.k8s.io/kustomize/kyaml v0.17.1 // indirect
+	sigs.k8s.io/kustomize/api v0.18.0 // indirect
+	sigs.k8s.io/kustomize/kyaml v0.18.1 // indirect
 	tags.cncf.io/container-device-interface v0.8.0 // indirect
 	tags.cncf.io/container-device-interface/specs-go v0.8.0 // indirect
 )
@@ -359,7 +358,6 @@ require (
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/pprof v0.0.0-20241029153458-d1b30febd7db // indirect
 	github.com/hashicorp/hcl/v2 v2.23.0 // indirect
-	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect

@@ -2,6 +2,7 @@ package configauditreport
 
 import (
 	"context"
+
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -12,7 +13,6 @@ import (
 // Writer is the interface for saving v1alpha1.ClusterConfigAuditReport
 // and v1alpha1.ConfigAuditReport instances.
 type Writer interface {
-
 	// WriteReport creates or updates the given v1alpha1.ConfigAuditReport instance.
 	WriteReport(ctx context.Context, report v1alpha1.ConfigAuditReport) error
 
@@ -23,7 +23,6 @@ type Writer interface {
 // Reader is the interface that wraps methods for finding v1alpha1.ConfigAuditReport
 // and v1alpha1.ClusterConfigAuditReport objects.
 type Reader interface {
-
 	// FindReportByOwner returns a v1alpha1.ConfigAuditReport owned by the given
 	// kube.ObjectRef or nil if the report is not found.
 	FindReportByOwner(ctx context.Context, owner kube.ObjectRef) (interface{}, error)

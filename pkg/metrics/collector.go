@@ -2,11 +2,12 @@ package metrics
 
 import (
 	"context"
+	"strconv"
+
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/go-logr/logr"
 	ctrl "sigs.k8s.io/controller-runtime"
-	"strconv"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -637,7 +638,7 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 			for i, label := range c.GetReportResourceLabels() {
 				vulnLabelValues[i+22] = r.Labels[label]
 			}
-			var vulnList = make(map[string]bool)
+			vulnList := make(map[string]bool)
 			for _, vuln := range r.Report.Vulnerabilities {
 				vulnKey := kube.ComputeHash(vuln)
 				if vulnList[vulnKey] {
@@ -718,7 +719,7 @@ func (c ResourcesMetricsCollector) collectExposedSecretsInfoReports(ctx context.
 				for i, label := range c.GetReportResourceLabels() {
 					labelValues[i+14] = r.Labels[label]
 				}
-				var secretList = make(map[string]bool)
+				secretList := make(map[string]bool)
 				for _, secret := range r.Report.Secrets {
 					secretHash := kube.ComputeHash(secret.Category + secret.RuleID + secret.Target + secret.Title + NewSeverityLabel(secret.Severity).Label)
 					if secretList[secretHash] {
@@ -777,7 +778,7 @@ func (c *ResourcesMetricsCollector) collectConfigAuditInfoReports(ctx context.Co
 				labelValues[1] = r.Name
 				labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
 				labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
-				var configMap = make(map[string]bool)
+				configMap := make(map[string]bool)
 				for _, config := range r.Report.Checks {
 					if configMap[config.ID] {
 						continue
@@ -838,7 +839,7 @@ func (c *ResourcesMetricsCollector) collectRbacAssessmentInfoReports(ctx context
 				labelValues[1] = r.Name
 				labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
 				labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
-				var configMap = make(map[string]bool)
+				configMap := make(map[string]bool)
 				for _, rbac := range r.Report.Checks {
 					if configMap[rbac.ID] {
 						continue
@@ -896,7 +897,7 @@ func (c *ResourcesMetricsCollector) collectInfraAssessmentInfoReports(ctx contex
 				labelValues[1] = r.Name
 				labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
 				labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
-				var configMap = make(map[string]bool)
+				configMap := make(map[string]bool)
 				for _, infra := range r.Report.Checks {
 					if configMap[infra.ID] {
 						continue

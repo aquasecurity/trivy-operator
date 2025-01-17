@@ -47,6 +47,7 @@ func (r *Resolver) WithClient(c client.Client) *Resolver {
 	r.client = c
 	return r
 }
+
 func (r *Resolver) WithObjectResolver(objectResolver *kube.ObjectResolver) *Resolver {
 	r.objectResolver = objectResolver
 	return r

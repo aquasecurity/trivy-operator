@@ -187,7 +187,6 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	vulnerabilitiesData := vulnerabilityreport.BuildVulnerabilityReportData(p.clock, registry, artifact, os, version, vulnerabilities)
 	exposedSecretsData := exposedsecretreport.BuildExposedSecretsReportData(p.clock, registry, artifact, version, secrets)
 	return vulnerabilitiesData, exposedSecretsData, sbomData, nil
-
 }
 
 func getExposedSecretsFromScanResult(report ty.Result) []v1alpha1.ExposedSecret {

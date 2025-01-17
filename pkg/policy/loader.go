@@ -4,17 +4,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/aquasecurity/trivy/pkg/fanal/types"
 	mp "github.com/aquasecurity/trivy/pkg/policy"
 	"github.com/bluele/gcache"
 	"github.com/go-logr/logr"
 	"golang.org/x/xerrors"
-	"os"
-	"path/filepath"
+
 	ctrl "sigs.k8s.io/controller-runtime"
-	"strings"
-	"sync"
-	"time"
 )
 
 const (
@@ -72,7 +74,6 @@ func (pl *policyLoader) GetPoliciesAndBundlePath() ([]string, []string, error) {
 		return []string{}, []string{}, fmt.Errorf("failed to get bundlePath from cache")
 	}
 	return policies, bundlePaths, nil
-
 }
 
 func (pl *policyLoader) getPoliciesFromCache() (interface{}, interface{}, error) {

@@ -1,10 +1,10 @@
 package jobs_test
 
 import (
+	"context"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"context"
 
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
@@ -15,7 +15,6 @@ import (
 )
 
 var _ = Describe("LimitChecker", func() {
-
 	config := etc.Config{
 		Namespace:                    "trivy-operator",
 		ConcurrentScanJobsLimit:      2,
@@ -24,9 +23,7 @@ var _ = Describe("LimitChecker", func() {
 	defaultTrivyOperatorConfig := trivyoperator.GetDefaultConfig()
 
 	Context("When there are more jobs than limit", func() {
-
 		It("Should return true", func() {
-
 			client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(
 				&batchv1.Job{ObjectMeta: metav1.ObjectMeta{
 					Name:      "logs-exporter",
@@ -64,11 +61,9 @@ var _ = Describe("LimitChecker", func() {
 			Expect(limitExceeded).To(BeTrue())
 			Expect(jobsCount).To(Equal(3))
 		})
-
 	})
 
 	Context("When there are less jobs than limit", func() {
-
 		It("Should return false", func() {
 			client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(
 				&batchv1.Job{ObjectMeta: metav1.ObjectMeta{
@@ -91,11 +86,9 @@ var _ = Describe("LimitChecker", func() {
 			Expect(limitExceeded).To(BeFalse())
 			Expect(jobsCount).To(Equal(1))
 		})
-
 	})
 
 	Context("When there are more jobs than limit running in different namespace", func() {
-
 		It("Should return true", func() {
 			client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(
 				&batchv1.Job{ObjectMeta: metav1.ObjectMeta{
@@ -135,13 +128,10 @@ var _ = Describe("LimitChecker", func() {
 			Expect(limitExceeded).To(BeTrue())
 			Expect(jobsCount).To(Equal(3))
 		})
-
 	})
 
 	Context("When there are more node collector jobs than limit", func() {
-
 		It("Should return true", func() {
-
 			client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(
 				&batchv1.Job{ObjectMeta: metav1.ObjectMeta{
 					Name:      "logs-exporter",
@@ -179,11 +169,9 @@ var _ = Describe("LimitChecker", func() {
 			Expect(limitExceeded).To(BeTrue())
 			Expect(jobsCount).To(Equal(3))
 		})
-
 	})
 
 	Context("When there are less node collector jobs than limit", func() {
-
 		It("Should return false", func() {
 			client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects().Build()
 
@@ -193,7 +181,5 @@ var _ = Describe("LimitChecker", func() {
 			Expect(limitExceeded).To(BeFalse())
 			Expect(jobsCount).To(Equal(0))
 		})
-
 	})
-
 })

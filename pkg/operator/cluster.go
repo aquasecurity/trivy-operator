@@ -2,12 +2,11 @@ package operator
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"fmt"
 	"sync"
 	"time"
-
-	"context"
-	"fmt"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/aquasecurity/trivy-kubernetes/pkg/bom"
@@ -269,7 +268,6 @@ func (r *ClusterController) reconcileKbom() reconcile.Func {
 		}
 		return ctrl.Result{}, nil
 	}
-
 }
 
 func (r *ClusterController) numOfCoreComponentPodsAndNodes(ctx context.Context) (int, int, error) {
@@ -322,5 +320,4 @@ func (r *ClusterController) reportExist(ctx context.Context, mlabels map[string]
 		return false
 	}
 	return len(list.Items) > 0
-
 }

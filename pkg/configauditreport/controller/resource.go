@@ -136,7 +136,6 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 	}
 
 	return nil
-
 }
 
 func (r *ResourceController) buildControlMgr(mgr ctrl.Manager, configResource kube.Resource, installModePredicate k8s_predicate.Predicate) *builder.Builder {
@@ -319,6 +318,7 @@ func (r *ResourceController) hasClusterReport(ctx context.Context, owner kube.Ob
 	}
 	return false, nil
 }
+
 func (r *ResourceController) findReportOwner(ctx context.Context, owner kube.ObjectRef, podSpecHash string, pluginConfigHash string, io rbacassessment.Reader) (bool, error) {
 	report, err := io.FindReportByOwner(ctx, owner)
 	if err != nil {
@@ -409,6 +409,7 @@ func clusterAuditConfigReportItems(ccar *v1alpha1.ClusterConfigAuditReportList) 
 		return objlist
 	}
 }
+
 func auditConfigReportItems(car *v1alpha1.ConfigAuditReportList) func() []client.Object {
 	return func() []client.Object {
 		objlist := make([]client.Object, 0)

@@ -82,7 +82,6 @@ func (r *NodeCollectorJobController) reconcileJobs() reconcile.Func {
 
 		return ctrl.Result{}, err
 	}
-
 }
 
 func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context, job *batchv1.Job) error {

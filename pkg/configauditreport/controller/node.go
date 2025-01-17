@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"time"
-
 	"context"
 	"fmt"
+	"time"
+
 	trivy_checks "github.com/aquasecurity/trivy-checks"
 	j "github.com/aquasecurity/trivy-kubernetes/pkg/jobs"
 	"github.com/aquasecurity/trivy-kubernetes/pkg/k8s"

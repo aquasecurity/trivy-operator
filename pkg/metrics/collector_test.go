@@ -30,7 +30,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 	JustBeforeEach(func() {
 		var logger logr.Logger
 		var config etc.Config
-		var trvConfig = trivyoperator.GetDefaultConfig()
+		trvConfig := trivyoperator.GetDefaultConfig()
 		collector = *NewResourcesMetricsCollector(logger, config, trvConfig, client.Build())
 	})
 
@@ -53,7 +53,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 				trivyoperator.LabelContainerName: "nginx",
 				"tier":                           "tier-1",
 				"owner":                          "team-a",
-				"app.kubernetes.io/name":         "my_name"}
+				"app.kubernetes.io/name":         "my_name",
+			}
 			vr1.Report.Registry.Server = "index.docker.io"
 			vr1.Report.Artifact.Repository = "library/nginx"
 			vr1.Report.Artifact.Tag = "1.16"
@@ -71,7 +72,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr2.Labels = labels.Set{
 				trivyoperator.LabelResourceKind:  "ReplicaSet",
 				trivyoperator.LabelResourceName:  "app-d327abe3c4",
-				trivyoperator.LabelContainerName: "proxy"}
+				trivyoperator.LabelContainerName: "proxy",
+			}
 			vr2.Report.Registry.Server = "quay.io"
 			vr2.Report.Artifact.Repository = "oauth2-proxy/oauth2-proxy"
 			vr2.Report.Artifact.Tag = "v7.2.1"
@@ -100,7 +102,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr3.Labels = labels.Set{
 				trivyoperator.LabelResourceKind:  "DaemonSet",
 				trivyoperator.LabelResourceName:  "ingress-nginx-controller",
-				trivyoperator.LabelContainerName: "controller"}
+				trivyoperator.LabelContainerName: "controller",
+			}
 			vr3.Report.Registry.Server = "k8s.gcr.io"
 			vr3.Report.Artifact.Repository = "ingress-nginx/controller"
 			vr3.Report.Artifact.Digest = "sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8"
@@ -347,7 +350,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			sr1.Labels = labels.Set{
 				trivyoperator.LabelResourceKind:  "ReplicaSet",
 				trivyoperator.LabelResourceName:  "nginx-6d4cf56db6",
-				trivyoperator.LabelContainerName: "nginx"}
+				trivyoperator.LabelContainerName: "nginx",
+			}
 			sr1.Report.Registry.Server = "index.docker.io"
 			sr1.Report.Artifact.Repository = "library/nginx"
 			sr1.Report.Artifact.Tag = "1.16"
@@ -363,7 +367,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			sr2.Labels = labels.Set{
 				trivyoperator.LabelResourceKind:  "ReplicaSet",
 				trivyoperator.LabelResourceName:  "app-d327abe3c4",
-				trivyoperator.LabelContainerName: "proxy"}
+				trivyoperator.LabelContainerName: "proxy",
+			}
 			sr2.Report.Registry.Server = "quay.io"
 			sr2.Report.Artifact.Repository = "oauth2-proxy/oauth2-proxy"
 			sr2.Report.Artifact.Tag = "v7.2.1"
@@ -386,7 +391,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			sr3.Labels = labels.Set{
 				trivyoperator.LabelResourceKind:  "DaemonSet",
 				trivyoperator.LabelResourceName:  "ingress-nginx-controller",
-				trivyoperator.LabelContainerName: "controller"}
+				trivyoperator.LabelContainerName: "controller",
+			}
 			sr3.Report.Registry.Server = "k8s.gcr.io"
 			sr3.Report.Artifact.Repository = "ingress-nginx/controller"
 			sr3.Report.Artifact.Digest = "sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8"
@@ -481,7 +487,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car1.Name = "replicaset-nginx-6d4cf56db6"
 			car1.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "ReplicaSet",
-				trivyoperator.LabelResourceName: "nginx-6d4cf56db6"}
+				trivyoperator.LabelResourceName: "nginx-6d4cf56db6",
+			}
 			car1.Report.Checks = append(car1.Report.Checks,
 				[]v1alpha1.Check{
 					{
@@ -510,7 +517,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car2.Name = "configmap-test"
 			car2.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "ConfigMap",
-				trivyoperator.LabelResourceName: "test"}
+				trivyoperator.LabelResourceName: "test",
+			}
 			car2.Report.Checks = append(car2.Report.Checks,
 				[]v1alpha1.Check{
 					{
@@ -537,7 +545,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car3.Name = "replicaset-vault-agent-injector-65fd65bfb8"
 			car3.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "ReplicaSet",
-				trivyoperator.LabelResourceName: "vault-agent-injector-65fd65bfb8"}
+				trivyoperator.LabelResourceName: "vault-agent-injector-65fd65bfb8",
+			}
 			car3.Report.Checks = append(car3.Report.Checks,
 				[]v1alpha1.Check{
 					{
@@ -625,7 +634,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car1.Name = "pod-kube-apiserver-minikube-6d4cf56db6"
 			car1.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "Pod",
-				trivyoperator.LabelResourceName: "kube-apiserver-minikube-6d4cf56db6"}
+				trivyoperator.LabelResourceName: "kube-apiserver-minikube-6d4cf56db6",
+			}
 			car1.Report.Checks = append(car1.Report.Checks,
 				[]v1alpha1.Check{
 					{
@@ -687,7 +697,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car1.Name = "role-admin-6d4cf56db6"
 			car1.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "Role",
-				trivyoperator.LabelResourceName: "admin-6d4cf56db6"}
+				trivyoperator.LabelResourceName: "admin-6d4cf56db6",
+			}
 			car1.Report.Checks = append(car1.Report.Checks,
 				[]v1alpha1.Check{
 					{
@@ -716,7 +727,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car2.Name = "role-write-test"
 			car2.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "Role",
-				trivyoperator.LabelResourceName: "write-test"}
+				trivyoperator.LabelResourceName: "write-test",
+			}
 			car2.Report.Checks = append(car2.Report.Checks,
 				[]v1alpha1.Check{
 					{
@@ -743,7 +755,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car3.Name = "role-read-65fd65bfb8"
 			car3.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "Role",
-				trivyoperator.LabelResourceName: "read-65fd65bfb8"}
+				trivyoperator.LabelResourceName: "read-65fd65bfb8",
+			}
 			car3.Report.Checks = append(car3.Report.Checks,
 				[]v1alpha1.Check{
 					{
@@ -829,7 +842,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car1.Name = "cluster_role-admin-6d4cf56db6"
 			car1.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "ClusterRole",
-				trivyoperator.LabelResourceName: "admin-6d4cf56db6"}
+				trivyoperator.LabelResourceName: "admin-6d4cf56db6",
+			}
 			car1.Report.Summary.CriticalCount = 2
 			car1.Report.Summary.LowCount = 9
 
@@ -837,14 +851,16 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			car2.Name = "cluster_role-write-test"
 			car2.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "ClusterRole",
-				trivyoperator.LabelResourceName: "write-test"}
+				trivyoperator.LabelResourceName: "write-test",
+			}
 			car2.Report.Summary.LowCount = 1
 
 			car3 := &v1alpha1.ClusterRbacAssessmentReport{}
 			car3.Name = "cluster_role-read-65fd65bfb8"
 			car3.Labels = labels.Set{
 				trivyoperator.LabelResourceKind: "ClusterRole",
-				trivyoperator.LabelResourceName: "read-65fd65bfb8"}
+				trivyoperator.LabelResourceName: "read-65fd65bfb8",
+			}
 			car3.Report.Summary.MediumCount = 4
 			car3.Report.Summary.LowCount = 7
 

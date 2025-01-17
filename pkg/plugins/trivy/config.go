@@ -2,9 +2,7 @@ package trivy
 
 import (
 	"fmt"
-
 	"path/filepath"
-
 	"strconv"
 	"strings"
 
@@ -276,6 +274,7 @@ func (c Config) GetDBRepositoryInsecure() bool {
 	boolVal, _ := strconv.ParseBool(val)
 	return boolVal
 }
+
 func (c Config) GetUseBuiltinRegoPolicies() bool {
 	val, ok := c.Data[keyTrivyUseBuiltinRegoPolicies]
 	if !ok {
@@ -287,6 +286,7 @@ func (c Config) GetUseBuiltinRegoPolicies() bool {
 	}
 	return boolVal
 }
+
 func (c Config) GetUseEmbeddedRegoPolicies() bool {
 	val, ok := c.Data[keyTrivyUseEmbeddedRegoPolicies]
 	if !ok {
@@ -298,6 +298,7 @@ func (c Config) GetUseEmbeddedRegoPolicies() bool {
 	}
 	return boolVal
 }
+
 func (c Config) GetSslCertDir() string {
 	val, ok := c.Data[keyTrivySslCertDir]
 	if !ok {

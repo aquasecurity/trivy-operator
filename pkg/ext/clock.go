@@ -8,8 +8,7 @@ type Clock interface {
 	Now() time.Time
 }
 
-type systemClock struct {
-}
+type systemClock struct{}
 
 func (c *systemClock) Now() time.Time {
 	return time.Now()

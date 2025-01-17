@@ -13,15 +13,15 @@ func TestSlow(t *testing.T) {
 		name       string
 		configData trivyoperator.ConfigData
 		want       string
-	}{{
-
-		name: "slow param set to true",
-		configData: map[string]string{
-			"trivy.tag":  "0.35.0",
-			"trivy.slow": "true",
+	}{
+		{
+			name: "slow param set to true",
+			configData: map[string]string{
+				"trivy.tag":  "0.35.0",
+				"trivy.slow": "true",
+			},
+			want: "--slow",
 		},
-		want: "--slow",
-	},
 		{
 			name: "slow param set to false",
 			configData: map[string]string{
@@ -69,14 +69,14 @@ func TestScanner(t *testing.T) {
 		name       string
 		configData trivyoperator.ConfigData
 		want       string
-	}{{
-
-		name: "scanner with trivy tag lower then v0.37.0",
-		configData: map[string]string{
-			"trivy.tag": "0.36.0",
+	}{
+		{
+			name: "scanner with trivy tag lower then v0.37.0",
+			configData: map[string]string{
+				"trivy.tag": "0.36.0",
+			},
+			want: "--security-checks",
 		},
-		want: "--security-checks",
-	},
 		{
 			name: "scanner with trivy tag equal then v0.37.0",
 			configData: map[string]string{
@@ -110,14 +110,14 @@ func TestSkipDBUpdate(t *testing.T) {
 		name       string
 		configData trivyoperator.ConfigData
 		want       string
-	}{{
-
-		name: "skip update DB with trivy tag lower then v0.37.0",
-		configData: map[string]string{
-			"trivy.tag": "0.36.0",
+	}{
+		{
+			name: "skip update DB with trivy tag lower then v0.37.0",
+			configData: map[string]string{
+				"trivy.tag": "0.36.0",
+			},
+			want: "--skip-update",
 		},
-		want: "--skip-update",
-	},
 		{
 			name: "skip update DB with trivy tag equal then v0.37.0",
 			configData: map[string]string{

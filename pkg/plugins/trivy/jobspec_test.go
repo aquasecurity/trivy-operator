@@ -81,5 +81,4 @@ func TestCreateVolumes(t *testing.T) {
 		assert.Equal(t, tc.v[0].Secret.Items[0].Key, "bom")
 		assert.Equal(t, tc.v[0].Secret.Items[0].Path, tc.fn)
 	})
-
 }

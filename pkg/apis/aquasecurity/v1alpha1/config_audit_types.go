@@ -6,7 +6,6 @@ import (
 
 // ConfigAuditSummary counts failed checks by severity.
 type ConfigAuditSummary struct {
-
 	// CriticalCount is the number of failed checks with critical severity.
 	CriticalCount int `json:"criticalCount"`
 
@@ -98,7 +97,6 @@ type ConfigAuditReportData struct {
 // indicate a troublesome key. In this case the Type would be `ConfigMapKey`
 // and the Value will hold the name of a key, e.g. `myawsprivatekey`.
 type CheckScope struct {
-
 	// Type indicates type of this scope, e.g. Container, ConfigMapKey or JSONPath.
 	Type string `json:"type"`
 

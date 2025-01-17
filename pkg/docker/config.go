@@ -13,7 +13,7 @@ import (
 type BasicAuth string
 
 func NewBasicAuth(username, password string) BasicAuth {
-	var v = new(BasicAuth)
+	v := new(BasicAuth)
 	v.Encode(username, password)
 	return *v
 }
@@ -128,7 +128,6 @@ func GetServerFromImageRef(imageRef string) (string, error) {
 // In ~/.docker/config.json auth keys can be specified as URLs or host names.
 // For the sake of comparison we need to normalize the registry identifier.
 func GetServerFromDockerAuthKey(key string) (string, error) {
-
 	if !(strings.HasPrefix(key, "http://") || strings.HasPrefix(key, "https://")) {
 		key = fmt.Sprintf("https://%s", key)
 	}

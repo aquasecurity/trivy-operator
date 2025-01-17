@@ -6,7 +6,6 @@ import (
 
 // InfraAssessmentSummary counts failed checks by severity.
 type InfraAssessmentSummary struct {
-
 	// CriticalCount is the number of failed checks with critical severity.
 	CriticalCount int `json:"criticalCount"`
 

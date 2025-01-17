@@ -1,15 +1,14 @@
 package operator_test
 
 import (
+	"context"
 	"os"
+	"path/filepath"
+	"testing"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"context"
-	"path/filepath"
-	"testing"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
@@ -218,8 +217,7 @@ func loadResource(obj runtime.Object, filename string) error {
 	return yaml.UnmarshalStrict(yamlFile, obj)
 }
 
-type TestLoader struct {
-}
+type TestLoader struct{}
 
 func (tl *TestLoader) GetPoliciesAndBundlePath() ([]string, []string, error) {
 	policies, err := policy.LoadPoliciesData([]string{"./testdata/content"})

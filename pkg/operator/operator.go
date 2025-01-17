@@ -43,9 +43,7 @@ import (
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 )
 
-var (
-	setupLog = log.Log.WithName("operator")
-)
+var setupLog = log.Log.WithName("operator")
 
 // Start starts all registered reconcilers and blocks until the context is cancelled.
 // Returns an error if there is an error starting any reconciler.
@@ -421,8 +419,8 @@ func newWorkloadController(operatorConfig etc.Config,
 	secretsReader kube.SecretsReader,
 	trivyOperatorConfig trivyoperator.ConfigData,
 	mgr ctrl.Manager,
-	plugin vulnerabilityreport.Plugin, pluginContext trivyoperator.PluginContext) (*vcontroller.WorkloadController, error) {
-
+	plugin vulnerabilityreport.Plugin, pluginContext trivyoperator.PluginContext,
+) (*vcontroller.WorkloadController, error) {
 	return &vcontroller.WorkloadController{
 		Logger:           ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
 		Config:           operatorConfig,

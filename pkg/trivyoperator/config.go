@@ -249,6 +249,7 @@ func (c ConfigData) GetNodeCollectorVolumes() ([]corev1.Volume, error) {
 	err := json.Unmarshal([]byte(c[KeyNodeCollectorVolumes]), &volumes)
 	return volumes, err
 }
+
 func (c ConfigData) GetGetNodeCollectorVolumeMounts() ([]corev1.VolumeMount, error) {
 	var volumesMount []corev1.VolumeMount
 	if c[KeyNodeCollectorVolumeMounts] == "" {
@@ -266,6 +267,7 @@ func (c ConfigData) GetScanJobCustomVolumes() ([]corev1.Volume, error) {
 	err := json.Unmarshal([]byte(c[KeyScanJobCustomVolumes]), &volumes)
 	return volumes, err
 }
+
 func (c ConfigData) GetScanJobCustomVolumeMounts() ([]corev1.VolumeMount, error) {
 	var volumesMount []corev1.VolumeMount
 	if c[KeyScanJobCustomVolumesMount] == "" {
@@ -450,6 +452,7 @@ func (c ConfigData) NodeCollectorImageRef() string {
 func (c ConfigData) PolicyBundleOciRef() string {
 	return c[KeyPoliciesBundleOciRef]
 }
+
 func (c ConfigData) PolicyBundleInsecure() bool {
 	return c.getBoolKey(KeyPoliciesBundleInsecure)
 }
@@ -461,9 +464,11 @@ func (c ConfigData) PolicyBundleOciUser() string {
 func (c ConfigData) PolicyBundleOciPassword() string {
 	return c[KeyPoliciesBundleOciPassword]
 }
+
 func (c ConfigData) GeTrivyServerURL() string {
 	return c[KeyTrivyServerURL]
 }
+
 func (c ConfigData) GetRequiredData(key string) (string, error) {
 	var ok bool
 	var value string
@@ -536,7 +541,6 @@ func (c *configManager) EnsureDefault(ctx context.Context) error {
 			},
 			Data: GetDefaultConfig(),
 		}, metav1.CreateOptions{})
-
 		if err != nil {
 			return fmt.Errorf("failed creating configmap: %s: %w", ConfigMapName, err)
 		}
@@ -576,7 +580,7 @@ func (c *configManager) Read(ctx context.Context) (ConfigData, error) {
 		return nil, err
 	}
 
-	var data = make(map[string]string)
+	data := make(map[string]string)
 
 	for k, v := range cm.Data {
 		data[k] = v
@@ -620,5 +624,8 @@ func LinuxNodeAffinity() *corev1.Affinity {
 							},
 						},
 					},
-				}}}}
+				},
+			},
+		},
+	}
 }

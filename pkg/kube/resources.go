@@ -69,7 +69,6 @@ func GetContainerImagesFromJob(job *batchv1.Job, completedContainers ...string) 
 		if c, ok := containerImages[container]; ok {
 			completed[container] = c
 		}
-
 	}
 	return completed, nil
 }

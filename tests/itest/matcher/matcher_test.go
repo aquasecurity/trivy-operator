@@ -1,9 +1,9 @@
 package matcher_test
 
 import (
-	. "github.com/onsi/gomega"
-
 	"testing"
+
+	. "github.com/onsi/gomega"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -15,7 +15,6 @@ import (
 )
 
 func TestVulnerabilityReportMatcher(t *testing.T) {
-
 	t.Run("Should return error when actual is not VulnerabilityReport", func(t *testing.T) {
 		g := NewGomegaWithT(t)
 		instance := matcher.IsVulnerabilityReportForContainerOwnedBy("nginx", &corev1.Pod{})
@@ -68,7 +67,6 @@ func TestVulnerabilityReportMatcher(t *testing.T) {
 }
 
 func TestConfigAuditReportMatcher(t *testing.T) {
-
 	t.Run("Should return error when actual is not ConfigAuditReport", func(t *testing.T) {
 		g := NewGomegaWithT(t)
 		instance := matcher.IsConfigAuditReportOwnedBy(&appsv1.ReplicaSet{})

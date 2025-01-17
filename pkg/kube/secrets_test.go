@@ -361,7 +361,6 @@ func loadResource(filePath string, resource interface{}) error {
 
 func Test_secretsReader_CredentialsByServer(t *testing.T) {
 	t.Run("Test with service account and secret with same registry domain should map container images to Docker authentication credentials from Pod secret", func(t *testing.T) {
-
 		var secret corev1.Secret
 		err := loadResource("./testdata/fixture/secret_same_domain.json", &secret)
 		require.NoError(t, err)

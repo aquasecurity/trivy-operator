@@ -561,7 +561,6 @@ func TestGetPodSpec(t *testing.T) {
 				require.NoError(t, err)
 				assert.Equal(t, tc.expectedPodSpec, podSpec)
 			}
-
 		})
 	}
 }
@@ -679,7 +678,6 @@ func TestObjectResolver_RelatedReplicaSetName(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, "nginx-549f5fcb58", name)
 	})
-
 }
 
 func TestObjectRefFromObjectMeta(t *testing.T) {
@@ -801,7 +799,6 @@ func TestObjectRefFromObjectMeta(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func TestGetActivePodsMatchingLabels(t *testing.T) {
@@ -887,7 +884,8 @@ func TestGetActivePodsMatchingLabels(t *testing.T) {
 		or := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		pods, err := or.GetActivePodsMatchingLabels(ctx, nginxReplicaSet.Namespace, map[string]string{
 			"app":               "nginx",
-			"pod-template-hash": "6d4cf56db5"})
+			"pod-template-hash": "6d4cf56db5",
+		})
 		assert.Equal(t, err, kube.ErrNoRunningPods)
 		assert.Equal(t, len(pods), 0)
 	})
@@ -1340,7 +1338,7 @@ func TestObjectResolver_IsActiveReplicationController(t *testing.T) {
 					Labels: map[string]string{"deploymentconfig": "busybox"},
 				},
 				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{corev1.Container{
+					Containers: []corev1.Container{{
 						Name:    "busybox",
 						Image:   "busybox",
 						Command: []string{"/bin/sh", "-c", "while true ; do date; sleep 1; done;"},
@@ -1381,13 +1379,15 @@ func TestObjectResolver_IsActiveReplicationController(t *testing.T) {
 				"openshift.io/deployment.replicas":              "1",
 				"openshift.io/deployment.status-reason":         "config change",
 			},
-			OwnerReferences: []metav1.OwnerReference{{
-				APIVersion:         "apps.openshift.io/v1",
-				Kind:               "DeploymentConfig",
-				Name:               "busybox",
-				UID:                "3767b9a7-c2ad-4a3e-a115-b72edda9084b",
-				Controller:         ptr.To[bool](true),
-				BlockOwnerDeletion: ptr.To[bool](true)},
+			OwnerReferences: []metav1.OwnerReference{
+				{
+					APIVersion:         "apps.openshift.io/v1",
+					Kind:               "DeploymentConfig",
+					Name:               "busybox",
+					UID:                "3767b9a7-c2ad-4a3e-a115-b72edda9084b",
+					Controller:         ptr.To[bool](true),
+					BlockOwnerDeletion: ptr.To[bool](true),
+				},
 			},
 		},
 		Spec: corev1.ReplicationControllerSpec{
@@ -1401,7 +1401,7 @@ func TestObjectResolver_IsActiveReplicationController(t *testing.T) {
 					Labels: map[string]string{"deploymentconfig": "busybox"},
 				},
 				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{corev1.Container{
+					Containers: []corev1.Container{{
 						Name:    "busybox",
 						Image:   "busybox",
 						Command: []string{"/bin/sh", "-c", "while true ; do date; sleep 1; done;"},
@@ -1434,13 +1434,15 @@ func TestObjectResolver_IsActiveReplicationController(t *testing.T) {
 				"openshift.io/deployment.replicas":              "1",
 				"openshift.io/deployment.status-reason":         "config change",
 			},
-			OwnerReferences: []metav1.OwnerReference{{
-				APIVersion:         "apps.openshift.io/v1",
-				Kind:               "DeploymentConfig",
-				Name:               "busybox",
-				UID:                "3767b9a7-c2ad-4a3e-a115-b72edda9084b",
-				Controller:         ptr.To[bool](true),
-				BlockOwnerDeletion: ptr.To[bool](true)},
+			OwnerReferences: []metav1.OwnerReference{
+				{
+					APIVersion:         "apps.openshift.io/v1",
+					Kind:               "DeploymentConfig",
+					Name:               "busybox",
+					UID:                "3767b9a7-c2ad-4a3e-a115-b72edda9084b",
+					Controller:         ptr.To[bool](true),
+					BlockOwnerDeletion: ptr.To[bool](true),
+				},
 			},
 		},
 		Spec: corev1.ReplicationControllerSpec{
@@ -1454,7 +1456,7 @@ func TestObjectResolver_IsActiveReplicationController(t *testing.T) {
 					Labels: map[string]string{"deploymentconfig": "busybox"},
 				},
 				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{corev1.Container{
+					Containers: []corev1.Container{{
 						Name:    "busybox",
 						Image:   "busybox",
 						Command: []string{"/bin/sh", "-c", "while true ; do date; sleep 1; done;"},
@@ -1489,7 +1491,7 @@ func TestObjectResolver_IsActiveReplicationController(t *testing.T) {
 					Labels: map[string]string{"deploymentconfig": "busybox"},
 				},
 				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{corev1.Container{
+					Containers: []corev1.Container{{
 						Name:    "busybox",
 						Image:   "busybox",
 						Command: []string{"/bin/sh", "-c", "while true ; do date; sleep 1; done;"},

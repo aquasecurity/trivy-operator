@@ -129,6 +129,7 @@ func (p *Policies) ModulesByKind(kind string) (map[string]string, error) {
 	}
 	return modules, nil
 }
+
 func (p *Policies) loadPolicies(kind string) ([]string, error) {
 	// read external policies
 	modByKind, err := p.ModulesByKind(kind)
@@ -307,11 +308,11 @@ func createDataFS(dataPaths []string, k8sVersion string) (fs.FS, []string, error
 
 	// Create a virtual file for Kubernetes scanning
 	if k8sVersion != "" {
-		if err := fsys.MkdirAll("system", 0700); err != nil {
+		if err := fsys.MkdirAll("system", 0o700); err != nil {
 			return nil, nil, err
 		}
 		data := []byte(fmt.Sprintf(`{"k8s": {"version": "%s"}}`, k8sVersion))
-		if err := fsys.WriteVirtualFile("system/k8s-version.json", data, 0600); err != nil {
+		if err := fsys.WriteVirtualFile("system/k8s-version.json", data, 0o600); err != nil {
 			return nil, nil, err
 		}
 	}

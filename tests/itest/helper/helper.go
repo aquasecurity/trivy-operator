@@ -232,13 +232,11 @@ func (b *DeploymentBuilder) Build() *appsv1.Deployment {
 	}
 }
 
-var (
-	trivyScanner = v1alpha1.Scanner{
-		Name:    v1alpha1.ScannerNameTrivy,
-		Vendor:  "Aqua Security",
-		Version: "0.23.0",
-	}
-)
+var trivyScanner = v1alpha1.Scanner{
+	Name:    v1alpha1.ScannerNameTrivy,
+	Vendor:  "Aqua Security",
+	Version: "0.23.0",
+}
 
 type VulnerabilityReportBuilder struct {
 	name      string
@@ -412,7 +410,6 @@ func (h *Helper) GetActiveReplicaSetForDeployment(namespace, name string) (*apps
 	selector := labels.Set(deploymentSelector)
 
 	err = h.kubeClient.List(context.TODO(), &replicaSetList, client.MatchingLabels(selector))
-
 	if err != nil {
 		return nil, err
 	}

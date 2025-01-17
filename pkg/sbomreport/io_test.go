@@ -16,7 +16,6 @@ import (
 )
 
 func TestNewReadWriter(t *testing.T) {
-
 	kubernetesScheme := trivyoperator.NewScheme()
 
 	t.Run("Should create SbomReports", func(t *testing.T) {
@@ -314,6 +313,5 @@ func TestImageRef(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, ref, tc.want)
 		})
-
 	}
 }

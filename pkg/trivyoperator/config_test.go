@@ -171,7 +171,8 @@ func TestConfigData_GetScanJobTolerations(t *testing.T) {
 		{
 			name: "one valid toleration",
 			config: trivyoperator.ConfigData{
-				"scanJob.tolerations": `[{"key":"key1","operator":"Equal","value":"value1","effect":"NoSchedule"}]`},
+				"scanJob.tolerations": `[{"key":"key1","operator":"Equal","value":"value1","effect":"NoSchedule"}]`,
+			},
 			expected: []corev1.Toleration{{
 				Key:      "key1",
 				Operator: "Equal",
@@ -183,7 +184,8 @@ func TestConfigData_GetScanJobTolerations(t *testing.T) {
 			name: "multiple valid tolerations",
 			config: trivyoperator.ConfigData{
 				"scanJob.tolerations": `[{"key":"key1","operator":"Equal","value":"value1","effect":"NoSchedule"},
-					  {"key":"key2","operator":"Equal","value":"value2","effect":"NoSchedule"}]`},
+					  {"key":"key2","operator":"Equal","value":"value2","effect":"NoSchedule"}]`,
+			},
 			expected: []corev1.Toleration{
 				{
 					Key:      "key1",
@@ -229,7 +231,8 @@ func TestConfigData_GetImagePullSecret(t *testing.T) {
 		{
 			name: "one valid imagePullSecret",
 			config: trivyoperator.ConfigData{
-				"node.collector.imagePullSecret": `mysecret`},
+				"node.collector.imagePullSecret": `mysecret`,
+			},
 			expected: []corev1.LocalObjectReference{{
 				Name: "mysecret",
 			}},
@@ -912,7 +915,6 @@ func TestConfigManager_Read(t *testing.T) {
 }
 
 func TestConfigManager_EnsureDefault(t *testing.T) {
-
 	t.Run("Should create ConfigMaps and Secret", func(t *testing.T) {
 		g := gomega.NewGomegaWithT(t)
 
@@ -992,7 +994,6 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 			"trivy.policy.my-check.rego": "<REGO>",
 		}))
 	})
-
 }
 
 func TestConfigManager_Delete(t *testing.T) {

@@ -17,7 +17,6 @@ func TestGetPluginConfigMapName(t *testing.T) {
 }
 
 func TestPluginContext_GetConfig(t *testing.T) {
-
 	t.Run("Should return PluginConfig from ConfigMap", func(t *testing.T) {
 		g := gomega.NewGomegaWithT(t)
 

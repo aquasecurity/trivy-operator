@@ -297,6 +297,7 @@ func (Tool) Aqua() error {
 	}
 	return sh.Run("go", "install", "github.com/aquaproj/aqua/v2/cmd/aqua@v2.2.1")
 }
+
 func exists(filename string) bool {
 	_, err := os.Stat(filename)
 	return err == nil

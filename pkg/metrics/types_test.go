@@ -16,14 +16,12 @@ const (
 )
 
 var _ = Describe("SeverityLabel", func() {
-
 	BeforeEach(func() {
 		scheme := runtime.NewScheme()
 		Expect(v1alpha1.AddToScheme(scheme)).To(Succeed())
 	})
 
 	Context("SeverityLabel", func() {
-
 		It("Critical", func() {
 			Expect(SeverityCritical()).
 				To(Equal(SeverityLabel{Label: CRITICAL_LABEL, Severity: v1alpha1.SeverityCritical}))
@@ -64,7 +62,5 @@ var _ = Describe("SeverityLabel", func() {
 			Expect(NewSeverityLabel("UNKNOWN")).
 				To(Equal(SeverityLabel{Label: UNKNOWN_LABEL, Severity: v1alpha1.SeverityUnknown}))
 		})
-
 	})
-
 })

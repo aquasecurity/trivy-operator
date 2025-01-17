@@ -82,6 +82,7 @@ func (b *ReportBuilder) reportName() string {
 
 	return fmt.Sprintf("%s-%s", strings.ToLower(kind), kube.ComputeHash(name+"-"+b.container))
 }
+
 func ReportGlobalName(artifact string) string {
 	return kube.ComputeHash(artifact)
 }

@@ -2,7 +2,6 @@ package trivy_test
 
 import (
 	"bytes"
-
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -45,7 +44,6 @@ var (
 )
 
 func TestPlugin_GetScanJobSpec(t *testing.T) {
-
 	tmpVolume := corev1.Volume{
 		Name: "tmp",
 		VolumeSource: corev1.VolumeSource{
@@ -409,7 +407,8 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 							Image: "poc.myregistry.harbor.com.pl/nginx:1.16",
 						},
 					},
-				}},
+				},
+			},
 			expectedJobSpec: corev1.PodSpec{
 				Affinity:                     trivyoperator.LinuxNodeAffinity(),
 				RestartPolicy:                corev1.RestartPolicyNever,
@@ -2193,7 +2192,8 @@ default ignore = false`,
 				ServiceAccountName:           "trivyoperator-sa",
 				ImagePullSecrets:             []corev1.LocalObjectReference{},
 				AutomountServiceAccountToken: ptr.To[bool](false),
-				Volumes: []corev1.Volume{getTmpVolume(),
+				Volumes: []corev1.Volume{
+					getTmpVolume(),
 					getScanResultVolume(),
 				},
 				Containers: []corev1.Container{
@@ -2422,7 +2422,8 @@ default ignore = false`,
 				ImagePullSecrets:             []corev1.LocalObjectReference{},
 				ServiceAccountName:           "trivyoperator-sa",
 				AutomountServiceAccountToken: ptr.To[bool](false),
-				Volumes: []corev1.Volume{getTmpVolume(),
+				Volumes: []corev1.Volume{
+					getTmpVolume(),
 					getScanResultVolume(),
 				},
 				Containers: []corev1.Container{
@@ -2652,7 +2653,8 @@ default ignore = false`,
 				ServiceAccountName:           "trivyoperator-sa",
 				ImagePullSecrets:             []corev1.LocalObjectReference{},
 				AutomountServiceAccountToken: ptr.To[bool](false),
-				Volumes: []corev1.Volume{getTmpVolume(),
+				Volumes: []corev1.Volume{
+					getTmpVolume(),
 					getScanResultVolume(),
 				},
 				Containers: []corev1.Container{
@@ -2886,7 +2888,8 @@ default ignore = false`,
 				ServiceAccountName:           "trivyoperator-sa",
 				ImagePullSecrets:             []corev1.LocalObjectReference{},
 				AutomountServiceAccountToken: ptr.To[bool](false),
-				Volumes: []corev1.Volume{getTmpVolume(),
+				Volumes: []corev1.Volume{
+					getTmpVolume(),
 					getScanResultVolume(),
 				},
 				Containers: []corev1.Container{
@@ -3125,7 +3128,8 @@ CVE-2019-1543`,
 				ImagePullSecrets:             []corev1.LocalObjectReference{},
 				AutomountServiceAccountToken: ptr.To[bool](false),
 
-				Volumes: []corev1.Volume{getTmpVolume(), getScanResultVolume(),
+				Volumes: []corev1.Volume{
+					getTmpVolume(), getScanResultVolume(),
 					{
 						Name: "ignorefile",
 						VolumeSource: corev1.VolumeSource{
@@ -3317,7 +3321,8 @@ CVE-2019-1543`,
 								corev1.ResourceMemory: resource.MustParse("500M"),
 							},
 						},
-						VolumeMounts: []corev1.VolumeMount{getTmpVolumeMount(), getScanResultVolumeMount(),
+						VolumeMounts: []corev1.VolumeMount{
+							getTmpVolumeMount(), getScanResultVolumeMount(),
 							{
 								Name:      "ignorefile",
 								MountPath: "/etc/trivy/.trivyignore",
@@ -3385,7 +3390,8 @@ default ignore = false`,
 				ImagePullSecrets:             []corev1.LocalObjectReference{},
 				AutomountServiceAccountToken: ptr.To[bool](false),
 
-				Volumes: []corev1.Volume{getTmpVolume(), getScanResultVolume(),
+				Volumes: []corev1.Volume{
+					getTmpVolume(), getScanResultVolume(),
 					{
 						Name: "ignorepolicy",
 						VolumeSource: corev1.VolumeSource{
@@ -3577,7 +3583,8 @@ default ignore = false`,
 								corev1.ResourceMemory: resource.MustParse("500M"),
 							},
 						},
-						VolumeMounts: []corev1.VolumeMount{getTmpVolumeMount(), getScanResultVolumeMount(),
+						VolumeMounts: []corev1.VolumeMount{
+							getTmpVolumeMount(), getScanResultVolumeMount(),
 							{
 								Name:      "ignorepolicy",
 								MountPath: "/etc/trivy/policy.rego",
@@ -3639,7 +3646,8 @@ default ignore = false`,
 				ServiceAccountName:           "trivyoperator-sa",
 				ImagePullSecrets:             []corev1.LocalObjectReference{},
 				AutomountServiceAccountToken: ptr.To[bool](false),
-				Volumes: []corev1.Volume{getTmpVolume(),
+				Volumes: []corev1.Volume{
+					getTmpVolume(),
 					getScanResultVolume(),
 				},
 				Containers: []corev1.Container{
@@ -3862,7 +3870,8 @@ default ignore = false`,
 						},
 					},
 					NodeName: "kind-control-pane",
-				}},
+				},
+			},
 			expectedJobSpec: corev1.PodSpec{
 				Affinity:                     trivyoperator.LinuxNodeAffinity(),
 				RestartPolicy:                corev1.RestartPolicyNever,
@@ -4224,7 +4233,8 @@ default ignore = false`,
 						},
 					},
 					NodeName: "kind-control-pane",
-				}},
+				},
+			},
 			expectedJobSpec: corev1.PodSpec{
 				Affinity:                     trivyoperator.LinuxNodeAffinity(),
 				RestartPolicy:                corev1.RestartPolicyNever,
@@ -4526,7 +4536,8 @@ default ignore = false`,
 						},
 					},
 					NodeName: "kind-control-pane",
-				}},
+				},
+			},
 			expectedJobSpec: corev1.PodSpec{
 				Affinity:                     trivyoperator.LinuxNodeAffinity(),
 				RestartPolicy:                corev1.RestartPolicyNever,
@@ -4888,7 +4899,8 @@ default ignore = false`,
 						},
 					},
 					NodeName: "kind-control-pane",
-				}},
+				},
+			},
 			expectedJobSpec: corev1.PodSpec{
 				Affinity:                     trivyoperator.LinuxNodeAffinity(),
 				RestartPolicy:                corev1.RestartPolicyNever,
@@ -6112,7 +6124,6 @@ default ignore = false`,
 			for i := 0; i < len(secrets); i++ {
 				assert.Equal(t, tc.expectedSecretsData[i], secrets[i].Data)
 			}
-
 		})
 	}
 
@@ -6162,7 +6173,8 @@ default ignore = false`,
 				},
 				NodeName:           "kind-control-pane",
 				ServiceAccountName: "nginx-sa",
-			}},
+			},
+		},
 		expectedJobSpec: corev1.PodSpec{
 			Affinity:                     trivyoperator.LinuxNodeAffinity(),
 			RestartPolicy:                corev1.RestartPolicyNever,
@@ -6792,7 +6804,6 @@ func TestPlugin_ParseReportData(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func TestGetScoreFromCVSS(t *testing.T) {
@@ -6925,7 +6936,6 @@ func TestGetContainers(t *testing.T) {
 	workloadSpec := &appsv1.ReplicaSet{
 		Spec: appsv1.ReplicaSetSpec{
 			Template: corev1.PodTemplateSpec{
-
 				Spec: corev1.PodSpec{
 					InitContainers: []corev1.Container{
 						{Name: "init1", Image: "busybox:1.34.1"},
@@ -7043,7 +7053,6 @@ func TestGetInitContainers(t *testing.T) {
 	workloadSpec := &appsv1.ReplicaSet{
 		Spec: appsv1.ReplicaSetSpec{
 			Template: corev1.PodTemplateSpec{
-
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
 						{Name: "container1", Image: "busybox:1.34.1"},
@@ -7164,7 +7173,6 @@ func TestGetInitContainers(t *testing.T) {
 			}
 			assert.True(t, hasTrivyUsername, "Expected init container to have username env var for private java-db registry")
 			assert.True(t, hasTrivyPassword, "Expected init container to have password env var for private java-db registry")
-
 		})
 	}
 }
@@ -7185,6 +7193,7 @@ func getReportAsString(fixture string) string {
 	}
 	return value
 }
+
 func getReportAsStringnonCompressed(fixture string) string {
 	f, err := os.Open("./testdata/fixture/" + fixture)
 	if err != nil {
@@ -7208,6 +7217,7 @@ func getScanResultVolume() corev1.Volume {
 		},
 	}
 }
+
 func getTmpVolume() corev1.Volume {
 	return corev1.Volume{
 		Name: "tmp",
@@ -7454,7 +7464,6 @@ func TestGetClientServerSkipUpdate(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got := tc.configData.GetClientServerSkipUpdate()
 			assert.Equal(t, got, tc.want)
-
 		})
 	}
 }
@@ -7504,7 +7513,6 @@ func TestGetSkipJavaDBUpdate(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got := tc.configData.GetSkipJavaDBUpdate()
 			assert.Equal(t, got, tc.want)
-
 		})
 	}
 }

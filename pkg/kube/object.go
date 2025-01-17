@@ -69,6 +69,7 @@ const (
 
 	DeployerPodForDeploymentAnnotation string = "openshift.io/deployment-config.name"
 )
+
 const (
 	cronJobResource        = "cronjobs"
 	apiBatchV1beta1CronJob = "batch/v1beta1, Kind=CronJob"
@@ -263,9 +264,11 @@ func GetPodSpec(obj client.Object) (corev1.PodSpec, error) {
 	}
 }
 
-var ErrReplicaSetNotFound = errors.New("replicaset not found")
-var ErrNoRunningPods = errors.New("no active pods for controller")
-var ErrUnSupportedKind = errors.New("unsupported workload kind")
+var (
+	ErrReplicaSetNotFound = errors.New("replicaset not found")
+	ErrNoRunningPods      = errors.New("no active pods for controller")
+	ErrUnSupportedKind    = errors.New("unsupported workload kind")
+)
 
 // CompatibleMgr provide k8s compatible objects (group/api/kind) capabilities
 type CompatibleMgr interface {
@@ -666,7 +669,6 @@ func (o *ObjectResolver) IsActiveReplicationController(ctx context.Context, work
 			Namespace: workloadObj.GetNamespace(),
 			Name:      controller.Name,
 		}, deploymentConfigObj)
-
 		if err != nil {
 			return false, err
 		}
@@ -678,7 +680,8 @@ func (o *ObjectResolver) IsActiveReplicationController(ctx context.Context, work
 }
 
 func (o *ObjectResolver) getPodsMatchingLabels(ctx context.Context, namespace string,
-	labels map[string]string) ([]corev1.Pod, error) {
+	labels map[string]string,
+) ([]corev1.Pod, error) {
 	podList := &corev1.PodList{}
 	err := o.Client.List(ctx, podList,
 		client.InNamespace(namespace),
@@ -691,7 +694,8 @@ func (o *ObjectResolver) getPodsMatchingLabels(ctx context.Context, namespace st
 }
 
 func (o *ObjectResolver) GetActivePodsMatchingLabels(ctx context.Context, namespace string,
-	labels map[string]string) ([]corev1.Pod, error) {
+	labels map[string]string,
+) ([]corev1.Pod, error) {
 	pods, err := o.getPodsMatchingLabels(ctx, namespace, labels)
 	if err != nil {
 		return pods, err
@@ -711,7 +715,6 @@ type Resource struct {
 
 // GetWorkloadResource returns a Resource object which can be used by controllers for reconciliation
 func (r *Resource) GetWorkloadResource(kind string, object client.Object, resolver ObjectResolver) error {
-
 	kind = strings.ToLower(kind)
 
 	switch kind {

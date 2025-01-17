@@ -16,7 +16,6 @@ import (
 )
 
 func TestNewReadWriter(t *testing.T) {
-
 	kubernetesScheme := trivyoperator.NewScheme()
 
 	t.Run("Should create ExposedSecretReports", func(t *testing.T) {

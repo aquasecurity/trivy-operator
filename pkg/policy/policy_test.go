@@ -51,7 +51,6 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 	})
 
 	t.Run("Should return policies as Rego modules", func(t *testing.T) {
-
 		g := NewGomegaWithT(t)
 		config := policy.NewPolicies(map[string]string{
 			"library.kubernetes.rego":                       "<REGO_A>",
@@ -87,7 +86,6 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 }
 
 func TestPolicies_Supported(t *testing.T) {
-
 	testCases := []struct {
 		name       string
 		data       map[string]string
@@ -151,7 +149,6 @@ func TestPolicies_Supported(t *testing.T) {
 			g.Expect(ready).To(Equal(tc.expected))
 		})
 	}
-
 }
 
 func TestPolicies_Eval(t *testing.T) {
@@ -492,7 +489,8 @@ func TestPolicies_Eval(t *testing.T) {
 					{
 						APIGroups: []string{"*"},
 						Verbs:     []string{"get"},
-						Resources: []string{"secrets"}},
+						Resources: []string{"secrets"},
+					},
 				},
 			},
 			useBuiltInPolicies: true,
@@ -510,7 +508,8 @@ func TestPolicies_Eval(t *testing.T) {
 					{
 						APIGroups: []string{"*"},
 						Verbs:     []string{"get"},
-						Resources: []string{"secrets"}},
+						Resources: []string{"secrets"},
+					},
 				},
 			},
 			useBuiltInPolicies: false,
@@ -734,7 +733,6 @@ func TestNewMetadata(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func TestNewMessage(t *testing.T) {
@@ -907,6 +905,7 @@ func NewMessage(values map[string]interface{}) (string, error) {
 	}
 	return message, nil
 }
+
 func requiredStringValue(values map[string]interface{}, key string) (string, error) {
 	value, ok := values[key]
 	if !ok {
@@ -959,8 +958,7 @@ func (tc testConfig) GetSeverity() string {
 	return trivy.KeyTrivySeverity
 }
 
-type TestLoader struct {
-}
+type TestLoader struct{}
 
 func (tl *TestLoader) GetPoliciesAndBundlePath() ([]string, []string, error) {
 	policies, err := policy.LoadPoliciesData([]string{"./testdata/fixture/content"})

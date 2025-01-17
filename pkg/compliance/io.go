@@ -1,17 +1,18 @@
 package compliance
 
 import (
+	"context"
+	"fmt"
+	"strings"
+
 	"github.com/aquasecurity/trivy/pkg/compliance/report"
 	ttypes "github.com/aquasecurity/trivy/pkg/types"
 
-	"context"
-	"fmt"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strings"
 )
 
 type Mgr interface {
@@ -46,7 +47,6 @@ func (w *cm) GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportS
 	}
 	// update compliance report status
 	return w.client.Status().Update(ctx, updatedReport)
-
 }
 
 // createComplianceReport create compliance report
@@ -164,16 +164,18 @@ func reportsToResults(checks []v1alpha1.Check, name string, namespace string) tt
 				id = fmt.Sprintf("%s-%s-%s", "AVD", "KCV", strings.ReplaceAll(check.ID, "KCV", ""))
 			}
 		}
-		misconfigResult := ttypes.Result{Target: fmt.Sprintf("%s/%s", namespace, name),
-			Misconfigurations: []ttypes.DetectedMisconfiguration{{
-				AVDID:       id,
-				Title:       check.Title,
-				Description: check.Description,
-				Message:     check.Description,
-				Resolution:  check.Remediation,
-				Severity:    string(check.Severity),
-				Status:      status,
-			},
+		misconfigResult := ttypes.Result{
+			Target: fmt.Sprintf("%s/%s", namespace, name),
+			Misconfigurations: []ttypes.DetectedMisconfiguration{
+				{
+					AVDID:       id,
+					Title:       check.Title,
+					Description: check.Description,
+					Message:     check.Description,
+					Resolution:  check.Remediation,
+					Severity:    string(check.Severity),
+					Status:      status,
+				},
 			},
 		}
 		results = append(results, misconfigResult)

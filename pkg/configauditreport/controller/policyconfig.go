@@ -44,7 +44,6 @@ type PolicyConfigController struct {
 // +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch
 
 func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
-
 	// Determine which Kubernetes workloads the controller will reconcile and add them to resources
 	targetWorkloads := r.Config.GetTargetWorkloads()
 	workloadResources := make([]kube.Resource, 0)
@@ -78,7 +77,6 @@ func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 			Complete(r.reconcileConfig(configResource.Kind)); err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", configResource.Kind, err)
 		}
-
 	}
 
 	clusterResources := []kube.Resource{
@@ -100,7 +98,6 @@ func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 	}
 
 	return nil
-
 }
 
 func (r *PolicyConfigController) reconcileConfig(kind kube.Kind) reconcile.Func {

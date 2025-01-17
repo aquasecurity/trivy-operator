@@ -127,6 +127,5 @@ func TestArtifactRef(t *testing.T) {
 			ref := sbomreport.ArtifactRef(tc.data)
 			assert.Equal(t, ref, tc.want)
 		})
-
 	}
 }

@@ -20,13 +20,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 )
 
-var (
-	buildInfo = trivyoperator.BuildInfo{
-		Version: "dev",
-		Commit:  "none",
-		Date:    "unknown",
-	}
-)
+var buildInfo = trivyoperator.BuildInfo{
+	Version: "dev",
+	Commit:  "none",
+	Date:    "unknown",
+}
 
 var (
 	scheme     *runtime.Scheme
@@ -35,9 +33,7 @@ var (
 	stopFunc   context.CancelFunc
 )
 
-var (
-	inputs behavior.Inputs
-)
+var inputs behavior.Inputs
 
 func TestTrivyOperator(t *testing.T) {
 	if testing.Short() {
@@ -78,7 +74,6 @@ var _ = BeforeSuite(func() {
 		err = operator.Start(startCtx, buildInfo, operatorConfig)
 		Expect(err).ToNot(HaveOccurred())
 	}()
-
 })
 
 var _ = AfterSuite(func() {

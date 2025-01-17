@@ -6,7 +6,6 @@ import (
 )
 
 var _ = Describe("Trivy Operator", func() {
-
 	// TODO Refactor to run this container in a separate test suite
 	Describe("Vulnerability Scanner", VulnerabilityScannerBehavior(&inputs))
 
@@ -15,5 +14,4 @@ var _ = Describe("Trivy Operator", func() {
 
 	// TODO Refactor to run this container in a separate test suite
 	// Describe("CIS Kubernetes Benchmark", CISKubernetesBenchmarkBehavior(&inputs))
-
 })

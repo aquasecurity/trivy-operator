@@ -6,7 +6,6 @@ import (
 
 // RbacAssessmentSummary counts failed checks by severity.
 type RbacAssessmentSummary struct {
-
 	// CriticalCount is the number of failed checks with critical severity.
 	CriticalCount int `json:"criticalCount"`
 

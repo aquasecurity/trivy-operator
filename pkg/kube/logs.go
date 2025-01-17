@@ -80,7 +80,8 @@ func (r *logsReader) podListLookup(ctx context.Context, namespace string, refres
 	}
 	selector := fmt.Sprintf("%s=%s", matchingLabelKey, matchingLabelValue)
 	return r.clientset.CoreV1().Pods(namespace).List(ctx, metav1.ListOptions{
-		LabelSelector: selector})
+		LabelSelector: selector,
+	})
 }
 
 func GetTerminatedContainersStatusesByPod(pod *corev1.Pod) map[string]*corev1.ContainerStateTerminated {

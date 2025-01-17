@@ -115,7 +115,8 @@ func SkipProcessing(ctx context.Context, resource client.Object, or kube.ObjectR
 
 // GetReportsByLabel fetch reports by matching labels
 func GetReportsByLabel(ctx context.Context, resolver kube.ObjectResolver, objectList client.ObjectList, namespace string,
-	labels map[string]string) error {
+	labels map[string]string,
+) error {
 	err := resolver.Client.List(ctx, objectList,
 		client.InNamespace(namespace),
 		client.MatchingLabels(labels))

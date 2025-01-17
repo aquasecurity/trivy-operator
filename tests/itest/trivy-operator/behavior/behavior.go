@@ -1,11 +1,11 @@
 package behavior
 
 import (
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	"context"
 	"time"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 
 	"github.com/aquasecurity/trivy-operator/tests/itest/helper"
 	appsv1 "k8s.io/api/apps/v1"
@@ -34,9 +34,7 @@ type Inputs struct {
 // of a vulnerability scanner with the given inputs.
 func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 	return func() {
-
 		Context("When unmanaged Pod is created", func() {
-
 			var ctx context.Context
 			var pod *corev1.Pod
 
@@ -60,11 +58,9 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 				err := inputs.Delete(ctx, pod)
 				Expect(err).ToNot(HaveOccurred())
 			})
-
 		})
 
 		Context("When Deployment is created", func() {
-
 			var ctx context.Context
 			var deploy *appsv1.Deployment
 
@@ -96,7 +92,6 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 		})
 
 		Context("When Deployment is rolling updated", func() {
-
 			var ctx context.Context
 			var deploy *appsv1.Deployment
 
@@ -145,7 +140,6 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 		})
 
 		Context("When CronJob is created", func() {
-
 			var ctx context.Context
 			var cronJob *batchv1.CronJob
 
@@ -210,9 +204,7 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 // of a configuration checker with the given inputs.
 func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 	return func() {
-
 		Context("When unmanaged Pod is created", func() {
-
 			var ctx context.Context
 			var pod *corev1.Pod
 
@@ -236,11 +228,9 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 				err := inputs.Delete(ctx, pod)
 				Expect(err).ToNot(HaveOccurred())
 			})
-
 		})
 
 		Context("When Deployment is created", func() {
-
 			var ctx context.Context
 			var deploy *appsv1.Deployment
 
@@ -272,7 +262,6 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 		})
 
 		Context("When Deployment is rolling updated", func() {
-
 			var ctx context.Context
 			var deploy *appsv1.Deployment
 
@@ -321,7 +310,6 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 		})
 
 		Context("When CronJob is created", func() {
-
 			var ctx context.Context
 			var cronJob *batchv1.CronJob
 
@@ -371,7 +359,6 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 		})
 
 		Context("When ConfigAuditReport is deleted", func() {
-
 			var ctx context.Context
 			var deploy *appsv1.Deployment
 
@@ -451,7 +438,6 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 				err := inputs.Delete(ctx, svc)
 				Expect(err).ToNot(HaveOccurred())
 			})
-
 		})
 	}
 }

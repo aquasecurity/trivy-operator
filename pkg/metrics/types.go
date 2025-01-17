@@ -17,24 +17,28 @@ func SeverityCritical() SeverityLabel {
 		Label:    "Critical",
 	}
 }
+
 func SeverityHigh() SeverityLabel {
 	return SeverityLabel{
 		Severity: v1alpha1.SeverityHigh,
 		Label:    "High",
 	}
 }
+
 func SeverityMedium() SeverityLabel {
 	return SeverityLabel{
 		Severity: v1alpha1.SeverityMedium,
 		Label:    "Medium",
 	}
 }
+
 func SeverityLow() SeverityLabel {
 	return SeverityLabel{
 		Severity: v1alpha1.SeverityLow,
 		Label:    "Low",
 	}
 }
+
 func SeverityUnknown() SeverityLabel {
 	return SeverityLabel{
 		Severity: v1alpha1.SeverityUnknown,
@@ -77,6 +81,7 @@ func StatusFail() StatusLabel {
 		Label:  "Fail",
 	}
 }
+
 func StatusPass() StatusLabel {
 	return StatusLabel{
 		Status: PassStatus,

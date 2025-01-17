@@ -6,7 +6,6 @@ import (
 
 // PluginInMemory defines the interface between trivy-operator and trivy configuration
 type PluginInMemory interface {
-
 	// Init is a callback to initialize this plugin, e.g. ensure the default
 	// configuration.
 	Init(ctx trivyoperator.PluginContext) error
@@ -16,7 +15,6 @@ type PluginInMemory interface {
 
 // ConfigAuditConfig defines the interface between trivy-operator and trivy configuration which related to configauditreport
 type ConfigAuditConfig interface {
-
 	// GetUseBuiltinRegoPolicies return trivy config which associated to configauditreport plugin
 	GetUseBuiltinRegoPolicies() bool
 	// GetUseEmbeddedRegoPolicies return trivy embedded rego policies (mainly for air-gapped environment)

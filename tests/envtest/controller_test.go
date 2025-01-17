@@ -1,13 +1,12 @@
 package operator_test
 
 import (
+	"path"
 	"sort"
+	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"path"
-	"time"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
@@ -20,7 +19,6 @@ import (
 )
 
 var _ = Describe("Workload controller", func() {
-
 	const (
 		WorkloadNamespace   = "default"
 		kubeSystemNamespace = "kube-system"
@@ -28,7 +26,7 @@ var _ = Describe("Workload controller", func() {
 		interval            = time.Millisecond * 250
 	)
 
-	var testdataResourceDir = path.Join("testdata", "fixture")
+	testdataResourceDir := path.Join("testdata", "fixture")
 
 	DescribeTable("On deploying workloads",
 		func(workload client.Object, workloadResourceFile string) {

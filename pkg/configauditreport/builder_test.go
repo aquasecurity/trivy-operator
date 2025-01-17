@@ -1,10 +1,10 @@
 package configauditreport_test
 
 import (
+	"testing"
+
 	. "github.com/onsi/gomega"
 	"k8s.io/apimachinery/pkg/labels"
-
-	"testing"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
@@ -17,7 +17,6 @@ import (
 )
 
 func TestReportBuilder(t *testing.T) {
-
 	t.Run("Should build report for namespaced resource", func(t *testing.T) {
 		g := NewGomegaWithT(t)
 

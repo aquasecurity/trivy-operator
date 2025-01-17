@@ -1,10 +1,11 @@
 package utils
 
 import (
-	"github.com/aquasecurity/trivy-operator/pkg/ext"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNextCronDuration(t *testing.T) {
@@ -34,6 +35,7 @@ func TestNextCronDuration(t *testing.T) {
 		})
 	}
 }
+
 func parseTime(creationTime string) (time.Time, error) {
 	layout := "2006-01-02T15:04:05"
 	tm, err := time.Parse(layout, creationTime)
@@ -42,6 +44,7 @@ func parseTime(creationTime string) (time.Time, error) {
 	}
 	return tm, nil
 }
+
 func TestDurationExceeded(t *testing.T) {
 	tests := []struct {
 		name     string

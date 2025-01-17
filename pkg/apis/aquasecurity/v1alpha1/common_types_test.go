@@ -46,5 +46,4 @@ func TestStringToSeverity(t *testing.T) {
 			}
 		})
 	}
-
 }

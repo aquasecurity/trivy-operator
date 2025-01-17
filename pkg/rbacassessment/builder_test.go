@@ -16,7 +16,6 @@ import (
 )
 
 func TestReportBuilder(t *testing.T) {
-
 	t.Run("Should build report for namespaced resource", func(t *testing.T) {
 		g := NewGomegaWithT(t)
 

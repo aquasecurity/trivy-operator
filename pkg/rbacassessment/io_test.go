@@ -2,8 +2,9 @@ package rbacassessment_test
 
 import (
 	"context"
-	"k8s.io/api/batch/v1beta1"
 	"testing"
+
+	"k8s.io/api/batch/v1beta1"
 
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 
@@ -18,7 +19,6 @@ import (
 )
 
 func TestReadWriter(t *testing.T) {
-
 	kubernetesScheme := trivyoperator.NewScheme()
 
 	t.Run("Should create RbacAssessmentReport", func(t *testing.T) {

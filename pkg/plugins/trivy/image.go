@@ -50,7 +50,8 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 	credentials map[string]docker.Auth,
 	securityContext *corev1.SecurityContext,
 	p *plugin,
-	clusterSboms map[string]v1alpha1.SbomReportData) (corev1.PodSpec, []*corev1.Secret, error) {
+	clusterSboms map[string]v1alpha1.SbomReportData,
+) (corev1.PodSpec, []*corev1.Secret, error) {
 	var secret *corev1.Secret
 	var secrets []*corev1.Secret
 	var containersSpec []corev1.Container

@@ -2,6 +2,7 @@ package infraassessment
 
 import (
 	"context"
+
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -11,7 +12,6 @@ import (
 
 // Writer is the interface for saving v1alpha1.InfraAssessmentReport instances.
 type Writer interface {
-
 	// WriteReport creates or updates the given v1alpha1.InfraAssessmentReport instance.
 	WriteReport(ctx context.Context, report v1alpha1.InfraAssessmentReport) error
 
@@ -23,7 +23,6 @@ type Writer interface {
 // and v1alpha1.ClusterConfigAuditReport objects.
 // TODO(danielpacak): Consider returning trivyoperator.ResourceNotFound error instead of returning nil.
 type Reader interface {
-
 	// FindReportByOwner returns a v1alpha1.InfraAssessmentReport owned by the given
 	// kube.ObjectRef or nil if the report is not found.
 	FindReportByOwner(ctx context.Context, owner kube.ObjectRef) (interface{}, error)

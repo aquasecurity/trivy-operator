@@ -2,9 +2,8 @@ package trivy
 
 import (
 	"context"
-	"time"
-
 	"testing"
+	"time"
 
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
@@ -221,10 +220,10 @@ func TestGetSlow(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got := tc.configData.GetSlow()
 			assert.Equal(t, got, tc.want)
-
 		})
 	}
 }
+
 func TestConfig_GetCommand(t *testing.T) {
 	testCases := []struct {
 		name            string
@@ -280,7 +279,6 @@ func TestConfig_GetCommand(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			command := tc.configData.GetCommand()
 			assert.Equal(t, tc.expectedCommand, command)
-
 		})
 	}
 }
@@ -332,7 +330,6 @@ func TestVulnType(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got := tc.configData.GetVulnType()
 			assert.Equal(t, got, tc.want)
-
 		})
 	}
 }
@@ -694,7 +691,6 @@ func TestConfig_GetMirrors(t *testing.T) {
 }
 
 func TestPlugin_Init(t *testing.T) {
-
 	t.Run("Should create the default config", func(t *testing.T) {
 		testClient := fake.NewClientBuilder().WithObjects().Build()
 		or := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
@@ -880,7 +876,6 @@ func TestPlugin_FindIgnorePolicyKey(t *testing.T) {
 }
 
 func TestPlugin_GetIncludeDevDeps(t *testing.T) {
-
 	testCases := []struct {
 		name       string
 		configData map[string]string

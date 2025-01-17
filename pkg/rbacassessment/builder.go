@@ -179,5 +179,4 @@ func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
 		return err
 	}
 	return writer.WriteReport(ctx, report)
-
 }

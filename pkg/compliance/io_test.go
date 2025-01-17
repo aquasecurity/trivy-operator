@@ -48,7 +48,8 @@ func TestGenerateComplianceReport(t *testing.T) {
 						},
 					},
 				},
-			}}, clusterComplianceReport: &v1alpha1.ClusterComplianceReport{
+			},
+		}, clusterComplianceReport: &v1alpha1.ClusterComplianceReport{
 			TypeMeta:   v1.TypeMeta{Kind: "ConfigAuditReport"},
 			ObjectMeta: v1.ObjectMeta{Name: "nsa"},
 			Spec: v1alpha1.ReportSpec{
@@ -146,7 +147,8 @@ func TestGenerateComplianceReport(t *testing.T) {
 						},
 					},
 				},
-			}}, clusterComplianceReport: &v1alpha1.ClusterComplianceReport{
+			},
+		}, clusterComplianceReport: &v1alpha1.ClusterComplianceReport{
 			TypeMeta:   v1.TypeMeta{Kind: "ConfigAuditReport"},
 			ObjectMeta: v1.ObjectMeta{Name: "nsa"},
 			Spec: v1alpha1.ReportSpec{

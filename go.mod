@@ -39,6 +39,8 @@ require (
 	sigs.k8s.io/yaml v1.4.0
 )
 
+require github.com/quasilyte/go-ruleguard/dsl v0.3.22
+
 require (
 	cloud.google.com/go v0.116.0 // indirect
 	cloud.google.com/go/auth v0.10.2 // indirect

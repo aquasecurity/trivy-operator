@@ -6,11 +6,15 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
+	//"github.com/aquasecurity/trivy/pkg/log"
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 )
@@ -66,6 +70,10 @@ var (
 	// Controller Tools Version
 	CONTROLLER_TOOLS_VERSION = "v0.14.0"
 )
+
+//func init() {
+//	slog.SetDefault(log.New(log.NewHandler(os.Stderr, nil))) // stdout is suppressed in mage
+//}
 
 // Function to get the current working directory using os.Getwd()
 func getWorkingDir() string {
@@ -300,4 +308,51 @@ func (Tool) Aqua() error {
 func exists(filename string) bool {
 	_, err := os.Stat(filename)
 	return err == nil
+}
+
+type Lint mg.Namespace
+
+// Run runs linters
+func (Lint) Run() error {
+	//mg.Deps(Tool{}.GolangciLint)
+	return sh.RunV("golangci-lint", "run")
+}
+
+// Fix auto fixes linters
+func (Lint) Fix() error {
+	//mg.Deps(Tool{}.GolangciLint)
+	return sh.RunV("golangci-lint", "run", "--fix")
+}
+
+// GolangciLint installs golangci-lint
+func (t Tool) GolangciLint() error {
+	const version = "v1.61.0"
+	bin := filepath.Join(GOBIN, "golangci-lint")
+	if exists(bin) && t.matchGolangciLintVersion(bin, version) {
+		return nil
+	}
+	command := fmt.Sprintf("curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b %s %s", GOBIN, version)
+	return sh.Run("bash", "-c", command)
+}
+
+func (Tool) matchGolangciLintVersion(bin, version string) bool {
+	out, err := sh.Output(bin, "version", "--format", "json")
+	if err != nil {
+		slog.Error("Unable to get golangci-lint version", slog.Any("err", err))
+		return false
+	}
+	var output struct {
+		Version string `json:"Version"`
+	}
+	if err = json.Unmarshal([]byte(out), &output); err != nil {
+		slog.Error("Unable to parse golangci-lint version", slog.Any("err", err))
+		return false
+	}
+
+	version = strings.TrimPrefix(version, "v")
+	if output.Version != version {
+		slog.Info("golangci-lint version mismatch", slog.String("expected", version), slog.String("actual", output.Version))
+		return false
+	}
+	return true
 }

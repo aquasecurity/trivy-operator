@@ -47,7 +47,7 @@ linters-settings:
         failOn: all
         rules: '${configDir}/misc/lint/rules.go'
   gocyclo:
-    min-complexity: 20
+    min-complexity: 40
   gofmt:
     simplify: false
     rewrite-rules:

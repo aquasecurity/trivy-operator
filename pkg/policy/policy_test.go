@@ -752,7 +752,7 @@ func TestNewMessage(t *testing.T) {
 		},
 		{
 			name:          "Should return error when msg key is not set",
-			values:        map[string]any{},
+			values:        make(map[string]any),
 			expectedError: "required key not found: msg",
 		},
 		{

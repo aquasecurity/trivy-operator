@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"strings"
 
+	containerimage "github.com/google/go-containerregistry/pkg/name"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/ptr"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	containerimage "github.com/google/go-containerregistry/pkg/name"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
@@ -151,7 +151,7 @@ func getPkgList(ctx trivyoperator.PluginContext) string {
 }
 
 func getSecurityChecks(ctx trivyoperator.PluginContext) string {
-	securityChecks := make([]string, 0)
+	var securityChecks []string
 
 	c := ctx.GetTrivyOperatorConfig()
 	if c.VulnerabilityScannerEnabled() {

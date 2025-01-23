@@ -2,26 +2,22 @@ package trivy
 
 import (
 	"context"
-	"time"
-
 	"testing"
-
-	"github.com/aquasecurity/trivy-operator/pkg/ext"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
-
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+
+	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 )
 
 var (
@@ -212,7 +208,7 @@ func TestGetSlow(t *testing.T) {
 		{
 			name: "slow param set to no  value",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
-				Data: map[string]string{},
+				Data: make(map[string]string),
 			}},
 			want: true,
 		},
@@ -244,7 +240,7 @@ func TestConfig_GetCommand(t *testing.T) {
 		{
 			name: "Should return image when value is not set",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
-				Data: map[string]string{},
+				Data: make(map[string]string),
 			}},
 			expectedCommand: Image,
 		},
@@ -569,7 +565,7 @@ func TestConfig_dbRepositoryInsecure(t *testing.T) {
 		{
 			name: "no value Should return false",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
-				Data: map[string]string{},
+				Data: make(map[string]string),
 			}},
 			expectedOutput: false,
 		},
@@ -923,7 +919,7 @@ func TestPlugin_GetSbomSources(t *testing.T) {
 	}{
 		{
 			name:       "GetSbomSources not set",
-			configData: map[string]string{},
+			configData: make(map[string]string),
 			want:       "",
 		},
 		{

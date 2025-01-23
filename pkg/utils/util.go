@@ -1,14 +1,15 @@
 package utils
 
 import (
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/emirpasic/gods/sets/hashset"
+
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
 )
 
 // MapKinds map resource data
 func MapKinds(kinds []string) []string {
 	set := hashset.New()
-	updatedKinds := make([]string, 0)
+	var updatedKinds []string
 	for _, kind := range kinds {
 		if !kube.IsValidK8sKind(kind) {
 			continue

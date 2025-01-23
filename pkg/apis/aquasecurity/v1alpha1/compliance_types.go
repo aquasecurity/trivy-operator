@@ -1,10 +1,11 @@
 package v1alpha1
 
 import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"github.com/aquasecurity/trivy/pkg/compliance/report"
 	"github.com/aquasecurity/trivy/pkg/compliance/spec"
 	defsecTypes "github.com/aquasecurity/trivy/pkg/iac/types"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // +kubebuilder:object:root=true
@@ -168,9 +169,9 @@ type ComplianceCheck struct {
 
 // ToComplianceSpec map data from crd compliance spec to trivy compliance spec
 func ToComplianceSpec(cSpec Compliance) spec.ComplianceSpec {
-	specControls := make([]defsecTypes.Control, 0)
+	var specControls []defsecTypes.Control
 	for _, control := range cSpec.Controls {
-		sChecks := make([]defsecTypes.SpecCheck, 0)
+		var sChecks []defsecTypes.SpecCheck
 		for _, scheck := range control.Checks {
 			sChecks = append(sChecks, defsecTypes.SpecCheck{ID: scheck.ID})
 		}
@@ -196,7 +197,7 @@ func ToComplianceSpec(cSpec Compliance) spec.ComplianceSpec {
 
 // FromSummaryReport map data from trivy summary report to crd summary report
 func FromSummaryReport(sr *report.SummaryReport) *SummaryReport {
-	summaryControls := make([]ControlCheckSummary, 0)
+	var summaryControls []ControlCheckSummary
 	for _, sr := range sr.SummaryControls {
 		summaryControls = append(summaryControls, ControlCheckSummary{
 			ID:        sr.ID,
@@ -214,9 +215,9 @@ func FromSummaryReport(sr *report.SummaryReport) *SummaryReport {
 
 // FromDetailReport map data from trivy summary report to crd summary report
 func FromDetailReport(sr *report.ComplianceReport) *ComplianceReport {
-	controlResults := make([]*ControlCheckResult, 0)
+	var controlResults []*ControlCheckResult
 	for _, sr := range sr.Results {
-		checks := make([]ComplianceCheck, 0)
+		var checks []ComplianceCheck
 		for _, r := range sr.Results {
 			for _, ms := range r.Misconfigurations {
 				checks = append(checks, ComplianceCheck{

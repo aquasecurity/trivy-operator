@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	corev1 "k8s.io/api/core/v1"
 	k8sapierror "k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/aquasecurity/trivy-operator/pkg/docker"
 )
 
 // MapContainerNamesToDockerAuths creates the mapping from a container name to the Docker authentication
@@ -94,7 +95,7 @@ func MapDockerRegistryServersToAuths(imagePullSecrets []corev1.Secret, multiSecr
 }
 
 func GetWildcardServers(auths map[string]docker.Auth) []string {
-	wildcardServers := make([]string, 0)
+	var wildcardServers []string
 	for server := range auths {
 		if strings.HasPrefix(server, "*.") {
 			wildcardServers = append(wildcardServers, server)
@@ -142,7 +143,7 @@ type secretsReader struct {
 }
 
 func (r *secretsReader) ListByLocalObjectReferences(ctx context.Context, refs []corev1.LocalObjectReference, ns string) ([]corev1.Secret, error) {
-	secrets := make([]corev1.Secret, 0)
+	var secrets []corev1.Secret
 
 	for _, secretRef := range refs {
 		var secret corev1.Secret
@@ -189,7 +190,7 @@ func (r *secretsReader) ListImagePullSecretsByPodSpec(ctx context.Context, spec 
 }
 
 func (r *secretsReader) GetSecretsFromEnv(ctx context.Context, secretsInfo map[string]string) ([]corev1.Secret, error) {
-	secretsFromEnv := make([]corev1.Secret, 0)
+	var secretsFromEnv []corev1.Secret
 
 	for ns, secretNames := range secretsInfo {
 		secretNamesValues := strings.Split(secretNames, ",")

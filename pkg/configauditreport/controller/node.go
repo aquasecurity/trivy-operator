@@ -1,25 +1,9 @@
 package controller
 
 import (
-	"time"
-
 	"context"
 	"fmt"
-	trivy_checks "github.com/aquasecurity/trivy-checks"
-	j "github.com/aquasecurity/trivy-kubernetes/pkg/jobs"
-	"github.com/aquasecurity/trivy-kubernetes/pkg/k8s"
-	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
-	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
-	. "github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
-	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
-	"github.com/aquasecurity/trivy-operator/pkg/policy"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"time"
 
 	"github.com/go-logr/logr"
 	batchv1 "k8s.io/api/batch/v1"
@@ -30,6 +14,22 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
+	trivy_checks "github.com/aquasecurity/trivy-checks"
+	j "github.com/aquasecurity/trivy-kubernetes/pkg/jobs"
+	"github.com/aquasecurity/trivy-kubernetes/pkg/k8s"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
+	"github.com/aquasecurity/trivy-operator/pkg/policy"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+
+	. "github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 )
 
 //	NodeReconciler reconciles corev1.Node and corev1.Job objects
@@ -159,7 +159,7 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 
 		requirements, err := tc.GetResourceRequirements()
 		if err != nil {
-			return ctrl.Result{}, fmt.Errorf("getting node-collector resource requierments: %w", err)
+			return ctrl.Result{}, fmt.Errorf("getting node-collector resource requirements: %w", err)
 		}
 
 		scanJobPodPriorityClassName, err := r.GetScanJobPodPriorityClassName()

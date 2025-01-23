@@ -2,19 +2,19 @@ package metrics
 
 import (
 	"context"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	"github.com/go-logr/logr"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"strconv"
 
+	"github.com/go-logr/logr"
 	"github.com/prometheus/client_golang/prometheus"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	k8smetrics "sigs.k8s.io/controller-runtime/pkg/metrics"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 const (
@@ -70,7 +70,7 @@ const (
 	infra_assessment_category    = "infra_assessment_category"
 	infra_assessment_success     = "infra_assessment_success"
 
-	// image infomation
+	// image information
 	image_os_family = "image_os_family"
 	image_os_name   = "image_os_name"
 	image_os_eosl   = "image_os_eosl"
@@ -534,7 +534,7 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 }
 
 func getDynamicConfigLabels(config trivyoperator.ConfigData) []string {
-	labels := make([]string, 0)
+	var labels []string
 	resourceLabels := config.GetReportResourceLabels()
 	for _, label := range resourceLabels {
 		labels = append(labels, config.GetMetricsResourceLabelsPrefix()+sanitizeLabelName(label))

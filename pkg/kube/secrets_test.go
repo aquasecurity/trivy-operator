@@ -6,17 +6,17 @@ import (
 	"os"
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
-
-	. "github.com/onsi/gomega"
-	. "github.com/onsi/gomega/gstruct"
 
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	corev1 "k8s.io/api/core/v1"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+
+	. "github.com/onsi/gomega"
+	. "github.com/onsi/gomega/gstruct"
 )
 
 func TestMapDockerRegistryServersToAuths(t *testing.T) {
@@ -347,7 +347,7 @@ func TestListImagePullSecretsByPodSpec(t *testing.T) {
 	})
 }
 
-func loadResource(filePath string, resource interface{}) error {
+func loadResource(filePath string, resource any) error {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil

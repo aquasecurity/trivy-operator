@@ -10,21 +10,19 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
-	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
-	"github.com/aquasecurity/trivy/pkg/iac/severity"
-	"github.com/aquasecurity/trivy/pkg/mapfs"
-
 	"github.com/go-logr/logr"
 	"github.com/liamg/memoryfs"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy/pkg/iac/rego"
 	"github.com/aquasecurity/trivy/pkg/iac/scan"
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/kubernetes"
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/options"
-
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	"github.com/aquasecurity/trivy/pkg/iac/severity"
+	"github.com/aquasecurity/trivy/pkg/mapfs"
 )
 
 const (
@@ -139,7 +137,7 @@ func (p *Policies) loadPolicies(kind string) ([]string, error) {
 	for _, mod := range modByKind {
 		externalPolicies = append(externalPolicies, mod)
 	}
-	policies := make([]string, 0)
+	var policies []string
 	// read built-in policies
 	if p.cac.GetUseBuiltinRegoPolicies() {
 		policies, _, err = p.policyLoader.GetPoliciesAndBundlePath()

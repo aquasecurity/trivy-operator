@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	containerimage "github.com/google/go-containerregistry/pkg/name"
 	ocpappsv1 "github.com/openshift/api/apps/v1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -23,6 +22,8 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 )
 
 func NewScheme() *runtime.Scheme {
@@ -201,7 +202,7 @@ func (c ConfigData) GetScanJobTolerations() ([]corev1.Toleration, error) {
 }
 
 func (c ConfigData) ExcludeImages() []string {
-	patterns := make([]string, 0)
+	var patterns []string
 	if excludeImagesPattern, ok := c[keyScanJobExcludeImags]; ok {
 		for _, s := range strings.Split(excludeImagesPattern, ",") {
 			if len(strings.TrimSpace(s)) == 0 {
@@ -225,7 +226,7 @@ func (c ConfigData) GetNodeCollectorTolerations() ([]corev1.Toleration, error) {
 }
 
 func (c ConfigData) GetNodeCollectorImagePullsecret() []corev1.LocalObjectReference {
-	imagePullSecrets := make([]corev1.LocalObjectReference, 0)
+	var imagePullSecrets []corev1.LocalObjectReference
 	imagePullSecretValue := c[KeyNodeCollectorImagePullSecret]
 	if c[KeyNodeCollectorImagePullSecret] != "" {
 		imagePullSecrets = append(imagePullSecrets, corev1.LocalObjectReference{Name: imagePullSecretValue})
@@ -335,14 +336,14 @@ func (c ConfigData) GetSkipInitContainers() bool {
 func (c ConfigData) GetScanJobAnnotations() (map[string]string, error) {
 	scanJobAnnotationsStr, found := c[keyScanJobAnnotations]
 	if !found || strings.TrimSpace(scanJobAnnotationsStr) == "" {
-		return map[string]string{}, nil
+		return make(map[string]string), nil
 	}
 
-	scanJobAnnotationsMap := map[string]string{}
+	scanJobAnnotationsMap := make(map[string]string)
 	for _, annotation := range strings.Split(scanJobAnnotationsStr, ",") {
 		sepByEqual := strings.Split(annotation, "=")
 		if len(sepByEqual) != 2 {
-			return map[string]string{}, fmt.Errorf("failed parsing incorrectly formatted custom scan job annotations: %s", scanJobAnnotationsStr)
+			return make(map[string]string), fmt.Errorf("failed parsing incorrectly formatted custom scan job annotations: %s", scanJobAnnotationsStr)
 		}
 		key, value := sepByEqual[0], sepByEqual[1]
 		scanJobAnnotationsMap[key] = value
@@ -354,14 +355,14 @@ func (c ConfigData) GetScanJobAnnotations() (map[string]string, error) {
 func (c ConfigData) GetNodeCollectorExcludeNodes() (map[string]string, error) {
 	nodeCollectorExcludeNodesStr, found := c[KeyNodeCollectorExcludeNodes]
 	if !found || strings.TrimSpace(nodeCollectorExcludeNodesStr) == "" {
-		return map[string]string{}, nil
+		return make(map[string]string), nil
 	}
 
-	nodeCollectorExcludeNodesMap := map[string]string{}
+	nodeCollectorExcludeNodesMap := make(map[string]string)
 	for _, excludeNode := range strings.Split(nodeCollectorExcludeNodesStr, ",") {
 		sepByEqual := strings.Split(excludeNode, "=")
 		if len(sepByEqual) != 2 {
-			return map[string]string{}, fmt.Errorf("failed parsing incorrectly formatted exclude nodes values: %s", nodeCollectorExcludeNodesStr)
+			return make(map[string]string), fmt.Errorf("failed parsing incorrectly formatted exclude nodes values: %s", nodeCollectorExcludeNodesStr)
 		}
 		key, value := sepByEqual[0], sepByEqual[1]
 		nodeCollectorExcludeNodesMap[key] = value
@@ -375,7 +376,7 @@ func (c ConfigData) GetScanJobPodTemplateLabels() (labels.Set, error) {
 		return labels.Set{}, nil
 	}
 
-	scanJobPodTemplateLabelsMap := map[string]string{}
+	scanJobPodTemplateLabelsMap := make(map[string]string)
 	labelParts := strings.Split(strings.TrimSuffix(scanJobPodTemplateLabelsStr, ","), ",")
 	for _, annotation := range labelParts {
 		sepByEqual := strings.Split(annotation, "=")
@@ -404,7 +405,7 @@ func (c ConfigData) GetAdditionalReportLabels() (labels.Set, error) {
 		return labels.Set{}, nil
 	}
 
-	additionalReportLabelsMap := map[string]string{}
+	additionalReportLabelsMap := make(map[string]string)
 	for _, annotation := range strings.Split(additionalReportLabelsStr, ",") {
 		sepByEqual := strings.Split(annotation, "=")
 		if len(sepByEqual) != 2 {

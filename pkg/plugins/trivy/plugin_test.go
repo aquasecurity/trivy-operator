@@ -2,7 +2,6 @@ package trivy_test
 
 import (
 	"bytes"
-
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -15,15 +14,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/aquasecurity/trivy-operator/pkg/docker"
-	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
-
-	dbtypes "github.com/aquasecurity/trivy-db/pkg/types"
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/ext"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	bz "github.com/dsnet/compress/bzip2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -33,10 +23,18 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+
+	dbtypes "github.com/aquasecurity/trivy-db/pkg/types"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/docker"
+	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 )
 
 var (
@@ -6105,7 +6103,7 @@ default ignore = false`,
 				},
 				ReadOnlyRootFilesystem: ptr.To[bool](true),
 			}
-			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, tc.credentials, securityContext, map[string]v1alpha1.SbomReportData{})
+			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, tc.credentials, securityContext, make(map[string]v1alpha1.SbomReportData))
 			require.NoError(t, err)
 			assert.Equal(t, tc.expectedJobSpec, jobSpec)
 			assert.Equal(t, len(tc.expectedSecretsData), len(secrets))
@@ -6517,7 +6515,7 @@ default ignore = false`,
 				// Root expected for standalone mode - the user would need to know this
 				RunAsUser: ptr.To[int64](0),
 			}
-			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, tc.credentials, securityContext, map[string]v1alpha1.SbomReportData{})
+			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, tc.credentials, securityContext, make(map[string]v1alpha1.SbomReportData))
 			require.NoError(t, err)
 			assert.Equal(t, tc.expectedJobSpec, jobSpec)
 			assert.Equal(t, len(tc.expectedSecretsData), len(secrets))
@@ -6913,7 +6911,7 @@ func TestGetCVSSV3(t *testing.T) {
 		{
 			name:     "Should return nil when cvss doesn't exist",
 			cvss:     dbtypes.VendorCVSS{},
-			expected: map[string]*vulnerabilityreport.CVSS{},
+			expected: make(map[string]*vulnerabilityreport.CVSS),
 		},
 	}
 
@@ -7027,10 +7025,10 @@ func TestGetContainers(t *testing.T) {
 				Get()
 			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
 			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
-			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil, map[string]v1alpha1.SbomReportData{})
+			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil, make(map[string]v1alpha1.SbomReportData))
 			assert.NoError(t, err)
 
-			containers := make([]string, 0)
+			var containers []string
 
 			for _, c := range jobSpec.Containers {
 				containers = append(containers, c.Name)
@@ -7115,7 +7113,7 @@ func TestGetInitContainers(t *testing.T) {
 
 			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
 			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
-			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil, map[string]v1alpha1.SbomReportData{})
+			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil, make(map[string]v1alpha1.SbomReportData))
 			assert.NoError(t, err)
 
 			assert.Len(t, jobSpec.InitContainers, 2)
@@ -7449,7 +7447,7 @@ func TestGetClientServerSkipUpdate(t *testing.T) {
 		{
 			name: "clientServerSkipUpdate param set to no value",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
-				Data: map[string]string{},
+				Data: make(map[string]string),
 			}},
 			want: false,
 		},
@@ -7499,7 +7497,7 @@ func TestGetSkipJavaDBUpdate(t *testing.T) {
 		{
 			name: "skipJavaDBUpdate param set to no  value",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
-				Data: map[string]string{},
+				Data: make(map[string]string),
 			}},
 			want: false,
 		},
@@ -7540,7 +7538,7 @@ func TestGetImageScanCacheDir(t *testing.T) {
 		{
 			name: "imageScanCacheDir param unset",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
-				Data: map[string]string{},
+				Data: make(map[string]string),
 			}},
 			want: "/tmp/trivy/.cache",
 		},
@@ -7580,7 +7578,7 @@ func TestGetFilesystemScanCacheDir(t *testing.T) {
 		{
 			name: "filesystemScanCacheDir param unset",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
-				Data: map[string]string{},
+				Data: make(map[string]string),
 			}},
 			want: "/var/trivyoperator/trivy-db",
 		},

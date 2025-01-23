@@ -1,10 +1,12 @@
 package utils
 
 import (
-	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"time"
+
 	"github.com/gorhill/cronexpr"
 	"k8s.io/utils/ptr"
-	"time"
+
+	"github.com/aquasecurity/trivy-operator/pkg/ext"
 )
 
 // NextCronDuration check if next cron activation time has exceeded if so return true

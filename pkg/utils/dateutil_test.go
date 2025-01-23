@@ -1,10 +1,12 @@
 package utils
 
 import (
-	"github.com/aquasecurity/trivy-operator/pkg/ext"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/aquasecurity/trivy-operator/pkg/ext"
 )
 
 func TestNextCronDuration(t *testing.T) {

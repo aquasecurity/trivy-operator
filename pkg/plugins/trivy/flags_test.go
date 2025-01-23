@@ -3,9 +3,10 @@ package trivy_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestSlow(t *testing.T) {
@@ -93,7 +94,7 @@ func TestScanner(t *testing.T) {
 		},
 		{
 			name:       "scanner with no trivy tag lower",
-			configData: map[string]string{},
+			configData: make(map[string]string),
 			want:       "--scanners",
 		},
 	}
@@ -134,7 +135,7 @@ func TestSkipDBUpdate(t *testing.T) {
 		},
 		{
 			name:       "skip update DB with no trivy tag lower",
-			configData: map[string]string{},
+			configData: make(map[string]string),
 			want:       "--skip-db-update",
 		},
 	}

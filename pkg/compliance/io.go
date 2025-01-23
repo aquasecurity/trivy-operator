@@ -1,17 +1,18 @@
 package compliance
 
 import (
-	"github.com/aquasecurity/trivy/pkg/compliance/report"
-	ttypes "github.com/aquasecurity/trivy/pkg/types"
-
 	"context"
 	"fmt"
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"strings"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strings"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"github.com/aquasecurity/trivy/pkg/compliance/report"
+	ttypes "github.com/aquasecurity/trivy/pkg/types"
 )
 
 type Mgr interface {
@@ -94,7 +95,7 @@ func (w *cm) buildComplianceReport(spec v1alpha1.ReportSpec, complianceResults [
 
 // MisconfigReportToTrivyResults convert misconfig and infra assessment report Data to trivy results
 func misconfigReportToTrivyResults(cli client.Client, ctx context.Context) ([]ttypes.Results, error) {
-	resultsArray := make([]ttypes.Results, 0)
+	var resultsArray []ttypes.Results
 	// collect configaudit report data
 	caObjList := &v1alpha1.ConfigAuditReportList{}
 	err := cli.List(ctx, caObjList)

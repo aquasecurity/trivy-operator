@@ -4,9 +4,10 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 )
 
 func TestOperator_GetTargetNamespaces(t *testing.T) {
@@ -195,7 +196,7 @@ func TestOperator_GetPrivateRegistryScanSecretsNames(t *testing.T) {
 			operator: etc.Config{
 				PrivateRegistryScanSecretsNames: "{}",
 			},
-			expectedNameSpaceSecrets: map[string]string{},
+			expectedNameSpaceSecrets: make(map[string]string),
 		},
 	}
 

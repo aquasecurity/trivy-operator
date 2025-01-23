@@ -2,11 +2,12 @@ package sbomreport
 
 import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
+
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 )
 
 func cycloneDxBomToReport(cbom cdx.BOM, version string) *v1alpha1.BOM {
-	components := make([]*v1alpha1.Component, 0)
+	var components []*v1alpha1.Component
 	for _, c := range *cbom.Components {
 		components = append(components, cycloneDxComponentToReportComponent(c))
 	}
@@ -60,7 +61,7 @@ func cycloneDxComponentToReportComponent(cComp cdx.Component) *v1alpha1.Componen
 }
 
 func cycloneDxHashesToReportHashes(hashes *[]cdx.Hash) []v1alpha1.Hash {
-	reportHashes := make([]v1alpha1.Hash, 0)
+	var reportHashes []v1alpha1.Hash
 	if hashes != nil {
 		for _, h := range *hashes {
 			reportHashes = append(reportHashes, v1alpha1.Hash{
@@ -73,7 +74,7 @@ func cycloneDxHashesToReportHashes(hashes *[]cdx.Hash) []v1alpha1.Hash {
 }
 
 func cycloneDxLicensesToReportLicenses(licenses *cdx.Licenses) []v1alpha1.LicenseChoice {
-	reportLicenses := make([]v1alpha1.LicenseChoice, 0)
+	var reportLicenses []v1alpha1.LicenseChoice
 	if licenses != nil {
 		for _, l := range *licenses {
 			var li v1alpha1.License
@@ -95,7 +96,7 @@ func cycloneDxLicensesToReportLicenses(licenses *cdx.Licenses) []v1alpha1.Licens
 }
 
 func cycloneDxPropertiesToReportProperties(properties *[]cdx.Property) []v1alpha1.Property {
-	reportProperties := make([]v1alpha1.Property, 0)
+	var reportProperties []v1alpha1.Property
 	if properties != nil {
 		for _, p := range *properties {
 			reportProperties = append(reportProperties, v1alpha1.Property{
@@ -108,7 +109,7 @@ func cycloneDxPropertiesToReportProperties(properties *[]cdx.Property) []v1alpha
 }
 
 func cycloneDxDependenciesToReportDependencies(dependencies *[]cdx.Dependency) *[]v1alpha1.Dependency {
-	reportDependencies := make([]v1alpha1.Dependency, 0)
+	var reportDependencies []v1alpha1.Dependency
 	for _, d := range *dependencies {
 		reportDependencies = append(reportDependencies, v1alpha1.Dependency{
 			Ref:          d.Ref,

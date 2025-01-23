@@ -6,17 +6,17 @@ import (
 	"regexp"
 	"strings"
 
+	containerimage "github.com/google/go-containerregistry/pkg/name"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/ptr"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
-	containerimage "github.com/google/go-containerregistry/pkg/name"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type ImageJobSpecMgr struct {
@@ -121,7 +121,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
-	initContainers := []corev1.Container{}
+	var initContainers []corev1.Container
 
 	initContainers = append(initContainers, corev1.Container{
 		Name:                     p.idGenerator.GenerateID(),

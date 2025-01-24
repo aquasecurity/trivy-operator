@@ -39,7 +39,10 @@ require (
 	sigs.k8s.io/yaml v1.4.0
 )
 
-require github.com/quasilyte/go-ruleguard/dsl v0.3.22
+require (
+	github.com/aquasecurity/go-version v0.0.0-20241105054539-1951e80d786f
+	github.com/quasilyte/go-ruleguard/dsl v0.3.22
+)
 
 require (
 	cloud.google.com/go v0.116.0 // indirect
@@ -81,7 +84,6 @@ require (
 	github.com/aquasecurity/go-gem-version v0.0.0-20201115065557-8eed6fe000ce // indirect
 	github.com/aquasecurity/go-npm-version v0.0.0-20201110091526-0b796d180798 // indirect
 	github.com/aquasecurity/go-pep440-version v0.0.0-20210121094942-22b2f8951d46 // indirect
-	github.com/aquasecurity/go-version v0.0.0-20241105054539-1951e80d786f // indirect
 	github.com/aquasecurity/table v1.8.0 // indirect
 	github.com/aquasecurity/tml v0.6.1 // indirect
 	github.com/aquasecurity/trivy-java-db v0.0.0-20240109071736-184bd7481d48 // indirect
@@ -331,7 +333,6 @@ require (
 )
 
 require (
-	github.com/Masterminds/semver v1.5.0
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/OneOfOne/xxhash v1.2.8 // indirect
 	github.com/ProtonMail/go-crypto v1.1.3 // indirect

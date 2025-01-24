@@ -137,9 +137,9 @@ func TestConfigData_GetScanJobAffinity(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got, err := tc.config.GetScanJobAffinity()
 			if tc.expectError != "" {
-				assert.Error(t, err, "unexpected end of JSON input", tc.name)
+				require.Error(t, err, "unexpected end of JSON input", tc.name)
 			} else {
-				assert.NoError(t, err, tc.name)
+				require.NoError(t, err, tc.name)
 			}
 			assert.Equal(t, tc.expected, got, tc.name)
 		})
@@ -206,9 +206,9 @@ func TestConfigData_GetScanJobTolerations(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got, err := tc.config.GetScanJobTolerations()
 			if tc.expectError != "" {
-				assert.Error(t, err, "unexpected end of JSON input", tc.name)
+				require.Error(t, err, "unexpected end of JSON input", tc.name)
 			} else {
-				assert.NoError(t, err, tc.name)
+				require.NoError(t, err, tc.name)
 			}
 			assert.Equal(t, tc.expected, got, tc.name)
 		})
@@ -323,9 +323,9 @@ func TestConfigData_TestConfigData_GetNodeCollectorVolumes(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got, err := tc.config.GetNodeCollectorVolumes()
 			if tc.expectError != "" {
-				assert.Error(t, err, "unexpected end of JSON input", tc.name)
+				require.Error(t, err, "unexpected end of JSON input", tc.name)
 			} else {
-				assert.NoError(t, err, tc.name)
+				require.NoError(t, err, tc.name)
 			}
 			assert.Equal(t, tc.expected, got, tc.name)
 		})
@@ -372,9 +372,9 @@ func TestConfigData_TestConfigData_GetNodeCollectorVolumeMounts(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got, err := tc.config.GetGetNodeCollectorVolumeMounts()
 			if tc.expectError != "" {
-				assert.Error(t, err, "unexpected end of JSON input", tc.name)
+				require.Error(t, err, "unexpected end of JSON input", tc.name)
 			} else {
-				assert.NoError(t, err, tc.name)
+				require.NoError(t, err, tc.name)
 			}
 			assert.Equal(t, tc.expected, got, tc.name)
 		})
@@ -424,9 +424,9 @@ func TestConfigData_GetScanJobCustomVolumes(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got, err := tc.config.GetScanJobCustomVolumes()
 			if tc.expectError != "" {
-				assert.Error(t, err, "unexpected end of JSON input", tc.name)
+				require.Error(t, err, "unexpected end of JSON input", tc.name)
 			} else {
-				assert.NoError(t, err, tc.name)
+				require.NoError(t, err, tc.name)
 			}
 			assert.Equal(t, tc.expected, got, tc.name)
 		})
@@ -473,9 +473,9 @@ func TestConfigData_GetScanJobcustomVolumeMounts(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got, err := tc.config.GetScanJobCustomVolumeMounts()
 			if tc.expectError != "" {
-				assert.Error(t, err, "unexpected end of JSON input", tc.name)
+				require.Error(t, err, "unexpected end of JSON input", tc.name)
 			} else {
-				assert.NoError(t, err, tc.name)
+				require.NoError(t, err, tc.name)
 			}
 			assert.Equal(t, tc.expected, got, tc.name)
 		})
@@ -558,7 +558,7 @@ func TestConfigData_GetScanJobAnnotations(t *testing.T) {
 			if tc.expectError != "" {
 				assert.EqualError(t, err, tc.expectError, tc.name)
 			} else {
-				assert.NoError(t, err, tc.name)
+				require.NoError(t, err, tc.name)
 				assert.Equal(t, tc.expected, scanJobAnnotations, tc.name)
 			}
 		})
@@ -610,7 +610,7 @@ func TestConfigData_GetScanJobNodeSelector(t *testing.T) {
 			if tc.expectError != "" {
 				assert.EqualError(t, err, tc.expectError, tc.name)
 			} else {
-				assert.NoError(t, err, tc.name)
+				require.NoError(t, err, tc.name)
 				assert.Equal(t, tc.expected, scanJobPodTemplateLabels, tc.name)
 			}
 		})
@@ -673,7 +673,7 @@ func TestConfigData_GetScanJobPodTemplateLabels(t *testing.T) {
 			if tc.expectError != "" {
 				assert.EqualError(t, err, tc.expectError, tc.name)
 			} else {
-				assert.NoError(t, err, tc.name)
+				require.NoError(t, err, tc.name)
 				assert.Equal(t, tc.expected, scanJobPodTemplateLabels, tc.name)
 			}
 		})
@@ -727,7 +727,7 @@ func TestConfigData_GetScanContainerSecurityContext(t *testing.T) {
 			if tc.expectError != "" {
 				assert.EqualError(t, err, tc.expectError, tc.name)
 			} else {
-				assert.NoError(t, err, tc.name)
+				require.NoError(t, err, tc.name)
 				assert.Equal(t, tc.expected, scanJobSecurityContext, tc.name)
 			}
 		})
@@ -777,7 +777,7 @@ func TestConfigData_GetScanJobPodSecurityContext(t *testing.T) {
 			if tc.expectError != "" {
 				assert.EqualError(t, err, tc.expectError, tc.name)
 			} else {
-				assert.NoError(t, err, tc.name)
+				require.NoError(t, err, tc.name)
 				assert.Equal(t, tc.expected, scanJobPodSecurityContext, tc.name)
 			}
 		})

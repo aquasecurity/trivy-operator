@@ -59,8 +59,8 @@ func TestSlow(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := trivy.Slow(trivy.Config{trivyoperator.PluginConfig{Data: tc.configData}})
-			assert.Equal(t, got, tc.want)
+			got := trivy.Slow(trivy.Config{PluginConfig: trivyoperator.PluginConfig{Data: tc.configData}})
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -100,8 +100,8 @@ func TestScanner(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := trivy.Scanners(trivy.Config{trivyoperator.PluginConfig{Data: tc.configData}})
-			assert.Equal(t, got, tc.want)
+			got := trivy.Scanners(trivy.Config{PluginConfig: trivyoperator.PluginConfig{Data: tc.configData}})
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -141,8 +141,8 @@ func TestSkipDBUpdate(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := trivy.SkipDBUpdate(trivy.Config{trivyoperator.PluginConfig{Data: tc.configData}})
-			assert.Equal(t, got, tc.want)
+			got := trivy.SkipDBUpdate(trivy.Config{PluginConfig: trivyoperator.PluginConfig{Data: tc.configData}})
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -194,8 +194,8 @@ func TestSkipJavaDBUpdate(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := trivy.SkipJavaDBUpdate(trivy.Config{trivyoperator.PluginConfig{Data: tc.configData}})
-			assert.Equal(t, got, tc.want)
+			got := trivy.SkipJavaDBUpdate(trivy.Config{PluginConfig: trivyoperator.PluginConfig{Data: tc.configData}})
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }

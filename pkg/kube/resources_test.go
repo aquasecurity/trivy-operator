@@ -203,7 +203,7 @@ func TestComputeHash(t *testing.T) {
 			})
 			hashes[hash] = true
 		}
-		assert.Equal(t, 100, len(hashes))
+		assert.Len(t, hashes, 100)
 	})
 
 }

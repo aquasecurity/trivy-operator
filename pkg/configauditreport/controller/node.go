@@ -15,7 +15,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	trivy_checks "github.com/aquasecurity/trivy-checks"
+	tchecks "github.com/aquasecurity/trivy-checks"
 	j "github.com/aquasecurity/trivy-kubernetes/pkg/jobs"
 	"github.com/aquasecurity/trivy-kubernetes/pkg/k8s"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
@@ -28,8 +28,6 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-
-	. "github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 )
 
 //	NodeReconciler reconciles corev1.Node and corev1.Job objects
@@ -62,7 +60,7 @@ func (r *NodeReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).WithOptions(controller.Options{
 		CacheSyncTimeout: r.CacheSyncTimeout,
 	}).
-		For(&corev1.Node{}, builder.WithPredicates(IsLinuxNode, predicate.Not((excludeNodePredicate)))).
+		For(&corev1.Node{}, builder.WithPredicates(predicate.IsLinuxNode, predicate.Not(excludeNodePredicate))).
 		Owns(&v1alpha1.ClusterInfraAssessmentReport{}).
 		Complete(r.reconcileNodes())
 }
@@ -190,8 +188,8 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 			j.WithVolumes(nodeCollectorVolumes),
 			j.WithUseNodeSelector(useNodeSelector),
 			j.WithCommandsPath(bundlePath),
-			j.WithEmbeddedCommandFileSystem(trivy_checks.EmbeddedK8sCommandsFileSystem),
-			j.WithEmbeddedNodeConfigFilesystem(trivy_checks.EmbeddedK8sCommandsFileSystem),
+			j.WithEmbeddedCommandFileSystem(tchecks.EmbeddedK8sCommandsFileSystem),
+			j.WithEmbeddedNodeConfigFilesystem(tchecks.EmbeddedK8sCommandsFileSystem),
 			j.WithPodPriorityClassName(scanJobPodPriorityClassName),
 			j.WithVolumesMount(nodeCollectorVolumeMounts),
 			j.WithContainerResourceRequirements(requirements),

@@ -126,7 +126,7 @@ func TestArtifactRef(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			ref := sbomreport.ArtifactRef(tc.data)
-			assert.Equal(t, ref, tc.want)
+			assert.Equal(t, tc.want, ref)
 		})
 
 	}

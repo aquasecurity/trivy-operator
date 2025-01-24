@@ -68,10 +68,10 @@ func (pl *policyLoader) GetPoliciesAndBundlePath() ([]string, []string, error) {
 		return policies, bundlePaths, nil
 	}
 	if policies, ok = plc.([]string); !ok {
-		return []string{}, []string{}, fmt.Errorf("failed to get policies from cache")
+		return []string{}, []string{}, errors.New("failed to get policies from cache")
 	}
 	if bundlePaths, ok = bndl.([]string); !ok {
-		return []string{}, []string{}, fmt.Errorf("failed to get bundlePath from cache")
+		return []string{}, []string{}, errors.New("failed to get bundlePath from cache")
 	}
 	return policies, bundlePaths, nil
 

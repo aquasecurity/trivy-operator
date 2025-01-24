@@ -94,5 +94,5 @@ func DeepHashObject(hasher hash.Hash, objectToWrite any) {
 		DisableMethods: true,
 		SpewKeys:       true,
 	}
-	printer.Fprintf(hasher, "%#v", objectToWrite)
+	_, _ = printer.Fprintf(hasher, "%#v", objectToWrite)
 }

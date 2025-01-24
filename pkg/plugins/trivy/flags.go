@@ -4,8 +4,8 @@ import (
 	"github.com/Masterminds/semver"
 )
 
-func compareTagVersion(currentTag string, contraint string) bool {
-	c, err := semver.NewConstraint(contraint)
+func compareTagVersion(currentTag, constraint string) bool {
+	c, err := semver.NewConstraint(constraint)
 	if err != nil {
 		return false
 	}

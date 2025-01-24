@@ -20,7 +20,7 @@ func TestMapResources(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := MapKinds(tt.kinds)
-			assert.Equal(t, len(got), tt.want)
+			assert.Len(t, tt.want, len(got))
 		})
 	}
 }

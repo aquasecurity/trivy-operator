@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -264,9 +265,9 @@ func TestGenerateComplianceReport(t *testing.T) {
 				Build()
 			mgr := NewMgr(c)
 			err := mgr.GenerateComplianceReport(context.Background(), tt.clusterComplianceReport.Spec)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			ccr, err := getReport(context.Background(), c)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			if tt.reportType == "summary" {
 				assert.True(t, reflect.DeepEqual(ccr.Status.SummaryReport, tt.wantStatus.SummaryReport))
 			}

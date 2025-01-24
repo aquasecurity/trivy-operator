@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"path/filepath"
+
 	"strings"
 
 	containerimage "github.com/google/go-containerregistry/pkg/name"
@@ -135,7 +136,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 		return vulnReport, secretReport, nil, err
 	}
 	cmd := config.GetCommand()
-	if err != nil {
+	if err != nil { // TODO: condition seems incorrect
 		return vulnReport, secretReport, nil, err
 	}
 	compressedLogs := ctx.GetTrivyOperatorConfig().CompressLogs()
@@ -213,7 +214,7 @@ func (p *plugin) NewConfigForConfigAudit(ctx trivyoperator.PluginContext) (confi
 	return getConfig(ctx)
 }
 
-func (p *plugin) parseImageRef(imageRef string, imageDigest string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
+func (p *plugin) parseImageRef(imageRef, imageDigest string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
 	ref, err := containerimage.ParseReference(imageRef)
 	if err != nil {
 		return v1alpha1.Registry{}, v1alpha1.Artifact{}, err
@@ -230,7 +231,7 @@ func (p *plugin) parseImageRef(imageRef string, imageDigest string) (v1alpha1.Re
 	case containerimage.Digest:
 		artifact.Digest = t.DigestStr()
 	}
-	if len(artifact.Digest) == 0 {
+	if artifact.Digest == "" {
 		artifact.Digest = imageDigest
 	}
 	return registry, artifact, nil
@@ -264,7 +265,7 @@ func ExcludeImage(excludeImagePattern []string, imageName string) bool {
 }
 
 // getImageDigest extracts the image digest from the report metadata, returns empty string if not available
-func (p *plugin) getImageDigest(reports ty.Report) (string) {
+func (p *plugin) getImageDigest(reports ty.Report) string {
     if len(reports.Metadata.RepoDigests) == 0 {
         return ""
     }

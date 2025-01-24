@@ -288,7 +288,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 	}
 }
 
-func (r *ResourceController) hasReport(ctx context.Context, owner kube.ObjectRef, podSpecHash string, pluginConfigHash string) (bool, error) {
+func (r *ResourceController) hasReport(ctx context.Context, owner kube.ObjectRef, podSpecHash, pluginConfigHash string) (bool, error) {
 	var io rbacassessment.Reader = r.ReadWriter
 	if kube.IsRoleTypes(owner.Kind) {
 		io = r.RbacReadWriter
@@ -303,7 +303,7 @@ func (r *ResourceController) hasReport(ctx context.Context, owner kube.ObjectRef
 	return r.findReportOwner(ctx, owner, podSpecHash, pluginConfigHash, io)
 }
 
-func (r *ResourceController) hasClusterReport(ctx context.Context, owner kube.ObjectRef, podSpecHash string, pluginConfigHash string, io rbacassessment.Reader) (bool, error) {
+func (r *ResourceController) hasClusterReport(ctx context.Context, owner kube.ObjectRef, podSpecHash, pluginConfigHash string, io rbacassessment.Reader) (bool, error) {
 	report, err := io.FindClusterReportByOwner(ctx, owner)
 	if err != nil {
 		return false, err
@@ -320,7 +320,7 @@ func (r *ResourceController) hasClusterReport(ctx context.Context, owner kube.Ob
 	}
 	return false, nil
 }
-func (r *ResourceController) findReportOwner(ctx context.Context, owner kube.ObjectRef, podSpecHash string, pluginConfigHash string, io rbacassessment.Reader) (bool, error) {
+func (r *ResourceController) findReportOwner(ctx context.Context, owner kube.ObjectRef, podSpecHash, pluginConfigHash string, io rbacassessment.Reader) (bool, error) {
 	report, err := io.FindReportByOwner(ctx, owner)
 	if err != nil {
 		return false, err

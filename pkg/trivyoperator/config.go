@@ -97,6 +97,11 @@ const (
 	KeyNodeCollectorNodeSelector           = "node.collector.nodeSelector"
 )
 
+const (
+	TrueString  = "true"
+	FalseString = "false"
+)
+
 // ConfigData holds Trivy-operator configuration settings as a set of key-value
 // pairs.
 type ConfigData map[string]string
@@ -152,7 +157,7 @@ func (c ConfigData) getBoolKey(key string) bool {
 	if value, ok = c[key]; !ok {
 		return false
 	}
-	return value == "true"
+	return value == TrueString
 }
 
 func (c ConfigData) GetVulnerabilityReportsScanner() (Scanner, error) {
@@ -205,7 +210,7 @@ func (c ConfigData) ExcludeImages() []string {
 	var patterns []string
 	if excludeImagesPattern, ok := c[keyScanJobExcludeImags]; ok {
 		for _, s := range strings.Split(excludeImagesPattern, ",") {
-			if len(strings.TrimSpace(s)) == 0 {
+			if strings.TrimSpace(s) == "" {
 				continue
 			}
 			patterns = append(patterns, strings.TrimSpace(s))
@@ -239,7 +244,7 @@ func (c ConfigData) UseNodeCollectorNodeSelector() bool {
 	if !ok {
 		return true
 	}
-	return val == "true"
+	return val == TrueString
 }
 
 func (c ConfigData) GetNodeCollectorVolumes() ([]corev1.Volume, error) {
@@ -326,7 +331,7 @@ func (c ConfigData) GetScanJobUseGCRServiceAccount() bool {
 	if !ok {
 		return true
 	}
-	return val == "true"
+	return val == TrueString
 }
 
 func (c ConfigData) GetSkipInitContainers() bool {

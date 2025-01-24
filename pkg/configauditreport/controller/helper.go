@@ -61,7 +61,7 @@ func evaluate(ctx context.Context, policies *policy.Policies, resource client.Ob
 			continue
 		}
 		currentCheck := getCheck(result, id)
-		if len(currentCheck.Messages) == 0 || (len(currentCheck.Messages) == 1 && len(strings.TrimSpace(currentCheck.Messages[0])) == 0) {
+		if len(currentCheck.Messages) == 0 || (len(currentCheck.Messages) == 1 && strings.TrimSpace(currentCheck.Messages[0]) == "") {
 			continue
 		}
 		if infraCheck(id) {

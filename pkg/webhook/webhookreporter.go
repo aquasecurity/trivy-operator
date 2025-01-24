@@ -112,7 +112,7 @@ func sendReport[T any](reports T, endpoint string, timeout time.Duration, header
 		Timeout: timeout,
 	}
 
-	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(b))
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(b))
 	if err != nil {
 		return fmt.Errorf("failed to make a new request: %w", err)
 	}
@@ -120,7 +120,8 @@ func sendReport[T any](reports T, endpoint string, timeout time.Duration, header
 	headerValues.Set("Content-Type", "application/json")
 	req.Header = headerValues
 
-	_, err = hc.Do(req)
+	resp, err := hc.Do(req)
+	defer func() { _ = resp.Body.Close() }()
 	if err != nil {
 		return fmt.Errorf("failed to send reports to endpoint: %w", err)
 	}

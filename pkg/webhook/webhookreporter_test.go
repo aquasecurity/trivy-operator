@@ -89,7 +89,7 @@ func Test_sendReports(t *testing.T) {
 			gotError := sendReport(tc.inputReport, ts.URL, tc.timeout, tc.headerValues)
 			switch {
 			case tc.expectedError != "":
-				assert.ErrorContains(t, gotError, tc.expectedError, tc.name)
+				require.ErrorContains(t, gotError, tc.expectedError, tc.name)
 			default:
 				require.NoError(t, gotError, tc.name)
 			}

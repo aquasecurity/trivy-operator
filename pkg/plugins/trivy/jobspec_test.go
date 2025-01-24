@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -38,10 +39,10 @@ func TestCreateSbomDataSecret(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			sbomFile, err := os.ReadFile(tc.sbomDataFilePath)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			var bom v1alpha1.BOM
-			err = json.Unmarshal([]byte(sbomFile), &bom)
-			assert.NoError(t, err)
+			err = json.Unmarshal(sbomFile, &bom)
+			require.NoError(t, err)
 			got, err := trivy.CreateSbomDataAsSecret(bom, tc.secretName)
 			if err == nil {
 				assert.Equal(t, tc.wantSecret, got)
@@ -73,14 +74,15 @@ func TestCreateVolumes(t *testing.T) {
 	tc := testCases[0]
 	t.Run(tc.name, func(t *testing.T) {
 		trivy.CreateVolumeSbomFiles(&tc.vm, &tc.v, &tc.sn, tc.fn, tc.mountPath, tc.cName)
-		assert.Equal(t, len(tc.vm), 1)
-		assert.Equal(t, len(tc.v), 1)
-		assert.Equal(t, tc.vm[0].Name, "sbomvol-cname")
-		assert.Equal(t, tc.vm[0].MountPath, "/sbom-cname")
-		assert.Equal(t, tc.v[0].Name, "sbomvol-cname")
-		assert.Equal(t, tc.v[0].Secret.SecretName, tc.sn)
-		assert.Equal(t, tc.v[0].Secret.Items[0].Key, "bom")
-		assert.Equal(t, tc.v[0].Secret.Items[0].Path, tc.fn)
+
+		assert.Len(t, tc.vm, 1)
+		assert.Len(t, tc.v, 1)
+		assert.Equal(t, "sbomvol-cname", tc.vm[0].Name)
+		assert.Equal(t, "/sbom-cname", tc.vm[0].MountPath)
+		assert.Equal(t, "sbomvol-cname", tc.v[0].Name)
+		assert.Equal(t, tc.sn, tc.v[0].Secret.SecretName)
+		assert.Equal(t, "bom", tc.v[0].Secret.Items[0].Key)
+		assert.Equal(t, tc.fn, tc.v[0].Secret.Items[0].Path)
 	})
 
 }

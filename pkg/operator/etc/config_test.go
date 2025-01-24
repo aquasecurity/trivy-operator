@@ -203,7 +203,7 @@ func TestOperator_GetPrivateRegistryScanSecretsNames(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			secrets, err := tc.operator.GetPrivateRegistryScanSecretsNames()
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, tc.expectedNameSpaceSecrets, secrets)
 		})
 	}

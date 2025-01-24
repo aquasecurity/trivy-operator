@@ -153,9 +153,9 @@ func TestConfig_Read(t *testing.T) {
 			err := dockerConfig.Read([]byte(tc.givenJSON), tc.isLegacy)
 			switch {
 			case tc.expectedError != nil:
-				assert.EqualError(t, err, tc.expectedError.Error())
+				require.EqualError(t, err, tc.expectedError.Error())
 			default:
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Equal(t, tc.expectedAuth, dockerConfig.Auths)
 			}
 		})

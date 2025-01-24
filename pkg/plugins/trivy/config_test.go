@@ -114,12 +114,12 @@ func TestConfig_GetAdditionalVulnerabilityReportFields(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			addFields := tc.configData.GetAdditionalVulnerabilityReportFields()
-			assert.True(t, addFields.Description == tc.additionalFields.Description)
-			assert.True(t, addFields.CVSS == tc.additionalFields.CVSS)
-			assert.True(t, addFields.Target == tc.additionalFields.Target)
-			assert.True(t, addFields.PackageType == tc.additionalFields.PackageType)
-			assert.True(t, addFields.Class == tc.additionalFields.Class)
-			assert.True(t, addFields.Links == tc.additionalFields.Links)
+			assert.Equal(t, tc.additionalFields.Description, addFields.Description)
+			assert.Equal(t, tc.additionalFields.CVSS, addFields.CVSS)
+			assert.Equal(t, tc.additionalFields.Target, addFields.Target)
+			assert.Equal(t, tc.additionalFields.PackageType, addFields.PackageType)
+			assert.Equal(t, tc.additionalFields.Class, addFields.Class)
+			assert.Equal(t, tc.additionalFields.Links, addFields.Links)
 		})
 	}
 }
@@ -216,7 +216,7 @@ func TestGetSlow(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			got := tc.configData.GetSlow()
-			assert.Equal(t, got, tc.want)
+			assert.Equal(t, tc.want, got)
 
 		})
 	}
@@ -327,7 +327,7 @@ func TestVulnType(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			got := tc.configData.GetVulnType()
-			assert.Equal(t, got, tc.want)
+			assert.Equal(t, tc.want, got)
 
 		})
 	}
@@ -703,7 +703,7 @@ func TestPlugin_Init(t *testing.T) {
 			Get()
 		p := NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &or)
 		err := p.Init(pluginContext)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		var cm corev1.ConfigMap
 		err = testClient.Get(context.Background(), types.NamespacedName{
 			Namespace: "trivyoperator-ns",
@@ -768,7 +768,7 @@ func TestPlugin_Init(t *testing.T) {
 
 		p := NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
 		err := p.Init(pluginContext)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		var cm corev1.ConfigMap
 		err = testClient.Get(context.Background(), types.NamespacedName{
 			Namespace: "trivyoperator-ns",
@@ -906,7 +906,7 @@ func TestPlugin_GetIncludeDevDeps(t *testing.T) {
 				},
 			}
 			got := config.GetIncludeDevDeps()
-			assert.Equal(t, got, tc.want)
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -938,7 +938,7 @@ func TestPlugin_GetSbomSources(t *testing.T) {
 				},
 			}
 			got := config.GetSbomSources()
-			assert.Equal(t, got, tc.want)
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }

@@ -819,7 +819,7 @@ func getPolicyResults(results scan.Results) Results {
 	prs := make(Results, 0)
 	for _, result := range results {
 		var msgs []string
-		if len(result.Description()) > 0 {
+		if result.Description() != "" {
 			msgs = []string{result.Description()}
 		} else {
 			msgs = nil

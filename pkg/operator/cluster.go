@@ -11,7 +11,6 @@ import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
 	k8sapierror "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -94,7 +93,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 		resourceRef := kube.ObjectRefFromKindAndObjectKey(resourceKind, req.NamespacedName)
 		obj, err := r.ObjectFromObjectRef(ctx, resourceRef)
 		if err != nil {
-			if errors.IsNotFound(err) {
+			if k8sapierror.IsNotFound(err) {
 				log.V(1).Info("Ignoring cached resource that must have been deleted")
 				r.clusterCache.Delete(resourceRef.Name)
 				return ctrl.Result{}, nil
@@ -236,7 +235,7 @@ func (r *ClusterController) reconcileKbom() reconcile.Func {
 		log.V(1).Info("Getting node from cache")
 		err := r.Client.Get(ctx, req.NamespacedName, kbom)
 		if err != nil {
-			if errors.IsNotFound(err) {
+			if k8sapierror.IsNotFound(err) {
 				log.V(1).Info("Ignoring cached kbom that must have been deleted")
 				return ctrl.Result{}, nil
 			}

@@ -880,8 +880,8 @@ func TestGetActivePodsMatchingLabels(t *testing.T) {
 		ctx := context.TODO()
 		or := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		pods, err := or.GetActivePodsMatchingLabels(ctx, nginxReplicaSet.Namespace, nginxReplicaSet.GetLabels())
-		assert.NoError(t, err)
-		assert.Equal(t, len(pods), 1)
+		require.NoError(t, err)
+		assert.Len(t, pods, 1)
 	})
 	t.Run("active pods not found", func(t *testing.T) {
 		ctx := context.TODO()
@@ -890,7 +890,7 @@ func TestGetActivePodsMatchingLabels(t *testing.T) {
 			"app":               "nginx",
 			"pod-template-hash": "6d4cf56db5"})
 		assert.Equal(t, err, kube.ErrNoRunningPods)
-		assert.Equal(t, len(pods), 0)
+		assert.Empty(t, pods)
 	})
 }
 

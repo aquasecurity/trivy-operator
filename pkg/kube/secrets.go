@@ -28,7 +28,7 @@ func MapContainerNamesToDockerAuths(images ContainerImages, auths map[string]doc
 			mapping[containerName] = auth
 		}
 		if len(wildcardServers) > 0 {
-			if wildcardDomain := matchSubDomain(wildcardServers, server); len(wildcardDomain) > 0 {
+			if wildcardDomain := matchSubDomain(wildcardServers, server); wildcardDomain != "" {
 				if auth, ok := auths[wildcardDomain]; ok {
 					mapping[containerName] = auth
 				}

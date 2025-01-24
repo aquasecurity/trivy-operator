@@ -312,8 +312,8 @@ func TestImageRef(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			ref, err := sbomreport.ImageRef(tc.imageID)
-			assert.NoError(t, err)
-			assert.Equal(t, ref, tc.want)
+			require.NoError(t, err)
+			assert.Equal(t, tc.want, ref)
 		})
 
 	}

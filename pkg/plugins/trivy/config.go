@@ -401,7 +401,7 @@ func (c Config) GenerateIgnoreFileVolumeIfAvailable(trivyConfigName string) (*co
 
 func (c Config) GenerateSslCertDirVolumeIfAvailable(trivyConfigName string) (*corev1.Volume, *corev1.VolumeMount) {
 	var sslCertDirHost string
-	if sslCertDirHost = c.GetSslCertDir(); len(sslCertDirHost) == 0 {
+	if sslCertDirHost = c.GetSslCertDir(); sslCertDirHost == "" {
 		return nil, nil
 	}
 	volume := corev1.Volume{

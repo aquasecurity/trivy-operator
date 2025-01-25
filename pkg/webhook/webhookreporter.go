@@ -121,7 +121,11 @@ func sendReport[T any](reports T, endpoint string, timeout time.Duration, header
 	req.Header = headerValues
 
 	resp, err := hc.Do(req)
-	defer func() { _ = resp.Body.Close() }()
+	defer func() {
+		if resp != nil {
+			_ = resp.Body.Close()
+		}
+	}()
 	if err != nil {
 		return fmt.Errorf("failed to send reports to endpoint: %w", err)
 	}

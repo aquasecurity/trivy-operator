@@ -307,7 +307,7 @@ func createDataFS(dataPaths []string, k8sVersion string) (fs.FS, []string, error
 		if err := fsys.MkdirAll("system", 0700); err != nil {
 			return nil, nil, err
 		}
-		data := []byte(fmt.Sprintf(`{"k8s": {"version": "%q"}}`, k8sVersion))
+		data := []byte(fmt.Sprintf(`{"k8s": {"version": %q}}`, k8sVersion))
 		if err := fsys.WriteVirtualFile("system/k8s-version.json", data, 0600); err != nil {
 			return nil, nil, err
 		}

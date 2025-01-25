@@ -77,6 +77,6 @@ func TestTTLIsExpired(t *testing.T) {
 	creationTime := time.Now()
 	then := creationTime.Add(time.Duration(-10) * time.Minute)
 	ttlExpired, duration := IsTTLExpired(ttlReportTime, then, ext.NewSystemClock())
-	assert.LessOrEqual(t, duration, 0)
+	assert.True(t, duration <= 0) // nolint: testifylint
 	assert.True(t, ttlExpired)
 }

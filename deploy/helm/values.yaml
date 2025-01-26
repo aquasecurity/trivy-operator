@@ -23,6 +23,19 @@ excludeNamespaces: ""
 # -- extraEnv is a list of extra environment variables for the trivy-operator.
 extraEnv: []
 
+# -- here you can specify hostAliases for deployment (TrivyOperator) and SteatfulSet (TrivyServer)
+# -- If you want to use delete [] and profide ypu settings
+
+hostAliases: []
+# - ip: "127.0.0.1"
+#   hostnames:
+#   - "foo.local"
+#   - "bar.local"
+# - ip: "10.1.2.3"
+#   hostnames:
+#   - "foo.remote"
+#   - "bar.remote"
+
 # -- targetWorkloads is a comma seperated list of Kubernetes workload resources
 # to be included in the vulnerability and config-audit scans
 # if left blank, all workload resources will be scanned
@@ -782,3 +795,4 @@ nodeCollector:
     - name: etc-cni-netd
       hostPath:
         path: /etc/cni/net.d/
+

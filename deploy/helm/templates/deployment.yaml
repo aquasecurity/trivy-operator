@@ -31,6 +31,10 @@ spec:
           {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      {{- if .Values.hostAliases }}
+      hostAliases:
+        {{- toYaml .Values.hostAliases | nindent 8 }}
+      {{- end }}
       serviceAccountName: {{ include "trivy-operator.serviceAccountName" . }}
       automountServiceAccountToken: {{ .Values.automountServiceAccountToken }}
       containers:

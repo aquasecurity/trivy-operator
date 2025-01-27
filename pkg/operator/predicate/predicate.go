@@ -88,6 +88,16 @@ var ManagedByTrivyOperator = predicate.NewPredicateFuncs(func(obj client.Object)
 	return false
 })
 
+var ManagedByKubeEnforcer = predicate.NewPredicateFuncs(func(obj client.Object) bool {
+	if managedBy, ok := obj.GetLabels()["app.kubernetes.io/managed-by"]; ok {
+		return managedBy == "KubeEnforcer"
+	}
+	if app, ok := obj.GetLabels()["app"]; ok {
+		return app == "kube-bench"
+	}
+	return false
+})
+
 // IsBeingTerminated is a predicate.Predicate that returns true if the specified
 // client.Object is being terminated, i.e. its DeletionTimestamp property is set to non nil value.
 var IsBeingTerminated = predicate.NewPredicateFuncs(func(obj client.Object) bool {

@@ -74,6 +74,7 @@ func (r *ClusterController) SetupWithManager(mgr ctrl.Manager) error {
 			For(resource.ForObject, builder.WithPredicates(
 				predicate.IsCoreComponents,
 				predicate.Not(predicate.ManagedByTrivyOperator),
+				predicate.Not(predicate.ManagedByKubeEnforcer),
 				predicate.Not(predicate.IsBeingTerminated))).
 			Owns(resource.OwnsObject).
 			Complete(r.reconcileClusterComponents(resource.Kind)); err != nil {

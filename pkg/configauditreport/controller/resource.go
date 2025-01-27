@@ -130,6 +130,7 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		}).For(resource.ForObject, builder.WithPredicates(
 			predicate.Not(predicate.ManagedByTrivyOperator),
 			predicate.Not(predicate.IsBeingTerminated),
+			predicate.Not(predicate.ManagedByKubeEnforcer),
 		)).Owns(resource.OwnsObject).Complete(r.reconcileResource(resource.Kind)); err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", resource.Kind, err)
 		}
@@ -147,6 +148,7 @@ func (r *ResourceController) buildControlMgr(mgr ctrl.Manager, configResource ku
 			predicate.Not(predicate.ManagedByTrivyOperator),
 			predicate.Not(predicate.IsLeaderElectionResource),
 			predicate.Not(predicate.IsBeingTerminated),
+			predicate.Not(predicate.ManagedByKubeEnforcer),
 			installModePredicate,
 		)).
 		Owns(configResource.OwnsObject)

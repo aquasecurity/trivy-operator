@@ -151,7 +151,7 @@ func getPkgList(ctx trivyoperator.PluginContext) string {
 }
 
 func getSecurityChecks(ctx trivyoperator.PluginContext) string {
-	var securityChecks []string
+	securityChecks := make([]string, 0)
 
 	c := ctx.GetTrivyOperatorConfig()
 	if c.VulnerabilityScannerEnabled() {

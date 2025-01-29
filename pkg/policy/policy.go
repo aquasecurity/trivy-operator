@@ -137,7 +137,7 @@ func (p *Policies) loadPolicies(kind string) ([]string, error) {
 	for _, mod := range modByKind {
 		externalPolicies = append(externalPolicies, mod)
 	}
-	var policies []string
+	policies := make([]string, 0)
 	// read built-in policies
 	if p.cac.GetUseBuiltinRegoPolicies() {
 		policies, _, err = p.policyLoader.GetPoliciesAndBundlePath()

@@ -7025,7 +7025,7 @@ func TestGetContainers(t *testing.T) {
 			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil, make(map[string]v1alpha1.SbomReportData))
 			require.NoError(t, err)
 
-			var containers []string
+			containers := make([]string, 0)
 
 			for _, c := range jobSpec.Containers {
 				containers = append(containers, c.Name)

@@ -95,7 +95,7 @@ func MapDockerRegistryServersToAuths(imagePullSecrets []corev1.Secret, multiSecr
 }
 
 func GetWildcardServers(auths map[string]docker.Auth) []string {
-	var wildcardServers []string
+	wildcardServers := make([]string, 0)
 	for server := range auths {
 		if strings.HasPrefix(server, "*.") {
 			wildcardServers = append(wildcardServers, server)
@@ -190,7 +190,7 @@ func (r *secretsReader) ListImagePullSecretsByPodSpec(ctx context.Context, spec 
 }
 
 func (r *secretsReader) GetSecretsFromEnv(ctx context.Context, secretsInfo map[string]string) ([]corev1.Secret, error) {
-	var secretsFromEnv []corev1.Secret
+	secretsFromEnv := make([]corev1.Secret, 0)
 
 	for ns, secretNames := range secretsInfo {
 		secretNamesValues := strings.Split(secretNames, ",")

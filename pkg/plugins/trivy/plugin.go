@@ -179,8 +179,8 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 			return vulnReport, secretReport, nil, err
 		}
 	}
-	var vulnerabilities []v1alpha1.Vulnerability
-	var secrets []v1alpha1.ExposedSecret
+	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
+	secrets := make([]v1alpha1.ExposedSecret, 0)
 	for _, report := range reports.Results {
 		addFields := config.GetAdditionalVulnerabilityReportFields()
 		vulnerabilities = append(vulnerabilities, vulnerabilityreport.GetVulnerabilitiesFromScanResult(report, addFields)...)
@@ -193,7 +193,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 }
 
 func getExposedSecretsFromScanResult(report ty.Result) []v1alpha1.ExposedSecret {
-	var secrets []v1alpha1.ExposedSecret
+	secrets := make([]v1alpha1.ExposedSecret, 0)
 
 	for _, sr := range report.Secrets {
 		secrets = append(secrets, v1alpha1.ExposedSecret{

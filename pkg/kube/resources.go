@@ -19,7 +19,7 @@ const KubeSystemNamespace = "kube-system"
 // to container images from the specified v1.PodSpec.
 func GetContainerImagesFromPodSpec(spec corev1.PodSpec, skipInitContainers bool) ContainerImages {
 	images := ContainerImages{}
-	var containers []corev1.Container
+	containers := make([]corev1.Container, 0)
 	containers = append(containers, spec.Containers...)
 	if !skipInitContainers {
 		containers = append(containers, spec.InitContainers...)

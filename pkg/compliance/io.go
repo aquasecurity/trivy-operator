@@ -96,7 +96,7 @@ func (w *cm) buildComplianceReport(spec v1alpha1.ReportSpec, complianceResults [
 
 // MisconfigReportToTrivyResults convert misconfig and infra assessment report Data to trivy results
 func misconfigReportToTrivyResults(cli client.Client, ctx context.Context) ([]ttypes.Results, error) {
-	var resultsArray []ttypes.Results
+	resultsArray := make([]ttypes.Results, 0)
 	// collect configaudit report data
 	caObjList := &v1alpha1.ConfigAuditReportList{}
 	err := cli.List(ctx, caObjList)

@@ -38,7 +38,7 @@ type TTLReportReconciler struct {
 
 func (r *TTLReportReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	// watch reports for ttl
-	var ttlResources []kube.Resource
+	ttlResources := make([]kube.Resource, 0)
 	if r.Config.RbacAssessmentScannerEnabled {
 		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.RbacAssessmentReport{}})
 	}
@@ -165,7 +165,7 @@ type TTLSecretReconciler struct {
 
 func (r *TTLSecretReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	// watch reports for ttl
-	var secretTTLResources []kube.Resource
+	secretTTLResources := make([]kube.Resource, 0)
 	if r.Config.VulnerabilityScannerEnabled || r.Config.ExposedSecretScannerEnabled {
 		secretTTLResources = append(secretTTLResources, kube.Resource{ForObject: &corev1.Secret{}})
 	}

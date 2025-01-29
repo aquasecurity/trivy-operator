@@ -122,8 +122,8 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 		}
 		r.clusterCache.Store(key, val)
 
-		var components []bom.Component
-		var nodeInfo []bom.NodeInfo
+		components := make([]bom.Component, 0)
+		nodeInfo := make([]bom.NodeInfo, 0)
 		r.clusterCache.Range(func(_, value any) bool {
 			switch p := value.(type) {
 			case *bom.Component:

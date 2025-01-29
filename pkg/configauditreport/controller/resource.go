@@ -373,7 +373,7 @@ func getCheck(result scan.Result, id string) v1alpha1.Check {
 
 func clusterRbacReportItems(crar *v1alpha1.ClusterRbacAssessmentReportList) func() []client.Object {
 	return func() []client.Object {
-		var objlist []client.Object
+		objlist := make([]client.Object, 0)
 		for idx := range crar.Items {
 			objlist = append(objlist, &crar.Items[idx])
 		}
@@ -383,7 +383,7 @@ func clusterRbacReportItems(crar *v1alpha1.ClusterRbacAssessmentReportList) func
 
 func rbacReportItems(rar *v1alpha1.RbacAssessmentReportList) func() []client.Object {
 	return func() []client.Object {
-		var objlist []client.Object
+		objlist := make([]client.Object, 0)
 		for idx := range rar.Items {
 			objlist = append(objlist, &rar.Items[idx])
 		}
@@ -393,7 +393,7 @@ func rbacReportItems(rar *v1alpha1.RbacAssessmentReportList) func() []client.Obj
 
 func infraReportItems(rar *v1alpha1.InfraAssessmentReportList) func() []client.Object {
 	return func() []client.Object {
-		var objlist []client.Object
+		objlist := make([]client.Object, 0)
 		for idx := range rar.Items {
 			objlist = append(objlist, &rar.Items[idx])
 		}
@@ -403,7 +403,7 @@ func infraReportItems(rar *v1alpha1.InfraAssessmentReportList) func() []client.O
 
 func clusterAuditConfigReportItems(ccar *v1alpha1.ClusterConfigAuditReportList) func() []client.Object {
 	return func() []client.Object {
-		var objlist []client.Object
+		objlist := make([]client.Object, 0)
 		for idx := range ccar.Items {
 			objlist = append(objlist, &ccar.Items[idx])
 		}
@@ -412,7 +412,7 @@ func clusterAuditConfigReportItems(ccar *v1alpha1.ClusterConfigAuditReportList) 
 }
 func auditConfigReportItems(car *v1alpha1.ConfigAuditReportList) func() []client.Object {
 	return func() []client.Object {
-		var objlist []client.Object
+		objlist := make([]client.Object, 0)
 		for idx := range car.Items {
 			objlist = append(objlist, &car.Items[idx])
 		}

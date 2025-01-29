@@ -142,7 +142,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 		VolumeMounts:    volumeMounts,
 	}
 
-	var containers []corev1.Container
+	containers := make([]corev1.Container, 0)
 
 	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
 	volumes = append(volumes, getScanResultVolume())
@@ -344,7 +344,7 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 		VolumeMounts:    volumeMounts,
 	}
 
-	var containers []corev1.Container
+	containers := make([]corev1.Container, 0)
 
 	volumes := []corev1.Volume{
 		{

@@ -169,9 +169,9 @@ type ComplianceCheck struct {
 
 // ToComplianceSpec map data from crd compliance spec to trivy compliance spec
 func ToComplianceSpec(cSpec Compliance) spec.ComplianceSpec {
-	var specControls []defsecTypes.Control
+	specControls := make([]defsecTypes.Control, 0)
 	for _, control := range cSpec.Controls {
-		var sChecks []defsecTypes.SpecCheck
+		sChecks := make([]defsecTypes.SpecCheck, 0)
 		for _, scheck := range control.Checks {
 			sChecks = append(sChecks, defsecTypes.SpecCheck{ID: scheck.ID})
 		}
@@ -197,7 +197,7 @@ func ToComplianceSpec(cSpec Compliance) spec.ComplianceSpec {
 
 // FromSummaryReport map data from trivy summary report to crd summary report
 func FromSummaryReport(sr *report.SummaryReport) *SummaryReport {
-	var summaryControls []ControlCheckSummary
+	summaryControls := make([]ControlCheckSummary, 0)
 	for _, sr := range sr.SummaryControls {
 		summaryControls = append(summaryControls, ControlCheckSummary{
 			ID:        sr.ID,
@@ -215,9 +215,9 @@ func FromSummaryReport(sr *report.SummaryReport) *SummaryReport {
 
 // FromDetailReport map data from trivy summary report to crd summary report
 func FromDetailReport(sr *report.ComplianceReport) *ComplianceReport {
-	var controlResults []*ControlCheckResult
+	controlResults := make([]*ControlCheckResult, 0)
 	for _, sr := range sr.Results {
-		var checks []ComplianceCheck
+		checks := make([]ComplianceCheck, 0)
 		for _, r := range sr.Results {
 			for _, ms := range r.Misconfigurations {
 				checks = append(checks, ComplianceCheck{

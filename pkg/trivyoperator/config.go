@@ -207,7 +207,7 @@ func (c ConfigData) GetScanJobTolerations() ([]corev1.Toleration, error) {
 }
 
 func (c ConfigData) ExcludeImages() []string {
-	var patterns []string
+	patterns := make([]string, 0)
 	if excludeImagesPattern, ok := c[keyScanJobExcludeImags]; ok {
 		for _, s := range strings.Split(excludeImagesPattern, ",") {
 			if strings.TrimSpace(s) == "" {
@@ -231,7 +231,7 @@ func (c ConfigData) GetNodeCollectorTolerations() ([]corev1.Toleration, error) {
 }
 
 func (c ConfigData) GetNodeCollectorImagePullsecret() []corev1.LocalObjectReference {
-	var imagePullSecrets []corev1.LocalObjectReference
+	imagePullSecrets := make([]corev1.LocalObjectReference, 0)
 	imagePullSecretValue := c[KeyNodeCollectorImagePullSecret]
 	if c[KeyNodeCollectorImagePullSecret] != "" {
 		imagePullSecrets = append(imagePullSecrets, corev1.LocalObjectReference{Name: imagePullSecretValue})

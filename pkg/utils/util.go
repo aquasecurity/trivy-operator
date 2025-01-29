@@ -9,7 +9,7 @@ import (
 // MapKinds map resource data
 func MapKinds(kinds []string) []string {
 	set := hashset.New()
-	var updatedKinds []string
+	updatedKinds := make([]string, 0)
 	for _, kind := range kinds {
 		if !kube.IsValidK8sKind(kind) {
 			continue

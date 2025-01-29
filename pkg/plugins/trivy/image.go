@@ -169,7 +169,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 		})
 	}
 
-	var containers []corev1.Container
+	containers := make([]corev1.Container, 0)
 
 	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
 	volumes = append(volumes, getScanResultVolume())
@@ -371,7 +371,7 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 		secrets = append(secrets, secret)
 	}
 
-	var containers []corev1.Container
+	containers := make([]corev1.Container, 0)
 
 	trivyConfigName := trivyoperator.GetPluginConfigMapName(Plugin)
 	// add tmp volume mount

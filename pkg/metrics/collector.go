@@ -534,7 +534,7 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 }
 
 func getDynamicConfigLabels(config trivyoperator.ConfigData) []string {
-	var labels []string
+	labels := make([]string, 0)
 	resourceLabels := config.GetReportResourceLabels()
 	for _, label := range resourceLabels {
 		labels = append(labels, config.GetMetricsResourceLabelsPrefix()+sanitizeLabelName(label))

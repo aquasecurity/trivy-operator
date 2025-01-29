@@ -85,7 +85,7 @@ type ConfigAuditReportData struct {
 	Summary ConfigAuditSummary `json:"summary"`
 
 	// Checks provides results of conducting audit steps.
-	Checks []Check `json:"checks,omitempty"`
+	Checks []Check `json:"checks"`
 }
 
 // CheckScope has Type and Value fields to further identify a given Check.

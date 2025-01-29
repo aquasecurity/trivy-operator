@@ -81,7 +81,7 @@ type RbacAssessmentReportData struct {
 	Summary RbacAssessmentSummary `json:"summary"`
 
 	// Checks provides results of conducting audit steps.
-	Checks []Check `json:"checks,omitempty"`
+	Checks []Check `json:"checks"`
 }
 
 func RbacAssessmentSummaryFromChecks(checks []Check) RbacAssessmentSummary {

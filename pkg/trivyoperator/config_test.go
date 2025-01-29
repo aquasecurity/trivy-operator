@@ -223,8 +223,9 @@ func TestConfigData_GetImagePullSecret(t *testing.T) {
 		expectError string
 	}{
 		{
-			name:   "no image pull secrets in ConfigData",
-			config: trivyoperator.ConfigData{},
+			name:     "no image pull secrets in ConfigData",
+			config:   trivyoperator.ConfigData{},
+			expected: []corev1.LocalObjectReference{},
 		},
 		{
 			name: "one valid imagePullSecret",
@@ -1129,9 +1130,10 @@ func TestConfigData_GetExcludeImages(t *testing.T) {
 			expected: []string{"docker.io/*"},
 		},
 		{
-			name:  "no pattern",
-			key:   "scanJob.excludeImages",
-			value: "",
+			name:     "no pattern",
+			key:      "scanJob.excludeImages",
+			value:    "",
+			expected: []string{},
 		},
 	}
 	for _, tc := range testCases {

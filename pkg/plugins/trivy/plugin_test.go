@@ -6542,6 +6542,7 @@ var (
 		Artifact: v1alpha1.Artifact{
 			Repository: "library/alpine",
 			Tag:        "3.10.2",
+			Digest:     "sha256:72c42ed48c3a2db31b7dafe17d275b634664a708d901ec9fd57b1529280f01fb",
 		},
 		OS: v1alpha1.OS{
 			Family: "alpine",
@@ -6592,6 +6593,7 @@ var (
 		Artifact: v1alpha1.Artifact{
 			Repository: "library/alpine",
 			Tag:        "3.10.2",
+			Digest:     "sha256:72c42ed48c3a2db31b7dafe17d275b634664a708d901ec9fd57b1529280f01fb",
 		},
 		Summary: v1alpha1.ExposedSecretSummary{
 			CriticalCount: 3,
@@ -6648,6 +6650,7 @@ var (
 		Artifact: v1alpha1.Artifact{
 			Repository: "library/alpine",
 			Tag:        "3.10.2",
+			Digest:     "sha256:72c42ed48c3a2db31b7dafe17d275b634664a708d901ec9fd57b1529280f01fb",
 		},
 		OS: v1alpha1.OS{
 			Family: "alpine",
@@ -6678,6 +6681,7 @@ var (
 		Artifact: v1alpha1.Artifact{
 			Repository: "library/alpine",
 			Tag:        "3.10.2",
+			Digest:     "sha256:72c42ed48c3a2db31b7dafe17d275b634664a708d901ec9fd57b1529280f01fb",
 		},
 		Summary: v1alpha1.ExposedSecretSummary{
 			CriticalCount: 0,

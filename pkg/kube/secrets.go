@@ -143,7 +143,7 @@ type secretsReader struct {
 }
 
 func (r *secretsReader) ListByLocalObjectReferences(ctx context.Context, refs []corev1.LocalObjectReference, ns string) ([]corev1.Secret, error) {
-	var secrets []corev1.Secret
+	secrets := make([]corev1.Secret, 0)
 
 	for _, secretRef := range refs {
 		var secret corev1.Secret

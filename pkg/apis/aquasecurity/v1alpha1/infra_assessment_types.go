@@ -80,7 +80,7 @@ type InfraAssessmentReportData struct {
 	Summary InfraAssessmentSummary `json:"summary"`
 
 	// Checks provides results of conducting audit steps.
-	Checks []Check `json:"checks"`
+	Checks []Check `json:"checks,omitempty"`
 }
 
 func InfraAssessmentSummaryFromChecks(checks []Check) InfraAssessmentSummary {

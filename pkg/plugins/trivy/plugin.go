@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"path/filepath"
+	"strings"
 
 	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
 	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
@@ -154,7 +155,9 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 		return vulnReport, secretReport, nil, err
 	}
 
-	registry, artifact, err := p.parseImageRef(imageRef, reports.Metadata.ImageID)
+	imageDigest := p.getImageDigest(reports)
+
+	registry, artifact, err := p.parseImageRef(imageRef, imageDigest)
 	if err != nil {
 		return vulnReport, secretReport, nil, err
 	}
@@ -212,7 +215,7 @@ func (p *plugin) NewConfigForConfigAudit(ctx trivyoperator.PluginContext) (confi
 	return getConfig(ctx)
 }
 
-func (p *plugin) parseImageRef(imageRef string, imageID string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
+func (p *plugin) parseImageRef(imageRef string, imageDigest string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
 	ref, err := containerimage.ParseReference(imageRef)
 	if err != nil {
 		return v1alpha1.Registry{}, v1alpha1.Artifact{}, err
@@ -230,7 +233,7 @@ func (p *plugin) parseImageRef(imageRef string, imageID string) (v1alpha1.Regist
 		artifact.Digest = t.DigestStr()
 	}
 	if len(artifact.Digest) == 0 {
-		artifact.Digest = imageID
+		artifact.Digest = imageDigest
 	}
 	return registry, artifact, nil
 }
@@ -260,4 +263,18 @@ func ExcludeImage(excludeImagePattern []string, imageName string) bool {
 		}
 	}
 	return false
+}
+
+// getImageDigest extracts the image digest from the report metadata, returns empty string if not available
+func (p *plugin) getImageDigest(reports ty.Report) (string) {
+    if len(reports.Metadata.RepoDigests) == 0 {
+        return ""
+    }
+
+    split := strings.Split(reports.Metadata.RepoDigests[0], "@")
+    if len(split) < 2 {
+        return ""
+    }
+
+    return split[1]
 }

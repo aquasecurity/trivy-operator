@@ -24,7 +24,7 @@ excludeNamespaces: ""
 extraEnv: []
 
 # -- here you can specify hostAliases for deployment (TrivyOperator) and SteatfulSet (TrivyServer)
-# -- If you want to use delete [] and profide ypu settings
+# -- If you want to use delete [] and profide your settings
 
 hostAliases: []
 # - ip: "127.0.0.1"

@@ -155,10 +155,10 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 
 	imageDigest := p.getImageDigest(reports)
 
-	registry, artifact, err := p.parseImageRef(imageRef, imageDigest)
+	registry, artifact, err := ParseImageRef(imageRef, imageDigest)
 	if err != nil {
 		return vulnReport, secretReport, nil, err
-	}
+	}	
 
 	os := p.parseOSRef(reports)
 
@@ -213,26 +213,55 @@ func (p *plugin) NewConfigForConfigAudit(ctx trivyoperator.PluginContext) (confi
 	return getConfig(ctx)
 }
 
-func (p *plugin) parseImageRef(imageRef, imageDigest string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
-	ref, err := containerimage.ParseReference(imageRef)
+func ParseImageRef(imageRef string, imageDigest string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
+	parts := strings.Split(imageRef, "@")
+	namePart := parts[0]
+	var hasDigest bool
+	var hasTag bool
+	if len(parts) > 1 {
+		hasDigest = true
+	}
+	if len(strings.Split(namePart,":"))>1{ 
+		hasTag = true
+	}
+
+	ref, err := containerimage.ParseReference(namePart, containerimage.WeakValidation)
 	if err != nil {
 		return v1alpha1.Registry{}, v1alpha1.Artifact{}, err
 	}
+
 	registry := v1alpha1.Registry{
 		Server: ref.Context().RegistryStr(),
 	}
 	artifact := v1alpha1.Artifact{
 		Repository: ref.Context().RepositoryStr(),
 	}
-	switch t := ref.(type) {
-	case containerimage.Tag:
-		artifact.Tag = t.TagStr()
-	case containerimage.Digest:
-		artifact.Digest = t.DigestStr()
+
+	tagged, ok := ref.(containerimage.Tag)
+	switch {
+	case ok && hasTag:
+		artifact.Tag = tagged.TagStr()
+	case ok && !hasTag && !hasDigest:
+		artifact.Tag = tagged.TagStr()
+	case ok && hasTag && hasDigest:
+		artifact.Tag = tagged.TagStr()
 	}
-	if artifact.Digest == "" {
+
+	if hasDigest {
+		digestRef, err := containerimage.ParseReference(imageRef, containerimage.WeakValidation)
+		if err != nil {
+			return v1alpha1.Registry{}, v1alpha1.Artifact{}, err
+		}
+		digested, ok := digestRef.(containerimage.Digest)
+		if ok {
+			artifact.Digest = digested.DigestStr()
+		}
+	}
+
+	if len(artifact.Digest) == 0 {
 		artifact.Digest = imageDigest
 	}
+	
 	return registry, artifact, nil
 }
 

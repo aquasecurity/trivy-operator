@@ -79,7 +79,7 @@ jobs:
       - name: Set up python
         uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
         with:
-          python-version: 3.7
+          python-version: 3.8
       - name: Setup chart-testing
         id: lint
         uses: helm/chart-testing-action@v2.7.0

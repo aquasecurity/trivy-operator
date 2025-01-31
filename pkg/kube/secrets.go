@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	corev1 "k8s.io/api/core/v1"
 	k8sapierror "k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/aquasecurity/trivy-operator/pkg/docker"
 )
 
 // MapContainerNamesToDockerAuths creates the mapping from a container name to the Docker authentication
@@ -27,7 +28,7 @@ func MapContainerNamesToDockerAuths(images ContainerImages, auths map[string]doc
 			mapping[containerName] = auth
 		}
 		if len(wildcardServers) > 0 {
-			if wildcardDomain := matchSubDomain(wildcardServers, server); len(wildcardDomain) > 0 {
+			if wildcardDomain := matchSubDomain(wildcardServers, server); wildcardDomain != "" {
 				if auth, ok := auths[wildcardDomain]; ok {
 					mapping[containerName] = auth
 				}

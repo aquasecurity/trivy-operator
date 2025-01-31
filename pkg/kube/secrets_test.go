@@ -6,17 +6,17 @@ import (
 	"os"
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
-
-	. "github.com/onsi/gomega"
-	. "github.com/onsi/gomega/gstruct"
 
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	corev1 "k8s.io/api/core/v1"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+
+	. "github.com/onsi/gomega"
+	. "github.com/onsi/gomega/gstruct"
 )
 
 func TestMapDockerRegistryServersToAuths(t *testing.T) {
@@ -51,7 +51,7 @@ func TestMapDockerRegistryServersToAuths(t *testing.T) {
 		}, false)
 		wildcardServers := kube.GetWildcardServers(auths)
 		g.Expect(err).ToNot(HaveOccurred())
-		assert.Equal(t, len(wildcardServers), 1)
+		assert.Len(t, wildcardServers, 1)
 		g.Expect(auths).To(MatchAllKeys(Keys{
 			"*.docker.io": Equal(docker.Auth{
 				Auth:     "cm9vdDpzM2NyZXQ=",
@@ -95,7 +95,7 @@ func TestMapDockerRegistryServersToAuths(t *testing.T) {
 		}, false)
 		wildcardServers := kube.GetWildcardServers(auths)
 		g.Expect(err).ToNot(HaveOccurred())
-		assert.Equal(t, len(wildcardServers), 0)
+		assert.Empty(t, wildcardServers)
 		g.Expect(auths).To(MatchAllKeys(Keys{
 			"index.docker.io": Equal(docker.Auth{
 				Auth:     "cm9vdDpzM2NyZXQ=",
@@ -127,7 +127,7 @@ func TestMapDockerRegistryServersToAuths(t *testing.T) {
 		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
 		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
 		require.NoError(t, err)
-		assert.True(t, len(foundsecret) == 2)
+		assert.Len(t, foundsecret, 2)
 		auths, err := kube.MapDockerRegistryServersToAuths(foundsecret, false)
 		require.NoError(t, err)
 
@@ -160,7 +160,7 @@ func TestMapDockerRegistryServersToAuths(t *testing.T) {
 		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
 		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
 		require.NoError(t, err)
-		assert.True(t, len(foundsecret) == 2)
+		assert.Len(t, foundsecret, 2)
 		auths, err := kube.MapDockerRegistryServersToAuths(foundsecret, true)
 		require.NoError(t, err)
 
@@ -274,7 +274,7 @@ func TestListImagePullSecretsByPodSpec(t *testing.T) {
 		sr := kube.NewSecretsReader(client)
 		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
 		require.NoError(t, err)
-		assert.True(t, len(foundsecret) == 0)
+		assert.Empty(t, foundsecret)
 	})
 
 	t.Run("Test with no service account but with one secrets should return one pull image secret from corev1.Secret", func(t *testing.T) {
@@ -289,7 +289,7 @@ func TestListImagePullSecretsByPodSpec(t *testing.T) {
 		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
 		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
 		require.NoError(t, err)
-		assert.True(t, len(foundsecret) == 1)
+		assert.Len(t, foundsecret, 1)
 	})
 
 	t.Run("Test with service account and no secret should return one pull image secret from corev1.ServiceAccount", func(t *testing.T) {
@@ -304,7 +304,7 @@ func TestListImagePullSecretsByPodSpec(t *testing.T) {
 		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
 		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
 		require.NoError(t, err)
-		assert.True(t, len(foundsecret) == 1)
+		assert.Len(t, foundsecret, 1)
 	})
 
 	t.Run("Test with service account and secret should return one pull image secret from corev1.ServiceAccount and corev1.Secret ", func(t *testing.T) {
@@ -322,7 +322,7 @@ func TestListImagePullSecretsByPodSpec(t *testing.T) {
 		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
 		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
 		require.NoError(t, err)
-		assert.True(t, len(foundsecret) == 2)
+		assert.Len(t, foundsecret, 2)
 	})
 
 	t.Run("Test with no service account and no secrets should return error no secret found", func(t *testing.T) {
@@ -331,7 +331,7 @@ func TestListImagePullSecretsByPodSpec(t *testing.T) {
 		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
 		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
 		require.NoError(t, err)
-		assert.True(t, len(foundsecret) == 0)
+		assert.Empty(t, foundsecret)
 	})
 
 	t.Run("Test with service account with bad image pull secret and no secrets should not return error when no secret found", func(t *testing.T) {
@@ -343,11 +343,11 @@ func TestListImagePullSecretsByPodSpec(t *testing.T) {
 		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
 		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
 		require.NoError(t, err)
-		assert.True(t, len(foundsecret) == 0)
+		assert.Empty(t, foundsecret)
 	})
 }
 
-func loadResource(filePath string, resource interface{}) error {
+func loadResource(filePath string, resource any) error {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil
@@ -384,7 +384,7 @@ func Test_secretsReader_CredentialsByServer(t *testing.T) {
 			"default": "regcred",
 		}, false)
 		require.NoError(t, err)
-		assert.Equal(t, 1, len(auths))
+		assert.Len(t, auths, 1)
 		assert.Equal(t, map[string]docker.Auth{
 			"quay.io": {Auth: "dXNlcjpBZG1pbjEyMzQ1", Username: "user", Password: "Admin12345"},
 		}, auths)

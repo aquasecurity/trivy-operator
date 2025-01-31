@@ -4,15 +4,16 @@ import (
 	"context"
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 func TestNewReadWriter(t *testing.T) {
@@ -55,7 +56,7 @@ func TestNewReadWriter(t *testing.T) {
 		var list v1alpha1.SbomReportList
 		err = testClient.List(context.TODO(), &list)
 		require.NoError(t, err)
-		reports := map[string]v1alpha1.SbomReport{}
+		reports := make(map[string]v1alpha1.SbomReport)
 		for _, item := range list.Items {
 			reports[item.Name] = item
 		}
@@ -265,7 +266,7 @@ func TestNewReadWriter(t *testing.T) {
 			Namespace: "my-namespace",
 		})
 		require.NoError(t, err)
-		reports := map[string]bool{}
+		reports := make(map[string]bool)
 		for _, item := range list {
 			reports[item.Name] = true
 		}
@@ -283,13 +284,13 @@ func TestImageRef(t *testing.T) {
 		want    string
 	}{
 		{
-			name:    "get image ref with libary",
+			name:    "get image ref with library",
 			imageID: "index.docker.io/library/alpine:3.12.0",
 
 			want: "56bcdb7c95",
 		},
 		{
-			name:    "get image ref without libary",
+			name:    "get image ref without library",
 			imageID: "index.docker.io/alpine:3.12.0",
 
 			want: "56bcdb7c95",
@@ -311,8 +312,8 @@ func TestImageRef(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			ref, err := sbomreport.ImageRef(tc.imageID)
-			assert.NoError(t, err)
-			assert.Equal(t, ref, tc.want)
+			require.NoError(t, err)
+			assert.Equal(t, tc.want, ref)
 		})
 
 	}

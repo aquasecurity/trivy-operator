@@ -3,8 +3,10 @@ package v1alpha1_test
 import (
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 )
 
 func TestStringToSeverity(t *testing.T) {
@@ -41,7 +43,7 @@ func TestStringToSeverity(t *testing.T) {
 			if tc.expectedError != "" {
 				assert.EqualError(t, err, tc.expectedError)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Equal(t, tc.expectedSeverity, severity)
 			}
 		})

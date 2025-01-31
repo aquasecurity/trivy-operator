@@ -3,18 +3,19 @@ package matcher
 import (
 	"fmt"
 
-	. "github.com/onsi/gomega"
-	. "github.com/onsi/gomega/gstruct"
-
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/onsi/gomega/types"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+
+	. "github.com/onsi/gomega"
+	. "github.com/onsi/gomega/gstruct"
 )
 
 var (
@@ -51,7 +52,7 @@ type vulnerabilityReportMatcher struct {
 	negatedFailureMessage string
 }
 
-func (m *vulnerabilityReportMatcher) Match(actual interface{}) (bool, error) {
+func (m *vulnerabilityReportMatcher) Match(actual any) (bool, error) {
 	_, ok := actual.(v1alpha1.VulnerabilityReport)
 	if !ok {
 		return false, fmt.Errorf("%T expects a %T", vulnerabilityReportMatcher{}, v1alpha1.VulnerabilityReport{})
@@ -94,7 +95,7 @@ func (m *vulnerabilityReportMatcher) Match(actual interface{}) (bool, error) {
 	return success, nil
 }
 
-func (m *vulnerabilityReportMatcher) objectToLabelsAsMatchKeys(obj client.Object) (map[interface{}]types.GomegaMatcher, error) {
+func (m *vulnerabilityReportMatcher) objectToLabelsAsMatchKeys(obj client.Object) (map[any]types.GomegaMatcher, error) {
 	kind := obj.GetObjectKind().GroupVersionKind().Kind
 	if kind == "" {
 		gvk, err := apiutil.GVKForObject(m.owner, m.scheme)
@@ -110,19 +111,19 @@ func (m *vulnerabilityReportMatcher) objectToLabelsAsMatchKeys(obj client.Object
 		Namespace: obj.GetNamespace(),
 	})
 
-	keys := make(map[interface{}]types.GomegaMatcher)
+	keys := make(map[any]types.GomegaMatcher)
 	for k, v := range labels {
 		keys[k] = Equal(v)
 	}
 	return keys, nil
 }
 
-func (m *vulnerabilityReportMatcher) FailureMessage(_ interface{}) string {
+func (m *vulnerabilityReportMatcher) FailureMessage(_ any) string {
 	// TODO Add more descriptive message rather than rely on composed matchers' defaults
 	return m.failureMessage
 }
 
-func (m *vulnerabilityReportMatcher) NegatedFailureMessage(_ interface{}) string {
+func (m *vulnerabilityReportMatcher) NegatedFailureMessage(_ any) string {
 	return m.negatedFailureMessage
 }
 
@@ -143,7 +144,7 @@ type configAuditReportMatcher struct {
 	negatedFailureMessage string
 }
 
-func (m *configAuditReportMatcher) Match(actual interface{}) (bool, error) {
+func (m *configAuditReportMatcher) Match(actual any) (bool, error) {
 	_, ok := actual.(v1alpha1.ConfigAuditReport)
 	if !ok {
 		return false, fmt.Errorf("%T expects a %T", configAuditReportMatcher{}, v1alpha1.ConfigAuditReport{})
@@ -182,11 +183,11 @@ func (m *configAuditReportMatcher) Match(actual interface{}) (bool, error) {
 	return success, nil
 }
 
-func (m *configAuditReportMatcher) FailureMessage(_ interface{}) string {
+func (m *configAuditReportMatcher) FailureMessage(_ any) string {
 	// TODO Add more descriptive message rather than rely on composed matchers' defaults
 	return m.failureMessage
 }
 
-func (m *configAuditReportMatcher) NegatedFailureMessage(_ interface{}) string {
+func (m *configAuditReportMatcher) NegatedFailureMessage(_ any) string {
 	return m.negatedFailureMessage
 }

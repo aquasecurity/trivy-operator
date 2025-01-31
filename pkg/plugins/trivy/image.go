@@ -6,17 +6,17 @@ import (
 	"regexp"
 	"strings"
 
+	containerimage "github.com/google/go-containerregistry/pkg/name"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/ptr"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
-	containerimage "github.com/google/go-containerregistry/pkg/name"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type ImageJobSpecMgr struct {
@@ -121,7 +121,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
-	initContainers := []corev1.Container{}
+	var initContainers []corev1.Container
 
 	initContainers = append(initContainers, corev1.Container{
 		Name:                     p.idGenerator.GenerateID(),
@@ -169,7 +169,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 		})
 	}
 
-	var containers []corev1.Container
+	containers := make([]corev1.Container, 0)
 
 	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
 	volumes = append(volumes, getScanResultVolume())
@@ -200,7 +200,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 			constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
 		}
 
-		if len(config.GetSslCertDir()) > 0 {
+		if config.GetSslCertDir() != "" {
 			env = append(env, corev1.EnvVar{
 				Name:  "SSL_CERT_DIR",
 				Value: SslCertDir,
@@ -371,7 +371,7 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 		secrets = append(secrets, secret)
 	}
 
-	var containers []corev1.Container
+	containers := make([]corev1.Container, 0)
 
 	trivyConfigName := trivyoperator.GetPluginConfigMapName(Plugin)
 	// add tmp volume mount
@@ -428,7 +428,7 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 			constructEnvVarSourceFromSecret("TRIVY_TOKEN", trivyConfigName, keyTrivyServerToken),
 			constructEnvVarSourceFromSecret("TRIVY_CUSTOM_HEADERS", trivyConfigName, keyTrivyServerCustomHeaders),
 		}
-		if len(config.GetSslCertDir()) > 0 {
+		if config.GetSslCertDir() != "" {
 			env = append(env, corev1.EnvVar{
 				Name:  "SSL_CERT_DIR",
 				Value: SslCertDir,
@@ -584,7 +584,7 @@ func initContainerEnvVar(trivyConfigName string, config Config) []corev1.EnvVar 
 	return envs
 }
 
-func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef string, trivyServerURL string, resultFileName string) ([]string, []string) {
+func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef, trivyServerURL, resultFileName string) ([]string, []string) {
 	command := []string{
 		"trivy",
 	}
@@ -627,12 +627,12 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef stri
 			"--format",
 			"json",
 		}
-		if len(trivyServerURL) > 0 {
+		if trivyServerURL != "" {
 			args = append(args, []string{"--server", trivyServerURL}...)
 		}
 		args = append(args, imageRef)
 
-		if len(slow) > 0 {
+		if slow != "" {
 			args = append(args, slow)
 		}
 		if len(vulnTypeArgs) > 0 {
@@ -642,16 +642,16 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef stri
 			args = append(args, imcs...)
 		}
 		pkgList := getPkgList(ctx)
-		if len(pkgList) > 0 {
+		if pkgList != "" {
 			args = append(args, pkgList)
 		}
-		if len(sbomSources) > 0 {
+		if sbomSources != "" {
 			args = append(args, []string{"--sbom-sources", sbomSources}...)
 		}
-		if len(skipUpdate) > 0 {
+		if skipUpdate != "" {
 			args = append(args, skipUpdate)
 		}
-		if len(skipJavaDBUpdate) > 0 {
+		if skipJavaDBUpdate != "" {
 			args = append(args, skipJavaDBUpdate)
 		}
 
@@ -662,13 +662,13 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef stri
 		serverUrlParms = fmt.Sprintf("--server '%s' ", trivyServerURL)
 	}
 	var sbomSourcesFlag string
-	if len(sbomSources) > 0 {
+	if sbomSources != "" {
 		sbomSourcesFlag = fmt.Sprintf(" --sbom-sources %s ", sbomSources)
 	}
 	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy image %s '%s' %s %s %s %s %s %s%s --cache-dir %s --quiet %s --format json %s> /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64`, slow, imageRef, scanners, getSecurityChecks(ctx), imageconfigSecretScannerFlag, vulnTypeFlag, skipUpdate, skipJavaDBUpdate, sbomSourcesFlag, cacheDir, getPkgList(ctx), serverUrlParms, resultFileName, resultFileName)}
 }
 
-func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomFile string, trivyServerURL string, resultFileName string) ([]string, []string) {
+func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomFile, trivyServerURL, resultFileName string) ([]string, []string) {
 	command := []string{
 		"trivy",
 	}
@@ -701,17 +701,17 @@ func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomF
 			"json",
 		}
 
-		if len(trivyServerURL) > 0 {
+		if trivyServerURL != "" {
 			args = append(args, []string{"--server", trivyServerURL}...)
 		}
 		args = append(args, sbomFile)
-		if len(slow) > 0 {
+		if slow != "" {
 			args = append(args, slow)
 		}
 		if len(vulnTypeArgs) > 0 {
 			args = append(args, vulnTypeArgs...)
 		}
-		if len(skipUpdate) > 0 {
+		if skipUpdate != "" {
 			args = append(args, skipUpdate)
 		}
 		return command, args
@@ -729,7 +729,7 @@ func vulnTypeFilter(ctx trivyoperator.PluginContext) []string {
 		return []string{}
 	}
 	vulnType := config.GetVulnType()
-	if len(vulnType) == 0 {
+	if vulnType == "" {
 		return []string{}
 	}
 	return []string{"--vuln-type", vulnType}
@@ -751,15 +751,16 @@ func appendTrivyNonSSLEnv(config Config, image string, env []corev1.EnvVar) ([]c
 	return env, nil
 }
 
-func createEnvandVolumeForGcr(env *[]corev1.EnvVar, volumeMounts *[]corev1.VolumeMount, volumes *[]corev1.Volume, registryPasswordKey *string, secretName *string) {
-	*env = append(*env, corev1.EnvVar{
-		Name:  "TRIVY_USERNAME",
-		Value: "",
-	})
-	*env = append(*env, corev1.EnvVar{
-		Name:  "GOOGLE_APPLICATION_CREDENTIALS",
-		Value: "/cred/credential.json",
-	})
+func createEnvandVolumeForGcr(env *[]corev1.EnvVar, volumeMounts *[]corev1.VolumeMount, volumes *[]corev1.Volume, registryPasswordKey, secretName *string) {
+	*env = append(*env,
+		corev1.EnvVar{
+			Name:  "TRIVY_USERNAME",
+			Value: "",
+		},
+		corev1.EnvVar{
+			Name:  "GOOGLE_APPLICATION_CREDENTIALS",
+			Value: "/cred/credential.json",
+		})
 	googlecredMount := corev1.VolumeMount{
 		Name:      "gcrvol",
 		MountPath: "/cred",

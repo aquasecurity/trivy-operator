@@ -1,10 +1,12 @@
 package ext_test
 
 import (
+	"fmt"
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/aquasecurity/trivy-operator/pkg/ext"
 )
 
 func TestGoogleUUIDGenerator_GenerateID(t *testing.T) {
@@ -17,15 +19,14 @@ func TestGoogleUUIDGenerator_GenerateID(t *testing.T) {
 		for i := 0; i < N; i++ {
 			identifiers[generator.GenerateID()] = true
 		}
-		assert.Equal(t, N, len(identifiers))
+		assert.Len(t, identifiers, N)
 	})
 }
 
 func TestSimpleIDGenerator_GenerateID(t *testing.T) {
 	generator := ext.NewSimpleIDGenerator()
-	assert.Equal(t, "00000000-0000-0000-0000-000000000001", generator.GenerateID())
-	assert.Equal(t, "00000000-0000-0000-0000-000000000002", generator.GenerateID())
-	assert.Equal(t, "00000000-0000-0000-0000-000000000003", generator.GenerateID())
-	assert.Equal(t, "00000000-0000-0000-0000-000000000004", generator.GenerateID())
-	assert.Equal(t, "00000000-0000-0000-0000-000000000005", generator.GenerateID())
+	for i := 1; i < 5; i++ {
+		id := generator.GenerateID()
+		assert.Equal(t, fmt.Sprintf("00000000-0000-0000-0000-00000000000%d", i), id)
+	}
 }

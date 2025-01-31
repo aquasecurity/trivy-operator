@@ -10,21 +10,19 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
-	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
-	"github.com/aquasecurity/trivy/pkg/iac/severity"
-	"github.com/aquasecurity/trivy/pkg/mapfs"
-
 	"github.com/go-logr/logr"
 	"github.com/liamg/memoryfs"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy/pkg/iac/rego"
 	"github.com/aquasecurity/trivy/pkg/iac/scan"
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/kubernetes"
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/options"
-
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	"github.com/aquasecurity/trivy/pkg/iac/severity"
+	"github.com/aquasecurity/trivy/pkg/mapfs"
 )
 
 const (
@@ -233,7 +231,7 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[
 	}
 	// special case when lib return nil for both checks and error
 	if scanResult == nil {
-		return nil, fmt.Errorf("failed to run policy checks on resources")
+		return nil, errors.New("failed to run policy checks on resources")
 	}
 	return scanResult, nil
 }
@@ -279,8 +277,7 @@ func (p *Policies) scannerOptions(policiesFolder string, dataPaths []string, dat
 		rego.WithDataDirs(dataPaths...),
 	}
 	if !hasPolicies && p.cac.GetUseEmbeddedRegoPolicies() {
-		optionsArray = append(optionsArray, rego.WithEmbeddedPolicies(true))
-		optionsArray = append(optionsArray, rego.WithEmbeddedLibraries(true))
+		optionsArray = append(optionsArray, rego.WithEmbeddedPolicies(true), rego.WithEmbeddedLibraries(true))
 	} else {
 		optionsArray = append(optionsArray, rego.WithPolicyDirs(policiesFolder))
 	}
@@ -310,7 +307,7 @@ func createDataFS(dataPaths []string, k8sVersion string) (fs.FS, []string, error
 		if err := fsys.MkdirAll("system", 0700); err != nil {
 			return nil, nil, err
 		}
-		data := []byte(fmt.Sprintf(`{"k8s": {"version": "%s"}}`, k8sVersion))
+		data := []byte(fmt.Sprintf(`{"k8s": {"version": %q}}`, k8sVersion))
 		if err := fsys.WriteVirtualFile("system/k8s-version.json", data, 0600); err != nil {
 			return nil, nil, err
 		}

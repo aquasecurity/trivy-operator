@@ -3,6 +3,7 @@ package docker
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"strings"
@@ -30,7 +31,7 @@ func (v *BasicAuth) Decode() (string, string, error) {
 	}
 	split := strings.SplitN(string(bytes), ":", 2)
 	if len(split) != 2 {
-		return "", "", fmt.Errorf("expected username and password concatenated with a colon (:)")
+		return "", "", errors.New("expected username and password concatenated with a colon (:)")
 	}
 	return split[0], split[1], nil
 }

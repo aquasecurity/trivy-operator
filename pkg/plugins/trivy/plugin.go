@@ -6,23 +6,21 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
-	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
-	"github.com/aquasecurity/trivy-operator/pkg/utils"
-
 	containerimage "github.com/google/go-containerregistry/pkg/name"
+	corev1 "k8s.io/api/core/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
+	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 	ty "github.com/aquasecurity/trivy/pkg/types"
-	corev1 "k8s.io/api/core/v1"
-
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
@@ -137,7 +135,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 		return vulnReport, secretReport, nil, err
 	}
 	cmd := config.GetCommand()
-	if err != nil {
+	if err != nil { // TODO: condition seems incorrect
 		return vulnReport, secretReport, nil, err
 	}
 	compressedLogs := ctx.GetTrivyOperatorConfig().CompressLogs()
@@ -215,7 +213,7 @@ func (p *plugin) NewConfigForConfigAudit(ctx trivyoperator.PluginContext) (confi
 	return getConfig(ctx)
 }
 
-func (p *plugin) parseImageRef(imageRef string, imageDigest string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
+func (p *plugin) parseImageRef(imageRef, imageDigest string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
 	ref, err := containerimage.ParseReference(imageRef)
 	if err != nil {
 		return v1alpha1.Registry{}, v1alpha1.Artifact{}, err
@@ -232,7 +230,7 @@ func (p *plugin) parseImageRef(imageRef string, imageDigest string) (v1alpha1.Re
 	case containerimage.Digest:
 		artifact.Digest = t.DigestStr()
 	}
-	if len(artifact.Digest) == 0 {
+	if artifact.Digest == "" {
 		artifact.Digest = imageDigest
 	}
 	return registry, artifact, nil
@@ -266,15 +264,15 @@ func ExcludeImage(excludeImagePattern []string, imageName string) bool {
 }
 
 // getImageDigest extracts the image digest from the report metadata, returns empty string if not available
-func (p *plugin) getImageDigest(reports ty.Report) (string) {
-    if len(reports.Metadata.RepoDigests) == 0 {
-        return ""
-    }
+func (p *plugin) getImageDigest(reports ty.Report) string {
+	if len(reports.Metadata.RepoDigests) == 0 {
+		return ""
+	}
 
-    split := strings.Split(reports.Metadata.RepoDigests[0], "@")
-    if len(split) < 2 {
-        return ""
-    }
+	split := strings.Split(reports.Metadata.RepoDigests[0], "@")
+	if len(split) < 2 {
+		return ""
+	}
 
-    return split[1]
+	return split[1]
 }

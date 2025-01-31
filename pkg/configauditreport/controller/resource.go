@@ -6,23 +6,10 @@ import (
 	"strings"
 	"time"
 
-	rbacv1 "k8s.io/api/rbac/v1"
-
-	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
-	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/workload"
-	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
-
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
-	"github.com/aquasecurity/trivy-operator/pkg/policy"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	"github.com/aquasecurity/trivy/pkg/iac/scan"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -31,6 +18,18 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	k8s_predicate "sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/workload"
+	"github.com/aquasecurity/trivy-operator/pkg/policy"
+	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy/pkg/iac/scan"
 )
 
 // ResourceController watches all Kubernetes kinds and generates
@@ -289,7 +288,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 	}
 }
 
-func (r *ResourceController) hasReport(ctx context.Context, owner kube.ObjectRef, podSpecHash string, pluginConfigHash string) (bool, error) {
+func (r *ResourceController) hasReport(ctx context.Context, owner kube.ObjectRef, podSpecHash, pluginConfigHash string) (bool, error) {
 	var io rbacassessment.Reader = r.ReadWriter
 	if kube.IsRoleTypes(owner.Kind) {
 		io = r.RbacReadWriter
@@ -304,7 +303,7 @@ func (r *ResourceController) hasReport(ctx context.Context, owner kube.ObjectRef
 	return r.findReportOwner(ctx, owner, podSpecHash, pluginConfigHash, io)
 }
 
-func (r *ResourceController) hasClusterReport(ctx context.Context, owner kube.ObjectRef, podSpecHash string, pluginConfigHash string, io rbacassessment.Reader) (bool, error) {
+func (r *ResourceController) hasClusterReport(ctx context.Context, owner kube.ObjectRef, podSpecHash, pluginConfigHash string, io rbacassessment.Reader) (bool, error) {
 	report, err := io.FindClusterReportByOwner(ctx, owner)
 	if err != nil {
 		return false, err
@@ -321,7 +320,7 @@ func (r *ResourceController) hasClusterReport(ctx context.Context, owner kube.Ob
 	}
 	return false, nil
 }
-func (r *ResourceController) findReportOwner(ctx context.Context, owner kube.ObjectRef, podSpecHash string, pluginConfigHash string, io rbacassessment.Reader) (bool, error) {
+func (r *ResourceController) findReportOwner(ctx context.Context, owner kube.ObjectRef, podSpecHash, pluginConfigHash string, io rbacassessment.Reader) (bool, error) {
 	report, err := io.FindReportByOwner(ctx, owner)
 	if err != nil {
 		return false, err

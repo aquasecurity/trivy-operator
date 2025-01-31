@@ -4,9 +4,10 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/aquasecurity/trivy-operator/pkg/docker"
 )
 
 func TestNewBasicAuth(t *testing.T) {
@@ -27,12 +28,12 @@ func TestConfig_Read(t *testing.T) {
 		{
 			name:         "Should return empty credentials when content is empty JSON object",
 			givenJSON:    "{}",
-			expectedAuth: map[string]docker.Auth{},
+			expectedAuth: make(map[string]docker.Auth),
 		},
 		{
 			name:         "Should return empty credentials when content is null JSON",
 			givenJSON:    "null",
-			expectedAuth: map[string]docker.Auth{},
+			expectedAuth: make(map[string]docker.Auth),
 		},
 		{
 			name:          "Should return error when content is blank",
@@ -152,9 +153,9 @@ func TestConfig_Read(t *testing.T) {
 			err := dockerConfig.Read([]byte(tc.givenJSON), tc.isLegacy)
 			switch {
 			case tc.expectedError != nil:
-				assert.EqualError(t, err, tc.expectedError.Error())
+				require.EqualError(t, err, tc.expectedError.Error())
 			default:
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Equal(t, tc.expectedAuth, dockerConfig.Auths)
 			}
 		})

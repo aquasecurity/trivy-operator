@@ -3,9 +3,6 @@ package sbomreport_test
 import (
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/onsi/gomega"
 	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"
@@ -13,6 +10,10 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/utils/ptr"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 func TestReportBuilder(t *testing.T) {
@@ -69,7 +70,7 @@ func TestArtifactRef(t *testing.T) {
 		want string
 	}{
 		{
-			name: "get image ref with libary",
+			name: "get image ref with library",
 			data: v1alpha1.SbomReportData{
 				Registry: v1alpha1.Registry{
 					Server: "index.docker.io",
@@ -82,7 +83,7 @@ func TestArtifactRef(t *testing.T) {
 			want: "56bcdb7c95",
 		},
 		{
-			name: "get image ref without libary",
+			name: "get image ref without library",
 			data: v1alpha1.SbomReportData{
 				Registry: v1alpha1.Registry{
 					Server: "index.docker.io",
@@ -125,7 +126,7 @@ func TestArtifactRef(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			ref := sbomreport.ArtifactRef(tc.data)
-			assert.Equal(t, ref, tc.want)
+			assert.Equal(t, tc.want, ref)
 		})
 
 	}

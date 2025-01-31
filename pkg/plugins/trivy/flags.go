@@ -1,20 +1,20 @@
 package trivy
 
 import (
-	"github.com/Masterminds/semver"
+	"github.com/aquasecurity/go-version/pkg/semver"
 )
 
-func compareTagVersion(currentTag string, contraint string) bool {
-	c, err := semver.NewConstraint(contraint)
+func compareTagVersion(currentTag, constraint string) bool {
+	c, err := semver.NewConstraints(constraint)
 	if err != nil {
 		return false
 	}
 
-	v, err := semver.NewVersion(currentTag)
+	v, err := semver.Parse(currentTag)
 	if err != nil {
 		return false
 	}
-	// Check if the version meets the constraints. The a variable will be true.
+	// Check if the version meets the constraints
 	return c.Check(v)
 }
 

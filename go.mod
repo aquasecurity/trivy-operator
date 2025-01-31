@@ -7,7 +7,7 @@ require (
 	github.com/aquasecurity/trivy v0.58.1-0.20250108062707-670fbf2d81ea
 	github.com/aquasecurity/trivy-checks v1.4.0
 	github.com/aquasecurity/trivy-kubernetes v0.6.7-0.20241101182546-89bffc3932bc
-	github.com/aws/aws-sdk-go v1.55.5
+	github.com/aws/aws-sdk-go v1.55.6
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc

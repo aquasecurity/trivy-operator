@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io"
 	"path/filepath"
-
 	"strings"
 
 	containerimage "github.com/google/go-containerregistry/pkg/name"
@@ -266,14 +265,14 @@ func ExcludeImage(excludeImagePattern []string, imageName string) bool {
 
 // getImageDigest extracts the image digest from the report metadata, returns empty string if not available
 func (p *plugin) getImageDigest(reports ty.Report) string {
-    if len(reports.Metadata.RepoDigests) == 0 {
-        return ""
-    }
+	if len(reports.Metadata.RepoDigests) == 0 {
+		return ""
+	}
 
-    split := strings.Split(reports.Metadata.RepoDigests[0], "@")
-    if len(split) < 2 {
-        return ""
-    }
+	split := strings.Split(reports.Metadata.RepoDigests[0], "@")
+	if len(split) < 2 {
+		return ""
+	}
 
-    return split[1]
+	return split[1]
 }

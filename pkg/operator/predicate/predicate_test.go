@@ -519,7 +519,7 @@ var _ = Describe("Predicate", func() {
 			It("Should return false", func() {
 				obj := &corev1.Pod{
 					ObjectMeta: metav1.ObjectMeta{
-						Labels: map[string]string{},
+						Labels: make(map[string]string),
 					},
 				}
 

@@ -2,7 +2,7 @@ package behavior
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -493,17 +493,13 @@ func VulnerabilityScanJobTTLBehavior(inputs *Inputs) func() {
 						return "", err
 					}
 
-					if scanJobPod.Status.ContainerStatuses == nil {
-						return "", fmt.Errorf("no container statuses found")
-					}
-
-					if len(scanJobPod.Status.ContainerStatuses) == 0 {
-						return "", fmt.Errorf("no container statuses found")
+					if scanJobPod.Status.ContainerStatuses == nil || len(scanJobPod.Status.ContainerStatuses) == 0 {
+						return "", errors.New("no container statuses found")
 					}
 
 					containerStatus := scanJobPod.Status.ContainerStatuses[0]
 					if containerStatus.State.Terminated == nil {
-						return "", fmt.Errorf("container is not terminated")
+						return "", errors.New("container is not terminated")
 					}
 
 					return containerStatus.State.Terminated.Reason, nil

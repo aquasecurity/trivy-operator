@@ -64,6 +64,7 @@ var _ = BeforeSuite(func() {
 
 	inputs = behavior.Inputs{
 		AssertTimeout:         5 * time.Minute,
+		PollingInterval:       5 * time.Second,
 		PrimaryNamespace:      corev1.NamespaceDefault,
 		PrimaryWorkloadPrefix: "wordpress",
 		Client:                kubeClient,

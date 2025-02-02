@@ -1,6 +1,8 @@
 package behavior
 
 import (
+	"fmt"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -20,6 +22,7 @@ import (
 // Inputs represents required inputs to shared behavior containers.
 type Inputs struct {
 	AssertTimeout         time.Duration
+	PollingInterval       time.Duration
 	PrimaryNamespace      string
 	PrimaryWorkloadPrefix string
 
@@ -450,6 +453,70 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 			AfterEach(func() {
 				err := inputs.Delete(ctx, svc)
 				Expect(err).ToNot(HaveOccurred())
+			})
+
+		})
+	}
+}
+
+func VulnerabilityScanJobTTLBehavior(inputs *Inputs) func() {
+	return func() {
+
+		Context("When unmanaged Pod is created", func() {
+
+			var ctx context.Context
+			var pod *corev1.Pod
+
+			BeforeAll(func() {
+				ctx = context.Background()
+				pod = helper.NewPod().
+					WithRandomName("unmanaged-nginx").
+					WithNamespace(inputs.PrimaryNamespace).
+					WithContainer("nginx", "nginx:1.16").
+					Build()
+
+				err := inputs.Create(ctx, pod)
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("Should create VulnerabilityReport", func() {
+				Eventually(inputs.HasVulnerabilityReportOwnedBy(pod), inputs.AssertTimeout, inputs.PollingInterval).Should(BeTrue())
+			})
+
+			It("Should keep ScanJob in completed state", func() {
+				Eventually(inputs.HasScanJobPodOwnedBy(pod), inputs.AssertTimeout, inputs.PollingInterval).Should(BeTrue())
+
+				Eventually(ctx, func() (string, error) {
+					scanJobPod, err := inputs.GetScanJobPodOwnedBy(pod)()
+
+					if err != nil {
+						return "", err
+					}
+
+					if scanJobPod.Status.ContainerStatuses == nil {
+						return "", fmt.Errorf("no container statuses found")
+					}
+
+					if len(scanJobPod.Status.ContainerStatuses) == 0 {
+						return "", fmt.Errorf("no container statuses found")
+					}
+
+					containerStatus := scanJobPod.Status.ContainerStatuses[0]
+					if containerStatus.State.Terminated == nil {
+						return "", fmt.Errorf("container is not terminated")
+					}
+
+					return containerStatus.State.Terminated.Reason, nil
+				}, inputs.AssertTimeout, inputs.PollingInterval).Should(Equal("Completed"))
+			})
+
+			AfterAll(func() {
+				err := inputs.Delete(ctx, pod)
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("Should delete ScanJob after ttl expired", func() {
+				Eventually(inputs.HasScanJobPodOwnedBy(pod), inputs.AssertTimeout, inputs.PollingInterval).Should(BeFalse())
 			})
 
 		})

@@ -214,54 +214,70 @@ func (p *plugin) NewConfigForConfigAudit(ctx trivyoperator.PluginContext) (confi
 }
 
 func ParseImageRef(imageRef string, imageDigest string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
-	parts := strings.Split(imageRef, "@")
-	namePart := parts[0]
-	var hasDigest bool
-	var hasTag bool
-	if len(parts) > 1 {
-		hasDigest = true
+	refParts := strings.Split(imageRef, "@")
+
+	simpleTag := ""
+	nameParts := strings.Split(refParts[0], ":")
+	if len(nameParts)==2 {
+		simpleTag = nameParts[1]
 	}
-	if len(strings.Split(namePart,":"))>1{ 
-		hasTag = true
+	
+	var pTag *containerimage.Tag
+	var pDigest *containerimage.Digest
+
+	var _err error
+
+	_tag, _err := containerimage.NewTag(refParts[0], containerimage.WeakValidation)
+	if  _err==nil {
+		pTag = &_tag
 	}
 
-	ref, err := containerimage.ParseReference(namePart, containerimage.WeakValidation)
-	if err != nil {
-		return v1alpha1.Registry{}, v1alpha1.Artifact{}, err
+	_digest, _err := containerimage.NewDigest(imageRef, containerimage.WeakValidation)
+	if _err == nil {
+		pDigest = &_digest	
+	}
+
+	if pDigest==nil && pTag==nil {
+		return v1alpha1.Registry{}, v1alpha1.Artifact{},_err
+	}
+
+	server := ""
+	repository := ""
+	digest := ""
+	tag := ""
+	
+	if pDigest!=nil {
+		server = pDigest.Context().RegistryStr()
+		repository = pDigest.Context().RepositoryStr()
+		digest = pDigest.DigestStr()
+	}
+	
+	if pTag!=nil {
+		server = pTag.Context().RegistryStr()
+		repository = pTag.Context().RepositoryStr()
+		if simpleTag!="" {
+			tag = simpleTag
+		}
+
+		if simpleTag=="" && digest=="" { 
+			tag = pTag.TagStr() // set default: latest
+		}
+	}
+
+	if digest=="" {
+		digest = imageDigest
 	}
 
 	registry := v1alpha1.Registry{
-		Server: ref.Context().RegistryStr(),
+		Server: server,
 	}
+
 	artifact := v1alpha1.Artifact{
-		Repository: ref.Context().RepositoryStr(),
+		Repository: repository,
+		Digest: digest,
+		Tag: tag,
 	}
 
-	tagged, ok := ref.(containerimage.Tag)
-	switch {
-	case ok && hasTag:
-		artifact.Tag = tagged.TagStr()
-	case ok && !hasTag && !hasDigest:
-		artifact.Tag = tagged.TagStr()
-	case ok && hasTag && hasDigest:
-		artifact.Tag = tagged.TagStr()
-	}
-
-	if hasDigest {
-		digestRef, err := containerimage.ParseReference(imageRef, containerimage.WeakValidation)
-		if err != nil {
-			return v1alpha1.Registry{}, v1alpha1.Artifact{}, err
-		}
-		digested, ok := digestRef.(containerimage.Digest)
-		if ok {
-			artifact.Digest = digested.DigestStr()
-		}
-	}
-
-	if len(artifact.Digest) == 0 {
-		artifact.Digest = imageDigest
-	}
-	
 	return registry, artifact, nil
 }
 

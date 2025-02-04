@@ -7642,7 +7642,7 @@ func TestParseImageRef(t *testing.T) {
 		err      error
 	}{
 		{
-			name:     "9. short image ref with latest tag",
+			name:     "1. short image ref with latest tag",
 			imageRef: "nginx:latest",
 			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
@@ -7656,7 +7656,7 @@ func TestParseImageRef(t *testing.T) {
 			err: nil,
 		},
 		{
-			name:     "6. short repo with default lib with latest tag",
+			name:     "2. short repo with default lib with latest tag",
 			imageRef: "library/nginx:latest",
 			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
@@ -7670,7 +7670,7 @@ func TestParseImageRef(t *testing.T) {
 			err: nil,
 		},
 		{
-			name:     "16. well known image without tag & digest",
+			name:     "3. well known image without tag & digest",
 			imageRef: "quay.io/centos/centos",
 			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
@@ -7684,7 +7684,7 @@ func TestParseImageRef(t *testing.T) {
 			err: nil,
 		},
 		{
-			name:     "13. docker registry image ref with tag",
+			name:     "4. docker registry image ref with tag",
 			imageRef: "docker.io/library/alpine:some-tag",
 			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
@@ -7698,7 +7698,7 @@ func TestParseImageRef(t *testing.T) {
 			err: nil,
 		},
 		{
-			name:     "7. short repo with private repo with tag",
+			name:     "5. short repo with private repo with tag",
 			imageRef: "my-private-repo.company.com/my-app:1.2.3",
 			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
@@ -7712,7 +7712,7 @@ func TestParseImageRef(t *testing.T) {
 			err: nil,
 		},
 		{
-			name:     "2. with tag",
+			name:     "6. with tag",
 			imageRef: "quay.io/prometheus-operator/prometheus-operator:v0.63.0",
 			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
@@ -7725,7 +7725,7 @@ func TestParseImageRef(t *testing.T) {
 			},
 		},
 		{
-			name:     "10. artifact registry image ref with tag",
+			name:     "7. artifact registry image ref with tag",
 			imageRef: "europe-west4-docker.pkg.dev/my-project/my-repo/my-app:1.0.0",
 			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
@@ -7739,7 +7739,7 @@ func TestParseImageRef(t *testing.T) {
 			err: nil,
 		},
 		{
-			name:     "3. repo with digest",
+			name:     "8. repo with digest",
 			imageRef: "quay.io/prometheus-operator/prometheus-operator@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
 			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
@@ -7753,7 +7753,7 @@ func TestParseImageRef(t *testing.T) {
 			err: nil,
 		},
 		{
-			name:     "15. private registry image ref tag & with digest",
+			name:     "9. private registry image ref tag & with digest",
 			imageRef: "my-private-repo.company.com/my-app:some-tag@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
 			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
@@ -7767,7 +7767,7 @@ func TestParseImageRef(t *testing.T) {
 			err: nil,
 		},
 		{
-			name:     "4. incorrect input",
+			name:     "10. incorrect input",
 			imageRef: "## some incorrect imput ###",
 			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{},

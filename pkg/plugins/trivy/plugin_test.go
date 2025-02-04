@@ -7753,14 +7753,6 @@ func TestParseImageRef(t *testing.T) {
 			err: nil,
 		},
 		{
-			name:     "4. incorrect input",
-			imageRef: "## some incorrect imput ###",
-			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-			registry: v1alpha1.Registry{},
-			artifact: v1alpha1.Artifact{},
-			err:      errors.New("could not parse reference: ## some incorrect imput ###"),
-		},
-		{
 			name:     "15. private registry image ref tag & with digest",
 			imageRef: "my-private-repo.company.com/my-app:some-tag@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
 			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
@@ -7773,6 +7765,14 @@ func TestParseImageRef(t *testing.T) {
 				Tag:        "some-tag",
 			},
 			err: nil,
+		},
+		{
+			name:     "4. incorrect input",
+			imageRef: "## some incorrect imput ###",
+			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			registry: v1alpha1.Registry{},
+			artifact: v1alpha1.Artifact{},
+			err:      errors.New("could not parse reference: ## some incorrect imput ###"),
 		},
 	}
 	for _, tc := range testCases {

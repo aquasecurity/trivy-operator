@@ -7643,7 +7643,7 @@ func TestParseImageRef(t *testing.T) {
 	}{
 		{
 			name:     "1. short image ref with latest tag",
-			imageRef: "nginx:latest",
+			imageRef: "nginx:v1.3.4",
 			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
 				Server: "index.docker.io",
@@ -7651,13 +7651,13 @@ func TestParseImageRef(t *testing.T) {
 			artifact: v1alpha1.Artifact{
 				Repository: "library/nginx",
 				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-				Tag:        "latest",
+				Tag:        "v1.3.4",
 			},
 			err: nil,
 		},
 		{
 			name:     "2. short repo with default lib with latest tag",
-			imageRef: "library/nginx:latest",
+			imageRef: "library/nginx:v.4.5.6",
 			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
 				Server: "index.docker.io",
@@ -7665,7 +7665,7 @@ func TestParseImageRef(t *testing.T) {
 			artifact: v1alpha1.Artifact{
 				Repository: "library/nginx",
 				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-				Tag:        "latest",
+				Tag:        "v.4.5.6",
 			},
 			err: nil,
 		},
@@ -7685,7 +7685,7 @@ func TestParseImageRef(t *testing.T) {
 		},
 		{
 			name:     "4. docker registry image ref with tag",
-			imageRef: "docker.io/library/alpine:some-tag",
+			imageRef: "docker.io/library/alpine:v2.3.4",
 			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
 				Server: "index.docker.io",
@@ -7693,7 +7693,7 @@ func TestParseImageRef(t *testing.T) {
 			artifact: v1alpha1.Artifact{
 				Repository: "library/alpine",
 				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-				Tag:        "some-tag",
+				Tag:        "v2.3.4",
 			},
 			err: nil,
 		},

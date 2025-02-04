@@ -155,7 +155,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 
 	imageDigest := p.getImageDigest(reports)
 
-	registry, artifact, err := p.parseImageRef(imageRef, imageDigest)
+	registry, artifact, err := ParseImageRef(imageRef, imageDigest)
 	if err != nil {
 		return vulnReport, secretReport, nil, err
 	}
@@ -213,7 +213,7 @@ func (p *plugin) NewConfigForConfigAudit(ctx trivyoperator.PluginContext) (confi
 	return getConfig(ctx)
 }
 
-func (p *plugin) parseImageRef(imageRef, imageDigest string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
+func ParseImageRef(imageRef, imageDigest string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
 	ref, err := containerimage.ParseReference(imageRef)
 	if err != nil {
 		return v1alpha1.Registry{}, v1alpha1.Artifact{}, err

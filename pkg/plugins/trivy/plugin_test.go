@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -40,7 +39,7 @@ import (
 var (
 	fixedTime  = time.Now()
 	fixedClock = ext.NewFixedClock(fixedTime)
-) 
+)
 
 func TestPlugin_GetScanJobSpec(t *testing.T) {
 
@@ -7633,242 +7632,240 @@ func TestExcludeImages(t *testing.T) {
 
 func TestParseImageRef(t *testing.T) {
 	testCases := []struct {
-		name       string
+		name string
 		// args:
 		imageRef string
-		imageID string 
+		imageID  string
 		// result:
 		registry v1alpha1.Registry
 		artifact v1alpha1.Artifact
-		err error
+		err      error
 	}{
 		{
-			name: "1. repo with latest tag",
+			name:     "1. repo with latest tag",
 			imageRef: "quay.io/prometheus-operator/prometheus-operator:latest",
-			imageID: "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+			imageID:  "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
 			registry: v1alpha1.Registry{
 				Server: "quay.io",
 			},
 			artifact: v1alpha1.Artifact{
 				Repository: "prometheus-operator/prometheus-operator",
-				Digest: "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
-				Tag: "latest",
+				Digest:     "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+				Tag:        "latest",
 			},
 			err: nil,
 		},
 		{
-			name: "2. with tag",
+			name:     "2. with tag",
 			imageRef: "quay.io/prometheus-operator/prometheus-operator:v0.63.0",
-			imageID: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
 				Server: "quay.io",
 			},
 			artifact: v1alpha1.Artifact{
 				Repository: "prometheus-operator/prometheus-operator",
-				Digest: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-				Tag: "v0.63.0",
+				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+				Tag:        "v0.63.0",
 			},
 		},
 		{
-			name: "3. repo with digest",
+			name:     "3. repo with digest",
 			imageRef: "quay.io/prometheus-operator/prometheus-operator@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
-			imageID: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
 				Server: "quay.io",
 			},
 			artifact: v1alpha1.Artifact{
 				Repository: "prometheus-operator/prometheus-operator",
-				Digest: "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
-				Tag: "",
+				Digest:     "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+				Tag:        "",
 			},
 			err: nil,
 		},
 		{
-			name: "4. incorrect input",
+			name:     "4. incorrect input",
 			imageRef: "## some incorrect imput ###",
-			imageID: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{},
-			artifact: v1alpha1.Artifact{}, 
-			err: fmt.Errorf("could not parse reference: ## some incorrect imput ###"),
+			artifact: v1alpha1.Artifact{},
+			err:      errors.New("could not parse reference: ## some incorrect imput ###"),
 		},
 		{
-			name: "5. short repo with tag",
+			name:     "5. short repo with tag",
 			imageRef: "prometheus-operator:local",
-			imageID: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
 				Server: "index.docker.io",
 			},
 			artifact: v1alpha1.Artifact{
 				Repository: "library/prometheus-operator",
-				Digest: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-				Tag: "local",
+				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+				Tag:        "local",
 			},
 			err: nil,
 		},
 		{
-			name: "6. short repo with default lib with latest tag",
+			name:     "6. short repo with default lib with latest tag",
 			imageRef: "library/nginx:latest",
-			imageID: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
 				Server: "index.docker.io",
 			},
 			artifact: v1alpha1.Artifact{
 				Repository: "library/nginx",
-				Digest: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-				Tag: "latest",
+				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+				Tag:        "latest",
 			},
 			err: nil,
 		},
 		{
-			name: "7. short repo with private repo with tag",
+			name:     "7. short repo with private repo with tag",
 			imageRef: "my-private-repo.company.com/my-app:1.2.3",
-			imageID: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
 				Server: "my-private-repo.company.com",
 			},
 			artifact: v1alpha1.Artifact{
 				Repository: "my-app",
-				Digest: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-				Tag: "1.2.3",
+				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+				Tag:        "1.2.3",
 			},
 			err: nil,
 		},
 		{
-			name: "8. repo with private repo with digest",
+			name:     "8. repo with private repo with digest",
 			imageRef: "my-private-repo.company.com/my-app@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
-			imageID: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
 				Server: "my-private-repo.company.com",
 			},
 			artifact: v1alpha1.Artifact{
 				Repository: "my-app",
-				Digest: "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
-				Tag: "",
+				Digest:     "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+				Tag:        "",
 			},
 			err: nil,
 		},
 		{
-			name: "9. short image ref with latest tag",
+			name:     "9. short image ref with latest tag",
 			imageRef: "nginx:latest",
-			imageID: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
 				Server: "index.docker.io",
 			},
 			artifact: v1alpha1.Artifact{
 				Repository: "library/nginx",
-				Digest: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-				Tag: "latest",
+				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+				Tag:        "latest",
 			},
 			err: nil,
 		},
 		{
-			name: "10. artifact registry image ref with tag",
+			name:     "10. artifact registry image ref with tag",
 			imageRef: "europe-west4-docker.pkg.dev/my-project/my-repo/my-app:1.0.0",
-			imageID: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
 				Server: "europe-west4-docker.pkg.dev",
 			},
 			artifact: v1alpha1.Artifact{
 				Repository: "my-project/my-repo/my-app",
-				Digest: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-				Tag: "1.0.0",
+				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+				Tag:        "1.0.0",
 			},
 			err: nil,
 		},
 		{
-			name: "11. aws registry image ref with latest tag",
+			name:     "11. aws registry image ref with latest tag",
 			imageRef: "123456789012.dkr.ecr.us-east-1.amazonaws.com/my-app:latest",
-			imageID: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
 				Server: "123456789012.dkr.ecr.us-east-1.amazonaws.com",
 			},
 			artifact: v1alpha1.Artifact{
 				Repository: "my-app",
-				Digest: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-				Tag: "latest",
+				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+				Tag:        "latest",
 			},
 			err: nil,
 		},
 		{
-			name: "12. azure registry image ref with tag",
+			name:     "12. azure registry image ref with tag",
 			imageRef: "myregistry.azurecr.io/my-app:v2.0.1",
-			imageID: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
 				Server: "myregistry.azurecr.io",
 			},
 			artifact: v1alpha1.Artifact{
 				Repository: "my-app",
-				Digest: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-				Tag: "v2.0.1",
+				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+				Tag:        "v2.0.1",
 			},
 			err: nil,
 		},
 		{
-			name: "13. docker registry image ref without tag",
+			name:     "13. docker registry image ref without tag",
 			imageRef: "docker.io/library/alpine",
-			imageID: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
 				Server: "index.docker.io",
 			},
 			artifact: v1alpha1.Artifact{
 				Repository: "library/alpine",
-				Digest: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-				Tag: "latest",
+				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+				Tag:        "latest",
 			},
 			err: nil,
 		},
 		{
-			name: "14. private registry image ref with digest",
+			name:     "14. private registry image ref with digest",
 			imageRef: "my-private-repo.company.com/my-app@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
-			imageID: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
 				Server: "my-private-repo.company.com",
 			},
 			artifact: v1alpha1.Artifact{
 				Repository: "my-app",
-				Digest: "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
-				Tag: "",
+				Digest:     "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+				Tag:        "",
 			},
 			err: nil,
 		},
 		{
-			name: "15. private registry image ref tag & with digest",
+			name:     "15. private registry image ref tag & with digest",
 			imageRef: "my-private-repo.company.com/my-app:some-tag@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
-			imageID: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
 				Server: "my-private-repo.company.com",
 			},
 			artifact: v1alpha1.Artifact{
 				Repository: "my-app",
-				Digest: "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
-				Tag: "some-tag",
+				Digest:     "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+				Tag:        "some-tag",
 			},
 			err: nil,
 		},
 		{
-			name: "16. well known image without tag & digest",
+			name:     "16. well known image without tag & digest",
 			imageRef: "quay.io/centos/centos",
-			imageID: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 			registry: v1alpha1.Registry{
 				Server: "quay.io",
 			},
 			artifact: v1alpha1.Artifact{
 				Repository: "centos/centos",
-				Digest: "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-				Tag: "latest",
+				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+				Tag:        "latest",
 			},
 			err: nil,
 		},
-	};
+	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			registry,artifact,err := trivy.ParseImageRef(tc.imageRef,tc.imageID)
+			registry, artifact, err := trivy.ParseImageRef(tc.imageRef, tc.imageID)
 			assert.Equal(t, tc.registry, registry)
 			assert.Equal(t, tc.artifact, artifact)
-			if tc.err!=nil {
-				if !assert.Error(t,err) {
-					assert.Failf(t,"expected","%v but got %v",tc.err,err)
-				}
+			if tc.err != nil {
+				require.Errorf(t, err, "expected: %v", tc.err)
 			}
 		})
 	}

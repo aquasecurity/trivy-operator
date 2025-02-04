@@ -158,7 +158,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	registry, artifact, err := ParseImageRef(imageRef, imageDigest)
 	if err != nil {
 		return vulnReport, secretReport, nil, err
-	}	
+	}
 
 	os := p.parseOSRef(reports)
 
@@ -213,58 +213,58 @@ func (p *plugin) NewConfigForConfigAudit(ctx trivyoperator.PluginContext) (confi
 	return getConfig(ctx)
 }
 
-func ParseImageRef(imageRef string, imageDigest string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
+func ParseImageRef(imageRef, imageDigest string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
 	refParts := strings.Split(imageRef, "@")
 
 	simpleTag := ""
 	nameParts := strings.Split(refParts[0], ":")
-	if len(nameParts)==2 {
+	if len(nameParts) == 2 {
 		simpleTag = nameParts[1]
 	}
-	
+
 	var pTag *containerimage.Tag
 	var pDigest *containerimage.Digest
 
 	var _err error
 
 	_tag, _err := containerimage.NewTag(refParts[0], containerimage.WeakValidation)
-	if  _err==nil {
+	if _err == nil {
 		pTag = &_tag
 	}
 
 	_digest, _err := containerimage.NewDigest(imageRef, containerimage.WeakValidation)
 	if _err == nil {
-		pDigest = &_digest	
+		pDigest = &_digest
 	}
 
-	if pDigest==nil && pTag==nil {
-		return v1alpha1.Registry{}, v1alpha1.Artifact{},_err
+	if pDigest == nil && pTag == nil {
+		return v1alpha1.Registry{}, v1alpha1.Artifact{}, _err
 	}
 
 	server := ""
 	repository := ""
 	digest := ""
 	tag := ""
-	
-	if pDigest!=nil {
+
+	if pDigest != nil {
 		server = pDigest.Context().RegistryStr()
 		repository = pDigest.Context().RepositoryStr()
 		digest = pDigest.DigestStr()
 	}
-	
-	if pTag!=nil {
+
+	if pTag != nil {
 		server = pTag.Context().RegistryStr()
 		repository = pTag.Context().RepositoryStr()
-		if simpleTag!="" {
+		if simpleTag != "" {
 			tag = simpleTag
 		}
 
-		if simpleTag=="" && digest=="" { 
+		if simpleTag == "" && digest == "" {
 			tag = pTag.TagStr() // set default: latest
 		}
 	}
 
-	if digest=="" {
+	if digest == "" {
 		digest = imageDigest
 	}
 
@@ -274,8 +274,8 @@ func ParseImageRef(imageRef string, imageDigest string) (v1alpha1.Registry, v1al
 
 	artifact := v1alpha1.Artifact{
 		Repository: repository,
-		Digest: digest,
-		Tag: tag,
+		Digest:     digest,
+		Tag:        tag,
 	}
 
 	return registry, artifact, nil

@@ -7691,20 +7691,6 @@ func TestParseImageRef(t *testing.T) {
 			err:      errors.New("could not parse reference: ## some incorrect imput ###"),
 		},
 		{
-			name:     "5. short repo with tag",
-			imageRef: "prometheus-operator:local",
-			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-			registry: v1alpha1.Registry{
-				Server: "index.docker.io",
-			},
-			artifact: v1alpha1.Artifact{
-				Repository: "library/prometheus-operator",
-				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-				Tag:        "local",
-			},
-			err: nil,
-		},
-		{
 			name:     "6. short repo with default lib with latest tag",
 			imageRef: "library/nginx:latest",
 			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",

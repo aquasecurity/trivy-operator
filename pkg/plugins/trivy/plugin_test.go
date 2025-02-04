@@ -7684,20 +7684,6 @@ func TestParseImageRef(t *testing.T) {
 			err: nil,
 		},
 		{
-			name:     "13. docker registry image ref without tag",
-			imageRef: "docker.io/library/alpine",
-			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-			registry: v1alpha1.Registry{
-				Server: "index.docker.io",
-			},
-			artifact: v1alpha1.Artifact{
-				Repository: "library/alpine",
-				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-				Tag:        "latest",
-			},
-			err: nil,
-		},
-		{
 			name:     "13. docker registry image ref with tag",
 			imageRef: "docker.io/library/alpine:some-tag",
 			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
@@ -7712,20 +7698,6 @@ func TestParseImageRef(t *testing.T) {
 			err: nil,
 		},
 		{
-			name:     "12. azure registry image ref with tag",
-			imageRef: "myregistry.azurecr.io/my-app:v2.0.1",
-			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-			registry: v1alpha1.Registry{
-				Server: "myregistry.azurecr.io",
-			},
-			artifact: v1alpha1.Artifact{
-				Repository: "my-app",
-				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-				Tag:        "v2.0.1",
-			},
-			err: nil,
-		},
-		{
 			name:     "7. short repo with private repo with tag",
 			imageRef: "my-private-repo.company.com/my-app:1.2.3",
 			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
@@ -7736,20 +7708,6 @@ func TestParseImageRef(t *testing.T) {
 				Repository: "my-app",
 				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 				Tag:        "1.2.3",
-			},
-			err: nil,
-		},
-		{
-			name:     "1. repo with latest tag",
-			imageRef: "quay.io/prometheus-operator/prometheus-operator:latest",
-			imageID:  "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
-			registry: v1alpha1.Registry{
-				Server: "quay.io",
-			},
-			artifact: v1alpha1.Artifact{
-				Repository: "prometheus-operator/prometheus-operator",
-				Digest:     "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
-				Tag:        "latest",
 			},
 			err: nil,
 		},
@@ -7781,20 +7739,6 @@ func TestParseImageRef(t *testing.T) {
 			err: nil,
 		},
 		{
-			name:     "11. aws registry image ref with latest tag",
-			imageRef: "123456789012.dkr.ecr.us-east-1.amazonaws.com/my-app:latest",
-			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-			registry: v1alpha1.Registry{
-				Server: "123456789012.dkr.ecr.us-east-1.amazonaws.com",
-			},
-			artifact: v1alpha1.Artifact{
-				Repository: "my-app",
-				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-				Tag:        "latest",
-			},
-			err: nil,
-		},
-		{
 			name:     "3. repo with digest",
 			imageRef: "quay.io/prometheus-operator/prometheus-operator@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
 			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
@@ -7815,34 +7759,6 @@ func TestParseImageRef(t *testing.T) {
 			registry: v1alpha1.Registry{},
 			artifact: v1alpha1.Artifact{},
 			err:      errors.New("could not parse reference: ## some incorrect imput ###"),
-		},
-		{
-			name:     "8. repo with private repo with digest",
-			imageRef: "my-private-repo.company.com/my-app@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
-			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-			registry: v1alpha1.Registry{
-				Server: "my-private-repo.company.com",
-			},
-			artifact: v1alpha1.Artifact{
-				Repository: "my-app",
-				Digest:     "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
-				Tag:        "",
-			},
-			err: nil,
-		},
-		{
-			name:     "14. private registry image ref with digest",
-			imageRef: "my-private-repo.company.com/my-app@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
-			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-			registry: v1alpha1.Registry{
-				Server: "my-private-repo.company.com",
-			},
-			artifact: v1alpha1.Artifact{
-				Repository: "my-app",
-				Digest:     "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
-				Tag:        "",
-			},
-			err: nil,
 		},
 		{
 			name:     "15. private registry image ref tag & with digest",

@@ -7670,6 +7670,20 @@ func TestParseImageRef(t *testing.T) {
 			err: nil,
 		},
 		{
+			name:     "13. docker registry image ref without tag",
+			imageRef: "docker.io/library/alpine",
+			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			registry: v1alpha1.Registry{
+				Server: "index.docker.io",
+			},
+			artifact: v1alpha1.Artifact{
+				Repository: "library/alpine",
+				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+				Tag:        "latest",
+			},
+			err: nil,
+		},
+		{
 			name:     "1. repo with latest tag",
 			imageRef: "quay.io/prometheus-operator/prometheus-operator:latest",
 			imageID:  "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
@@ -7785,20 +7799,6 @@ func TestParseImageRef(t *testing.T) {
 				Repository: "my-app",
 				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 				Tag:        "v2.0.1",
-			},
-			err: nil,
-		},
-		{
-			name:     "13. docker registry image ref without tag",
-			imageRef: "docker.io/library/alpine",
-			imageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-			registry: v1alpha1.Registry{
-				Server: "index.docker.io",
-			},
-			artifact: v1alpha1.Artifact{
-				Repository: "library/alpine",
-				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-				Tag:        "latest",
 			},
 			err: nil,
 		},

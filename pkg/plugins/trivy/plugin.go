@@ -229,6 +229,12 @@ func ParseImageRef(imageRef, imageDigest string) (v1alpha1.Registry, v1alpha1.Ar
 		artifact.Tag = t.TagStr()
 	case containerimage.Digest:
 		artifact.Digest = t.DigestStr()
+
+		var artifactDigest string
+		if refParts := strings.Split(imageRef, "@");len(refParts)==2 {
+			artifactDigest = refParts[1]
+		}
+		artifact.Tag = strings.TrimPrefix(strings.TrimSuffix(strings.TrimPrefix(imageRef, ref.Context().Name()), "@"+artifactDigest), ":")
 	}
 	if artifact.Digest == "" {
 		artifact.Digest = imageDigest

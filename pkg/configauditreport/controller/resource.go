@@ -3,9 +3,15 @@ package controller
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"strings"
 	"time"
 
+	"github.com/aquasecurity/trivy/pkg/iac/rego"
+	"github.com/aquasecurity/trivy/pkg/iac/scanners/generic"
+	"github.com/aquasecurity/trivy/pkg/iac/scanners/kubernetes"
+	"github.com/aquasecurity/trivy/pkg/iac/scanners/options"
+	"github.com/aquasecurity/trivy/pkg/mapfs"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
@@ -49,6 +55,41 @@ type ResourceController struct {
 	trivyoperator.BuildInfo
 	ClusterVersion   string
 	CacheSyncTimeout time.Duration
+	iacScanner       *generic.GenericScanner
+}
+
+func createDataFS(dataPaths []string, k8sVersion string) (fs.FS, []string, error) {
+	fsys := mapfs.New()
+
+	// Create a virtual file for Kubernetes scanning
+	if k8sVersion != "" {
+		if err := fsys.MkdirAll("system", 0700); err != nil {
+			return nil, nil, err
+		}
+		data := []byte(fmt.Sprintf(`{"k8s": {"version": %q}}`, k8sVersion))
+		if err := fsys.WriteVirtualFile("system/k8s-version.json", data, 0600); err != nil {
+			return nil, nil, err
+		}
+	}
+	for _, path := range dataPaths {
+		if err := fsys.CopyFilesUnder(path); err != nil {
+			return nil, nil, err
+		}
+	}
+
+	// data paths are no longer needed as fs.FS contains only needed files now.
+	dataPaths = []string{"."}
+
+	return fsys, dataPaths, nil
+}
+
+func scannerOptions(dataPaths []string, dataFS fs.FS) []options.ScannerOption {
+	optionsArray := []options.ScannerOption{
+		rego.WithDataFilesystem(dataFS),
+		rego.WithDataDirs(dataPaths...),
+	}
+	optionsArray = append(optionsArray, rego.WithEmbeddedPolicies(true), rego.WithEmbeddedLibraries(true))
+	return optionsArray
 }
 
 // +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
@@ -81,6 +122,13 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 	if err != nil {
 		return err
 	}
+
+	dataFS, dataPaths, err := createDataFS([]string{}, r.ClusterVersion)
+	if err != nil {
+		return err
+	}
+	so := scannerOptions(dataPaths, dataFS)
+	r.iacScanner = kubernetes.NewScanner(so...)
 
 	// Determine which Kubernetes workloads the controller will reconcile and add them to resources
 	targetWorkloads := r.Config.GetTargetWorkloads()
@@ -227,7 +275,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			log.V(1).Info("Configuration audit report exists")
 			return ctrl.Result{}, nil
 		}
-		misConfigData, err := evaluate(ctx, policies, resource, r.BuildInfo, r.ConfigData, r.Config)
+		misConfigData, err := evaluate(ctx, r.iacScanner, policies, resource, r.BuildInfo, r.ConfigData, r.Config)
 		if err != nil {
 			if err.Error() == policy.PoliciesNotFoundError {
 				return ctrl.Result{}, nil

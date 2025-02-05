@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/aquasecurity/trivy/pkg/iac/scanners/generic"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -41,9 +42,9 @@ func Policies(ctx context.Context, config etc.Config, c client.Client, cac confi
 	return policy.NewPolicies(cm.Data, cac, log, pl, version), nil
 }
 
-func evaluate(ctx context.Context, policies *policy.Policies, resource client.Object, bi trivyoperator.BuildInfo, cd trivyoperator.ConfigData, c etc.Config, inputs ...[]byte) (Misconfiguration, error) {
+func evaluate(ctx context.Context, iacScanner *generic.GenericScanner, policies *policy.Policies, resource client.Object, bi trivyoperator.BuildInfo, cd trivyoperator.ConfigData, c etc.Config, inputs ...[]byte) (Misconfiguration, error) {
 	misconfiguration := Misconfiguration{}
-	results, err := policies.Eval(ctx, resource, inputs...)
+	results, err := policies.Eval(ctx, iacScanner, resource, inputs...)
 	if err != nil {
 		return Misconfiguration{}, err
 	}

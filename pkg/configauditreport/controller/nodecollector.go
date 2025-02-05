@@ -154,7 +154,7 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 	if err != nil {
 		return err
 	}
-	misConfigData, err := evaluate(ctx, policies, node, r.BuildInfo, r.ConfigData, r.Config, nodeInfo)
+	misConfigData, err := evaluate(ctx, nil, policies, node, r.BuildInfo, r.ConfigData, r.Config, nodeInfo)
 	if err != nil {
 		return fmt.Errorf("failed to evaluate policies on Node : %w", err)
 	}

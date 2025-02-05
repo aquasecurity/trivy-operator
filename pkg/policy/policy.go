@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/aquasecurity/trivy/pkg/iac/scanners/generic"
 	"github.com/go-logr/logr"
 	"github.com/liamg/memoryfs"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -19,7 +20,6 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy/pkg/iac/rego"
 	"github.com/aquasecurity/trivy/pkg/iac/scan"
-	"github.com/aquasecurity/trivy/pkg/iac/scanners/kubernetes"
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/options"
 	"github.com/aquasecurity/trivy/pkg/iac/severity"
 	"github.com/aquasecurity/trivy/pkg/mapfs"
@@ -50,6 +50,7 @@ type Policies struct {
 	cac            configauditreport.ConfigAuditConfig
 	clusterVersion string
 	policyLoader   Loader
+	memfs          *memoryfs.FS
 }
 
 func NewPolicies(data map[string]string, cac configauditreport.ConfigAuditConfig, log logr.Logger, pl Loader, serverVersion string) *Policies {
@@ -193,39 +194,48 @@ func (p *Policies) rbacDisabled(rbacEnable bool, kind string) bool {
 }
 
 // Eval evaluates Rego policies with Kubernetes resource client.Object as input.
-func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[]byte) (scan.Results, error) {
+func (p *Policies) Eval(ctx context.Context, iacScanneer *generic.GenericScanner, resource client.Object, inputs ...[]byte) (scan.Results, error) {
 	resourceKind := resource.GetObjectKind().GroupVersionKind().Kind
 	policies, err := p.loadPolicies(resourceKind)
 	if err != nil {
 		return nil, fmt.Errorf("failed listing externalPolicies by kind: %s: %w", resourceKind, err)
 	}
 
-	memfs := memoryfs.New()
 	hasPolicies := len(policies) > 0
-	if hasPolicies {
-		// add add policies to in-memory filesystem
-		err = createPolicyInputFS(memfs, policiesFolder, policies, regoExt)
-		if err != nil {
-			return nil, err
+
+	if p.memfs == nil {
+		p.memfs = memoryfs.New()
+
+		if hasPolicies {
+			// add policies to in-memory filesystem
+			err = createPolicyInputFS(p.memfs, policiesFolder, policies, regoExt)
+			if err != nil {
+				return nil, err
+			}
 		}
+
 	}
+
 	inputResource, err := resourceBytes(resource, inputs)
 	if err != nil {
 		return nil, err
 	}
 	// add resource input to in-memory filesystem
-	err = createPolicyInputFS(memfs, inputFolder, []string{string(inputResource)}, yamlExt)
+	err = createPolicyInputFS(p.memfs, inputFolder, []string{string(inputResource)}, yamlExt)
 	if err != nil {
 		return nil, err
 	}
 
-	dataFS, dataPaths, err := createDataFS([]string{}, p.clusterVersion)
-	if err != nil {
-		return nil, err
-	}
-	so := p.scannerOptions(policiesFolder, dataPaths, dataFS, hasPolicies)
-	scanner := kubernetes.NewScanner(so...)
-	scanResult, err := scanner.ScanFS(ctx, memfs, inputFolder)
+	/*
+		dataFS, dataPaths, err := createDataFS([]string{}, p.clusterVersion)
+		if err != nil {
+			return nil, err
+		}
+		so := p.scannerOptions(policiesFolder, dataPaths, dataFS, hasPolicies)
+		scanner := kubernetes.NewScanner(so...)
+	*/
+
+	scanResult, err := iacScanneer.ScanFS(ctx, p.memfs, inputFolder)
 	if err != nil {
 		return nil, err
 	}

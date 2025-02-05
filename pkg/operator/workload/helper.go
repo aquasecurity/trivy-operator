@@ -90,13 +90,13 @@ func SkipProcessing(ctx context.Context, resource client.Object, or kube.ObjectR
 		}
 
 	case *corev1.Pod:
-		controller := metav1.GetControllerOf(resource)
-		if kube.IsBuiltInWorkload(controller) {
-			log.V(1).Info("Ignoring managed pod",
-				"controllerKind", controller.Kind,
-				"controllerName", controller.Name)
-			return true, nil
-		}
+		//controller := metav1.GetControllerOf(resource)
+		//if kube.IsBuiltInWorkload(controller) {
+		//	log.V(1).Info("Ignoring managed pod",
+		//		"controllerKind", controller.Kind,
+		//		"controllerName", controller.Name)
+		//	return true, nil
+		//}
 		annotations := resource.GetAnnotations()
 		// Ignore scanning of system pod which is created for deploymentConfig
 		if value, ok := annotations[kube.DeployerPodForDeploymentAnnotation]; ok {

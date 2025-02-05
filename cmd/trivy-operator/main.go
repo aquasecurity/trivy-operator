@@ -5,6 +5,7 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/google/gops/agent"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
@@ -37,6 +38,10 @@ var (
 
 // main is the entrypoint of the Trivy Operator executable command.
 func main() {
+	if err := agent.Listen(agent.Options{}); err != nil {
+		panic(err)
+	}
+
 	// These 2 lines are only required if you're using mutex or block profiling
 	// Read the explanation below for how to set these rates:
 	runtime.SetMutexProfileFraction(5)

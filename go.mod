@@ -43,6 +43,7 @@ require (
 
 require (
 	github.com/aquasecurity/go-version v0.0.1
+	github.com/google/gops v0.3.28
 	github.com/grafana/pyroscope-go v1.2.0
 	github.com/quasilyte/go-ruleguard/dsl v0.3.22
 	github.com/samber/lo v1.49.0

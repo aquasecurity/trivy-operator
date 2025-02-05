@@ -5,7 +5,7 @@ go 1.23.5
 require (
 	github.com/CycloneDX/cyclonedx-go v0.9.2
 	github.com/aquasecurity/go-version v0.0.1
-	github.com/aquasecurity/trivy v0.59.0
+	github.com/aquasecurity/trivy v0.59.1
 	github.com/aquasecurity/trivy-checks v1.6.1
 	github.com/aquasecurity/trivy-kubernetes v0.7.0
 	github.com/aws/aws-sdk-go v1.55.6

@@ -795,4 +795,3 @@ nodeCollector:
     - name: etc-cni-netd
       hostPath:
         path: /etc/cni/net.d/
-

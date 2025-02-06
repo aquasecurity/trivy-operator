@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"net/url"
 
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/utils/ptr"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/utils/ptr"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type FileSystemJobSpecMgr struct {
@@ -141,7 +142,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 		VolumeMounts:    volumeMounts,
 	}
 
-	var containers []corev1.Container
+	containers := make([]corev1.Container, 0)
 
 	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
 	volumes = append(volumes, getScanResultVolume())
@@ -166,7 +167,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 			constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
 			constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY", trivyConfigName, keyTrivyJavaDBRepository),
 		}
-		if len(config.GetSslCertDir()) > 0 {
+		if config.GetSslCertDir() != "" {
 			env = append(env, corev1.EnvVar{
 				Name:  "SSL_CERT_DIR",
 				Value: SslCertDir,
@@ -343,7 +344,7 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 		VolumeMounts:    volumeMounts,
 	}
 
-	var containers []corev1.Container
+	containers := make([]corev1.Container, 0)
 
 	volumes := []corev1.Volume{
 		{
@@ -396,7 +397,7 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 			constructEnvVarSourceFromSecret("TRIVY_CUSTOM_HEADERS", trivyConfigName, keyTrivyServerCustomHeaders),
 			constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY", trivyConfigName, keyTrivyJavaDBRepository),
 		}
-		if len(config.GetSslCertDir()) > 0 {
+		if config.GetSslCertDir() != "" {
 			env = append(env, corev1.EnvVar{
 				Name:  "SSL_CERT_DIR",
 				Value: SslCertDir,
@@ -527,10 +528,10 @@ func GetFSScanningArgs(ctx trivyoperator.PluginContext, command Command, mode Mo
 	}
 
 	slow := Slow(c)
-	if len(slow) > 0 {
+	if slow != "" {
 		args = append(args, slow)
 	}
-	if sbomSources := c.GetSbomSources(); len(sbomSources) > 0 {
+	if sbomSources := c.GetSbomSources(); sbomSources != "" {
 		args = append(args, []string{"--sbom-sources", sbomSources}...)
 	}
 	if c.GetIncludeDevDeps() && command == Filesystem {
@@ -538,13 +539,13 @@ func GetFSScanningArgs(ctx trivyoperator.PluginContext, command Command, mode Mo
 	}
 
 	pkgList := getPkgList(ctx)
-	if len(pkgList) > 0 {
+	if pkgList != "" {
 		args = append(args, pkgList)
 	}
 	return args
 }
 
-func GetSbomFSScanningArgs(ctx trivyoperator.PluginContext, mode Mode, trivyServerURL string, sbomFile string) ([]string, []string) {
+func GetSbomFSScanningArgs(ctx trivyoperator.PluginContext, mode Mode, trivyServerURL, sbomFile string) ([]string, []string) {
 	command := []string{
 		SharedVolumeLocationOfTrivy,
 	}
@@ -569,7 +570,7 @@ func GetSbomFSScanningArgs(ctx trivyoperator.PluginContext, mode Mode, trivyServ
 		args = append(args, "--server", trivyServerURL)
 	}
 	slow := Slow(c)
-	if len(slow) > 0 {
+	if slow != "" {
 		args = append(args, slow)
 	}
 	return command, args

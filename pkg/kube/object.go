@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	ocpappsv1 "github.com/openshift/api/apps/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -23,6 +21,9 @@ import (
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 // ObjectRef is a simplified representation of a Kubernetes client.Object.

@@ -3,9 +3,10 @@ package trivy_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestSlow(t *testing.T) {
@@ -58,8 +59,8 @@ func TestSlow(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := trivy.Slow(trivy.Config{trivyoperator.PluginConfig{Data: tc.configData}})
-			assert.Equal(t, got, tc.want)
+			got := trivy.Slow(trivy.Config{PluginConfig: trivyoperator.PluginConfig{Data: tc.configData}})
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -93,14 +94,14 @@ func TestScanner(t *testing.T) {
 		},
 		{
 			name:       "scanner with no trivy tag lower",
-			configData: map[string]string{},
+			configData: make(map[string]string),
 			want:       "--scanners",
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := trivy.Scanners(trivy.Config{trivyoperator.PluginConfig{Data: tc.configData}})
-			assert.Equal(t, got, tc.want)
+			got := trivy.Scanners(trivy.Config{PluginConfig: trivyoperator.PluginConfig{Data: tc.configData}})
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -134,14 +135,14 @@ func TestSkipDBUpdate(t *testing.T) {
 		},
 		{
 			name:       "skip update DB with no trivy tag lower",
-			configData: map[string]string{},
+			configData: make(map[string]string),
 			want:       "--skip-db-update",
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := trivy.SkipDBUpdate(trivy.Config{trivyoperator.PluginConfig{Data: tc.configData}})
-			assert.Equal(t, got, tc.want)
+			got := trivy.SkipDBUpdate(trivy.Config{PluginConfig: trivyoperator.PluginConfig{Data: tc.configData}})
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -193,8 +194,8 @@ func TestSkipJavaDBUpdate(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := trivy.SkipJavaDBUpdate(trivy.Config{trivyoperator.PluginConfig{Data: tc.configData}})
-			assert.Equal(t, got, tc.want)
+			got := trivy.SkipJavaDBUpdate(trivy.Config{PluginConfig: trivyoperator.PluginConfig{Data: tc.configData}})
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }

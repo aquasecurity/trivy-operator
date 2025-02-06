@@ -74,7 +74,7 @@ func (r *logsReader) getPodByJob(ctx context.Context, job *batchv1.Job) (*corev1
 func (r *logsReader) podListLookup(ctx context.Context, namespace string, refreshedJob *batchv1.Job) (*corev1.PodList, error) {
 	matchingLabelKey := "controller-uid"
 	matchingLabelValue := refreshedJob.Spec.Selector.MatchLabels[matchingLabelKey]
-	if len(matchingLabelValue) == 0 {
+	if matchingLabelValue == "" {
 		matchingLabelKey = "batch.kubernetes.io/controller-uid" // for k8s v1.27.x and above
 		matchingLabelValue = refreshedJob.Spec.Selector.MatchLabels[matchingLabelKey]
 	}

@@ -1,22 +1,22 @@
 package operator_test
 
 import (
-	"sort"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	"path"
+	"sort"
 	"time"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Workload controller", func() {

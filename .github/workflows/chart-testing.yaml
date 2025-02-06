@@ -76,15 +76,17 @@ jobs:
           docker save -o trivy-operator.tar mirror.gcr.io/aquasec/trivy-operator:ct
 
           kind load image-archive trivy-operator.tar
+
       - name: Set up python
-        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+        uses: actions/setup-python@v5.3.0
         with:
-          python-version: 3.7
+          python-version: '3.x'
+          check-latest: true
+
       - name: Setup chart-testing
         id: lint
         uses: helm/chart-testing-action@v2.7.0
-      - name: Install yamllint
-        run: pip install yamllint
+
       - name: Run chart-testing
         run: ct lint-and-install --validate-maintainers=false --charts deploy/helm
       - name: Delete kind cluster

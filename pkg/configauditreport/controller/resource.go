@@ -58,7 +58,7 @@ type ResourceController struct {
 	iacScanner       *generic.GenericScanner
 }
 
-func createDataFS(dataPaths []string, k8sVersion string) (fs.FS, []string, error) {
+func CreateDataFS(dataPaths []string, k8sVersion string) (fs.FS, []string, error) {
 	fsys := mapfs.New()
 
 	// Create a virtual file for Kubernetes scanning
@@ -83,7 +83,7 @@ func createDataFS(dataPaths []string, k8sVersion string) (fs.FS, []string, error
 	return fsys, dataPaths, nil
 }
 
-func scannerOptions(dataPaths []string, dataFS fs.FS) []options.ScannerOption {
+func ScannerOptions(dataPaths []string, dataFS fs.FS) []options.ScannerOption {
 	optionsArray := []options.ScannerOption{
 		rego.WithDataFilesystem(dataFS),
 		rego.WithDataDirs(dataPaths...),
@@ -123,11 +123,11 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 
-	dataFS, dataPaths, err := createDataFS([]string{}, r.ClusterVersion)
+	dataFS, dataPaths, err := CreateDataFS([]string{}, r.ClusterVersion)
 	if err != nil {
 		return err
 	}
-	so := scannerOptions(dataPaths, dataFS)
+	so := ScannerOptions(dataPaths, dataFS)
 	r.iacScanner = kubernetes.NewScanner(so...)
 
 	// Determine which Kubernetes workloads the controller will reconcile and add them to resources

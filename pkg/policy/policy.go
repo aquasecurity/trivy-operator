@@ -22,7 +22,6 @@ import (
 	"github.com/aquasecurity/trivy/pkg/iac/scan"
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/options"
 	"github.com/aquasecurity/trivy/pkg/iac/severity"
-	"github.com/aquasecurity/trivy/pkg/mapfs"
 )
 
 const (
@@ -194,7 +193,7 @@ func (p *Policies) rbacDisabled(rbacEnable bool, kind string) bool {
 }
 
 // Eval evaluates Rego policies with Kubernetes resource client.Object as input.
-func (p *Policies) Eval(ctx context.Context, iacScanneer *generic.GenericScanner, resource client.Object, inputs ...[]byte) (scan.Results, error) {
+func (p *Policies) Eval(ctx context.Context, iacScanner *generic.GenericScanner, resource client.Object, inputs ...[]byte) (scan.Results, error) {
 	resourceKind := resource.GetObjectKind().GroupVersionKind().Kind
 	policies, err := p.loadPolicies(resourceKind)
 	if err != nil {
@@ -226,16 +225,7 @@ func (p *Policies) Eval(ctx context.Context, iacScanneer *generic.GenericScanner
 		return nil, err
 	}
 
-	/*
-		dataFS, dataPaths, err := createDataFS([]string{}, p.clusterVersion)
-		if err != nil {
-			return nil, err
-		}
-		so := p.scannerOptions(policiesFolder, dataPaths, dataFS, hasPolicies)
-		scanner := kubernetes.NewScanner(so...)
-	*/
-
-	scanResult, err := iacScanneer.ScanFS(ctx, p.memfs, inputFolder)
+	scanResult, err := iacScanner.ScanFS(ctx, p.memfs, inputFolder)
 	if err != nil {
 		return nil, err
 	}
@@ -307,29 +297,4 @@ func createPolicyInputFS(memfs *memoryfs.FS, folderName string, fileData []strin
 		}
 	}
 	return nil
-}
-
-func createDataFS(dataPaths []string, k8sVersion string) (fs.FS, []string, error) {
-	fsys := mapfs.New()
-
-	// Create a virtual file for Kubernetes scanning
-	if k8sVersion != "" {
-		if err := fsys.MkdirAll("system", 0700); err != nil {
-			return nil, nil, err
-		}
-		data := []byte(fmt.Sprintf(`{"k8s": {"version": %q}}`, k8sVersion))
-		if err := fsys.WriteVirtualFile("system/k8s-version.json", data, 0600); err != nil {
-			return nil, nil, err
-		}
-	}
-	for _, path := range dataPaths {
-		if err := fsys.CopyFilesUnder(path); err != nil {
-			return nil, nil, err
-		}
-	}
-
-	// data paths are no longer needed as fs.FS contains only needed files now.
-	dataPaths = []string{"."}
-
-	return fsys, dataPaths, nil
 }

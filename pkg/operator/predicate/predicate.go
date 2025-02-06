@@ -4,16 +4,16 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/aquasecurity/trivy-operator/pkg/ext"
-
-	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/tools/leaderelection/resourcelock"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
+
+	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 // InstallModePredicate is a predicate.Predicate that determines whether to
@@ -84,6 +84,16 @@ var InNamespace = func(namespace string) predicate.Predicate {
 var ManagedByTrivyOperator = predicate.NewPredicateFuncs(func(obj client.Object) bool {
 	if managedBy, ok := obj.GetLabels()[trivyoperator.LabelK8SAppManagedBy]; ok {
 		return managedBy == trivyoperator.AppTrivyOperator
+	}
+	return false
+})
+
+var ManagedByKubeEnforcer = predicate.NewPredicateFuncs(func(obj client.Object) bool {
+	if managedBy, ok := obj.GetLabels()["app.kubernetes.io/managed-by"]; ok {
+		return managedBy == "KubeEnforcer"
+	}
+	if app, ok := obj.GetLabels()["app"]; ok {
+		return app == "kube-bench"
 	}
 	return false
 })

@@ -3,8 +3,9 @@ package v1alpha1_test
 import (
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 )
 
 func TestConfigAuditSummaryFromChecks(t *testing.T) {

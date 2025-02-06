@@ -5,13 +5,15 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 func TestGenerateComplianceReport(t *testing.T) {
@@ -263,9 +265,9 @@ func TestGenerateComplianceReport(t *testing.T) {
 				Build()
 			mgr := NewMgr(c)
 			err := mgr.GenerateComplianceReport(context.Background(), tt.clusterComplianceReport.Spec)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			ccr, err := getReport(context.Background(), c)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			if tt.reportType == "summary" {
 				assert.True(t, reflect.DeepEqual(ccr.Status.SummaryReport, tt.wantStatus.SummaryReport))
 			}

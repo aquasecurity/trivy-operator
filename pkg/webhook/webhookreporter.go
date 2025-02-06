@@ -8,15 +8,16 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 )
 
 type WebhookReconciler struct {
@@ -111,7 +112,7 @@ func sendReport[T any](reports T, endpoint string, timeout time.Duration, header
 		Timeout: timeout,
 	}
 
-	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(b))
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(b))
 	if err != nil {
 		return fmt.Errorf("failed to make a new request: %w", err)
 	}
@@ -119,7 +120,12 @@ func sendReport[T any](reports T, endpoint string, timeout time.Duration, header
 	headerValues.Set("Content-Type", "application/json")
 	req.Header = headerValues
 
-	_, err = hc.Do(req)
+	resp, err := hc.Do(req)
+	defer func() {
+		if resp != nil {
+			_ = resp.Body.Close()
+		}
+	}()
 	if err != nil {
 		return fmt.Errorf("failed to send reports to endpoint: %w", err)
 	}

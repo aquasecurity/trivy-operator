@@ -11,22 +11,23 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/bluele/gcache"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/utils/ptr"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	"github.com/aquasecurity/trivy/pkg/fanal/types"
 	"github.com/aquasecurity/trivy/pkg/iac/scan"
-	"github.com/bluele/gcache"
-	. "github.com/onsi/gomega"
-	appsv1 "k8s.io/api/apps/v1"
-	corev1 "k8s.io/api/core/v1"
 
-	rbacv1 "k8s.io/api/rbac/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/utils/ptr"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+	. "github.com/onsi/gomega"
 )
 
 func TestPolicies_PoliciesByKind(t *testing.T) {
@@ -97,7 +98,7 @@ func TestPolicies_Supported(t *testing.T) {
 	}{
 		{
 			name: "Should return true for workload policies",
-			data: map[string]string{},
+			data: make(map[string]string),
 			resource: &corev1.Pod{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Pod",
@@ -496,7 +497,7 @@ func TestPolicies_Eval(t *testing.T) {
 				},
 			},
 			useBuiltInPolicies: true,
-			policies:           map[string]string{},
+			policies:           make(map[string]string),
 			results:            getBuildInResults(t, "./testdata/fixture/builtin_role_result.json"),
 		},
 		{
@@ -514,7 +515,7 @@ func TestPolicies_Eval(t *testing.T) {
 				},
 			},
 			useBuiltInPolicies: false,
-			policies:           map[string]string{},
+			policies:           make(map[string]string),
 			expectedError:      policy.PoliciesNotFoundError,
 		},
 	}
@@ -537,7 +538,7 @@ func TestPolicies_Eval(t *testing.T) {
 func TestNewMetadata(t *testing.T) {
 	testCases := []struct {
 		name             string
-		values           map[string]interface{}
+		values           map[string]any
 		expectedMetadata Metadata
 		expectedError    string
 	}{
@@ -548,7 +549,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when severity key is not set",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"id":          "some id",
 				"title":       "some title",
 				"type":        "some type",
@@ -558,7 +559,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when severity value is nil",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    nil,
 				"id":          "some id",
 				"title":       "some title",
@@ -569,7 +570,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when severity value is blank",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "",
 				"id":          "some id",
 				"title":       "some title",
@@ -580,7 +581,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when severity value is invalid",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "INVALID",
 				"id":          "some id",
 				"title":       "some title",
@@ -591,7 +592,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when id key is not set",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"title":       "some title",
 				"type":        "some type",
@@ -601,7 +602,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when id value is nil",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"id":          nil,
 				"title":       "some title",
@@ -612,7 +613,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when id value is blank",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"id":          "",
 				"title":       "some title",
@@ -623,7 +624,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when id value is not string",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"id":          3,
 				"title":       "some title",
@@ -634,7 +635,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when title key is not set",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"id":          "some id",
 				"type":        "some type",
@@ -644,7 +645,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when title value is nil",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity": "CRITICAL",
 				"id":       "KVH012",
 				"title":    nil,
@@ -653,7 +654,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when title value is blank",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"id":          "some id",
 				"title":       "",
@@ -664,7 +665,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when type key is not set",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"id":          "some id",
 				"title":       "some title",
@@ -674,7 +675,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when type value is nil",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"id":          "some id",
 				"title":       "some title",
@@ -685,7 +686,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when type value is blank",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"id":          "some id",
 				"title":       "some title",
@@ -696,7 +697,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when description key is not set",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity": "CRITICAL",
 				"id":       "some id",
 				"title":    "some title",
@@ -706,7 +707,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return metadata",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"id":          "some id",
 				"title":       "some title",
@@ -740,7 +741,7 @@ func TestNewMetadata(t *testing.T) {
 func TestNewMessage(t *testing.T) {
 	testCases := []struct {
 		name           string
-		values         map[string]interface{}
+		values         map[string]any
 		expectedResult string
 		expectedError  string
 	}{
@@ -751,26 +752,26 @@ func TestNewMessage(t *testing.T) {
 		},
 		{
 			name:          "Should return error when msg key is not set",
-			values:        map[string]interface{}{},
+			values:        make(map[string]any),
 			expectedError: "required key not found: msg",
 		},
 		{
 			name: "Should return error when msg value is nil",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"msg": nil,
 			},
 			expectedError: "required value is nil for key: msg",
 		},
 		{
 			name: "Should return error when msg value is blank",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"msg": "",
 			},
 			expectedError: "required value is blank for key: msg",
 		},
 		{
 			name: "Should return result",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"msg": "some message",
 			},
 			expectedResult: "some message",
@@ -818,7 +819,7 @@ func getPolicyResults(results scan.Results) Results {
 	prs := make(Results, 0)
 	for _, result := range results {
 		var msgs []string
-		if len(result.Description()) > 0 {
+		if result.Description() != "" {
 			msgs = []string{result.Description()}
 		} else {
 			msgs = nil
@@ -849,7 +850,7 @@ func getBuildInResults(t *testing.T, filePath string) Results {
 }
 
 // NewMetadata constructs new Metadata based on raw values.
-func NewMetadata(values map[string]interface{}) (Metadata, error) {
+func NewMetadata(values map[string]any) (Metadata, error) {
 	if values == nil {
 		return Metadata{}, errors.New("values must not be nil")
 	}
@@ -897,7 +898,7 @@ type Metadata struct {
 }
 
 // NewMessage constructs new message string based on raw values.
-func NewMessage(values map[string]interface{}) (string, error) {
+func NewMessage(values map[string]any) (string, error) {
 	if values == nil {
 		return "", errors.New("values must not be nil")
 	}
@@ -907,7 +908,7 @@ func NewMessage(values map[string]interface{}) (string, error) {
 	}
 	return message, nil
 }
-func requiredStringValue(values map[string]interface{}, key string) (string, error) {
+func requiredStringValue(values map[string]any, key string) (string, error) {
 	value, ok := values[key]
 	if !ok {
 		return "", fmt.Errorf("required key not found: %s", key)

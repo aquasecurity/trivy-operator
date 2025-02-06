@@ -2,11 +2,13 @@ package infraassessment
 
 import (
 	"context"
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
+
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
 )
 
 // Writer is the interface for saving v1alpha1.InfraAssessmentReport instances.
@@ -26,11 +28,11 @@ type Reader interface {
 
 	// FindReportByOwner returns a v1alpha1.InfraAssessmentReport owned by the given
 	// kube.ObjectRef or nil if the report is not found.
-	FindReportByOwner(ctx context.Context, owner kube.ObjectRef) (interface{}, error)
+	FindReportByOwner(ctx context.Context, owner kube.ObjectRef) (any, error)
 
 	// FindClusterReportByOwner returns a v1alpha1.ClusterConfigAuditReport owned by the given
 	// kube.ObjectRef or nil if the report is not found.
-	FindClusterReportByOwner(ctx context.Context, owner kube.ObjectRef) (interface{}, error)
+	FindClusterReportByOwner(ctx context.Context, owner kube.ObjectRef) (any, error)
 }
 
 type ReadWriter interface {
@@ -92,7 +94,7 @@ func (r *readWriter) WriteClusterReport(ctx context.Context, report v1alpha1.Clu
 	return err
 }
 
-func (r *readWriter) FindReportByOwner(ctx context.Context, owner kube.ObjectRef) (interface{}, error) {
+func (r *readWriter) FindReportByOwner(ctx context.Context, owner kube.ObjectRef) (any, error) {
 	var list v1alpha1.InfraAssessmentReportList
 
 	labels := client.MatchingLabels(kube.ObjectRefToLabels(owner))
@@ -107,7 +109,7 @@ func (r *readWriter) FindReportByOwner(ctx context.Context, owner kube.ObjectRef
 	return nil, nil
 }
 
-func (r *readWriter) FindClusterReportByOwner(ctx context.Context, owner kube.ObjectRef) (interface{}, error) {
+func (r *readWriter) FindClusterReportByOwner(ctx context.Context, owner kube.ObjectRef) (any, error) {
 	var list v1alpha1.ClusterInfraAssessmentReportList
 
 	labels := client.MatchingLabels(kube.ObjectRefToLabels(owner))

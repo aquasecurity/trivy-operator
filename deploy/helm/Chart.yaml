@@ -19,7 +19,9 @@ keywords:
   - aquasecurity
   - trivyoperator
   - trivy
+
 # home: https://github.com/aquasecurity/trivy-operator
+
 sources:
   - https://github.com/aquasecurity/trivy-operator
 # maintainers: # (optional)

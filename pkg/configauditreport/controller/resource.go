@@ -58,40 +58,6 @@ type ResourceController struct {
 	iacScanner       *generic.GenericScanner
 }
 
-func CreateDataFS(dataPaths []string, k8sVersion string) (fs.FS, []string, error) {
-	fsys := mapfs.New()
-
-	// Create a virtual file for Kubernetes scanning
-	if k8sVersion != "" {
-		if err := fsys.MkdirAll("system", 0700); err != nil {
-			return nil, nil, err
-		}
-		data := []byte(fmt.Sprintf(`{"k8s": {"version": %q}}`, k8sVersion))
-		if err := fsys.WriteVirtualFile("system/k8s-version.json", data, 0600); err != nil {
-			return nil, nil, err
-		}
-	}
-	for _, path := range dataPaths {
-		if err := fsys.CopyFilesUnder(path); err != nil {
-			return nil, nil, err
-		}
-	}
-
-	// data paths are no longer needed as fs.FS contains only needed files now.
-	dataPaths = []string{"."}
-
-	return fsys, dataPaths, nil
-}
-
-func ScannerOptions(dataPaths []string, dataFS fs.FS) []options.ScannerOption {
-	optionsArray := []options.ScannerOption{
-		rego.WithDataFilesystem(dataFS),
-		rego.WithDataDirs(dataPaths...),
-	}
-	optionsArray = append(optionsArray, rego.WithEmbeddedPolicies(true), rego.WithEmbeddedLibraries(true))
-	return optionsArray
-}
-
 // +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
 // +kubebuilder:rbac:groups=apps,resources=replicasets,verbs=get;list;watch
 // +kubebuilder:rbac:groups="",resources=replicationcontrollers,verbs=get;list;watch

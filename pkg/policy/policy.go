@@ -50,15 +50,17 @@ type Policies struct {
 	clusterVersion string
 	policyLoader   Loader
 	memfs          *memoryfs.FS
+	scanner        *generic.GenericScanner
 }
 
-func NewPolicies(data map[string]string, cac configauditreport.ConfigAuditConfig, log logr.Logger, pl Loader, serverVersion string) *Policies {
+func NewPolicies(data map[string]string, cac configauditreport.ConfigAuditConfig, log logr.Logger, pl Loader, serverVersion string, scanner *generic.GenericScanner) *Policies {
 	return &Policies{
 		data:           data,
 		log:            log,
 		cac:            cac,
 		policyLoader:   pl,
 		clusterVersion: serverVersion,
+		scanner:        scanner,
 	}
 }
 
@@ -193,7 +195,7 @@ func (p *Policies) rbacDisabled(rbacEnable bool, kind string) bool {
 }
 
 // Eval evaluates Rego policies with Kubernetes resource client.Object as input.
-func (p *Policies) Eval(ctx context.Context, iacScanner *generic.GenericScanner, resource client.Object, inputs ...[]byte) (scan.Results, error) {
+func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[]byte) (scan.Results, error) {
 	resourceKind := resource.GetObjectKind().GroupVersionKind().Kind
 	policies, err := p.loadPolicies(resourceKind)
 	if err != nil {
@@ -225,7 +227,7 @@ func (p *Policies) Eval(ctx context.Context, iacScanner *generic.GenericScanner,
 		return nil, err
 	}
 
-	scanResult, err := iacScanner.ScanFS(ctx, p.memfs, inputFolder)
+	scanResult, err := p.scanner.ScanFS(ctx, p.memfs, inputFolder)
 	if err != nil {
 		return nil, err
 	}

@@ -3,9 +3,14 @@ package controller
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"strings"
 
+	"github.com/aquasecurity/trivy/pkg/iac/rego"
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/generic"
+	"github.com/aquasecurity/trivy/pkg/iac/scanners/kubernetes"
+	"github.com/aquasecurity/trivy/pkg/iac/scanners/options"
+	"github.com/aquasecurity/trivy/pkg/mapfs"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -23,6 +28,49 @@ import (
 	"github.com/aquasecurity/trivy/pkg/iac/scan"
 )
 
+func CreateDataFS(dataPaths []string, k8sVersion string) (fs.FS, []string, error) {
+	fsys := mapfs.New()
+
+	// Create a virtual file for Kubernetes scanning
+	if k8sVersion != "" {
+		if err := fsys.MkdirAll("system", 0700); err != nil {
+			return nil, nil, err
+		}
+		data := []byte(fmt.Sprintf(`{"k8s": {"version": %q}}`, k8sVersion))
+		if err := fsys.WriteVirtualFile("system/k8s-version.json", data, 0600); err != nil {
+			return nil, nil, err
+		}
+	}
+	for _, path := range dataPaths {
+		if err := fsys.CopyFilesUnder(path); err != nil {
+			return nil, nil, err
+		}
+	}
+
+	// data paths are no longer needed as fs.FS contains only needed files now.
+	dataPaths = []string{"."}
+
+	return fsys, dataPaths, nil
+}
+
+func ScannerOptions(dataPaths []string, dataFS fs.FS) []options.ScannerOption {
+	optionsArray := []options.ScannerOption{
+		rego.WithDataFilesystem(dataFS),
+		rego.WithDataDirs(dataPaths...),
+	}
+	optionsArray = append(optionsArray, rego.WithEmbeddedPolicies(true), rego.WithEmbeddedLibraries(true))
+	return optionsArray
+}
+
+func NewScanner() (*generic.GenericScanner, error) {
+	dataFS, dataPaths, err := CreateDataFS([]string{}, "trivy-operator")
+	if err != nil {
+		return nil, err
+	}
+	so := ScannerOptions(dataPaths, dataFS)
+	return kubernetes.NewScanner(so...), nil
+}
+
 func Policies(ctx context.Context, config etc.Config, c client.Client, cac configauditreport.ConfigAuditConfig, log logr.Logger, pl policy.Loader, clusterVersion ...string) (*policy.Policies, error) {
 	cm := &corev1.ConfigMap{}
 
@@ -39,12 +87,18 @@ func Policies(ctx context.Context, config etc.Config, c client.Client, cac confi
 	if len(clusterVersion) > 0 {
 		version = clusterVersion[0]
 	}
-	return policy.NewPolicies(cm.Data, cac, log, pl, version), nil
+
+	scanner, err := NewScanner()
+	if err != nil {
+		return nil, fmt.Errorf("failed creating policy scanner: %w", err)
+	}
+
+	return policy.NewPolicies(cm.Data, cac, log, pl, version, scanner), nil
 }
 
-func evaluate(ctx context.Context, iacScanner *generic.GenericScanner, policies *policy.Policies, resource client.Object, bi trivyoperator.BuildInfo, cd trivyoperator.ConfigData, c etc.Config, inputs ...[]byte) (Misconfiguration, error) {
+func evaluate(ctx context.Context, policies *policy.Policies, resource client.Object, bi trivyoperator.BuildInfo, cd trivyoperator.ConfigData, c etc.Config, inputs ...[]byte) (Misconfiguration, error) {
 	misconfiguration := Misconfiguration{}
-	results, err := policies.Eval(ctx, iacScanner, resource, inputs...)
+	results, err := policies.Eval(ctx, resource, inputs...)
 	if err != nil {
 		return Misconfiguration{}, err
 	}

@@ -381,7 +381,7 @@ trivy:
   priorityClassName: ""
 
   # -- additionalVulnerabilityReportFields is a comma separated list of additional fields which
-  # can be added to the VulnerabilityReport. Supported parameters: Description, Links, CVSS, Target, Class, PackagePath and PackageType
+  # can be added to the VulnerabilityReport. Supported parameters: Description, Links, CVSS, Target, Class, PackagePath, PackageType, PackageType, SeveritySource, and DataSource
   additionalVulnerabilityReportFields: ""
 
   # -- httpProxy is the HTTP proxy used by Trivy to download the vulnerabilities database from GitHub.

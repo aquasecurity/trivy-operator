@@ -2,17 +2,21 @@ package trivy
 
 import (
 	"fmt"
+
 	"path/filepath"
+
 	"strconv"
 	"strings"
 
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
+
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
+
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
@@ -103,6 +107,10 @@ func (c Config) GetAdditionalVulnerabilityReportFields() vulnerabilityreport.Add
 			addFields.PackageType = true
 		case "PackagePath":
 			addFields.PkgPath = true
+		case "SeveritySource":
+			addFields.SeveritySource = true
+		case "DataSource":
+			addFields.DataSource = true
 		}
 	}
 	return addFields

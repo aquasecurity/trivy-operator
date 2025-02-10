@@ -25,7 +25,7 @@ require (
 	github.com/openshift/api v0.0.0-20231025170628-b8a18fdc040d
 	github.com/prometheus/client_golang v1.20.5
 	github.com/quasilyte/go-ruleguard/dsl v0.3.22
-	github.com/samber/lo v1.49.0
+	github.com/samber/lo v1.49.1
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/automaxprocs v1.6.0
 	go.uber.org/multierr v1.11.0

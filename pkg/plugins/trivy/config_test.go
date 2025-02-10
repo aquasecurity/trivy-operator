@@ -95,10 +95,10 @@ func TestConfig_GetAdditionalVulnerabilityReportFields(t *testing.T) {
 			name: "all additional fields are set",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"trivy.additionalVulnerabilityReportFields": "PackageType,PkgPath,Class,Target,Links,Description,CVSS",
+					"trivy.additionalVulnerabilityReportFields": "PackageType,PkgPath,Class,Target,Links,Description,CVSS,SeveritySource,DataSource",
 				},
 			}},
-			additionalFields: vulnerabilityreport.AdditionalFields{Description: true, Links: true, CVSS: true, Class: true, PackageType: true, PkgPath: true, Target: true},
+			additionalFields: vulnerabilityreport.AdditionalFields{Description: true, Links: true, CVSS: true, Class: true, PackageType: true, PkgPath: true, Target: true, SeveritySource: true, DataSource: true},
 		},
 		{
 			name: "some additional fields are set",
@@ -120,6 +120,8 @@ func TestConfig_GetAdditionalVulnerabilityReportFields(t *testing.T) {
 			assert.Equal(t, tc.additionalFields.PackageType, addFields.PackageType)
 			assert.Equal(t, tc.additionalFields.Class, addFields.Class)
 			assert.Equal(t, tc.additionalFields.Links, addFields.Links)
+			assert.True(t, addFields.SeveritySource == tc.additionalFields.SeveritySource)
+			assert.True(t, addFields.DataSource == tc.additionalFields.DataSource)
 		})
 	}
 }

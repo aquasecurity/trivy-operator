@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/aquasecurity/trivy/pkg/iac/scanners/kubernetes"
 	"github.com/go-logr/logr"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -137,7 +136,7 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 	if err != nil {
 		return err
 	}
-	policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger, r.PolicyLoader)
+	policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger, r.PolicyLoader, nil) // TODO: pass shared scanner?
 	if err != nil {
 		return fmt.Errorf("getting policies: %w", err)
 	}
@@ -156,14 +155,7 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 		return err
 	}
 
-	dataFS, dataPaths, err := CreateDataFS([]string{}, j.NodeCollectorName)
-	if err != nil {
-		return err
-	}
-	so := ScannerOptions(dataPaths, dataFS)
-	iacScanner := kubernetes.NewScanner(so...)
-
-	misConfigData, err := evaluate(ctx, iacScanner, policies, node, r.BuildInfo, r.ConfigData, r.Config, nodeInfo)
+	misConfigData, err := evaluate(ctx, policies, node, r.BuildInfo, r.ConfigData, r.Config, nodeInfo)
 	if err != nil {
 		return fmt.Errorf("failed to evaluate policies on Node : %w", err)
 	}

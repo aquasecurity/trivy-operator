@@ -3,15 +3,10 @@ package controller
 import (
 	"context"
 	"fmt"
-	"io/fs"
 	"strings"
 	"time"
 
-	"github.com/aquasecurity/trivy/pkg/iac/rego"
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/generic"
-	"github.com/aquasecurity/trivy/pkg/iac/scanners/kubernetes"
-	"github.com/aquasecurity/trivy/pkg/iac/scanners/options"
-	"github.com/aquasecurity/trivy/pkg/mapfs"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
@@ -89,12 +84,10 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 
-	dataFS, dataPaths, err := CreateDataFS([]string{}, r.ClusterVersion)
+	r.iacScanner, err = NewScanner()
 	if err != nil {
 		return err
 	}
-	so := ScannerOptions(dataPaths, dataFS)
-	r.iacScanner = kubernetes.NewScanner(so...)
 
 	// Determine which Kubernetes workloads the controller will reconcile and add them to resources
 	targetWorkloads := r.Config.GetTargetWorkloads()
@@ -188,7 +181,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger, r.PolicyLoader, r.ClusterVersion)
+		policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger, r.PolicyLoader, r.iacScanner, r.ClusterVersion)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
 		}
@@ -241,7 +234,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			log.V(1).Info("Configuration audit report exists")
 			return ctrl.Result{}, nil
 		}
-		misConfigData, err := evaluate(ctx, r.iacScanner, policies, resource, r.BuildInfo, r.ConfigData, r.Config)
+		misConfigData, err := evaluate(ctx, policies, resource, r.BuildInfo, r.ConfigData, r.Config)
 		if err != nil {
 			if err.Error() == policy.PoliciesNotFoundError {
 				return ctrl.Result{}, nil

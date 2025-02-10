@@ -71,7 +71,7 @@ func NewScanner() (*generic.GenericScanner, error) {
 	return kubernetes.NewScanner(so...), nil
 }
 
-func Policies(ctx context.Context, config etc.Config, c client.Client, cac configauditreport.ConfigAuditConfig, log logr.Logger, pl policy.Loader, clusterVersion ...string) (*policy.Policies, error) {
+func Policies(ctx context.Context, config etc.Config, c client.Client, cac configauditreport.ConfigAuditConfig, log logr.Logger, pl policy.Loader, scanner *generic.GenericScanner, clusterVersion ...string) (*policy.Policies, error) {
 	cm := &corev1.ConfigMap{}
 
 	err := c.Get(ctx, client.ObjectKey{
@@ -88,9 +88,11 @@ func Policies(ctx context.Context, config etc.Config, c client.Client, cac confi
 		version = clusterVersion[0]
 	}
 
-	scanner, err := NewScanner()
-	if err != nil {
-		return nil, fmt.Errorf("failed creating policy scanner: %w", err)
+	if scanner == nil {
+		scanner, err = NewScanner()
+		if err != nil {
+			return nil, fmt.Errorf("failed creating policy scanner: %w", err)
+		}
 	}
 
 	return policy.NewPolicies(cm.Data, cac, log, pl, version, scanner), nil

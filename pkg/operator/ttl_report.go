@@ -141,7 +141,7 @@ func (r *TTLReportReconciler) applicableForDeletion(report client.Object, ttlRep
 	if err != nil {
 		return false
 	}
-	policies, err := control.Policies(context.Background(), r.Config, r.Client, cac, r.Logger, r.PolicyLoader)
+	policies, err := control.Policies(context.Background(), r.Config, r.Client, cac, r.Logger, r.PolicyLoader, nil) // TODO: pass shared scanner?
 	if err != nil {
 		return false
 	}

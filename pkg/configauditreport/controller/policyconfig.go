@@ -120,7 +120,7 @@ func (r *PolicyConfigController) reconcileConfig(kind kube.Kind) reconcile.Func 
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger, r.PolicyLoader, r.ClusterVersion)
+		policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger, r.PolicyLoader, nil, r.ClusterVersion) // TODO: pass shared scanner?
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
 		}
@@ -210,7 +210,7 @@ func (r *PolicyConfigController) reconcileClusterConfig(kind kube.Kind) reconcil
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger, r.PolicyLoader)
+		policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger, r.PolicyLoader, nil) // TODO: pass shared scanner?
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
 		}

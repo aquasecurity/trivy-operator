@@ -20,7 +20,7 @@ Keeps security report resources updated
 | compliance.specs | list | `["k8s-cis-1.23","k8s-nsa-1.0","k8s-pss-baseline-0.1","k8s-pss-restricted-0.1"]` | specs is a list of compliance specs to be used by the cluster compliance scanner  - k8s-cis-1.23  - k8s-nsa-1.0  - k8s-pss-baseline-0.1  - k8s-pss-restricted-0.1  - eks-cis-1.4  - rke2-cis-1.24 |
 | excludeNamespaces | string | `""` | excludeNamespaces is a comma separated list of namespaces (or glob patterns) to be excluded from scanning. Only applicable in the all namespaces install mode, i.e. when the targetNamespaces values is a blank string. |
 | extraEnv | list | `[]` | extraEnv is a list of extra environment variables for the trivy-operator. |
-| hostAliases | list | `[]` | Add hostAliases to TrivyOperator and TrivyServer. If you want to use delete [] and profide your settings |
+| hostAliases | list | `[]` | If you want to use delete [] and profide your settings |
 | fullnameOverride | string | `""` | fullnameOverride override operator full name |
 | global | object | `{"image":{"registry":""}}` | global values provide a centralized configuration for 'image.registry', reducing the potential for errors. If left blank, the chart will default to the individually set 'image.registry' values |
 | image.pullPolicy | string | `"IfNotPresent"` | pullPolicy set the operator pullPolicy |

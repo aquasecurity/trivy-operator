@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/aquasecurity/trivy/pkg/iac/scanners/generic"
 	"github.com/go-logr/logr"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -40,12 +41,19 @@ type NodeCollectorJobController struct {
 	configauditreport.PluginInMemory
 	InfraReadWriter infraassessment.ReadWriter
 	trivyoperator.BuildInfo
+	iacScanner *generic.GenericScanner
 }
 
 // +kubebuilder:rbac:groups=batch,resources=jobs,verbs=get;list;watch;create;delete
 
 func (r *NodeCollectorJobController) SetupWithManager(mgr ctrl.Manager) error {
 	var predicates []predicate.Predicate
+
+	var err error
+	r.iacScanner, err = NewScanner()
+	if err != nil {
+		return err
+	}
 
 	predicates = append(predicates, ManagedByTrivyOperator, IsNodeInfoCollector, JobHasAnyCondition)
 	return ctrl.NewControllerManagedBy(mgr).
@@ -136,7 +144,7 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 	if err != nil {
 		return err
 	}
-	policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger, r.PolicyLoader, nil) // TODO: pass shared scanner?
+	policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger, r.PolicyLoader, r.iacScanner)
 	if err != nil {
 		return fmt.Errorf("getting policies: %w", err)
 	}

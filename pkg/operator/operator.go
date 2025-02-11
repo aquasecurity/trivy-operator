@@ -168,9 +168,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		return err
 	}
 	objectResolver := kube.NewObjectResolver(mgr.GetClient(), compatibleObjectMapper)
-	if err != nil {
-		return err
-	}
 	limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
 	logsReader := kube.NewLogsReader(clientSet)
 	secretsReader := kube.NewSecretsReader(mgr.GetClient())

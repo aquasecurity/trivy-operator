@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"time"
 
 	"github.com/go-logr/logr"
 	batchv1 "k8s.io/api/batch/v1"
@@ -56,12 +55,12 @@ func (r *NodeCollectorJobController) SetupWithManager(mgr ctrl.Manager) error {
 
 func (r *NodeCollectorJobController) reconcileJobs() reconcile.Func {
 	return func(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-		if !r.ChecksLoader.IsChecksReady() {
-			// TODO: log
-			return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
-		}
-
 		log := r.Logger.WithValues("job", req.NamespacedName)
+		if !r.ChecksLoader.IsChecksReady() {
+			log.V(1).Info("Checks are not loaded",
+				"retryAfter", r.ScanJobRetryAfter)
+			return ctrl.Result{RequeueAfter: r.ScanJobRetryAfter}, nil
+		}
 
 		job := &batchv1.Job{}
 		err := r.Client.Get(ctx, req.NamespacedName, job)

@@ -3,7 +3,10 @@ package main
 import (
 	"fmt"
 	"os"
+	"runtime"
 
+	"github.com/google/gops/agent"
+	"github.com/grafana/pyroscope-go"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
@@ -34,6 +37,44 @@ var (
 
 // main is the entrypoint of the Trivy Operator executable command.
 func main() {
+	if err := agent.Listen(agent.Options{}); err != nil {
+		panic(err)
+	}
+
+	// These 2 lines are only required if you're using mutex or block profiling
+	// Read the explanation below for how to set these rates:
+	runtime.SetMutexProfileFraction(5)
+	runtime.SetBlockProfileRate(5)
+
+	pyroscope.Start(pyroscope.Config{
+		ApplicationName: "trivy-operator",
+
+		// replace this with the address of pyroscope server
+		ServerAddress: "http://localhost:4040/",
+
+		// you can disable logging by setting this to nil
+		Logger: pyroscope.StandardLogger,
+
+		// you can provide static tags via a map:
+		Tags: map[string]string{"hostname": "mac-m1"},
+
+		ProfileTypes: []pyroscope.ProfileType{
+			// these profile types are enabled by default:
+			pyroscope.ProfileCPU,
+			pyroscope.ProfileAllocObjects,
+			pyroscope.ProfileAllocSpace,
+			pyroscope.ProfileInuseObjects,
+			pyroscope.ProfileInuseSpace,
+
+			// these profile types are optional:
+			pyroscope.ProfileGoroutines,
+			pyroscope.ProfileMutexCount,
+			pyroscope.ProfileMutexDuration,
+			pyroscope.ProfileBlockCount,
+			pyroscope.ProfileBlockDuration,
+		},
+	})
+
 	// Fetch operator configuration early.
 	operatorConfig, err := etc.GetOperatorConfig()
 	if err != nil {

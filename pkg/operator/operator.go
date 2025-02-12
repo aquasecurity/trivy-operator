@@ -237,7 +237,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 
 	checksLoader := controller.NewChecksLoader(
 		operatorConfig,
-		ctrl.Log.WithName("checksloader"),
+		ctrl.Log.WithName("checks-loader"),
 		mgr.GetClient(),
 		objectResolver,
 		pluginContext,

@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 	"sync"
-	"sync/atomic"
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
@@ -20,7 +21,7 @@ import (
 
 type ChecksLoader struct {
 	mu             sync.Mutex
-	configReady    atomic.Bool
+	checksLoaded   bool
 	cfg            etc.Config
 	logger         logr.Logger
 	cl             client.Client
@@ -52,47 +53,74 @@ func NewChecksLoader(
 }
 
 func (r *ChecksLoader) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	r.logger.V(1).Info(fmt.Sprintf("ChecksLoader %s", req.String()))
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	log := r.logger.WithValues("configMap", req.NamespacedName)
+
 	var cm corev1.ConfigMap
 	if err := r.cl.Get(ctx, req.NamespacedName, &cm); err != nil {
+		if req.Name == trivyoperator.TrivyConfigMapName {
+			log.V(1).Info("Checks removed")
+			r.checksLoaded = false
+			r.policies = nil
+		}
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	switch req.Name {
-	case "trivy-operator-trivy-config", "trivy-operator-policies-config":
-		r.logger.V(1).Info("Checks updated")
-		cac, err := r.pluginConfig.NewConfigForConfigAudit(r.pluginContext)
-		if err != nil {
-			return ctrl.Result{}, fmt.Errorf("new config for config audit: %w", err)
-		}
-		policies, err := ConfiguredPolicies(
-			ctx, r.cfg, r.objectResolver, cac, r.logger, r.policyLoader,
-		)
-		if err != nil {
-			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
-		}
-		if err := policies.Load(); err != nil {
-			return ctrl.Result{}, fmt.Errorf("load checks: %w", err)
-		}
-		if err := policies.InitScanner(); err != nil {
-			return ctrl.Result{}, fmt.Errorf("init k8s scanner: %w", err)
-		}
-		r.policies = policies
-		r.configReady.Store(true)
+	log.V(1).Info("Load checks")
+	cac, err := r.pluginConfig.NewConfigForConfigAudit(r.pluginContext)
+	if err != nil {
+		return ctrl.Result{}, fmt.Errorf("new config for config audit: %w", err)
 	}
+	policies, err := ConfiguredPolicies(
+		ctx, r.cfg, r.objectResolver, cac, r.logger, r.policyLoader,
+	)
+	if err != nil {
+		return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
+	}
+	if err := policies.Load(); err != nil {
+		return ctrl.Result{}, fmt.Errorf("load checks: %w", err)
+	}
+	if err := policies.InitScanner(); err != nil {
+		return ctrl.Result{}, fmt.Errorf("init k8s scanner: %w", err)
+	}
+	r.policies = policies
+	r.checksLoaded = true
+	log.V(1).Info("Checks loaded")
 	return ctrl.Result{}, nil
+}
+
+var allowedConfigMaps = map[string]struct{}{
+	trivyoperator.TrivyConfigMapName:    {},
+	trivyoperator.PoliciesConfigMapName: {},
+}
+
+var configPredicate = func(namespace string) predicate.Predicate {
+	return predicate.NewPredicateFuncs(func(obj client.Object) bool {
+		if _, exists := allowedConfigMaps[obj.GetName()]; !exists {
+			return false
+		}
+		return obj.GetNamespace() == namespace
+	})
 }
 
 func (r *ChecksLoader) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&corev1.ConfigMap{}).
+		For(&corev1.ConfigMap{}, builder.WithPredicates(configPredicate(r.cfg.Namespace))).
 		Complete(r)
 }
 
 func (r *ChecksLoader) IsChecksReady() bool {
-	return r.configReady.Load()
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	return r.checksLoaded
 }
 
 func (r *ChecksLoader) GetPolicies() *policy.Policies {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
 	return r.policies
 }

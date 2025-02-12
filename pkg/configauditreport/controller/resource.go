@@ -49,6 +49,7 @@ type ResourceController struct {
 	trivyoperator.BuildInfo
 	ClusterVersion   string
 	CacheSyncTimeout time.Duration
+	ChecksLoader     *ChecksLoader
 }
 
 // +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
@@ -155,6 +156,11 @@ func (r *ResourceController) buildControlMgr(mgr ctrl.Manager, configResource ku
 
 func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile.Func {
 	return func(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+		if !r.ChecksLoader.IsChecksReady() {
+			// TODO: log
+			return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
+		}
+
 		log := r.Logger.WithValues("kind", resourceKind, "name", req.NamespacedName)
 		resourceRef := kube.ObjectRefFromKindAndObjectKey(resourceKind, req.NamespacedName)
 		resource, err := r.ObjectFromObjectRef(ctx, resourceRef)
@@ -170,14 +176,8 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			r.Config.ConfigAuditScannerScanOnlyCurrentRevisions, log, r.ConfigData.GetSkipResourceByLabels()); skip {
 			return ctrl.Result{}, err
 		}
-		cac, err := r.NewConfigForConfigAudit(r.PluginContext)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger, r.PolicyLoader, r.ClusterVersion)
-		if err != nil {
-			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
-		}
+
+		policies := r.ChecksLoader.GetPolicies()
 
 		// Skip processing if there are no policies applicable to the resource
 		supported, err := policies.SupportedKind(resource, r.RbacAssessmentScannerEnabled)

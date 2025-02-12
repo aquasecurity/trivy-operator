@@ -168,9 +168,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		return err
 	}
 	objectResolver := kube.NewObjectResolver(mgr.GetClient(), compatibleObjectMapper)
-	if err != nil {
-		return err
-	}
 	limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
 	logsReader := kube.NewLogsReader(clientSet)
 	secretsReader := kube.NewSecretsReader(mgr.GetClient())
@@ -238,6 +235,20 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 	}
 
+	checksLoader := controller.NewChecksLoader(
+		operatorConfig,
+		ctrl.Log.WithName("checksloader"),
+		mgr.GetClient(),
+		objectResolver,
+		pluginContext,
+		pluginConfig,
+		policyLoader,
+	)
+
+	if err := checksLoader.SetupWithManager(mgr); err != nil {
+		return fmt.Errorf("setup MyReconciler: %w", err)
+	}
+
 	if operatorConfig.ScannerReportTTL != nil {
 		ttlReconciler := &TTLReportReconciler{
 			Logger:       ctrl.Log.WithName("reconciler").WithName("ttlreport"),
@@ -298,6 +309,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			BuildInfo:        buildInfo,
 			ClusterVersion:   gitVersion,
 			CacheSyncTimeout: *operatorConfig.ControllerCacheSyncTimeout,
+			ChecksLoader:     checksLoader,
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup resource controller: %w", err)
 		}
@@ -310,7 +322,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			PluginInMemory: pluginConfig,
 			ClusterVersion: gitVersion,
 		}).SetupWithManager(mgr); err != nil {
-			return fmt.Errorf("unable to setup resource controller: %w", err)
+			return fmt.Errorf("unable to setup policy config controller: %w", err)
 		}
 		if operatorConfig.InfraAssessmentScannerEnabled {
 			limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
@@ -340,6 +352,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				PluginInMemory:  pluginConfig,
 				InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
 				BuildInfo:       buildInfo,
+				ChecksLoader:    checksLoader,
 			}).SetupWithManager(mgr); err != nil {
 				return fmt.Errorf("unable to setup node collector controller: %w", err)
 			}

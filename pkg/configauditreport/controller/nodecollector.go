@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/go-logr/logr"
 	batchv1 "k8s.io/api/batch/v1"
@@ -40,13 +41,13 @@ type NodeCollectorJobController struct {
 	configauditreport.PluginInMemory
 	InfraReadWriter infraassessment.ReadWriter
 	trivyoperator.BuildInfo
+	ChecksLoader *ChecksLoader
 }
 
 // +kubebuilder:rbac:groups=batch,resources=jobs,verbs=get;list;watch;create;delete
 
 func (r *NodeCollectorJobController) SetupWithManager(mgr ctrl.Manager) error {
 	var predicates []predicate.Predicate
-
 	predicates = append(predicates, ManagedByTrivyOperator, IsNodeInfoCollector, JobHasAnyCondition)
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&batchv1.Job{}, builder.WithPredicates(predicates...)).
@@ -55,6 +56,11 @@ func (r *NodeCollectorJobController) SetupWithManager(mgr ctrl.Manager) error {
 
 func (r *NodeCollectorJobController) reconcileJobs() reconcile.Func {
 	return func(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+		if !r.ChecksLoader.IsChecksReady() {
+			// TODO: log
+			return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
+		}
+
 		log := r.Logger.WithValues("job", req.NamespacedName)
 
 		job := &batchv1.Job{}
@@ -132,19 +138,13 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 	if err != nil {
 		return err
 	}
-	cac, err := r.NewConfigForConfigAudit(r.PluginContext)
-	if err != nil {
-		return err
-	}
-	policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger, r.PolicyLoader)
-	if err != nil {
-		return fmt.Errorf("getting policies: %w", err)
-	}
+
 	resourceHash, err := kube.ComputeSpecHash(node)
 	if err != nil {
 		return fmt.Errorf("computing spec hash: %w", err)
 	}
 
+	policies := r.ChecksLoader.GetPolicies()
 	policiesHash, err := policies.Hash(string(kube.KindNode))
 	if err != nil {
 		return fmt.Errorf("computing policies hash: %w", err)

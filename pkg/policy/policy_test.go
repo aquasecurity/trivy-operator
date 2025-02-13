@@ -535,7 +535,7 @@ func TestPolicies_Eval(t *testing.T) {
 					},
 				},
 			},
-			useBuiltInPolicies: false,
+			useBuiltInPolicies: true,
 			policies: map[string]string{
 				"policy.uses_image_tag_latest.kinds": "Pod",
 				"policy.uses_image_tag_latest.rego": `

@@ -518,6 +518,50 @@ func TestPolicies_Eval(t *testing.T) {
 			policies:           make(map[string]string),
 			expectedError:      policy.PoliciesNotFoundError,
 		},
+		{
+			name: "Should return empty result for custom rule",
+			resource: &corev1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Pod",
+					APIVersion: "v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:  "nginx",
+							Image: "nginx:1.16",
+						},
+					},
+				},
+			},
+			useBuiltInPolicies: false,
+			policies: map[string]string{
+				"policy.uses_image_tag_latest.kinds": "Pod",
+				"policy.uses_image_tag_latest.rego": `
+   package trivyoperator.policy.k8s.custom
+
+   import data.lib.result
+   import future.keywords.in
+
+   import data.lib.kubernetes
+
+   __rego_metadata__ := {
+       "id": "recommended labels",
+      "title": "recommended title",
+      "severity": "LOW",
+  }
+
+   failHostNetwork {
+      1 == 0
+   }
+
+   deny[res] {
+        failHostNetwork
+        res := result.new("testing")
+   }`,
+			},
+		},
 	}
 
 	for _, tc := range testCases {

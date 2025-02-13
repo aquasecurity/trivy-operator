@@ -46,7 +46,7 @@ func main() {
 	runtime.SetMutexProfileFraction(5)
 	runtime.SetBlockProfileRate(5)
 
-	pyroscope.Start(pyroscope.Config{
+	_, _ = pyroscope.Start(pyroscope.Config{
 		ApplicationName: "trivy-operator",
 
 		// replace this with the address of pyroscope server

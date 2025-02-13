@@ -17,6 +17,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy/pkg/set"
 )
 
 type ChecksLoader struct {
@@ -91,14 +92,11 @@ func (r *ChecksLoader) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Re
 	return ctrl.Result{}, nil
 }
 
-var allowedConfigMaps = map[string]struct{}{
-	trivyoperator.TrivyConfigMapName:    {},
-	trivyoperator.PoliciesConfigMapName: {},
-}
+var allowedConfigMaps = set.New[string](trivyoperator.TrivyConfigMapName, trivyoperator.PoliciesConfigMapName)
 
 var configPredicate = func(namespace string) predicate.Predicate {
 	return predicate.NewPredicateFuncs(func(obj client.Object) bool {
-		if _, exists := allowedConfigMaps[obj.GetName()]; !exists {
+		if allowedConfigMaps.Contains(obj.GetName()) {
 			return false
 		}
 		return obj.GetNamespace() == namespace

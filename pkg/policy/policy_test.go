@@ -529,6 +529,7 @@ func TestPolicies_Eval(t *testing.T) {
 			checks, err := p.Eval(context.TODO(), tc.resource)
 			if tc.expectedError != "" {
 				g.Expect(err).To(HaveOccurred())
+				// FIXME: Assert result
 			} else {
 				g.Expect(err).ToNot(HaveOccurred())
 				g.Expect(reflect.DeepEqual(getPolicyResults(checks), tc.results))

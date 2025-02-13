@@ -262,7 +262,7 @@ func (p *Policies) InitScanner() error {
 	policyFS := memoryfs.New()
 	hasPolicies := len(p.loaded) > 0
 	if hasPolicies {
-		// add add policies to in-memory filesystem
+		// add policies to in-memory filesystem
 		err := createPolicyInputFS(policyFS, policiesFolder, p.loaded, regoExt)
 		if err != nil {
 			return err
@@ -363,7 +363,7 @@ func kindFromInput(input any) string {
 	return kind
 }
 
-func (p *Policies) isPolicyApplicable(file string, kind string) bool {
+func (p *Policies) isPolicyApplicable(file, kind string) bool {
 	kindsKey := strings.TrimSuffix(file, keySuffixRego) + keySuffixKinds
 	kinds, ok := p.data[kindsKey]
 	if !ok {

@@ -74,7 +74,7 @@ func (r *ChecksLoader) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Re
 	if err != nil {
 		return ctrl.Result{}, fmt.Errorf("new config for config audit: %w", err)
 	}
-	policies, err := ConfiguredPolicies(
+	policies, err := ConfigurePolicies(
 		ctx, r.cfg, r.objectResolver, cac, r.logger, r.policyLoader,
 	)
 	if err != nil {

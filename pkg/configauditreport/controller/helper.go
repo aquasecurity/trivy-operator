@@ -41,8 +41,7 @@ func Policies(ctx context.Context, config etc.Config, c client.Client, cac confi
 	return policy.NewPolicies(cm.Data, cac, log, pl, version), nil
 }
 
-// TODO(nikpivkin): rename
-func ConfiguredPolicies(ctx context.Context, config etc.Config, c client.Client, cac configauditreport.ConfigAuditConfig, log logr.Logger, pl policy.Loader, clusterVersion ...string) (*policy.Policies, error) {
+func ConfigurePolicies(ctx context.Context, config etc.Config, c client.Client, cac configauditreport.ConfigAuditConfig, log logr.Logger, pl policy.Loader, clusterVersion ...string) (*policy.Policies, error) {
 	policies, err := Policies(ctx, config, c, cac, log, pl, clusterVersion...)
 	if err != nil {
 		return nil, err

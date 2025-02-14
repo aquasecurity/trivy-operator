@@ -55,10 +55,9 @@ type Policies struct {
 	cac            configauditreport.ConfigAuditConfig
 	clusterVersion string
 	policyLoader   Loader
-
-	loaded []string
-
-	scanner k8sScanner
+	policyFS       *memoryfs.FS
+	loaded         []string
+	scanner        k8sScanner
 }
 
 func NewPolicies(data map[string]string, cac configauditreport.ConfigAuditConfig, log logr.Logger, pl Loader, serverVersion string) *Policies {
@@ -68,6 +67,7 @@ func NewPolicies(data map[string]string, cac configauditreport.ConfigAuditConfig
 		cac:            cac,
 		policyLoader:   pl,
 		clusterVersion: serverVersion,
+		policyFS:       memoryfs.New(),
 	}
 }
 
@@ -257,13 +257,11 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[
 	return scanResult, nil
 }
 
-// TODO: pass policyFS
 func (p *Policies) InitScanner() error {
-	policyFS := memoryfs.New()
 	hasPolicies := len(p.loaded) > 0
 	if hasPolicies {
 		// add policies to in-memory filesystem
-		err := createPolicyInputFS(policyFS, policiesFolder, p.loaded, regoExt)
+		err := createPolicyInputFS(p.policyFS, policiesFolder, p.loaded, regoExt)
 		if err != nil {
 			return err
 		}
@@ -272,7 +270,7 @@ func (p *Policies) InitScanner() error {
 	if err != nil {
 		return fmt.Errorf("create data fs: %w", err)
 	}
-	so := p.scannerOptions(policyFS, policiesFolder, dataPaths, dataFS, hasPolicies)
+	so := p.scannerOptions(p.policyFS, policiesFolder, dataPaths, dataFS, hasPolicies)
 	p.scanner = kubernetes.NewScanner(so...)
 	return nil
 }

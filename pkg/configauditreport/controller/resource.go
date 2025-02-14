@@ -157,11 +157,6 @@ func (r *ResourceController) buildControlMgr(mgr ctrl.Manager, configResource ku
 func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile.Func {
 	return func(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 		log := r.Logger.WithValues("kind", resourceKind, "name", req.NamespacedName)
-		if !r.ChecksLoader.IsChecksReady() {
-			log.V(1).Info("Checks are not loaded",
-				"retryAfter", r.ScanJobRetryAfter)
-			return ctrl.Result{RequeueAfter: r.Config.ScanJobRetryAfter}, nil
-		}
 
 		resourceRef := kube.ObjectRefFromKindAndObjectKey(resourceKind, req.NamespacedName)
 		resource, err := r.ObjectFromObjectRef(ctx, resourceRef)
@@ -178,7 +173,10 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			return ctrl.Result{}, err
 		}
 
-		policies := r.ChecksLoader.GetPolicies()
+		policies, err := r.ChecksLoader.GetPolicies(ctx)
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("get policies: %w", err)
+		}
 
 		// Skip processing if there are no policies applicable to the resource
 		supported, err := policies.SupportedKind(resource, r.RbacAssessmentScannerEnabled)

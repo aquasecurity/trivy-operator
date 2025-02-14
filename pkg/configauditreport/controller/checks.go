@@ -62,37 +62,51 @@ func (r *ChecksLoader) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Re
 	var cm corev1.ConfigMap
 	if err := r.cl.Get(ctx, req.NamespacedName, &cm); err != nil {
 		if req.Name == trivyoperator.TrivyConfigMapName {
-			log.V(1).Info("Checks removed")
+			log.V(1).Info("Checks removed since trivy config is removed")
 			r.checksLoaded = false
 			r.policies = nil
 		}
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
+	if err := r.loadChecks(ctx); err != nil {
+		return ctrl.Result{}, fmt.Errorf("load checks: %w", err)
+	}
+
+	return ctrl.Result{}, nil
+}
+
+func (r *ChecksLoader) loadChecks(ctx context.Context) error {
+	log := r.logger
+
 	log.V(1).Info("Load checks")
 	cac, err := r.pluginConfig.NewConfigForConfigAudit(r.pluginContext)
 	if err != nil {
-		return ctrl.Result{}, fmt.Errorf("new config for config audit: %w", err)
+		return fmt.Errorf("new config for config audit: %w", err)
 	}
 	policies, err := ConfigurePolicies(
 		ctx, r.cfg, r.objectResolver, cac, r.logger, r.policyLoader,
 	)
 	if err != nil {
-		return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
+		return fmt.Errorf("getting policies: %w", err)
 	}
 	if err := policies.Load(); err != nil {
-		return ctrl.Result{}, fmt.Errorf("load checks: %w", err)
+		return fmt.Errorf("load checks: %w", err)
 	}
 	if err := policies.InitScanner(); err != nil {
-		return ctrl.Result{}, fmt.Errorf("init k8s scanner: %w", err)
+		return fmt.Errorf("init k8s scanner: %w", err)
 	}
 	r.policies = policies
 	r.checksLoaded = true
 	log.V(1).Info("Checks loaded")
-	return ctrl.Result{}, nil
+
+	return nil
 }
 
-var allowedConfigMaps = set.New[string](trivyoperator.TrivyConfigMapName, trivyoperator.PoliciesConfigMapName)
+var allowedConfigMaps = set.New(
+	trivyoperator.TrivyConfigMapName,
+	trivyoperator.PoliciesConfigMapName,
+)
 
 var configPredicate = func(namespace string) predicate.Predicate {
 	return predicate.NewPredicateFuncs(func(obj client.Object) bool {
@@ -109,16 +123,23 @@ func (r *ChecksLoader) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (r *ChecksLoader) IsChecksReady() bool {
+// func (r *ChecksLoader) IsChecksReady() bool {
+// 	r.mu.Lock()
+// 	defer r.mu.Unlock()
+
+// 	return r.checksLoaded
+// }
+
+// TODO: create custom error
+func (r *ChecksLoader) GetPolicies(ctx context.Context) (*policy.Policies, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	return r.checksLoaded
-}
+	if r.policies == nil {
+		if err := r.loadChecks(ctx); err != nil {
+			return nil, fmt.Errorf("load checks: %w", err)
+		}
+	}
 
-func (r *ChecksLoader) GetPolicies() *policy.Policies {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	return r.policies
+	return r.policies, nil
 }

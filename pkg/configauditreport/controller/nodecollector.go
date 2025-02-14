@@ -56,11 +56,6 @@ func (r *NodeCollectorJobController) SetupWithManager(mgr ctrl.Manager) error {
 func (r *NodeCollectorJobController) reconcileJobs() reconcile.Func {
 	return func(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 		log := r.Logger.WithValues("job", req.NamespacedName)
-		if !r.ChecksLoader.IsChecksReady() {
-			log.V(1).Info("Checks are not loaded",
-				"retryAfter", r.ScanJobRetryAfter)
-			return ctrl.Result{RequeueAfter: r.ScanJobRetryAfter}, nil
-		}
 
 		job := &batchv1.Job{}
 		err := r.Client.Get(ctx, req.NamespacedName, job)
@@ -143,7 +138,11 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 		return fmt.Errorf("computing spec hash: %w", err)
 	}
 
-	policies := r.ChecksLoader.GetPolicies()
+	policies, err := r.ChecksLoader.GetPolicies(ctx)
+	if err != nil {
+		return fmt.Errorf("get policies: %w", err)
+	}
+
 	policiesHash, err := policies.Hash(string(kube.KindNode))
 	if err != nil {
 		return fmt.Errorf("computing policies hash: %w", err)

@@ -270,7 +270,7 @@ func (p *Policies) InitScanner() error {
 	if err != nil {
 		return fmt.Errorf("create data fs: %w", err)
 	}
-	so := p.scannerOptions(p.policyFS, policiesFolder, dataPaths, dataFS, hasPolicies)
+	so := p.scannerOptions(dataPaths, dataFS, hasPolicies)
 	p.scanner = kubernetes.NewScanner(so...)
 	return nil
 }
@@ -310,7 +310,7 @@ func (r *Policies) HasSeverity(resultSeverity severity.Severity) bool {
 	return strings.Contains(defaultSeverity, string(resultSeverity))
 }
 
-func (p *Policies) scannerOptions(policyFS fs.FS, policiesFolder string, dataPaths []string, dataFS fs.FS, hasPolicies bool) []options.ScannerOption {
+func (p *Policies) scannerOptions(dataPaths []string, dataFS fs.FS, hasPolicies bool) []options.ScannerOption {
 	optionsArray := []options.ScannerOption{
 		rego.WithDataFilesystem(dataFS),
 		rego.WithDataDirs(dataPaths...),
@@ -319,7 +319,7 @@ func (p *Policies) scannerOptions(policyFS fs.FS, policiesFolder string, dataPat
 		optionsArray = append(optionsArray, rego.WithEmbeddedPolicies(true), rego.WithEmbeddedLibraries(true))
 	} else {
 		optionsArray = append(optionsArray,
-			rego.WithPolicyFilesystem(policyFS),
+			rego.WithPolicyFilesystem(p.policyFS),
 			rego.WithPolicyDirs(policiesFolder),
 		)
 	}

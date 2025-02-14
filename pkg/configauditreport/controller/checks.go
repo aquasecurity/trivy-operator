@@ -22,7 +22,6 @@ import (
 
 type ChecksLoader struct {
 	mu             sync.Mutex
-	checksLoaded   bool
 	cfg            etc.Config
 	logger         logr.Logger
 	cl             client.Client
@@ -63,7 +62,6 @@ func (r *ChecksLoader) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Re
 	if err := r.cl.Get(ctx, req.NamespacedName, &cm); err != nil {
 		if req.Name == trivyoperator.TrivyConfigMapName {
 			log.V(1).Info("Checks removed since trivy config is removed")
-			r.checksLoaded = false
 			r.policies = nil
 		}
 		return ctrl.Result{}, client.IgnoreNotFound(err)
@@ -90,14 +88,7 @@ func (r *ChecksLoader) loadChecks(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("getting policies: %w", err)
 	}
-	if err := policies.Load(); err != nil {
-		return fmt.Errorf("load checks: %w", err)
-	}
-	if err := policies.InitScanner(); err != nil {
-		return fmt.Errorf("init k8s scanner: %w", err)
-	}
 	r.policies = policies
-	r.checksLoaded = true
 	log.V(1).Info("Checks loaded")
 
 	return nil
@@ -123,14 +114,6 @@ func (r *ChecksLoader) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-// func (r *ChecksLoader) IsChecksReady() bool {
-// 	r.mu.Lock()
-// 	defer r.mu.Unlock()
-
-// 	return r.checksLoaded
-// }
-
-// TODO: create custom error
 func (r *ChecksLoader) GetPolicies(ctx context.Context) (*policy.Policies, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()

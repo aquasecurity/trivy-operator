@@ -12,7 +12,6 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/liamg/memoryfs"
-	"github.com/open-policy-agent/opa/ast"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
@@ -324,59 +323,7 @@ func (p *Policies) scannerOptions(dataPaths []string, dataFS fs.FS, hasPolicies 
 		)
 	}
 
-	optionsArray = append(optionsArray, rego.WithCheckFilter(func(module *ast.Module, inputs ...rego.Input) bool {
-		for _, input := range inputs {
-			kind := kindFromInput(input.Contents)
-			if kind == "" {
-				continue
-			}
-			if module.Package == nil || module.Package.Location == nil {
-				continue
-			}
-
-			if p.isPolicyApplicable(module.Package.Location.File, kind) {
-				return true
-			}
-		}
-		return false
-	}))
 	return optionsArray
-}
-
-func kindFromInput(input any) string {
-	// TODO(nikpivkin): can the input be an array?
-	m, ok := input.(map[string]any)
-	if !ok {
-		return ""
-	}
-	k, ok := m["Kind"]
-	if !ok {
-		return ""
-	}
-
-	kind, ok := k.(string)
-	if !ok {
-		return ""
-	}
-	return kind
-}
-
-func (p *Policies) isPolicyApplicable(file, kind string) bool {
-	kindsKey := strings.TrimSuffix(file, keySuffixRego) + keySuffixKinds
-	kinds, ok := p.data[kindsKey]
-	if !ok {
-		return false
-	}
-
-	for _, k := range strings.Split(kinds, ",") {
-		if k == kindWorkload && !kube.IsWorkload(kind) {
-			continue
-		}
-		if k != kindAny && k != kindWorkload && k != kind {
-			continue
-		}
-	}
-	return true
 }
 
 func createPolicyInputFS(memfs *memoryfs.FS, folderName string, fileData []string, ext string) error {

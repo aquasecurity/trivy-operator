@@ -597,7 +597,7 @@ func TestPolicies_Eval(t *testing.T) {
    deny[res] {
         failHostNetwork
 		res := {
-				"msg": "the check should always pass",
+				"msg": "the check should be always failed",
 			}
    }`,
 			},
@@ -610,7 +610,7 @@ func TestPolicies_Eval(t *testing.T) {
 						Severity:    "LOW",
 						Type:        "Kubernetes Security Check",
 					},
-					Messages: []string{"the check should always pass"},
+					Messages: []string{"the check should be always failed"},
 					Success:  false,
 				},
 			},
@@ -638,7 +638,7 @@ func TestPolicies_Eval(t *testing.T) {
    deny[res] {
         failHostNetwork
 		res := {
-				"msg": "the check should always pass",
+				"msg": "this msg should be hidden",
 			}
    }`,
 			},

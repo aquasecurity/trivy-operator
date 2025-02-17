@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"reflect"
 	"sort"
 	"strings"
 	"testing"
@@ -28,6 +27,24 @@ import (
 	"github.com/aquasecurity/trivy/pkg/iac/scan"
 
 	. "github.com/onsi/gomega"
+)
+
+var (
+	simpleNginxPod = &corev1.Pod{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Pod",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{},
+		Spec: corev1.PodSpec{
+			Containers: []corev1.Container{
+				{
+					Name:  "nginx",
+					Image: "nginx:1.16",
+				},
+			},
+		},
+	}
 )
 
 func TestPolicies_PoliciesByKind(t *testing.T) {
@@ -152,7 +169,6 @@ func TestPolicies_Supported(t *testing.T) {
 			g.Expect(ready).To(Equal(tc.expected))
 		})
 	}
-
 }
 
 func TestPolicies_Eval(t *testing.T) {
@@ -519,38 +535,20 @@ func TestPolicies_Eval(t *testing.T) {
 			expectedError:      policy.PoliciesNotFoundError,
 		},
 		{
-			name: "Should return empty result for custom rule",
-			resource: &corev1.Pod{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Pod",
-					APIVersion: "v1",
-				},
-				ObjectMeta: metav1.ObjectMeta{},
-				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{
-						{
-							Name:  "nginx",
-							Image: "nginx:1.16",
-						},
-					},
-				},
-			},
-			useBuiltInPolicies: true,
+			name:               "using a custom rule - check passed",
+			resource:           simpleNginxPod,
+			useBuiltInPolicies: false,
 			policies: map[string]string{
 				"policy.uses_image_tag_latest.kinds": "Pod",
 				"policy.uses_image_tag_latest.rego": `
    package trivyoperator.policy.k8s.custom
-
-   import data.lib.result
-   import future.keywords.in
-
-   import data.lib.kubernetes
-
    __rego_metadata__ := {
-       "id": "recommended labels",
-      "title": "recommended title",
-      "severity": "LOW",
-  }
+        "id": "CUSTOMCHECK",
+        "title": "custom check title",
+        "severity": "LOW",
+        "type": "Kubernetes Security Check",
+        "description": "custom check description",
+    }
 
    failHostNetwork {
       1 == 0
@@ -558,9 +556,93 @@ func TestPolicies_Eval(t *testing.T) {
 
    deny[res] {
         failHostNetwork
-        res := result.new("testing")
+		res := {
+				"msg": "the check should always pass",
+			}
    }`,
 			},
+			results: []Result{
+				{
+					Metadata: Metadata{
+						ID:          "CUSTOMCHECK",
+						Title:       "custom check title",
+						Description: "custom check description",
+						Severity:    "LOW",
+						Type:        "Kubernetes Security Check",
+					},
+					Success: true,
+				},
+			},
+		},
+		{
+			name:               "using a custom rule - check failed",
+			resource:           simpleNginxPod,
+			useBuiltInPolicies: false,
+			policies: map[string]string{
+				"policy.uses_image_tag_latest.kinds": "Pod",
+				"policy.uses_image_tag_latest.rego": `
+   package trivyoperator.policy.k8s.custom
+   __rego_metadata__ := {
+        "id": "CUSTOMCHECK",
+        "title": "custom check title",
+        "severity": "LOW",
+        "type": "Kubernetes Security Check",
+        "description": "custom check description",
+    }
+
+   failHostNetwork {
+      1 == 1
+   }
+
+   deny[res] {
+        failHostNetwork
+		res := {
+				"msg": "the check should always pass",
+			}
+   }`,
+			},
+			results: []Result{
+				{
+					Metadata: Metadata{
+						ID:          "CUSTOMCHECK",
+						Title:       "custom check title",
+						Description: "custom check description",
+						Severity:    "LOW",
+						Type:        "Kubernetes Security Check",
+					},
+					Messages: []string{"the check should always pass"},
+					Success:  false,
+				},
+			},
+		},
+		{
+			name:               "using a custom rule with incorrect name",
+			resource:           simpleNginxPod,
+			useBuiltInPolicies: false,
+			policies: map[string]string{
+				"policy.uses_image_tag_latest.kinds": "Pod",
+				"policy.uses_image_tag_latest.rego": `
+   package myfunnyname.policy.k8s.custom
+   __rego_metadata__ := {
+        "id": "CUSTOMCHECK",
+        "title": "custom check title",
+        "severity": "LOW",
+        "type": "Kubernetes Security Check",
+        "description": "custom check description",
+    }
+
+   failHostNetwork {
+      1 == 0
+   }
+
+   deny[res] {
+        failHostNetwork
+		res := {
+				"msg": "the check should always pass",
+			}
+   }`,
+			},
+			expectedError: "failed to run policy checks on resources",
 		},
 	}
 
@@ -571,10 +653,11 @@ func TestPolicies_Eval(t *testing.T) {
 			checks, err := policy.NewPolicies(tc.policies, newTestConfig(tc.useBuiltInPolicies), log, &TestLoader{}, "1.27.1").Eval(context.TODO(), tc.resource)
 			if tc.expectedError != "" {
 				g.Expect(err).To(HaveOccurred())
-			} else {
-				g.Expect(err).ToNot(HaveOccurred())
-				g.Expect(reflect.DeepEqual(getPolicyResults(checks), tc.results))
+				return
 			}
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(tc.results).Should(ContainElements(getPolicyResults(checks)))
+
 		})
 	}
 }

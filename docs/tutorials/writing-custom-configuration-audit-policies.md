@@ -30,7 +30,7 @@ __rego_metadata__ := {
 }
 ```
 
-Note that the `recommended_labels` policy is scoped to the `trivyoperator.policy.k8s.custom` package to avoid naming
+Note that the `recommended_labels` policy must be scoped to the `trivyoperator` package to avoid naming
 collision with built-in policies that are pre-installed with trivy-operator.
 
 Once we've got our metadata defined, we need to create the logic of the policy, which is done in the `deny` or `warn`

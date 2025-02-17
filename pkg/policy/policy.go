@@ -275,12 +275,11 @@ func (p *Policies) scannerOptions(policiesFolder string, dataPaths []string, dat
 	optionsArray := []options.ScannerOption{
 		rego.WithDataFilesystem(dataFS),
 		rego.WithDataDirs(dataPaths...),
-		rego.WithPolicyNamespaces(externalPoliciesNamespace),
 	}
 	if p.cac.GetUseEmbeddedRegoPolicies() {
 		return append(optionsArray, rego.WithEmbeddedPolicies(true), rego.WithEmbeddedLibraries(true))
 	}
-	return append(optionsArray, rego.WithPolicyDirs(policiesFolder))
+	return append(optionsArray, rego.WithPolicyDirs(policiesFolder), rego.WithPolicyNamespaces(externalPoliciesNamespace))
 }
 
 func createPolicyInputFS(memfs *memoryfs.FS, folderName string, fileData []string, ext string) error {

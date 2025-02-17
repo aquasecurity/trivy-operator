@@ -110,12 +110,9 @@ metadata:
 data:
   policy.recommended_labels.kinds: "*"
   policy.recommended_labels.rego: |
-  package trivyoperator.policy.k8s.custom
+    package trivyoperator.policy.k8s.custom
 
-   import data.lib.result
-   import future.keywords.in
-
-   __rego_metadata__ := {
+    __rego_metadata__ := {
       "id": "recommended_labels",
       "title": "Recommended labels",
       "severity": "LOW",
@@ -123,20 +120,21 @@ data:
       "description": "A common set of labels allows tools to work interoperably, describing objects in a common manner that all tools can understand.",
       "recommended_actions": "Take full advantage of using recommended labels and apply them on every resource object.",
       "url": "https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/",
-  }
+    }
 
-   __rego_input__ := {
-      "combine": false,
-      "selector": [{"type": "kubernetes"}],
-  }
+    recommended_labels := [
+      "app.kubernetes.io/name",
+      "app.kubernetes.io/version",
+    ]
 
-   deny[res] {
-      input.kind == "Pod"
-      some container in input.spec.containers
-      not startswith(container.image, "hooli.com")
-      msg := sprintf("Image '%v' comes from untrusted registry", [container.image])
-      res := result.new(msg, container)
-  }
+    deny[res] {
+      provided := {label | input.metadata.labels[label]}
+      required := {label | label := recommended_labels[_]}
+      missing := required - provided
+      count(missing) > 0
+      msg := sprintf("You must provide labels: %v", [missing])
+      res := {"msg": msg}
+    }
 ```
 
 In this example, to add a new policy, you must define two data entries in the `trivy-operator-policies-config`

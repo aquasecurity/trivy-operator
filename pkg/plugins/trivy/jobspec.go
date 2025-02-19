@@ -217,7 +217,7 @@ func getAutomountServiceAccountToken(ctx trivyoperator.PluginContext) bool {
 func getConfig(ctx trivyoperator.PluginContext) (Config, error) {
 	pluginConfig, err := ctx.GetConfig()
 	if err != nil {
-		return Config{}, err
+		return Config{}, fmt.Errorf("get config: %w", err)
 	}
 	return Config{PluginConfig: pluginConfig}, nil
 }

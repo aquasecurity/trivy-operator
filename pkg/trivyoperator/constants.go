@@ -16,6 +16,9 @@ const (
 	// PoliciesConfigMapName the name of the ConfigMap used to store OPA Rego
 	// policies.
 	PoliciesConfigMapName = "trivy-operator-policies-config"
+
+	// PoliciesConfigMapName the name of the ConfigMap used to store Trivy configuration.
+	TrivyConfigMapName = "trivy-operator-trivy-config"
 )
 
 const (

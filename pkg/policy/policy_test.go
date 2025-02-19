@@ -524,9 +524,12 @@ func TestPolicies_Eval(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			checks, err := policy.NewPolicies(tc.policies, newTestConfig(tc.useBuiltInPolicies), log, &TestLoader{}, "1.27.1").Eval(context.TODO(), tc.resource)
+			p := policy.NewPolicies(tc.policies, newTestConfig(tc.useBuiltInPolicies), log, &TestLoader{}, "1.27.1")
+			g.Expect(p.Load()).ToNot(HaveOccurred())
+			checks, err := p.Eval(context.TODO(), tc.resource)
 			if tc.expectedError != "" {
 				g.Expect(err).To(HaveOccurred())
+				// FIXME: Assert result
 			} else {
 				g.Expect(err).ToNot(HaveOccurred())
 				g.Expect(reflect.DeepEqual(getPolicyResults(checks), tc.results))

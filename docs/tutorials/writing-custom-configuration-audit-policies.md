@@ -14,7 +14,7 @@ To define such a policy, you must first define its metadata. This includes setti
 `__rego_metadata__` rule, which defines the following composite value:
 
 ```opa
-package trivyoperator.policy.k8s.custom
+package trivyoperator.recommended_labels
 
 import data.lib.result
 import future.keywords.in
@@ -110,7 +110,7 @@ metadata:
 data:
   policy.recommended_labels.kinds: "*"
   policy.recommended_labels.rego: |
-    package trivyoperator.policy.k8s.custom
+    package trivyoperator.recommended_labels
 
     __rego_metadata__ := {
       "id": "recommended_labels",

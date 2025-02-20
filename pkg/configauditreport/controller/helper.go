@@ -41,6 +41,21 @@ func Policies(ctx context.Context, config etc.Config, c client.Client, cac confi
 	return policy.NewPolicies(cm.Data, cac, log, pl, version), nil
 }
 
+func ConfigurePolicies(ctx context.Context, config etc.Config, c client.Client, cac configauditreport.ConfigAuditConfig, log logr.Logger, pl policy.Loader, clusterVersion ...string) (*policy.Policies, error) {
+	policies, err := Policies(ctx, config, c, cac, log, pl, clusterVersion...)
+	if err != nil {
+		return nil, err
+	}
+	if err := policies.Load(); err != nil {
+		return nil, fmt.Errorf("load policies: %w", err)
+	}
+
+	if err := policies.InitScanner(); err != nil {
+		return nil, fmt.Errorf("init scanner: %w", err)
+	}
+	return policies, nil
+}
+
 func evaluate(ctx context.Context, policies *policy.Policies, resource client.Object, bi trivyoperator.BuildInfo, cd trivyoperator.ConfigData, c etc.Config, inputs ...[]byte) (Misconfiguration, error) {
 	misconfiguration := Misconfiguration{}
 	results, err := policies.Eval(ctx, resource, inputs...)

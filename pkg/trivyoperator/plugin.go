@@ -93,7 +93,7 @@ func (p *pluginContext) GetConfig() (PluginConfig, error) {
 		Name:      GetPluginConfigMapName(strings.ToLower(p.GetName())),
 	}, cm)
 	if err != nil {
-		return PluginConfig{}, err
+		return PluginConfig{}, fmt.Errorf("get config map: %w", err)
 	}
 
 	err = p.client.Get(context.Background(), types.NamespacedName{
@@ -101,6 +101,7 @@ func (p *pluginContext) GetConfig() (PluginConfig, error) {
 		Name:      GetPluginConfigMapName(strings.ToLower(p.GetName())),
 	}, secret)
 
+	// TODO: init
 	var secretData map[string][]byte
 	if err == nil {
 		secretData = secret.DeepCopy().Data

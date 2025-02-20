@@ -314,7 +314,7 @@ func (p *Policies) scannerOptions(dataPaths []string, dataFS fs.FS, hasPolicies 
 		rego.WithDataFilesystem(dataFS),
 		rego.WithDataDirs(dataPaths...),
 	}
-	if p.cac.GetUseEmbeddedRegoPolicies() {
+	if !hasPolicies && p.cac.GetUseEmbeddedRegoPolicies() {
 		return append(optionsArray, rego.WithEmbeddedPolicies(true), rego.WithEmbeddedLibraries(true))
 	}
 	return append(optionsArray,

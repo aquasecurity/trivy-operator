@@ -44,12 +44,19 @@ const (
 	externalPoliciesNamespace = "trivyoperator"
 )
 
+type k8sScanner interface {
+	ScanFS(context.Context, fs.FS, string) (scan.Results, error)
+}
+
 type Policies struct {
 	data           map[string]string
 	log            logr.Logger
 	cac            configauditreport.ConfigAuditConfig
 	clusterVersion string
 	policyLoader   Loader
+	policyFS       *memoryfs.FS
+	loaded         []string
+	scanner        k8sScanner
 }
 
 func NewPolicies(data map[string]string, cac configauditreport.ConfigAuditConfig, log logr.Logger, pl Loader, serverVersion string) *Policies {
@@ -59,6 +66,7 @@ func NewPolicies(data map[string]string, cac configauditreport.ConfigAuditConfig
 		cac:            cac,
 		policyLoader:   pl,
 		clusterVersion: serverVersion,
+		policyFS:       memoryfs.New(),
 	}
 }
 
@@ -109,6 +117,7 @@ func (p *Policies) PoliciesByKind(kind string) (map[string]string, error) {
 	return policies, nil
 }
 
+// TODO: use loaded
 func (p *Policies) Hash(kind string) (string, error) {
 	policies, err := p.loadPolicies(kind)
 	if err != nil {
@@ -127,6 +136,31 @@ func (p *Policies) ModulesByKind(kind string) (map[string]string, error) {
 	}
 	return modules, nil
 }
+
+func (p *Policies) Load() error {
+	var err error
+
+	if p.cac.GetUseBuiltinRegoPolicies() {
+		p.loaded, _, err = p.policyLoader.GetPoliciesAndBundlePath()
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, lib := range p.Libraries() {
+		p.loaded = append(p.loaded, lib)
+	}
+
+	for key, policy := range p.data {
+		if !strings.HasSuffix(key, keySuffixRego) {
+			continue
+		}
+		p.loaded = append(p.loaded, policy)
+	}
+
+	return nil
+}
+
 func (p *Policies) loadPolicies(kind string) ([]string, error) {
 	// read external policies
 	modByKind, err := p.ModulesByKind(kind)
@@ -194,38 +228,24 @@ func (p *Policies) rbacDisabled(rbacEnable bool, kind string) bool {
 
 // Eval evaluates Rego policies with Kubernetes resource client.Object as input.
 func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[]byte) (scan.Results, error) {
-	resourceKind := resource.GetObjectKind().GroupVersionKind().Kind
-	policies, err := p.loadPolicies(resourceKind)
-	if err != nil {
-		return nil, fmt.Errorf("failed listing externalPolicies by kind: %s: %w", resourceKind, err)
-	}
-
 	memfs := memoryfs.New()
-	hasPolicies := len(policies) > 0
-	if hasPolicies {
-		// add add policies to in-memory filesystem
-		err = createPolicyInputFS(memfs, policiesFolder, policies, regoExt)
-		if err != nil {
-			return nil, err
-		}
-	}
 	inputResource, err := resourceBytes(resource, inputs)
 	if err != nil {
 		return nil, err
 	}
+
 	// add resource input to in-memory filesystem
-	err = createPolicyInputFS(memfs, inputFolder, []string{string(inputResource)}, yamlExt)
-	if err != nil {
+	if err := createPolicyInputFS(memfs, inputFolder, []string{string(inputResource)}, yamlExt); err != nil {
 		return nil, err
 	}
 
-	dataFS, dataPaths, err := createDataFS([]string{}, p.clusterVersion)
-	if err != nil {
-		return nil, err
+	if p.scanner == nil {
+		if err := p.InitScanner(); err != nil {
+			return nil, fmt.Errorf("init scanner: %w", err)
+		}
 	}
-	so := p.scannerOptions(policiesFolder, dataPaths, dataFS, hasPolicies)
-	scanner := kubernetes.NewScanner(so...)
-	scanResult, err := scanner.ScanFS(ctx, memfs, inputFolder)
+
+	scanResult, err := p.scanner.ScanFS(ctx, memfs, inputFolder)
 	if err != nil {
 		return nil, err
 	}
@@ -234,6 +254,24 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[
 		return nil, errors.New("failed to run policy checks on resources")
 	}
 	return scanResult, nil
+}
+
+func (p *Policies) InitScanner() error {
+	hasPolicies := len(p.loaded) > 0
+	if hasPolicies {
+		// add policies to in-memory filesystem
+		err := createPolicyInputFS(p.policyFS, policiesFolder, p.loaded, regoExt)
+		if err != nil {
+			return err
+		}
+	}
+	dataFS, dataPaths, err := createDataFS([]string{}, p.clusterVersion)
+	if err != nil {
+		return fmt.Errorf("create data fs: %w", err)
+	}
+	so := p.scannerOptions(dataPaths, dataFS, hasPolicies)
+	p.scanner = kubernetes.NewScanner(so...)
+	return nil
 }
 
 func resourceBytes(resource client.Object, inputs [][]byte) ([]byte, error) {
@@ -271,7 +309,7 @@ func (r *Policies) HasSeverity(resultSeverity severity.Severity) bool {
 	return strings.Contains(defaultSeverity, string(resultSeverity))
 }
 
-func (p *Policies) scannerOptions(policiesFolder string, dataPaths []string, dataFS fs.FS, hasPolicies bool) []options.ScannerOption {
+func (p *Policies) scannerOptions(dataPaths []string, dataFS fs.FS, hasPolicies bool) []options.ScannerOption {
 	optionsArray := []options.ScannerOption{
 		rego.WithDataFilesystem(dataFS),
 		rego.WithDataDirs(dataPaths...),
@@ -279,7 +317,9 @@ func (p *Policies) scannerOptions(policiesFolder string, dataPaths []string, dat
 	if p.cac.GetUseEmbeddedRegoPolicies() {
 		return append(optionsArray, rego.WithEmbeddedPolicies(true), rego.WithEmbeddedLibraries(true))
 	}
-	return append(optionsArray, rego.WithPolicyDirs(policiesFolder), rego.WithPolicyNamespaces(externalPoliciesNamespace))
+	return append(optionsArray,
+		rego.WithPolicyFilesystem(p.policyFS),
+		rego.WithPolicyDirs(policiesFolder), rego.WithPolicyNamespaces(externalPoliciesNamespace))
 }
 
 func createPolicyInputFS(memfs *memoryfs.FS, folderName string, fileData []string, ext string) error {

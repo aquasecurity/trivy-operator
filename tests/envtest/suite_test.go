@@ -162,6 +162,18 @@ var _ = BeforeSuite(func() {
 
 	Expect(err).ToNot(HaveOccurred())
 
+	checksLoader := ca.NewChecksLoader(
+		config,
+		ctrl.Log.WithName("resourcecontroller"),
+		managerClient,
+		objectResolver,
+		pluginContext,
+		pluginca,
+		&TestLoader{},
+	)
+
+	Expect(checksLoader.SetupWithManager(k8sManager)).ToNot(HaveOccurred())
+
 	err = (&ca.ResourceController{
 		Logger:          ctrl.Log.WithName("resourcecontroller"),
 		Config:          config,
@@ -174,6 +186,7 @@ var _ = BeforeSuite(func() {
 		RbacReadWriter:  rbacassessment.NewReadWriter(&objectResolver),
 		InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
 		BuildInfo:       buildInfo,
+		ChecksLoader:    checksLoader,
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 

@@ -550,12 +550,12 @@ func TestPolicies_Eval(t *testing.T) {
         "description": "custom check description",
     }
 
-   failHostNetwork {
+   alwaysFalse {
       1 == 0
    }
 
    deny[res] {
-        failHostNetwork
+        alwaysFalse
 		res := {
 				"msg": "the check should always pass",
 			}
@@ -590,12 +590,12 @@ func TestPolicies_Eval(t *testing.T) {
         "description": "custom check description",
     }
 
-   failHostNetwork {
+   alwaysTrue {
       1 == 1
    }
 
    deny[res] {
-        failHostNetwork
+        alwaysTrue
 		res := {
 				"msg": "the check should be always failed",
 			}
@@ -631,16 +631,7 @@ func TestPolicies_Eval(t *testing.T) {
         "description": "custom check description",
     }
 
-   failHostNetwork {
-      1 == 0
-   }
-
-   deny[res] {
-        failHostNetwork
-		res := {
-				"msg": "this msg should be hidden",
-			}
-   }`,
+   deny[{"msg": "this message should be hidden"}]`,
 			},
 			expectedError: "failed to run policy checks on resources",
 		},

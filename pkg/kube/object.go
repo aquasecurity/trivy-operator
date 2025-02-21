@@ -57,6 +57,8 @@ const (
 	KindResourceQuota         Kind = "ResourceQuota"
 	KindLimitRange            Kind = "LimitRange"
 
+	KindPersistentVolume Kind = "PersistentVolume"
+
 	KindClusterRole              Kind = "ClusterRole"
 	KindClusterRoleBindings      Kind = "ClusterRoleBinding"
 	KindCustomResourceDefinition Kind = "CustomResourceDefinition"
@@ -105,7 +107,7 @@ func IsWorkload(kind string) bool {
 // TODO Use discovery client to have a generic implementation.
 func IsClusterScopedKind(kind string) bool {
 	switch kind {
-	case string(KindClusterRole), string(KindClusterRoleBindings), string(KindCustomResourceDefinition), string(KindNode):
+	case string(KindClusterRole), string(KindClusterRoleBindings), string(KindCustomResourceDefinition), string(KindNode), string(KindPersistentVolume):
 		return true
 	default:
 		return false
@@ -232,6 +234,8 @@ func ComputeSpecHash(obj client.Object) (string, error) {
 		return ComputeHash(obj), nil
 	case *apiextensionsv1.CustomResourceDefinition:
 		return ComputeHash(obj), nil
+	case *corev1.PersistentVolume:
+		return ComputeHash(obj), nil
 	default:
 		return "", fmt.Errorf("computing spec hash of unsupported object: %T", t)
 	}
@@ -353,6 +357,8 @@ func (o *ObjectResolver) ObjectFromObjectRef(ctx context.Context, ref ObjectRef)
 		obj = &batchv1.Job{}
 	case KindNode:
 		obj = &corev1.Node{}
+	case KindPersistentVolume:
+		obj = &corev1.PersistentVolume{}
 	case KindService:
 		obj = &corev1.Service{}
 	case KindConfigMap:

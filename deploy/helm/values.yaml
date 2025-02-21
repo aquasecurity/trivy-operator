@@ -23,8 +23,7 @@ excludeNamespaces: ""
 # -- extraEnv is a list of extra environment variables for the trivy-operator.
 extraEnv: []
 
-# -- here you can specify hostAliases for deployment (TrivyOperator) and SteatfulSet (TrivyServer)
-# -- If you want to use delete [] and profide your settings
+# -- hostAliases for `deployment` (TrivyOperator) and `statefulset` (TrivyServer)
 
 hostAliases: []
 # - ip: "127.0.0.1"

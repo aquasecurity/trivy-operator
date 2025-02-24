@@ -22,7 +22,7 @@ on:
       - LICENSE
       - NOTICE
 env:
-  KIND_VERSION: v0.24.1
+  KIND_VERSION: v0.24.0
   KIND_IMAGE: kindest/node:v1.31.2
   GO_VERSION: '1.23'
 permissions: {}

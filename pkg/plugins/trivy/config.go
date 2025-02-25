@@ -5,6 +5,7 @@ import (
 
 	"path/filepath"
 
+	"encoding/json"
 	"strconv"
 	"strings"
 
@@ -22,6 +23,7 @@ import (
 const (
 	keyTrivyImageRepository = "trivy.repository"
 	keyTrivyImageTag        = "trivy.tag"
+	KeyTrivyScanJobEnv      = "trivy.env"
 	//nolint:gosec
 	keyTrivyImagePullSecret                     = "trivy.imagePullSecret"
 	keyTrivyImagePullPolicy                     = "trivy.imagePullPolicy"
@@ -554,4 +556,20 @@ func (c Config) setResourceLimit(configKey string, k8sResourceList *corev1.Resou
 
 func (c Config) GetDBRepository() (string, error) {
 	return c.GetRequiredData(keyTrivyDBRepository)
+}
+
+// GetUserDefinedEnv retrieves and unmarshals the trivy.env JSON from the ConfigMap.
+func (c Config) GetUserDefinedEnv() ([]corev1.EnvVar, error) {
+	raw, ok := c.Data[KeyTrivyScanJobEnv]
+	if !ok || raw == "" {
+		// No custom environment variables defined
+		return nil, nil
+	}
+
+	var envVars []corev1.EnvVar
+	err := json.Unmarshal([]byte(raw), &envVars)
+	if err != nil {
+		return nil, err
+	}
+	return envVars, nil
 }

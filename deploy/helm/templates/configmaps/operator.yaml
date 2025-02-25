@@ -86,6 +86,9 @@ data:
   {{- if .Values.operator.builtInTrivyServer }}
   trivy.serverURL: {{ printf "http://%s.%s:%s" .Values.trivy.serverServiceName (include "trivy-operator.namespace" .) "4954"  | quote }}
   {{- end }}
+  {{- if .Values.trivy.env }}
+  trivy.env: "{{ .Values.trivy.env | toJson }}"
+  {{- end }}
   node.collector.imageRef: "{{ include "global.imageRegistry" . | default .Values.nodeCollector.registry }}/{{ .Values.nodeCollector.repository }}:{{ .Values.nodeCollector.tag }}"
   policies.bundle.oci.ref: "{{ .Values.policiesBundle.registry }}/{{ .Values.policiesBundle.repository }}:{{ .Values.policiesBundle.tag }}"
   policies.bundle.insecure: {{ .Values.policiesBundle.insecure | quote }}

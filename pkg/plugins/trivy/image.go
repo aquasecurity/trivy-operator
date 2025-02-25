@@ -284,6 +284,12 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
+		// Retrieve custom environment variables
+		userEnv, err := config.GetUserDefinedEnv()
+		if err != nil {
+			return corev1.PodSpec{}, nil, err
+		}
+		env = append(env, userEnv...)
 		resultFileName := getUniqueScanResultFileName(c.Name)
 		cmd, args := getCommandAndArgs(ctx, Standalone, imageRef.String(), "", resultFileName)
 		if len(clusterSboms) > 0 { // trivy sbom ...
@@ -521,6 +527,12 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
+		// Retrieve custom environment variables
+		userEnv, err := config.GetUserDefinedEnv()
+		if err != nil {
+			return corev1.PodSpec{}, nil, err
+		}
+		env = append(env, userEnv...)
 		resultFileName := getUniqueScanResultFileName(container.Name)
 		cmd, args := getCommandAndArgs(ctx, ClientServer, imageRef.String(), encodedTrivyServerURL.String(), resultFileName)
 		if len(clusterSboms) > 0 { // trivy sbom ...

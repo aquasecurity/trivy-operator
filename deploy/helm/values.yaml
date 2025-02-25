@@ -615,6 +615,13 @@ trivy:
 
   # -- valuesFromSecret name of a Secret to apply TRIVY_* environment variables. Will override Helm AND ConfigMap values.
   valuesFromSecret: ""
+  
+  # Custom environment variables to be set in the scanJob pods.
+  env: []
+    # - name: FOO
+    #   value: "bar"
+    # - name: BAZ
+    #   value: "qux"
 
 compliance:
   # -- failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report

@@ -22,6 +22,7 @@ Keeps security report resources updated
 | extraEnv | list | `[]` | extraEnv is a list of extra environment variables for the trivy-operator. |
 | fullnameOverride | string | `""` | fullnameOverride override operator full name |
 | global | object | `{"image":{"registry":""}}` | global values provide a centralized configuration for 'image.registry', reducing the potential for errors. If left blank, the chart will default to the individually set 'image.registry' values |
+| hostAliases | list | `[]` | list of host aliases to specify  |
 | image.pullPolicy | string | `"IfNotPresent"` | pullPolicy set the operator pullPolicy |
 | image.pullSecrets | list | `[]` | pullSecrets set the operator pullSecrets |
 | image.registry | string | `"mirror.gcr.io"` |  |

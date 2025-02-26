@@ -2,11 +2,8 @@ package policy_test
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
-	"reflect"
 	"sort"
 	"strings"
 	"testing"
@@ -498,7 +495,18 @@ func TestPolicies_Eval(t *testing.T) {
 			},
 			useBuiltInPolicies: true,
 			policies:           make(map[string]string),
-			results:            getBuildInResults(t, "./testdata/fixture/builtin_role_result.json"),
+			results: []Result{
+				{
+					Metadata: Metadata{
+						ID:          "KSV054",
+						Title:       "Do not allow attaching to shell on pods",
+						Description: "Check whether role permits attaching to shell on pods",
+						Severity:    "HIGH",
+						Type:        "Kubernetes Security Check",
+					},
+					Success: true,
+				},
+			},
 		},
 		{
 			name: "Should eval return error no policies found",
@@ -529,11 +537,10 @@ func TestPolicies_Eval(t *testing.T) {
 			checks, err := p.Eval(context.TODO(), tc.resource)
 			if tc.expectedError != "" {
 				g.Expect(err).To(HaveOccurred())
-				// FIXME: Assert result
-			} else {
-				g.Expect(err).ToNot(HaveOccurred())
-				g.Expect(reflect.DeepEqual(getPolicyResults(checks), tc.results))
+				return
 			}
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(getPolicyResults(checks)).Should(Equal(tc.results))
 		})
 	}
 }
@@ -833,20 +840,6 @@ func getPolicyResults(results scan.Results) Results {
 		}
 		pr := Result{Metadata: Metadata{ID: id, Title: result.Rule().Summary, Severity: v1alpha1.Severity(result.Severity()), Type: "Kubernetes Security Check", Description: result.Rule().Explanation}, Success: result.Status() == scan.StatusPassed, Messages: msgs}
 		prs = append(prs, pr)
-	}
-	sort.Sort(resultSort(prs))
-	return prs
-}
-
-func getBuildInResults(t *testing.T, filePath string) Results {
-	var prs Results
-	b, err := os.ReadFile(filePath)
-	if err != nil {
-		t.Error(err)
-	}
-	err = json.Unmarshal(b, &prs)
-	if err != nil {
-		t.Error(err)
 	}
 	sort.Sort(resultSort(prs))
 	return prs

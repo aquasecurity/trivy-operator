@@ -27,6 +27,24 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+var (
+	simpleNginxPod = &corev1.Pod{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Pod",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{},
+		Spec: corev1.PodSpec{
+			Containers: []corev1.Container{
+				{
+					Name:  "nginx",
+					Image: "nginx:1.16",
+				},
+			},
+		},
+	}
+)
+
 func TestPolicies_PoliciesByKind(t *testing.T) {
 	t.Run("Should return error when kinds are not defined for policy", func(t *testing.T) {
 		g := NewGomegaWithT(t)
@@ -149,7 +167,6 @@ func TestPolicies_Supported(t *testing.T) {
 			g.Expect(ready).To(Equal(tc.expected))
 		})
 	}
-
 }
 
 func TestPolicies_Eval(t *testing.T) {
@@ -525,6 +542,107 @@ func TestPolicies_Eval(t *testing.T) {
 			useBuiltInPolicies: false,
 			policies:           make(map[string]string),
 			expectedError:      policy.PoliciesNotFoundError,
+		},
+		{
+			name:               "using a custom rule - check passed",
+			resource:           simpleNginxPod,
+			useBuiltInPolicies: false,
+			policies: map[string]string{
+				"policy.uses_image_tag_latest.kinds": "Pod",
+				"policy.uses_image_tag_latest.rego": `
+   package trivyoperator.policy.k8s.custom
+   __rego_metadata__ := {
+        "id": "CUSTOMCHECK",
+        "title": "custom check title",
+        "severity": "LOW",
+        "type": "Kubernetes Security Check",
+        "description": "custom check description",
+    }
+
+   alwaysFalse {
+      1 == 0
+   }
+
+   deny[res] {
+        alwaysFalse
+		res := {
+				"msg": "the check should always pass",
+			}
+   }`,
+			},
+			results: []Result{
+				{
+					Metadata: Metadata{
+						ID:          "CUSTOMCHECK",
+						Title:       "custom check title",
+						Description: "custom check description",
+						Severity:    "LOW",
+						Type:        "Kubernetes Security Check",
+					},
+					Success: true,
+				},
+			},
+		},
+		{
+			name:               "using a custom rule - check failed",
+			resource:           simpleNginxPod,
+			useBuiltInPolicies: false,
+			policies: map[string]string{
+				"policy.uses_image_tag_latest.kinds": "Pod",
+				"policy.uses_image_tag_latest.rego": `
+   package trivyoperator.policy.k8s.custom
+   __rego_metadata__ := {
+        "id": "CUSTOMCHECK",
+        "title": "custom check title",
+        "severity": "LOW",
+        "type": "Kubernetes Security Check",
+        "description": "custom check description",
+    }
+
+   alwaysTrue {
+      1 == 1
+   }
+
+   deny[res] {
+        alwaysTrue
+		res := {
+				"msg": "the check should be always failed",
+			}
+   }`,
+			},
+			results: []Result{
+				{
+					Metadata: Metadata{
+						ID:          "CUSTOMCHECK",
+						Title:       "custom check title",
+						Description: "custom check description",
+						Severity:    "LOW",
+						Type:        "Kubernetes Security Check",
+					},
+					Messages: []string{"the check should be always failed"},
+					Success:  false,
+				},
+			},
+		},
+		{
+			name:               "using a custom rule with incorrect name",
+			resource:           simpleNginxPod,
+			useBuiltInPolicies: false,
+			policies: map[string]string{
+				"policy.uses_image_tag_latest.kinds": "Pod",
+				"policy.uses_image_tag_latest.rego": `
+   package myfunnyname.policy.k8s.custom
+   __rego_metadata__ := {
+        "id": "CUSTOMCHECK",
+        "title": "custom check title",
+        "severity": "LOW",
+        "type": "Kubernetes Security Check",
+        "description": "custom check description",
+    }
+
+   deny[{"msg": "this message should be hidden"}]`,
+			},
+			expectedError: "failed to run policy checks on resources",
 		},
 	}
 

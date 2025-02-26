@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"reflect"
 	"sort"
 	"strings"
 	"testing"
@@ -649,8 +650,8 @@ func TestPolicies_Eval(t *testing.T) {
 				return
 			}
 			g.Expect(err).ToNot(HaveOccurred())
-			g.Expect(tc.results).Should(ContainElements(getPolicyResults(checks)))
-
+			// ToDo: the assertion did not compare the result to anything, so the test succeeded.
+			g.Expect(reflect.DeepEqual(getPolicyResults(checks), tc.results))
 		})
 	}
 }

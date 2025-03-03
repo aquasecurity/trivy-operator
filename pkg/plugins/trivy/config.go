@@ -1,23 +1,19 @@
 package trivy
 
 import (
-	"fmt"
-
-	"path/filepath"
-
 	"encoding/json"
+	"fmt"
+	"path/filepath"
 	"strconv"
 	"strings"
 
-	"github.com/aquasecurity/trivy-operator/pkg/utils"
-	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
-
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
-
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
+	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 )
 
 const (

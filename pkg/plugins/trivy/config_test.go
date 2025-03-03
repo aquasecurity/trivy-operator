@@ -120,8 +120,8 @@ func TestConfig_GetAdditionalVulnerabilityReportFields(t *testing.T) {
 			assert.Equal(t, tc.additionalFields.PackageType, addFields.PackageType)
 			assert.Equal(t, tc.additionalFields.Class, addFields.Class)
 			assert.Equal(t, tc.additionalFields.Links, addFields.Links)
-			assert.True(t, addFields.SeveritySource == tc.additionalFields.SeveritySource)
-			assert.True(t, addFields.DataSource == tc.additionalFields.DataSource)
+			assert.Equal(t, tc.additionalFields.SeveritySource, addFields.SeveritySource)
+			assert.Equal(t, tc.additionalFields.DataSource, addFields.DataSource)
 		})
 	}
 }

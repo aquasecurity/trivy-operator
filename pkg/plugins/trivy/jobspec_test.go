@@ -5,12 +5,13 @@ import (
 	"os"
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 )
 
 func TestCreateSbomDataSecret(t *testing.T) {
@@ -40,7 +41,7 @@ func TestCreateSbomDataSecret(t *testing.T) {
 			sbomFile, err := os.ReadFile(tc.sbomDataFilePath)
 			require.NoError(t, err)
 			var bom v1alpha1.BOM
-			err = json.Unmarshal([]byte(sbomFile), &bom)
+			err = json.Unmarshal(sbomFile, &bom)
 			require.NoError(t, err)
 			got, err := trivy.CreateSbomDataAsSecret(bom, tc.secretName)
 			if err == nil {
@@ -88,15 +89,15 @@ func TestCreateVolumes(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			trivy.CreateVolumeSbomFiles(&tc.vm, &tc.v, &tc.sn, tc.fn, tc.mountPath, tc.cName)
 
-			assert.Equal(t, len(tc.vm), 1)
-			assert.Equal(t, len(tc.v), 1)
+			assert.Len(t, tc.vm, 1)
+			assert.Len(t, tc.v, 1)
 
-			assert.Equal(t, tc.vm[0].Name, tc.expectedName)
-			assert.Equal(t, tc.vm[0].MountPath, tc.mountPath)
-			assert.Equal(t, tc.v[0].Name, tc.expectedName)
-			assert.Equal(t, tc.v[0].Secret.SecretName, tc.sn)
-			assert.Equal(t, tc.v[0].Secret.Items[0].Key, "bom")
-			assert.Equal(t, tc.v[0].Secret.Items[0].Path, tc.fn)
+			assert.Equal(t, tc.expectedName, tc.vm[0].Name)
+			assert.Equal(t, tc.mountPath, tc.vm[0].MountPath)
+			assert.Equal(t, tc.expectedName, tc.v[0].Name)
+			assert.Equal(t, tc.sn, tc.v[0].Secret.SecretName)
+			assert.Equal(t, "bom", tc.v[0].Secret.Items[0].Key)
+			assert.Equal(t, tc.fn, tc.v[0].Secret.Items[0].Path)
 
 			assert.LessOrEqual(t, len(tc.vm[0].Name), 63)
 			assert.LessOrEqual(t, len(tc.v[0].Name), 63)

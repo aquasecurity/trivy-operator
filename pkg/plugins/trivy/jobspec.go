@@ -270,3 +270,40 @@ func CreateVolumeSbomFiles(volumeMounts *[]corev1.VolumeMount, volumes *[]corev1
 	*volumes = append(*volumes, sbomVolume)
 	*volumeMounts = append(*volumeMounts, sbomMount)
 }
+
+// PrepareVex prepares the vex volume and mounts for the scan job
+func prepareVex(config Config, volumes []corev1.Volume, volumeMounts []corev1.VolumeMount) ([]corev1.Volume, []corev1.VolumeMount, error) {
+	if !config.VexEnabled() {
+		return volumes, volumeMounts, nil
+	}
+
+	vexConfigMapName := config.GetVexConfigMapName()
+	if vexConfigMapName == "" {
+		return volumes, volumeMounts, fmt.Errorf("vex is enabled but no configMap name specified")
+	}
+
+	vexVolume := corev1.Volume{
+		Name: "vex-doc",
+		VolumeSource: corev1.VolumeSource{
+			ConfigMap: &corev1.ConfigMapVolumeSource{
+				LocalObjectReference: corev1.LocalObjectReference{Name: vexConfigMapName},
+				Items: []corev1.KeyToPath{
+					{
+						Key:  "vex-doc.json",
+						Path: "vex-doc.json",
+					},
+				},
+			},
+		},
+	}
+	vexMount := corev1.VolumeMount{
+		Name:      "vex-doc",
+		MountPath: "/vex",
+		ReadOnly:  true,
+	}
+
+	volumes = append(volumes, vexVolume)
+	volumeMounts = append(volumeMounts, vexMount)
+
+	return volumes, volumeMounts, nil
+}

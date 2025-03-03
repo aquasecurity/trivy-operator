@@ -3078,6 +3078,8 @@ data:
   trivy.tag: "0.59.1"
   trivy.imagePullPolicy: "IfNotPresent"
   trivy.additionalVulnerabilityReportFields: ""
+  trivy.vex.enabled: "false"
+  trivy.vex.configMapName: "trivy-operator-vex"
   trivy.severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
   trivy.slow: "true"
   trivy.skipJavaDBUpdate: "false"

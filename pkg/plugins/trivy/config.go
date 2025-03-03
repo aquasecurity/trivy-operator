@@ -17,9 +17,11 @@ import (
 )
 
 const (
-	keyTrivyImageRepository = "trivy.repository"
-	keyTrivyImageTag        = "trivy.tag"
-	KeyTrivyScanJobEnv      = "trivy.env"
+	keyTrivyImageRepository  = "trivy.repository"
+	keyTrivyImageTag         = "trivy.tag"
+	KeyTrivyScanJobEnv       = "trivy.env"
+	keyTrivyVexEnabled       = "trivy.vex.enabled"
+	keyTrivyVexConfigMapName = "trivy.vex.configMapName"
 	//nolint:gosec
 	keyTrivyImagePullSecret                     = "trivy.imagePullSecret"
 	keyTrivyImagePullPolicy                     = "trivy.imagePullPolicy"
@@ -568,4 +570,27 @@ func (c Config) GetUserDefinedEnv() ([]corev1.EnvVar, error) {
 		return nil, err
 	}
 	return envVars, nil
+}
+
+func (c Config) VexEnabled() bool {
+	val, ok := c.Data[keyTrivyVexEnabled]
+	if !ok {
+		return false // default is disabled
+	}
+	b, err := strconv.ParseBool(val)
+	if err != nil {
+		return false
+	}
+	return b
+}
+
+func (c Config) GetVexConfigMapName() string {
+	if !c.VexEnabled() {
+		return ""
+	}
+	name, ok := c.Data[keyTrivyVexConfigMapName]
+	if !ok {
+		return ""
+	}
+	return name
 }

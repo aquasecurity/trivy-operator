@@ -42,6 +42,8 @@ data:
   {{- range $key, $registry := .Values.trivy.registry.mirror }}
   trivy.registry.mirror.{{ $key }}: {{ $registry | quote }}
   {{- end }}
+  trivy.vex.enabled: "{{ .Values.trivy.vex.enabled }}"
+  trivy.vex.configMapName: "{{ .Values.trivy.vex.configMapName }}"
   trivy.severity: {{ .Values.trivy.severity | quote }}
   trivy.slow: {{ .Values.trivy.slow | quote }}
   trivy.skipJavaDBUpdate: {{ .Values.trivy.skipJavaDBUpdate | quote }}

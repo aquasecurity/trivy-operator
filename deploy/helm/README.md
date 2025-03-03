@@ -190,6 +190,7 @@ Keeps security report resources updated
 | trivy.useEmbeddedRegoPolicies | string | `"true"` | To enable the usage of embedded rego policies, set the flag useEmbeddedRegoPolicies. This should serve as a fallback for air-gapped environments. When useEmbeddedRegoPolicies is set to true, useBuiltinRegoPolicies should be set to false. |
 | trivy.valuesFromConfigMap | string | `""` | vaulesFromConfigMap name of a ConfigMap to apply TRIVY_* environment variables. Will override Helm values. |
 | trivy.valuesFromSecret | string | `""` | valuesFromSecret name of a Secret to apply TRIVY_* environment variables. Will override Helm AND ConfigMap values. |
+| trivy.vex | object | `{"configMapName":"trivy-operator-vex","enabled":false}` | vex configuration for Trivy |
 | trivy.vulnType | string | `nil` | vulnType can be used to tell Trivy to filter vulnerabilities by a pkg-type (library, os) |
 | trivyOperator.additionalReportLabels | string | `""` | additionalReportLabels comma-separated representation of the labels which the user wants the scanner pods to be labeled with. Example: `foo=bar,env=stage` will labeled the reports with the labels `foo: bar` and `env: stage` |
 | trivyOperator.configAuditReportsPlugin | string | `"Trivy"` | configAuditReportsPlugin the name of the plugin that generates config audit reports. |

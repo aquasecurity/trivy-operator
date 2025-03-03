@@ -183,6 +183,11 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
+	volumes, volumeMounts, err = prepareVex(config, volumes, volumeMounts)
+	if err != nil {
+		return corev1.PodSpec{}, nil, err
+	}
+
 	for _, c := range containersSpec {
 		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), c.Image) {
 			continue
@@ -416,6 +421,11 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 	if volume, volumeMount := config.GenerateSslCertDirVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
 		volumes = append(volumes, *volume)
 		volumeMounts = append(volumeMounts, *volumeMount)
+	}
+
+	volumes, volumeMounts, err = prepareVex(config, volumes, volumeMounts)
+	if err != nil {
+		return corev1.PodSpec{}, nil, err
 	}
 
 	for _, container := range containersSpec {
@@ -667,6 +677,10 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef, tri
 	compressLogs := trivyOperatorConfig.CompressLogs()
 	if !compressLogs {
 		return []string{"trivy"}, args
+	}
+
+	if trivyConfig.VexEnabled() {
+		args = append(args, "--vex", "/vex/vex-doc.json")
 	}
 
 	// Add command to args as it is now need to pipe output to compress.

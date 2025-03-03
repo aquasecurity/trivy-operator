@@ -156,6 +156,11 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
+	volumes, volumeMounts, err = prepareVex(config, volumes, volumeMounts)
+	if err != nil {
+		return corev1.PodSpec{}, nil, err
+	}
+
 	for _, c := range getContainers(spec) {
 		env := []corev1.EnvVar{
 			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, KeyTrivySeverity),
@@ -385,6 +390,11 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
+	volumes, volumeMounts, err = prepareVex(config, volumes, volumeMounts)
+	if err != nil {
+		return corev1.PodSpec{}, nil, err
+	}
+
 	for _, c := range getContainers(spec) {
 		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), c.Image) {
 			continue
@@ -548,7 +558,9 @@ func GetFSScanningArgs(ctx trivyoperator.PluginContext, command Command, mode Mo
 	if c.GetIncludeDevDeps() && command == Filesystem {
 		args = append(args, "--include-dev-deps")
 	}
-
+	if c.VexEnabled() {
+		args = append(args, "--vex", "/vex/vex-doc.json")
+	}
 	pkgList := getPkgList(ctx)
 	if pkgList != "" {
 		args = append(args, pkgList)

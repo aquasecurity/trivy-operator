@@ -2,11 +2,8 @@ package policy_test
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
-	"reflect"
 	"sort"
 	"strings"
 	"testing"
@@ -28,6 +25,24 @@ import (
 	"github.com/aquasecurity/trivy/pkg/iac/scan"
 
 	. "github.com/onsi/gomega"
+)
+
+var (
+	simpleNginxPod = &corev1.Pod{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Pod",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{},
+		Spec: corev1.PodSpec{
+			Containers: []corev1.Container{
+				{
+					Name:  "nginx",
+					Image: "nginx:1.16",
+				},
+			},
+		},
+	}
 )
 
 func TestPolicies_PoliciesByKind(t *testing.T) {
@@ -152,7 +167,6 @@ func TestPolicies_Supported(t *testing.T) {
 			g.Expect(ready).To(Equal(tc.expected))
 		})
 	}
-
 }
 
 func TestPolicies_Eval(t *testing.T) {
@@ -498,7 +512,18 @@ func TestPolicies_Eval(t *testing.T) {
 			},
 			useBuiltInPolicies: true,
 			policies:           make(map[string]string),
-			results:            getBuildInResults(t, "./testdata/fixture/builtin_role_result.json"),
+			results: []Result{
+				{
+					Metadata: Metadata{
+						ID:          "KSV054",
+						Title:       "Do not allow attaching to shell on pods",
+						Description: "Check whether role permits attaching to shell on pods",
+						Severity:    "HIGH",
+						Type:        "Kubernetes Security Check",
+					},
+					Success: true,
+				},
+			},
 		},
 		{
 			name: "Should eval return error no policies found",
@@ -518,6 +543,107 @@ func TestPolicies_Eval(t *testing.T) {
 			policies:           make(map[string]string),
 			expectedError:      policy.PoliciesNotFoundError,
 		},
+		{
+			name:               "using a custom rule - check passed",
+			resource:           simpleNginxPod,
+			useBuiltInPolicies: false,
+			policies: map[string]string{
+				"policy.uses_image_tag_latest.kinds": "Pod",
+				"policy.uses_image_tag_latest.rego": `
+   package trivyoperator.policy.k8s.custom
+   __rego_metadata__ := {
+        "id": "CUSTOMCHECK",
+        "title": "custom check title",
+        "severity": "LOW",
+        "type": "Kubernetes Security Check",
+        "description": "custom check description",
+    }
+
+   alwaysFalse {
+      1 == 0
+   }
+
+   deny[res] {
+        alwaysFalse
+		res := {
+				"msg": "the check should always pass",
+			}
+   }`,
+			},
+			results: []Result{
+				{
+					Metadata: Metadata{
+						ID:          "CUSTOMCHECK",
+						Title:       "custom check title",
+						Description: "custom check description",
+						Severity:    "LOW",
+						Type:        "Kubernetes Security Check",
+					},
+					Success: true,
+				},
+			},
+		},
+		{
+			name:               "using a custom rule - check failed",
+			resource:           simpleNginxPod,
+			useBuiltInPolicies: false,
+			policies: map[string]string{
+				"policy.uses_image_tag_latest.kinds": "Pod",
+				"policy.uses_image_tag_latest.rego": `
+   package trivyoperator.policy.k8s.custom
+   __rego_metadata__ := {
+        "id": "CUSTOMCHECK",
+        "title": "custom check title",
+        "severity": "LOW",
+        "type": "Kubernetes Security Check",
+        "description": "custom check description",
+    }
+
+   alwaysTrue {
+      1 == 1
+   }
+
+   deny[res] {
+        alwaysTrue
+		res := {
+				"msg": "the check should be always failed",
+			}
+   }`,
+			},
+			results: []Result{
+				{
+					Metadata: Metadata{
+						ID:          "CUSTOMCHECK",
+						Title:       "custom check title",
+						Description: "custom check description",
+						Severity:    "LOW",
+						Type:        "Kubernetes Security Check",
+					},
+					Messages: []string{"the check should be always failed"},
+					Success:  false,
+				},
+			},
+		},
+		{
+			name:               "using a custom rule with incorrect name",
+			resource:           simpleNginxPod,
+			useBuiltInPolicies: false,
+			policies: map[string]string{
+				"policy.uses_image_tag_latest.kinds": "Pod",
+				"policy.uses_image_tag_latest.rego": `
+   package myfunnyname.policy.k8s.custom
+   __rego_metadata__ := {
+        "id": "CUSTOMCHECK",
+        "title": "custom check title",
+        "severity": "LOW",
+        "type": "Kubernetes Security Check",
+        "description": "custom check description",
+    }
+
+   deny[{"msg": "this message should be hidden"}]`,
+			},
+			expectedError: "failed to run policy checks on resources",
+		},
 	}
 
 	for _, tc := range testCases {
@@ -529,11 +655,10 @@ func TestPolicies_Eval(t *testing.T) {
 			checks, err := p.Eval(context.TODO(), tc.resource)
 			if tc.expectedError != "" {
 				g.Expect(err).To(HaveOccurred())
-				// FIXME: Assert result
-			} else {
-				g.Expect(err).ToNot(HaveOccurred())
-				g.Expect(reflect.DeepEqual(getPolicyResults(checks), tc.results))
+				return
 			}
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(getPolicyResults(checks)).Should(Equal(tc.results))
 		})
 	}
 }
@@ -833,20 +958,6 @@ func getPolicyResults(results scan.Results) Results {
 		}
 		pr := Result{Metadata: Metadata{ID: id, Title: result.Rule().Summary, Severity: v1alpha1.Severity(result.Severity()), Type: "Kubernetes Security Check", Description: result.Rule().Explanation}, Success: result.Status() == scan.StatusPassed, Messages: msgs}
 		prs = append(prs, pr)
-	}
-	sort.Sort(resultSort(prs))
-	return prs
-}
-
-func getBuildInResults(t *testing.T, filePath string) Results {
-	var prs Results
-	b, err := os.ReadFile(filePath)
-	if err != nil {
-		t.Error(err)
-	}
-	err = json.Unmarshal(b, &prs)
-	if err != nil {
-		t.Error(err)
 	}
 	sort.Sort(resultSort(prs))
 	return prs

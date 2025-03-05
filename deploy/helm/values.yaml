@@ -253,7 +253,7 @@ trivyOperator:
   # -- scanJobCompressLogs control whether scanjob output should be compressed or plain
   scanJobCompressLogs: true
   # -- scanJobAffinity affinity to be applied to the scanner pods and node-collector
-  scanJobAffinity: []
+  scanJobAffinity: {}
   # -- scanJobTolerations tolerations to be applied to the scanner pods so that they can run on nodes with matching taints
   scanJobTolerations: []
   # -- If you do want to specify tolerations, uncomment the following lines, adjust them as necessary, and remove the

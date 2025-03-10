@@ -47,7 +47,7 @@ jobs:
         uses: golangci/golangci-lint-action@v6.5.0
         with:
           args: --verbose
-          version: v1.61
+          version: v1.64
       - name: Verify YAML code
         uses: ibiqlik/action-yamllint@v3
       - name: Vendor Go modules

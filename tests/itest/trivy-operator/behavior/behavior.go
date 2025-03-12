@@ -107,7 +107,7 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 				deploy = helper.NewDeployment().
 					WithRandomName(inputs.PrimaryWorkloadPrefix).
 					WithNamespace(inputs.PrimaryNamespace).
-					WithContagit iner("wordpress", "wordpress:4.9").
+					WithContainer("wordpress", "wordpress:4.9").
 					Build()
 
 				err := inputs.Create(ctx, deploy)

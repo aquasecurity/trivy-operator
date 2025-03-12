@@ -62,10 +62,12 @@ func (b *PodBuilder) WithNamespace(namespace string) *PodBuilder {
 	return b
 }
 
-func (b *PodBuilder) WithContainer(name, image string) *PodBuilder {
+func (b *PodBuilder) WithContainer(name, image string, commands, args []string) *PodBuilder {
 	b.containers = append(b.containers, corev1.Container{
-		Name:  name,
-		Image: image,
+		Name:    name,
+		Image:   image,
+		Command: commands,
+		Args:    args,
 	})
 	return b
 }

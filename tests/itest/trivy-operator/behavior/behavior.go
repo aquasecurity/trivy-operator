@@ -44,9 +44,9 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 			BeforeEach(func() {
 				ctx = context.Background()
 				pod = helper.NewPod().
-					WithRandomName("unmanaged-nginx").
+					WithRandomName("unmanaged-vuln-image").
 					WithNamespace(inputs.PrimaryNamespace).
-					WithContainer("nginx", "nginx:1.16").
+					WithContainer("vuln-image", "knqyf263/vuln-image:1.2.3", []string{"/bin/sh", "-c", "--"}, []string{"while true; do sleep 30; done;"}).
 					Build()
 
 				err := inputs.Create(ctx, pod)
@@ -107,7 +107,7 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 				deploy = helper.NewDeployment().
 					WithRandomName(inputs.PrimaryWorkloadPrefix).
 					WithNamespace(inputs.PrimaryNamespace).
-					WithContainer("wordpress", "wordpress:4.9").
+					WithContagit iner("wordpress", "wordpress:4.9").
 					Build()
 
 				err := inputs.Create(ctx, deploy)
@@ -220,9 +220,9 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 			BeforeEach(func() {
 				ctx = context.Background()
 				pod = helper.NewPod().
-					WithRandomName("unmanaged-nginx").
+					WithRandomName("unmanaged-vuln-image").
 					WithNamespace(inputs.PrimaryNamespace).
-					WithContainer("nginx", "nginx:1.16").
+					WithContainer("vuln-image", "knqyf263/vuln-image:1.2.3", []string{"/bin/sh", "-c", "--"}, []string{"while true; do sleep 30; done;"}).
 					Build()
 
 				err := inputs.Create(ctx, pod)

@@ -228,25 +228,24 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 	}
 	var policyLoader policy.Loader
+	var checksLoader *controller.ChecksLoader
 	if operatorConfig.ConfigAuditScannerEnabled {
 		policyLoader, err = buildPolicyLoader(trivyOperatorConfig)
 		if err != nil {
 			return fmt.Errorf("unable to constract policy loader: %w", err)
 		}
-	}
-
-	checksLoader := controller.NewChecksLoader(
-		operatorConfig,
-		ctrl.Log.WithName("checks-loader"),
-		mgr.GetClient(),
-		objectResolver,
-		pluginContext,
-		pluginConfig,
-		policyLoader,
-	)
-
-	if err := checksLoader.SetupWithManager(mgr); err != nil {
-		return fmt.Errorf("setup MyReconciler: %w", err)
+		checksLoader = controller.NewChecksLoader(
+			operatorConfig,
+			ctrl.Log.WithName("checks-loader"),
+			mgr.GetClient(),
+			objectResolver,
+			pluginContext,
+			pluginConfig,
+			policyLoader,
+		)
+		if err := checksLoader.SetupWithManager(mgr); err != nil {
+			return fmt.Errorf("setup MyReconciler: %w", err)
+		}
 	}
 
 	if operatorConfig.ScannerReportTTL != nil {

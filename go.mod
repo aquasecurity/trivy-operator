@@ -122,9 +122,9 @@ require (
 	github.com/cloudflare/circl v1.5.0 // indirect
 	github.com/cncf/xds/go v0.0.0-20240905190251-b4127c9b8d78 // indirect
 	github.com/containerd/cgroups/v3 v3.0.3 // indirect
-	github.com/containerd/containerd v1.7.25 // indirect
+	github.com/containerd/containerd v1.7.27 // indirect
 	github.com/containerd/containerd/api v1.8.0 // indirect
-	github.com/containerd/containerd/v2 v2.0.2 // indirect
+	github.com/containerd/containerd/v2 v2.0.4 // indirect
 	github.com/containerd/continuity v0.4.5 // indirect
 	github.com/containerd/errdefs v1.0.0 // indirect
 	github.com/containerd/errdefs/pkg v0.3.0 // indirect
@@ -254,7 +254,6 @@ require (
 	github.com/oklog/ulid/v2 v2.1.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
 	github.com/opencontainers/runtime-spec v1.2.0 // indirect
-	github.com/opencontainers/runtime-tools v0.9.1-0.20221107090550-2e043c6bd626 // indirect
 	github.com/opencontainers/selinux v1.11.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/openvex/discovery v0.1.1-0.20240802171711-7c54efc57553 // indirect
@@ -292,7 +291,6 @@ require (
 	github.com/spf13/viper v1.19.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/tchap/go-patricia/v2 v2.3.2 // indirect
 	github.com/tetratelabs/wazero v1.9.0 // indirect
@@ -343,8 +341,6 @@ require (
 	oras.land/oras-go v1.2.5 // indirect
 	sigs.k8s.io/kustomize/api v0.18.0 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.18.1 // indirect
-	tags.cncf.io/container-device-interface v0.8.0 // indirect
-	tags.cncf.io/container-device-interface/specs-go v0.8.0 // indirect
 )
 
 require (

@@ -121,11 +121,12 @@ func (t Test) Unit() error {
 
 // Target for running integration tests for Trivy Operator.
 func (t Test) Integration() error {
-	fmt.Println("Running integration tests for Trivy Operator...")
+	fmt.Println("Preparing integration tests for Trivy Operator...")
 	mg.Deps(checkEnvKubeconfig, checkEnvOperatorNamespace, checkEnvOperatorTargetNamespace, getGinkgo)
 	mg.Deps(prepareImages)
 
-	return sh.RunV(GINKGO, "-coverprofile=coverage.txt",
+	fmt.Println("Running integration tests for Trivy Operator...")
+	return sh.RunV(GINKGO, "-v", "-coverprofile=coverage.txt",
 		"-coverpkg=github.com/aquasecurity/trivy-operator/pkg/operator,"+
 			"github.com/aquasecurity/trivy-operator/pkg/operator/predicate,"+
 			"github.com/aquasecurity/trivy-operator/pkg/operator/controller,"+

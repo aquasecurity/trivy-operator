@@ -131,12 +131,6 @@ jobs:
           kubectl wait --for=condition=Ready nodes --all --timeout=300s
           kubectl describe node
 
-      - name: Login to docker.io registry
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Run integration tests
         run: |
           kubectl create -k deploy/static

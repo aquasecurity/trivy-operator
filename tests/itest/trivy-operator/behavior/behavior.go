@@ -124,7 +124,7 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 				By("Waiting for VulnerabilityReport")
 				Eventually(inputs.HasVulnerabilityReportOwnedBy(rs), inputs.AssertTimeout).Should(BeTrue())
 
-				By("Updating deployment image to wordpress:5")
+				By("Updating deployment image to wordpress:6.1")
 				err = inputs.UpdateDeploymentImage(inputs.PrimaryNamespace, deploy.Name)
 				Expect(err).ToNot(HaveOccurred())
 
@@ -300,7 +300,7 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 				By("Waiting for ConfigAuditReport")
 				Eventually(inputs.HasConfigAuditReportOwnedBy(rs), inputs.AssertTimeout).Should(BeTrue())
 
-				By("Updating deployment image to wordpress:5")
+				By("Updating deployment image to wordpress:6.1")
 				err = inputs.UpdateDeploymentImage(inputs.PrimaryNamespace, deploy.Name)
 				Expect(err).ToNot(HaveOccurred())
 

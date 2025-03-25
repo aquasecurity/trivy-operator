@@ -46,7 +46,7 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 				pod = helper.NewPod().
 					WithRandomName("unmanaged-vuln-image").
 					WithNamespace(inputs.PrimaryNamespace).
-					WithContainer("vuln-image", "knqyf263/vuln-image:1.2.3", []string{"/bin/sh", "-c", "--"}, []string{"while true; do sleep 30; done;"}).
+					WithContainer("vuln-image", "mirror.gcr.io/knqyf263/vuln-image:1.2.3", []string{"/bin/sh", "-c", "--"}, []string{"while true; do sleep 30; done;"}).
 					Build()
 
 				err := inputs.Create(ctx, pod)
@@ -124,7 +124,7 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 				By("Waiting for VulnerabilityReport")
 				Eventually(inputs.HasVulnerabilityReportOwnedBy(rs), inputs.AssertTimeout).Should(BeTrue())
 
-				By("Updating deployment image to wordpress:5")
+				By("Updating deployment image to wordpress:6.7")
 				err = inputs.UpdateDeploymentImage(inputs.PrimaryNamespace, deploy.Name)
 				Expect(err).ToNot(HaveOccurred())
 
@@ -222,7 +222,7 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 				pod = helper.NewPod().
 					WithRandomName("unmanaged-vuln-image").
 					WithNamespace(inputs.PrimaryNamespace).
-					WithContainer("vuln-image", "knqyf263/vuln-image:1.2.3", []string{"/bin/sh", "-c", "--"}, []string{"while true; do sleep 30; done;"}).
+					WithContainer("vuln-image", "mirror.gcr.io/knqyf263/vuln-image:1.2.3", []string{"/bin/sh", "-c", "--"}, []string{"while true; do sleep 30; done;"}).
 					Build()
 
 				err := inputs.Create(ctx, pod)
@@ -300,7 +300,7 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 				By("Waiting for ConfigAuditReport")
 				Eventually(inputs.HasConfigAuditReportOwnedBy(rs), inputs.AssertTimeout).Should(BeTrue())
 
-				By("Updating deployment image to wordpress:5")
+				By("Updating deployment image to wordpress:6.7")
 				err = inputs.UpdateDeploymentImage(inputs.PrimaryNamespace, deploy.Name)
 				Expect(err).ToNot(HaveOccurred())
 

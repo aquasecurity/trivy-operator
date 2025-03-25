@@ -122,7 +122,7 @@ func (t Test) Unit() error {
 // Target for running integration tests for Trivy Operator.
 func (t Test) Integration() error {
 	fmt.Println("Running integration tests for Trivy Operator...")
-	mg.Deps(checkKubeconfig, getGinkgo)
+	mg.Deps(checkEnvKubeconfig, checkEnvOperatorNamespace, checkEnvOperatorTargetNamespace, getGinkgo)
 	return sh.RunV(GINKGO, "-coverprofile=coverage.txt",
 		"-coverpkg=github.com/aquasecurity/trivy-operator/pkg/operator,"+
 			"github.com/aquasecurity/trivy-operator/pkg/operator/predicate,"+
@@ -134,14 +134,23 @@ func (t Test) Integration() error {
 		"./tests/itest/trivy-operator")
 }
 
-// Target for checking if KUBECONFIG environment variable is set.
-func checkKubeconfig() error {
-	kubeconfig := os.Getenv("KUBECONFIG")
-	if kubeconfig == "" {
-		return fmt.Errorf("Environment variable KUBECONFIG is not set")
+// Targets for checking if environment variables are set.
+func checkEnvironmentVariable(name string) error {
+	envVar := os.Getenv(name)
+	if envVar == "" {
+		return fmt.Errorf("Environment variable %q is not set", name)
 	}
-	fmt.Println("KUBECONFIG=", kubeconfig)
+	fmt.Println(name, "=", envVar)
 	return nil
+}
+func checkEnvKubeconfig() error {
+	return checkEnvironmentVariable("KUBECONFIG")
+}
+func checkEnvOperatorNamespace() error {
+	return checkEnvironmentVariable("OPERATOR_NAMESPACE")
+}
+func checkEnvOperatorTargetNamespace() error {
+	return checkEnvironmentVariable("OPERATOR_TARGET_NAMESPACES")
 }
 
 // Target for removing build artifacts

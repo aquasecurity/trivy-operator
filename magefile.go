@@ -123,6 +123,8 @@ func (t Test) Unit() error {
 func (t Test) Integration() error {
 	fmt.Println("Running integration tests for Trivy Operator...")
 	mg.Deps(checkEnvKubeconfig, checkEnvOperatorNamespace, checkEnvOperatorTargetNamespace, getGinkgo)
+	mg.Deps(prepareImages)
+
 	return sh.RunV(GINKGO, "-coverprofile=coverage.txt",
 		"-coverpkg=github.com/aquasecurity/trivy-operator/pkg/operator,"+
 			"github.com/aquasecurity/trivy-operator/pkg/operator/predicate,"+
@@ -132,6 +134,27 @@ func (t Test) Integration() error {
 			"github.com/aquasecurity/trivy-operator/pkg/configauditreport,"+
 			"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport",
 		"./tests/itest/trivy-operator")
+}
+
+// Target for downloading test images and upload them into KinD
+func prepareImages() error {
+	images := []string{
+		"mirror.gcr.io/knqyf263/vuln-image:1.2.3",
+		"wordpress:4.9",
+	}
+	fmt.Printf("Preparing %d image(s) for Trivy Operator...\n", len(images))
+	for _, image := range images {
+		fmt.Printf("Preparing image %q for Trivy Operator...\n", image)
+		err := sh.Run("docker", "pull", image)
+		if err != nil {
+			return fmt.Errorf("couldn't pull image %q: %v", image, err)
+		}
+		err = sh.Run("kind", "load", "docker-image", image)
+		if err != nil {
+			return fmt.Errorf("couldn't load image %q: %v", image, err)
+		}
+	}
+	return nil
 }
 
 // Targets for checking if environment variables are set.

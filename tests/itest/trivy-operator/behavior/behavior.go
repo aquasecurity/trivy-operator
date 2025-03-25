@@ -46,7 +46,7 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 				pod = helper.NewPod().
 					WithRandomName("unmanaged-vuln-image").
 					WithNamespace(inputs.PrimaryNamespace).
-					WithContainer("vuln-image", "knqyf263/vuln-image:1.2.3", []string{"/bin/sh", "-c", "--"}, []string{"while true; do sleep 30; done;"}).
+					WithContainer("vuln-image", "mirror.gcr.io/knqyf263/vuln-image:1.2.3", []string{"/bin/sh", "-c", "--"}, []string{"while true; do sleep 30; done;"}).
 					Build()
 
 				err := inputs.Create(ctx, pod)
@@ -222,7 +222,7 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 				pod = helper.NewPod().
 					WithRandomName("unmanaged-vuln-image").
 					WithNamespace(inputs.PrimaryNamespace).
-					WithContainer("vuln-image", "knqyf263/vuln-image:1.2.3", []string{"/bin/sh", "-c", "--"}, []string{"while true; do sleep 30; done;"}).
+					WithContainer("vuln-image", "mirror.gcr.io/knqyf263/vuln-image:1.2.3", []string{"/bin/sh", "-c", "--"}, []string{"while true; do sleep 30; done;"}).
 					Build()
 
 				err := inputs.Create(ctx, pod)

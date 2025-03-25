@@ -142,7 +142,7 @@ func prepareImages() error {
 	images := []string{
 		"mirror.gcr.io/knqyf263/vuln-image:1.2.3",
 		"wordpress:4.9",
-		"wordpress:6.1",
+		"wordpress:6.7",
 	}
 	fmt.Printf("Preparing %d image(s) for Trivy Operator...\n", len(images))
 	for _, image := range images {

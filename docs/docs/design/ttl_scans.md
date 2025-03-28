@@ -10,7 +10,7 @@ In [1009](https://github.com/aquasecurity/trivy-operator/issues/1009) we discuss
 
 ## Proposal
 
-Add an environment variable, `OPERATOR_SCANNER_REPORT_TTL=12h30m0s`, or configure it through Helm values using operator.scannerReportTTL.
+Add an environment variable, `OPERATOR_SCANNER_REPORT_TTL=12h30m0s`, or configure it through Helm values using `operator.scannerReportTTL`.
 
 This environment variable or value will add an annotation to the generated VulnerabilityReport, indicating the TTL.
 
@@ -20,7 +20,7 @@ Explicitly annotating reports shows users how long each report will exist, impro
 
 ### Example
 
-Below is a shortened version of the YAML. Notice the `metadata.annotations.trivy-operator.aquasecurity.github.io/report-ttl`, automatically set if operator.`scannerReportTTL` or `OPERATOR_SCANNER_REPORT_TTL` is configured. Users can manually change TTL per report.
+Below is a shortened version of the YAML. Notice the `metadata.annotations.trivy-operator.aquasecurity.github.io/report-ttl`, automatically set if `operator.scannerReportTTL` or `OPERATOR_SCANNER_REPORT_TTL` is configured. Users can manually change TTL per report.
 
 ```vulnerabilityReport.yaml
 apiVersion: aquasecurity.github.io/v1alpha1

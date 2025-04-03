@@ -121,9 +121,12 @@ func (t Test) Unit() error {
 
 // Target for running integration tests for Trivy Operator.
 func (t Test) Integration() error {
+	fmt.Println("Preparing integration tests for Trivy Operator...")
+	mg.Deps(checkEnvKubeconfig, checkEnvOperatorNamespace, checkEnvOperatorTargetNamespace, getGinkgo)
+	mg.Deps(prepareImages)
+
 	fmt.Println("Running integration tests for Trivy Operator...")
-	mg.Deps(checkKubeconfig, getGinkgo)
-	return sh.RunV(GINKGO, "-coverprofile=coverage.txt",
+	return sh.RunV(GINKGO, "-v", "-coverprofile=coverage.txt",
 		"-coverpkg=github.com/aquasecurity/trivy-operator/pkg/operator,"+
 			"github.com/aquasecurity/trivy-operator/pkg/operator/predicate,"+
 			"github.com/aquasecurity/trivy-operator/pkg/operator/controller,"+
@@ -134,14 +137,45 @@ func (t Test) Integration() error {
 		"./tests/itest/trivy-operator")
 }
 
-// Target for checking if KUBECONFIG environment variable is set.
-func checkKubeconfig() error {
-	kubeconfig := os.Getenv("KUBECONFIG")
-	if kubeconfig == "" {
-		return fmt.Errorf("Environment variable KUBECONFIG is not set")
+// Target for downloading test images and upload them into KinD
+func prepareImages() error {
+	images := []string{
+		"mirror.gcr.io/knqyf263/vuln-image:1.2.3",
+		"wordpress:4.9",
+		"wordpress:6.7",
 	}
-	fmt.Println("KUBECONFIG=", kubeconfig)
+	fmt.Printf("Preparing %d image(s) for Trivy Operator...\n", len(images))
+	for _, image := range images {
+		fmt.Printf("Preparing image %q for Trivy Operator...\n", image)
+		err := sh.Run("docker", "pull", image)
+		if err != nil {
+			return fmt.Errorf("couldn't pull image %q: %v", image, err)
+		}
+		err = sh.Run("kind", "load", "docker-image", image)
+		if err != nil {
+			return fmt.Errorf("couldn't load image %q: %v", image, err)
+		}
+	}
 	return nil
+}
+
+// Targets for checking if environment variables are set.
+func checkEnvironmentVariable(name string) error {
+	envVar := os.Getenv(name)
+	if envVar == "" {
+		return fmt.Errorf("Environment variable %q is not set", name)
+	}
+	fmt.Println(name, "=", envVar)
+	return nil
+}
+func checkEnvKubeconfig() error {
+	return checkEnvironmentVariable("KUBECONFIG")
+}
+func checkEnvOperatorNamespace() error {
+	return checkEnvironmentVariable("OPERATOR_NAMESPACE")
+}
+func checkEnvOperatorTargetNamespace() error {
+	return checkEnvironmentVariable("OPERATOR_TARGET_NAMESPACES")
 }
 
 // Target for removing build artifacts

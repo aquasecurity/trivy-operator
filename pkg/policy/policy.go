@@ -8,7 +8,7 @@ import (
 	"io/fs"
 	"path"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/go-logr/logr"
@@ -186,7 +186,7 @@ func (p *Policies) loadPolicies(kind string) ([]string, error) {
 	if len(externalPolicies) > 0 {
 		policies = append(policies, externalPolicies...)
 	}
-	sort.Strings(policies)
+	slices.Sort(policies)
 	return policies, nil
 }
 

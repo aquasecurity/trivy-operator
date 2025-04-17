@@ -475,6 +475,6 @@ func buildPolicyLoader(tc trivyoperator.ConfigData) (policy.Loader, error) {
 	}
 	ro.Insecure = tc.PolicyBundleInsecure()
 	artifact.RegistryOptions = ro
-	policyLoader := policy.NewPolicyLoader(tc.PolicyBundleOciRef(), gcache.New(1).LRU().Build(), ro, mp.WithOCIArtifact(artifact))
+	policyLoader := policy.NewPolicyLoader(tc.PolicyBundleOciRef(), gcache.New(2).LRU().Build(), ro, mp.WithOCIArtifact(artifact))
 	return policyLoader, nil
 }

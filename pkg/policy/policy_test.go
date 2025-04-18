@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/bluele/gcache"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -19,6 +18,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
@@ -61,7 +61,7 @@ func TestPolicies_Hash(t *testing.T) {
 
 	t.Run("Should return error when no policies are found", func(t *testing.T) {
 		g := NewGomegaWithT(t)
-		config := policy.NewPolicies(map[string]string{}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1")
+		config := policy.NewPolicies(make(map[string]string), testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1")
 
 		_, err := config.Hash("Pod")
 		g.Expect(err).To(HaveOccurred())

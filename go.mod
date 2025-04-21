@@ -5,7 +5,7 @@ go 1.24.1
 require (
 	github.com/CycloneDX/cyclonedx-go v0.9.2
 	github.com/aquasecurity/go-version v0.0.1
-	github.com/aquasecurity/trivy v0.61.0
+	github.com/aquasecurity/trivy v0.61.1
 	github.com/aquasecurity/trivy-checks v1.8.2-0.20250403212859-379320b8673d
 	github.com/aquasecurity/trivy-kubernetes v0.8.1
 	github.com/aws/aws-sdk-go v1.55.6
@@ -21,9 +21,9 @@ require (
 	github.com/liamg/memoryfs v1.6.0
 	github.com/magefile/mage v1.15.0
 	github.com/onsi/ginkgo/v2 v2.23.4
-	github.com/onsi/gomega v1.36.3
+	github.com/onsi/gomega v1.37.0
 	github.com/openshift/api v0.0.0-20231025170628-b8a18fdc040d
-	github.com/prometheus/client_golang v1.21.1
+	github.com/prometheus/client_golang v1.22.0
 	github.com/quasilyte/go-ruleguard/dsl v0.3.22
 	github.com/samber/lo v1.49.1
 	github.com/stretchr/testify v1.10.0
@@ -208,7 +208,7 @@ require (
 	github.com/jedisct1/go-minisign v0.0.0-20230811132847-661be99b8267 // indirect
 	github.com/jmespath/go-jmespath v0.4.1-0.20220621161143-b0104c826a24 // indirect
 	github.com/jmoiron/sqlx v1.4.0 // indirect
-	github.com/klauspost/compress v1.17.11 // indirect
+	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/knqyf263/go-apk-version v0.0.0-20200609155635-041fdbb8563f // indirect
 	github.com/knqyf263/go-deb-version v0.0.0-20241115132648-6f4aee6ccd23 // indirect
 	github.com/knqyf263/go-rpm-version v0.0.0-20220614171824-631e686d1075 // indirect

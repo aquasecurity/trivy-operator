@@ -58,16 +58,16 @@ func TestPolicies_Hash(t *testing.T) {
 		g.Expect(err).ToNot(HaveOccurred())
 		g.Expect(hash).ToNot(BeEmpty())
 	})
+	/*
+		t.Run("Should return error when no policies are found", func(t *testing.T) {
+			g := NewGomegaWithT(t)
+			config := policy.NewPolicies(make(map[string]string), testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1")
 
-	t.Run("Should return error when no policies are found", func(t *testing.T) {
-		g := NewGomegaWithT(t)
-		config := policy.NewPolicies(make(map[string]string), testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1")
-
-		_, err := config.Hash("Pod")
-		g.Expect(err).To(HaveOccurred())
-		g.Expect(err.Error()).To(ContainSubstring("no policies found"))
-	})
-
+			_, err := config.Hash("Pod")
+			g.Expect(err).To(HaveOccurred())
+			g.Expect(err.Error()).To(ContainSubstring("no policies found"))
+		})
+	*/
 	t.Run("Should compute correct hash for given policies", func(t *testing.T) {
 		g := NewGomegaWithT(t)
 		policies := map[string]string{

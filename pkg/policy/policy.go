@@ -131,7 +131,7 @@ func (p *Policies) PoliciesByKind(kind string) (map[string]string, error) {
 }
 
 func (p *Policies) getCachedHash(kind string) (string, error) {
-	// without cache, we don't need to check the hash
+	// without cache, we don't keep the hashes
 	if p.cache == nil {
 		return "", nil
 	}

@@ -124,11 +124,7 @@ func (p *Policies) Hash(kind string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to load built-in / external policies: %s: %w", kind, err)
 	}
-	/*
-		if len(policies) == 0 {
-			return "", errors.New("no policies found")
-		}
-	*/
+	// TODO(simar7): what if policies are empty?
 	return kube.ComputeHash(policies), nil
 }
 

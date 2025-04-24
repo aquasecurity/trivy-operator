@@ -1,14 +1,16 @@
 package policy
 
 import (
-	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
-	"github.com/aquasecurity/trivy-operator/pkg/utils"
-	"github.com/aquasecurity/trivy/pkg/fanal/types"
-	"github.com/bluele/gcache"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/bluele/gcache"
+	ctrl "sigs.k8s.io/controller-runtime"
+
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
+	"github.com/aquasecurity/trivy/pkg/fanal/types"
 )
 
 var (

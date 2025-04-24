@@ -9,7 +9,10 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"sync"
+	"time"
 
+	"github.com/bluele/gcache"
 	"github.com/go-logr/logr"
 	"github.com/liamg/memoryfs"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -57,9 +60,17 @@ type Policies struct {
 	policyFS       *memoryfs.FS
 	loaded         []string
 	scanner        k8sScanner
+	mutex          sync.RWMutex
+	cache          gcache.Cache
+	cacheExpire    time.Duration
 }
 
-func NewPolicies(data map[string]string, cac configauditreport.ConfigAuditConfig, log logr.Logger, pl Loader, serverVersion string) *Policies {
+func NewPolicies(data map[string]string, cac configauditreport.ConfigAuditConfig, log logr.Logger, pl Loader, serverVersion string, exp *time.Duration) *Policies {
+	const maxCachedK8sResources = 100
+	expiration := 24 * time.Hour
+	if exp != nil {
+		expiration = *exp
+	}
 	return &Policies{
 		data:           data,
 		log:            log,
@@ -67,6 +78,8 @@ func NewPolicies(data map[string]string, cac configauditreport.ConfigAuditConfig
 		policyLoader:   pl,
 		clusterVersion: serverVersion,
 		policyFS:       memoryfs.New(),
+		cache:          gcache.New(maxCachedK8sResources).LRU().Build(),
+		cacheExpire:    expiration,
 	}
 }
 
@@ -117,13 +130,50 @@ func (p *Policies) PoliciesByKind(kind string) (map[string]string, error) {
 	return policies, nil
 }
 
-// TODO: use loaded
+func (p *Policies) getCachedHash(kind string) (string, error) {
+	// without cache, we don't need to check the hash
+	if p.cache == nil {
+		return "", nil
+	}
+	p.mutex.RLock()
+	defer p.mutex.RUnlock()
+	value, err := p.cache.Get(kind)
+	if err != nil {
+		if !errors.Is(err, gcache.KeyNotFoundError) {
+			return "", fmt.Errorf("failed to get hash from cache: %v", err)
+		}
+		return "", nil
+	}
+	if hash, ok := value.(string); ok {
+		return hash, nil
+	}
+	return "", nil
+}
+func (p *Policies) setCachedHash(kind, hash string) error {
+	if p.cache == nil {
+		return nil
+	}
+	return p.cache.SetWithExpire(kind, hash, p.cacheExpire)
+}
+
 func (p *Policies) Hash(kind string) (string, error) {
+	hash, err := p.getCachedHash(kind)
+	if err != nil {
+		return "", fmt.Errorf("failed to get cached hash for kind %s: %v", kind, err)
+	}
+	if hash != "" {
+		return hash, nil
+	}
+
 	policies, err := p.loadPolicies(kind)
 	if err != nil {
 		return "", fmt.Errorf("failed to load built-in / external policies: %s: %w", kind, err)
 	}
-	return kube.ComputeHash(policies), nil
+	hash = kube.ComputeHash(policies)
+	if err := p.setCachedHash(kind, hash); err != nil {
+		return "", fmt.Errorf("failed to set cached hash for kind %s: %v", kind, err)
+	}
+	return hash, nil
 }
 
 func (p *Policies) ModulesByKind(kind string) (map[string]string, error) {

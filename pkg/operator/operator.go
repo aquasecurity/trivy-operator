@@ -230,10 +230,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	var policyLoader policy.Loader
 	var checksLoader *controller.ChecksLoader
 	if operatorConfig.ConfigAuditScannerEnabled {
-		policyLoader, err = buildPolicyLoader(trivyOperatorConfig)
-		if err != nil {
-			return fmt.Errorf("unable to constract policy loader: %w", err)
-		}
+		policyLoader = buildPolicyLoader(trivyOperatorConfig)
 		checksLoader = controller.NewChecksLoader(
 			operatorConfig,
 			ctrl.Log.WithName("checks-loader"),
@@ -460,7 +457,7 @@ func newWorkloadController(operatorConfig etc.Config,
 	}, nil
 }
 
-func buildPolicyLoader(tc trivyoperator.ConfigData) (policy.Loader, error) {
+func buildPolicyLoader(tc trivyoperator.ConfigData) policy.Loader {
 	registryUser := tc.PolicyBundleOciUser()
 	registryPassword := tc.PolicyBundleOciPassword()
 	artifact := oci.NewArtifact(tc.PolicyBundleOciRef(), types.RegistryOptions{})
@@ -475,6 +472,5 @@ func buildPolicyLoader(tc trivyoperator.ConfigData) (policy.Loader, error) {
 	}
 	ro.Insecure = tc.PolicyBundleInsecure()
 	artifact.RegistryOptions = ro
-	policyLoader := policy.NewPolicyLoader(tc.PolicyBundleOciRef(), gcache.New(1).LRU().Build(), ro, mp.WithOCIArtifact(artifact))
-	return policyLoader, nil
+	return policy.NewPolicyLoader(tc.PolicyBundleOciRef(), gcache.New(2).LRU().Build(), ro, mp.WithOCIArtifact(artifact))
 }

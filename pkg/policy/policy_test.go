@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/bluele/gcache"
 	appsv1 "k8s.io/api/apps/v1"
@@ -28,6 +29,8 @@ import (
 )
 
 var (
+	cacheReportTTL = time.Hour * 24
+
 	simpleNginxPod = &corev1.Pod{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Pod",
@@ -52,7 +55,7 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 			"library.kubernetes.rego":        "<REGO_A>",
 			"library.utils.rego":             "<REGO_B>",
 			"policy.access_to_host_pid.rego": "<REGO_C>",
-		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1")
+		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1", &cacheReportTTL)
 		_, err := config.PoliciesByKind("Pod")
 		g.Expect(err).To(MatchError("kinds not defined for policy: policy.access_to_host_pid.rego"))
 	})
@@ -61,7 +64,7 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 		g := NewGomegaWithT(t)
 		config := policy.NewPolicies(map[string]string{
 			"policy.access_to_host_pid.kinds": "Workload",
-		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1")
+		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1", &cacheReportTTL)
 		_, err := config.PoliciesByKind("Pod")
 		g.Expect(err).To(MatchError("expected policy not found: policy.access_to_host_pid.rego"))
 	})
@@ -88,7 +91,7 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 			"policy.privileged": "<REGO_E>",
 			// This one should be skipped (no policy. prefix)
 			"foo": "bar",
-		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1")
+		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1", &cacheReportTTL)
 		g.Expect(config.PoliciesByKind("Pod")).To(Equal(map[string]string{
 			"policy.access_to_host_pid.rego":                "<REGO_C>",
 			"policy.cpu_not_limited.rego":                   "<REGO_D>",
@@ -162,7 +165,7 @@ func TestPolicies_Supported(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			ready, err := policy.NewPolicies(tc.data, testConfig{}, log, policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1").SupportedKind(tc.resource, tc.rbacEnable)
+			ready, err := policy.NewPolicies(tc.data, testConfig{}, log, policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1", &cacheReportTTL).SupportedKind(tc.resource, tc.rbacEnable)
 			g.Expect(err).ToNot(HaveOccurred())
 			g.Expect(ready).To(Equal(tc.expected))
 		})
@@ -650,7 +653,7 @@ func TestPolicies_Eval(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			p := policy.NewPolicies(tc.policies, newTestConfig(tc.useBuiltInPolicies), log, &TestLoader{}, "1.27.1")
+			p := policy.NewPolicies(tc.policies, newTestConfig(tc.useBuiltInPolicies), log, &TestLoader{}, "1.27.1", &cacheReportTTL)
 			g.Expect(p.Load()).ToNot(HaveOccurred())
 			checks, err := p.Eval(context.TODO(), tc.resource)
 			if tc.expectedError != "" {

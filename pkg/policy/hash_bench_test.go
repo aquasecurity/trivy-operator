@@ -7,6 +7,7 @@ import (
 
 	"github.com/bluele/gcache"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
@@ -51,45 +52,40 @@ func (tc testConfig) GetSeverity() string {
 	return trivy.KeyTrivySeverity
 }
 
-func benchmarkHash10000(b *testing.B, p *Policies) {
+func benchmarkHash(b *testing.B, p *Policies) {
 	b.ResetTimer()
 	b.ReportAllocs()
 
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < b.N; i++ {
 		for _, resource := range k8sresources {
 			_, _ = p.Hash(resource)
 		}
 	}
 }
 
-func BenchmarkPolicies_Hash(b *testing.B) {
+func initPolicies(cacheSize int) *Policies {
+	ctrl.SetLogger(zap.New(zap.UseDevMode(true)))
 	expiration := 24 * time.Hour
-	pl := NewPolicyLoader("", gcache.New(2).LRU().Build(), types.RegistryOptions{})
-	p := NewPolicies(map[string]string{
+	pl := NewPolicyLoader("", gcache.New(cacheSize).LRU().Build(), types.RegistryOptions{})
+	return NewPolicies(map[string]string{
 		"policy.valid.rego":  "<REGO_CONTENT>",
 		"policy.valid.kinds": "Pod",
 	}, newTestConfig(true), ctrl.Log.WithName("policy logger"), pl, "v1.23.0", &expiration)
-	benchmarkHash10000(b, p)
+}
+
+func BenchmarkPolicies_Hash(b *testing.B) {
+	p := initPolicies(2)
+	benchmarkHash(b, p)
 }
 
 func BenchmarkPolicies_HashWithoutCache(b *testing.B) {
-	expiration := 24 * time.Hour
-	pl := NewPolicyLoader("", gcache.New(2).LRU().Build(), types.RegistryOptions{})
-	p := NewPolicies(map[string]string{
-		"policy.valid.rego":  "<REGO_CONTENT>",
-		"policy.valid.kinds": "Pod",
-	}, newTestConfig(true), ctrl.Log.WithName("policy logger"), pl, "v1.23.0", &expiration)
+	p := initPolicies(2)
 	p.cache = nil
-	benchmarkHash10000(b, p)
+	benchmarkHash(b, p)
 }
 
 func BenchmarkPolicies_HashWithoutCacheAndIncorrectSize(b *testing.B) {
-	expiration := 24 * time.Hour
-	pl := NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{})
-	p := NewPolicies(map[string]string{
-		"policy.valid.rego":  "<REGO_CONTENT>",
-		"policy.valid.kinds": "Pod",
-	}, newTestConfig(true), ctrl.Log.WithName("policy logger"), pl, "v1.23.0", &expiration)
+	p := initPolicies(1)
 	p.cache = nil
-	benchmarkHash10000(b, p)
+	benchmarkHash(b, p)
 }

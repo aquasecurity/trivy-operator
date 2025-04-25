@@ -9,7 +9,6 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/bluele/gcache"
@@ -60,7 +59,6 @@ type Policies struct {
 	policyFS       *memoryfs.FS
 	loaded         []string
 	scanner        k8sScanner
-	mutex          sync.RWMutex
 	cache          gcache.Cache
 	cacheExpire    time.Duration
 }
@@ -135,8 +133,6 @@ func (p *Policies) getCachedHash(kind string) (string, error) {
 	if p.cache == nil {
 		return "", nil
 	}
-	p.mutex.RLock()
-	defer p.mutex.RUnlock()
 	value, err := p.cache.Get(kind)
 	if err != nil {
 		if !errors.Is(err, gcache.KeyNotFoundError) {

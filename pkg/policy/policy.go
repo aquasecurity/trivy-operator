@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"path"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/go-logr/logr"
@@ -123,6 +124,7 @@ func (p *Policies) Hash(kind string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to load built-in / external policies: %s: %w", kind, err)
 	}
+	// TODO(simar7): what if policies are empty?
 	return kube.ComputeHash(policies), nil
 }
 
@@ -182,6 +184,7 @@ func (p *Policies) loadPolicies(kind string) ([]string, error) {
 	if len(externalPolicies) > 0 {
 		policies = append(policies, externalPolicies...)
 	}
+	slices.Sort(policies)
 	return policies, nil
 }
 

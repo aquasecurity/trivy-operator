@@ -55,22 +55,12 @@ func TestPolicies_Hash(t *testing.T) {
 		config := policy.NewPolicies(map[string]string{
 			"policy.valid.rego":  "<REGO_CONTENT>",
 			"policy.valid.kinds": "Pod",
-		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1")
+		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1", &cacheReportTTL)
 
 		hash, err := config.Hash("Pod")
 		g.Expect(err).ToNot(HaveOccurred())
 		g.Expect(hash).ToNot(BeEmpty())
 	})
-	/*
-		t.Run("Should return error when no policies are found", func(t *testing.T) {
-			g := NewGomegaWithT(t)
-			config := policy.NewPolicies(make(map[string]string), testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1")
-
-			_, err := config.Hash("Pod")
-			g.Expect(err).To(HaveOccurred())
-			g.Expect(err.Error()).To(ContainSubstring("no policies found"))
-		})
-	*/
 	t.Run("Should compute correct hash for given policies", func(t *testing.T) {
 		g := NewGomegaWithT(t)
 		policies := map[string]string{
@@ -79,7 +69,7 @@ func TestPolicies_Hash(t *testing.T) {
 			"policy.policy2.rego":  "package test\nallow = false",
 			"policy.policy2.kinds": "Workload",
 		}
-		config := policy.NewPolicies(policies, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1")
+		config := policy.NewPolicies(policies, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1", &cacheReportTTL)
 
 		// Sort policy content before computing the expected hash
 		policyContents := []string{

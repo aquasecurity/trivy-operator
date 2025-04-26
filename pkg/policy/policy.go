@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"path"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -165,6 +166,9 @@ func (p *Policies) Hash(kind string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to load built-in / external policies: %s: %w", kind, err)
 	}
+
+  // TODO(simar7): What if len(policies) is 0?
+  
 	hash = kube.ComputeHash(policies)
 	if err := p.setCachedHash(kind, hash); err != nil {
 		return "", fmt.Errorf("failed to set cached hash for kind %s: %v", kind, err)
@@ -228,6 +232,7 @@ func (p *Policies) loadPolicies(kind string) ([]string, error) {
 	if len(externalPolicies) > 0 {
 		policies = append(policies, externalPolicies...)
 	}
+	slices.Sort(policies)
 	return policies, nil
 }
 

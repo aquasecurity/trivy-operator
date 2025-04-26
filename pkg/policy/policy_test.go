@@ -19,6 +19,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
@@ -47,6 +48,53 @@ var (
 		},
 	}
 )
+
+func TestPolicies_Hash(t *testing.T) {
+	t.Run("Should return hash for valid policies", func(t *testing.T) {
+		g := NewGomegaWithT(t)
+		config := policy.NewPolicies(map[string]string{
+			"policy.valid.rego":  "<REGO_CONTENT>",
+			"policy.valid.kinds": "Pod",
+		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1")
+
+		hash, err := config.Hash("Pod")
+		g.Expect(err).ToNot(HaveOccurred())
+		g.Expect(hash).ToNot(BeEmpty())
+	})
+	/*
+		t.Run("Should return error when no policies are found", func(t *testing.T) {
+			g := NewGomegaWithT(t)
+			config := policy.NewPolicies(make(map[string]string), testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1")
+
+			_, err := config.Hash("Pod")
+			g.Expect(err).To(HaveOccurred())
+			g.Expect(err.Error()).To(ContainSubstring("no policies found"))
+		})
+	*/
+	t.Run("Should compute correct hash for given policies", func(t *testing.T) {
+		g := NewGomegaWithT(t)
+		policies := map[string]string{
+			"policy.policy1.rego":  "package test\nallow = true",
+			"policy.policy1.kinds": "Pod",
+			"policy.policy2.rego":  "package test\nallow = false",
+			"policy.policy2.kinds": "Workload",
+		}
+		config := policy.NewPolicies(policies, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1")
+
+		// Sort policy content before computing the expected hash
+		policyContents := []string{
+			"package test\nallow = true",
+			"package test\nallow = false",
+		}
+		sort.Strings(policyContents)
+
+		expectedHash := kube.ComputeHash(policyContents)
+
+		hash, err := config.Hash("Pod")
+		g.Expect(err).ToNot(HaveOccurred())
+		g.Expect(hash).To(Equal(expectedHash))
+	})
+}
 
 func TestPolicies_PoliciesByKind(t *testing.T) {
 	t.Run("Should return error when kinds are not defined for policy", func(t *testing.T) {

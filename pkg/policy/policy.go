@@ -167,8 +167,8 @@ func (p *Policies) Hash(kind string) (string, error) {
 		return "", fmt.Errorf("failed to load built-in / external policies: %s: %w", kind, err)
 	}
 
-  // TODO(simar7): What if len(policies) is 0?
-  
+	// TODO(simar7): What if len(policies) is 0?
+
 	hash = kube.ComputeHash(policies)
 	if err := p.setCachedHash(kind, hash); err != nil {
 		return "", fmt.Errorf("failed to set cached hash for kind %s: %v", kind, err)

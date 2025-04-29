@@ -38,7 +38,7 @@ func Policies(ctx context.Context, config etc.Config, c client.Client, cac confi
 	if len(clusterVersion) > 0 {
 		version = clusterVersion[0]
 	}
-	return policy.NewPolicies(cm.Data, cac, log, pl, version), nil
+	return policy.NewPolicies(cm.Data, cac, log, pl, version, config.CacheReportTTL), nil
 }
 
 func ConfigurePolicies(ctx context.Context, config etc.Config, c client.Client, cac configauditreport.ConfigAuditConfig, log logr.Logger, pl policy.Loader, clusterVersion ...string) (*policy.Policies, error) {

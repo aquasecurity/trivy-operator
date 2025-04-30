@@ -520,7 +520,7 @@ trivy:
   # Keys must be at least one of the following: trivy.githubToken, trivy.serverToken, trivy.serverCustomHeaders
   # Overrides trivy.gitHubToken, trivy.serverToken, trivy.serverCustomHeaders values.
   # Note: The secret has to be named "trivy-operator-trivy-config".
-  # existingSecret: true
+  existingSecret: false
 
   # -- serverTokenHeader is the name of the HTTP header used to send the authentication
   # token to Trivy server. Only application in ClientServer mode when

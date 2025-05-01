@@ -40,11 +40,11 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Install tools
-        uses: aquaproj/aqua-installer@v3.1.1
+        uses: aquaproj/aqua-installer@v3.1.2
         with:
           aqua_version: v1.25.0
       - name: Verify Go code
-        uses: golangci/golangci-lint-action@v6.5.0
+        uses: golangci/golangci-lint-action@v7.0.0
         with:
           args: --verbose
           version: v1.64
@@ -67,7 +67,7 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Install tools
-        uses: aquaproj/aqua-installer@v3.1.1
+        uses: aquaproj/aqua-installer@v3.1.2
         with:
           aqua_version: v1.25.0
       - name: Run unit tests
@@ -90,7 +90,7 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Install tools
-        uses: aquaproj/aqua-installer@v3.1.1
+        uses: aquaproj/aqua-installer@v3.1.2
         with:
           aqua_version: v1.25.0
       - name: Run envtest
@@ -115,7 +115,7 @@ jobs:
           go-version-file: go.mod
 
       - name: Install tools
-        uses: aquaproj/aqua-installer@v3.1.1
+        uses: aquaproj/aqua-installer@v3.1.2
         with:
           aqua_version: v1.25.0
 

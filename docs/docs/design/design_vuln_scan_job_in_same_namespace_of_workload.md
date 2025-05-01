@@ -167,7 +167,7 @@ spec:
           emptyDir: { }
       initContainers:
         - name: trivy-get-binary
-          image: aquasec/trivy:0.60.0
+          image: aquasec/trivy:0.62.0
           command:
             - cp
             - -v
@@ -177,7 +177,7 @@ spec:
             - name: scan-volume
               mountPath: /var/trivy-operator
         - name: trivy-download-db
-          image: aquasec/trivy:0.60.0
+          image: aquasec/trivy:0.62.0
           command:
             - /var/trivy-operator/trivy
             - --download-db-only

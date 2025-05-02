@@ -6105,7 +6105,7 @@ default ignore = false`,
 			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, tc.credentials, securityContext, make(map[string]v1alpha1.SbomReportData))
 			require.NoError(t, err)
 			assert.Equal(t, tc.expectedJobSpec, jobSpec)
-			assert.Equal(t, len(tc.expectedSecretsData), len(secrets))
+			assert.Len(t, len(tc.expectedSecretsData), len(secrets))
 			for i := 0; i < len(secrets); i++ {
 				assert.Equal(t, tc.expectedSecretsData[i], secrets[i].Data)
 			}
@@ -6517,7 +6517,7 @@ default ignore = false`,
 			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, tc.credentials, securityContext, make(map[string]v1alpha1.SbomReportData))
 			require.NoError(t, err)
 			assert.Equal(t, tc.expectedJobSpec, jobSpec)
-			assert.Equal(t, len(tc.expectedSecretsData), len(secrets))
+			assert.Len(t, len(tc.expectedSecretsData), len(secrets))
 			for i := 0; i < len(secrets); i++ {
 				assert.Equal(t, tc.expectedSecretsData[i], secrets[i].Data)
 			}

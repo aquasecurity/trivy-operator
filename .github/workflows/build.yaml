@@ -44,10 +44,10 @@ jobs:
         with:
           aqua_version: v1.25.0
       - name: Verify Go code
-        uses: golangci/golangci-lint-action@v6.5.0
+        uses: golangci/golangci-lint-action@v7.0.0
         with:
           args: --verbose
-          version: v1.64
+          version: v2.1.5
       - name: Verify YAML code
         uses: ibiqlik/action-yamllint@v3
       - name: Vendor Go modules

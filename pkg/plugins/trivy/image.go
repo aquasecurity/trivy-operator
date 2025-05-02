@@ -116,7 +116,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 		},
 	}
 
-	if volume, volumeMount := config.GenerateSslCertDirVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+	if volume, volumeMount := config.GenerateSslCertDirVolumeIfAvailable(); volume != nil && volumeMount != nil {
 		volumes = append(volumes, *volume)
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
@@ -407,7 +407,7 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
-	if volume, volumeMount := config.GenerateSslCertDirVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+	if volume, volumeMount := config.GenerateSslCertDirVolumeIfAvailable(); volume != nil && volumeMount != nil {
 		volumes = append(volumes, *volume)
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}

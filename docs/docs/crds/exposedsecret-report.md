@@ -39,7 +39,7 @@ report:
   scanner:
     name: Trivy
     vendor: Aqua Security
-    version: 0.60.0
+    version: 0.62.0
   secrets:
   - category: Stripe
     match: 'publishable_key: *****'

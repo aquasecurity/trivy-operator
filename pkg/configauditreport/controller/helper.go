@@ -78,7 +78,7 @@ func evaluate(ctx context.Context, policies *policy.Policies, resource client.Ob
 			continue
 		}
 		currentCheck := getCheck(result, id)
-		if len(currentCheck.Messages) == 0 || (len(currentCheck.Messages) == 1 && strings.TrimSpace(currentCheck.Messages[0]) == "") {
+		if currentCheck == nil {
 			continue
 		}
 		if infraCheck(id) {
@@ -86,11 +86,11 @@ func evaluate(ctx context.Context, policies *policy.Policies, resource client.Ob
 				continue
 			}
 			if k8sCoreComponent(resource) {
-				infraChecks = append(infraChecks, currentCheck)
+				infraChecks = append(infraChecks, *currentCheck)
 			}
 			continue
 		}
-		checks = append(checks, currentCheck)
+		checks = append(checks, *currentCheck)
 	}
 	kind := resource.GetObjectKind().GroupVersionKind().Kind
 	if kube.IsRoleTypes(kube.Kind(kind)) && !c.MergeRbacFindingWithConfigAudit {

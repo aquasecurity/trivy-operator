@@ -356,16 +356,22 @@ func k8sCoreComponent(resource client.Object) bool {
 				strings.Contains(resource.GetName(), "etcd")))
 }
 
-func getCheck(result scan.Result, id string) v1alpha1.Check {
-	return v1alpha1.Check{
+func getCheck(result scan.Result, id string) *v1alpha1.Check {
+	if result.Status() != scan.StatusPassed && result.Description() == "" {
+		return nil
+	}
+	var messages []string
+	if result.Description() != "" {
+		messages = []string{result.Description()}
+	}
+	return &v1alpha1.Check{
 		ID:          id,
 		Title:       result.Rule().Summary,
 		Description: result.Rule().Explanation,
 		Severity:    v1alpha1.Severity(result.Rule().Severity),
 		Category:    "Kubernetes Security Check",
-
 		Success:     result.Status() == scan.StatusPassed,
-		Messages:    []string{result.Description()},
+		Messages:    messages,
 		Remediation: result.Rule().Resolution,
 	}
 }

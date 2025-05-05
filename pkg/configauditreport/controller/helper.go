@@ -55,6 +55,7 @@ func ConfigurePolicies(ctx context.Context, config etc.Config, c client.Client, 
 	}
 	return policies, nil
 }
+
 func filter(results scan.Results, resource client.Object, bi trivyoperator.BuildInfo, cd trivyoperator.ConfigData, c etc.Config, defaultSeverity string) Misconfiguration {
 	misconfiguration := Misconfiguration{}
 	infraChecks := make([]v1alpha1.Check, 0)

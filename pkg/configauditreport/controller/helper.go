@@ -55,23 +55,17 @@ func ConfigurePolicies(ctx context.Context, config etc.Config, c client.Client, 
 	}
 	return policies, nil
 }
-
-func evaluate(ctx context.Context, policies *policy.Policies, resource client.Object, bi trivyoperator.BuildInfo, cd trivyoperator.ConfigData, c etc.Config, inputs ...[]byte) (Misconfiguration, error) {
+func filter(results scan.Results, resource client.Object, bi trivyoperator.BuildInfo, cd trivyoperator.ConfigData, c etc.Config, defaultSeverity string) Misconfiguration {
 	misconfiguration := Misconfiguration{}
-	results, err := policies.Eval(ctx, resource, inputs...)
-	if err != nil {
-		return Misconfiguration{}, err
-	}
-
 	infraChecks := make([]v1alpha1.Check, 0)
 	checks := make([]v1alpha1.Check, 0)
 
 	for _, result := range results {
-		if !policies.HasSeverity(result.Severity()) {
+		if !policy.HasSeverity(result.Severity(), defaultSeverity) {
 			continue
 		}
 
-		id := policies.GetResultID(result)
+		id := policy.GetResultID(result)
 
 		// record only misconfig failed checks
 		if cd.ReportRecordFailedChecksOnly() && result.Status() == scan.StatusPassed {
@@ -99,7 +93,7 @@ func evaluate(ctx context.Context, policies *policy.Policies, resource client.Ob
 			Summary: v1alpha1.RbacAssessmentSummaryFromChecks(checks),
 			Checks:  checks,
 		}
-		return misconfiguration, nil
+		return misconfiguration
 	}
 	misconfiguration.configAuditReportData = v1alpha1.ConfigAuditReportData{
 		UpdateTimestamp: metav1.NewTime(ext.NewSystemClock().Now()),
@@ -114,7 +108,17 @@ func evaluate(ctx context.Context, policies *policy.Policies, resource client.Ob
 			Checks:  infraChecks,
 		}
 	}
-	return misconfiguration, nil
+
+	return misconfiguration
+}
+
+func evaluate(ctx context.Context, policies *policy.Policies, resource client.Object, bi trivyoperator.BuildInfo, cd trivyoperator.ConfigData, c etc.Config, inputs ...[]byte) (Misconfiguration, error) {
+	results, err := policies.Eval(ctx, resource, inputs...)
+	if err != nil {
+		return Misconfiguration{}, err
+	}
+
+	return filter(results, resource, bi, cd, c, policies.GetDefaultPolicies()), nil
 }
 
 func scanner(bi trivyoperator.BuildInfo) v1alpha1.Scanner {

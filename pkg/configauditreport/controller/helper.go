@@ -119,7 +119,7 @@ func evaluate(ctx context.Context, policies *policy.Policies, resource client.Ob
 		return Misconfiguration{}, err
 	}
 
-	return filter(results, resource, bi, cd, c, policies.GetDefaultPolicies()), nil
+	return filter(results, resource, bi, cd, c, policies.GetDefaultSeverity()), nil
 }
 
 func scanner(bi trivyoperator.BuildInfo) v1alpha1.Scanner {

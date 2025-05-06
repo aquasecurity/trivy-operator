@@ -2,19 +2,19 @@ package metrics
 
 import (
 	"context"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	"github.com/go-logr/logr"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"strconv"
 
+	"github.com/go-logr/logr"
 	"github.com/prometheus/client_golang/prometheus"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	k8smetrics "sigs.k8s.io/controller-runtime/pkg/metrics"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 const (
@@ -70,7 +70,7 @@ const (
 	infra_assessment_category    = "infra_assessment_category"
 	infra_assessment_success     = "infra_assessment_success"
 
-	// image infomation
+	// image information
 	image_os_family = "image_os_family"
 	image_os_name   = "image_os_name"
 	image_os_eosl   = "image_os_eosl"
@@ -705,34 +705,35 @@ func (c ResourcesMetricsCollector) collectExposedSecretsInfoReports(ctx context.
 			continue
 		}
 		for _, r := range reports.Items {
-			if c.Config.MetricsExposedSecretInfo {
-				labelValues[0] = r.Namespace
-				labelValues[1] = r.Name
-				labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
-				labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
-				labelValues[4] = r.Labels[trivyoperator.LabelContainerName]
-				labelValues[5] = r.Report.Registry.Server
-				labelValues[6] = r.Report.Artifact.Repository
-				labelValues[7] = r.Report.Artifact.Tag
-				labelValues[8] = r.Report.Artifact.Digest
-				for i, label := range c.GetReportResourceLabels() {
-					labelValues[i+14] = r.Labels[label]
+			if !c.Config.MetricsExposedSecretInfo {
+				continue
+			}
+			labelValues[0] = r.Namespace
+			labelValues[1] = r.Name
+			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
+			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			labelValues[4] = r.Labels[trivyoperator.LabelContainerName]
+			labelValues[5] = r.Report.Registry.Server
+			labelValues[6] = r.Report.Artifact.Repository
+			labelValues[7] = r.Report.Artifact.Tag
+			labelValues[8] = r.Report.Artifact.Digest
+			for i, label := range c.GetReportResourceLabels() {
+				labelValues[i+14] = r.Labels[label]
+			}
+			var secretList = make(map[string]bool)
+			for _, secret := range r.Report.Secrets {
+				secretHash := kube.ComputeHash(secret.Category + secret.RuleID + secret.Target + secret.Title + NewSeverityLabel(secret.Severity).Label)
+				if secretList[secretHash] {
+					continue
 				}
-				var secretList = make(map[string]bool)
-				for _, secret := range r.Report.Secrets {
-					secretHash := kube.ComputeHash(secret.Category + secret.RuleID + secret.Target + secret.Title + NewSeverityLabel(secret.Severity).Label)
-					if secretList[secretHash] {
-						continue
-					}
-					secretList[secretHash] = true
-					labelValues[9] = secret.Category
-					labelValues[10] = secret.RuleID
-					labelValues[11] = secret.Target
-					labelValues[12] = secret.Title
-					labelValues[13] = NewSeverityLabel(secret.Severity).Label
+				secretList[secretHash] = true
+				labelValues[9] = secret.Category
+				labelValues[10] = secret.RuleID
+				labelValues[11] = secret.Target
+				labelValues[12] = secret.Title
+				labelValues[13] = NewSeverityLabel(secret.Severity).Label
 
-					metrics <- prometheus.MustNewConstMetric(c.exposedSecretInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
-				}
+				metrics <- prometheus.MustNewConstMetric(c.exposedSecretInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
 			}
 		}
 	}
@@ -772,31 +773,31 @@ func (c *ResourcesMetricsCollector) collectConfigAuditInfoReports(ctx context.Co
 			continue
 		}
 		for _, r := range reports.Items {
-			if c.Config.MetricsConfigAuditInfo {
-				labelValues[0] = r.Namespace
-				labelValues[1] = r.Name
-				labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
-				labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
-				var configMap = make(map[string]bool)
-				for _, config := range r.Report.Checks {
-					if configMap[config.ID] {
-						continue
-					}
-					configMap[config.ID] = true
-					labelValues[4] = config.ID
-					labelValues[5] = config.Title
-					labelValues[6] = config.Description
-					labelValues[7] = config.Category
-					labelValues[8] = strconv.FormatBool(config.Success)
-					labelValues[9] = NewSeverityLabel(config.Severity).Label
-
-					for i, label := range c.GetReportResourceLabels() {
-						labelValues[i+10] = r.Labels[label]
-					}
-
-					metrics <- prometheus.MustNewConstMetric(c.configAuditInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
-
+			if !c.Config.MetricsConfigAuditInfo {
+				continue
+			}
+			labelValues[0] = r.Namespace
+			labelValues[1] = r.Name
+			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
+			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			var configMap = make(map[string]bool)
+			for _, config := range r.Report.Checks {
+				if configMap[config.ID] {
+					continue
 				}
+				configMap[config.ID] = true
+				labelValues[4] = config.ID
+				labelValues[5] = config.Title
+				labelValues[6] = config.Description
+				labelValues[7] = config.Category
+				labelValues[8] = strconv.FormatBool(config.Success)
+				labelValues[9] = NewSeverityLabel(config.Severity).Label
+
+				for i, label := range c.GetReportResourceLabels() {
+					labelValues[i+10] = r.Labels[label]
+				}
+
+				metrics <- prometheus.MustNewConstMetric(c.configAuditInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
 
 			}
 		}
@@ -833,29 +834,30 @@ func (c *ResourcesMetricsCollector) collectRbacAssessmentInfoReports(ctx context
 			continue
 		}
 		for _, r := range reports.Items {
-			if c.Config.MetricsRbacAssessmentInfo {
-				labelValues[0] = r.Namespace
-				labelValues[1] = r.Name
-				labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
-				labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
-				var configMap = make(map[string]bool)
-				for _, rbac := range r.Report.Checks {
-					if configMap[rbac.ID] {
-						continue
-					}
-					configMap[rbac.ID] = true
-					labelValues[4] = rbac.ID
-					labelValues[5] = rbac.Title
-					labelValues[6] = rbac.Description
-					labelValues[7] = rbac.Category
-					labelValues[8] = strconv.FormatBool(rbac.Success)
-					labelValues[9] = NewSeverityLabel(rbac.Severity).Label
-					for i, label := range c.GetReportResourceLabels() {
-						labelValues[i+10] = r.Labels[label]
-					}
-
-					metrics <- prometheus.MustNewConstMetric(c.rbacAssessmentInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
+			if !c.Config.MetricsRbacAssessmentInfo {
+				continue
+			}
+			labelValues[0] = r.Namespace
+			labelValues[1] = r.Name
+			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
+			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			var configMap = make(map[string]bool)
+			for _, rbac := range r.Report.Checks {
+				if configMap[rbac.ID] {
+					continue
 				}
+				configMap[rbac.ID] = true
+				labelValues[4] = rbac.ID
+				labelValues[5] = rbac.Title
+				labelValues[6] = rbac.Description
+				labelValues[7] = rbac.Category
+				labelValues[8] = strconv.FormatBool(rbac.Success)
+				labelValues[9] = NewSeverityLabel(rbac.Severity).Label
+				for i, label := range c.GetReportResourceLabels() {
+					labelValues[i+10] = r.Labels[label]
+				}
+
+				metrics <- prometheus.MustNewConstMetric(c.rbacAssessmentInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
 			}
 		}
 	}
@@ -891,29 +893,30 @@ func (c *ResourcesMetricsCollector) collectInfraAssessmentInfoReports(ctx contex
 			continue
 		}
 		for _, r := range reports.Items {
-			if c.Config.MetricsInfraAssessmentInfo {
-				labelValues[0] = r.Namespace
-				labelValues[1] = r.Name
-				labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
-				labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
-				var configMap = make(map[string]bool)
-				for _, infra := range r.Report.Checks {
-					if configMap[infra.ID] {
-						continue
-					}
-					configMap[infra.ID] = true
-					labelValues[4] = infra.ID
-					labelValues[5] = infra.Title
-					labelValues[6] = infra.Description
-					labelValues[7] = infra.Category
-					labelValues[8] = strconv.FormatBool(infra.Success)
-					labelValues[9] = NewSeverityLabel(infra.Severity).Label
-					for i, label := range c.GetReportResourceLabels() {
-						labelValues[i+10] = r.Labels[label]
-					}
-
-					metrics <- prometheus.MustNewConstMetric(c.infraAssessmentInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
+			if !c.Config.MetricsInfraAssessmentInfo {
+				continue
+			}
+			labelValues[0] = r.Namespace
+			labelValues[1] = r.Name
+			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
+			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			var configMap = make(map[string]bool)
+			for _, infra := range r.Report.Checks {
+				if configMap[infra.ID] {
+					continue
 				}
+				configMap[infra.ID] = true
+				labelValues[4] = infra.ID
+				labelValues[5] = infra.Title
+				labelValues[6] = infra.Description
+				labelValues[7] = infra.Category
+				labelValues[8] = strconv.FormatBool(infra.Success)
+				labelValues[9] = NewSeverityLabel(infra.Severity).Label
+				for i, label := range c.GetReportResourceLabels() {
+					labelValues[i+10] = r.Labels[label]
+				}
+
+				metrics <- prometheus.MustNewConstMetric(c.infraAssessmentInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
 			}
 		}
 	}
@@ -965,28 +968,30 @@ func (c ResourcesMetricsCollector) collectImageReports(ctx context.Context, metr
 			continue
 		}
 		for _, r := range reports.Items {
-			if c.Config.MetricsImageInfo {
-				labelValues[0] = r.Namespace
-				labelValues[1] = r.Name
-				labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
-				labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
-				labelValues[4] = r.Labels[trivyoperator.LabelContainerName]
-				labelValues[5] = r.Report.Registry.Server
-				labelValues[6] = r.Report.Artifact.Repository
-				labelValues[7] = r.Report.Artifact.Tag
-				labelValues[8] = r.Report.Artifact.Digest
-				labelValues[9] = string(r.Report.OS.Family)
-				labelValues[10] = r.Report.OS.Name
-				labelValues[11] = ""
-				if r.Report.OS.Eosl {
-					labelValues[11] = strconv.FormatBool(r.Report.OS.Eosl)
-				}
-
-				for i, label := range c.GetReportResourceLabels() {
-					labelValues[i+12] = r.Labels[label]
-				}
-				metrics <- prometheus.MustNewConstMetric(c.imageInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
+			if !c.Config.MetricsImageInfo {
+				continue
 			}
+
+			labelValues[0] = r.Namespace
+			labelValues[1] = r.Name
+			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
+			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			labelValues[4] = r.Labels[trivyoperator.LabelContainerName]
+			labelValues[5] = r.Report.Registry.Server
+			labelValues[6] = r.Report.Artifact.Repository
+			labelValues[7] = r.Report.Artifact.Tag
+			labelValues[8] = r.Report.Artifact.Digest
+			labelValues[9] = string(r.Report.OS.Family)
+			labelValues[10] = r.Report.OS.Name
+			labelValues[11] = ""
+			if r.Report.OS.Eosl {
+				labelValues[11] = strconv.FormatBool(r.Report.OS.Eosl)
+			}
+
+			for i, label := range c.GetReportResourceLabels() {
+				labelValues[i+12] = r.Labels[label]
+			}
+			metrics <- prometheus.MustNewConstMetric(c.imageInfoDesc, prometheus.GaugeValue, float64(1), labelValues...)
 		}
 	}
 }
@@ -1018,7 +1023,7 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceInfoReports(ctx cont
 					}
 					labelValues[2] = summary.ID
 					labelValues[3] = summary.Name
-					labelValues[4] = NewStatusLabel(Status(status)).Label
+					labelValues[4] = NewStatusLabel(status).Label
 					labelValues[5] = summary.Severity
 
 					for i, label := range c.GetReportResourceLabels() {

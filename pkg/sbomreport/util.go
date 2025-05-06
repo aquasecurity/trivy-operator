@@ -2,6 +2,7 @@ package sbomreport
 
 import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
+
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 )
 

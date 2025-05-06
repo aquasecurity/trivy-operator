@@ -5,10 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/docker"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/caarlos0/env/v6"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -22,6 +18,11 @@ import (
 	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/docker"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 type PrivateRegistryConfig struct {
@@ -61,10 +62,12 @@ func (b *PodBuilder) WithNamespace(namespace string) *PodBuilder {
 	return b
 }
 
-func (b *PodBuilder) WithContainer(name, image string) *PodBuilder {
+func (b *PodBuilder) WithContainer(name, image string, commands, args []string) *PodBuilder {
 	b.containers = append(b.containers, corev1.Container{
-		Name:  name,
-		Image: image,
+		Name:    name,
+		Image:   image,
+		Command: commands,
+		Args:    args,
 	})
 	return b
 }
@@ -236,7 +239,7 @@ var (
 	trivyScanner = v1alpha1.Scanner{
 		Name:    v1alpha1.ScannerNameTrivy,
 		Vendor:  "Aqua Security",
-		Version: "0.23.0",
+		Version: "0.26.0",
 	}
 )
 
@@ -438,7 +441,7 @@ func (h *Helper) UpdateDeploymentImage(namespace, name string) error {
 		}
 
 		dcDeploy := deployment.DeepCopy()
-		dcDeploy.Spec.Template.Spec.Containers[0].Image = "wordpress:5"
+		dcDeploy.Spec.Template.Spec.Containers[0].Image = "wordpress:6.7"
 		err = h.kubeClient.Update(context.TODO(), dcDeploy)
 		if err != nil && errors.IsConflict(err) {
 			return false, nil

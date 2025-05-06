@@ -2,32 +2,89 @@ package policy_test
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
-	"reflect"
 	"sort"
 	"strings"
 	"testing"
+	"time"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
-	"github.com/aquasecurity/trivy-operator/pkg/policy"
-	"github.com/aquasecurity/trivy-operator/pkg/utils"
-	"github.com/aquasecurity/trivy/pkg/fanal/types"
-	"github.com/aquasecurity/trivy/pkg/iac/scan"
 	"github.com/bluele/gcache"
-	. "github.com/onsi/gomega"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-
 	rbacv1 "k8s.io/api/rbac/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/ptr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
+	"github.com/aquasecurity/trivy-operator/pkg/policy"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
+	"github.com/aquasecurity/trivy/pkg/fanal/types"
+	"github.com/aquasecurity/trivy/pkg/iac/scan"
+
+	. "github.com/onsi/gomega"
 )
+
+var (
+	cacheReportTTL = time.Hour * 24
+
+	simpleNginxPod = &corev1.Pod{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Pod",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{},
+		Spec: corev1.PodSpec{
+			Containers: []corev1.Container{
+				{
+					Name:  "nginx",
+					Image: "nginx:1.16",
+				},
+			},
+		},
+	}
+)
+
+func TestPolicies_Hash(t *testing.T) {
+	t.Run("Should return hash for valid policies", func(t *testing.T) {
+		g := NewGomegaWithT(t)
+		config := policy.NewPolicies(map[string]string{
+			"policy.valid.rego":  "<REGO_CONTENT>",
+			"policy.valid.kinds": "Pod",
+		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1", &cacheReportTTL)
+
+		hash, err := config.Hash("Pod")
+		g.Expect(err).ToNot(HaveOccurred())
+		g.Expect(hash).ToNot(BeEmpty())
+	})
+	t.Run("Should compute correct hash for given policies", func(t *testing.T) {
+		g := NewGomegaWithT(t)
+		policies := map[string]string{
+			"policy.policy1.rego":  "package test\nallow = true",
+			"policy.policy1.kinds": "Pod",
+			"policy.policy2.rego":  "package test\nallow = false",
+			"policy.policy2.kinds": "Workload",
+		}
+		config := policy.NewPolicies(policies, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1", &cacheReportTTL)
+
+		// Sort policy content before computing the expected hash
+		policyContents := []string{
+			"package test\nallow = true",
+			"package test\nallow = false",
+		}
+		sort.Strings(policyContents)
+
+		expectedHash := kube.ComputeHash(policyContents)
+
+		hash, err := config.Hash("Pod")
+		g.Expect(err).ToNot(HaveOccurred())
+		g.Expect(hash).To(Equal(expectedHash))
+	})
+}
 
 func TestPolicies_PoliciesByKind(t *testing.T) {
 	t.Run("Should return error when kinds are not defined for policy", func(t *testing.T) {
@@ -36,7 +93,7 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 			"library.kubernetes.rego":        "<REGO_A>",
 			"library.utils.rego":             "<REGO_B>",
 			"policy.access_to_host_pid.rego": "<REGO_C>",
-		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1")
+		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1", &cacheReportTTL)
 		_, err := config.PoliciesByKind("Pod")
 		g.Expect(err).To(MatchError("kinds not defined for policy: policy.access_to_host_pid.rego"))
 	})
@@ -45,7 +102,7 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 		g := NewGomegaWithT(t)
 		config := policy.NewPolicies(map[string]string{
 			"policy.access_to_host_pid.kinds": "Workload",
-		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1")
+		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1", &cacheReportTTL)
 		_, err := config.PoliciesByKind("Pod")
 		g.Expect(err).To(MatchError("expected policy not found: policy.access_to_host_pid.rego"))
 	})
@@ -72,7 +129,7 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 			"policy.privileged": "<REGO_E>",
 			// This one should be skipped (no policy. prefix)
 			"foo": "bar",
-		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1")
+		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1", &cacheReportTTL)
 		g.Expect(config.PoliciesByKind("Pod")).To(Equal(map[string]string{
 			"policy.access_to_host_pid.rego":                "<REGO_C>",
 			"policy.cpu_not_limited.rego":                   "<REGO_D>",
@@ -97,7 +154,7 @@ func TestPolicies_Supported(t *testing.T) {
 	}{
 		{
 			name: "Should return true for workload policies",
-			data: map[string]string{},
+			data: make(map[string]string),
 			resource: &corev1.Pod{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Pod",
@@ -146,12 +203,11 @@ func TestPolicies_Supported(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			ready, err := policy.NewPolicies(tc.data, testConfig{}, log, policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1").SupportedKind(tc.resource, tc.rbacEnable)
+			ready, err := policy.NewPolicies(tc.data, testConfig{}, log, policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1", &cacheReportTTL).SupportedKind(tc.resource, tc.rbacEnable)
 			g.Expect(err).ToNot(HaveOccurred())
 			g.Expect(ready).To(Equal(tc.expected))
 		})
 	}
-
 }
 
 func TestPolicies_Eval(t *testing.T) {
@@ -496,8 +552,19 @@ func TestPolicies_Eval(t *testing.T) {
 				},
 			},
 			useBuiltInPolicies: true,
-			policies:           map[string]string{},
-			results:            getBuildInResults(t, "./testdata/fixture/builtin_role_result.json"),
+			policies:           make(map[string]string),
+			results: []Result{
+				{
+					Metadata: Metadata{
+						ID:          "KSV054",
+						Title:       "Do not allow attaching to shell on pods",
+						Description: "Check whether role permits attaching to shell on pods",
+						Severity:    "HIGH",
+						Type:        "Kubernetes Security Check",
+					},
+					Success: true,
+				},
+			},
 		},
 		{
 			name: "Should eval return error no policies found",
@@ -514,8 +581,109 @@ func TestPolicies_Eval(t *testing.T) {
 				},
 			},
 			useBuiltInPolicies: false,
-			policies:           map[string]string{},
+			policies:           make(map[string]string),
 			expectedError:      policy.PoliciesNotFoundError,
+		},
+		{
+			name:               "using a custom rule - check passed",
+			resource:           simpleNginxPod,
+			useBuiltInPolicies: false,
+			policies: map[string]string{
+				"policy.uses_image_tag_latest.kinds": "Pod",
+				"policy.uses_image_tag_latest.rego": `
+   package trivyoperator.policy.k8s.custom
+   __rego_metadata__ := {
+        "id": "CUSTOMCHECK",
+        "title": "custom check title",
+        "severity": "LOW",
+        "type": "Kubernetes Security Check",
+        "description": "custom check description",
+    }
+
+   alwaysFalse {
+      1 == 0
+   }
+
+   deny[res] {
+        alwaysFalse
+		res := {
+				"msg": "the check should always pass",
+			}
+   }`,
+			},
+			results: []Result{
+				{
+					Metadata: Metadata{
+						ID:          "CUSTOMCHECK",
+						Title:       "custom check title",
+						Description: "custom check description",
+						Severity:    "LOW",
+						Type:        "Kubernetes Security Check",
+					},
+					Success: true,
+				},
+			},
+		},
+		{
+			name:               "using a custom rule - check failed",
+			resource:           simpleNginxPod,
+			useBuiltInPolicies: false,
+			policies: map[string]string{
+				"policy.uses_image_tag_latest.kinds": "Pod",
+				"policy.uses_image_tag_latest.rego": `
+   package trivyoperator.policy.k8s.custom
+   __rego_metadata__ := {
+        "id": "CUSTOMCHECK",
+        "title": "custom check title",
+        "severity": "LOW",
+        "type": "Kubernetes Security Check",
+        "description": "custom check description",
+    }
+
+   alwaysTrue {
+      1 == 1
+   }
+
+   deny[res] {
+        alwaysTrue
+		res := {
+				"msg": "the check should be always failed",
+			}
+   }`,
+			},
+			results: []Result{
+				{
+					Metadata: Metadata{
+						ID:          "CUSTOMCHECK",
+						Title:       "custom check title",
+						Description: "custom check description",
+						Severity:    "LOW",
+						Type:        "Kubernetes Security Check",
+					},
+					Messages: []string{"the check should be always failed"},
+					Success:  false,
+				},
+			},
+		},
+		{
+			name:               "using a custom rule with incorrect name",
+			resource:           simpleNginxPod,
+			useBuiltInPolicies: false,
+			policies: map[string]string{
+				"policy.uses_image_tag_latest.kinds": "Pod",
+				"policy.uses_image_tag_latest.rego": `
+   package myfunnyname.policy.k8s.custom
+   __rego_metadata__ := {
+        "id": "CUSTOMCHECK",
+        "title": "custom check title",
+        "severity": "LOW",
+        "type": "Kubernetes Security Check",
+        "description": "custom check description",
+    }
+
+   deny[{"msg": "this message should be hidden"}]`,
+			},
+			expectedError: "failed to run policy checks on resources",
 		},
 	}
 
@@ -523,13 +691,15 @@ func TestPolicies_Eval(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			checks, err := policy.NewPolicies(tc.policies, newTestConfig(tc.useBuiltInPolicies), log, &TestLoader{}, "1.27.1").Eval(context.TODO(), tc.resource)
+			p := policy.NewPolicies(tc.policies, newTestConfig(tc.useBuiltInPolicies), log, &TestLoader{}, "1.27.1", &cacheReportTTL)
+			g.Expect(p.Load()).ToNot(HaveOccurred())
+			checks, err := p.Eval(context.TODO(), tc.resource)
 			if tc.expectedError != "" {
 				g.Expect(err).To(HaveOccurred())
-			} else {
-				g.Expect(err).ToNot(HaveOccurred())
-				g.Expect(reflect.DeepEqual(getPolicyResults(checks), tc.results))
+				return
 			}
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(getPolicyResults(checks)).Should(Equal(tc.results))
 		})
 	}
 }
@@ -537,7 +707,7 @@ func TestPolicies_Eval(t *testing.T) {
 func TestNewMetadata(t *testing.T) {
 	testCases := []struct {
 		name             string
-		values           map[string]interface{}
+		values           map[string]any
 		expectedMetadata Metadata
 		expectedError    string
 	}{
@@ -548,7 +718,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when severity key is not set",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"id":          "some id",
 				"title":       "some title",
 				"type":        "some type",
@@ -558,7 +728,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when severity value is nil",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    nil,
 				"id":          "some id",
 				"title":       "some title",
@@ -569,7 +739,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when severity value is blank",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "",
 				"id":          "some id",
 				"title":       "some title",
@@ -580,7 +750,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when severity value is invalid",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "INVALID",
 				"id":          "some id",
 				"title":       "some title",
@@ -591,7 +761,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when id key is not set",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"title":       "some title",
 				"type":        "some type",
@@ -601,7 +771,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when id value is nil",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"id":          nil,
 				"title":       "some title",
@@ -612,7 +782,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when id value is blank",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"id":          "",
 				"title":       "some title",
@@ -623,7 +793,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when id value is not string",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"id":          3,
 				"title":       "some title",
@@ -634,7 +804,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when title key is not set",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"id":          "some id",
 				"type":        "some type",
@@ -644,7 +814,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when title value is nil",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity": "CRITICAL",
 				"id":       "KVH012",
 				"title":    nil,
@@ -653,7 +823,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when title value is blank",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"id":          "some id",
 				"title":       "",
@@ -664,7 +834,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when type key is not set",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"id":          "some id",
 				"title":       "some title",
@@ -674,7 +844,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when type value is nil",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"id":          "some id",
 				"title":       "some title",
@@ -685,7 +855,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when type value is blank",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"id":          "some id",
 				"title":       "some title",
@@ -696,7 +866,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return error when description key is not set",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity": "CRITICAL",
 				"id":       "some id",
 				"title":    "some title",
@@ -706,7 +876,7 @@ func TestNewMetadata(t *testing.T) {
 		},
 		{
 			name: "Should return metadata",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"severity":    "CRITICAL",
 				"id":          "some id",
 				"title":       "some title",
@@ -740,7 +910,7 @@ func TestNewMetadata(t *testing.T) {
 func TestNewMessage(t *testing.T) {
 	testCases := []struct {
 		name           string
-		values         map[string]interface{}
+		values         map[string]any
 		expectedResult string
 		expectedError  string
 	}{
@@ -751,26 +921,26 @@ func TestNewMessage(t *testing.T) {
 		},
 		{
 			name:          "Should return error when msg key is not set",
-			values:        map[string]interface{}{},
+			values:        make(map[string]any),
 			expectedError: "required key not found: msg",
 		},
 		{
 			name: "Should return error when msg value is nil",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"msg": nil,
 			},
 			expectedError: "required value is nil for key: msg",
 		},
 		{
 			name: "Should return error when msg value is blank",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"msg": "",
 			},
 			expectedError: "required value is blank for key: msg",
 		},
 		{
 			name: "Should return result",
-			values: map[string]interface{}{
+			values: map[string]any{
 				"msg": "some message",
 			},
 			expectedResult: "some message",
@@ -818,7 +988,7 @@ func getPolicyResults(results scan.Results) Results {
 	prs := make(Results, 0)
 	for _, result := range results {
 		var msgs []string
-		if len(result.Description()) > 0 {
+		if result.Description() != "" {
 			msgs = []string{result.Description()}
 		} else {
 			msgs = nil
@@ -834,22 +1004,8 @@ func getPolicyResults(results scan.Results) Results {
 	return prs
 }
 
-func getBuildInResults(t *testing.T, filePath string) Results {
-	var prs Results
-	b, err := os.ReadFile(filePath)
-	if err != nil {
-		t.Error(err)
-	}
-	err = json.Unmarshal(b, &prs)
-	if err != nil {
-		t.Error(err)
-	}
-	sort.Sort(resultSort(prs))
-	return prs
-}
-
 // NewMetadata constructs new Metadata based on raw values.
-func NewMetadata(values map[string]interface{}) (Metadata, error) {
+func NewMetadata(values map[string]any) (Metadata, error) {
 	if values == nil {
 		return Metadata{}, errors.New("values must not be nil")
 	}
@@ -897,7 +1053,7 @@ type Metadata struct {
 }
 
 // NewMessage constructs new message string based on raw values.
-func NewMessage(values map[string]interface{}) (string, error) {
+func NewMessage(values map[string]any) (string, error) {
 	if values == nil {
 		return "", errors.New("values must not be nil")
 	}
@@ -907,7 +1063,7 @@ func NewMessage(values map[string]interface{}) (string, error) {
 	}
 	return message, nil
 }
-func requiredStringValue(values map[string]interface{}, key string) (string, error) {
+func requiredStringValue(values map[string]any, key string) (string, error) {
 	value, ok := values[key]
 	if !ok {
 		return "", fmt.Errorf("required key not found: %s", key)

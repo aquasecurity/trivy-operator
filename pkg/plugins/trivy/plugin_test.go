@@ -2,10 +2,8 @@ package trivy_test
 
 import (
 	"bytes"
-
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -15,15 +13,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/aquasecurity/trivy-operator/pkg/docker"
-	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
-
-	dbtypes "github.com/aquasecurity/trivy-db/pkg/types"
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/ext"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	bz "github.com/dsnet/compress/bzip2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -33,10 +22,18 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-
 	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+
+	dbtypes "github.com/aquasecurity/trivy-db/pkg/types"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/docker"
+	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 )
 
 var (
@@ -86,7 +83,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 		expectedJobSpec     corev1.PodSpec
 	}{
 		{
-			name: "Standalone mode without insecure registry",
+			name: "Standalone mode without insecure expectedRegistry",
 			trivyOperatorConfig: map[string]string{
 				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
 				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
@@ -345,7 +342,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --image-config-scanners secret   --skip-update  --cache-dir /tmp/trivy/.cache --quiet  --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --security-checks vuln,secret --skip-update --slow > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -374,7 +371,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 			},
 		},
 		{
-			name: "Standalone mode with insecure registry",
+			name: "Standalone mode with insecure expectedRegistry",
 			trivyOperatorConfig: map[string]string{
 				trivyoperator.KeyVulnerabilityScannerEnabled:  "false",
 				trivyoperator.KeyExposedSecretsScannerEnabled: "true",
@@ -633,7 +630,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks secret --image-config-scanners secret   --skip-update  --cache-dir /tmp/trivy/.cache --quiet  --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image poc.myregistry.harbor.com.pl/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --security-checks secret --skip-update --slow > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -662,7 +659,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 			},
 		},
 		{
-			name: "Standalone mode with non-SSL registry",
+			name: "Standalone mode with non-SSL expectedRegistry",
 			trivyOperatorConfig: map[string]string{
 				trivyoperator.KeyVulnerabilityScannerEnabled:  "true",
 				trivyoperator.KeyExposedSecretsScannerEnabled: "false",
@@ -921,7 +918,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln   --skip-update  --cache-dir /tmp/trivy/.cache --quiet  --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image poc.myregistry.harbor.com.pl/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --quiet --security-checks vuln --skip-update --slow > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1229,7 +1226,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --image-config-scanners secret   --skip-update  --cache-dir /tmp/trivy/.cache --quiet  --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --security-checks vuln,secret --skip-update --slow > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1542,7 +1539,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --image-config-scanners secret   --skip-update  --cache-dir /tmp/trivy/.cache --quiet  --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --security-checks vuln,secret --skip-update --slow > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1834,7 +1831,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'mirror.io/library/nginx:1.16' --security-checks vuln,secret --image-config-scanners secret   --skip-update  --cache-dir /tmp/trivy/.cache --quiet  --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image mirror.io/library/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --security-checks vuln,secret --skip-update --slow > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2122,7 +2119,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --image-config-scanners secret   --skip-update  --cache-dir /tmp/trivy/.cache --quiet  --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --security-checks vuln,secret --skip-update --slow > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2354,7 +2351,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --image-config-scanners secret     --cache-dir /tmp/trivy/.cache --quiet  --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --security-checks vuln,secret --server http://trivy.trivy:4954 --slow > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2583,7 +2580,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --image-config-scanners secret     --cache-dir /tmp/trivy/.cache --quiet  --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --security-checks vuln,secret --server http://trivy.trivy:4954 --slow > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2817,7 +2814,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln,secret --image-config-scanners secret     --cache-dir /tmp/trivy/.cache --quiet  --format json --server 'https://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image poc.myregistry.harbor.com.pl/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --security-checks vuln,secret --server https://trivy.trivy:4954 --slow > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3051,7 +3048,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'poc.myregistry.harbor.com.pl/nginx:1.16' --security-checks vuln     --cache-dir /tmp/trivy/.cache --quiet  --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image poc.myregistry.harbor.com.pl/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --quiet --security-checks vuln --server http://trivy.trivy:4954 --slow > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3305,7 +3302,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'nginx:1.16' --security-checks secret --image-config-scanners secret     --cache-dir /tmp/trivy/.cache --quiet  --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --security-checks secret --server http://trivy.trivy:4954 --slow > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3565,7 +3562,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'nginx:1.16' --security-checks secret --image-config-scanners secret     --cache-dir /tmp/trivy/.cache --quiet  --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --security-checks secret --server http://trivy.trivy:4954 --slow > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3800,7 +3797,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --image-config-scanners secret     --cache-dir /tmp/trivy/.cache --quiet  --format json --server 'http://trivy.trivy:4954' > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --security-checks vuln,secret --server http://trivy.trivy:4954 --slow > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -5416,7 +5413,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow '000000000000.dkr.ecr.eu-west-1.amazonaws.com/nginx:1.16' --security-checks vuln,secret --image-config-scanners secret   --skip-update  --cache-dir /tmp/trivy/.cache --quiet  --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image 000000000000.dkr.ecr.eu-west-1.amazonaws.com/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --security-checks vuln,secret --skip-update --slow > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -5731,7 +5728,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'nginx:1.16' --security-checks vuln,secret --image-config-scanners secret   --skip-update  --cache-dir /tmp/trivy/.cache --quiet  --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --security-checks vuln,secret --skip-update --slow > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -6048,7 +6045,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image --slow 'mirror.io/library/nginx:1.16' --security-checks vuln,secret --image-config-scanners secret   --skip-update  --cache-dir /tmp/trivy/.cache --quiet  --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image mirror.io/library/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --security-checks vuln,secret --skip-update --slow > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -6105,7 +6102,7 @@ default ignore = false`,
 				},
 				ReadOnlyRootFilesystem: ptr.To[bool](true),
 			}
-			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, tc.credentials, securityContext, map[string]v1alpha1.SbomReportData{})
+			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, tc.credentials, securityContext, make(map[string]v1alpha1.SbomReportData))
 			require.NoError(t, err)
 			assert.Equal(t, tc.expectedJobSpec, jobSpec)
 			assert.Equal(t, len(tc.expectedSecretsData), len(secrets))
@@ -6517,7 +6514,7 @@ default ignore = false`,
 				// Root expected for standalone mode - the user would need to know this
 				RunAsUser: ptr.To[int64](0),
 			}
-			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, tc.credentials, securityContext, map[string]v1alpha1.SbomReportData{})
+			jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, tc.workloadSpec, tc.credentials, securityContext, make(map[string]v1alpha1.SbomReportData))
 			require.NoError(t, err)
 			assert.Equal(t, tc.expectedJobSpec, jobSpec)
 			assert.Equal(t, len(tc.expectedSecretsData), len(secrets))
@@ -6542,6 +6539,7 @@ var (
 		Artifact: v1alpha1.Artifact{
 			Repository: "library/alpine",
 			Tag:        "3.10.2",
+			Digest:     "sha256:72c42ed48c3a2db31b7dafe17d275b634664a708d901ec9fd57b1529280f01fb",
 		},
 		OS: v1alpha1.OS{
 			Family: "alpine",
@@ -6592,6 +6590,7 @@ var (
 		Artifact: v1alpha1.Artifact{
 			Repository: "library/alpine",
 			Tag:        "3.10.2",
+			Digest:     "sha256:72c42ed48c3a2db31b7dafe17d275b634664a708d901ec9fd57b1529280f01fb",
 		},
 		Summary: v1alpha1.ExposedSecretSummary{
 			CriticalCount: 3,
@@ -6648,6 +6647,7 @@ var (
 		Artifact: v1alpha1.Artifact{
 			Repository: "library/alpine",
 			Tag:        "3.10.2",
+			Digest:     "sha256:72c42ed48c3a2db31b7dafe17d275b634664a708d901ec9fd57b1529280f01fb",
 		},
 		OS: v1alpha1.OS{
 			Family: "alpine",
@@ -6678,6 +6678,7 @@ var (
 		Artifact: v1alpha1.Artifact{
 			Repository: "library/alpine",
 			Tag:        "3.10.2",
+			Digest:     "sha256:72c42ed48c3a2db31b7dafe17d275b634664a708d901ec9fd57b1529280f01fb",
 		},
 		Summary: v1alpha1.ExposedSecretSummary{
 			CriticalCount: 0,
@@ -6734,7 +6735,7 @@ func TestPlugin_ParseReportData(t *testing.T) {
 			name:                        "Should convert vulnerability report in JSON format when OS is not detected",
 			imageRef:                    "alpine:3.10.2",
 			input:                       `null`,
-			expectedError:               fmt.Errorf("bzip2 data invalid: bad magic value"),
+			expectedError:               errors.New("bzip2 data invalid: bad magic value"),
 			expectedVulnerabilityReport: emptyVulnerabilityReport,
 			expectedExposedSecretReport: emptyExposedSecretReport,
 			compressed:                  "true",
@@ -6909,7 +6910,7 @@ func TestGetCVSSV3(t *testing.T) {
 		{
 			name:     "Should return nil when cvss doesn't exist",
 			cvss:     dbtypes.VendorCVSS{},
-			expected: map[string]*vulnerabilityreport.CVSS{},
+			expected: make(map[string]*vulnerabilityreport.CVSS),
 		},
 	}
 
@@ -7023,8 +7024,8 @@ func TestGetContainers(t *testing.T) {
 				Get()
 			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
 			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
-			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil, map[string]v1alpha1.SbomReportData{})
-			assert.NoError(t, err)
+			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil, make(map[string]v1alpha1.SbomReportData))
+			require.NoError(t, err)
 
 			containers := make([]string, 0)
 
@@ -7111,8 +7112,8 @@ func TestGetInitContainers(t *testing.T) {
 
 			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
 			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
-			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil, map[string]v1alpha1.SbomReportData{})
-			assert.NoError(t, err)
+			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil, make(map[string]v1alpha1.SbomReportData))
+			require.NoError(t, err)
 
 			assert.Len(t, jobSpec.InitContainers, 2)
 			// Assert first init container to download trivy-db from private registry
@@ -7404,7 +7405,7 @@ func TestSkipDirFileEnvVars(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			got := trivy.ConfigWorkloadAnnotationEnvVars(tc.workload, tc.skipType, tc.envKey, tc.configName, tc.configKey)
-			assert.Equal(t, got, tc.want)
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -7445,7 +7446,7 @@ func TestGetClientServerSkipUpdate(t *testing.T) {
 		{
 			name: "clientServerSkipUpdate param set to no value",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
-				Data: map[string]string{},
+				Data: make(map[string]string),
 			}},
 			want: false,
 		},
@@ -7453,7 +7454,7 @@ func TestGetClientServerSkipUpdate(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			got := tc.configData.GetClientServerSkipUpdate()
-			assert.Equal(t, got, tc.want)
+			assert.Equal(t, tc.want, got)
 
 		})
 	}
@@ -7495,7 +7496,7 @@ func TestGetSkipJavaDBUpdate(t *testing.T) {
 		{
 			name: "skipJavaDBUpdate param set to no  value",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
-				Data: map[string]string{},
+				Data: make(map[string]string),
 			}},
 			want: false,
 		},
@@ -7503,7 +7504,7 @@ func TestGetSkipJavaDBUpdate(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			got := tc.configData.GetSkipJavaDBUpdate()
-			assert.Equal(t, got, tc.want)
+			assert.Equal(t, tc.want, got)
 
 		})
 	}
@@ -7536,7 +7537,7 @@ func TestGetImageScanCacheDir(t *testing.T) {
 		{
 			name: "imageScanCacheDir param unset",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
-				Data: map[string]string{},
+				Data: make(map[string]string),
 			}},
 			want: "/tmp/trivy/.cache",
 		},
@@ -7544,7 +7545,7 @@ func TestGetImageScanCacheDir(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			got := tc.configData.GetImageScanCacheDir()
-			assert.Equal(t, got, tc.want)
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -7576,7 +7577,7 @@ func TestGetFilesystemScanCacheDir(t *testing.T) {
 		{
 			name: "filesystemScanCacheDir param unset",
 			configData: trivy.Config{PluginConfig: trivyoperator.PluginConfig{
-				Data: map[string]string{},
+				Data: make(map[string]string),
 			}},
 			want: "/var/trivyoperator/trivy-db",
 		},
@@ -7584,7 +7585,7 @@ func TestGetFilesystemScanCacheDir(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			got := tc.configData.GetFilesystemScanCacheDir()
-			assert.Equal(t, got, tc.want)
+			assert.Equal(t, tc.want, got)
 		})
 	}
 }
@@ -7624,7 +7625,152 @@ func TestExcludeImages(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			got := trivy.ExcludeImage(tc.excludePattern, tc.imageName)
-			assert.Equal(t, got, tc.want)
+			assert.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func TestParseImageRef(t *testing.T) {
+	testCases := []struct {
+		name             string
+		inputImageRef    string
+		inputImageID     string
+		expectedRegistry v1alpha1.Registry
+		expectedArtifact v1alpha1.Artifact
+		expectedErr      error
+	}{
+		{
+			name:          "short image ref with latest tag",
+			inputImageRef: "nginx:v1.3.4",
+			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			expectedRegistry: v1alpha1.Registry{
+				Server: "index.docker.io",
+			},
+			expectedArtifact: v1alpha1.Artifact{
+				Repository: "library/nginx",
+				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+				Tag:        "v1.3.4",
+			},
+		},
+		{
+			name:          "short repo with default lib with latest tag",
+			inputImageRef: "library/nginx:v.4.5.6",
+			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			expectedRegistry: v1alpha1.Registry{
+				Server: "index.docker.io",
+			},
+			expectedArtifact: v1alpha1.Artifact{
+				Repository: "library/nginx",
+				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+				Tag:        "v.4.5.6",
+			},
+		},
+		{
+			name:          "well known image without tag & digest",
+			inputImageRef: "quay.io/centos/centos",
+			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			expectedRegistry: v1alpha1.Registry{
+				Server: "quay.io",
+			},
+			expectedArtifact: v1alpha1.Artifact{
+				Repository: "centos/centos",
+				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+				Tag:        "latest",
+			},
+		},
+		{
+			name:          "docker expectedRegistry image ref with tag",
+			inputImageRef: "docker.io/library/alpine:v2.3.4",
+			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			expectedRegistry: v1alpha1.Registry{
+				Server: "index.docker.io",
+			},
+			expectedArtifact: v1alpha1.Artifact{
+				Repository: "library/alpine",
+				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+				Tag:        "v2.3.4",
+			},
+		},
+		{
+			name:          "short repo with private repo with tag",
+			inputImageRef: "my-private-repo.company.com/my-app:1.2.3",
+			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			expectedRegistry: v1alpha1.Registry{
+				Server: "my-private-repo.company.com",
+			},
+			expectedArtifact: v1alpha1.Artifact{
+				Repository: "my-app",
+				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+				Tag:        "1.2.3",
+			},
+		},
+		{
+			name:          "with tag",
+			inputImageRef: "quay.io/prometheus-operator/prometheus-operator:v0.63.0",
+			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			expectedRegistry: v1alpha1.Registry{
+				Server: "quay.io",
+			},
+			expectedArtifact: v1alpha1.Artifact{
+				Repository: "prometheus-operator/prometheus-operator",
+				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+				Tag:        "v0.63.0",
+			},
+		},
+		{
+			name:          "artifact registry image ref with tag",
+			inputImageRef: "europe-west4-docker.pkg.dev/my-project/my-repo/my-app:1.0.0",
+			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			expectedRegistry: v1alpha1.Registry{
+				Server: "europe-west4-docker.pkg.dev",
+			},
+			expectedArtifact: v1alpha1.Artifact{
+				Repository: "my-project/my-repo/my-app",
+				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+				Tag:        "1.0.0",
+			},
+		},
+		{
+			name:          "repo with digest",
+			inputImageRef: "quay.io/prometheus-operator/prometheus-operator@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			expectedRegistry: v1alpha1.Registry{
+				Server: "quay.io",
+			},
+			expectedArtifact: v1alpha1.Artifact{
+				Repository: "prometheus-operator/prometheus-operator",
+				Digest:     "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+				Tag:        "",
+			},
+		},
+		{
+			name:          "private expectedRegistry image ref tag & with digest",
+			inputImageRef: "my-private-repo.company.com/my-app:some-tag@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			expectedRegistry: v1alpha1.Registry{
+				Server: "my-private-repo.company.com",
+			},
+			expectedArtifact: v1alpha1.Artifact{
+				Repository: "my-app",
+				Digest:     "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+				Tag:        "some-tag",
+			},
+		},
+		{
+			name:          "incorrect input",
+			inputImageRef: "## some incorrect input ###",
+			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			expectedErr:   errors.New("could not parse reference: ## some incorrect input ###"),
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			registry, artifact, err := trivy.ParseImageRef(tc.inputImageRef, tc.inputImageID)
+			if tc.expectedErr != nil {
+				require.Errorf(t, err, "expected: %v", tc.expectedErr)
+			}
+			assert.Equal(t, tc.expectedRegistry, registry)
+			assert.Equal(t, tc.expectedArtifact, artifact)
 		})
 	}
 }

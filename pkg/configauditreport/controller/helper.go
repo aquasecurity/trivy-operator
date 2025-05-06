@@ -5,6 +5,12 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/go-logr/logr"
+	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
@@ -14,11 +20,6 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy/pkg/iac/scan"
-	"github.com/go-logr/logr"
-	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 func Policies(ctx context.Context, config etc.Config, c client.Client, cac configauditreport.ConfigAuditConfig, log logr.Logger, pl policy.Loader, clusterVersion ...string) (*policy.Policies, error) {
@@ -37,7 +38,22 @@ func Policies(ctx context.Context, config etc.Config, c client.Client, cac confi
 	if len(clusterVersion) > 0 {
 		version = clusterVersion[0]
 	}
-	return policy.NewPolicies(cm.Data, cac, log, pl, version), nil
+	return policy.NewPolicies(cm.Data, cac, log, pl, version, config.CacheReportTTL), nil
+}
+
+func ConfigurePolicies(ctx context.Context, config etc.Config, c client.Client, cac configauditreport.ConfigAuditConfig, log logr.Logger, pl policy.Loader, clusterVersion ...string) (*policy.Policies, error) {
+	policies, err := Policies(ctx, config, c, cac, log, pl, clusterVersion...)
+	if err != nil {
+		return nil, err
+	}
+	if err := policies.Load(); err != nil {
+		return nil, fmt.Errorf("load policies: %w", err)
+	}
+
+	if err := policies.InitScanner(); err != nil {
+		return nil, fmt.Errorf("init scanner: %w", err)
+	}
+	return policies, nil
 }
 
 func evaluate(ctx context.Context, policies *policy.Policies, resource client.Object, bi trivyoperator.BuildInfo, cd trivyoperator.ConfigData, c etc.Config, inputs ...[]byte) (Misconfiguration, error) {
@@ -46,8 +62,10 @@ func evaluate(ctx context.Context, policies *policy.Policies, resource client.Ob
 	if err != nil {
 		return Misconfiguration{}, err
 	}
+
 	infraChecks := make([]v1alpha1.Check, 0)
 	checks := make([]v1alpha1.Check, 0)
+
 	for _, result := range results {
 		if !policies.HasSeverity(result.Severity()) {
 			continue
@@ -60,7 +78,7 @@ func evaluate(ctx context.Context, policies *policy.Policies, resource client.Ob
 			continue
 		}
 		currentCheck := getCheck(result, id)
-		if len(currentCheck.Messages) == 0 || (len(currentCheck.Messages) == 1 && len(strings.TrimSpace(currentCheck.Messages[0])) == 0) {
+		if len(currentCheck.Messages) == 0 || (len(currentCheck.Messages) == 1 && strings.TrimSpace(currentCheck.Messages[0]) == "") {
 			continue
 		}
 		if infraCheck(id) {

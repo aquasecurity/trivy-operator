@@ -3,13 +3,14 @@ package trivy_test
 import (
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 func TestCheckGcpCrOrPrivateRegistry(t *testing.T) {
@@ -78,7 +79,7 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 			serverUrl:      "",
 			resultFileName: "output.json",
 			compressedLogs: "true",
-			wantArgs:       []string{"-c", "trivy sbom --slow /tmp/scan/bom.json  --skip-db-update  --cache-dir /tmp/trivy/.cache --quiet --format json > /tmp/scan/output.json &&  bzip2 -c /tmp/scan/output.json | base64"},
+			wantArgs:       []string{"-c", "trivy sbom --slow /tmp/scan/bom.json  --skip-db-update  --cache-dir /tmp/trivy/.cache --quiet --format json > /tmp/scan/output.json &&  bzip2 -c /tmp/scan/output.json | base64 && sync"},
 			wantCmd:        []string{"/bin/sh"},
 		},
 		{
@@ -98,7 +99,7 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 			serverUrl:      "http://trivy-server:8080",
 			resultFileName: "output.json",
 			compressedLogs: "true",
-			wantArgs:       []string{"-c", "trivy sbom --slow /tmp/scan/bom.json    --cache-dir /tmp/trivy/.cache --quiet --format json --server 'http://trivy-server:8080' > /tmp/scan/output.json &&  bzip2 -c /tmp/scan/output.json | base64"},
+			wantArgs:       []string{"-c", "trivy sbom --slow /tmp/scan/bom.json    --cache-dir /tmp/trivy/.cache --quiet --format json --server 'http://trivy-server:8080' > /tmp/scan/output.json &&  bzip2 -c /tmp/scan/output.json | base64 && sync"},
 			wantCmd:        []string{"/bin/sh"},
 		},
 		{

@@ -5,11 +5,12 @@ import (
 	"hash"
 	"hash/fnv"
 
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/davecgh/go-spew/spew"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/rand"
+
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 const KubeSystemNamespace = "kube-system"
@@ -76,7 +77,7 @@ func GetContainerImagesFromJob(job *batchv1.Job, completedContainers ...string) 
 
 // ComputeHash returns a hash value calculated from a given object.
 // The hash will be safe encoded to avoid bad words.
-func ComputeHash(obj interface{}) string {
+func ComputeHash(obj any) string {
 	podSpecHasher := fnv.New32a()
 	DeepHashObject(podSpecHasher, obj)
 	return rand.SafeEncodeString(fmt.Sprint(podSpecHasher.Sum32()))
@@ -85,7 +86,7 @@ func ComputeHash(obj interface{}) string {
 // DeepHashObject writes specified object to hash using the spew library
 // which follows pointers and prints actual values of the nested objects
 // ensuring the hash does not change when a pointer changes.
-func DeepHashObject(hasher hash.Hash, objectToWrite interface{}) {
+func DeepHashObject(hasher hash.Hash, objectToWrite any) {
 	hasher.Reset()
 	printer := spew.ConfigState{
 		Indent:         " ",
@@ -93,5 +94,5 @@ func DeepHashObject(hasher hash.Hash, objectToWrite interface{}) {
 		DisableMethods: true,
 		SpewKeys:       true,
 	}
-	printer.Fprintf(hasher, "%#v", objectToWrite)
+	_, _ = printer.Fprintf(hasher, "%#v", objectToWrite)
 }

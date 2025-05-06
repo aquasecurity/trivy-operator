@@ -2,16 +2,26 @@ package operator
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"fmt"
 	"sync"
 	"time"
 
-	"context"
-	"fmt"
-
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/go-logr/logr"
+	corev1 "k8s.io/api/core/v1"
+	k8sapierror "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
 	"github.com/aquasecurity/trivy-kubernetes/pkg/bom"
 	tk "github.com/aquasecurity/trivy-kubernetes/pkg/k8s"
 	"github.com/aquasecurity/trivy-kubernetes/pkg/trivyk8s"
@@ -27,17 +37,6 @@ import (
 	"github.com/aquasecurity/trivy/pkg/k8s/report"
 	triv "github.com/aquasecurity/trivy/pkg/k8s/scanner"
 	ty "github.com/aquasecurity/trivy/pkg/types"
-	"github.com/go-logr/logr"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	k8sapierror "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/builder"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 const (
@@ -49,7 +48,7 @@ const (
 
 //	ClusterReconciler reconciles corev1.Node and corev1.Pod objects
 //
-// to collect cluster nodes and cluster core components (api-server,kubelet,etcd and more) infomation for vulnerability scanning
+// to collect cluster nodes and cluster core components (api-server,kubelet,etcd and more) information for vulnerability scanning
 // the node information will be evaluated by the compliance control checks per relevant reports, examples: cis-benchmark and nsa
 type ClusterController struct {
 	logr.Logger
@@ -76,6 +75,7 @@ func (r *ClusterController) SetupWithManager(mgr ctrl.Manager) error {
 			For(resource.ForObject, builder.WithPredicates(
 				predicate.IsCoreComponents,
 				predicate.Not(predicate.ManagedByTrivyOperator),
+				predicate.Not(predicate.ManagedByKubeEnforcer),
 				predicate.Not(predicate.IsBeingTerminated))).
 			Owns(resource.OwnsObject).
 			Complete(r.reconcileClusterComponents(resource.Kind)); err != nil {
@@ -95,7 +95,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 		resourceRef := kube.ObjectRefFromKindAndObjectKey(resourceKind, req.NamespacedName)
 		obj, err := r.ObjectFromObjectRef(ctx, resourceRef)
 		if err != nil {
-			if errors.IsNotFound(err) {
+			if k8sapierror.IsNotFound(err) {
 				log.V(1).Info("Ignoring cached resource that must have been deleted")
 				r.clusterCache.Delete(resourceRef.Name)
 				return ctrl.Result{}, nil
@@ -126,7 +126,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 
 		components := make([]bom.Component, 0)
 		nodeInfo := make([]bom.NodeInfo, 0)
-		r.clusterCache.Range(func(_, value interface{}) bool {
+		r.clusterCache.Range(func(_, value any) bool {
 			switch p := value.(type) {
 			case *bom.Component:
 				components = append(components, *p)
@@ -256,7 +256,7 @@ func (r *ClusterController) reconcileKbom() reconcile.Func {
 		log.V(1).Info("Getting node from cache")
 		err := r.Client.Get(ctx, req.NamespacedName, kbom)
 		if err != nil {
-			if errors.IsNotFound(err) {
+			if k8sapierror.IsNotFound(err) {
 				log.V(1).Info("Ignoring cached kbom that must have been deleted")
 				return ctrl.Result{}, nil
 			}

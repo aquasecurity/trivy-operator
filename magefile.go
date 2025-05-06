@@ -6,11 +6,15 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
+	//"github.com/aquasecurity/trivy/pkg/log"
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 )
@@ -67,6 +71,10 @@ var (
 	CONTROLLER_TOOLS_VERSION = "v0.14.0"
 )
 
+//func init() {
+//	slog.SetDefault(log.New(log.NewHandler(os.Stderr, nil))) // stdout is suppressed in mage
+//}
+
 // Function to get the current working directory using os.Getwd()
 func getWorkingDir() string {
 	wd, err := os.Getwd()
@@ -113,9 +121,12 @@ func (t Test) Unit() error {
 
 // Target for running integration tests for Trivy Operator.
 func (t Test) Integration() error {
+	fmt.Println("Preparing integration tests for Trivy Operator...")
+	mg.Deps(checkEnvKubeconfig, checkEnvOperatorNamespace, checkEnvOperatorTargetNamespace, getGinkgo)
+	mg.Deps(prepareImages)
+
 	fmt.Println("Running integration tests for Trivy Operator...")
-	mg.Deps(checkKubeconfig, getGinkgo)
-	return sh.RunV(GINKGO, "-coverprofile=coverage.txt",
+	return sh.RunV(GINKGO, "-v", "-coverprofile=coverage.txt",
 		"-coverpkg=github.com/aquasecurity/trivy-operator/pkg/operator,"+
 			"github.com/aquasecurity/trivy-operator/pkg/operator/predicate,"+
 			"github.com/aquasecurity/trivy-operator/pkg/operator/controller,"+
@@ -126,14 +137,45 @@ func (t Test) Integration() error {
 		"./tests/itest/trivy-operator")
 }
 
-// Target for checking if KUBECONFIG environment variable is set.
-func checkKubeconfig() error {
-	kubeconfig := os.Getenv("KUBECONFIG")
-	if kubeconfig == "" {
-		return fmt.Errorf("Environment variable KUBECONFIG is not set")
+// Target for downloading test images and upload them into KinD
+func prepareImages() error {
+	images := []string{
+		"mirror.gcr.io/knqyf263/vuln-image:1.2.3",
+		"wordpress:4.9",
+		"wordpress:6.7",
 	}
-	fmt.Println("KUBECONFIG=", kubeconfig)
+	fmt.Printf("Preparing %d image(s) for Trivy Operator...\n", len(images))
+	for _, image := range images {
+		fmt.Printf("Preparing image %q for Trivy Operator...\n", image)
+		err := sh.Run("docker", "pull", image)
+		if err != nil {
+			return fmt.Errorf("couldn't pull image %q: %v", image, err)
+		}
+		err = sh.Run("kind", "load", "docker-image", image)
+		if err != nil {
+			return fmt.Errorf("couldn't load image %q: %v", image, err)
+		}
+	}
 	return nil
+}
+
+// Targets for checking if environment variables are set.
+func checkEnvironmentVariable(name string) error {
+	envVar := os.Getenv(name)
+	if envVar == "" {
+		return fmt.Errorf("Environment variable %q is not set", name)
+	}
+	fmt.Println(name, "=", envVar)
+	return nil
+}
+func checkEnvKubeconfig() error {
+	return checkEnvironmentVariable("KUBECONFIG")
+}
+func checkEnvOperatorNamespace() error {
+	return checkEnvironmentVariable("OPERATOR_NAMESPACE")
+}
+func checkEnvOperatorTargetNamespace() error {
+	return checkEnvironmentVariable("OPERATOR_TARGET_NAMESPACES")
 }
 
 // Target for removing build artifacts
@@ -300,4 +342,51 @@ func (Tool) Aqua() error {
 func exists(filename string) bool {
 	_, err := os.Stat(filename)
 	return err == nil
+}
+
+type Lint mg.Namespace
+
+// Run runs linters
+func (Lint) Run() error {
+	//mg.Deps(Tool{}.GolangciLint)
+	return sh.RunV("golangci-lint", "run")
+}
+
+// Fix auto fixes linters
+func (Lint) Fix() error {
+	//mg.Deps(Tool{}.GolangciLint)
+	return sh.RunV("golangci-lint", "run", "--fix")
+}
+
+// GolangciLint installs golangci-lint
+func (t Tool) GolangciLint() error {
+	const version = "v1.64.2"
+	bin := filepath.Join(GOBIN, "golangci-lint")
+	if exists(bin) && t.matchGolangciLintVersion(bin, version) {
+		return nil
+	}
+	command := fmt.Sprintf("curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b %s %s", GOBIN, version)
+	return sh.Run("bash", "-c", command)
+}
+
+func (Tool) matchGolangciLintVersion(bin, version string) bool {
+	out, err := sh.Output(bin, "version", "--format", "json")
+	if err != nil {
+		slog.Error("Unable to get golangci-lint version", slog.Any("err", err))
+		return false
+	}
+	var output struct {
+		Version string `json:"Version"`
+	}
+	if err = json.Unmarshal([]byte(out), &output); err != nil {
+		slog.Error("Unable to parse golangci-lint version", slog.Any("err", err))
+		return false
+	}
+
+	version = strings.TrimPrefix(version, "v")
+	if output.Version != version {
+		slog.Info("golangci-lint version mismatch", slog.String("expected", version), slog.String("actual", output.Version))
+		return false
+	}
+	return true
 }

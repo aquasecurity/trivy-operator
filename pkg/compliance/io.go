@@ -2,21 +2,22 @@ package compliance
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
-
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/ext"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
-	"github.com/aquasecurity/trivy/pkg/compliance/report"
-	ttypes "github.com/aquasecurity/trivy/pkg/types"
-	"github.com/go-logr/logr"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
-	"sigs.k8s.io/controller-runtime/pkg/client"
+  "context"
+  "encoding/json"
+  "errors"
+  "fmt"
+  "os"
+  "path/filepath"
+  "strings"
+  metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+  "k8s.io/apimachinery/pkg/types"
+  "sigs.k8s.io/controller-runtime/pkg/client"
+  "github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+  "github.com/aquasecurity/trivy-operator/pkg/ext"
+  "github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+  "github.com/aquasecurity/trivy/pkg/compliance/report"
+  ttypes "github.com/aquasecurity/trivy/pkg/types"
+  "github.com/go-logr/logr"
 )
 
 type Mgr interface {
@@ -121,7 +122,7 @@ func (w *cm) buildComplianceReport(spec v1alpha1.ReportSpec, complianceResults [
 	case v1alpha1.ReportDetail:
 		return v1alpha1.ReportStatus{DetailReport: v1alpha1.FromDetailReport(cr), Summary: summary}, nil
 	default:
-		return v1alpha1.ReportStatus{}, fmt.Errorf("report type is invalid")
+		return v1alpha1.ReportStatus{}, errors.New("report type is invalid")
 	}
 }
 
@@ -181,7 +182,7 @@ func misconfigReportToTrivyResults(cli client.Client, ctx context.Context) ([]tt
 	return resultsArray, nil
 }
 
-func reportsToResults(checks []v1alpha1.Check, name string, namespace string) ttypes.Results {
+func reportsToResults(checks []v1alpha1.Check, name, namespace string) ttypes.Results {
 	results := ttypes.Results{}
 	for _, check := range checks {
 		status := ttypes.MisconfStatusFailure

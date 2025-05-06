@@ -7,6 +7,20 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/bluele/gcache"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/client-go/kubernetes"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	controllerconfig "sigs.k8s.io/controller-runtime/pkg/config"
+	"sigs.k8s.io/controller-runtime/pkg/healthz"
+	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
+	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
+
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
@@ -28,27 +42,15 @@ import (
 	"github.com/aquasecurity/trivy/pkg/fanal/types"
 	"github.com/aquasecurity/trivy/pkg/oci"
 	mp "github.com/aquasecurity/trivy/pkg/policy"
-	"github.com/bluele/gcache"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/cli-runtime/pkg/genericclioptions"
-	"k8s.io/client-go/kubernetes"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/cache"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	controllerconfig "sigs.k8s.io/controller-runtime/pkg/config"
-	"sigs.k8s.io/controller-runtime/pkg/healthz"
-	"sigs.k8s.io/controller-runtime/pkg/log"
-	"sigs.k8s.io/controller-runtime/pkg/manager"
-	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 )
 
 var (
 	setupLog = log.Log.WithName("operator")
 )
 
-// Start starts all registered reconcilers and blocks until the context is cancelled.
+// Start starts all registered reconcilers and blocks until the context is canceled.
 // Returns an error if there is an error starting any reconciler.
+// nolint: gocyclo
 func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfig etc.Config) error {
 	installMode, operatorNamespace, targetNamespaces, err := operatorConfig.ResolveInstallMode()
 	if err != nil {
@@ -75,7 +77,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			},
 		},
 		Cache: cache.Options{
-			DefaultTransform: func(obj interface{}) (interface{}, error) {
+			DefaultTransform: func(obj any) (any, error) {
 				obj, err := cache.TransformStripManagedFields()(obj)
 				if err != nil {
 					return obj, err
@@ -166,9 +168,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		return err
 	}
 	objectResolver := kube.NewObjectResolver(mgr.GetClient(), compatibleObjectMapper)
-	if err != nil {
-		return err
-	}
 	limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
 	logsReader := kube.NewLogsReader(clientSet)
 	secretsReader := kube.NewSecretsReader(mgr.GetClient())
@@ -229,10 +228,20 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 	}
 	var policyLoader policy.Loader
+	var checksLoader *controller.ChecksLoader
 	if operatorConfig.ConfigAuditScannerEnabled {
-		policyLoader, err = buildPolicyLoader(trivyOperatorConfig)
-		if err != nil {
-			return fmt.Errorf("unable to constract policy loader: %w", err)
+		policyLoader = buildPolicyLoader(trivyOperatorConfig)
+		checksLoader = controller.NewChecksLoader(
+			operatorConfig,
+			ctrl.Log.WithName("checks-loader"),
+			mgr.GetClient(),
+			objectResolver,
+			pluginContext,
+			pluginConfig,
+			policyLoader,
+		)
+		if err := checksLoader.SetupWithManager(mgr); err != nil {
+			return fmt.Errorf("setup MyReconciler: %w", err)
 		}
 	}
 
@@ -296,6 +305,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			BuildInfo:        buildInfo,
 			ClusterVersion:   gitVersion,
 			CacheSyncTimeout: *operatorConfig.ControllerCacheSyncTimeout,
+			ChecksLoader:     checksLoader,
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup resource controller: %w", err)
 		}
@@ -308,7 +318,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			PluginInMemory: pluginConfig,
 			ClusterVersion: gitVersion,
 		}).SetupWithManager(mgr); err != nil {
-			return fmt.Errorf("unable to setup resource controller: %w", err)
+			return fmt.Errorf("unable to setup policy config controller: %w", err)
 		}
 		if operatorConfig.InfraAssessmentScannerEnabled {
 			limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
@@ -338,6 +348,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				PluginInMemory:  pluginConfig,
 				InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
 				BuildInfo:       buildInfo,
+				ChecksLoader:    checksLoader,
 			}).SetupWithManager(mgr); err != nil {
 				return fmt.Errorf("unable to setup node collector controller: %w", err)
 			}
@@ -446,7 +457,7 @@ func newWorkloadController(operatorConfig etc.Config,
 	}, nil
 }
 
-func buildPolicyLoader(tc trivyoperator.ConfigData) (policy.Loader, error) {
+func buildPolicyLoader(tc trivyoperator.ConfigData) policy.Loader {
 	registryUser := tc.PolicyBundleOciUser()
 	registryPassword := tc.PolicyBundleOciPassword()
 	artifact := oci.NewArtifact(tc.PolicyBundleOciRef(), types.RegistryOptions{})
@@ -461,6 +472,5 @@ func buildPolicyLoader(tc trivyoperator.ConfigData) (policy.Loader, error) {
 	}
 	ro.Insecure = tc.PolicyBundleInsecure()
 	artifact.RegistryOptions = ro
-	policyLoader := policy.NewPolicyLoader(tc.PolicyBundleOciRef(), gcache.New(1).LRU().Build(), ro, mp.WithOCIArtifact(artifact))
-	return policyLoader, nil
+	return policy.NewPolicyLoader(tc.PolicyBundleOciRef(), gcache.New(2).LRU().Build(), ro, mp.WithOCIArtifact(artifact))
 }

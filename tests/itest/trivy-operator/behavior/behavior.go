@@ -1,13 +1,9 @@
 package behavior
 
 import (
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	"context"
 	"time"
 
-	"github.com/aquasecurity/trivy-operator/tests/itest/helper"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -15,6 +11,11 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/apimachinery/pkg/util/rand"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/aquasecurity/trivy-operator/tests/itest/helper"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 // Inputs represents required inputs to shared behavior containers.
@@ -43,9 +44,9 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 			BeforeEach(func() {
 				ctx = context.Background()
 				pod = helper.NewPod().
-					WithRandomName("unmanaged-nginx").
+					WithRandomName("unmanaged-vuln-image").
 					WithNamespace(inputs.PrimaryNamespace).
-					WithContainer("nginx", "nginx:1.16").
+					WithContainer("vuln-image", "mirror.gcr.io/knqyf263/vuln-image:1.2.3", []string{"/bin/sh", "-c", "--"}, []string{"while true; do sleep 30; done;"}).
 					Build()
 
 				err := inputs.Create(ctx, pod)
@@ -123,7 +124,7 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 				By("Waiting for VulnerabilityReport")
 				Eventually(inputs.HasVulnerabilityReportOwnedBy(rs), inputs.AssertTimeout).Should(BeTrue())
 
-				By("Updating deployment image to wordpress:5")
+				By("Updating deployment image to wordpress:6.7")
 				err = inputs.UpdateDeploymentImage(inputs.PrimaryNamespace, deploy.Name)
 				Expect(err).ToNot(HaveOccurred())
 
@@ -219,9 +220,9 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 			BeforeEach(func() {
 				ctx = context.Background()
 				pod = helper.NewPod().
-					WithRandomName("unmanaged-nginx").
+					WithRandomName("unmanaged-vuln-image").
 					WithNamespace(inputs.PrimaryNamespace).
-					WithContainer("nginx", "nginx:1.16").
+					WithContainer("vuln-image", "mirror.gcr.io/knqyf263/vuln-image:1.2.3", []string{"/bin/sh", "-c", "--"}, []string{"while true; do sleep 30; done;"}).
 					Build()
 
 				err := inputs.Create(ctx, pod)
@@ -299,7 +300,7 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 				By("Waiting for ConfigAuditReport")
 				Eventually(inputs.HasConfigAuditReportOwnedBy(rs), inputs.AssertTimeout).Should(BeTrue())
 
-				By("Updating deployment image to wordpress:5")
+				By("Updating deployment image to wordpress:6.7")
 				err = inputs.UpdateDeploymentImage(inputs.PrimaryNamespace, deploy.Name)
 				Expect(err).ToNot(HaveOccurred())
 

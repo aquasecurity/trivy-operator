@@ -47,7 +47,7 @@ spec:
       containers:
         - args:
             - -c
-            - trivy image --slow 'wordpress:4.9' --security-checks vuln,secret --image-config-scanners secret   --skip-update  --cache-dir /tmp/trivy/.cache --quiet  --format json > /tmp/scan/result_wordpress.json &&  bzip2 -c /tmp/scan/result_wordpress.json | base64
+            - trivy image wordpress:4.9 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --security-checks vuln,secret --skip-update --slow > /tmp/scan/result_wordpress.json && bzip2 -c /tmp/scan/result_wordpress.json | base64 && sync
           command:
             - /bin/sh
           env:

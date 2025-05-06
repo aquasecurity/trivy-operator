@@ -3,15 +3,10 @@ package controller
 import (
 	"context"
 	"encoding/json"
-	"os"
-	"path/filepath"
-
-	// "encoding/json"
 	"fmt"
 	"io"
-
-	// "os"
-	// "path/filepath"
+	"os"
+	"path/filepath"
 
 	j "github.com/aquasecurity/trivy-kubernetes/pkg/jobs"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
@@ -165,66 +160,6 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 	if err != nil {
 		return fmt.Errorf("failed to evaluate policies on Node : %w", err)
 	}
-
-	// // Get the report directory from the environment variable
-	// reportDir := os.Getenv("TRIVY_REPORT_DIR")
-	// if reportDir == "" {
-	// 	reportDir = "/mnt/data/trivy-operator" // Default value
-	// }
-
-	// // Create subdirectories for each type of report
-	// configAuditDir := filepath.Join(reportDir, "config_audit_reports")
-	// rbacAssessmentDir := filepath.Join(reportDir, "rbac_assessment_reports")
-	// infraAssessmentDir := filepath.Join(reportDir, "infra_assessment_reports")
-
-	// // Ensure the directories exist
-	// os.MkdirAll(configAuditDir, os.ModePerm)
-	// os.MkdirAll(rbacAssessmentDir, os.ModePerm)
-	// os.MkdirAll(infraAssessmentDir, os.ModePerm)
-
-	// // Get workload kind and name
-	// workloadKind := job.Labels["trivy-operator.resource.kind"]
-	// workloadName := job.Labels["trivy-operator.resource.name"]
-
-	// // Write config audit report to a file
-	// reportData, err := json.Marshal(misConfigData.configAuditReportData)
-	// if err != nil {
-	// 	return err
-	// }
-	// reportPath := filepath.Join(configAuditDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-	// log.V(1).Info("Writing config audit report", "path", reportPath)
-	// fmt.Fprintln(os.Stderr, "DEBUG: Writing config audit report to", reportPath)
-	// log.V(1).Info("Writing config audit report", "reportData", string(reportData))
-	// err = os.WriteFile(reportPath, reportData, 0644)
-	// if err != nil {
-	// 	fmt.Fprintln(os.Stderr, "DEBUG: Failed to write config audit report to", reportPath)
-	// 	log.Error(err, "Failed to write config audit report to file", "path", reportPath)
-	// 	log.V(1).Info("Failed to write config audit report to file", "path", reportPath)
-	// 	log.V(1).Info("Error:", "error", err)
-	// 	return err
-	// }
-
-	// // Write RBAC assessment report to a file
-	// reportData, err = json.Marshal(misConfigData.rbacAssessmentReportData)
-	// if err != nil {
-	// 	return err
-	// }
-	// reportPath = filepath.Join(rbacAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-	// err = os.WriteFile(reportPath, reportData, 0644)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// // Write infra assessment report to a file
-	// reportData, err = json.Marshal(misConfigData.infraAssessmentReportData)
-	// if err != nil {
-	// 	return err
-	// }
-	// reportPath = filepath.Join(infraAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-	// err = os.WriteFile(reportPath, reportData, 0644)
-	// if err != nil {
-	// 	return err
-	// }
 
 	infraReportBuilder := infraassessment.NewReportBuilder(r.Client.Scheme()).
 		Controller(node).

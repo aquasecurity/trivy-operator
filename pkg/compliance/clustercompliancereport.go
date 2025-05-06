@@ -3,13 +3,9 @@ package compliance
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
-
-	// "encoding/json"
-	"fmt"
-	// "os"
-	// "path/filepath"
 	"time"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"

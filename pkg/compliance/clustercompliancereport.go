@@ -2,7 +2,14 @@ package compliance
 
 import (
 	"context"
+	"encoding/json"
+	"os"
+	"path/filepath"
+
+	// "encoding/json"
 	"fmt"
+	// "os"
+	// "path/filepath"
 	"time"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
@@ -63,12 +70,37 @@ func (r *ClusterComplianceReportReconciler) generateComplianceReport(ctx context
 			return fmt.Errorf("failed to check report cron expression %w", err)
 		}
 		if utils.DurationExceeded(durationToNextGeneration) || r.Config.InvokeClusterComplianceOnce {
-			err = r.Mgr.GenerateComplianceReport(ctx, report.Spec)
-			if err != nil {
-				log.Error(err, "failed to generate compliance report")
+			if !(r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "") {
+				err = r.Mgr.GenerateComplianceReport(ctx, report.Spec)
+				if err != nil {
+					log.Error(err, "failed to generate compliance report")
+					return err
+				}
+			} else {
+				// Write the compliance report to a file
+				reportDir := r.Config.AltReportDir
+				complianceReportDir := filepath.Join(reportDir, "cluster_compliance_report")
+				os.MkdirAll(complianceReportDir, os.ModePerm)
+
+				reportData, err := json.Marshal(report)
+				if err != nil {
+					log.Error(err, "Failed to marshal compliance report")
+					return err
+				}
+
+				reportPath := filepath.Join(complianceReportDir, fmt.Sprintf("%s-%s.json", report.Kind, report.Name))
+				log.Info("Writing cluster compliance report to alternate storage", "path", reportPath)
+				err = os.WriteFile(reportPath, reportData, 0644)
+				if err != nil {
+					log.Error(err, "Failed to write compliance report", "path", reportPath)
+					return err
+				}
+				log.Info("Cluster compliance report written", "path", reportPath)
+
+				return nil
 			}
-			return err
 		}
+
 		if r.Config.InvokeClusterComplianceOnce { // for demo or testing purposes
 			return nil
 		}

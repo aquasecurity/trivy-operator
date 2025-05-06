@@ -3,6 +3,8 @@ package operator
 import (
 	"bytes"
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -206,7 +208,26 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 			Data(sbomReportData).
 			AdditionalReportLabels(map[string]string{trivyoperator.LabelKbom: kbom})
 		sbomReport := sbomReportBuilder.ClusterReport()
-		return ctrl.Result{}, r.SbomReadWriter.WriteCluster(ctx, []v1alpha1.ClusterSbomReport{sbomReport})
+		if !(r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "") {
+			return ctrl.Result{}, r.SbomReadWriter.WriteCluster(ctx, []v1alpha1.ClusterSbomReport{sbomReport})
+		} else {
+			// Write the sbom report to a file
+			reportDir := r.Config.AltReportDir
+			sbomReportDir := filepath.Join(reportDir, "cluster_sbom_reports")
+			os.MkdirAll(sbomReportDir, os.ModePerm)
+
+			reportData, err := json.Marshal(sbomReport)
+			if err != nil {
+				return ctrl.Result{}, fmt.Errorf("failed to marshal sbom report: %w", err)
+			}
+
+			reportPath := filepath.Join(sbomReportDir, fmt.Sprintf("%s.json", sbomReport.Name))
+			err = os.WriteFile(reportPath, reportData, 0644)
+			if err != nil {
+				return ctrl.Result{}, fmt.Errorf("failed to write sbom report: %w", err)
+			}
+			return ctrl.Result{}, nil
+		}
 	}
 }
 

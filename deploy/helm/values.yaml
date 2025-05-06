@@ -782,3 +782,13 @@ nodeCollector:
     - name: etc-cni-netd
       hostPath:
         path: /etc/cni/net.d/
+
+# -- alternateReportStorage is the flag to enable alternate storage for all trivy reports (crds) in the form json files inside of a persistent volume
+alternateReportStorage:
+  enabled: false
+  mountPath: "/mnt/data/trivy-operator"
+  volumeName: "trivy-operator-pvc"
+  storage: "10Gi"
+  podSecurityContext:
+    runAsUser: 10000
+    fsGroup:   10000

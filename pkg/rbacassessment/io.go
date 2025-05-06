@@ -2,8 +2,10 @@ package rbacassessment
 
 import (
 	"context"
+
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -41,6 +43,7 @@ type ReadWriter interface {
 
 type readWriter struct {
 	*kube.ObjectResolver
+	etc.Config
 }
 
 // NewReadWriter constructs a new ReadWriter which is using the client package
@@ -60,15 +63,25 @@ func (r *readWriter) WriteReport(ctx context.Context, report v1alpha1.RbacAssess
 	}, &existing)
 
 	if err == nil {
-		copied := existing.DeepCopy()
-		copied.Labels = report.Labels
-		copied.Report = report.Report
+		// Not writing to ETCD memory because altReport storage is enabled
+		if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
+			return nil
+		} else {
+			copied := existing.DeepCopy()
+			copied.Labels = report.Labels
+			copied.Report = report.Report
 
-		return r.Update(ctx, copied)
+			return r.Update(ctx, copied)
+		}
 	}
 
 	if errors.IsNotFound(err) {
-		return r.Create(ctx, &report)
+		// Not writing to ETCD memory because altReport storage is enabled
+		if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
+			return nil
+		} else {
+			return r.Create(ctx, &report)
+		}
 	}
 
 	return err
@@ -81,15 +94,25 @@ func (r *readWriter) WriteClusterReport(ctx context.Context, report v1alpha1.Clu
 	}, &existing)
 
 	if err == nil {
-		copied := existing.DeepCopy()
-		copied.Labels = report.Labels
-		copied.Report = report.Report
+		// Not writing to ETCD memory because altReport storage is enabled
+		if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
+			return nil
+		} else {
+			copied := existing.DeepCopy()
+			copied.Labels = report.Labels
+			copied.Report = report.Report
 
-		return r.Update(ctx, copied)
+			return r.Update(ctx, copied)
+		}
 	}
 
 	if errors.IsNotFound(err) {
-		return r.Create(ctx, &report)
+		// Not writing to ETCD memory because altReport storage is enabled
+		if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
+			return nil
+		} else {
+			return r.Create(ctx, &report)
+		}
 	}
 
 	return err

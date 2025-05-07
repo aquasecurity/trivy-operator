@@ -46,17 +46,17 @@
 5. Create an annotated git tag and push it to the `upstream`. This will trigger the [`.github/workflows/release.yaml`] workflow
 
    ```sh
-   git tag -v0.26.0 -m 'Release v0.26.0'
-   git push upstream v0.26.0
+   git tag -v0.26.1 -m 'Release v0.26.1'
+   git push upstream v0.26.1
    ```
 
 6. Verify that the `release` workflow has built and published the following artifacts
    1. Trivy-operator container images published to DockerHub
-       `docker.io/aquasec/trivy-operator:0.26.0`
+       `docker.io/aquasec/trivy-operator:0.26.1`
    2. Trivy-operator container images published to Amazon ECR Public Gallery
-       `public.ecr.aws/aquasecurity/trivy-operator:0.26.0`
+       `public.ecr.aws/aquasecurity/trivy-operator:0.26.1`
    3. Trivy-operator container images published to GitHub Container Registry
-       `ghcr.io/aquasecurity/trivy-operator:0.26.0`
+       `ghcr.io/aquasecurity/trivy-operator:0.26.1`
 
 7. Submit trivy-operator Operator to OperatorHub and ArtifactHUB by opening the PR to the <https://github.com/k8s-operatorhub/community-operators> repository.
 

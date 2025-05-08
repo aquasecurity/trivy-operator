@@ -2,7 +2,10 @@ package controller
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -246,8 +249,10 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			if r.Config.ScannerReportTTL != nil {
 				reportBuilder.ReportTTL(r.Config.ScannerReportTTL)
 			}
-			if err := reportBuilder.Write(ctx, r.ReadWriter); err != nil {
-				return ctrl.Result{}, err
+			if !(r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "") {
+				if err := reportBuilder.Write(ctx, r.ReadWriter); err != nil {
+					return ctrl.Result{}, err
+				}
 			}
 			// create infra-assessment report
 			if k8sCoreComponent(resource) && r.Config.InfraAssessmentScannerEnabled {
@@ -261,8 +266,10 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 				if r.Config.ScannerReportTTL != nil {
 					infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
 				}
-				if err := infraReportBuilder.Write(ctx, r.InfraReadWriter); err != nil {
-					return ctrl.Result{}, err
+				if !(r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "") {
+					if err := infraReportBuilder.Write(ctx, r.InfraReadWriter); err != nil {
+						return ctrl.Result{}, err
+					}
 				}
 			}
 		}
@@ -278,10 +285,76 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			if r.Config.ScannerReportTTL != nil {
 				rbacReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
 			}
-			if err := rbacReportBuilder.Write(ctx, r.RbacReadWriter); err != nil {
+			if !(r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "") {
+				if err := rbacReportBuilder.Write(ctx, r.RbacReadWriter); err != nil {
+					return ctrl.Result{}, err
+				}
+			}
+		}
+		// Write reports to alternate storage if enabled
+		if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
+			log.V(1).Info("Writing config, infra and rbac reports to alternate storage", "dir", r.Config.AltReportDir)
+			// Get the report directory from the environment variable
+			reportDir := r.Config.AltReportDir
+			// Create subdirectories for each type of report
+			configAuditDir := filepath.Join(reportDir, "config_audit_reports")
+			rbacAssessmentDir := filepath.Join(reportDir, "rbac_assessment_reports")
+			infraAssessmentDir := filepath.Join(reportDir, "infra_assessment_reports")
+
+			// Ensure the directories exist
+			if err := os.MkdirAll(configAuditDir, os.ModePerm); err != nil {
+				log.Error(err, "Failed to create configAuditDir")
 				return ctrl.Result{}, err
 			}
+			if err := os.MkdirAll(rbacAssessmentDir, os.ModePerm); err != nil {
+				log.Error(err, "Failed to create rbacAssessmentDir")
+				return ctrl.Result{}, err
+			}
+			if err := os.MkdirAll(infraAssessmentDir, os.ModePerm); err != nil {
+				log.Error(err, "Failed to create infraAssessmentDir")
+				return ctrl.Result{}, err
+			}
+			// Extract workload kind and name from resource labels
+			workloadKind := resource.GetObjectKind().GroupVersionKind().Kind
+			workloadName := resource.GetName()
 
+			// Write config audit report to a file
+			configReportData, err := json.Marshal(misConfigData.configAuditReportData)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			configReportPath := filepath.Join(configAuditDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
+			err = os.WriteFile(configReportPath, configReportData, 0644)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			log.Info("Config audit report written", "path", configReportPath)
+
+			// Write infra assessment report to a file
+			infraReportData, err := json.Marshal(misConfigData.infraAssessmentReportData)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			infraReportPath := filepath.Join(infraAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
+			err = os.WriteFile(infraReportPath, infraReportData, 0644)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			log.Info("Infra assessment report written", "path", infraReportPath)
+
+			// Write RBAC assessment report to a file
+			rbacReportData, err := json.Marshal(misConfigData.rbacAssessmentReportData)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			rbacReportPath := filepath.Join(rbacAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
+			err = os.WriteFile(rbacReportPath, rbacReportData, 0644)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			log.Info("RBAC assessment report written", "path", rbacReportPath)
+		} else {
+			return ctrl.Result{}, nil
 		}
 		return ctrl.Result{}, nil
 	}

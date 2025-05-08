@@ -42,6 +42,7 @@ You can configure Trivy-Operator to control it's behavior and adapt it to your n
 | `OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES`               | `{}`                   | The flag is map of namespace:secrets, secrets are comma seperated which can be used to authenticate in private registries in case if there no imagePullSecrets provided example : {"mynamespace":"mySecrets,anotherSecret"}                   |
 | `OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT`              | `false`                | The flag to enable merging rbac finding with config-audit report                                                                                                                                                                              |
 | `OPERATOR_SBOM_GENERATION_ENABLED`                           | `true`                 | The flag to enable sbom generation
+|`OPERATOR_ALTERNATE_REPORT_STORAGE_ENABLED`|`false`|Control where reports are written. By default this is false, so reports will be written normally as CRDs in ETCD memory. However, if you would rather reports be written to a persistent volume, flip this to true. If done a persistent volume claim will be inluded in your installation and all reports will be written there. See settings for more granularity.|
 
 The values of the `OPERATOR_NAMESPACE` and `OPERATOR_TARGET_NAMESPACES` determine the install mode, which in turn determines the multitenancy support of the operator.
 

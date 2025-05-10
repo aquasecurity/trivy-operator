@@ -194,9 +194,8 @@ var IsCoreComponents = predicate.NewPredicateFuncs(func(obj client.Object) bool 
 			return true
 		} else if _, ok := v.GetLabels()[trivyoperator.LabelOpenShiftEtcd]; ok {
 			return true
-		} else {
-			return false
 		}
+		return false
 	case *corev1.Node:
 		return true
 	}

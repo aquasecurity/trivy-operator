@@ -129,6 +129,7 @@ Keeps security report resources updated
 | trivy.additionalVulnerabilityReportFields | string | `""` | additionalVulnerabilityReportFields is a comma separated list of additional fields which can be added to the VulnerabilityReport. Supported parameters: Description, Links, CVSS, Target, Class, PackagePath and PackageType |
 | trivy.clientServerSkipUpdate | bool | `false` | clientServerSkipUpdate is the flag to enable skip databases update for Trivy client. Only applicable in ClientServer mode. |
 | trivy.command | string | `"image"` | command. One of `image`, `filesystem` or `rootfs` scanning, depending on the target type required for the scan. For 'filesystem' and `rootfs` scanning, ensure that the `trivyOperator.scanJobPodTemplateContainerSecurityContext` is configured to run as the root user (runAsUser = 0). |
+| trivy.configFile | string | `nil` | configFile can be used to tell Trivy to use specific options available only in the config file (ex. Mirror registries). |
 | trivy.createConfig | bool | `true` | createConfig indicates whether to create config objects |
 | trivy.dbRegistry | string | `"mirror.gcr.io"` |  |
 | trivy.dbRepository | string | `"aquasec/trivy-db"` |  |

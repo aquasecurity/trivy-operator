@@ -6350,7 +6350,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --scanners vuln,secret --skip-db-update --slow > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --scanners vuln,secret --skip-db-update --slow --config /etc/trivy/trivy-config.yaml > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{

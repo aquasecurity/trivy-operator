@@ -21,7 +21,7 @@ require (
 	github.com/liamg/memoryfs v1.6.0
 	github.com/magefile/mage v1.15.0
 	github.com/onsi/ginkgo/v2 v2.23.4
-	github.com/onsi/gomega v1.36.3
+	github.com/onsi/gomega v1.37.0
 	github.com/openshift/api v0.0.0-20231025170628-b8a18fdc040d
 	github.com/prometheus/client_golang v1.22.0
 	github.com/quasilyte/go-ruleguard/dsl v0.3.22
@@ -29,10 +29,10 @@ require (
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/automaxprocs v1.6.0
 	go.uber.org/multierr v1.11.0
-	golang.org/x/net v0.39.0
+	golang.org/x/net v0.40.0
 	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9
 	k8s.io/api v0.33.0
-	k8s.io/apiextensions-apiserver v0.32.3
+	k8s.io/apiextensions-apiserver v0.33.0
 	k8s.io/apimachinery v0.33.0
 	k8s.io/cli-runtime v0.33.0
 	k8s.io/client-go v0.33.0
@@ -322,7 +322,7 @@ require (
 	golang.org/x/exp v0.0.0-20250408133849-7e4ce0ab07d0 // indirect
 	golang.org/x/mod v0.24.0 // indirect
 	golang.org/x/oauth2 v0.28.0 // indirect
-	golang.org/x/sync v0.13.0 // indirect
+	golang.org/x/sync v0.14.0 // indirect
 	google.golang.org/api v0.228.0 // indirect
 	google.golang.org/genproto v0.0.0-20250303144028-a0af3efb3deb // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250303144028-a0af3efb3deb // indirect
@@ -333,7 +333,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.0 // indirect
 	helm.sh/helm/v3 v3.17.3 // indirect
-	k8s.io/apiserver v0.32.3 // indirect
+	k8s.io/apiserver v0.33.0 // indirect
 	k8s.io/kubectl v0.33.0 // indirect
 	mvdan.cc/sh/v3 v3.11.0 // indirect
 	oras.land/oras-go v1.2.5 // indirect
@@ -395,10 +395,10 @@ require (
 	github.com/yashtewari/glob-intersection v0.2.0 // indirect
 	github.com/zclconf/go-cty v1.16.2 // indirect
 	go.uber.org/zap v1.27.0 // indirect
-	golang.org/x/crypto v0.37.0 // indirect
-	golang.org/x/sys v0.32.0 // indirect
-	golang.org/x/term v0.31.0 // indirect
-	golang.org/x/text v0.24.0
+	golang.org/x/crypto v0.38.0 // indirect
+	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/term v0.32.0 // indirect
+	golang.org/x/text v0.25.0
 	golang.org/x/time v0.11.0 // indirect
 	golang.org/x/tools v0.32.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect

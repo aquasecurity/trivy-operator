@@ -73,6 +73,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				DisableFor: []client.Object{
 					&corev1.Secret{},
 					&corev1.ServiceAccount{},
+					&corev1.ConfigMap{},
 				},
 			},
 		},

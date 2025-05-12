@@ -676,6 +676,10 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef, tri
 		return []string{"trivy"}, args
 	}
 
+	if trivyConfig.ConfigFileExists() {
+		args = append(args, "--config", configFileMountPath)
+	}
+
 	// Add command to args as it is now need to pipe output to compress.
 	args = append([]string{"trivy"}, args...)
 	// Add compress arguments.

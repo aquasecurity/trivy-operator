@@ -7621,6 +7621,18 @@ func TestExcludeImages(t *testing.T) {
 			imageName:      "docker.io/library/alpine:3.10.2",
 			want:           false,
 		},
+		{
+			name:           "exclude a specific image",
+			excludePattern: []string{"*/*/cos-nvidia-installer:fixed"},
+			imageName:      "docker.io/mirrorgooglecontainers/cos-nvidia-installer:fixed",
+			want:           true,
+		},
+		{
+			name:           "exclude images from mcr",
+			excludePattern: []string{"mcr.microsoft.com/*/*"},
+			imageName:      "mcr.microsoft.com/dotnet/aspire-dashboard:9",
+			want:           true,
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {

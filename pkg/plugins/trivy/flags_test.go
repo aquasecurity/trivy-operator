@@ -21,7 +21,7 @@ func TestSlow(t *testing.T) {
 			"trivy.tag":  "0.35.0",
 			"trivy.slow": "true",
 		},
-		want: "--slow",
+		want: "--parallel 1",
 	},
 		{
 			name: "slow param set to false",
@@ -37,7 +37,7 @@ func TestSlow(t *testing.T) {
 				"trivy.tag":  "0.35.0",
 				"trivy.slow": "false2",
 			},
-			want: "--slow",
+			want: "--parallel 1",
 		},
 		{
 			name: "slow param set to true and trivy tag is less then 0.35.0",
@@ -54,7 +54,7 @@ func TestSlow(t *testing.T) {
 				"trivy.slow": "true",
 				"trivy.tag":  "0.36.0",
 			},
-			want: "--slow",
+			want: "--parallel 1",
 		},
 	}
 	for _, tc := range testCases {

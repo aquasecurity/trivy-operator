@@ -28,7 +28,7 @@ func TestGetSbomFSScanningArgs(t *testing.T) {
 			sbomFile:       "/tmp/scan/bom.json",
 			serverUrl:      "",
 			resultFileName: "",
-			wantArgs:       []string{"--cache-dir", "/var/trivyoperator/trivy-db", "--quiet", "sbom", "--format", "json", "--skip-db-update", "/tmp/scan/bom.json", "--slow"},
+			wantArgs:       []string{"--cache-dir", "/var/trivyoperator/trivy-db", "--quiet", "sbom", "--format", "json", "--skip-db-update", "/tmp/scan/bom.json", "--parallel 1"},
 			wantCmd:        []string{trivy.SharedVolumeLocationOfTrivy},
 		},
 		{
@@ -37,7 +37,7 @@ func TestGetSbomFSScanningArgs(t *testing.T) {
 			sbomFile:       "/tmp/scan/bom.json",
 			serverUrl:      "http://trivy-server:8080",
 			resultFileName: "",
-			wantArgs:       []string{"--cache-dir", "/var/trivyoperator/trivy-db", "--quiet", "sbom", "--format", "json", "--skip-db-update", "/tmp/scan/bom.json", "--server", "http://trivy-server:8080", "--slow"},
+			wantArgs:       []string{"--cache-dir", "/var/trivyoperator/trivy-db", "--quiet", "sbom", "--format", "json", "--skip-db-update", "/tmp/scan/bom.json", "--server", "http://trivy-server:8080", "--parallel 1"},
 			wantCmd:        []string{trivy.SharedVolumeLocationOfTrivy},
 		},
 	}
@@ -86,7 +86,7 @@ func TestGetFSScanningArgs(t *testing.T) {
 			name:     "command and args for standalone mode",
 			mode:     trivy.Standalone,
 			command:  trivy.Filesystem,
-			wantArgs: []string{"--cache-dir", "/var/trivyoperator/trivy-db", "--quiet", "filesystem", "--scanners", "", "--skip-db-update", "--format", "json", "/", "--slow", "--include-dev-deps"},
+			wantArgs: []string{"--cache-dir", "/var/trivyoperator/trivy-db", "--quiet", "filesystem", "--scanners", "", "--skip-db-update", "--format", "json", "/", "--parallel 1", "--include-dev-deps"},
 		},
 		{
 			name:           "command and args for client/server mode",
@@ -94,7 +94,7 @@ func TestGetFSScanningArgs(t *testing.T) {
 			command:        trivy.Rootfs,
 			serverUrl:      "http://trivy-server:8080",
 			resultFileName: "",
-			wantArgs:       []string{"--cache-dir", "/var/trivyoperator/trivy-db", "--quiet", "filesystem", "--scanners", "", "--skip-db-update", "--format", "json", "/", "--server", "http://trivy-server:8080", "--slow", "--include-dev-deps"},
+			wantArgs:       []string{"--cache-dir", "/var/trivyoperator/trivy-db", "--quiet", "filesystem", "--scanners", "", "--skip-db-update", "--format", "json", "/", "--server", "http://trivy-server:8080", "--parallel 1", "--include-dev-deps"},
 		},
 	}
 	for _, tc := range testCases {

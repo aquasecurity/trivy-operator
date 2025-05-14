@@ -29,7 +29,7 @@ func Slow(c Config) string {
 		return ""
 	}
 	if c.GetSlow() {
-		return "--slow"
+		return "--parallel 1"
 	}
 	return ""
 }

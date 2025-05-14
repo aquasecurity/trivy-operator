@@ -47,7 +47,7 @@ spec:
       containers:
         - args:
             - -c
-            - trivy image busybox:1.28 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --security-checks vuln,secret --skip-update --slow > /tmp/scan/result_hello.json && bzip2 -c /tmp/scan/result_hello.json | base64 && sync
+            - trivy image busybox:1.28 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --security-checks vuln,secret --skip-update --parallel 1 > /tmp/scan/result_hello.json && bzip2 -c /tmp/scan/result_hello.json | base64 && sync
           command:
             - /bin/sh
           env:

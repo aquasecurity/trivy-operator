@@ -70,6 +70,12 @@ configuration settings for common use cases. For example, switch Trivy from [Sta
 | `compliance.cron`                     | `0 */6 * * *`                   | this flag control the cron interval for compliance report generation                |
 | `scanJob.compressLogs`                                         | `"true"`                              | Control whether scanjob output should be compressed                                                                                                                                     |
 | `nodeCollector.excludeNodes`                        | `""`                      | excludeNodes comma-separated node labels that the node-collector job should exclude from scanning (example kubernetes.io/arch=arm64,team=dev)                                                                                                                                                                                                                                      |
+| `alternateReportStorage.enabled`| `"false"` | Control where reports are written. By default this is false, so reports will be written normally as CRDs in ETCD memory. However, if you would rather reports be written to a persistent volume, flip this to true. If done a persistent volume claim will be inluded in your installation and all reports will be written there.|
+| `alternateReportStorage.mountPath`|`"/mnt/data/trivy-operator"`| The mount path for your persistent volume.|
+| `alternateReportStorage.volumeName`|`"trivy-operator-pvc"`| Name of your persistant volume.|
+|`alternateReportStorage.storage`|`"10Gi"`| Amount of storage for your persistent volume.|
+|`alternateReportStorage.podSecurityContext.runAsUser`| `10000` | Specifies the UNIX user ID that all processes in the container should run as (for the persistent volume), ensuring they don’t execute as the root user and limiting their privileges.|
+|`alternateReportStorage.podSecurityContext.fsGroup`| `10000` | Defines a UNIX group ID that Kubernetes will use to change the ownership of any mounted volumes so that files created by the container (persistent volume) are accessible to processes running under that group.|
 
 !!! tip
     You can delete a configuration key.For example, the following `kubectl patch` command deletes the `trivy.httpProxy` key:

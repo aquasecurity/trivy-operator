@@ -28,7 +28,7 @@ func TestGetSbomFSScanningArgs(t *testing.T) {
 			sbomFile:       "/tmp/scan/bom.json",
 			serverUrl:      "",
 			resultFileName: "",
-			wantArgs:       []string{"--cache-dir", "/var/trivyoperator/trivy-db", "--quiet", "sbom", "--format", "json", "--skip-db-update", "/tmp/scan/bom.json", "--parallel 1"},
+			wantArgs:       []string{"--cache-dir", "/var/trivyoperator/trivy-db", "--quiet", "sbom", "--format", "json", "--skip-db-update", "/tmp/scan/bom.json", "--slow"},
 			wantCmd:        []string{trivy.SharedVolumeLocationOfTrivy},
 		},
 		{
@@ -37,7 +37,7 @@ func TestGetSbomFSScanningArgs(t *testing.T) {
 			sbomFile:       "/tmp/scan/bom.json",
 			serverUrl:      "http://trivy-server:8080",
 			resultFileName: "",
-			wantArgs:       []string{"--cache-dir", "/var/trivyoperator/trivy-db", "--quiet", "sbom", "--format", "json", "--skip-db-update", "/tmp/scan/bom.json", "--server", "http://trivy-server:8080", "--parallel 1"},
+			wantArgs:       []string{"--cache-dir", "/var/trivyoperator/trivy-db", "--quiet", "sbom", "--format", "json", "--skip-db-update", "/tmp/scan/bom.json", "--server", "http://trivy-server:8080", "--slow"},
 			wantCmd:        []string{trivy.SharedVolumeLocationOfTrivy},
 		},
 	}

@@ -79,7 +79,7 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 			serverUrl:      "",
 			resultFileName: "output.json",
 			compressedLogs: "true",
-			wantArgs:       []string{"-c", "trivy sbom --parallel 1 /tmp/scan/bom.json  --skip-db-update  --cache-dir /tmp/trivy/.cache --quiet --format json > /tmp/scan/output.json &&  bzip2 -c /tmp/scan/output.json | base64 && sync"},
+			wantArgs:       []string{"-c", "trivy sbom --slow /tmp/scan/bom.json  --skip-db-update  --cache-dir /tmp/trivy/.cache --quiet --format json > /tmp/scan/output.json &&  bzip2 -c /tmp/scan/output.json | base64 && sync"},
 			wantCmd:        []string{"/bin/sh"},
 		},
 		{
@@ -89,7 +89,7 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 			serverUrl:      "",
 			resultFileName: "",
 			compressedLogs: "false",
-			wantArgs:       []string{"--cache-dir", "/tmp/trivy/.cache", "--quiet", "sbom", "--format", "json", "/tmp/scan/bom.json", "--parallel 1", "--skip-db-update"},
+			wantArgs:       []string{"--cache-dir", "/tmp/trivy/.cache", "--quiet", "sbom", "--format", "json", "/tmp/scan/bom.json", "--slow", "--skip-db-update"},
 			wantCmd:        []string{"trivy"},
 		},
 		{
@@ -99,7 +99,7 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 			serverUrl:      "http://trivy-server:8080",
 			resultFileName: "output.json",
 			compressedLogs: "true",
-			wantArgs:       []string{"-c", "trivy sbom --parallel 1 /tmp/scan/bom.json    --cache-dir /tmp/trivy/.cache --quiet --format json --server 'http://trivy-server:8080' > /tmp/scan/output.json &&  bzip2 -c /tmp/scan/output.json | base64 && sync"},
+			wantArgs:       []string{"-c", "trivy sbom --slow /tmp/scan/bom.json    --cache-dir /tmp/trivy/.cache --quiet --format json --server 'http://trivy-server:8080' > /tmp/scan/output.json &&  bzip2 -c /tmp/scan/output.json | base64 && sync"},
 			wantCmd:        []string{"/bin/sh"},
 		},
 		{
@@ -109,7 +109,7 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 			serverUrl:      "http://trivy-server:8080",
 			resultFileName: "",
 			compressedLogs: "false",
-			wantArgs:       []string{"--cache-dir", "/tmp/trivy/.cache", "--quiet", "sbom", "--format", "json", "--server", "http://trivy-server:8080", "/tmp/scan/bom.json", "--parallel 1"},
+			wantArgs:       []string{"--cache-dir", "/tmp/trivy/.cache", "--quiet", "sbom", "--format", "json", "--server", "http://trivy-server:8080", "/tmp/scan/bom.json", "--slow"},
 			wantCmd:        []string{"trivy"},
 		},
 	}

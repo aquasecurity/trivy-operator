@@ -29,6 +29,10 @@ func Slow(c Config) string {
 		return ""
 	}
 	if c.GetSlow() {
+		// Use --slow for versions before 0.53.0, --parallel 1 for newer versions
+		if compareTagVersion(tag, "< 0.53.0") {
+			return "--slow"
+		}
 		return "--parallel 1"
 	}
 	return ""

@@ -55,13 +55,19 @@ func (w *cm) GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportS
 
 	if w.Config.AltReportStorageEnabled && w.Config.AltReportDir != "" {
 		operatorNamespace, err := w.GetOperatorNamespace()
+		if err != nil {
+			return fmt.Errorf("failed to get operator namespace: %w", err)
+		}
 		log := w.Logger.WithValues("job", operatorNamespace)
 		log.V(1).Info("Writing cluster compliance reports to alternate storage", "dir", w.Config.AltReportDir)
 
 		// Write the compliance report to a file
 		reportDir := w.Config.AltReportDir
 		complianceReportDir := filepath.Join(reportDir, "cluster_compliance_report")
-		os.MkdirAll(complianceReportDir, os.ModePerm)
+		if err := os.MkdirAll(complianceReportDir, os.ModePerm); err != nil {
+			w.Logger.Error(err, "could not create compliance report directory")
+			return err
+		}
 
 		reportData, err := json.Marshal(updatedReport)
 		if err != nil {
@@ -70,7 +76,7 @@ func (w *cm) GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportS
 
 		reportPath := filepath.Join(complianceReportDir, fmt.Sprintf("%s-%s.json", updatedReport.Kind, updatedReport.Name))
 		log.Info("Writing cluster compliance report to alternate storage", "path", reportPath)
-		err = os.WriteFile(reportPath, reportData, 0644)
+		err = os.WriteFile(reportPath, reportData, 0600)
 		if err != nil {
 			return fmt.Errorf("failed to write compliance report: %w", err)
 		}

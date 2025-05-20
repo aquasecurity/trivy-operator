@@ -178,10 +178,16 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 	} else {
 		log.V(1).Info("Writing infra assessment report to alternate storage", "dir", r.Config.AltReportDir)
 		clusterInfraReport, err := infraReportBuilder.GetClusterReport()
+		if err != nil {
+			return fmt.Errorf("failed to get cluster infra report: %w", err)
+		}
 		// Write the cluster infra assessment report to a file
 		reportDir := r.Config.AltReportDir
 		clusterInfraReportDir := filepath.Join(reportDir, "cluster_infra_assessment_reports")
-		os.MkdirAll(clusterInfraReportDir, os.ModePerm)
+		if err := os.MkdirAll(clusterInfraReportDir, os.ModePerm); err != nil {
+			log.Error(err, "failed to create infra assessment report directory")
+			return err
+		}
 
 		reportData, err := json.Marshal(misConfigData.infraAssessmentReportData)
 		if err != nil {
@@ -192,7 +198,7 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 		workloadKind := labels["trivy-operator.resource.kind"]
 		workloadName := labels["trivy-operator.resource.name"]
 		reportPath := filepath.Join(clusterInfraReportDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-		err = os.WriteFile(reportPath, reportData, 0644)
+		err = os.WriteFile(reportPath, reportData, 0600)
 		if err != nil {
 			return fmt.Errorf("failed to write compliance report: %w", err)
 		}

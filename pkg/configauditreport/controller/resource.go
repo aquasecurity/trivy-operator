@@ -237,127 +237,129 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			return ctrl.Result{}, fmt.Errorf("evaluating resource: %w", err)
 		}
 		kind := resource.GetObjectKind().GroupVersionKind().Kind
-		// create config-audit report
-		if !kube.IsRoleTypes(kube.Kind(kind)) || r.MergeRbacFindingWithConfigAudit {
-			reportBuilder := configauditreport.NewReportBuilder(r.Client.Scheme()).
-				Controller(resource).
-				ResourceSpecHash(resourceHash).
-				PluginConfigHash(policiesHash).
-				ResourceLabelsToInclude(resourceLabelsToInclude).
-				AdditionalReportLabels(additionalCustomLabel).
-				Data(misConfigData.configAuditReportData)
-			if r.Config.ScannerReportTTL != nil {
-				reportBuilder.ReportTTL(r.Config.ScannerReportTTL)
-			}
-			if !(r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "") {
-				if err := reportBuilder.Write(ctx, r.ReadWriter); err != nil {
-					return ctrl.Result{}, err
-				}
-			}
-			// create infra-assessment report
-			if k8sCoreComponent(resource) && r.Config.InfraAssessmentScannerEnabled {
-				infraReportBuilder := infraassessment.NewReportBuilder(r.Client.Scheme()).
+		if !(r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "") {
+			// create config-audit report
+			if !kube.IsRoleTypes(kube.Kind(kind)) || r.MergeRbacFindingWithConfigAudit {
+				reportBuilder := configauditreport.NewReportBuilder(r.Client.Scheme()).
 					Controller(resource).
 					ResourceSpecHash(resourceHash).
 					PluginConfigHash(policiesHash).
 					ResourceLabelsToInclude(resourceLabelsToInclude).
 					AdditionalReportLabels(additionalCustomLabel).
-					Data(misConfigData.infraAssessmentReportData)
+					Data(misConfigData.configAuditReportData)
 				if r.Config.ScannerReportTTL != nil {
-					infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
+					reportBuilder.ReportTTL(r.Config.ScannerReportTTL)
 				}
-				if !(r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "") {
+				if err := reportBuilder.Write(ctx, r.ReadWriter); err != nil {
+					return ctrl.Result{}, err
+				}
+				// create infra-assessment report
+				if k8sCoreComponent(resource) && r.Config.InfraAssessmentScannerEnabled {
+					infraReportBuilder := infraassessment.NewReportBuilder(r.Client.Scheme()).
+						Controller(resource).
+						ResourceSpecHash(resourceHash).
+						PluginConfigHash(policiesHash).
+						ResourceLabelsToInclude(resourceLabelsToInclude).
+						AdditionalReportLabels(additionalCustomLabel).
+						Data(misConfigData.infraAssessmentReportData)
+					if r.Config.ScannerReportTTL != nil {
+						infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
+					}
 					if err := infraReportBuilder.Write(ctx, r.InfraReadWriter); err != nil {
 						return ctrl.Result{}, err
 					}
 				}
 			}
-		}
-		// create rbac-assessment report
-		if kube.IsRoleTypes(kube.Kind(kind)) && r.Config.RbacAssessmentScannerEnabled && !r.MergeRbacFindingWithConfigAudit {
-			rbacReportBuilder := rbacassessment.NewReportBuilder(r.Client.Scheme()).
-				Controller(resource).
-				ResourceSpecHash(resourceHash).
-				PluginConfigHash(policiesHash).
-				ResourceLabelsToInclude(resourceLabelsToInclude).
-				AdditionalReportLabels(additionalCustomLabel).
-				Data(misConfigData.rbacAssessmentReportData)
-			if r.Config.ScannerReportTTL != nil {
-				rbacReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
-			}
-			if !(r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "") {
+			// create rbac-assessment report
+			if kube.IsRoleTypes(kube.Kind(kind)) && r.Config.RbacAssessmentScannerEnabled && !r.MergeRbacFindingWithConfigAudit {
+				rbacReportBuilder := rbacassessment.NewReportBuilder(r.Client.Scheme()).
+					Controller(resource).
+					ResourceSpecHash(resourceHash).
+					PluginConfigHash(policiesHash).
+					ResourceLabelsToInclude(resourceLabelsToInclude).
+					AdditionalReportLabels(additionalCustomLabel).
+					Data(misConfigData.rbacAssessmentReportData)
+				if r.Config.ScannerReportTTL != nil {
+					rbacReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
+				}
 				if err := rbacReportBuilder.Write(ctx, r.RbacReadWriter); err != nil {
 					return ctrl.Result{}, err
 				}
 			}
-		}
-		// Write reports to alternate storage if enabled
-		if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
-			log.V(1).Info("Writing config, infra and rbac reports to alternate storage", "dir", r.Config.AltReportDir)
-			// Get the report directory from the environment variable
-			reportDir := r.Config.AltReportDir
-			// Create subdirectories for each type of report
-			configAuditDir := filepath.Join(reportDir, "config_audit_reports")
-			rbacAssessmentDir := filepath.Join(reportDir, "rbac_assessment_reports")
-			infraAssessmentDir := filepath.Join(reportDir, "infra_assessment_reports")
-
-			// Ensure the directories exist
-			if err := os.MkdirAll(configAuditDir, 0750); err != nil {
-				log.Error(err, "Failed to create configAuditDir")
-				return ctrl.Result{}, err
-			}
-			if err := os.MkdirAll(rbacAssessmentDir, 0750); err != nil {
-				log.Error(err, "Failed to create rbacAssessmentDir")
-				return ctrl.Result{}, err
-			}
-			if err := os.MkdirAll(infraAssessmentDir, 0750); err != nil {
-				log.Error(err, "Failed to create infraAssessmentDir")
-				return ctrl.Result{}, err
-			}
-			// Extract workload kind and name from resource labels
-			workloadKind := resource.GetObjectKind().GroupVersionKind().Kind
-			workloadName := resource.GetName()
-
-			// Write config audit report to a file
-			configReportData, err := json.Marshal(misConfigData.configAuditReportData)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-			configReportPath := filepath.Join(configAuditDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-			err = os.WriteFile(configReportPath, configReportData, 0600)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-			log.Info("Config audit report written", "path", configReportPath)
-
-			// Write infra assessment report to a file
-			infraReportData, err := json.Marshal(misConfigData.infraAssessmentReportData)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-			infraReportPath := filepath.Join(infraAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-			err = os.WriteFile(infraReportPath, infraReportData, 0600)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-			log.Info("Infra assessment report written", "path", infraReportPath)
-
-			// Write RBAC assessment report to a file
-			rbacReportData, err := json.Marshal(misConfigData.rbacAssessmentReportData)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-			rbacReportPath := filepath.Join(rbacAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-			err = os.WriteFile(rbacReportPath, rbacReportData, 0600)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-			log.Info("RBAC assessment report written", "path", rbacReportPath)
 		} else {
-			return ctrl.Result{}, nil
+			// Write reports to alternate storage if enabled
+			log.V(1).Info("Writing config, infra and rbac reports to alternate storage", "dir", r.Config.AltReportDir)
+			return r.writeAlternateReports(ctx, resource, misConfigData, log)
 		}
+
 		return ctrl.Result{}, nil
 	}
+}
+
+func (r *ResourceController) writeAlternateReports(ctx context.Context, resource client.Object, misConfigData Misconfiguration, log logr.Logger) (ctrl.Result, error) {
+	// Write reports to alternate storage if enabled
+	if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
+		// Get the report directory from the environment variable
+		reportDir := r.Config.AltReportDir
+		// Create subdirectories for each type of report
+		configAuditDir := filepath.Join(reportDir, "config_audit_reports")
+		rbacAssessmentDir := filepath.Join(reportDir, "rbac_assessment_reports")
+		infraAssessmentDir := filepath.Join(reportDir, "infra_assessment_reports")
+
+		// Ensure the directories exist
+		if err := os.MkdirAll(configAuditDir, 0750); err != nil {
+			log.Error(err, "Failed to create configAuditDir")
+			return ctrl.Result{}, err
+		}
+		if err := os.MkdirAll(rbacAssessmentDir, 0750); err != nil {
+			log.Error(err, "Failed to create rbacAssessmentDir")
+			return ctrl.Result{}, err
+		}
+		if err := os.MkdirAll(infraAssessmentDir, 0750); err != nil {
+			log.Error(err, "Failed to create infraAssessmentDir")
+			return ctrl.Result{}, err
+		}
+		// Extract workload kind and name from resource labels
+		workloadKind := resource.GetObjectKind().GroupVersionKind().Kind
+		workloadName := resource.GetName()
+
+		// Write config audit report to a file
+		configReportData, err := json.Marshal(misConfigData.configAuditReportData)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		configReportPath := filepath.Join(configAuditDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
+		err = os.WriteFile(configReportPath, configReportData, 0600)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		log.Info("Config audit report written", "path", configReportPath)
+
+		// Write infra assessment report to a file
+		infraReportData, err := json.Marshal(misConfigData.infraAssessmentReportData)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		infraReportPath := filepath.Join(infraAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
+		err = os.WriteFile(infraReportPath, infraReportData, 0600)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		log.Info("Infra assessment report written", "path", infraReportPath)
+
+		// Write RBAC assessment report to a file
+		rbacReportData, err := json.Marshal(misConfigData.rbacAssessmentReportData)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		rbacReportPath := filepath.Join(rbacAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
+		err = os.WriteFile(rbacReportPath, rbacReportData, 0600)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		log.Info("RBAC assessment report written", "path", rbacReportPath)
+	}
+	return ctrl.Result{}, nil
 }
 
 func (r *ResourceController) hasReport(ctx context.Context, owner kube.ObjectRef, podSpecHash, pluginConfigHash string) (bool, error) {

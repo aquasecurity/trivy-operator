@@ -184,7 +184,7 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 		// Write the cluster infra assessment report to a file
 		reportDir := r.Config.AltReportDir
 		clusterInfraReportDir := filepath.Join(reportDir, "cluster_infra_assessment_reports")
-		if err := os.MkdirAll(clusterInfraReportDir, os.ModePerm); err != nil {
+		if err := os.MkdirAll(clusterInfraReportDir, 0750); err != nil {
 			log.Error(err, "failed to create infra assessment report directory")
 			return err
 		}

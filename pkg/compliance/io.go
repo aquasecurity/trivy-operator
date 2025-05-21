@@ -64,7 +64,7 @@ func (w *cm) GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportS
 		// Write the compliance report to a file
 		reportDir := w.Config.AltReportDir
 		complianceReportDir := filepath.Join(reportDir, "cluster_compliance_report")
-		if err := os.MkdirAll(complianceReportDir, os.ModePerm); err != nil {
+		if err := os.MkdirAll(complianceReportDir, 0750); err != nil {
 			w.Logger.Error(err, "could not create compliance report directory")
 			return err
 		}

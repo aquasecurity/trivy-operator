@@ -2,26 +2,26 @@ package rbacassessment
 
 import (
 	"context"
-  "encoding/json"
-  "fmt"
-  "os"
-  "path/filepath"
-  "strings"
-  "time"
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
 
-  metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-  "k8s.io/apimachinery/pkg/labels"
-  "k8s.io/apimachinery/pkg/runtime"
-  "k8s.io/apimachinery/pkg/util/validation"
-  "k8s.io/utils/ptr"
-  "sigs.k8s.io/controller-runtime/pkg/client"
-  "sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/validation"
+	"k8s.io/utils/ptr"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
-  "github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-  "github.com/aquasecurity/trivy-operator/pkg/kube"
-  "github.com/aquasecurity/trivy-operator/pkg/operator/etc"
-  "github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-  "github.com/go-logr/logr"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/go-logr/logr"
 )
 
 type ReportBuilder struct {
@@ -186,7 +186,9 @@ func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
 			// Write the cluster RBAC assessment report to a file
 			reportDir := b.Config.AltReportDir
 			rbacAssessmentDir := filepath.Join(reportDir, "cluster_rbac_assessment_reports")
-			os.MkdirAll(rbacAssessmentDir, os.ModePerm)
+			if err := os.MkdirAll(rbacAssessmentDir, os.ModePerm); err != nil {
+				return fmt.Errorf("failed to make rbacAssessmentDir %s: %w", rbacAssessmentDir, err)
+			}
 
 			reportData, err := json.Marshal(report)
 			if err != nil {
@@ -198,7 +200,7 @@ func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
 			workloadName := report.Labels["trivy-operator.resource.name"]
 
 			reportPath := filepath.Join(rbacAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-			err = os.WriteFile(reportPath, reportData, 0644)
+			err = os.WriteFile(reportPath, reportData, 0600)
 			if err != nil {
 				return fmt.Errorf("failed to write cluster RBAC assessment report: %w", err)
 			}

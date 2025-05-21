@@ -2,14 +2,14 @@ package rbacassessment
 
 import (
 	"context"
-  
-  "k8s.io/apimachinery/pkg/api/errors"
-  "k8s.io/apimachinery/pkg/types"
-  "sigs.k8s.io/controller-runtime/pkg/client"
 
-  "github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-  "github.com/aquasecurity/trivy-operator/pkg/kube"
-  "github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 )
 
 // Writer is the interface for saving v1alpha1.ClusterConfigAuditReport

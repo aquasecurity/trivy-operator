@@ -803,4 +803,4 @@ alternateReportStorage:
   storage: "10Gi"
   podSecurityContext:
     runAsUser: 10000
-    fsGroup:   10000
+    fsGroup: 10000

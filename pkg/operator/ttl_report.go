@@ -80,7 +80,7 @@ func (r *TTLReportReconciler) reconcileReport(reportType client.Object) reconcil
 	}
 }
 
-func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespacedName types.NamespacedName, reportType client.Object, arr ...string) (ctrl.Result, error) {
+func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespacedName types.NamespacedName, reportType client.Object, _ ...string) (ctrl.Result, error) {
 	log := r.Logger.WithValues("report", namespacedName)
 
 	err := r.Client.Get(ctx, namespacedName, reportType)

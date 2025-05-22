@@ -186,7 +186,7 @@ func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
 			// Write the cluster RBAC assessment report to a file
 			reportDir := b.Config.AltReportDir
 			rbacAssessmentDir := filepath.Join(reportDir, "cluster_rbac_assessment_reports")
-			if err := os.MkdirAll(rbacAssessmentDir, os.ModePerm); err != nil {
+			if err := os.MkdirAll(rbacAssessmentDir, 0750); err != nil {
 				return fmt.Errorf("failed to make rbacAssessmentDir %s: %w", rbacAssessmentDir, err)
 			}
 

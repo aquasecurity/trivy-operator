@@ -11,14 +11,6 @@ import (
 	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
-	"github.com/aquasecurity/trivy-kubernetes/pkg/bom"
-	tk "github.com/aquasecurity/trivy-kubernetes/pkg/k8s"
-	"github.com/aquasecurity/trivy-kubernetes/pkg/trivyk8s"
-	"github.com/aquasecurity/trivy/pkg/clock"
-	"github.com/aquasecurity/trivy/pkg/flag"
-	"github.com/aquasecurity/trivy/pkg/k8s/report"
-	triv "github.com/aquasecurity/trivy/pkg/k8s/scanner"
-	ty "github.com/aquasecurity/trivy/pkg/types"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	k8sapierror "k8s.io/apimachinery/pkg/api/errors"
@@ -30,6 +22,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
+	"github.com/aquasecurity/trivy-kubernetes/pkg/bom"
+	tk "github.com/aquasecurity/trivy-kubernetes/pkg/k8s"
+	"github.com/aquasecurity/trivy-kubernetes/pkg/trivyk8s"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
@@ -37,6 +32,11 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	vc "github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
+	"github.com/aquasecurity/trivy/pkg/clock"
+	"github.com/aquasecurity/trivy/pkg/flag"
+	"github.com/aquasecurity/trivy/pkg/k8s/report"
+	triv "github.com/aquasecurity/trivy/pkg/k8s/scanner"
+	ty "github.com/aquasecurity/trivy/pkg/types"
 )
 
 const (

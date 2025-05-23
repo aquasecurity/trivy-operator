@@ -114,8 +114,11 @@ func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client
 const (
 	tmpVolumeName               = "tmp"
 	ignoreFileVolumeName        = "ignorefile"
+	configFileVolumeName        = "configfile"
 	sslCertDirVolumeName        = "ssl-cert-dir"
 	ignoreFileName              = ".trivyignore"
+	configFileName              = "trivy-config.yaml"
+	configFileMountPath         = "/etc/trivy/" + configFileName
 	ignoreFileMountPath         = "/etc/trivy/" + ignoreFileName
 	ignorePolicyVolumeName      = "ignorepolicy"
 	ignorePolicyName            = "policy.rego"

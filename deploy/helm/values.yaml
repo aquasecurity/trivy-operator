@@ -453,6 +453,15 @@ trivy:
   #   - CVE-1970-0001
   #   - CVE-1970-0002
 
+  # -- configFile can be used to tell Trivy to use specific options available only in the config file (e.g. Mirror registries).
+  configFile: ~
+  # configFile:
+  #   registry:
+  #     mirrors:
+  #       index.docker.io:
+  #       - mirror.with.bad.auth
+  #       - mirror.without.image
+
   # -- ignorePolicy can be used to tell Trivy to ignore vulnerabilities by a policy
   # If multiple policies would match, then the most specific one has precedence over the others.
   # See https://aquasecurity.github.io/trivy/latest/docs/configuration/filtering/#by-open-policy-agent for more details.

@@ -264,9 +264,9 @@ func TestGenerateComplianceReport(t *testing.T) {
 				WithStatusSubresource(tt.clusterComplianceReport).
 				Build()
 			mgr := NewMgr(c)
-			err := mgr.GenerateComplianceReport(context.Background(), tt.clusterComplianceReport.Spec)
+			err := mgr.GenerateComplianceReport(t.Context(), tt.clusterComplianceReport.Spec)
 			require.NoError(t, err)
-			ccr, err := getReport(context.Background(), c)
+			ccr, err := getReport(t.Context(), c)
 			require.NoError(t, err)
 			if tt.reportType == "summary" {
 				assert.True(t, reflect.DeepEqual(ccr.Status.SummaryReport, tt.wantStatus.SummaryReport))

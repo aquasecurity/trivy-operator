@@ -1,7 +1,6 @@
 package kube_test
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -653,7 +652,7 @@ func TestObjectResolver_RelatedReplicaSetName(t *testing.T) {
 	instance := kube.NewObjectResolver(kubClient, &kube.CompatibleObjectMapper{})
 
 	t.Run("Should return error for unsupported kind", func(t *testing.T) {
-		_, err := instance.RelatedReplicaSetName(context.Background(), kube.ObjectRef{
+		_, err := instance.RelatedReplicaSetName(t.Context(), kube.ObjectRef{
 			Kind:      kube.KindStatefulSet,
 			Name:      "statefulapp",
 			Namespace: corev1.NamespaceDefault,
@@ -662,7 +661,7 @@ func TestObjectResolver_RelatedReplicaSetName(t *testing.T) {
 	})
 
 	t.Run("Should return ReplicaSet name for the specified Deployment", func(t *testing.T) {
-		name, err := instance.RelatedReplicaSetName(context.Background(), kube.ObjectRef{
+		name, err := instance.RelatedReplicaSetName(t.Context(), kube.ObjectRef{
 			Kind:      kube.KindDeployment,
 			Name:      "nginx",
 			Namespace: corev1.NamespaceDefault,
@@ -672,7 +671,7 @@ func TestObjectResolver_RelatedReplicaSetName(t *testing.T) {
 	})
 
 	t.Run("Should return ReplicaSet name for the specified Deployment", func(t *testing.T) {
-		name, err := instance.RelatedReplicaSetName(context.Background(), kube.ObjectRef{
+		name, err := instance.RelatedReplicaSetName(t.Context(), kube.ObjectRef{
 			Kind:      kube.KindPod,
 			Name:      "nginx-549f5fcb58-7cr5b",
 			Namespace: corev1.NamespaceDefault,
@@ -877,14 +876,14 @@ func TestGetActivePodsMatchingLabels(t *testing.T) {
 	).Build()
 
 	t.Run("found active pods", func(t *testing.T) {
-		ctx := context.TODO()
+		ctx := t.Context()
 		or := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		pods, err := or.GetActivePodsMatchingLabels(ctx, nginxReplicaSet.Namespace, nginxReplicaSet.GetLabels())
 		require.NoError(t, err)
 		assert.Len(t, pods, 1)
 	})
 	t.Run("active pods not found", func(t *testing.T) {
-		ctx := context.TODO()
+		ctx := t.Context()
 		or := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		pods, err := or.GetActivePodsMatchingLabels(ctx, nginxReplicaSet.Namespace, map[string]string{
 			"app":               "nginx",
@@ -1125,7 +1124,7 @@ func TestObjectResolver_ReportOwner(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			or := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
-			owner, err := or.ReportOwner(context.TODO(), tc.resource)
+			owner, err := or.ReportOwner(t.Context(), tc.resource)
 			require.NoError(t, err)
 			assert.Equal(t, tc.owner, owner)
 		})
@@ -1306,7 +1305,7 @@ func TestObjectResolver_IsActiveReplicaSet(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			or := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 			controller := metav1.GetControllerOf(tc.resource)
-			isActive, err := or.IsActiveReplicaSet(context.TODO(), tc.resource, controller)
+			isActive, err := or.IsActiveReplicaSet(t.Context(), tc.resource, controller)
 			require.NoError(t, err)
 			assert.Equal(t, isActive, tc.result)
 		})
@@ -1341,11 +1340,13 @@ func TestObjectResolver_IsActiveReplicationController(t *testing.T) {
 					Labels: map[string]string{"deploymentconfig": "busybox"},
 				},
 				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{corev1.Container{
-						Name:    "busybox",
-						Image:   "busybox",
-						Command: []string{"/bin/sh", "-c", "while true ; do date; sleep 1; done;"},
-					}},
+					Containers: []corev1.Container{
+						{
+							Name:    "busybox",
+							Image:   "busybox",
+							Command: []string{"/bin/sh", "-c", "while true ; do date; sleep 1; done;"},
+						},
+					},
 				},
 			},
 		},
@@ -1402,11 +1403,13 @@ func TestObjectResolver_IsActiveReplicationController(t *testing.T) {
 					Labels: map[string]string{"deploymentconfig": "busybox"},
 				},
 				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{corev1.Container{
-						Name:    "busybox",
-						Image:   "busybox",
-						Command: []string{"/bin/sh", "-c", "while true ; do date; sleep 1; done;"},
-					}},
+					Containers: []corev1.Container{
+						{
+							Name:    "busybox",
+							Image:   "busybox",
+							Command: []string{"/bin/sh", "-c", "while true ; do date; sleep 1; done;"},
+						},
+					},
 				},
 			},
 		},
@@ -1455,11 +1458,13 @@ func TestObjectResolver_IsActiveReplicationController(t *testing.T) {
 					Labels: map[string]string{"deploymentconfig": "busybox"},
 				},
 				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{corev1.Container{
-						Name:    "busybox",
-						Image:   "busybox",
-						Command: []string{"/bin/sh", "-c", "while true ; do date; sleep 1; done;"},
-					}},
+					Containers: []corev1.Container{
+						{
+							Name:    "busybox",
+							Image:   "busybox",
+							Command: []string{"/bin/sh", "-c", "while true ; do date; sleep 1; done;"},
+						},
+					},
 				},
 			},
 		},
@@ -1490,11 +1495,13 @@ func TestObjectResolver_IsActiveReplicationController(t *testing.T) {
 					Labels: map[string]string{"deploymentconfig": "busybox"},
 				},
 				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{corev1.Container{
-						Name:    "busybox",
-						Image:   "busybox",
-						Command: []string{"/bin/sh", "-c", "while true ; do date; sleep 1; done;"},
-					}},
+					Containers: []corev1.Container{
+						{
+							Name:    "busybox",
+							Image:   "busybox",
+							Command: []string{"/bin/sh", "-c", "while true ; do date; sleep 1; done;"},
+						},
+					},
 				},
 			},
 		},
@@ -1530,7 +1537,7 @@ func TestObjectResolver_IsActiveReplicationController(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			or := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 			controller := metav1.GetControllerOf(tc.resource)
-			isActive, err := or.IsActiveReplicationController(context.TODO(), tc.resource, controller)
+			isActive, err := or.IsActiveReplicationController(t.Context(), tc.resource, controller)
 			require.NoError(t, err)
 			assert.Equal(t, isActive, tc.result)
 		})

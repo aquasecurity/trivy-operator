@@ -1,7 +1,6 @@
 package policy_test
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"sort"
@@ -693,7 +692,7 @@ func TestPolicies_Eval(t *testing.T) {
 			log := ctrl.Log.WithName("resourcecontroller")
 			p := policy.NewPolicies(tc.policies, newTestConfig(tc.useBuiltInPolicies), log, &TestLoader{}, "1.27.1", &cacheReportTTL)
 			g.Expect(p.Load()).ToNot(HaveOccurred())
-			checks, err := p.Eval(context.TODO(), tc.resource)
+			checks, err := p.Eval(t.Context(), tc.resource)
 			if tc.expectedError != "" {
 				g.Expect(err).To(HaveOccurred())
 				return

@@ -5,6 +5,7 @@ linters:
   default: none
   enable:
     - bodyclose
+    - contextcheck
     - depguard
     - goconst
     - gocritic
@@ -15,10 +16,12 @@ linters:
     - ineffassign
     - misspell
     - perfsprint
+    - revive
     - testifylint
     - unconvert
     - unused
     - usestdlibvars
+    - usetesting
   settings:
     depguard:
       rules:
@@ -93,6 +96,16 @@ linters:
       errorf: true
       sprintf1: false
       strconcat: false
+    revive:
+      # https://github.com/mgechev/revive/blob/HEAD/RULES_DESCRIPTIONS.md
+      rules:
+        - name: context-as-argument
+          arguments:
+            - allow-types-before: "*testing.T"
+        - name: context-keys-type
+        - name: unused-parameter
+          arguments:
+            - allow-regex: "^_"
     testifylint:
       enable-all: true
   exclusions:

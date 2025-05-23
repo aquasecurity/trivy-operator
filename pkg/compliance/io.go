@@ -32,7 +32,7 @@ type cm struct {
 
 // GenerateComplianceReport generate and public compliance report by spec
 func (w *cm) GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportSpec) error {
-	trivyResults, err := misconfigReportToTrivyResults(w.client, ctx)
+	trivyResults, err := misconfigReportToTrivyResults(ctx, w.client)
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func (w *cm) buildComplianceReport(spec v1alpha1.ReportSpec, complianceResults [
 }
 
 // MisconfigReportToTrivyResults convert misconfig and infra assessment report Data to trivy results
-func misconfigReportToTrivyResults(cli client.Client, ctx context.Context) ([]ttypes.Results, error) {
+func misconfigReportToTrivyResults(ctx context.Context, cli client.Client) ([]ttypes.Results, error) {
 	resultsArray := make([]ttypes.Results, 0)
 	// collect configaudit report data
 	caObjList := &v1alpha1.ConfigAuditReportList{}

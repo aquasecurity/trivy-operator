@@ -54,7 +54,7 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 			})
 
 			It("Should create VulnerabilityReport", func() {
-				Eventually(inputs.HasVulnerabilityReportOwnedBy(pod), inputs.AssertTimeout).Should(BeTrue())
+				Eventually(inputs.HasVulnerabilityReportOwnedBy(ctx, pod), inputs.AssertTimeout).Should(BeTrue())
 			})
 
 			AfterEach(func() {
@@ -79,15 +79,15 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 
 				err := inputs.Create(ctx, deploy)
 				Expect(err).ToNot(HaveOccurred())
-				Eventually(inputs.HasActiveReplicaSet(inputs.PrimaryNamespace, deploy.Name), inputs.AssertTimeout).Should(BeTrue())
+				Eventually(inputs.HasActiveReplicaSet(ctx, inputs.PrimaryNamespace, deploy.Name), inputs.AssertTimeout).Should(BeTrue())
 			})
 
 			It("Should create VulnerabilityReport", func() {
-				rs, err := inputs.GetActiveReplicaSetForDeployment(inputs.PrimaryNamespace, deploy.Name)
+				rs, err := inputs.GetActiveReplicaSetForDeployment(ctx, inputs.PrimaryNamespace, deploy.Name)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(rs).ToNot(BeNil())
 
-				Eventually(inputs.HasVulnerabilityReportOwnedBy(rs), inputs.AssertTimeout).Should(BeTrue())
+				Eventually(inputs.HasVulnerabilityReportOwnedBy(ctx, rs), inputs.AssertTimeout).Should(BeTrue())
 			})
 
 			AfterEach(func() {
@@ -112,31 +112,31 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 
 				err := inputs.Create(ctx, deploy)
 				Expect(err).ToNot(HaveOccurred())
-				Eventually(inputs.HasActiveReplicaSet(inputs.PrimaryNamespace, deploy.Name), inputs.AssertTimeout).Should(BeTrue())
+				Eventually(inputs.HasActiveReplicaSet(ctx, inputs.PrimaryNamespace, deploy.Name), inputs.AssertTimeout).Should(BeTrue())
 			})
 
 			It("Should create VulnerabilityReport for new ReplicaSet", func() {
 				By("Getting current active ReplicaSet")
-				rs, err := inputs.GetActiveReplicaSetForDeployment(inputs.PrimaryNamespace, deploy.Name)
+				rs, err := inputs.GetActiveReplicaSetForDeployment(ctx, inputs.PrimaryNamespace, deploy.Name)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(rs).ToNot(BeNil())
 
 				By("Waiting for VulnerabilityReport")
-				Eventually(inputs.HasVulnerabilityReportOwnedBy(rs), inputs.AssertTimeout).Should(BeTrue())
+				Eventually(inputs.HasVulnerabilityReportOwnedBy(ctx, rs), inputs.AssertTimeout).Should(BeTrue())
 
 				By("Updating deployment image to wordpress:6.7")
-				err = inputs.UpdateDeploymentImage(inputs.PrimaryNamespace, deploy.Name)
+				err = inputs.UpdateDeploymentImage(ctx, inputs.PrimaryNamespace, deploy.Name)
 				Expect(err).ToNot(HaveOccurred())
 
-				Eventually(inputs.HasActiveReplicaSet(inputs.PrimaryNamespace, deploy.Name), inputs.AssertTimeout).Should(BeTrue())
+				Eventually(inputs.HasActiveReplicaSet(ctx, inputs.PrimaryNamespace, deploy.Name), inputs.AssertTimeout).Should(BeTrue())
 
 				By("Getting new active replicaset")
-				rs, err = inputs.GetActiveReplicaSetForDeployment(inputs.PrimaryNamespace, deploy.Name)
+				rs, err = inputs.GetActiveReplicaSetForDeployment(ctx, inputs.PrimaryNamespace, deploy.Name)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(rs).ToNot(BeNil())
 
 				By("Waiting for new VulnerabilityReport")
-				Eventually(inputs.HasVulnerabilityReportOwnedBy(rs), inputs.AssertTimeout).Should(BeTrue())
+				Eventually(inputs.HasVulnerabilityReportOwnedBy(ctx, rs), inputs.AssertTimeout).Should(BeTrue())
 			})
 
 			AfterEach(func() {
@@ -186,7 +186,7 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 			})
 
 			It("Should create VulnerabilityReport", func() {
-				Eventually(inputs.HasVulnerabilityReportOwnedBy(cronJob), inputs.AssertTimeout).Should(BeTrue())
+				Eventually(inputs.HasVulnerabilityReportOwnedBy(ctx, cronJob), inputs.AssertTimeout).Should(BeTrue())
 			})
 
 			AfterEach(func() {
@@ -230,7 +230,7 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 			})
 
 			It("Should create ConfigAuditReport", func() {
-				Eventually(inputs.HasConfigAuditReportOwnedBy(pod), inputs.AssertTimeout).Should(BeTrue())
+				Eventually(inputs.HasConfigAuditReportOwnedBy(ctx, pod), inputs.AssertTimeout).Should(BeTrue())
 			})
 
 			AfterEach(func() {
@@ -255,15 +255,15 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 
 				err := inputs.Create(ctx, deploy)
 				Expect(err).ToNot(HaveOccurred())
-				Eventually(inputs.HasActiveReplicaSet(inputs.PrimaryNamespace, deploy.Name), inputs.AssertTimeout).Should(BeTrue())
+				Eventually(inputs.HasActiveReplicaSet(ctx, inputs.PrimaryNamespace, deploy.Name), inputs.AssertTimeout).Should(BeTrue())
 			})
 
 			It("Should create ConfigAuditReport", func() {
-				rs, err := inputs.GetActiveReplicaSetForDeployment(inputs.PrimaryNamespace, deploy.Name)
+				rs, err := inputs.GetActiveReplicaSetForDeployment(ctx, inputs.PrimaryNamespace, deploy.Name)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(rs).ToNot(BeNil())
 
-				Eventually(inputs.HasConfigAuditReportOwnedBy(rs), inputs.AssertTimeout).Should(BeTrue())
+				Eventually(inputs.HasConfigAuditReportOwnedBy(ctx, rs), inputs.AssertTimeout).Should(BeTrue())
 			})
 
 			AfterEach(func() {
@@ -288,31 +288,31 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 
 				err := inputs.Create(ctx, deploy)
 				Expect(err).ToNot(HaveOccurred())
-				Eventually(inputs.HasActiveReplicaSet(inputs.PrimaryNamespace, deploy.Name), inputs.AssertTimeout).Should(BeTrue())
+				Eventually(inputs.HasActiveReplicaSet(ctx, inputs.PrimaryNamespace, deploy.Name), inputs.AssertTimeout).Should(BeTrue())
 			})
 
 			It("Should create ConfigAuditReport for new ReplicaSet", func() {
 				By("Getting current active ReplicaSet")
-				rs, err := inputs.GetActiveReplicaSetForDeployment(inputs.PrimaryNamespace, deploy.Name)
+				rs, err := inputs.GetActiveReplicaSetForDeployment(ctx, inputs.PrimaryNamespace, deploy.Name)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(rs).ToNot(BeNil())
 
 				By("Waiting for ConfigAuditReport")
-				Eventually(inputs.HasConfigAuditReportOwnedBy(rs), inputs.AssertTimeout).Should(BeTrue())
+				Eventually(inputs.HasConfigAuditReportOwnedBy(ctx, rs), inputs.AssertTimeout).Should(BeTrue())
 
 				By("Updating deployment image to wordpress:6.7")
-				err = inputs.UpdateDeploymentImage(inputs.PrimaryNamespace, deploy.Name)
+				err = inputs.UpdateDeploymentImage(ctx, inputs.PrimaryNamespace, deploy.Name)
 				Expect(err).ToNot(HaveOccurred())
 
-				Eventually(inputs.HasActiveReplicaSet(inputs.PrimaryNamespace, deploy.Name), inputs.AssertTimeout).Should(BeTrue())
+				Eventually(inputs.HasActiveReplicaSet(ctx, inputs.PrimaryNamespace, deploy.Name), inputs.AssertTimeout).Should(BeTrue())
 
 				By("Getting new active replicaset")
-				rs, err = inputs.GetActiveReplicaSetForDeployment(inputs.PrimaryNamespace, deploy.Name)
+				rs, err = inputs.GetActiveReplicaSetForDeployment(ctx, inputs.PrimaryNamespace, deploy.Name)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(rs).ToNot(BeNil())
 
 				By("Waiting for new Config Audit Report")
-				Eventually(inputs.HasConfigAuditReportOwnedBy(rs), inputs.AssertTimeout).Should(BeTrue())
+				Eventually(inputs.HasConfigAuditReportOwnedBy(ctx, rs), inputs.AssertTimeout).Should(BeTrue())
 			})
 
 			AfterEach(func() {
@@ -362,7 +362,7 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 			})
 
 			It("Should create ConfigAuditReport", func() {
-				Eventually(inputs.HasConfigAuditReportOwnedBy(cronJob), inputs.AssertTimeout).Should(BeTrue())
+				Eventually(inputs.HasConfigAuditReportOwnedBy(ctx, cronJob), inputs.AssertTimeout).Should(BeTrue())
 			})
 
 			AfterEach(func() {
@@ -387,23 +387,23 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 
 				err := inputs.Create(ctx, deploy)
 				Expect(err).ToNot(HaveOccurred())
-				Eventually(inputs.HasActiveReplicaSet(inputs.PrimaryNamespace, deploy.Name), inputs.AssertTimeout).Should(BeTrue())
+				Eventually(inputs.HasActiveReplicaSet(ctx, inputs.PrimaryNamespace, deploy.Name), inputs.AssertTimeout).Should(BeTrue())
 			})
 
 			It("Should rescan Deployment when ConfigAuditReport is deleted", func() {
 				By("Getting active ReplicaSet")
-				rs, err := inputs.GetActiveReplicaSetForDeployment(inputs.PrimaryNamespace, deploy.Name)
+				rs, err := inputs.GetActiveReplicaSetForDeployment(ctx, inputs.PrimaryNamespace, deploy.Name)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(rs).ToNot(BeNil())
 
 				By("Waiting for ConfigAuditReport")
-				Eventually(inputs.HasConfigAuditReportOwnedBy(rs), inputs.AssertTimeout).Should(BeTrue())
+				Eventually(inputs.HasConfigAuditReportOwnedBy(ctx, rs), inputs.AssertTimeout).Should(BeTrue())
 				By("Deleting ConfigAuditReport")
-				err = inputs.DeleteConfigAuditReportOwnedBy(rs)
+				err = inputs.DeleteConfigAuditReportOwnedBy(ctx, rs)
 				Expect(err).ToNot(HaveOccurred())
 
 				By("Waiting for new ConfigAuditReport")
-				Eventually(inputs.HasConfigAuditReportOwnedBy(rs), inputs.AssertTimeout).Should(BeTrue())
+				Eventually(inputs.HasConfigAuditReportOwnedBy(ctx, rs), inputs.AssertTimeout).Should(BeTrue())
 			})
 
 			AfterEach(func() {

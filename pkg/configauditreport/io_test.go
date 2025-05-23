@@ -1,7 +1,6 @@
 package configauditreport_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -26,7 +25,7 @@ func TestReadWriter(t *testing.T) {
 		testClient := fake.NewClientBuilder().WithScheme(kubernetesScheme).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := configauditreport.NewReadWriter(&resolver)
-		err := readWriter.WriteReport(context.TODO(), v1alpha1.ConfigAuditReport{
+		err := readWriter.WriteReport(t.Context(), v1alpha1.ConfigAuditReport{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "ConfigAuditReport",
 				APIVersion: "aquasecurity.github.io/v1alpha1",
@@ -50,7 +49,7 @@ func TestReadWriter(t *testing.T) {
 		require.NoError(t, err)
 
 		var found v1alpha1.ConfigAuditReport
-		err = testClient.Get(context.TODO(), types.NamespacedName{Namespace: "qa", Name: "deployment-app"}, &found)
+		err = testClient.Get(t.Context(), types.NamespacedName{Namespace: "qa", Name: "deployment-app"}, &found)
 		require.NoError(t, err)
 
 		assert.Equal(t, v1alpha1.ConfigAuditReport{
@@ -103,7 +102,7 @@ func TestReadWriter(t *testing.T) {
 		}).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := configauditreport.NewReadWriter(&resolver)
-		err := readWriter.WriteReport(context.TODO(), v1alpha1.ConfigAuditReport{
+		err := readWriter.WriteReport(t.Context(), v1alpha1.ConfigAuditReport{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "ConfigAuditReport",
 				APIVersion: "aquasecurity.github.io/v1alpha1",
@@ -128,7 +127,7 @@ func TestReadWriter(t *testing.T) {
 		require.NoError(t, err)
 
 		var found v1alpha1.ConfigAuditReport
-		err = testClient.Get(context.TODO(), types.NamespacedName{Namespace: "qa", Name: "deployment-app"}, &found)
+		err = testClient.Get(t.Context(), types.NamespacedName{Namespace: "qa", Name: "deployment-app"}, &found)
 		require.NoError(t, err)
 
 		assert.Equal(t, v1alpha1.ConfigAuditReport{
@@ -184,7 +183,7 @@ func TestReadWriter(t *testing.T) {
 			}).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := configauditreport.NewReadWriter(&resolver)
-		found, err := readWriter.FindReportByOwner(context.TODO(), kube.ObjectRef{
+		found, err := readWriter.FindReportByOwner(t.Context(), kube.ObjectRef{
 			Kind:      kube.KindDeployment,
 			Name:      "my-deploy",
 			Namespace: "my-namespace",
@@ -240,7 +239,7 @@ func TestReadWriter(t *testing.T) {
 			}).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := configauditreport.NewReadWriter(&resolver)
-		found, err := readWriter.FindReportByOwner(context.TODO(), kube.ObjectRef{
+		found, err := readWriter.FindReportByOwner(t.Context(), kube.ObjectRef{
 			Kind:      kube.KindRole,
 			Name:      "system:controller:token-cleaner",
 			Namespace: "kube-system",
@@ -268,7 +267,7 @@ func TestReadWriter(t *testing.T) {
 		testClient := fake.NewClientBuilder().WithScheme(kubernetesScheme).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := configauditreport.NewReadWriter(&resolver)
-		err := readWriter.WriteClusterReport(context.TODO(), v1alpha1.ClusterConfigAuditReport{
+		err := readWriter.WriteClusterReport(t.Context(), v1alpha1.ClusterConfigAuditReport{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "ClusterConfigAuditReport",
 				APIVersion: "aquasecurity.github.io/v1alpha1",
@@ -290,7 +289,7 @@ func TestReadWriter(t *testing.T) {
 		require.NoError(t, err)
 
 		var found v1alpha1.ClusterConfigAuditReport
-		err = testClient.Get(context.TODO(), types.NamespacedName{Name: "clusterrole-admin"}, &found)
+		err = testClient.Get(t.Context(), types.NamespacedName{Name: "clusterrole-admin"}, &found)
 		require.NoError(t, err)
 
 		assert.Equal(t, v1alpha1.ClusterConfigAuditReport{
@@ -342,7 +341,7 @@ func TestReadWriter(t *testing.T) {
 			Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := configauditreport.NewReadWriter(&resolver)
-		err := readWriter.WriteClusterReport(context.TODO(), v1alpha1.ClusterConfigAuditReport{
+		err := readWriter.WriteClusterReport(t.Context(), v1alpha1.ClusterConfigAuditReport{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "ClusterConfigAuditReport",
 				APIVersion: "aquasecurity.github.io/v1alpha1",
@@ -365,7 +364,7 @@ func TestReadWriter(t *testing.T) {
 		require.NoError(t, err)
 
 		var found v1alpha1.ClusterConfigAuditReport
-		err = testClient.Get(context.TODO(), types.NamespacedName{Name: "clusterrole-admin"}, &found)
+		err = testClient.Get(t.Context(), types.NamespacedName{Name: "clusterrole-admin"}, &found)
 		require.NoError(t, err)
 
 		assert.Equal(t, v1alpha1.ClusterConfigAuditReport{
@@ -422,7 +421,7 @@ func TestReadWriter(t *testing.T) {
 			Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := configauditreport.NewReadWriter(&resolver)
-		found, err := readWriter.FindClusterReportByOwner(context.TODO(), kube.ObjectRef{
+		found, err := readWriter.FindClusterReportByOwner(t.Context(), kube.ObjectRef{
 			Kind: "ClusterRole",
 			Name: "editor",
 		})

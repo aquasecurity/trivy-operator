@@ -360,12 +360,12 @@ func (Lint) Fix() error {
 
 // GolangciLint installs golangci-lint
 func (t Tool) GolangciLint() error {
-	const version = "v2.1.2"
+	const version = "v2.1.6"
 	bin := filepath.Join(GOBIN, "golangci-lint")
 	if exists(bin) && t.matchGolangciLintVersion(bin, version) {
 		return nil
 	}
-	command := fmt.Sprintf("curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b %s %s", GOBIN, version)
+	command := fmt.Sprintf("curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b %s %s", GOBIN, version)
 	return sh.Run("bash", "-c", command)
 }
 

@@ -137,7 +137,7 @@ func (p *Policies) getCachedHash(kind string) (string, error) {
 	value, err := p.cache.Get(kind)
 	if err != nil {
 		if !errors.Is(err, gcache.KeyNotFoundError) {
-			return "", fmt.Errorf("failed to get hash from cache: %v", err)
+			return "", fmt.Errorf("failed to get hash from cache: %w", err)
 		}
 		return "", nil
 	}
@@ -156,7 +156,7 @@ func (p *Policies) setCachedHash(kind, hash string) error {
 func (p *Policies) Hash(kind string) (string, error) {
 	hash, err := p.getCachedHash(kind)
 	if err != nil {
-		return "", fmt.Errorf("failed to get cached hash for kind %s: %v", kind, err)
+		return "", fmt.Errorf("failed to get cached hash for kind %s: %w", kind, err)
 	}
 	if hash != "" {
 		return hash, nil
@@ -171,7 +171,7 @@ func (p *Policies) Hash(kind string) (string, error) {
 
 	hash = kube.ComputeHash(policies)
 	if err := p.setCachedHash(kind, hash); err != nil {
-		return "", fmt.Errorf("failed to set cached hash for kind %s: %v", kind, err)
+		return "", fmt.Errorf("failed to set cached hash for kind %s: %w", kind, err)
 	}
 	return hash, nil
 }

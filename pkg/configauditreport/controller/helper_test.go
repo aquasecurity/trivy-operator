@@ -30,7 +30,7 @@ type demoResult struct {
 func (r demoResult) GetMetadata() types.Metadata {
 	return r.md
 }
-func (_ demoResult) GetRawValue() any {
+func (demoResult) GetRawValue() any {
 	return nil
 }
 

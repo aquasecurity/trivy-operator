@@ -40,21 +40,21 @@ linters:
     gocritic:
       disabled-checks:
         - appendAssign
-        - unnamedResult
-        - whyNoLint
+        - commentedOutCode
+        - hugeParam
         - indexAlloc
         - octalLiteral
-        - hugeParam
         - rangeValCopy
         - regexpSimplify
         - sloppyReassign
-        - commentedOutCode
+        - unnamedResult
+        - whyNoLint
       enabled-tags:
         - diagnostic
-        - style
-        - performance
         - experimental
         - opinionated
+        - performance
+        - style
       settings:
         ruleguard:
           failOn: all
@@ -96,40 +96,13 @@ linters:
     testifylint:
       enable-all: true
   exclusions:
-    generated: lax
     rules:
       - linters:
           - goconst
-          - gosec
-          - unused
         path: .*_test.go$
-      - linters:
-          - govet
-        path: .*_test.go$
-        text: 'copylocks:'
-      - linters:
-          - gocritic
-        path: .*_test.go$
-        text: 'commentFormatting:'
-      - linters:
-          - gocritic
-        path: .*_test.go$
-        text: 'exitAfterDefer:'
-      - linters:
-          - gocritic
-        path: .*_test.go$
-        text: 'importShadow:'
-      - linters:
-          - perfsprint
-        text: fmt.Sprint
-    paths:
-      - mock_*.go$
-      - examples/*
-      - pkg/iac/scanners/terraform/parser/funcs
-      - third_party$
-      - builtin$
-      - examples$
+    warn-unused: true
 issues:
+  max-issues-per-linter: 0
   max-same-issues: 0
 formatters:
   enable:
@@ -148,12 +121,3 @@ formatters:
       rewrite-rules:
         - pattern: interface{}
           replacement: any
-  exclusions:
-    generated: lax
-    paths:
-      - mock_*.go$
-      - examples/*
-      - pkg/iac/scanners/terraform/parser/funcs
-      - third_party$
-      - builtin$
-      - examples$

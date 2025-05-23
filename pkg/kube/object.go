@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
 	ocpappsv1 "github.com/openshift/api/apps/v1"
@@ -672,7 +673,7 @@ func (o *ObjectResolver) IsActiveReplicationController(ctx context.Context, work
 			return false, err
 		}
 		replicasetRevisionAnnotation := workloadObj.GetAnnotations()
-		latestRevision := fmt.Sprintf("%d", deploymentConfigObj.Status.LatestVersion)
+		latestRevision := strconv.FormatInt(deploymentConfigObj.Status.LatestVersion, 10)
 		return replicasetRevisionAnnotation[deploymentConfigAnnotation] == latestRevision, nil
 	}
 	return true, nil

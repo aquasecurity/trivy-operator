@@ -453,7 +453,7 @@ trivy:
   #   - CVE-1970-0001
   #   - CVE-1970-0002
 
-  # -- configFile can be used to tell Trivy to use specific options available only in the config file (ex. Mirror registries).
+  # -- configFile can be used to tell Trivy to use specific options available only in the config file (e.g. Mirror registries).
   configFile: ~
   # configFile:
   #   registry:

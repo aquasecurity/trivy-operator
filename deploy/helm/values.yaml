@@ -252,6 +252,8 @@ trivyOperator:
   configAuditReportsPlugin: "Trivy"
   # -- scanJobCompressLogs control whether scanjob output should be compressed or plain
   scanJobCompressLogs: true
+  # -- scanJobsInSameNamespace control whether to run vulnerability scan jobs in same namespace of workload.
+  scanJobsInSameNamespace: false
   # -- scanJobAffinity affinity to be applied to the scanner pods and node-collector
   scanJobAffinity: {}
   # -- scanJobTolerations tolerations to be applied to the scanner pods so that they can run on nodes with matching taints

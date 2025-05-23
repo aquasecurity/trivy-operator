@@ -328,7 +328,7 @@ func (c Config) GetVulnType() string {
 		return ""
 	}
 	trimmedVulnType := strings.TrimSpace(val)
-	if !(trimmedVulnType == "os" || trimmedVulnType == "library") {
+	if trimmedVulnType != "os" && trimmedVulnType != "library" {
 		return ""
 	}
 	return trimmedVulnType

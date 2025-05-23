@@ -62,7 +62,7 @@ spec:
               value: "true"
             - name: OPERATOR_ALTERNATE_REPORT_STORAGE_DIR
               value: {{ .Values.alternateReportStorage.mountPath | quote }}
-          {{- end }}  
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: trivy-operator-config

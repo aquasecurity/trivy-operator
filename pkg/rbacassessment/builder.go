@@ -2,10 +2,14 @@ package rbacassessment
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -16,10 +20,13 @@ import (
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 type ReportBuilder struct {
+	etc.Config
+	logr.Logger
 	scheme                  *runtime.Scheme
 	controller              client.Object
 	resourceSpecHash        string
@@ -173,12 +180,43 @@ func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
 		if err != nil {
 			return err
 		}
-		return writer.WriteClusterReport(ctx, report)
+		if b.Config.AltReportStorageEnabled && b.Config.AltReportDir != "" {
+			log := b.Logger.WithValues("job", b.controller.GetNamespace())
+			log.V(1).Info("Writing cluster RBAC assessment report to alternate storage", "dir", b.Config.AltReportDir)
+			// Write the cluster RBAC assessment report to a file
+			reportDir := b.Config.AltReportDir
+			rbacAssessmentDir := filepath.Join(reportDir, "cluster_rbac_assessment_reports")
+			if err := os.MkdirAll(rbacAssessmentDir, 0750); err != nil {
+				return fmt.Errorf("failed to make rbacAssessmentDir %s: %w", rbacAssessmentDir, err)
+			}
+
+			reportData, err := json.Marshal(report)
+			if err != nil {
+				return fmt.Errorf("failed to marshal cluster RBAC assessment report: %w", err)
+			}
+
+			// Extract workload kind and name from report labels
+			workloadKind := report.Labels["trivy-operator.resource.kind"]
+			workloadName := report.Labels["trivy-operator.resource.name"]
+
+			reportPath := filepath.Join(rbacAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
+			err = os.WriteFile(reportPath, reportData, 0600)
+			if err != nil {
+				return fmt.Errorf("failed to write cluster RBAC assessment report: %w", err)
+			}
+			return nil
+		} else {
+			return writer.WriteClusterReport(ctx, report)
+		}
 	}
 	report, err := b.GetReport()
 	if err != nil {
 		return err
 	}
-	return writer.WriteReport(ctx, report)
+	if b.Config.AltReportStorageEnabled && b.Config.AltReportDir != "" {
+		return nil
+	} else {
+		return writer.WriteReport(ctx, report)
+	}
 
 }

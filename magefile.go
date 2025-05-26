@@ -50,7 +50,7 @@ var (
 
 	IMAGE_TAG                 = "dev"
 	TRIVY_OPERATOR_IMAGE      = "aquasecurity/trivy-operator:" + IMAGE_TAG
-	TRIVY_OPERATOR_IMAGE_UBI8 = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-ubi8"
+	TRIVY_OPERATOR_IMAGE_UBI9 = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-ubi9"
 
 	MKDOCS_IMAGE = "aquasec/mkdocs-material:trivy-operator"
 	MKDOCS_PORT  = 8000
@@ -189,7 +189,7 @@ func (t Tool) Clean() {
 func (b Build) DockerAll() {
 	fmt.Println("Building Docker images for all binaries...")
 	b.Docker()
-	b.DockerUbi8()
+	b.DockerUbi9()
 }
 
 // Target for building Docker image for trivy-operator
@@ -198,17 +198,17 @@ func (b Build) Docker() error {
 	return sh.RunV("docker", "build", "--no-cache", "-t", TRIVY_OPERATOR_IMAGE, "-f", "build/trivy-operator/Dockerfile", "bin")
 }
 
-// Target for building Docker image for trivy-operator ubi8
-func (b Build) DockerUbi8() error {
-	fmt.Println("Building Docker image for trivy-operator ubi8...")
-	return sh.RunV("docker", "build", "--no-cache", "-f", "build/trivy-operator/Dockerfile.ubi8", "-t", TRIVY_OPERATOR_IMAGE_UBI8, "bin")
+// Target for building Docker image for trivy-operator ubi9
+func (b Build) DockerUbi9() error {
+	fmt.Println("Building Docker image for trivy-operator ubi9...")
+	return sh.RunV("docker", "build", "--no-cache", "-f", "build/trivy-operator/Dockerfile.ubi9", "-t", TRIVY_OPERATOR_IMAGE_UBI9, "bin")
 }
 
 // Target for loading Docker images into the KIND cluster
 func (b Build) KindLoadImages() error {
 	fmt.Println("Loading Docker images into the KIND cluster...")
-	mg.Deps(b.Docker, b.DockerUbi8)
-	return sh.RunV(KIND, "load", "docker-image", TRIVY_OPERATOR_IMAGE, TRIVY_OPERATOR_IMAGE_UBI8)
+	mg.Deps(b.Docker, b.DockerUbi9)
+	return sh.RunV(KIND, "load", "docker-image", TRIVY_OPERATOR_IMAGE, TRIVY_OPERATOR_IMAGE_UBI9)
 }
 
 type Docs mg.Namespace

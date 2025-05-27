@@ -187,7 +187,7 @@ func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
 			reportDir := b.Config.AltReportDir
 			infraAssessmentDir := filepath.Join(reportDir, "cluster_infra_assessment_reports")
 			if err := os.MkdirAll(infraAssessmentDir, 0750); err != nil {
-				return fmt.Errorf("Failed to make infraAssessmentDir %s: %w", infraAssessmentDir, err)
+				return fmt.Errorf("failed to make infraAssessmentDir %s: %w", infraAssessmentDir, err)
 			}
 
 			reportData, err := json.Marshal(report)

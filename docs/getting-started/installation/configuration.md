@@ -43,6 +43,7 @@ You can configure Trivy-Operator to control it's behavior and adapt it to your n
 | `OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT`              | `false`                | The flag to enable merging rbac finding with config-audit report                                                                                                                                                                              |
 | `OPERATOR_SBOM_GENERATION_ENABLED`                           | `true`                 | The flag to enable sbom generation
 |`OPERATOR_ALTERNATE_REPORT_STORAGE_ENABLED`|`false`|Control where reports are written. By default this is false, so reports will be written normally as CRDs in ETCD memory. However, if you would rather reports be written to a persistent volume, flip this to true. If done a persistent volume claim will be inluded in your installation and all reports will be written there. See settings for more granularity.|
+|`OPERATOR_ALTERNATE_REPORT_STORAGE_DIR`|`/var/reports`|Specifies the directory path for storing reports when `OPERATOR_ALTERNATE_REPORT_STORAGE_ENABLED` is set to `true`. Ensure that the specified directory is writable and has sufficient storage capacity.|
 
 The values of the `OPERATOR_NAMESPACE` and `OPERATOR_TARGET_NAMESPACES` determine the install mode, which in turn determines the multitenancy support of the operator.
 

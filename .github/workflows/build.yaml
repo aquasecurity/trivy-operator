@@ -151,6 +151,11 @@ jobs:
           OPERATOR_NAMESPACE: trivy-system
           OPERATOR_TARGET_NAMESPACES: default
 
+      - name: The job has failed - print the logs
+        if: ${{ failure() }}
+        run: >
+          kubectl logs -n trivy-system deployment/trivy-operator
+
       - name: Upload code coverage
         uses: codecov/codecov-action@v5
         with:

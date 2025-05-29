@@ -115,7 +115,7 @@ jobs:
     needs:
       - operator-envtest
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

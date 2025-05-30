@@ -1,7 +1,6 @@
 package kube_test
 
 import (
-	"context"
 	"encoding/json"
 	"os"
 	"testing"
@@ -126,7 +125,7 @@ func TestMapDockerRegistryServersToAuths(t *testing.T) {
 		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(&saSecret).WithObjects(&secret).WithObjects(&sa).Build()
 		sr := kube.NewSecretsReader(client)
 		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
-		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
+		foundsecret, err := sr.ListImagePullSecretsByPodSpec(t.Context(), spec, "default")
 		require.NoError(t, err)
 		assert.Len(t, foundsecret, 2)
 		auths, err := kube.MapDockerRegistryServersToAuths(foundsecret, false)
@@ -159,7 +158,7 @@ func TestMapDockerRegistryServersToAuths(t *testing.T) {
 		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(&saSecret).WithObjects(&secret).WithObjects(&sa).Build()
 		sr := kube.NewSecretsReader(client)
 		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
-		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
+		foundsecret, err := sr.ListImagePullSecretsByPodSpec(t.Context(), spec, "default")
 		require.NoError(t, err)
 		assert.Len(t, foundsecret, 2)
 		auths, err := kube.MapDockerRegistryServersToAuths(foundsecret, true)
@@ -273,7 +272,7 @@ func TestListImagePullSecretsByPodSpec(t *testing.T) {
 		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).Build()
 		spec := corev1.PodSpec{}
 		sr := kube.NewSecretsReader(client)
-		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
+		foundsecret, err := sr.ListImagePullSecretsByPodSpec(t.Context(), spec, "default")
 		require.NoError(t, err)
 		assert.Empty(t, foundsecret)
 	})
@@ -288,7 +287,7 @@ func TestListImagePullSecretsByPodSpec(t *testing.T) {
 		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(&secret).WithObjects(&sa).Build()
 		sr := kube.NewSecretsReader(client)
 		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
-		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
+		foundsecret, err := sr.ListImagePullSecretsByPodSpec(t.Context(), spec, "default")
 		require.NoError(t, err)
 		assert.Len(t, foundsecret, 1)
 	})
@@ -303,7 +302,7 @@ func TestListImagePullSecretsByPodSpec(t *testing.T) {
 		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(&secret).WithObjects(&sa).Build()
 		sr := kube.NewSecretsReader(client)
 		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
-		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
+		foundsecret, err := sr.ListImagePullSecretsByPodSpec(t.Context(), spec, "default")
 		require.NoError(t, err)
 		assert.Len(t, foundsecret, 1)
 	})
@@ -321,7 +320,7 @@ func TestListImagePullSecretsByPodSpec(t *testing.T) {
 		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(&saSecret).WithObjects(&secret).WithObjects(&sa).Build()
 		sr := kube.NewSecretsReader(client)
 		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
-		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
+		foundsecret, err := sr.ListImagePullSecretsByPodSpec(t.Context(), spec, "default")
 		require.NoError(t, err)
 		assert.Len(t, foundsecret, 2)
 	})
@@ -330,7 +329,7 @@ func TestListImagePullSecretsByPodSpec(t *testing.T) {
 		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).Build()
 		sr := kube.NewSecretsReader(client)
 		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
-		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
+		foundsecret, err := sr.ListImagePullSecretsByPodSpec(t.Context(), spec, "default")
 		require.NoError(t, err)
 		assert.Empty(t, foundsecret)
 	})
@@ -342,7 +341,7 @@ func TestListImagePullSecretsByPodSpec(t *testing.T) {
 		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(&sa).Build()
 		sr := kube.NewSecretsReader(client)
 		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "regcred"}, {Name: "notexist"}}, ServiceAccountName: "default"}
-		foundsecret, err := sr.ListImagePullSecretsByPodSpec(context.Background(), spec, "default")
+		foundsecret, err := sr.ListImagePullSecretsByPodSpec(t.Context(), spec, "default")
 		require.NoError(t, err)
 		assert.Empty(t, foundsecret)
 	})
@@ -375,7 +374,7 @@ func Test_secretsReader_CredentialsByServer(t *testing.T) {
 			},
 		}
 
-		auths, err := sr.CredentialsByServer(context.Background(), &pod, map[string]string{}, false, false)
+		auths, err := sr.CredentialsByServer(t.Context(), &pod, map[string]string{}, false, false)
 		require.NoError(t, err)
 		assert.Equal(t, 0, len(auths))
 	})
@@ -408,7 +407,7 @@ func Test_secretsReader_CredentialsByServer(t *testing.T) {
 			},
 		}
 
-		auths, err := sr.CredentialsByServer(context.Background(), &pod, map[string]string{
+		auths, err := sr.CredentialsByServer(t.Context(), &pod, map[string]string{
 			"default": "regcred",
 		}, false, false)
 		require.NoError(t, err)

@@ -154,7 +154,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	}
 
 	configManager := trivyoperator.NewConfigManager(clientSet, operatorNamespace)
-	err = configManager.EnsureDefault(context.Background())
+	err = configManager.EnsureDefault(ctx)
 	if err != nil {
 		return err
 	}
@@ -162,7 +162,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	if err != nil {
 		return err
 	}
-	trivyOperatorConfig, err := configManager.Read(context.Background())
+	trivyOperatorConfig, err := configManager.Read(ctx)
 	if err != nil {
 		return err
 	}

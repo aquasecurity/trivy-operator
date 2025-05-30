@@ -1,7 +1,6 @@
 package trivy
 
 import (
-	"context"
 	"testing"
 	"time"
 
@@ -761,7 +760,7 @@ func TestPlugin_Init(t *testing.T) {
 		err := p.Init(pluginContext)
 		require.NoError(t, err)
 		var cm corev1.ConfigMap
-		err = testClient.Get(context.Background(), types.NamespacedName{
+		err = testClient.Get(t.Context(), types.NamespacedName{
 			Namespace: "trivyoperator-ns",
 			Name:      "trivy-operator-trivy-config",
 		}, &cm)
@@ -826,7 +825,7 @@ func TestPlugin_Init(t *testing.T) {
 		err := p.Init(pluginContext)
 		require.NoError(t, err)
 		var cm corev1.ConfigMap
-		err = testClient.Get(context.Background(), types.NamespacedName{
+		err = testClient.Get(t.Context(), types.NamespacedName{
 			Namespace: "trivyoperator-ns",
 			Name:      "trivy-operator-trivy-config",
 		}, &cm)

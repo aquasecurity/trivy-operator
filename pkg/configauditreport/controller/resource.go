@@ -289,13 +289,13 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		} else {
 			// Write reports to alternate storage if enabled
 			log.V(1).Info("Writing config, infra and rbac reports to alternate storage", "dir", r.Config.AltReportDir)
-			return r.writeAlternateReports(ctx, resource, misConfigData, log)
+			return r.writeAlternateReports(resource, misConfigData, log)
 		}
 		return ctrl.Result{}, nil
 	}
 }
 
-func (r *ResourceController) writeAlternateReports(ctx context.Context, resource client.Object, misConfigData Misconfiguration, log logr.Logger) (ctrl.Result, error) {
+func (r *ResourceController) writeAlternateReports(resource client.Object, misConfigData Misconfiguration, log logr.Logger) (ctrl.Result, error) {
 	// Write reports to alternate storage if enabled
 	if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
 		// Get the report directory from the environment variable

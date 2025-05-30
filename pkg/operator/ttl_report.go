@@ -80,7 +80,7 @@ func (r *TTLReportReconciler) reconcileReport(reportType client.Object) reconcil
 	}
 }
 
-func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespacedName types.NamespacedName, reportType client.Object, arr ...string) (ctrl.Result, error) {
+func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespacedName types.NamespacedName, reportType client.Object, _ ...string) (ctrl.Result, error) {
 	log := r.Logger.WithValues("report", namespacedName)
 
 	err := r.Client.Get(ctx, namespacedName, reportType)
@@ -102,7 +102,7 @@ func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespa
 	}
 	ttlExpired, durationToTTLExpiration := utils.IsTTLExpired(reportTTLTime, reportType.GetCreationTimestamp().Time, r.Clock)
 
-	if ttlExpired && r.applicableForDeletion(reportType, ttlReportAnnotationStr) {
+	if ttlExpired && r.applicableForDeletion(ctx, reportType, ttlReportAnnotationStr) {
 		log.V(1).Info("Removing report with expired TTL or Historical")
 		err := r.Client.Delete(ctx, reportType, &client.DeleteOptions{})
 		if err != nil && !errors.IsNotFound(err) {
@@ -118,7 +118,7 @@ func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespa
 	return ctrl.Result{RequeueAfter: durationToTTLExpiration}, nil
 }
 
-func (r *TTLReportReconciler) applicableForDeletion(report client.Object, ttlReportAnnotationStr string) bool {
+func (r *TTLReportReconciler) applicableForDeletion(ctx context.Context, report client.Object, ttlReportAnnotationStr string) bool {
 	reportKind := report.GetObjectKind().GroupVersionKind().Kind
 	if reportKind == "VulnerabilityReport" || reportKind == "ExposedSecretReport" || reportKind == "ClusterSbomReport" {
 		return true
@@ -141,7 +141,7 @@ func (r *TTLReportReconciler) applicableForDeletion(report client.Object, ttlRep
 	if err != nil {
 		return false
 	}
-	policies, err := control.Policies(context.Background(), r.Config, r.Client, cac, r.Logger, r.PolicyLoader)
+	policies, err := control.Policies(ctx, r.Config, r.Client, cac, r.Logger, r.PolicyLoader)
 	if err != nil {
 		return false
 	}

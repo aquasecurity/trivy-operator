@@ -432,7 +432,7 @@ func (c Config) GenerateConfigFileVolumeIfAvailable(trivyConfigName string) (*co
 	return &volume, &volumeMount
 }
 
-func (c Config) GenerateSslCertDirVolumeIfAvailable(trivyConfigName string) (*corev1.Volume, *corev1.VolumeMount) {
+func (c Config) GenerateSslCertDirVolumeIfAvailable(_ string) (*corev1.Volume, *corev1.VolumeMount) {
 	var sslCertDirHost string
 	if sslCertDirHost = c.GetSslCertDir(); sslCertDirHost == "" {
 		return nil, nil

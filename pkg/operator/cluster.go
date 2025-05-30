@@ -277,7 +277,7 @@ func (r *ClusterController) numOfCoreComponentPodsAndNodes(ctx context.Context) 
 		"": trivyoperator.LabelCoreComponent,
 	}
 
-	if r.isOpenShift() {
+	if r.isOpenShift(ctx) {
 		coreK8slabels = map[string]string{
 			"openshift-kube-apiserver":          trivyoperator.LabelOpenShiftAPIServer,
 			"openshift-kube-controller-manager": trivyoperator.LabelOpenShiftControllerManager,
@@ -307,8 +307,7 @@ func (r *ClusterController) numOfCoreComponentPodsAndNodes(ctx context.Context) 
 	return corePodsCount + len(addonPods.Items), len(nodes.Items), nil
 }
 
-func (r *ClusterController) isOpenShift() bool {
-	ctx := context.Background()
+func (r *ClusterController) isOpenShift(ctx context.Context) bool {
 	_, err := r.clientset.CoreV1().Namespaces().Get(ctx, "openshift-kube-apiserver", metav1.GetOptions{})
 	return !k8sapierror.IsNotFound(err)
 }

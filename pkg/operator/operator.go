@@ -40,8 +40,6 @@ import (
 	vcontroller "github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/webhook"
 	"github.com/aquasecurity/trivy/pkg/fanal/types"
-	"github.com/aquasecurity/trivy/pkg/oci"
-	mp "github.com/aquasecurity/trivy/pkg/policy"
 )
 
 var (
@@ -461,7 +459,6 @@ func newWorkloadController(operatorConfig etc.Config,
 func buildPolicyLoader(tc trivyoperator.ConfigData) policy.Loader {
 	registryUser := tc.PolicyBundleOciUser()
 	registryPassword := tc.PolicyBundleOciPassword()
-	artifact := oci.NewArtifact(tc.PolicyBundleOciRef(), types.RegistryOptions{})
 	ro := types.RegistryOptions{}
 	if registryUser != "" && registryPassword != "" {
 		ro.Credentials = []types.Credential{
@@ -472,6 +469,5 @@ func buildPolicyLoader(tc trivyoperator.ConfigData) policy.Loader {
 		}
 	}
 	ro.Insecure = tc.PolicyBundleInsecure()
-	artifact.RegistryOptions = ro
-	return policy.NewPolicyLoader(tc.PolicyBundleOciRef(), gcache.New(2).LRU().Build(), ro, mp.WithOCIArtifact(artifact))
+	return policy.NewPolicyLoader(tc.PolicyBundleOciRef(), gcache.New(2).LRU().Build(), ro)
 }

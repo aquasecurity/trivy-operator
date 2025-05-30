@@ -41,6 +41,7 @@ const (
 	keyTrivyNoProxy                             = "trivy.noProxy"
 	keyTrivySslCertDir                          = "trivy.sslCertDir"
 	keyIncludeDevDeps                           = "trivy.includeDevDeps"
+	keyTrivyConfigFile                          = "trivy.configFile"
 	// nolint:gosec // This is not a secret, but a configuration value.
 	keyTrivyGitHubToken          = "trivy.githubToken"
 	keyTrivySkipFiles            = "trivy.skipFiles"
@@ -346,6 +347,10 @@ func (c Config) IgnoreFileExists() bool {
 	_, ok := c.Data[keyTrivyIgnoreFile]
 	return ok
 }
+func (c Config) ConfigFileExists() bool {
+	_, ok := c.Data[keyTrivyConfigFile]
+	return ok
+}
 
 func (c Config) FindIgnorePolicyKey(workload client.Object) string {
 	keysByPrecedence := []string{
@@ -399,7 +404,35 @@ func (c Config) GenerateIgnoreFileVolumeIfAvailable(trivyConfigName string) (*co
 	return &volume, &volumeMount
 }
 
-func (c Config) GenerateSslCertDirVolumeIfAvailable(_ string) (*corev1.Volume, *corev1.VolumeMount) {
+func (c Config) GenerateConfigFileVolumeIfAvailable(trivyConfigName string) (*corev1.Volume, *corev1.VolumeMount) {
+	if !c.ConfigFileExists() {
+		return nil, nil
+	}
+	volume := corev1.Volume{
+		Name: configFileVolumeName,
+		VolumeSource: corev1.VolumeSource{
+			ConfigMap: &corev1.ConfigMapVolumeSource{
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: trivyConfigName,
+				},
+				Items: []corev1.KeyToPath{
+					{
+						Key:  keyTrivyConfigFile,
+						Path: configFileName,
+					},
+				},
+			},
+		},
+	}
+	volumeMount := corev1.VolumeMount{
+		Name:      configFileVolumeName,
+		MountPath: configFileMountPath,
+		SubPath:   configFileName,
+	}
+	return &volume, &volumeMount
+}
+
+func (c Config) GenerateSslCertDirVolumeIfAvailable(trivyConfigName string) (*corev1.Volume, *corev1.VolumeMount) {
 	var sslCertDirHost string
 	if sslCertDirHost = c.GetSslCertDir(); sslCertDirHost == "" {
 		return nil, nil

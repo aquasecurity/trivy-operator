@@ -123,6 +123,18 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 
 	var initContainers []corev1.Container
 
+	args := []string{
+		"--cache-dir",
+		cacheDir,
+		"image",
+		"--download-db-only",
+		"--db-repository",
+		dbRepository,
+	}
+	if config.ConfigFileExists() {
+		args = append(args, "--config", configFileMountPath)
+	}
+
 	initContainers = append(initContainers, corev1.Container{
 		Name:                     p.idGenerator.GenerateID(),
 		Image:                    trivyImageRef,
@@ -132,20 +144,25 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 		Command: []string{
 			"trivy",
 		},
-		Args: []string{
-			"--cache-dir",
-			cacheDir,
-			"image",
-			"--download-db-only",
-			"--db-repository",
-			dbRepository,
-		},
+		Args:            args,
 		Resources:       requirements,
 		SecurityContext: securityContext,
 		VolumeMounts:    volumeMounts,
 	})
 
 	if !config.GetSkipJavaDBUpdate() && config.TrivyDBRepositoryCredentialsSet() {
+		argsDBUpdater := []string{
+			"--cache-dir",
+			cacheDir,
+			"image",
+			"--download-java-db-only",
+			"--java-db-repository",
+			config.GetJavaDBRepository(),
+		}
+		if config.ConfigFileExists() {
+			argsDBUpdater = append(argsDBUpdater, "--config", configFileMountPath)
+		}
+
 		initContainers = append(initContainers, corev1.Container{
 			Name:                     p.idGenerator.GenerateID(),
 			Image:                    trivyImageRef,
@@ -155,14 +172,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 			Command: []string{
 				"trivy",
 			},
-			Args: []string{
-				"--cache-dir",
-				cacheDir,
-				"image",
-				"--download-java-db-only",
-				"--java-db-repository",
-				config.GetJavaDBRepository(),
-			},
+			Args:            argsDBUpdater,
 			Resources:       requirements,
 			SecurityContext: securityContext,
 			VolumeMounts:    volumeMounts,
@@ -178,6 +188,12 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 		volumes = append(volumes, *volume)
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
+
+	if volume, volumeMount := config.GenerateConfigFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
+	}
+
 	if volume, volumeMount := config.GenerateIgnorePolicyVolumeIfAvailable(trivyConfigName, workload); volume != nil && volumeMount != nil {
 		volumes = append(volumes, *volume)
 		volumeMounts = append(volumeMounts, *volumeMount)
@@ -658,6 +674,10 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef, tri
 	compressLogs := trivyOperatorConfig.CompressLogs()
 	if !compressLogs {
 		return []string{"trivy"}, args
+	}
+
+	if trivyConfig.ConfigFileExists() {
+		args = append(args, "--config", configFileMountPath)
 	}
 
 	// Add command to args as it is now need to pipe output to compress.

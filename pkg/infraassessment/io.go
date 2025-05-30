@@ -92,7 +92,7 @@ func (r *readWriter) WriteClusterReport(ctx context.Context, report v1alpha1.Clu
 
 	if err == nil {
 		// Not writing to ETCD memory because altReport storage is enabled
-		if !(r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "") {
+		if !r.Config.AltReportStorageEnabled || r.Config.AltReportDir == "" {
 			copied := existing.DeepCopy()
 			copied.Labels = report.Labels
 			copied.Report = report.Report
@@ -102,7 +102,7 @@ func (r *readWriter) WriteClusterReport(ctx context.Context, report v1alpha1.Clu
 
 	if errors.IsNotFound(err) {
 		// Not writing to ETCD memory because altReport storage is enabled
-		if !(r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "") {
+		if !r.Config.AltReportStorageEnabled || r.Config.AltReportDir == "" {
 			return r.Create(ctx, &report)
 		}
 	}

@@ -170,7 +170,7 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 		infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
 	}
 	// Not writing if alternate storage is enabled
-	if !(r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "") {
+	if !r.Config.AltReportStorageEnabled || r.Config.AltReportDir == "" {
 		if err := infraReportBuilder.Write(ctx, r.InfraReadWriter); err != nil {
 			return err
 		}

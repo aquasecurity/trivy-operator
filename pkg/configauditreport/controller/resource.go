@@ -237,7 +237,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			return ctrl.Result{}, fmt.Errorf("evaluating resource: %w", err)
 		}
 		kind := resource.GetObjectKind().GroupVersionKind().Kind
-		if !(r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "") {
+		if !r.Config.AltReportStorageEnabled || r.Config.AltReportDir == "" {
 			// create config-audit report
 			if !kube.IsRoleTypes(kube.Kind(kind)) || r.MergeRbacFindingWithConfigAudit {
 				reportBuilder := configauditreport.NewReportBuilder(r.Client.Scheme()).

@@ -67,7 +67,7 @@ func (r *ClusterComplianceReportReconciler) generateComplianceReport(ctx context
 			return fmt.Errorf("failed to check report cron expression %w", err)
 		}
 		if utils.DurationExceeded(durationToNextGeneration) || r.Config.InvokeClusterComplianceOnce {
-			if !(r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "") {
+			if !r.Config.AltReportStorageEnabled || r.Config.AltReportDir == "" {
 				err = r.Mgr.GenerateComplianceReport(ctx, report.Spec)
 				if err != nil {
 					log.Error(err, "failed to generate compliance report")

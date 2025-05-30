@@ -208,7 +208,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 			Data(sbomReportData).
 			AdditionalReportLabels(map[string]string{trivyoperator.LabelKbom: kbom})
 		sbomReport := sbomReportBuilder.ClusterReport()
-		if !(r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "") {
+		if !r.Config.AltReportStorageEnabled || r.Config.AltReportDir == "" {
 			return ctrl.Result{}, r.SbomReadWriter.WriteCluster(ctx, []v1alpha1.ClusterSbomReport{sbomReport})
 		} else {
 			// Write the sbom report to a file

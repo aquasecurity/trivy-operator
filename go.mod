@@ -6,7 +6,7 @@ require (
 	github.com/CycloneDX/cyclonedx-go v0.9.2
 	github.com/aquasecurity/go-version v0.0.1
 	github.com/aquasecurity/trivy v0.63.0
-	github.com/aquasecurity/trivy-checks v1.11.2-0.20250529074512-7afea1b738c4
+	github.com/aquasecurity/trivy-checks v1.11.2
 	github.com/aquasecurity/trivy-kubernetes v0.9.0
 	github.com/aws/aws-sdk-go v1.55.7
 	github.com/bluele/gcache v0.0.2
@@ -14,14 +14,14 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/dsnet/compress v0.0.2-0.20230904184137-39efe44ab707
 	github.com/emirpasic/gods v1.18.1
-	github.com/go-logr/logr v1.4.2
+	github.com/go-logr/logr v1.4.3
 	github.com/google/go-containerregistry v0.20.5
 	github.com/google/uuid v1.6.0
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
 	github.com/liamg/memoryfs v1.6.0
 	github.com/magefile/mage v1.15.0
 	github.com/onsi/ginkgo/v2 v2.23.4
-	github.com/onsi/gomega v1.36.3
+	github.com/onsi/gomega v1.37.0
 	github.com/openshift/api v0.0.0-20231025170628-b8a18fdc040d
 	github.com/prometheus/client_golang v1.22.0
 	github.com/quasilyte/go-ruleguard/dsl v0.3.22
@@ -32,12 +32,12 @@ require (
 	golang.org/x/net v0.40.0
 	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9
 	k8s.io/api v0.33.1
-	k8s.io/apiextensions-apiserver v0.32.3
+	k8s.io/apiextensions-apiserver v0.33.1
 	k8s.io/apimachinery v0.33.1
 	k8s.io/cli-runtime v0.33.1
 	k8s.io/client-go v0.33.1
 	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738
-	sigs.k8s.io/controller-runtime v0.20.4
+	sigs.k8s.io/controller-runtime v0.21.0
 	sigs.k8s.io/yaml v1.4.0
 )
 
@@ -334,7 +334,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.0 // indirect
 	helm.sh/helm/v3 v3.17.3 // indirect
-	k8s.io/apiserver v0.32.3 // indirect
+	k8s.io/apiserver v0.33.1 // indirect
 	k8s.io/kubectl v0.33.1 // indirect
 	mvdan.cc/sh/v3 v3.11.0 // indirect
 	oras.land/oras-go v1.2.5 // indirect

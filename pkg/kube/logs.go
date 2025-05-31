@@ -88,13 +88,15 @@ func GetTerminatedContainersStatusesByPod(pod *corev1.Pod) map[string]*corev1.Co
 	if pod == nil {
 		return states
 	}
-	for _, status := range pod.Status.InitContainerStatuses {
+	for i := range pod.Status.InitContainerStatuses {
+		status := &pod.Status.InitContainerStatuses[i]
 		if status.State.Terminated == nil {
 			continue
 		}
 		states[status.Name] = status.State.Terminated
 	}
-	for _, status := range pod.Status.ContainerStatuses {
+	for i := range pod.Status.ContainerStatuses {
+		status := &pod.Status.ContainerStatuses[i]
 		if status.State.Terminated == nil {
 			continue
 		}

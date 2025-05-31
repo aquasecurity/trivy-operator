@@ -86,7 +86,8 @@ type InfraAssessmentReportData struct {
 func InfraAssessmentSummaryFromChecks(checks []Check) InfraAssessmentSummary {
 	summary := InfraAssessmentSummary{}
 
-	for _, check := range checks {
+	for i := range checks {
+		check := &checks[i]
 		if check.Success {
 			continue
 		}

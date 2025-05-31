@@ -464,7 +464,8 @@ func (o *ObjectResolver) ReplicaSetByDeployment(ctx context.Context, deployment 
 		return nil, ErrReplicaSetNotFound
 	}
 
-	for _, rs := range rsList.Items {
+	for i := range rsList.Items {
+		rs := &rsList.Items[i]
 		if deployment.Annotations[deploymentAnnotation] !=
 			rs.Annotations[deploymentAnnotation] {
 			continue

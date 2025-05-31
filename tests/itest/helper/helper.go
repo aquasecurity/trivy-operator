@@ -420,7 +420,8 @@ func (h *Helper) GetActiveReplicaSetForDeployment(ctx context.Context, namespace
 		return nil, err
 	}
 
-	for _, replicaSet := range replicaSetList.Items {
+	for i := range replicaSetList.Items {
+		replicaSet := &replicaSetList.Items[i]
 		if deployment.Annotations["deployment.kubernetes.io/revision"] !=
 			replicaSet.Annotations["deployment.kubernetes.io/revision"] {
 			continue

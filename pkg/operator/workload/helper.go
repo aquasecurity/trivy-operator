@@ -159,7 +159,8 @@ func markOldVulnerabilityReports(ctx context.Context, resolver kube.ObjectResolv
 		if err != nil {
 			return err
 		}
-		for _, report := range vulnerabilityReportList.Items {
+		for i := range vulnerabilityReportList.Items {
+			report := &vulnerabilityReportList.Items[i]
 			err := markReportTTL(ctx, resolver, report.DeepCopy(), annotation)
 			if err != nil {
 				return err
@@ -176,7 +177,8 @@ func markOldConfigAuditReports(ctx context.Context, resolver kube.ObjectResolver
 		if err != nil {
 			return err
 		}
-		for _, report := range configAuditReportList.Items {
+		for i := range configAuditReportList.Items {
+			report := &configAuditReportList.Items[i]
 			err := markReportTTL(ctx, resolver, report.DeepCopy(), annotation)
 			if err != nil {
 				return err
@@ -193,7 +195,8 @@ func markOldExposeSecretsReport(ctx context.Context, resolver kube.ObjectResolve
 		if err != nil {
 			return err
 		}
-		for _, report := range exposeSecretReportList.Items {
+		for i := range exposeSecretReportList.Items {
+			report := &exposeSecretReportList.Items[i]
 			err := markReportTTL(ctx, resolver, report.DeepCopy(), annotation)
 			if err != nil {
 				return err
@@ -210,7 +213,8 @@ func markOldSbomReport(ctx context.Context, resolver kube.ObjectResolver, namesp
 		if err != nil {
 			return err
 		}
-		for _, report := range sbomReportList.Items {
+		for i := range sbomReportList.Items {
+			report := &sbomReportList.Items[i]
 			err := markReportTTL(ctx, resolver, report.DeepCopy(), annotation)
 			if err != nil {
 				return err

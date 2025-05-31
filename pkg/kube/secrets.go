@@ -53,7 +53,8 @@ func matchSubDomain(wildcardServers []string, subDomain string) string {
 // to the Docker authentication credentials for the specified slice of image pull Secrets.
 func MapDockerRegistryServersToAuths(imagePullSecrets []corev1.Secret, multiSecretSupport bool) (map[string]docker.Auth, error) {
 	auths := make(map[string]docker.Auth)
-	for _, secret := range imagePullSecrets {
+	for i := range imagePullSecrets {
+		secret := &imagePullSecrets[i]
 		var data []byte
 		var hasRequiredData, isLegacy bool
 

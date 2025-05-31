@@ -985,7 +985,8 @@ type Results []Result
 
 func getPolicyResults(results scan.Results) Results {
 	prs := make(Results, 0)
-	for _, result := range results {
+	for i := range results {
+		result := results[i]
 		var msgs []string
 		if result.Description() != "" {
 			msgs = []string{result.Description()}

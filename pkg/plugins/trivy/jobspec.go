@@ -18,7 +18,7 @@ import (
 
 const (
 	GCPCR_Image_Regex  = `^(us\.|eu\.|asia\.)?gcr\.io.*|^([a-zA-Z0-9-]+)-*-*.docker\.pkg\.dev.*`
-	AWSECR_Image_Regex = "^\\d+\\.dkr\\.ecr\\.(\\w+-\\w+-\\d+)\\.amazonaws\\.com\\/"
+	AWSECR_Image_Regex = `^\d+\.dkr\.ecr\.(\w+-\w+-\d+)\.amazonaws\.com/`
 	// SkipDirsAnnotation annotation  example: trivy-operator.aquasecurity.github.io/skip-dirs: "/tmp,/home"
 	SkipDirsAnnotation = "trivy-operator.aquasecurity.github.io/skip-dirs"
 	// SkipFilesAnnotation example: trivy-operator.aquasecurity.github.io/skip-files: "/src/Gemfile.lock,/examplebinary"
@@ -171,7 +171,8 @@ func getContainers(spec corev1.PodSpec) []corev1.Container {
 
 	// ephemeral container are not the same type as Containers/InitContainers,
 	// then we add it in a different loop
-	for _, c := range spec.EphemeralContainers {
+	for i := range spec.EphemeralContainers {
+		c := &spec.EphemeralContainers[i]
 		containers = append(containers, corev1.Container(c.EphemeralContainerCommon))
 	}
 

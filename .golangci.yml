@@ -47,7 +47,6 @@ linters:
         - appendAssign
         - commentedOutCode
         - hugeParam
-        - regexpSimplify
         - sloppyReassign
         - unnamedResult
         - whyNoLint

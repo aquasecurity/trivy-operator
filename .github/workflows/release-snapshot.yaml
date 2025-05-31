@@ -33,7 +33,7 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Install cosign
-        uses: sigstore/cosign-installer@v3.8.1
+        uses: sigstore/cosign-installer@v3.8.2
       - name: Release snapshot
         uses: goreleaser/goreleaser-action@v6
         with:

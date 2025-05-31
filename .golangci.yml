@@ -49,7 +49,6 @@ linters:
         - commentedOutCode
         - hugeParam
         - rangeValCopy
-        - regexpSimplify
         - sloppyReassign
         - unnamedResult
         - whyNoLint

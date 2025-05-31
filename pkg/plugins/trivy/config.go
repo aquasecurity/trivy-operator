@@ -16,9 +16,8 @@ import (
 )
 
 const (
-	keyTrivyImageRepository = "trivy.repository"
-	keyTrivyImageTag        = "trivy.tag"
-	//nolint:gosec
+	keyTrivyImageRepository                     = "trivy.repository"
+	keyTrivyImageTag                            = "trivy.tag"
 	keyTrivyImagePullSecret                     = "trivy.imagePullSecret"
 	keyTrivyImagePullPolicy                     = "trivy.imagePullPolicy"
 	keyTrivyMode                                = "trivy.mode"
@@ -42,15 +41,14 @@ const (
 	keyTrivySslCertDir                          = "trivy.sslCertDir"
 	keyIncludeDevDeps                           = "trivy.includeDevDeps"
 	keyTrivyConfigFile                          = "trivy.configFile"
-	// nolint:gosec // This is not a secret, but a configuration value.
-	keyTrivyGitHubToken          = "trivy.githubToken"
-	keyTrivySkipFiles            = "trivy.skipFiles"
-	keyTrivySkipDirs             = "trivy.skipDirs"
-	keyTrivyDBRepository         = "trivy.dbRepository"
-	keyTrivyDBRepositoryUsername = "trivy.dbRepositoryUsername"
-	keyTrivyDBRepositoryPassword = "trivy.dbRepositoryPassword" // #nosec G101
-	keyTrivyJavaDBRepository     = "trivy.javaDbRepository"
-	keyTrivyDBRepositoryInsecure = "trivy.dbRepositoryInsecure"
+	keyTrivyGitHubToken                         = "trivy.githubToken"
+	keyTrivySkipFiles                           = "trivy.skipFiles"
+	keyTrivySkipDirs                            = "trivy.skipDirs"
+	keyTrivyDBRepository                        = "trivy.dbRepository"
+	keyTrivyDBRepositoryUsername                = "trivy.dbRepositoryUsername"
+	keyTrivyDBRepositoryPassword                = "trivy.dbRepositoryPassword" // #nosec G101
+	keyTrivyJavaDBRepository                    = "trivy.javaDbRepository"
+	keyTrivyDBRepositoryInsecure                = "trivy.dbRepositoryInsecure"
 
 	keyTrivyUseBuiltinRegoPolicies    = "trivy.useBuiltinRegoPolicies"
 	keyTrivyUseEmbeddedRegoPolicies   = "trivy.useEmbeddedRegoPolicies"
@@ -61,12 +59,10 @@ const (
 	keyTrivySkipJavaDBUpdate       = "trivy.skipJavaDBUpdate"
 	keyTrivyImageScanCacheDir      = "trivy.imageScanCacheDir"
 	keyTrivyFilesystemScanCacheDir = "trivy.filesystemScanCacheDir"
-	// nolint:gosec // This is not a secret, but a configuration value.
-	keyTrivyServerTokenHeader = "trivy.serverTokenHeader"
-	keyTrivyServerInsecure    = "trivy.serverInsecure"
-	// nolint:gosec // This is not a secret, but a configuration value.
-	keyTrivyServerToken         = "trivy.serverToken"
-	keyTrivyServerCustomHeaders = "trivy.serverCustomHeaders"
+	keyTrivyServerTokenHeader      = "trivy.serverTokenHeader"
+	keyTrivyServerInsecure         = "trivy.serverInsecure"
+	keyTrivyServerToken            = "trivy.serverToken"
+	keyTrivyServerCustomHeaders    = "trivy.serverCustomHeaders"
 
 	keyResourcesRequestsCPU             = "trivy.resources.requests.cpu"
 	keyResourcesRequestsMemory          = "trivy.resources.requests.memory"

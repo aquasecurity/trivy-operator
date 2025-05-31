@@ -71,9 +71,8 @@ const (
 	KeyScanJobCustomVolumes              = "scanJob.customVolumes"
 	KeyScanJobUseGCRServiceAccount       = "scanJob.useGCRServiceAccount"
 
-	keyScanJobNodeSelector = "scanJob.nodeSelector"
-	keyScanJobAnnotations  = "scanJob.annotations"
-	//nolint
+	keyScanJobNodeSelector                 = "scanJob.nodeSelector"
+	keyScanJobAnnotations                  = "scanJob.annotations"
 	keyscanJobAutomountServiceAccountToken = "scanJob.automountServiceAccountToken"
 	keySkipInitContainers                  = "scanJob.skipInitContainers"
 	KeyScanJobContainerSecurityContext     = "scanJob.podTemplateContainerSecurityContext"

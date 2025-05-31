@@ -51,9 +51,8 @@ const (
 	secret_target   = "secret_target"
 	secret_title    = "secret_title"
 	// config audit
-	config_audit_id    = "config_audit_id"
-	config_audit_title = "config_audit_title"
-	//nolint:gosec
+	config_audit_id          = "config_audit_id"
+	config_audit_title       = "config_audit_title"
 	config_audit_description = "config_audit_description"
 	config_audit_category    = "config_audit_category"
 	config_audit_success     = "config_audit_success"

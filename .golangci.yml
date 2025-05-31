@@ -16,6 +16,7 @@ linters:
     - govet
     - ineffassign
     - misspell
+    - nolintlint
     - perfsprint
     - revive
     - staticcheck
@@ -92,6 +93,9 @@ linters:
         - licence
         - optimise
         - simmilar
+    nolintlint:
+      # Enable to require nolint directives to mention the specific linter being suppressed.
+      require-specific: true
     perfsprint:
       int-conversion: false
       err-error: true

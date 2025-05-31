@@ -275,7 +275,6 @@ func TestObjectToObjectMeta(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			//nolint:gosec
 			err := kube.ObjectToObjectMeta(tc.object, &tc.meta)
 			require.NoError(t, err)
 			assert.Equal(t, tc.expected, tc.meta)

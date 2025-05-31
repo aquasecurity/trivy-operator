@@ -119,6 +119,7 @@ linters:
         - name: unused-parameter
           arguments:
             - allow-regex: "^_"
+        - name: useless-break
     staticcheck:
       checks:
         - all

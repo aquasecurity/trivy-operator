@@ -35,12 +35,9 @@ type ClusterComplianceReportReconciler struct {
 // +kubebuilder:rbac:groups=aquasecurity.github.io,resources=clustercompliancedetailreports,verbs=get;list;watch;create;update;patch;delete
 
 func (r *ClusterComplianceReportReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	if err := ctrl.NewControllerManagedBy(mgr).
+	return ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.ClusterComplianceReport{}).
-		Complete(r.reconcileComplianceReport()); err != nil {
-		return err
-	}
-	return nil
+		Complete(r.reconcileComplianceReport())
 }
 
 func (r *ClusterComplianceReportReconciler) reconcileComplianceReport() reconcile.Func {

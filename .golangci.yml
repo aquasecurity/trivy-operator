@@ -109,6 +109,7 @@ linters:
         - name: early-return
           arguments:
             - "preserve-scope"
+        - name: if-return
         - name: unused-parameter
           arguments:
             - allow-regex: "^_"

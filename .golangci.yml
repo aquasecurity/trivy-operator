@@ -47,7 +47,6 @@ linters:
         - appendAssign
         - commentedOutCode
         - hugeParam
-        - sloppyReassign
         - unnamedResult
         - whyNoLint
       enabled-tags:

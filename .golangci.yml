@@ -120,6 +120,7 @@ linters:
           arguments:
             - allow-regex: "^_"
         - name: useless-break
+        - name: var-declaration
     staticcheck:
       checks:
         - all

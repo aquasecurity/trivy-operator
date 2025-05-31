@@ -91,7 +91,8 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 	targetWorkloads = append(targetWorkloads, strings.ToLower(string(kube.KindIngress)))
 	for _, tw := range targetWorkloads {
 		var resource kube.Resource
-		if err = resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, r.ObjectResolver); err != nil {
+		err = resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, r.ObjectResolver)
+		if err != nil {
 			return err
 		}
 		resourceBuilder := r.buildControlMgr(mgr, resource, installModePredicate)

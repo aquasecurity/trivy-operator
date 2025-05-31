@@ -113,6 +113,9 @@ linters:
         - name: indent-error-flow
           arguments:
             - "preserve-scope"
+        - name: superfluous-else
+          arguments:
+            - "preserve-scope"
         - name: unused-parameter
           arguments:
             - allow-regex: "^_"

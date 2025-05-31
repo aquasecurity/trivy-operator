@@ -48,7 +48,6 @@ linters:
         - appendAssign
         - commentedOutCode
         - hugeParam
-        - octalLiteral
         - rangeValCopy
         - regexpSimplify
         - sloppyReassign

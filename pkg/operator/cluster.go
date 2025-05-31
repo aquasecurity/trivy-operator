@@ -214,7 +214,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 		// Write the sbom report to a file
 		reportDir := r.Config.AltReportDir
 		sbomReportDir := filepath.Join(reportDir, "cluster_sbom_reports")
-		if err := os.MkdirAll(sbomReportDir, 0750); err != nil {
+		if err := os.MkdirAll(sbomReportDir, 0o750); err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to make sbomReportDir %s: %w", sbomReportDir, err)
 		}
 
@@ -224,7 +224,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 		}
 
 		reportPath := filepath.Join(sbomReportDir, fmt.Sprintf("%s.json", sbomReport.Name))
-		err = os.WriteFile(reportPath, reportData, 0600)
+		err = os.WriteFile(reportPath, reportData, 0o600)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to write sbom report: %w", err)
 		}

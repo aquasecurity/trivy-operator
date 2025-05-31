@@ -68,7 +68,7 @@ func (r *ClusterComplianceReportReconciler) generateComplianceReport(ctx context
 				// Write the compliance report to a file
 				reportDir := r.Config.AltReportDir
 				complianceReportDir := filepath.Join(reportDir, "cluster_compliance_report")
-				if err := os.MkdirAll(complianceReportDir, 0750); err != nil {
+				if err := os.MkdirAll(complianceReportDir, 0o750); err != nil {
 					return fmt.Errorf("failed to create report directory: %w", err)
 				}
 				reportData, err := json.Marshal(report)
@@ -79,7 +79,7 @@ func (r *ClusterComplianceReportReconciler) generateComplianceReport(ctx context
 
 				reportPath := filepath.Join(complianceReportDir, fmt.Sprintf("%s-%s.json", report.Kind, report.Name))
 				log.Info("Writing cluster compliance report to alternate storage", "path", reportPath)
-				err = os.WriteFile(reportPath, reportData, 0600)
+				err = os.WriteFile(reportPath, reportData, 0o600)
 				if err != nil {
 					log.Error(err, "Failed to write compliance report", "path", reportPath)
 					return err

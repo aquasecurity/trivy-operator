@@ -305,15 +305,15 @@ func (r *ResourceController) writeAlternateReports(resource client.Object, misCo
 		infraAssessmentDir := filepath.Join(reportDir, "infra_assessment_reports")
 
 		// Ensure the directories exist
-		if err := os.MkdirAll(configAuditDir, 0750); err != nil {
+		if err := os.MkdirAll(configAuditDir, 0o750); err != nil {
 			log.Error(err, "Failed to create configAuditDir")
 			return ctrl.Result{}, err
 		}
-		if err := os.MkdirAll(rbacAssessmentDir, 0750); err != nil {
+		if err := os.MkdirAll(rbacAssessmentDir, 0o750); err != nil {
 			log.Error(err, "Failed to create rbacAssessmentDir")
 			return ctrl.Result{}, err
 		}
-		if err := os.MkdirAll(infraAssessmentDir, 0750); err != nil {
+		if err := os.MkdirAll(infraAssessmentDir, 0o750); err != nil {
 			log.Error(err, "Failed to create infraAssessmentDir")
 			return ctrl.Result{}, err
 		}
@@ -327,7 +327,7 @@ func (r *ResourceController) writeAlternateReports(resource client.Object, misCo
 			return ctrl.Result{}, err
 		}
 		configReportPath := filepath.Join(configAuditDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-		err = os.WriteFile(configReportPath, configReportData, 0600)
+		err = os.WriteFile(configReportPath, configReportData, 0o600)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -339,7 +339,7 @@ func (r *ResourceController) writeAlternateReports(resource client.Object, misCo
 			return ctrl.Result{}, err
 		}
 		infraReportPath := filepath.Join(infraAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-		err = os.WriteFile(infraReportPath, infraReportData, 0600)
+		err = os.WriteFile(infraReportPath, infraReportData, 0o600)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -351,7 +351,7 @@ func (r *ResourceController) writeAlternateReports(resource client.Object, misCo
 			return ctrl.Result{}, err
 		}
 		rbacReportPath := filepath.Join(rbacAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-		err = os.WriteFile(rbacReportPath, rbacReportData, 0600)
+		err = os.WriteFile(rbacReportPath, rbacReportData, 0o600)
 		if err != nil {
 			return ctrl.Result{}, err
 		}

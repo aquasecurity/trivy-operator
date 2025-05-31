@@ -65,11 +65,10 @@ func (r *readWriter) Write(ctx context.Context, reports []v1alpha1.SbomReport) e
 	for _, report := range reports {
 		if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
 			return nil
-		} else {
-			err := r.createOrUpdate(ctx, report)
-			if err != nil {
-				return err
-			}
+		}
+		err := r.createOrUpdate(ctx, report)
+		if err != nil {
+			return err
 		}
 	}
 	return nil
@@ -79,11 +78,10 @@ func (r *readWriter) WriteCluster(ctx context.Context, reports []v1alpha1.Cluste
 	for _, report := range reports {
 		if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
 			return nil
-		} else {
-			err := r.createOrUpdateCluster(ctx, report)
-			if err != nil {
-				return err
-			}
+		}
+		err := r.createOrUpdateCluster(ctx, report)
+		if err != nil {
+			return err
 		}
 	}
 	return nil

@@ -177,18 +177,15 @@ func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
 		}
 		if b.Config.AltReportStorageEnabled && b.Config.AltReportDir != "" {
 			return nil
-		} else {
-			return writer.WriteClusterReport(ctx, report)
 		}
-	} else {
-		report, err := b.GetReport()
-		if err != nil {
-			return err
-		}
-		if b.Config.AltReportStorageEnabled && b.Config.AltReportDir != "" {
-			return nil
-		} else {
-			return writer.WriteReport(ctx, report)
-		}
+		return writer.WriteClusterReport(ctx, report)
 	}
+	report, err := b.GetReport()
+	if err != nil {
+		return err
+	}
+	if b.Config.AltReportStorageEnabled && b.Config.AltReportDir != "" {
+		return nil
+	}
+	return writer.WriteReport(ctx, report)
 }

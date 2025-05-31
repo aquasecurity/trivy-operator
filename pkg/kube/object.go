@@ -158,11 +158,11 @@ func ObjectRefFromObjectMeta(objectMeta metav1.ObjectMeta) (ObjectRef, error) {
 	}
 	var objname string
 	if _, found := objectMeta.Labels[trivyoperator.LabelResourceName]; !found {
-		if _, found := objectMeta.Annotations[trivyoperator.LabelResourceName]; found {
-			objname = objectMeta.Annotations[trivyoperator.LabelResourceName]
-		} else {
+		_, found := objectMeta.Annotations[trivyoperator.LabelResourceName]
+		if !found {
 			return ObjectRef{}, fmt.Errorf("required label does not exist: %s", trivyoperator.LabelResourceName)
 		}
+		objname = objectMeta.Annotations[trivyoperator.LabelResourceName]
 	} else {
 		objname = objectMeta.Labels[trivyoperator.LabelResourceName]
 	}

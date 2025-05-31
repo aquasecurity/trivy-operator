@@ -119,6 +119,7 @@ linters:
         - name: unused-parameter
           arguments:
             - allow-regex: "^_"
+        - name: use-errors-new
         - name: useless-break
         - name: var-declaration
     staticcheck:

@@ -2,7 +2,10 @@ package compliance
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -64,11 +67,36 @@ func (r *ClusterComplianceReportReconciler) generateComplianceReport(ctx context
 			return fmt.Errorf("failed to check report cron expression %w", err)
 		}
 		if utils.DurationExceeded(durationToNextGeneration) || r.Config.InvokeClusterComplianceOnce {
-			err = r.Mgr.GenerateComplianceReport(ctx, report.Spec)
-			if err != nil {
-				log.Error(err, "failed to generate compliance report")
+			if !r.Config.AltReportStorageEnabled || r.Config.AltReportDir == "" {
+				err = r.Mgr.GenerateComplianceReport(ctx, report.Spec)
+				if err != nil {
+					log.Error(err, "failed to generate compliance report")
+					return err
+				}
+			} else {
+				// Write the compliance report to a file
+				reportDir := r.Config.AltReportDir
+				complianceReportDir := filepath.Join(reportDir, "cluster_compliance_report")
+				if err := os.MkdirAll(complianceReportDir, 0750); err != nil {
+					return fmt.Errorf("failed to create report directory: %w", err)
+				}
+				reportData, err := json.Marshal(report)
+				if err != nil {
+					log.Error(err, "Failed to marshal compliance report")
+					return err
+				}
+
+				reportPath := filepath.Join(complianceReportDir, fmt.Sprintf("%s-%s.json", report.Kind, report.Name))
+				log.Info("Writing cluster compliance report to alternate storage", "path", reportPath)
+				err = os.WriteFile(reportPath, reportData, 0600)
+				if err != nil {
+					log.Error(err, "Failed to write compliance report", "path", reportPath)
+					return err
+				}
+				log.Info("Cluster compliance report written", "path", reportPath)
+
+				return nil
 			}
-			return err
 		}
 		if r.Config.InvokeClusterComplianceOnce { // for demo or testing purposes
 			return nil

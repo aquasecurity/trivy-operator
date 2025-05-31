@@ -186,7 +186,7 @@ func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
 			// Write the cluster RBAC assessment report to a file
 			reportDir := b.Config.AltReportDir
 			rbacAssessmentDir := filepath.Join(reportDir, "cluster_rbac_assessment_reports")
-			if err := os.MkdirAll(rbacAssessmentDir, 0750); err != nil {
+			if err := os.MkdirAll(rbacAssessmentDir, 0o750); err != nil {
 				return fmt.Errorf("failed to make rbacAssessmentDir %s: %w", rbacAssessmentDir, err)
 			}
 
@@ -200,7 +200,7 @@ func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
 			workloadName := report.Labels["trivy-operator.resource.name"]
 
 			reportPath := filepath.Join(rbacAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-			err = os.WriteFile(reportPath, reportData, 0600)
+			err = os.WriteFile(reportPath, reportData, 0o600)
 			if err != nil {
 				return fmt.Errorf("failed to write cluster RBAC assessment report: %w", err)
 			}

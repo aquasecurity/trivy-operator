@@ -83,10 +83,9 @@ func (w *cm) GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportS
 		}
 		log.Info("Cluster compliance report written", "path", reportPath)
 		return nil
-	} else {
-		// update compliance report status
-		return w.client.Status().Update(ctx, updatedReport)
 	}
+	// update compliance report status
+	return w.client.Status().Update(ctx, updatedReport)
 }
 
 // createComplianceReport create compliance report

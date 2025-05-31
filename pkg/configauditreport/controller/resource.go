@@ -237,59 +237,58 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			return ctrl.Result{}, fmt.Errorf("evaluating resource: %w", err)
 		}
 		kind := resource.GetObjectKind().GroupVersionKind().Kind
-		if !r.Config.AltReportStorageEnabled || r.Config.AltReportDir == "" {
-			// create config-audit report
-			if !kube.IsRoleTypes(kube.Kind(kind)) || r.MergeRbacFindingWithConfigAudit {
-				reportBuilder := configauditreport.NewReportBuilder(r.Client.Scheme()).
-					Controller(resource).
-					ResourceSpecHash(resourceHash).
-					PluginConfigHash(policiesHash).
-					ResourceLabelsToInclude(resourceLabelsToInclude).
-					AdditionalReportLabels(additionalCustomLabel).
-					Data(misConfigData.configAuditReportData)
-				if r.Config.ScannerReportTTL != nil {
-					reportBuilder.ReportTTL(r.Config.ScannerReportTTL)
-				}
-				if err := reportBuilder.Write(ctx, r.ReadWriter); err != nil {
-					return ctrl.Result{}, err
-				}
-				// create infra-assessment report
-				if k8sCoreComponent(resource) && r.Config.InfraAssessmentScannerEnabled {
-					infraReportBuilder := infraassessment.NewReportBuilder(r.Client.Scheme()).
-						Controller(resource).
-						ResourceSpecHash(resourceHash).
-						PluginConfigHash(policiesHash).
-						ResourceLabelsToInclude(resourceLabelsToInclude).
-						AdditionalReportLabels(additionalCustomLabel).
-						Data(misConfigData.infraAssessmentReportData)
-					if r.Config.ScannerReportTTL != nil {
-						infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
-					}
-					if err := infraReportBuilder.Write(ctx, r.InfraReadWriter); err != nil {
-						return ctrl.Result{}, err
-					}
-				}
-			}
-			// create rbac-assessment report
-			if kube.IsRoleTypes(kube.Kind(kind)) && r.Config.RbacAssessmentScannerEnabled && !r.MergeRbacFindingWithConfigAudit {
-				rbacReportBuilder := rbacassessment.NewReportBuilder(r.Client.Scheme()).
-					Controller(resource).
-					ResourceSpecHash(resourceHash).
-					PluginConfigHash(policiesHash).
-					ResourceLabelsToInclude(resourceLabelsToInclude).
-					AdditionalReportLabels(additionalCustomLabel).
-					Data(misConfigData.rbacAssessmentReportData)
-				if r.Config.ScannerReportTTL != nil {
-					rbacReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
-				}
-				if err := rbacReportBuilder.Write(ctx, r.RbacReadWriter); err != nil {
-					return ctrl.Result{}, err
-				}
-			}
-		} else {
+		if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
 			// Write reports to alternate storage if enabled
 			log.V(1).Info("Writing config, infra and rbac reports to alternate storage", "dir", r.Config.AltReportDir)
 			return r.writeAlternateReports(resource, misConfigData, log)
+		}
+		// create config-audit report
+		if !kube.IsRoleTypes(kube.Kind(kind)) || r.MergeRbacFindingWithConfigAudit {
+			reportBuilder := configauditreport.NewReportBuilder(r.Client.Scheme()).
+				Controller(resource).
+				ResourceSpecHash(resourceHash).
+				PluginConfigHash(policiesHash).
+				ResourceLabelsToInclude(resourceLabelsToInclude).
+				AdditionalReportLabels(additionalCustomLabel).
+				Data(misConfigData.configAuditReportData)
+			if r.Config.ScannerReportTTL != nil {
+				reportBuilder.ReportTTL(r.Config.ScannerReportTTL)
+			}
+			if err := reportBuilder.Write(ctx, r.ReadWriter); err != nil {
+				return ctrl.Result{}, err
+			}
+			// create infra-assessment report
+			if k8sCoreComponent(resource) && r.Config.InfraAssessmentScannerEnabled {
+				infraReportBuilder := infraassessment.NewReportBuilder(r.Client.Scheme()).
+					Controller(resource).
+					ResourceSpecHash(resourceHash).
+					PluginConfigHash(policiesHash).
+					ResourceLabelsToInclude(resourceLabelsToInclude).
+					AdditionalReportLabels(additionalCustomLabel).
+					Data(misConfigData.infraAssessmentReportData)
+				if r.Config.ScannerReportTTL != nil {
+					infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
+				}
+				if err := infraReportBuilder.Write(ctx, r.InfraReadWriter); err != nil {
+					return ctrl.Result{}, err
+				}
+			}
+		}
+		// create rbac-assessment report
+		if kube.IsRoleTypes(kube.Kind(kind)) && r.Config.RbacAssessmentScannerEnabled && !r.MergeRbacFindingWithConfigAudit {
+			rbacReportBuilder := rbacassessment.NewReportBuilder(r.Client.Scheme()).
+				Controller(resource).
+				ResourceSpecHash(resourceHash).
+				PluginConfigHash(policiesHash).
+				ResourceLabelsToInclude(resourceLabelsToInclude).
+				AdditionalReportLabels(additionalCustomLabel).
+				Data(misConfigData.rbacAssessmentReportData)
+			if r.Config.ScannerReportTTL != nil {
+				rbacReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
+			}
+			if err := rbacReportBuilder.Write(ctx, r.RbacReadWriter); err != nil {
+				return ctrl.Result{}, err
+			}
 		}
 		return ctrl.Result{}, nil
 	}

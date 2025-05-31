@@ -106,6 +106,9 @@ linters:
             - allow-types-before: "*testing.T"
         - name: context-keys-type
         - name: duplicated-imports
+        - name: early-return
+          arguments:
+            - "preserve-scope"
         - name: unused-parameter
           arguments:
             - allow-regex: "^_"

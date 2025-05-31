@@ -170,11 +170,7 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 		infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
 	}
 	// Not writing if alternate storage is enabled
-	if !r.Config.AltReportStorageEnabled || r.Config.AltReportDir == "" {
-		if err := infraReportBuilder.Write(ctx, r.InfraReadWriter); err != nil {
-			return err
-		}
-	} else {
+	if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
 		log.V(1).Info("Writing infra assessment report to alternate storage", "dir", r.Config.AltReportDir)
 		clusterInfraReport, err := infraReportBuilder.GetClusterReport()
 		if err != nil {
@@ -202,7 +198,9 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 			return fmt.Errorf("failed to write compliance report: %w", err)
 		}
 		return nil
-
+	}
+	if err := infraReportBuilder.Write(ctx, r.InfraReadWriter); err != nil {
+		return err
 	}
 	log.V(1).Info("Deleting complete scan job", "owner", job)
 	return r.deleteJob(ctx, job)

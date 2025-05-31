@@ -2,8 +2,11 @@ package controller
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 
 	"github.com/go-logr/logr"
 	batchv1 "k8s.io/api/batch/v1"
@@ -166,8 +169,40 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 	if r.Config.ScannerReportTTL != nil {
 		infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
 	}
-	if err := infraReportBuilder.Write(ctx, r.InfraReadWriter); err != nil {
-		return err
+	// Not writing if alternate storage is enabled
+	if !r.Config.AltReportStorageEnabled || r.Config.AltReportDir == "" {
+		if err := infraReportBuilder.Write(ctx, r.InfraReadWriter); err != nil {
+			return err
+		}
+	} else {
+		log.V(1).Info("Writing infra assessment report to alternate storage", "dir", r.Config.AltReportDir)
+		clusterInfraReport, err := infraReportBuilder.GetClusterReport()
+		if err != nil {
+			return fmt.Errorf("failed to get cluster infra report: %w", err)
+		}
+		// Write the cluster infra assessment report to a file
+		reportDir := r.Config.AltReportDir
+		clusterInfraReportDir := filepath.Join(reportDir, "cluster_infra_assessment_reports")
+		if err := os.MkdirAll(clusterInfraReportDir, 0750); err != nil {
+			log.Error(err, "failed to create infra assessment report directory")
+			return err
+		}
+
+		reportData, err := json.Marshal(misConfigData.infraAssessmentReportData)
+		if err != nil {
+			return fmt.Errorf("failed to marshal compliance report: %w", err)
+		}
+		labels := clusterInfraReport.GetLabels()
+		// Extract workload kind and name from report labels
+		workloadKind := labels["trivy-operator.resource.kind"]
+		workloadName := labels["trivy-operator.resource.name"]
+		reportPath := filepath.Join(clusterInfraReportDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
+		err = os.WriteFile(reportPath, reportData, 0600)
+		if err != nil {
+			return fmt.Errorf("failed to write compliance report: %w", err)
+		}
+		return nil
+
 	}
 	log.V(1).Info("Deleting complete scan job", "owner", job)
 	return r.deleteJob(ctx, job)

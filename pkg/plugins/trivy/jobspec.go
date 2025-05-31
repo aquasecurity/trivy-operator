@@ -171,7 +171,8 @@ func getContainers(spec corev1.PodSpec) []corev1.Container {
 
 	// ephemeral container are not the same type as Containers/InitContainers,
 	// then we add it in a different loop
-	for _, c := range spec.EphemeralContainers {
+	for i := range spec.EphemeralContainers {
+		c := &spec.EphemeralContainers[i]
 		containers = append(containers, corev1.Container(c.EphemeralContainerCommon))
 	}
 

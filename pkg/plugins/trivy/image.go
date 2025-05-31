@@ -60,7 +60,9 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 		return corev1.PodSpec{}, nil, err
 	}
 
-	for _, c := range getContainers(spec) {
+	specContainers := getContainers(spec)
+	for i := range specContainers {
+		c := specContainers[i]
 		optionalMirroredImage, err := GetMirroredImage(c.Image, config.GetMirrors())
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
@@ -199,7 +201,8 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
-	for _, c := range containersSpec {
+	for i := range containersSpec {
+		c := &containersSpec[i]
 		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), c.Image) {
 			continue
 		}
@@ -368,7 +371,9 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 		return corev1.PodSpec{}, nil, err
 	}
 
-	for _, c := range getContainers(spec) {
+	specContainers := getContainers(spec)
+	for i := range specContainers {
+		c := specContainers[i]
 		optionalMirroredImage, err := GetMirroredImage(c.Image, config.GetMirrors())
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
@@ -428,7 +433,8 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
-	for _, container := range containersSpec {
+	for i := range containersSpec {
+		container := &containersSpec[i]
 		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), container.Image) {
 			continue
 		}

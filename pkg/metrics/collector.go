@@ -593,7 +593,8 @@ func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Conte
 			c.Logger.Error(err, "failed to list vulnerabilityreports from API", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for i := range reports.Items {
+			r := &reports.Items[i]
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
@@ -624,7 +625,8 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 			c.Logger.Error(err, "failed to list vulnerabilityreports from API", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for i := range reports.Items {
+			r := &reports.Items[i]
 			vulnLabelValues[0] = r.Namespace
 			vulnLabelValues[1] = r.Name
 			vulnLabelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
@@ -638,7 +640,8 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 				vulnLabelValues[i+22] = r.Labels[label]
 			}
 			var vulnList = make(map[string]bool)
-			for _, vuln := range r.Report.Vulnerabilities {
+			for i := range r.Report.Vulnerabilities {
+				vuln := &r.Report.Vulnerabilities[i]
 				vulnKey := kube.ComputeHash(vuln)
 				if vulnList[vulnKey] {
 					continue
@@ -674,7 +677,8 @@ func (c ResourcesMetricsCollector) collectExposedSecretsReports(ctx context.Cont
 			c.Logger.Error(err, "failed to list exposedsecretreports from API", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for i := range reports.Items {
+			r := &reports.Items[i]
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
@@ -704,7 +708,8 @@ func (c ResourcesMetricsCollector) collectExposedSecretsInfoReports(ctx context.
 			c.Logger.Error(err, "failed to list exposedsecretreports from API", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for i := range reports.Items {
+			r := &reports.Items[i]
 			if !c.Config.MetricsExposedSecretInfo {
 				continue
 			}
@@ -747,7 +752,8 @@ func (c *ResourcesMetricsCollector) collectConfigAuditReports(ctx context.Contex
 			c.Logger.Error(err, "failed to list configauditreports from API", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for i := range reports.Items {
+			r := &reports.Items[i]
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
@@ -772,7 +778,8 @@ func (c *ResourcesMetricsCollector) collectConfigAuditInfoReports(ctx context.Co
 			c.Logger.Error(err, "failed to list configauditreports from API", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for i := range reports.Items {
+			r := &reports.Items[i]
 			if !c.Config.MetricsConfigAuditInfo {
 				continue
 			}
@@ -781,7 +788,8 @@ func (c *ResourcesMetricsCollector) collectConfigAuditInfoReports(ctx context.Co
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
 			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
 			var configMap = make(map[string]bool)
-			for _, config := range r.Report.Checks {
+			for i := range r.Report.Checks {
+				config := &r.Report.Checks[i]
 				if configMap[config.ID] {
 					continue
 				}
@@ -812,7 +820,8 @@ func (c *ResourcesMetricsCollector) collectRbacAssessmentReports(ctx context.Con
 			c.Logger.Error(err, "failed to list rbacAssessment from API", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for i := range reports.Items {
+			r := &reports.Items[i]
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
@@ -833,7 +842,8 @@ func (c *ResourcesMetricsCollector) collectRbacAssessmentInfoReports(ctx context
 			c.Logger.Error(err, "failed to list rbacAssessment from API", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for i := range reports.Items {
+			r := &reports.Items[i]
 			if !c.Config.MetricsRbacAssessmentInfo {
 				continue
 			}
@@ -842,7 +852,8 @@ func (c *ResourcesMetricsCollector) collectRbacAssessmentInfoReports(ctx context
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
 			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
 			var configMap = make(map[string]bool)
-			for _, rbac := range r.Report.Checks {
+			for i := range r.Report.Checks {
+				rbac := &r.Report.Checks[i]
 				if configMap[rbac.ID] {
 					continue
 				}
@@ -871,7 +882,8 @@ func (c *ResourcesMetricsCollector) collectInfraAssessmentReports(ctx context.Co
 			c.Logger.Error(err, "failed to list infraAssessment from API", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for i := range reports.Items {
+			r := &reports.Items[i]
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
@@ -892,7 +904,8 @@ func (c *ResourcesMetricsCollector) collectInfraAssessmentInfoReports(ctx contex
 			c.Logger.Error(err, "failed to list infraAssessment from API", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for i := range reports.Items {
+			r := &reports.Items[i]
 			if !c.Config.MetricsInfraAssessmentInfo {
 				continue
 			}
@@ -901,7 +914,8 @@ func (c *ResourcesMetricsCollector) collectInfraAssessmentInfoReports(ctx contex
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
 			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
 			var configMap = make(map[string]bool)
-			for _, infra := range r.Report.Checks {
+			for i := range r.Report.Checks {
+				infra := &r.Report.Checks[i]
 				if configMap[infra.ID] {
 					continue
 				}
@@ -929,7 +943,8 @@ func (c *ResourcesMetricsCollector) collectClusterRbacAssessmentReports(ctx cont
 		c.Logger.Error(err, "failed to list cluster rbacAssessment from API")
 		return
 	}
-	for _, r := range reports.Items {
+	for i := range reports.Items {
+		r := &reports.Items[i]
 		labelValues[0] = r.Name
 		labelValues[1] = r.Labels[trivyoperator.LabelResourceKind]
 		labelValues[2] = r.Labels[trivyoperator.LabelResourceName]
@@ -947,7 +962,8 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceReports(ctx context.
 		c.Logger.Error(err, "failed to list cluster compliance from API")
 		return
 	}
-	for _, r := range reports.Items {
+	for i := range reports.Items {
+		r := &reports.Items[i]
 		labelValues[0] = r.Spec.Compliance.Title
 		labelValues[1] = r.Spec.Compliance.Description
 		for i, label := range c.GetReportResourceLabels() {
@@ -967,7 +983,8 @@ func (c ResourcesMetricsCollector) collectImageReports(ctx context.Context, metr
 			c.Logger.Error(err, "failed to list vulnerabilityreports from API", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for i := range reports.Items {
+			r := &reports.Items[i]
 			if !c.Config.MetricsImageInfo {
 				continue
 			}
@@ -1003,7 +1020,8 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceInfoReports(ctx cont
 		c.Logger.Error(err, "failed to list cluster compliance from API")
 		return
 	}
-	for _, r := range reports.Items {
+	for i := range reports.Items {
+		r := &reports.Items[i]
 		if r.Spec.ReportFormat == "all" {
 			continue
 		}

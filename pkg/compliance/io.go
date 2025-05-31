@@ -141,7 +141,8 @@ func misconfigReportToTrivyResults(ctx context.Context, cli client.Client) ([]tt
 	if err != nil {
 		return nil, err
 	}
-	for _, ca := range caObjList.Items {
+	for i := range caObjList.Items {
+		ca := &caObjList.Items[i]
 		results := reportsToResults(ca.Report.Checks, ca.Name, ca.Namespace)
 		resultsArray = append(resultsArray, results)
 	}
@@ -151,7 +152,8 @@ func misconfigReportToTrivyResults(ctx context.Context, cli client.Client) ([]tt
 	if err != nil {
 		return nil, err
 	}
-	for _, ra := range raObjList.Items {
+	for i := range raObjList.Items {
+		ra := &raObjList.Items[i]
 		results := reportsToResults(ra.Report.Checks, ra.Name, ra.Namespace)
 		resultsArray = append(resultsArray, results)
 	}
@@ -161,7 +163,8 @@ func misconfigReportToTrivyResults(ctx context.Context, cli client.Client) ([]tt
 	if err != nil {
 		return nil, err
 	}
-	for _, cra := range craObjList.Items {
+	for i := range craObjList.Items {
+		cra := &craObjList.Items[i]
 		results := reportsToResults(cra.Report.Checks, cra.Name, cra.Namespace)
 		resultsArray = append(resultsArray, results)
 	}
@@ -171,7 +174,8 @@ func misconfigReportToTrivyResults(ctx context.Context, cli client.Client) ([]tt
 	if err != nil {
 		return nil, err
 	}
-	for _, ia := range iaObjList.Items {
+	for i := range iaObjList.Items {
+		ia := &iaObjList.Items[i]
 		results := reportsToResults(ia.Report.Checks, ia.Name, ia.Namespace)
 		resultsArray = append(resultsArray, results)
 	}
@@ -181,7 +185,8 @@ func misconfigReportToTrivyResults(ctx context.Context, cli client.Client) ([]tt
 	if err != nil {
 		return nil, err
 	}
-	for _, cia := range ciaObjList.Items {
+	for i := range ciaObjList.Items {
+		cia := &ciaObjList.Items[i]
 		results := reportsToResults(cia.Report.Checks, cia.Name, cia.Namespace)
 		resultsArray = append(resultsArray, results)
 	}
@@ -190,7 +195,8 @@ func misconfigReportToTrivyResults(ctx context.Context, cli client.Client) ([]tt
 
 func reportsToResults(checks []v1alpha1.Check, name, namespace string) ttypes.Results {
 	results := ttypes.Results{}
-	for _, check := range checks {
+	for i := range checks {
+		check := &checks[i]
 		status := ttypes.MisconfStatusFailure
 		if check.Success {
 			status = ttypes.MisconfStatusPassed

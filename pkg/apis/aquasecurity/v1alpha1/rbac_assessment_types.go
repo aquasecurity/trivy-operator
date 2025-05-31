@@ -87,7 +87,8 @@ type RbacAssessmentReportData struct {
 func RbacAssessmentSummaryFromChecks(checks []Check) RbacAssessmentSummary {
 	summary := RbacAssessmentSummary{}
 
-	for _, check := range checks {
+	for i := range checks {
+		check := &checks[i]
 		if check.Success {
 			continue
 		}

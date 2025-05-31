@@ -24,13 +24,15 @@ func GetContainerImagesFromPodSpec(spec corev1.PodSpec, skipInitContainers bool)
 	if !skipInitContainers {
 		containers = append(containers, spec.InitContainers...)
 	}
-	for _, container := range containers {
+	for i := range containers {
+		container := &containers[i]
 		images[container.Name] = container.Image
 	}
 
 	// ephemeral container are not the same type as Containers/InitContainers,
 	// then we add it in a different loop
-	for _, c := range spec.EphemeralContainers {
+	for i := range spec.EphemeralContainers {
+		c := &spec.EphemeralContainers[i]
 		images[c.Name] = c.Image
 	}
 
@@ -42,7 +44,8 @@ func GetContainerImagesFromPodSpec(spec corev1.PodSpec, skipInitContainers bool)
 func GetContainerImagesFromContainersList(containers []corev1.Container) ContainerImages {
 	images := ContainerImages{}
 
-	for _, container := range containers {
+	for i := range containers {
+		container := &containers[i]
 		images[container.Name] = container.Image
 	}
 

@@ -130,7 +130,8 @@ type Check struct {
 func ConfigAuditSummaryFromChecks(checks []Check) ConfigAuditSummary {
 	summary := ConfigAuditSummary{}
 
-	for _, check := range checks {
+	for i := range checks {
+		check := &checks[i]
 		if check.Success {
 			continue
 		}

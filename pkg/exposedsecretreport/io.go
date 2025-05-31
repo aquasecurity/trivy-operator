@@ -48,7 +48,8 @@ func NewReadWriter(objectResolver *kube.ObjectResolver) ReadWriter {
 }
 
 func (r *readWriter) Write(ctx context.Context, reports []v1alpha1.ExposedSecretReport) error {
-	for _, report := range reports {
+	for i := range reports {
+		report := reports[i]
 		err := r.createOrUpdate(ctx, report)
 		if err != nil {
 			return err

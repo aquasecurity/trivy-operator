@@ -8,7 +8,8 @@ import (
 
 func cycloneDxBomToReport(cbom cdx.BOM, version string) *v1alpha1.BOM {
 	components := make([]*v1alpha1.Component, 0)
-	for _, c := range *cbom.Components {
+	for i := range *cbom.Components {
+		c := (*cbom.Components)[i]
 		components = append(components, cycloneDxComponentToReportComponent(c))
 	}
 	return &v1alpha1.BOM{

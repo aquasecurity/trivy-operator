@@ -61,7 +61,8 @@ func filter(results scan.Results, resource client.Object, bi trivyoperator.Build
 	infraChecks := make([]v1alpha1.Check, 0)
 	checks := make([]v1alpha1.Check, 0)
 
-	for _, result := range results {
+	for i := range results {
+		result := results[i]
 		if !policy.HasSeverity(result.Severity(), defaultSeverity) {
 			continue
 		}

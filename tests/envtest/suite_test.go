@@ -1,15 +1,22 @@
 package operator_test
 
 import (
-	"os"
-	"time"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	"context"
+	"os"
 	"path/filepath"
 	"testing"
+	"time"
+
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/rest"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	controllerconfig "sigs.k8s.io/controller-runtime/pkg/config"
+	"sigs.k8s.io/controller-runtime/pkg/envtest"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	"sigs.k8s.io/yaml"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
@@ -29,15 +36,9 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/client-go/kubernetes/scheme"
-	"k8s.io/client-go/rest"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/envtest"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
-	"sigs.k8s.io/yaml"
+
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
 var (
@@ -80,8 +81,11 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 	Expect(k8sClient).NotTo(BeNil())
 
+	skipNameValidation := true
+
 	k8sManager, err := ctrl.NewManager(cfg, ctrl.Options{
-		Scheme: scheme.Scheme,
+		Scheme:     scheme.Scheme,
+		Controller: controllerconfig.Controller{SkipNameValidation: &skipNameValidation},
 	})
 	Expect(err).ToNot(HaveOccurred())
 	managerClient := k8sManager.GetClient()
@@ -158,6 +162,18 @@ var _ = BeforeSuite(func() {
 
 	Expect(err).ToNot(HaveOccurred())
 
+	checksLoader := ca.NewChecksLoader(
+		config,
+		ctrl.Log.WithName("resourcecontroller"),
+		managerClient,
+		objectResolver,
+		pluginContext,
+		pluginca,
+		&TestLoader{},
+	)
+
+	Expect(checksLoader.SetupWithManager(k8sManager)).ToNot(HaveOccurred())
+
 	err = (&ca.ResourceController{
 		Logger:          ctrl.Log.WithName("resourcecontroller"),
 		Config:          config,
@@ -170,6 +186,7 @@ var _ = BeforeSuite(func() {
 		RbacReadWriter:  rbacassessment.NewReadWriter(&objectResolver),
 		InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
 		BuildInfo:       buildInfo,
+		ChecksLoader:    checksLoader,
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
@@ -217,6 +234,10 @@ func loadResource(obj runtime.Object, filename string) error {
 type TestLoader struct {
 }
 
-func (tl *TestLoader) GetPolicies() ([]string, error) {
-	return policy.LoadPoliciesData([]string{"./testdata/content"})
+func (tl *TestLoader) GetPoliciesAndBundlePath() ([]string, []string, error) {
+	policies, err := policy.LoadPoliciesData([]string{"./testdata/content"})
+	if err != nil {
+		return nil, nil, err
+	}
+	return policies, nil, nil
 }

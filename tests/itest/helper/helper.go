@@ -5,10 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/docker"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/caarlos0/env/v6"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -22,6 +18,11 @@ import (
 	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/docker"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 type PrivateRegistryConfig struct {
@@ -61,10 +62,12 @@ func (b *PodBuilder) WithNamespace(namespace string) *PodBuilder {
 	return b
 }
 
-func (b *PodBuilder) WithContainer(name, image string) *PodBuilder {
+func (b *PodBuilder) WithContainer(name, image string, commands, args []string) *PodBuilder {
 	b.containers = append(b.containers, corev1.Container{
-		Name:  name,
-		Image: image,
+		Name:    name,
+		Image:   image,
+		Command: commands,
+		Args:    args,
 	})
 	return b
 }
@@ -236,7 +239,7 @@ var (
 	trivyScanner = v1alpha1.Scanner{
 		Name:    v1alpha1.ScannerNameTrivy,
 		Vendor:  "Aqua Security",
-		Version: "0.21.3",
+		Version: "0.26.1",
 	}
 )
 
@@ -327,9 +330,9 @@ func NewHelper(c client.Client) *Helper {
 	}
 }
 
-func (h *Helper) HasActiveReplicaSet(namespace, name string) func() (bool, error) {
+func (h *Helper) HasActiveReplicaSet(ctx context.Context, namespace, name string) func() (bool, error) {
 	return func() (bool, error) {
-		rs, err := h.GetActiveReplicaSetForDeployment(namespace, name)
+		rs, err := h.GetActiveReplicaSetForDeployment(ctx, namespace, name)
 		if err != nil {
 			return false, err
 		}
@@ -337,14 +340,14 @@ func (h *Helper) HasActiveReplicaSet(namespace, name string) func() (bool, error
 	}
 }
 
-func (h *Helper) HasVulnerabilityReportOwnedBy(obj client.Object) func() (bool, error) {
+func (h *Helper) HasVulnerabilityReportOwnedBy(ctx context.Context, obj client.Object) func() (bool, error) {
 	return func() (bool, error) {
 		gvk, err := apiutil.GVKForObject(obj, h.scheme)
 		if err != nil {
 			return false, err
 		}
 		var reportList v1alpha1.VulnerabilityReportList
-		err = h.kubeClient.List(context.Background(), &reportList, client.MatchingLabels{
+		err = h.kubeClient.List(ctx, &reportList, client.MatchingLabels{
 			trivyoperator.LabelResourceKind:      gvk.Kind,
 			trivyoperator.LabelResourceName:      obj.GetName(),
 			trivyoperator.LabelResourceNamespace: obj.GetNamespace(),
@@ -356,14 +359,14 @@ func (h *Helper) HasVulnerabilityReportOwnedBy(obj client.Object) func() (bool, 
 	}
 }
 
-func (h *Helper) HasConfigAuditReportOwnedBy(obj client.Object) func() (bool, error) {
+func (h *Helper) HasConfigAuditReportOwnedBy(ctx context.Context, obj client.Object) func() (bool, error) {
 	return func() (bool, error) {
 		gvk, err := apiutil.GVKForObject(obj, h.scheme)
 		if err != nil {
 			return false, err
 		}
 		var reportsList v1alpha1.ConfigAuditReportList
-		err = h.kubeClient.List(context.Background(), &reportsList, client.MatchingLabels{
+		err = h.kubeClient.List(ctx, &reportsList, client.MatchingLabels{
 			trivyoperator.LabelResourceKind:      gvk.Kind,
 			trivyoperator.LabelResourceName:      obj.GetName(),
 			trivyoperator.LabelResourceNamespace: obj.GetNamespace(),
@@ -376,13 +379,13 @@ func (h *Helper) HasConfigAuditReportOwnedBy(obj client.Object) func() (bool, er
 	}
 }
 
-func (h *Helper) DeleteConfigAuditReportOwnedBy(obj client.Object) error {
+func (h *Helper) DeleteConfigAuditReportOwnedBy(ctx context.Context, obj client.Object) error {
 	gvk, err := apiutil.GVKForObject(obj, h.scheme)
 	if err != nil {
 		return err
 	}
 	var reportsList v1alpha1.ConfigAuditReportList
-	err = h.kubeClient.List(context.Background(), &reportsList, client.MatchingLabels{
+	err = h.kubeClient.List(ctx, &reportsList, client.MatchingLabels{
 		trivyoperator.LabelResourceKind:      gvk.Kind,
 		trivyoperator.LabelResourceName:      obj.GetName(),
 		trivyoperator.LabelResourceNamespace: obj.GetNamespace(),
@@ -391,14 +394,14 @@ func (h *Helper) DeleteConfigAuditReportOwnedBy(obj client.Object) error {
 		return err
 	}
 
-	return h.kubeClient.Delete(context.Background(), &reportsList.Items[0])
+	return h.kubeClient.Delete(ctx, &reportsList.Items[0])
 }
 
-func (h *Helper) GetActiveReplicaSetForDeployment(namespace, name string) (*appsv1.ReplicaSet, error) {
+func (h *Helper) GetActiveReplicaSetForDeployment(ctx context.Context, namespace, name string) (*appsv1.ReplicaSet, error) {
 	var deployment appsv1.Deployment
 	var replicaSetList appsv1.ReplicaSetList
 
-	err := h.kubeClient.Get(context.TODO(), types.NamespacedName{
+	err := h.kubeClient.Get(ctx, types.NamespacedName{
 		Name: name, Namespace: namespace,
 	}, &deployment)
 	if err != nil {
@@ -411,7 +414,7 @@ func (h *Helper) GetActiveReplicaSetForDeployment(namespace, name string) (*apps
 	}
 	selector := labels.Set(deploymentSelector)
 
-	err = h.kubeClient.List(context.TODO(), &replicaSetList, client.MatchingLabels(selector))
+	err = h.kubeClient.List(ctx, &replicaSetList, client.MatchingLabels(selector))
 
 	if err != nil {
 		return nil, err
@@ -428,18 +431,18 @@ func (h *Helper) GetActiveReplicaSetForDeployment(namespace, name string) (*apps
 }
 
 // nolint:staticcheck
-func (h *Helper) UpdateDeploymentImage(namespace, name string) error {
+func (h *Helper) UpdateDeploymentImage(ctx context.Context, namespace, name string) error {
 	// TODO Check kubectl set image implementation
 	return wait.PollImmediate(5*time.Second, 2*time.Minute, func() (bool, error) {
 		var deployment appsv1.Deployment
-		err := h.kubeClient.Get(context.TODO(), types.NamespacedName{Name: name, Namespace: namespace}, &deployment)
+		err := h.kubeClient.Get(ctx, types.NamespacedName{Name: name, Namespace: namespace}, &deployment)
 		if err != nil {
 			return false, err
 		}
 
 		dcDeploy := deployment.DeepCopy()
-		dcDeploy.Spec.Template.Spec.Containers[0].Image = "wordpress:5"
-		err = h.kubeClient.Update(context.TODO(), dcDeploy)
+		dcDeploy.Spec.Template.Spec.Containers[0].Image = "wordpress:6.7"
+		err = h.kubeClient.Update(ctx, dcDeploy)
 		if err != nil && errors.IsConflict(err) {
 			return false, nil
 		}

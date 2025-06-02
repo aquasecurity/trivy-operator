@@ -6,9 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -16,6 +13,11 @@ import (
 	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 type ReportBuilder struct {
@@ -27,6 +29,7 @@ type ReportBuilder struct {
 	reportTTL               *time.Duration
 	resourceLabelsToInclude []string
 	additionalReportLabels  labels.Set
+	etc.Config
 }
 
 func NewReportBuilder(scheme *runtime.Scheme) *ReportBuilder {
@@ -172,12 +175,20 @@ func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
 		if err != nil {
 			return err
 		}
-		return writer.WriteClusterReport(ctx, report)
+		if b.Config.AltReportStorageEnabled && b.Config.AltReportDir != "" {
+			return nil
+		} else {
+			return writer.WriteClusterReport(ctx, report)
+		}
 	} else {
 		report, err := b.GetReport()
 		if err != nil {
 			return err
 		}
-		return writer.WriteReport(ctx, report)
+		if b.Config.AltReportStorageEnabled && b.Config.AltReportDir != "" {
+			return nil
+		} else {
+			return writer.WriteReport(ctx, report)
+		}
 	}
 }

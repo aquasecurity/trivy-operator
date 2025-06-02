@@ -88,14 +88,14 @@ have to
 
 ## Build Binaries
 
-| Binary               | Image                                          | Description                                                   |
-|----------------------|------------------------------------------------|---------------------------------------------------------------|
-| `trivy-operator`     | `ghcr.io/aquasecurity/trivy-operator:dev`         | Trivy Operator                                                |
+| Binary           | Image                                     | Description    |
+|------------------|-------------------------------------------|----------------|
+| `trivy-operator` | `mirror.gcr.io/aquasec/trivy-operator:dev` | Trivy Operator |
 
 To build all Trivy-operator binary, run:
 
 ```
-mage build:all
+mage build:binary
 ```
 
 This uses the `go build` command and builds binaries in the `./bin` directory.
@@ -303,7 +303,7 @@ kubectl delete -k deploy/static
      OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED=true \
      OPERATOR_RBAC_ASSESSMENT_SCANNER_ENABLED=true \
      OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS=false \
-     OPERATOR_VULNERABILITY_SCANNER_REPORT_TTL="" \
+     OPERATOR_SCANNER_REPORT_TTL="" \
      OPERATOR_BATCH_DELETE_LIMIT=3 \
      OPERATOR_BATCH_DELETE_DELAY="30s" \
      go run cmd/trivy-operator/main.go
@@ -344,16 +344,16 @@ chart, then run `mage generate:docs` to ensure the helm docs are up-to-date.
 To install [Operator Lifecycle Manager] (OLM) run:
 
 ```
-kubectl apply -f https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.21.3/crds.yaml
-kubectl apply -f https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.21.3/olm.yaml
+kubectl apply -f https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.30.0/crds.yaml
+kubectl apply -f https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.30.0/olm.yaml
 ```
 
 or
 
 ```
-curl -L https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.21.4/install.sh -o install.sh
+curl -L https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.30.0/install.sh -o install.sh
 chmod +x install.sh
-./install.sh v0.21.3
+./install.sh v0.30.0
 ```
 
 ### Build the Catalog Image

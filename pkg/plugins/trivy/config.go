@@ -2,21 +2,17 @@ package trivy
 
 import (
 	"fmt"
-
 	"path/filepath"
-
 	"strconv"
 	"strings"
 
-	"github.com/aquasecurity/trivy-operator/pkg/utils"
-	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
-
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
-
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
+	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 )
 
 const (
@@ -45,6 +41,7 @@ const (
 	keyTrivyNoProxy                             = "trivy.noProxy"
 	keyTrivySslCertDir                          = "trivy.sslCertDir"
 	keyIncludeDevDeps                           = "trivy.includeDevDeps"
+	keyTrivyConfigFile                          = "trivy.configFile"
 	// nolint:gosec // This is not a secret, but a configuration value.
 	keyTrivyGitHubToken          = "trivy.githubToken"
 	keyTrivySkipFiles            = "trivy.skipFiles"
@@ -233,6 +230,14 @@ func (c Config) GetSkipJavaDBUpdate() bool {
 	return boolVal
 }
 
+func (c Config) GetJavaDBRepository() string {
+	val, ok := c.Data[keyTrivyJavaDBRepository]
+	if !ok {
+		return ""
+	}
+	return val
+}
+
 func (c Config) TrivyDBRepositoryCredentialsSet() bool {
 	_, userOk := c.SecretData[keyTrivyDBRepositoryUsername]
 	_, passOk := c.SecretData[keyTrivyDBRepositoryPassword]
@@ -324,7 +329,7 @@ func (c Config) GetVulnType() string {
 		return ""
 	}
 	trimmedVulnType := strings.TrimSpace(val)
-	if !(trimmedVulnType == "os" || trimmedVulnType == "library") {
+	if trimmedVulnType != "os" && trimmedVulnType != "library" {
 		return ""
 	}
 	return trimmedVulnType
@@ -340,6 +345,10 @@ func (c Config) GetSupportedConfigAuditKinds() []string {
 
 func (c Config) IgnoreFileExists() bool {
 	_, ok := c.Data[keyTrivyIgnoreFile]
+	return ok
+}
+func (c Config) ConfigFileExists() bool {
+	_, ok := c.Data[keyTrivyConfigFile]
 	return ok
 }
 
@@ -395,9 +404,37 @@ func (c Config) GenerateIgnoreFileVolumeIfAvailable(trivyConfigName string) (*co
 	return &volume, &volumeMount
 }
 
-func (c Config) GenerateSslCertDirVolumeIfAvailable(trivyConfigName string) (*corev1.Volume, *corev1.VolumeMount) {
+func (c Config) GenerateConfigFileVolumeIfAvailable(trivyConfigName string) (*corev1.Volume, *corev1.VolumeMount) {
+	if !c.ConfigFileExists() {
+		return nil, nil
+	}
+	volume := corev1.Volume{
+		Name: configFileVolumeName,
+		VolumeSource: corev1.VolumeSource{
+			ConfigMap: &corev1.ConfigMapVolumeSource{
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: trivyConfigName,
+				},
+				Items: []corev1.KeyToPath{
+					{
+						Key:  keyTrivyConfigFile,
+						Path: configFileName,
+					},
+				},
+			},
+		},
+	}
+	volumeMount := corev1.VolumeMount{
+		Name:      configFileVolumeName,
+		MountPath: configFileMountPath,
+		SubPath:   configFileName,
+	}
+	return &volume, &volumeMount
+}
+
+func (c Config) GenerateSslCertDirVolumeIfAvailable(_ string) (*corev1.Volume, *corev1.VolumeMount) {
 	var sslCertDirHost string
-	if sslCertDirHost = c.GetSslCertDir(); len(sslCertDirHost) == 0 {
+	if sslCertDirHost = c.GetSslCertDir(); sslCertDirHost == "" {
 		return nil, nil
 	}
 	volume := corev1.Volume{

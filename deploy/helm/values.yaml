@@ -20,6 +20,21 @@ targetNamespaces: ""
 # mode, i.e. when the targetNamespaces values is a blank string.
 excludeNamespaces: ""
 
+# -- extraEnv is a list of extra environment variables for the trivy-operator.
+extraEnv: []
+
+# -- hostAliases for `deployment` (TrivyOperator) and `statefulset` (TrivyServer)
+
+hostAliases: []
+# - ip: "127.0.0.1"
+#   hostnames:
+#   - "foo.local"
+#   - "bar.local"
+# - ip: "10.1.2.3"
+#   hostnames:
+#   - "foo.remote"
+#   - "bar.remote"
+
 # -- targetWorkloads is a comma seperated list of Kubernetes workload resources
 # to be included in the vulnerability and config-audit scans
 # if left blank, all workload resources will be scanned
@@ -185,8 +200,8 @@ operator:
   valuesFromSecret: ""
 
 image:
-  registry: "ghcr.io"
-  repository: "aquasecurity/trivy-operator"
+  registry: "mirror.gcr.io"
+  repository: "aquasec/trivy-operator"
   # -- tag is an override of the image tag, which is by default set by the
   # appVersion field in Chart.yaml.
   tag: ""
@@ -238,7 +253,7 @@ trivyOperator:
   # -- scanJobCompressLogs control whether scanjob output should be compressed or plain
   scanJobCompressLogs: true
   # -- scanJobAffinity affinity to be applied to the scanner pods and node-collector
-  scanJobAffinity: []
+  scanJobAffinity: {}
   # -- scanJobTolerations tolerations to be applied to the scanner pods so that they can run on nodes with matching taints
   scanJobTolerations: []
   # -- If you do want to specify tolerations, uncomment the following lines, adjust them as necessary, and remove the
@@ -267,7 +282,8 @@ trivyOperator:
   #    hostPath:
   #    path: /var/lib/etcd
 
-
+  # -- useGCRServiceAccount the flag to enable the usage of GCR service account for scanning images in GCR
+  useGCRServiceAccount: true
   # -- scanJobAutomountServiceAccountToken the flag to enable automount for service account token on scan job
   scanJobAutomountServiceAccountToken: false
 
@@ -335,11 +351,11 @@ trivy:
   createConfig: true
   image:
     # -- registry of the Trivy image
-    registry: ghcr.io
+    registry: mirror.gcr.io
     # -- repository of the Trivy image
-    repository: aquasecurity/trivy
+    repository: aquasec/trivy
     # -- tag version of the Trivy image
-    tag: 0.52.0
+    tag: 0.62.1
     # -- imagePullSecret is the secret name to be used when pulling trivy image from private registries example : reg-secret
     # It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace
     imagePullSecret: ~
@@ -437,6 +453,15 @@ trivy:
   #   - CVE-1970-0001
   #   - CVE-1970-0002
 
+  # -- configFile can be used to tell Trivy to use specific options available only in the config file (e.g. Mirror registries).
+  configFile: ~
+  # configFile:
+  #   registry:
+  #     mirrors:
+  #       index.docker.io:
+  #       - mirror.with.bad.auth
+  #       - mirror.without.image
+
   # -- ignorePolicy can be used to tell Trivy to ignore vulnerabilities by a policy
   # If multiple policies would match, then the most specific one has precedence over the others.
   # See https://aquasecurity.github.io/trivy/latest/docs/configuration/filtering/#by-open-policy-agent for more details.
@@ -504,7 +529,7 @@ trivy:
   # Keys must be at least one of the following: trivy.githubToken, trivy.serverToken, trivy.serverCustomHeaders
   # Overrides trivy.gitHubToken, trivy.serverToken, trivy.serverCustomHeaders values.
   # Note: The secret has to be named "trivy-operator-trivy-config".
-  # existingSecret: true
+  existingSecret: false
 
   # -- serverTokenHeader is the name of the HTTP header used to send the authentication
   # token to Trivy server. Only application in ClientServer mode when
@@ -516,8 +541,8 @@ trivy:
   serverCustomHeaders: ~
   # serverCustomHeaders: "foo=bar"
 
-  dbRegistry: "ghcr.io"
-  dbRepository: "aquasecurity/trivy-db"
+  dbRegistry: "mirror.gcr.io"
+  dbRepository: "aquasec/trivy-db"
 
   # -- The username for dbRepository authentication
   #
@@ -528,22 +553,22 @@ trivy:
   dbRepositoryPassword: ~
 
   # -- javaDbRegistry is the registry for the Java vulnerability database.
-  javaDbRegistry: "ghcr.io"
-  javaDbRepository: "aquasecurity/trivy-java-db"
+  javaDbRegistry: "mirror.gcr.io"
+  javaDbRepository: "aquasec/trivy-java-db"
 
   # -- The Flag to enable insecure connection for downloading trivy-db via proxy (air-gaped env)
   #
   dbRepositoryInsecure: "false"
 
-  # -- The Flag to enable the usage of builtin rego policies by default, these policies are downloaded by default from ghcr.io/aquasecurity/trivy-checks
+  # -- The Flag to enable the usage of builtin rego policies by default, these policies are downloaded by default from mirror.gcr.io/aquasec/trivy-checks
   #
-  useBuiltinRegoPolicies: "true"
+  useBuiltinRegoPolicies: "false"
   # -- The Flag to enable the usage of external rego policies config-map, this should be used when the user wants to use their own rego policies
   #
   externalRegoPoliciesEnabled: false
   # -- To enable the usage of embedded rego policies, set the flag useEmbeddedRegoPolicies. This should serve as a fallback for air-gapped environments.
   # When useEmbeddedRegoPolicies is set to true, useBuiltinRegoPolicies should be set to false.
-  useEmbeddedRegoPolicies: "false"
+  useEmbeddedRegoPolicies: "true"
 
   # -- The Flag is the list of supported kinds separated by comma delimiter to be scanned by the config audit scanner
   #
@@ -594,6 +619,12 @@ trivy:
     # -- the number of replicas of the trivy-server
     replicas: 1
 
+  # -- vaulesFromConfigMap name of a ConfigMap to apply TRIVY_* environment variables. Will override Helm values.
+  valuesFromConfigMap: ""
+
+  # -- valuesFromSecret name of a Secret to apply TRIVY_* environment variables. Will override Helm AND ConfigMap values.
+  valuesFromSecret: ""
+
 compliance:
   # -- failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report
   # this limit is for preventing the report from being too large per control checks
@@ -602,6 +633,18 @@ compliance:
   reportType: summary
   # -- cron this flag control the cron interval for compliance report generation
   cron: 0 */6 * * *
+  # -- specs is a list of compliance specs to be used by the cluster compliance scanner
+  #  - k8s-cis-1.23
+  #  - k8s-nsa-1.0
+  #  - k8s-pss-baseline-0.1
+  #  - k8s-pss-restricted-0.1
+  #  - eks-cis-1.4
+  #  - rke2-cis-1.24
+  specs:
+    - k8s-cis-1.23
+    - k8s-nsa-1.0
+    - k8s-pss-baseline-0.1
+    - k8s-pss-restricted-0.1
 
 rbac:
   create: true
@@ -617,7 +660,7 @@ serviceAccount:
 podAnnotations: {}
 
 podSecurityContext: {}
-  # fsGroup: 2000
+# fsGroup: 2000
 
 # -- securityContext security context
 securityContext:
@@ -640,16 +683,17 @@ volumes:
     emptyDir: {}
 
 resources: {}
-  # -- We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+# -- We usually recommend not to specify default resources and to leave this as a conscious
+# choice for the user. This also increases chances charts run on environments with little
+# resources, such as Minikube. If you do want to specify resources, uncomment the following
+# lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+# limits:
+#   cpu: 100m
+#   memory: 128Mi
+# requests:
+#   cpu: 100m
+#   memory: 128Mi
+
 # -- nodeSelector set the operator nodeSelector
 nodeSelector: {}
 
@@ -662,17 +706,17 @@ affinity: {}
 # -- priorityClassName set the operator priorityClassName
 priorityClassName: ""
 
-  # -- automountServiceAccountToken the flag to enable automount for service account token
+# -- automountServiceAccountToken the flag to enable automount for service account token
 automountServiceAccountToken: true
 
 policiesBundle:
   # -- registry of the policies bundle
-  registry: ghcr.io
+  registry: mirror.gcr.io
   # -- repository of the policies bundle
-  repository: aquasecurity/trivy-checks
+  repository: aquasec/trivy-checks
   # -- tag version of the policies bundle
-  tag: 0
-   # -- registryUser is the user for the registry
+  tag: 1
+  # -- registryUser is the user for the registry
   registryUser: ~
   # -- registryPassword is the password for the registry
   registryPassword: ~
@@ -684,7 +728,6 @@ policiesBundle:
   # -- insecure is the flag to enable insecure connection to the policy bundle registry
   insecure: false
 
-
 nodeCollector:
   # -- useNodeSelector determine if to use nodeSelector (by auto detecting node name) with node-collector scan job
   useNodeSelector: true
@@ -693,7 +736,7 @@ nodeCollector:
   # -- repository of the node-collector image
   repository: aquasecurity/node-collector
   # -- tag version of the node-collector image
-  tag: 0.2.1
+  tag: 0.3.1
   # -- imagePullSecret is the secret name to be used when pulling node-collector image from private registries example : reg-secret
   # It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace
   imagePullSecret: ~
@@ -760,3 +803,12 @@ nodeCollector:
     - name: etc-cni-netd
       hostPath:
         path: /etc/cni/net.d/
+# -- alternateReportStorage is the flag to enable alternate storage for all trivy reports (crds) in the form json files inside of a persistent volume
+alternateReportStorage:
+  enabled: false
+  mountPath: "/mnt/data/trivy-operator"
+  volumeName: "trivy-operator-pvc"
+  storage: "10Gi"
+  podSecurityContext:
+    runAsUser: 10000
+    fsGroup: 10000

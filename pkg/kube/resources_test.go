@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
 )
 
 func TestGetContainerImagesFromPodSpec(t *testing.T) {
@@ -202,7 +203,7 @@ func TestComputeHash(t *testing.T) {
 			})
 			hashes[hash] = true
 		}
-		assert.Equal(t, 100, len(hashes))
+		assert.Len(t, hashes, 100)
 	})
 
 }

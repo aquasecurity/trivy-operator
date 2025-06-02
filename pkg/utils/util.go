@@ -1,8 +1,9 @@
 package utils
 
 import (
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/emirpasic/gods/sets/hashset"
+
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
 )
 
 // MapKinds map resource data

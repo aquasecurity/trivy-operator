@@ -2,14 +2,26 @@ package operator
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
-	"context"
-	"fmt"
-
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/go-logr/logr"
+	corev1 "k8s.io/api/core/v1"
+	k8sapierror "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
 	"github.com/aquasecurity/trivy-kubernetes/pkg/bom"
 	tk "github.com/aquasecurity/trivy-kubernetes/pkg/k8s"
 	"github.com/aquasecurity/trivy-kubernetes/pkg/trivyk8s"
@@ -25,17 +37,6 @@ import (
 	"github.com/aquasecurity/trivy/pkg/k8s/report"
 	triv "github.com/aquasecurity/trivy/pkg/k8s/scanner"
 	ty "github.com/aquasecurity/trivy/pkg/types"
-	"github.com/go-logr/logr"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	k8sapierror "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/builder"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/controller"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 const (
@@ -47,8 +48,8 @@ const (
 
 //	ClusterReconciler reconciles corev1.Node and corev1.Pod objects
 //
-// to collect cluster nodes and cluster core components (api-server,kubelet,etcd and more) infomation for vulnerability scanning
-// the node information will be evaluated by the complaince control checks per relevant reports, examples: cis-benchmark and nsa
+// to collect cluster nodes and cluster core components (api-server,kubelet,etcd and more) information for vulnerability scanning
+// the node information will be evaluated by the compliance control checks per relevant reports, examples: cis-benchmark and nsa
 type ClusterController struct {
 	logr.Logger
 	*vc.WorkloadController
@@ -74,6 +75,7 @@ func (r *ClusterController) SetupWithManager(mgr ctrl.Manager) error {
 			For(resource.ForObject, builder.WithPredicates(
 				predicate.IsCoreComponents,
 				predicate.Not(predicate.ManagedByTrivyOperator),
+				predicate.Not(predicate.ManagedByKubeEnforcer),
 				predicate.Not(predicate.IsBeingTerminated))).
 			Owns(resource.OwnsObject).
 			Complete(r.reconcileClusterComponents(resource.Kind)); err != nil {
@@ -93,7 +95,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 		resourceRef := kube.ObjectRefFromKindAndObjectKey(resourceKind, req.NamespacedName)
 		obj, err := r.ObjectFromObjectRef(ctx, resourceRef)
 		if err != nil {
-			if errors.IsNotFound(err) {
+			if k8sapierror.IsNotFound(err) {
 				log.V(1).Info("Ignoring cached resource that must have been deleted")
 				r.clusterCache.Delete(resourceRef.Name)
 				return ctrl.Result{}, nil
@@ -124,7 +126,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 
 		components := make([]bom.Component, 0)
 		nodeInfo := make([]bom.NodeInfo, 0)
-		r.clusterCache.Range(func(_, value interface{}) bool {
+		r.clusterCache.Range(func(_, value any) bool {
 			switch p := value.(type) {
 			case *bom.Component:
 				components = append(components, *p)
@@ -139,7 +141,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 			return ctrl.Result{}, fmt.Errorf("getting core pods and nodes count : %w", err)
 		}
 		// validate that all core components resources has been collected
-		if !(len(nodeInfo) == numOfNodes && len(components) == numOfPods) {
+		if len(nodeInfo) != numOfNodes || len(components) != numOfPods {
 			return ctrl.Result{}, nil
 		}
 		name := fmt.Sprintf("%s/%s", K8sRegistry, K8sRepo)
@@ -206,7 +208,28 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 			Data(sbomReportData).
 			AdditionalReportLabels(map[string]string{trivyoperator.LabelKbom: kbom})
 		sbomReport := sbomReportBuilder.ClusterReport()
-		return ctrl.Result{}, r.SbomReadWriter.WriteCluster(ctx, []v1alpha1.ClusterSbomReport{sbomReport})
+		if !r.Config.AltReportStorageEnabled || r.Config.AltReportDir == "" {
+			return ctrl.Result{}, r.SbomReadWriter.WriteCluster(ctx, []v1alpha1.ClusterSbomReport{sbomReport})
+		} else {
+			// Write the sbom report to a file
+			reportDir := r.Config.AltReportDir
+			sbomReportDir := filepath.Join(reportDir, "cluster_sbom_reports")
+			if err := os.MkdirAll(sbomReportDir, 0750); err != nil {
+				return ctrl.Result{}, fmt.Errorf("failed to make sbomReportDir %s: %w", sbomReportDir, err)
+			}
+
+			reportData, err := json.Marshal(sbomReport)
+			if err != nil {
+				return ctrl.Result{}, fmt.Errorf("failed to marshal sbom report: %w", err)
+			}
+
+			reportPath := filepath.Join(sbomReportDir, fmt.Sprintf("%s.json", sbomReport.Name))
+			err = os.WriteFile(reportPath, reportData, 0600)
+			if err != nil {
+				return ctrl.Result{}, fmt.Errorf("failed to write sbom report: %w", err)
+			}
+			return ctrl.Result{}, nil
+		}
 	}
 }
 
@@ -235,7 +258,7 @@ func (r *ClusterController) reconcileKbom() reconcile.Func {
 		log.V(1).Info("Getting node from cache")
 		err := r.Client.Get(ctx, req.NamespacedName, kbom)
 		if err != nil {
-			if errors.IsNotFound(err) {
+			if k8sapierror.IsNotFound(err) {
 				log.V(1).Info("Ignoring cached kbom that must have been deleted")
 				return ctrl.Result{}, nil
 			}
@@ -277,7 +300,7 @@ func (r *ClusterController) numOfCoreComponentPodsAndNodes(ctx context.Context) 
 		"": trivyoperator.LabelCoreComponent,
 	}
 
-	if r.isOpenShift() {
+	if r.isOpenShift(ctx) {
 		coreK8slabels = map[string]string{
 			"openshift-kube-apiserver":          trivyoperator.LabelOpenShiftAPIServer,
 			"openshift-kube-controller-manager": trivyoperator.LabelOpenShiftControllerManager,
@@ -307,8 +330,7 @@ func (r *ClusterController) numOfCoreComponentPodsAndNodes(ctx context.Context) 
 	return corePodsCount + len(addonPods.Items), len(nodes.Items), nil
 }
 
-func (r *ClusterController) isOpenShift() bool {
-	ctx := context.Background()
+func (r *ClusterController) isOpenShift(ctx context.Context) bool {
 	_, err := r.clientset.CoreV1().Namespaces().Get(ctx, "openshift-kube-apiserver", metav1.GetOptions{})
 	return !k8sapierror.IsNotFound(err)
 }

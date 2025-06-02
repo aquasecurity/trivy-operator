@@ -1,24 +1,9 @@
 package controller
 
 import (
-	"time"
-
-	j "github.com/aquasecurity/trivy-kubernetes/pkg/jobs"
-	"github.com/aquasecurity/trivy-kubernetes/pkg/k8s"
-	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
-	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
-	. "github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
-	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-
 	"context"
 	"fmt"
-
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"time"
 
 	"github.com/go-logr/logr"
 	batchv1 "k8s.io/api/batch/v1"
@@ -29,15 +14,30 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
+	tchecks "github.com/aquasecurity/trivy-checks"
+	j "github.com/aquasecurity/trivy-kubernetes/pkg/jobs"
+	"github.com/aquasecurity/trivy-kubernetes/pkg/k8s"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
+	"github.com/aquasecurity/trivy-operator/pkg/policy"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 //	NodeReconciler reconciles corev1.Node and corev1.Job objects
 //
 // to collect cluster nodes information (fileSystem permission and process arguments)
-// the node information will be evaluated by the complaince control checks per relevant reports, examples: cis-benchmark and nsa
+// the node information will be evaluated by the compliance control checks per relevant reports, examples: cis-benchmark and nsa
 type NodeReconciler struct {
 	logr.Logger
 	etc.Config
+	PolicyLoader policy.Loader
 	trivyoperator.ConfigData
 	kube.ObjectResolver
 	trivyoperator.PluginContext
@@ -60,7 +60,7 @@ func (r *NodeReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).WithOptions(controller.Options{
 		CacheSyncTimeout: r.CacheSyncTimeout,
 	}).
-		For(&corev1.Node{}, builder.WithPredicates(IsLinuxNode, predicate.Not((excludeNodePredicate)))).
+		For(&corev1.Node{}, builder.WithPredicates(predicate.IsLinuxNode, predicate.Not(excludeNodePredicate))).
 		Owns(&v1alpha1.ClusterInfraAssessmentReport{}).
 		Complete(r.reconcileNodes())
 }
@@ -157,13 +157,18 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 
 		requirements, err := tc.GetResourceRequirements()
 		if err != nil {
-			return ctrl.Result{}, fmt.Errorf("getting node-collector resource requierments: %w", err)
+			return ctrl.Result{}, fmt.Errorf("getting node-collector resource requirements: %w", err)
 		}
 
 		scanJobPodPriorityClassName, err := r.GetScanJobPodPriorityClassName()
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("getting scan job priority class name: %w", err)
 		}
+		_, bundlePath, err := r.PolicyLoader.GetPoliciesAndBundlePath()
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("getting policies and bundle path: %w", err)
+		}
+
 		nodeCollectorImageRef := r.GetTrivyOperatorConfig().NodeCollectorImageRef()
 		useNodeSelector := r.GetTrivyOperatorConfig().UseNodeCollectorNodeSelector()
 		coll := j.NewCollector(cluster,
@@ -182,6 +187,9 @@ func (r *NodeReconciler) reconcileNodes() reconcile.Func {
 			j.WithImageRef(nodeCollectorImageRef),
 			j.WithVolumes(nodeCollectorVolumes),
 			j.WithUseNodeSelector(useNodeSelector),
+			j.WithCommandsPath(bundlePath),
+			j.WithEmbeddedCommandFileSystem(tchecks.EmbeddedK8sCommandsFileSystem),
+			j.WithEmbeddedNodeConfigFilesystem(tchecks.EmbeddedK8sCommandsFileSystem),
 			j.WithPodPriorityClassName(scanJobPodPriorityClassName),
 			j.WithVolumesMount(nodeCollectorVolumeMounts),
 			j.WithContainerResourceRequirements(requirements),

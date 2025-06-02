@@ -1,10 +1,11 @@
 package v1alpha1
 
 import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"github.com/aquasecurity/trivy/pkg/compliance/report"
 	"github.com/aquasecurity/trivy/pkg/compliance/spec"
 	defsecTypes "github.com/aquasecurity/trivy/pkg/iac/types"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // +kubebuilder:object:root=true
@@ -30,15 +31,17 @@ type ReportSpec struct {
 	Cron string `json:"cron"`
 	// +kubebuilder:validation:Enum={summary,all}
 	ReportFormat ReportType `json:"reportType"`
-	Complaince   Complaince `json:"compliance"`
+	Compliance   Compliance `json:"compliance"`
 }
 
-type Complaince struct {
+type Compliance struct {
 	ID               string   `json:"id"`
 	Title            string   `json:"title"`
 	Description      string   `json:"description"`
 	Version          string   `json:"version"`
 	RelatedResources []string `json:"relatedResources"`
+	Platform         string   `json:"platform"`
+	SpecType         string   `json:"type"`
 	// Control represent the cps controls data and mapping checks
 	Controls []Control `json:"controls"`
 }
@@ -50,6 +53,8 @@ type Control struct {
 	Name        string      `json:"name"`
 	Description string      `json:"description,omitempty"`
 	Checks      []SpecCheck `json:"checks,omitempty"`
+	// +optional
+	Commands []Commands `json:"commands,omitempty"`
 	// define the severity of the control
 	// +kubebuilder:validation:Enum={CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN}
 	Severity Severity `json:"severity"`
@@ -61,6 +66,12 @@ type Control struct {
 // SpecCheck represent the scanner who perform the control check
 type SpecCheck struct {
 	// id define the check id as produced by scanner
+	ID string `json:"id"`
+}
+
+// Commands represent the commands to be executed by the node-collector
+type Commands struct {
+	// id define the commands id
 	ID string `json:"id"`
 }
 
@@ -156,8 +167,8 @@ type ComplianceCheck struct {
 	Success bool `json:"success"`
 }
 
-// ToComplainceSpec map data from crd compliance spec to trivy compliance spec
-func ToComplainceSpec(cSpec Complaince) spec.ComplianceSpec {
+// ToComplianceSpec map data from crd compliance spec to trivy compliance spec
+func ToComplianceSpec(cSpec Compliance) spec.ComplianceSpec {
 	specControls := make([]defsecTypes.Control, 0)
 	for _, control := range cSpec.Controls {
 		sChecks := make([]defsecTypes.SpecCheck, 0)

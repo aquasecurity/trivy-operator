@@ -5,13 +5,15 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 func TestGenerateComplianceReport(t *testing.T) {
@@ -53,7 +55,7 @@ func TestGenerateComplianceReport(t *testing.T) {
 			ObjectMeta: v1.ObjectMeta{Name: "nsa"},
 			Spec: v1alpha1.ReportSpec{
 				ReportFormat: "summary",
-				Complaince: v1alpha1.Complaince{
+				Compliance: v1alpha1.Compliance{
 					ID:    "nsa",
 					Title: "nsa",
 					Controls: []v1alpha1.Control{
@@ -151,7 +153,7 @@ func TestGenerateComplianceReport(t *testing.T) {
 			ObjectMeta: v1.ObjectMeta{Name: "nsa"},
 			Spec: v1alpha1.ReportSpec{
 				ReportFormat: "all",
-				Complaince: v1alpha1.Complaince{
+				Compliance: v1alpha1.Compliance{
 					ID:    "nsa",
 					Title: "nsa",
 					Controls: []v1alpha1.Control{
@@ -262,10 +264,10 @@ func TestGenerateComplianceReport(t *testing.T) {
 				WithStatusSubresource(tt.clusterComplianceReport).
 				Build()
 			mgr := NewMgr(c)
-			err := mgr.GenerateComplianceReport(context.Background(), tt.clusterComplianceReport.Spec)
-			assert.NoError(t, err)
-			ccr, err := getReport(context.Background(), c)
-			assert.NoError(t, err)
+			err := mgr.GenerateComplianceReport(t.Context(), tt.clusterComplianceReport.Spec)
+			require.NoError(t, err)
+			ccr, err := getReport(t.Context(), c)
+			require.NoError(t, err)
 			if tt.reportType == "summary" {
 				assert.True(t, reflect.DeepEqual(ccr.Status.SummaryReport, tt.wantStatus.SummaryReport))
 			}

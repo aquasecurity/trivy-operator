@@ -1,19 +1,20 @@
 package configauditreport_test
 
 import (
-	. "github.com/onsi/gomega"
-	"k8s.io/apimachinery/pkg/labels"
-
 	"testing"
+
+	appsv1 "k8s.io/api/apps/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/utils/ptr"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	appsv1 "k8s.io/api/apps/v1"
-	rbacv1 "k8s.io/api/rbac/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes/scheme"
-	"k8s.io/utils/ptr"
+
+	. "github.com/onsi/gomega"
 )
 
 func TestReportBuilder(t *testing.T) {

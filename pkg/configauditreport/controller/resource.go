@@ -2,27 +2,17 @@ package controller
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
-	rbacv1 "k8s.io/api/rbac/v1"
-
-	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
-	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/workload"
-	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
-
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
-	"github.com/aquasecurity/trivy-operator/pkg/policy"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	"github.com/aquasecurity/trivy/pkg/iac/scan"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
+	rbacv1 "k8s.io/api/rbac/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -31,6 +21,18 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	k8s_predicate "sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/workload"
+	"github.com/aquasecurity/trivy-operator/pkg/policy"
+	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy/pkg/iac/scan"
 )
 
 // ResourceController watches all Kubernetes kinds and generates
@@ -50,6 +52,7 @@ type ResourceController struct {
 	trivyoperator.BuildInfo
 	ClusterVersion   string
 	CacheSyncTimeout time.Duration
+	ChecksLoader     *ChecksLoader
 }
 
 // +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
@@ -130,6 +133,7 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		}).For(resource.ForObject, builder.WithPredicates(
 			predicate.Not(predicate.ManagedByTrivyOperator),
 			predicate.Not(predicate.IsBeingTerminated),
+			predicate.Not(predicate.ManagedByKubeEnforcer),
 		)).Owns(resource.OwnsObject).Complete(r.reconcileResource(resource.Kind)); err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", resource.Kind, err)
 		}
@@ -147,6 +151,7 @@ func (r *ResourceController) buildControlMgr(mgr ctrl.Manager, configResource ku
 			predicate.Not(predicate.ManagedByTrivyOperator),
 			predicate.Not(predicate.IsLeaderElectionResource),
 			predicate.Not(predicate.IsBeingTerminated),
+			predicate.Not(predicate.ManagedByKubeEnforcer),
 			installModePredicate,
 		)).
 		Owns(configResource.OwnsObject)
@@ -155,6 +160,7 @@ func (r *ResourceController) buildControlMgr(mgr ctrl.Manager, configResource ku
 func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile.Func {
 	return func(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 		log := r.Logger.WithValues("kind", resourceKind, "name", req.NamespacedName)
+
 		resourceRef := kube.ObjectRefFromKindAndObjectKey(resourceKind, req.NamespacedName)
 		resource, err := r.ObjectFromObjectRef(ctx, resourceRef)
 		if err != nil {
@@ -169,13 +175,10 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			r.Config.ConfigAuditScannerScanOnlyCurrentRevisions, log, r.ConfigData.GetSkipResourceByLabels()); skip {
 			return ctrl.Result{}, err
 		}
-		cac, err := r.NewConfigForConfigAudit(r.PluginContext)
+
+		policies, err := r.ChecksLoader.GetPolicies(ctx)
 		if err != nil {
-			return ctrl.Result{}, err
-		}
-		policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger, r.PolicyLoader, r.ClusterVersion)
-		if err != nil {
-			return ctrl.Result{}, fmt.Errorf("getting policies: %w", err)
+			return ctrl.Result{}, fmt.Errorf("get policies: %w", err)
 		}
 
 		// Skip processing if there are no policies applicable to the resource
@@ -234,60 +237,131 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			return ctrl.Result{}, fmt.Errorf("evaluating resource: %w", err)
 		}
 		kind := resource.GetObjectKind().GroupVersionKind().Kind
-		// create config-audit report
-		if !kube.IsRoleTypes(kube.Kind(kind)) || r.MergeRbacFindingWithConfigAudit {
-			reportBuilder := configauditreport.NewReportBuilder(r.Client.Scheme()).
-				Controller(resource).
-				ResourceSpecHash(resourceHash).
-				PluginConfigHash(policiesHash).
-				ResourceLabelsToInclude(resourceLabelsToInclude).
-				AdditionalReportLabels(additionalCustomLabel).
-				Data(misConfigData.configAuditReportData)
-			if r.Config.ScannerReportTTL != nil {
-				reportBuilder.ReportTTL(r.Config.ScannerReportTTL)
-			}
-			if err := reportBuilder.Write(ctx, r.ReadWriter); err != nil {
-				return ctrl.Result{}, err
-			}
-			// create infra-assessment report
-			if k8sCoreComponent(resource) && r.Config.InfraAssessmentScannerEnabled {
-				infraReportBuilder := infraassessment.NewReportBuilder(r.Client.Scheme()).
+		if !r.Config.AltReportStorageEnabled || r.Config.AltReportDir == "" {
+			// create config-audit report
+			if !kube.IsRoleTypes(kube.Kind(kind)) || r.MergeRbacFindingWithConfigAudit {
+				reportBuilder := configauditreport.NewReportBuilder(r.Client.Scheme()).
 					Controller(resource).
 					ResourceSpecHash(resourceHash).
 					PluginConfigHash(policiesHash).
 					ResourceLabelsToInclude(resourceLabelsToInclude).
 					AdditionalReportLabels(additionalCustomLabel).
-					Data(misConfigData.infraAssessmentReportData)
+					Data(misConfigData.configAuditReportData)
 				if r.Config.ScannerReportTTL != nil {
-					infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
+					reportBuilder.ReportTTL(r.Config.ScannerReportTTL)
 				}
-				if err := infraReportBuilder.Write(ctx, r.InfraReadWriter); err != nil {
+				if err := reportBuilder.Write(ctx, r.ReadWriter); err != nil {
+					return ctrl.Result{}, err
+				}
+				// create infra-assessment report
+				if k8sCoreComponent(resource) && r.Config.InfraAssessmentScannerEnabled {
+					infraReportBuilder := infraassessment.NewReportBuilder(r.Client.Scheme()).
+						Controller(resource).
+						ResourceSpecHash(resourceHash).
+						PluginConfigHash(policiesHash).
+						ResourceLabelsToInclude(resourceLabelsToInclude).
+						AdditionalReportLabels(additionalCustomLabel).
+						Data(misConfigData.infraAssessmentReportData)
+					if r.Config.ScannerReportTTL != nil {
+						infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
+					}
+					if err := infraReportBuilder.Write(ctx, r.InfraReadWriter); err != nil {
+						return ctrl.Result{}, err
+					}
+				}
+			}
+			// create rbac-assessment report
+			if kube.IsRoleTypes(kube.Kind(kind)) && r.Config.RbacAssessmentScannerEnabled && !r.MergeRbacFindingWithConfigAudit {
+				rbacReportBuilder := rbacassessment.NewReportBuilder(r.Client.Scheme()).
+					Controller(resource).
+					ResourceSpecHash(resourceHash).
+					PluginConfigHash(policiesHash).
+					ResourceLabelsToInclude(resourceLabelsToInclude).
+					AdditionalReportLabels(additionalCustomLabel).
+					Data(misConfigData.rbacAssessmentReportData)
+				if r.Config.ScannerReportTTL != nil {
+					rbacReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
+				}
+				if err := rbacReportBuilder.Write(ctx, r.RbacReadWriter); err != nil {
 					return ctrl.Result{}, err
 				}
 			}
-		}
-		// create rbac-assessment report
-		if kube.IsRoleTypes(kube.Kind(kind)) && r.Config.RbacAssessmentScannerEnabled && !r.MergeRbacFindingWithConfigAudit {
-			rbacReportBuilder := rbacassessment.NewReportBuilder(r.Client.Scheme()).
-				Controller(resource).
-				ResourceSpecHash(resourceHash).
-				PluginConfigHash(policiesHash).
-				ResourceLabelsToInclude(resourceLabelsToInclude).
-				AdditionalReportLabels(additionalCustomLabel).
-				Data(misConfigData.rbacAssessmentReportData)
-			if r.Config.ScannerReportTTL != nil {
-				rbacReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
-			}
-			if err := rbacReportBuilder.Write(ctx, r.RbacReadWriter); err != nil {
-				return ctrl.Result{}, err
-			}
-
+		} else {
+			// Write reports to alternate storage if enabled
+			log.V(1).Info("Writing config, infra and rbac reports to alternate storage", "dir", r.Config.AltReportDir)
+			return r.writeAlternateReports(resource, misConfigData, log)
 		}
 		return ctrl.Result{}, nil
 	}
 }
 
-func (r *ResourceController) hasReport(ctx context.Context, owner kube.ObjectRef, podSpecHash string, pluginConfigHash string) (bool, error) {
+func (r *ResourceController) writeAlternateReports(resource client.Object, misConfigData Misconfiguration, log logr.Logger) (ctrl.Result, error) {
+	// Write reports to alternate storage if enabled
+	if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
+		// Get the report directory from the environment variable
+		reportDir := r.Config.AltReportDir
+		// Create subdirectories for each type of report
+		configAuditDir := filepath.Join(reportDir, "config_audit_reports")
+		rbacAssessmentDir := filepath.Join(reportDir, "rbac_assessment_reports")
+		infraAssessmentDir := filepath.Join(reportDir, "infra_assessment_reports")
+
+		// Ensure the directories exist
+		if err := os.MkdirAll(configAuditDir, 0750); err != nil {
+			log.Error(err, "Failed to create configAuditDir")
+			return ctrl.Result{}, err
+		}
+		if err := os.MkdirAll(rbacAssessmentDir, 0750); err != nil {
+			log.Error(err, "Failed to create rbacAssessmentDir")
+			return ctrl.Result{}, err
+		}
+		if err := os.MkdirAll(infraAssessmentDir, 0750); err != nil {
+			log.Error(err, "Failed to create infraAssessmentDir")
+			return ctrl.Result{}, err
+		}
+		// Extract workload kind and name from resource labels
+		workloadKind := resource.GetObjectKind().GroupVersionKind().Kind
+		workloadName := resource.GetName()
+
+		// Write config audit report to a file
+		configReportData, err := json.Marshal(misConfigData.configAuditReportData)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		configReportPath := filepath.Join(configAuditDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
+		err = os.WriteFile(configReportPath, configReportData, 0600)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		log.Info("Config audit report written", "path", configReportPath)
+
+		// Write infra assessment report to a file
+		infraReportData, err := json.Marshal(misConfigData.infraAssessmentReportData)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		infraReportPath := filepath.Join(infraAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
+		err = os.WriteFile(infraReportPath, infraReportData, 0600)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		log.Info("Infra assessment report written", "path", infraReportPath)
+
+		// Write RBAC assessment report to a file
+		rbacReportData, err := json.Marshal(misConfigData.rbacAssessmentReportData)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		rbacReportPath := filepath.Join(rbacAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
+		err = os.WriteFile(rbacReportPath, rbacReportData, 0600)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		log.Info("RBAC assessment report written", "path", rbacReportPath)
+	}
+	return ctrl.Result{}, nil
+}
+
+func (r *ResourceController) hasReport(ctx context.Context, owner kube.ObjectRef, podSpecHash, pluginConfigHash string) (bool, error) {
 	var io rbacassessment.Reader = r.ReadWriter
 	if kube.IsRoleTypes(owner.Kind) {
 		io = r.RbacReadWriter
@@ -302,7 +376,7 @@ func (r *ResourceController) hasReport(ctx context.Context, owner kube.ObjectRef
 	return r.findReportOwner(ctx, owner, podSpecHash, pluginConfigHash, io)
 }
 
-func (r *ResourceController) hasClusterReport(ctx context.Context, owner kube.ObjectRef, podSpecHash string, pluginConfigHash string, io rbacassessment.Reader) (bool, error) {
+func (r *ResourceController) hasClusterReport(ctx context.Context, owner kube.ObjectRef, podSpecHash, pluginConfigHash string, io rbacassessment.Reader) (bool, error) {
 	report, err := io.FindClusterReportByOwner(ctx, owner)
 	if err != nil {
 		return false, err
@@ -319,7 +393,7 @@ func (r *ResourceController) hasClusterReport(ctx context.Context, owner kube.Ob
 	}
 	return false, nil
 }
-func (r *ResourceController) findReportOwner(ctx context.Context, owner kube.ObjectRef, podSpecHash string, pluginConfigHash string, io rbacassessment.Reader) (bool, error) {
+func (r *ResourceController) findReportOwner(ctx context.Context, owner kube.ObjectRef, podSpecHash, pluginConfigHash string, io rbacassessment.Reader) (bool, error) {
 	report, err := io.FindReportByOwner(ctx, owner)
 	if err != nil {
 		return false, err
@@ -356,16 +430,22 @@ func k8sCoreComponent(resource client.Object) bool {
 				strings.Contains(resource.GetName(), "etcd")))
 }
 
-func getCheck(result scan.Result, id string) v1alpha1.Check {
-	return v1alpha1.Check{
+func getCheck(result scan.Result, id string) *v1alpha1.Check {
+	if result.Status() != scan.StatusPassed && result.Description() == "" {
+		return nil
+	}
+	var messages []string
+	if result.Description() != "" {
+		messages = []string{result.Description()}
+	}
+	return &v1alpha1.Check{
 		ID:          id,
 		Title:       result.Rule().Summary,
 		Description: result.Rule().Explanation,
 		Severity:    v1alpha1.Severity(result.Rule().Severity),
 		Category:    "Kubernetes Security Check",
-
 		Success:     result.Status() == scan.StatusPassed,
-		Messages:    []string{result.Description()},
+		Messages:    messages,
 		Remediation: result.Rule().Resolution,
 	}
 }

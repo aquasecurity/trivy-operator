@@ -1,10 +1,12 @@
 package utils
 
 import (
-	"github.com/aquasecurity/trivy-operator/pkg/ext"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/aquasecurity/trivy-operator/pkg/ext"
 )
 
 func TestNextCronDuration(t *testing.T) {
@@ -22,14 +24,14 @@ func TestNextCronDuration(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tm, err := parseTime(tt.creationTime)
 			if err != nil {
-				t.Errorf(err.Error())
+				t.Error(err.Error())
 			}
 			duration, err := NextCronDuration(tt.cron, tm, ext.NewSystemClock())
 			if err != nil {
-				assert.Equal(t, err.Error(), tt.wantError)
+				assert.Equal(t, tt.wantError, err.Error())
 			}
 			if err == nil {
-				assert.True(t, !(int(duration.Hours()) > tt.wantDuration))
+				assert.LessOrEqual(t, int(duration.Hours()), tt.wantDuration)
 			}
 		})
 	}
@@ -55,7 +57,7 @@ func TestDurationExceeded(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			exceeded := DurationExceeded(tt.duration)
-			assert.Equal(t, exceeded, tt.want)
+			assert.Equal(t, tt.want, exceeded)
 		})
 	}
 }
@@ -65,7 +67,7 @@ func TestTTLIsNotExpired(t *testing.T) {
 	ttlReportTime, _ := time.ParseDuration(ttlReportAnnotationStr)
 	creationTime := time.Now()
 	ttlExpired, duration := IsTTLExpired(ttlReportTime, creationTime, ext.NewSystemClock())
-	assert.True(t, duration > 0)
+	assert.Positive(t, duration)
 	assert.False(t, ttlExpired)
 }
 
@@ -75,6 +77,6 @@ func TestTTLIsExpired(t *testing.T) {
 	creationTime := time.Now()
 	then := creationTime.Add(time.Duration(-10) * time.Minute)
 	ttlExpired, duration := IsTTLExpired(ttlReportTime, then, ext.NewSystemClock())
-	assert.True(t, duration <= 0)
+	assert.True(t, duration <= 0) // nolint: testifylint
 	assert.True(t, ttlExpired)
 }

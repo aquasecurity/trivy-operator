@@ -5,17 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
-	control "github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
-	"github.com/aquasecurity/trivy-operator/pkg/ext"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	"github.com/aquasecurity/trivy-operator/pkg/utils"
-
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
-	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -24,6 +13,17 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+	control "github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
+	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
+	"github.com/aquasecurity/trivy-operator/pkg/policy"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
 )
 
 type TTLReportReconciler struct {
@@ -80,7 +80,7 @@ func (r *TTLReportReconciler) reconcileReport(reportType client.Object) reconcil
 	}
 }
 
-func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespacedName types.NamespacedName, reportType client.Object, arr ...string) (ctrl.Result, error) {
+func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespacedName types.NamespacedName, reportType client.Object, _ ...string) (ctrl.Result, error) {
 	log := r.Logger.WithValues("report", namespacedName)
 
 	err := r.Client.Get(ctx, namespacedName, reportType)
@@ -102,7 +102,7 @@ func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespa
 	}
 	ttlExpired, durationToTTLExpiration := utils.IsTTLExpired(reportTTLTime, reportType.GetCreationTimestamp().Time, r.Clock)
 
-	if ttlExpired && r.applicableForDeletion(reportType, ttlReportAnnotationStr) {
+	if ttlExpired && r.applicableForDeletion(ctx, reportType, ttlReportAnnotationStr) {
 		log.V(1).Info("Removing report with expired TTL or Historical")
 		err := r.Client.Delete(ctx, reportType, &client.DeleteOptions{})
 		if err != nil && !errors.IsNotFound(err) {
@@ -118,7 +118,7 @@ func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespa
 	return ctrl.Result{RequeueAfter: durationToTTLExpiration}, nil
 }
 
-func (r *TTLReportReconciler) applicableForDeletion(report client.Object, ttlReportAnnotationStr string) bool {
+func (r *TTLReportReconciler) applicableForDeletion(ctx context.Context, report client.Object, ttlReportAnnotationStr string) bool {
 	reportKind := report.GetObjectKind().GroupVersionKind().Kind
 	if reportKind == "VulnerabilityReport" || reportKind == "ExposedSecretReport" || reportKind == "ClusterSbomReport" {
 		return true
@@ -141,7 +141,7 @@ func (r *TTLReportReconciler) applicableForDeletion(report client.Object, ttlRep
 	if err != nil {
 		return false
 	}
-	policies, err := control.Policies(context.Background(), r.Config, r.Client, cac, r.Logger, r.PolicyLoader)
+	policies, err := control.Policies(ctx, r.Config, r.Client, cac, r.Logger, r.PolicyLoader)
 	if err != nil {
 		return false
 	}

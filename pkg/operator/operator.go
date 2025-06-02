@@ -7,6 +7,20 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/bluele/gcache"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/client-go/kubernetes"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	controllerconfig "sigs.k8s.io/controller-runtime/pkg/config"
+	"sigs.k8s.io/controller-runtime/pkg/healthz"
+	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
+	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
+
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
@@ -26,27 +40,15 @@ import (
 	vcontroller "github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/webhook"
 	"github.com/aquasecurity/trivy/pkg/fanal/types"
-	"github.com/aquasecurity/trivy/pkg/oci"
-	mp "github.com/aquasecurity/trivy/pkg/policy"
-	"github.com/bluele/gcache"
-	corev1 "k8s.io/api/core/v1"
-	"k8s.io/cli-runtime/pkg/genericclioptions"
-	"k8s.io/client-go/kubernetes"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/cache"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/healthz"
-	"sigs.k8s.io/controller-runtime/pkg/log"
-	"sigs.k8s.io/controller-runtime/pkg/manager"
-	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 )
 
 var (
 	setupLog = log.Log.WithName("operator")
 )
 
-// Start starts all registered reconcilers and blocks until the context is cancelled.
+// Start starts all registered reconcilers and blocks until the context is canceled.
 // Returns an error if there is an error starting any reconciler.
+// nolint: gocyclo
 func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfig etc.Config) error {
 	installMode, operatorNamespace, targetNamespaces, err := operatorConfig.ResolveInstallMode()
 	if err != nil {
@@ -59,6 +61,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		"target workloads", operatorConfig.GetTargetWorkloads())
 
 	// Set the default manager options.
+	skipNameValidation := true
 	options := manager.Options{
 		Scheme:                 trivyoperator.NewScheme(),
 		Metrics:                metricsserver.Options{BindAddress: operatorConfig.MetricsBindAddress},
@@ -68,9 +71,28 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				DisableFor: []client.Object{
 					&corev1.Secret{},
 					&corev1.ServiceAccount{},
+					&corev1.ConfigMap{},
 				},
 			},
 		},
+		Cache: cache.Options{
+			DefaultTransform: func(obj any) (any, error) {
+				obj, err := cache.TransformStripManagedFields()(obj)
+				if err != nil {
+					return obj, err
+				}
+				if metaObj, ok := obj.(metav1.ObjectMetaAccessor); ok {
+					annotations := metaObj.GetObjectMeta().GetAnnotations()
+					if annotations != nil {
+						delete(annotations, "kubectl.kubernetes.io/last-applied-configuration")
+						metaObj.GetObjectMeta().SetAnnotations(annotations)
+					}
+				}
+
+				return obj, nil
+			},
+		},
+		Controller: controllerconfig.Controller{SkipNameValidation: &skipNameValidation},
 	}
 
 	if operatorConfig.LeaderElectionEnabled {
@@ -132,7 +154,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	}
 
 	configManager := trivyoperator.NewConfigManager(clientSet, operatorNamespace)
-	err = configManager.EnsureDefault(context.Background())
+	err = configManager.EnsureDefault(ctx)
 	if err != nil {
 		return err
 	}
@@ -140,14 +162,11 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	if err != nil {
 		return err
 	}
-	trivyOperatorConfig, err := configManager.Read(context.Background())
+	trivyOperatorConfig, err := configManager.Read(ctx)
 	if err != nil {
 		return err
 	}
 	objectResolver := kube.NewObjectResolver(mgr.GetClient(), compatibleObjectMapper)
-	if err != nil {
-		return err
-	}
 	limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
 	logsReader := kube.NewLogsReader(clientSet)
 	secretsReader := kube.NewSecretsReader(mgr.GetClient())
@@ -208,10 +227,20 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 	}
 	var policyLoader policy.Loader
+	var checksLoader *controller.ChecksLoader
 	if operatorConfig.ConfigAuditScannerEnabled {
-		policyLoader, err = buildPolicyLoader(trivyOperatorConfig)
-		if err != nil {
-			return fmt.Errorf("unable to constract policy loader: %w", err)
+		policyLoader = buildPolicyLoader(trivyOperatorConfig)
+		checksLoader = controller.NewChecksLoader(
+			operatorConfig,
+			ctrl.Log.WithName("checks-loader"),
+			mgr.GetClient(),
+			objectResolver,
+			pluginContext,
+			pluginConfig,
+			policyLoader,
+		)
+		if err := checksLoader.SetupWithManager(mgr); err != nil {
+			return fmt.Errorf("setup MyReconciler: %w", err)
 		}
 	}
 
@@ -275,6 +304,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			BuildInfo:        buildInfo,
 			ClusterVersion:   gitVersion,
 			CacheSyncTimeout: *operatorConfig.ControllerCacheSyncTimeout,
+			ChecksLoader:     checksLoader,
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup resource controller: %w", err)
 		}
@@ -287,13 +317,14 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			PluginInMemory: pluginConfig,
 			ClusterVersion: gitVersion,
 		}).SetupWithManager(mgr); err != nil {
-			return fmt.Errorf("unable to setup resource controller: %w", err)
+			return fmt.Errorf("unable to setup policy config controller: %w", err)
 		}
 		if operatorConfig.InfraAssessmentScannerEnabled {
 			limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
 			if err = (&controller.NodeReconciler{
 				Logger:           ctrl.Log.WithName("node-reconciler"),
 				Config:           operatorConfig,
+				PolicyLoader:     policyLoader,
 				ConfigData:       trivyOperatorConfig,
 				ObjectResolver:   objectResolver,
 				PluginContext:    pluginContext,
@@ -316,6 +347,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				PluginInMemory:  pluginConfig,
 				InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
 				BuildInfo:       buildInfo,
+				ChecksLoader:    checksLoader,
 			}).SetupWithManager(mgr); err != nil {
 				return fmt.Errorf("unable to setup node collector controller: %w", err)
 			}
@@ -424,26 +456,18 @@ func newWorkloadController(operatorConfig etc.Config,
 	}, nil
 }
 
-func buildPolicyLoader(tc trivyoperator.ConfigData) (policy.Loader, error) {
+func buildPolicyLoader(tc trivyoperator.ConfigData) policy.Loader {
 	registryUser := tc.PolicyBundleOciUser()
 	registryPassword := tc.PolicyBundleOciPassword()
-	artifact, err := oci.NewArtifact(tc.PolicyBundleOciRef(), true, types.RegistryOptions{})
-	if err != nil {
-		return nil, fmt.Errorf("OCI artifact error: %w", err)
-	}
 	ro := types.RegistryOptions{}
 	if registryUser != "" && registryPassword != "" {
-		ro = types.RegistryOptions{
-			Credentials: []types.Credential{
-				{
-					Username: registryUser,
-					Password: registryPassword,
-				},
+		ro.Credentials = []types.Credential{
+			{
+				Username: registryUser,
+				Password: registryPassword,
 			},
-			Insecure: tc.PolicyBundleInsecure(),
 		}
-		artifact.RegistryOptions = ro
 	}
-	policyLoader := policy.NewPolicyLoader(tc.PolicyBundleOciRef(), gcache.New(1).LRU().Build(), ro, mp.WithOCIArtifact(artifact))
-	return policyLoader, nil
+	ro.Insecure = tc.PolicyBundleInsecure()
+	return policy.NewPolicyLoader(tc.PolicyBundleOciRef(), gcache.New(2).LRU().Build(), ro)
 }

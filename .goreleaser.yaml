@@ -1,3 +1,6 @@
+version: 2
+
+project_name: trivy_operator
 release:
   draft: false
   prerelease: auto
@@ -22,20 +25,22 @@ builds:
     goarm:
       - "7"
 archives:
-  - name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+  - name_template: >-
+      {{- .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "arm" }}ARM
+      {{- else if eq .Arch "arm64" }}ARM64
+      {{- else }}{{ .Arch }}{{ end }}
     builds:
       - trivy-operator
-    replacements:
-      amd64: x86_64
-      arm: ARM
-      arm64: ARM64
     format_overrides:
       - goos: windows
         format: zip
 checksum:
   name_template: "checksums.txt"
 snapshot:
-  name_template: "{{ .FullCommit }}"
+  version_template: "{{ .FullCommit }}"
 changelog:
   filters:
     exclude:
@@ -65,7 +70,7 @@ dockers:
   - image_templates:
       - "docker.io/aquasec/trivy-operator:{{ .Version }}-amd64"
       - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-amd64"
-      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-amd64"
+#      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-amd64"
     use: buildx
     goos: linux
     dockerfile: build/trivy-operator/Dockerfile
@@ -83,12 +88,12 @@ dockers:
       - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/trivy-operator/v{{ .Version }}/"
       - "--platform=linux/amd64"
   - image_templates:
-      - "docker.io/aquasec/trivy-operator:{{ .Version }}-ubi8-amd64"
-      - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi8-amd64"
-      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ubi8-amd64"
+      - "docker.io/aquasec/trivy-operator:{{ .Version }}-ubi9-amd64"
+      - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi9-amd64"
+#      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ubi9-amd64"
     use: buildx
     goos: linux
-    dockerfile: build/trivy-operator/Dockerfile.ubi8
+    dockerfile: build/trivy-operator/Dockerfile.ubi9
     goarch: amd64
     ids:
       - trivy-operator
@@ -105,7 +110,7 @@ dockers:
   - image_templates:
       - "docker.io/aquasec/trivy-operator:{{ .Version }}-arm64"
       - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-arm64"
-      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-arm64"
+#      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-arm64"
     use: buildx
     goos: linux
     dockerfile: build/trivy-operator/Dockerfile
@@ -123,12 +128,12 @@ dockers:
       - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/trivy-operator/v{{ .Version }}/"
       - "--platform=linux/arm64"
   - image_templates:
-      - "docker.io/aquasec/trivy-operator:{{ .Version }}-ubi8-arm64"
-      - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi8-arm64"
-      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ubi8-arm64"
+      - "docker.io/aquasec/trivy-operator:{{ .Version }}-ubi9-arm64"
+      - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi9-arm64"
+#      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ubi9-arm64"
     use: buildx
     goos: linux
-    dockerfile: build/trivy-operator/Dockerfile.ubi8
+    dockerfile: build/trivy-operator/Dockerfile.ubi9
     goarch: arm64
     ids:
       - trivy-operator
@@ -145,7 +150,7 @@ dockers:
   - image_templates:
       - "docker.io/aquasec/trivy-operator:{{ .Version }}-s390x"
       - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-s390x"
-      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-s390x"
+#      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-s390x"
     use: buildx
     goos: linux
     dockerfile: build/trivy-operator/Dockerfile
@@ -165,7 +170,7 @@ dockers:
   - image_templates:
       - "docker.io/aquasec/trivy-operator:{{ .Version }}-ppc64le"
       - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ppc64le"
-      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ppc64le"
+#      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ppc64le"
     use: buildx
     goos: linux
     dockerfile: build/trivy-operator/Dockerfile
@@ -183,12 +188,12 @@ dockers:
       - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/trivy-operator/v{{ .Version }}/"
       - "--platform=linux/ppc64le"
   - image_templates:
-      - "docker.io/aquasec/trivy-operator:{{ .Version }}-ubi8-s390x"
-      - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi8-s390x"
-      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ubi8-s390x"
+      - "docker.io/aquasec/trivy-operator:{{ .Version }}-ubi9-s390x"
+      - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi9-s390x"
+#      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ubi9-s390x"
     use: buildx
     goos: linux
-    dockerfile: build/trivy-operator/Dockerfile.ubi8
+    dockerfile: build/trivy-operator/Dockerfile.ubi9
     goarch: s390x
     ids:
       - trivy-operator
@@ -203,12 +208,12 @@ dockers:
       - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/trivy-operator/v{{ .Version }}/"
       - "--platform=linux/s390x"
   - image_templates:
-      - "docker.io/aquasec/trivy-operator:{{ .Version }}-ubi8-ppc64le"
-      - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi8-ppc64le"
-      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ubi8-ppc64le"
+      - "docker.io/aquasec/trivy-operator:{{ .Version }}-ubi9-ppc64le"
+      - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi9-ppc64le"
+#      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ubi9-ppc64le"
     use: buildx
     goos: linux
-    dockerfile: build/trivy-operator/Dockerfile.ubi8
+    dockerfile: build/trivy-operator/Dockerfile.ubi9
     goarch: ppc64le
     ids:
       - trivy-operator
@@ -229,36 +234,36 @@ docker_manifests:
       - "aquasec/trivy-operator:{{ .Version }}-arm64"
       - "aquasec/trivy-operator:{{ .Version }}-s390x"
       - "aquasec/trivy-operator:{{ .Version }}-ppc64le"
-  - name_template: "aquasec/trivy-operator:{{ .Version }}-ubi8"
+  - name_template: "aquasec/trivy-operator:{{ .Version }}-ubi9"
     image_templates:
-      - "aquasec/trivy-operator:{{ .Version }}-ubi8-amd64"
-      - "aquasec/trivy-operator:{{ .Version }}-ubi8-arm64"
-      - "aquasec/trivy-operator:{{ .Version }}-ubi8-s390x"
-      - "aquasec/trivy-operator:{{ .Version }}-ubi8-ppc64le"
+      - "aquasec/trivy-operator:{{ .Version }}-ubi9-amd64"
+      - "aquasec/trivy-operator:{{ .Version }}-ubi9-arm64"
+      - "aquasec/trivy-operator:{{ .Version }}-ubi9-s390x"
+      - "aquasec/trivy-operator:{{ .Version }}-ubi9-ppc64le"
   - name_template: "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}"
     image_templates:
       - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-amd64"
       - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-arm64"
       - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-s390x"
       - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ppc64le"
-  - name_template: "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi8"
+  - name_template: "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi9"
     image_templates:
-      - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi8-amd64"
-      - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi8-arm64"
-      - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi8-s390x"
-      - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi8-ppc64le"
-  - name_template: "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}"
-    image_templates:
-      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-amd64"
-      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-arm64"
-      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-s390x"
-      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ppc64le"
-  - name_template: "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ubi8"
-    image_templates:
-      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ubi8-amd64"
-      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ubi8-arm64"
-      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ubi8-s390x"
-      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ubi8-ppc64le"
+      - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi9-amd64"
+      - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi9-arm64"
+      - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi9-s390x"
+      - "public.ecr.aws/aquasecurity/trivy-operator:{{ .Version }}-ubi9-ppc64le"
+#  - name_template: "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}"
+#    image_templates:
+#      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-amd64"
+#      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-arm64"
+#      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-s390x"
+#      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ppc64le"
+#  - name_template: "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ubi9"
+#    image_templates:
+#      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ubi9-amd64"
+#      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ubi9-arm64"
+#      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ubi9-s390x"
+#      - "ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-ubi9-ppc64le"
 
 signs:
   - cmd: cosign

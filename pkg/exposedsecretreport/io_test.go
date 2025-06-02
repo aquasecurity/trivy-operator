@@ -1,18 +1,18 @@
 package exposedsecretreport_test
 
 import (
-	"context"
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 func TestNewReadWriter(t *testing.T) {
@@ -23,7 +23,7 @@ func TestNewReadWriter(t *testing.T) {
 		testClient := fake.NewClientBuilder().WithScheme(kubernetesScheme).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := exposedsecretreport.NewReadWriter(&resolver)
-		err := readWriter.Write(context.TODO(), []v1alpha1.ExposedSecretReport{
+		err := readWriter.Write(t.Context(), []v1alpha1.ExposedSecretReport{
 			{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "deployment-app1-container1",
@@ -53,9 +53,9 @@ func TestNewReadWriter(t *testing.T) {
 		})
 		require.NoError(t, err)
 		var list v1alpha1.ExposedSecretReportList
-		err = testClient.List(context.TODO(), &list)
+		err = testClient.List(t.Context(), &list)
 		require.NoError(t, err)
-		reports := map[string]v1alpha1.ExposedSecretReport{}
+		reports := make(map[string]v1alpha1.ExposedSecretReport)
 		for _, item := range list.Items {
 			reports[item.Name] = item
 		}
@@ -131,7 +131,7 @@ func TestNewReadWriter(t *testing.T) {
 			}).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := exposedsecretreport.NewReadWriter(&resolver)
-		err := readWriter.Write(context.TODO(), []v1alpha1.ExposedSecretReport{
+		err := readWriter.Write(t.Context(), []v1alpha1.ExposedSecretReport{
 			{
 				TypeMeta: metav1.TypeMeta{
 					APIVersion: "aquasecurity.github.io/v1alpha1",
@@ -166,7 +166,7 @@ func TestNewReadWriter(t *testing.T) {
 		require.NoError(t, err)
 
 		var found v1alpha1.ExposedSecretReport
-		err = testClient.Get(context.TODO(), types.NamespacedName{
+		err = testClient.Get(t.Context(), types.NamespacedName{
 			Namespace: "qa",
 			Name:      "deployment-app1-container1",
 		}, &found)
@@ -190,7 +190,7 @@ func TestNewReadWriter(t *testing.T) {
 			},
 		}, found)
 
-		err = testClient.Get(context.TODO(), types.NamespacedName{
+		err = testClient.Get(t.Context(), types.NamespacedName{
 			Namespace: "qa",
 			Name:      "deployment-app1-container2",
 		}, &found)
@@ -255,13 +255,13 @@ func TestNewReadWriter(t *testing.T) {
 		}).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := exposedsecretreport.NewReadWriter(&resolver)
-		list, err := readWriter.FindByOwner(context.TODO(), kube.ObjectRef{
+		list, err := readWriter.FindByOwner(t.Context(), kube.ObjectRef{
 			Kind:      kube.KindDeployment,
 			Name:      "my-deploy",
 			Namespace: "my-namespace",
 		})
 		require.NoError(t, err)
-		reports := map[string]bool{}
+		reports := make(map[string]bool)
 		for _, item := range list {
 			reports[item.Name] = true
 		}

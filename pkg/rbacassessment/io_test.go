@@ -1,20 +1,19 @@
 package rbacassessment_test
 
 import (
-	"context"
-	"k8s.io/api/batch/v1beta1"
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
-
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"k8s.io/api/batch/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 func TestReadWriter(t *testing.T) {
@@ -25,7 +24,7 @@ func TestReadWriter(t *testing.T) {
 		testClient := fake.NewClientBuilder().WithScheme(kubernetesScheme).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := rbacassessment.NewReadWriter(&resolver)
-		err := readWriter.WriteReport(context.TODO(), v1alpha1.RbacAssessmentReport{
+		err := readWriter.WriteReport(t.Context(), v1alpha1.RbacAssessmentReport{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "RbacAssessmentReport",
 				APIVersion: "aquasecurity.github.io/v1alpha1",
@@ -49,7 +48,7 @@ func TestReadWriter(t *testing.T) {
 		require.NoError(t, err)
 
 		var found v1alpha1.RbacAssessmentReport
-		err = testClient.Get(context.TODO(), types.NamespacedName{Namespace: "qa", Name: "role-app"}, &found)
+		err = testClient.Get(t.Context(), types.NamespacedName{Namespace: "qa", Name: "role-app"}, &found)
 		require.NoError(t, err)
 
 		assert.Equal(t, v1alpha1.RbacAssessmentReport{
@@ -102,7 +101,7 @@ func TestReadWriter(t *testing.T) {
 		}).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := rbacassessment.NewReadWriter(&resolver)
-		err := readWriter.WriteReport(context.TODO(), v1alpha1.RbacAssessmentReport{
+		err := readWriter.WriteReport(t.Context(), v1alpha1.RbacAssessmentReport{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "RbacAssessmentReport",
 				APIVersion: "aquasecurity.github.io/v1alpha1",
@@ -127,7 +126,7 @@ func TestReadWriter(t *testing.T) {
 		require.NoError(t, err)
 
 		var found v1alpha1.RbacAssessmentReport
-		err = testClient.Get(context.TODO(), types.NamespacedName{Namespace: "qa", Name: "role-app"}, &found)
+		err = testClient.Get(t.Context(), types.NamespacedName{Namespace: "qa", Name: "role-app"}, &found)
 		require.NoError(t, err)
 
 		assert.Equal(t, v1alpha1.RbacAssessmentReport{
@@ -183,7 +182,7 @@ func TestReadWriter(t *testing.T) {
 			}).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := rbacassessment.NewReadWriter(&resolver)
-		found, err := readWriter.FindReportByOwner(context.TODO(), kube.ObjectRef{
+		found, err := readWriter.FindReportByOwner(t.Context(), kube.ObjectRef{
 			Kind:      kube.KindDeployment,
 			Name:      "role-my-deploy",
 			Namespace: "my-namespace",
@@ -239,7 +238,7 @@ func TestReadWriter(t *testing.T) {
 			}).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := rbacassessment.NewReadWriter(&resolver)
-		found, err := readWriter.FindReportByOwner(context.TODO(), kube.ObjectRef{
+		found, err := readWriter.FindReportByOwner(t.Context(), kube.ObjectRef{
 			Kind:      kube.KindRole,
 			Name:      "system:controller:token-cleaner",
 			Namespace: "kube-system",
@@ -267,7 +266,7 @@ func TestReadWriter(t *testing.T) {
 		testClient := fake.NewClientBuilder().WithScheme(kubernetesScheme).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := rbacassessment.NewReadWriter(&resolver)
-		err := readWriter.WriteClusterReport(context.TODO(), v1alpha1.ClusterRbacAssessmentReport{
+		err := readWriter.WriteClusterReport(t.Context(), v1alpha1.ClusterRbacAssessmentReport{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "ClusterRbacAssessmentReport",
 				APIVersion: "aquasecurity.github.io/v1alpha1",
@@ -289,7 +288,7 @@ func TestReadWriter(t *testing.T) {
 		require.NoError(t, err)
 
 		var found v1alpha1.ClusterRbacAssessmentReport
-		err = testClient.Get(context.TODO(), types.NamespacedName{Name: "clusterrole-admin"}, &found)
+		err = testClient.Get(t.Context(), types.NamespacedName{Name: "clusterrole-admin"}, &found)
 		require.NoError(t, err)
 
 		assert.Equal(t, v1alpha1.ClusterRbacAssessmentReport{
@@ -342,7 +341,7 @@ func TestReadWriter(t *testing.T) {
 			Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := rbacassessment.NewReadWriter(&resolver)
-		err := readWriter.WriteClusterReport(context.TODO(), v1alpha1.ClusterRbacAssessmentReport{
+		err := readWriter.WriteClusterReport(t.Context(), v1alpha1.ClusterRbacAssessmentReport{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "ClusterRbacAssessmentReport",
 				APIVersion: "aquasecurity.github.io/v1alpha1",
@@ -365,7 +364,7 @@ func TestReadWriter(t *testing.T) {
 		require.NoError(t, err)
 
 		var found v1alpha1.ClusterRbacAssessmentReport
-		err = testClient.Get(context.TODO(), types.NamespacedName{Name: "clusterrole-admin"}, &found)
+		err = testClient.Get(t.Context(), types.NamespacedName{Name: "clusterrole-admin"}, &found)
 		require.NoError(t, err)
 
 		assert.Equal(t, v1alpha1.ClusterRbacAssessmentReport{
@@ -422,7 +421,7 @@ func TestReadWriter(t *testing.T) {
 			Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := rbacassessment.NewReadWriter(&resolver)
-		found, err := readWriter.FindClusterReportByOwner(context.TODO(), kube.ObjectRef{
+		found, err := readWriter.FindClusterReportByOwner(t.Context(), kube.ObjectRef{
 			Kind: "ClusterRole",
 			Name: "editor",
 		})

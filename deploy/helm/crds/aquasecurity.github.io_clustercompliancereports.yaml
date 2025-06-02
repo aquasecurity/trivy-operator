@@ -79,6 +79,18 @@ spec:
                             - id
                             type: object
                           type: array
+                        commands:
+                          items:
+                            description: Commands represent the commands to be executed
+                              by the node-collector
+                            properties:
+                              id:
+                                description: id define the commands id
+                                type: string
+                            required:
+                            - id
+                            type: object
+                          type: array
                         defaultStatus:
                           description: define the default value for check status in
                             case resource not found
@@ -113,11 +125,15 @@ spec:
                     type: string
                   id:
                     type: string
+                  platform:
+                    type: string
                   relatedResources:
                     items:
                       type: string
                     type: array
                   title:
+                    type: string
+                  type:
                     type: string
                   version:
                     type: string
@@ -125,8 +141,10 @@ spec:
                 - controls
                 - description
                 - id
+                - platform
                 - relatedResources
                 - title
+                - type
                 - version
                 type: object
               cron:

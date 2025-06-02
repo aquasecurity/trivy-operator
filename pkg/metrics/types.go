@@ -1,9 +1,10 @@
 package metrics
 
 import (
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 )
 
 type SeverityLabel struct {

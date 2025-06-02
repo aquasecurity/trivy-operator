@@ -8,9 +8,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 )
 
 func Test_sendReports(t *testing.T) {
@@ -80,7 +81,7 @@ func Test_sendReports(t *testing.T) {
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ts := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 				b, _ := io.ReadAll(r.Body)
 				assert.JSONEq(t, tc.want, string(b))
 			}))
@@ -88,7 +89,7 @@ func Test_sendReports(t *testing.T) {
 			gotError := sendReport(tc.inputReport, ts.URL, tc.timeout, tc.headerValues)
 			switch {
 			case tc.expectedError != "":
-				assert.ErrorContains(t, gotError, tc.expectedError, tc.name)
+				require.ErrorContains(t, gotError, tc.expectedError, tc.name)
 			default:
 				require.NoError(t, gotError, tc.name)
 			}

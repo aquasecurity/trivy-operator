@@ -46,6 +46,10 @@ spec:
         app.kubernetes.io/name: trivy-server
         app.kubernetes.io/instance: trivy-server
     spec:
+      {{- if .Values.hostAliases }}
+      hostAliases:
+        {{- toYaml .Values.hostAliases | nindent 8 }}
+      {{- end }}
       {{- with .Values.trivy.priorityClassName }}
       priorityClassName: {{ . }}
       {{- end }}
@@ -87,6 +91,14 @@ spec:
                 name: trivy-operator-trivy-config
             - secretRef:
                 name: trivy-operator-trivy-config
+            {{- if .Values.trivy.valuesFromConfigMap }}
+            - configMapRef:
+                name: {{ .Values.trivy.valuesFromConfigMap }}
+            {{- end }}
+            {{- if .Values.trivy.valuesFromSecret }}
+            - secretRef:
+                name: {{ .Values.trivy.valuesFromSecret }}
+            {{- end }}
           ports:
             - name: trivy-http
               containerPort: 4954

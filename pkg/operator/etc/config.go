@@ -61,6 +61,8 @@ type Config struct {
 	TrivyServerHealthCheckCacheExpiration        *time.Duration `env:"TRIVY_SERVER_HEALTH_CHECK_CACHE_EXPIRATION" envDefault:"10h"`
 	MergeRbacFindingWithConfigAudit              bool           `env:"OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT" envDefault:"false"`
 	ControllerCacheSyncTimeout                   *time.Duration `env:"CONTROLLER_CACHE_SYNC_TIMEOUT" envDefault:"5m"`
+	AltReportStorageEnabled                      bool           `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_ENABLED" envDefault:"false"`
+	AltReportDir                                 string         `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_DIR" envDefault:""`
 }
 
 // GetOperatorConfig loads Config from environment variables.
@@ -95,7 +97,7 @@ func (c Config) GetTargetNamespaces() []string {
 
 func (c Config) GetPrivateRegistryScanSecretsNames() (map[string]string, error) {
 	privateRegistryScanSecretsNames := c.PrivateRegistryScanSecretsNames
-	secretsInfoMap := map[string]string{}
+	secretsInfoMap := make(map[string]string)
 	if privateRegistryScanSecretsNames != "" {
 		err := json.Unmarshal([]byte(privateRegistryScanSecretsNames), &secretsInfoMap)
 		if err != nil {

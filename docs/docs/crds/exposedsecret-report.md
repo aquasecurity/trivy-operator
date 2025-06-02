@@ -33,13 +33,13 @@ metadata:
 report:
   artifact:
     repository: myimagewithsecret
-    tag: v0.21.3
+    tag: v1.2.3
   registry:
     server: index.docker.io
   scanner:
     name: Trivy
     vendor: Aqua Security
-    version: 0.35.0
+    version: 0.62.1
   secrets:
   - category: Stripe
     match: 'publishable_key: *****'

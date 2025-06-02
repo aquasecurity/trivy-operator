@@ -5,10 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	ocpappsv1 "github.com/openshift/api/apps/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
@@ -23,6 +22,9 @@ import (
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 // ObjectRef is a simplified representation of a Kubernetes client.Object.
@@ -671,7 +673,7 @@ func (o *ObjectResolver) IsActiveReplicationController(ctx context.Context, work
 			return false, err
 		}
 		replicasetRevisionAnnotation := workloadObj.GetAnnotations()
-		latestRevision := fmt.Sprintf("%d", deploymentConfigObj.Status.LatestVersion)
+		latestRevision := strconv.FormatInt(deploymentConfigObj.Status.LatestVersion, 10)
 		return replicasetRevisionAnnotation[deploymentConfigAnnotation] == latestRevision, nil
 	}
 	return true, nil

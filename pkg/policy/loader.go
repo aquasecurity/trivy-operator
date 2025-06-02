@@ -4,25 +4,28 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/aquasecurity/trivy/pkg/fanal/types"
-	mp "github.com/aquasecurity/trivy/pkg/policy"
-	"github.com/bluele/gcache"
-	"github.com/go-logr/logr"
-	"golang.org/x/xerrors"
 	"os"
 	"path/filepath"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/bluele/gcache"
+	"github.com/go-logr/logr"
+	"golang.org/x/xerrors"
+	ctrl "sigs.k8s.io/controller-runtime"
+
+	"github.com/aquasecurity/trivy/pkg/fanal/types"
+	mp "github.com/aquasecurity/trivy/pkg/policy"
 )
 
 const (
 	bundlePolicies = "bundlePolicies"
+	bundlePath     = "bundlePath"
 )
 
 type Loader interface {
-	GetPolicies() ([]string, error)
+	GetPoliciesAndBundlePath() ([]string, []string, error)
 }
 
 type policyLoader struct {
@@ -47,49 +50,61 @@ func NewPolicyLoader(pr string, cache gcache.Cache, registryOptions types.Regist
 	}
 }
 
-func (pl *policyLoader) GetPolicies() ([]string, error) {
+func (pl *policyLoader) GetPoliciesAndBundlePath() ([]string, []string, error) {
 	log := pl.logger.WithName("Get misconfig bundle policies")
 	var policies []string
+	var bundlePaths []string
 	var ok bool
-	val, err := pl.getPoliciesFromCache()
+	plc, bndl, err := pl.getPoliciesFromCache()
 	if err != nil {
 		if !errors.Is(err, gcache.KeyNotFoundError) {
-			return []string{}, err
+			return []string{}, []string{}, err
 		}
-		policies, err = pl.LoadPolicies()
+		policies, bundlePaths, err = pl.LoadPoliciesAndCommands()
 		if err != nil {
 			log.V(1).Error(err, "failed to load policies")
-			return []string{}, nil
+			return []string{}, []string{}, nil
 		}
-		return policies, nil
+		return policies, bundlePaths, nil
 	}
-	if policies, ok = val.([]string); !ok {
-		return []string{}, fmt.Errorf("failed to get policies from cache")
+	if policies, ok = plc.([]string); !ok {
+		return []string{}, []string{}, errors.New("failed to get policies from cache")
 	}
-	return policies, nil
+	if bundlePaths, ok = bndl.([]string); !ok {
+		return []string{}, []string{}, errors.New("failed to get bundlePath from cache")
+	}
+	return policies, bundlePaths, nil
 
 }
 
-func (pl *policyLoader) getPoliciesFromCache() (interface{}, error) {
+func (pl *policyLoader) getPoliciesFromCache() (any, any, error) {
 	pl.mutex.RLock()
 	defer pl.mutex.RUnlock()
-	return pl.cache.Get(bundlePolicies)
+	policies, err := pl.cache.Get(bundlePolicies)
+	if err != nil {
+		return nil, nil, err
+	}
+	bundlePath, err := pl.cache.Get(bundlePath)
+	if err != nil {
+		return nil, nil, err
+	}
+	return policies, bundlePath, nil
 }
 
-func (pl *policyLoader) LoadPolicies() ([]string, error) {
+func (pl *policyLoader) LoadPoliciesAndCommands() ([]string, []string, error) {
 	pl.mutex.Lock()
 	defer pl.mutex.Unlock()
-
-	policyPath, err := pl.getBuiltInPolicies(context.Background())
+	bundlePaths, err := pl.getBuiltInPolicies(context.Background())
 	if err != nil {
-		return []string{}, fmt.Errorf("failed to download policies: %w", err)
+		return []string{}, []string{}, fmt.Errorf("failed to download policies: %w", err)
 	}
-	policiesData, err := LoadPoliciesData(policyPath)
+	contentData, err := LoadPoliciesData(bundlePaths)
 	if err != nil {
-		return []string{}, fmt.Errorf("failed to download policies: %w", err)
+		return []string{}, []string{}, fmt.Errorf("failed to download policies: %w", err)
 	}
-	_ = pl.cache.SetWithExpire(bundlePolicies, policiesData, *pl.expiration)
-	return policiesData, nil
+	_ = pl.cache.SetWithExpire(bundlePolicies, contentData, *pl.expiration)
+	_ = pl.cache.SetWithExpire(bundlePath, bundlePaths, *pl.expiration)
+	return contentData, bundlePaths, nil
 }
 
 func (pl *policyLoader) getBuiltInPolicies(ctx context.Context) ([]string, error) {
@@ -98,16 +113,17 @@ func (pl *policyLoader) getBuiltInPolicies(ctx context.Context) ([]string, error
 		return nil, xerrors.Errorf("policy client error: %w", err)
 	}
 
-	if err = client.DownloadBuiltinPolicies(ctx, pl.RegistryOptions); err != nil {
+	if err = client.DownloadBuiltinChecks(ctx, pl.RegistryOptions); err != nil {
 		return nil, xerrors.Errorf("failed to download built-in policies: %w", err)
 	}
-	return client.LoadBuiltinPolicies()
+
+	return []string{client.LoadBuiltinChecks()}, nil
 }
 
 func LoadPoliciesData(policyPath []string) ([]string, error) {
-	policiesList := []string{}
-	fileList := []string{}
-	err := filepath.Walk(policyPath[0], func(path string, f os.FileInfo, err error) error {
+	var policiesList []string
+	var fileList []string
+	err := filepath.Walk(policyPath[0], func(path string, _ os.FileInfo, _ error) error {
 		if strings.Contains(path, "policies/kubernetes/") { // load only k8s policies
 			fileList = append(fileList, path)
 		}

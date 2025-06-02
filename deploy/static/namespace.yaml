@@ -6,5 +6,5 @@ metadata:
   labels:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
-    app.kubernetes.io/version: "0.21.3"
+    app.kubernetes.io/version: "0.26.1"
     app.kubernetes.io/managed-by: kubectl

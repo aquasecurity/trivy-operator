@@ -5,6 +5,12 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/go-logr/logr"
+	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
@@ -14,11 +20,6 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy/pkg/iac/scan"
-	"github.com/go-logr/logr"
-	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 func Policies(ctx context.Context, config etc.Config, c client.Client, cac configauditreport.ConfigAuditConfig, log logr.Logger, pl policy.Loader, clusterVersion ...string) (*policy.Policies, error) {
@@ -37,30 +38,42 @@ func Policies(ctx context.Context, config etc.Config, c client.Client, cac confi
 	if len(clusterVersion) > 0 {
 		version = clusterVersion[0]
 	}
-	return policy.NewPolicies(cm.Data, cac, log, pl, version), nil
+	return policy.NewPolicies(cm.Data, cac, log, pl, version, config.CacheReportTTL), nil
 }
 
-func evaluate(ctx context.Context, policies *policy.Policies, resource client.Object, bi trivyoperator.BuildInfo, cd trivyoperator.ConfigData, c etc.Config, inputs ...[]byte) (Misconfiguration, error) {
-	misconfiguration := Misconfiguration{}
-	results, err := policies.Eval(ctx, resource, inputs...)
+func ConfigurePolicies(ctx context.Context, config etc.Config, c client.Client, cac configauditreport.ConfigAuditConfig, log logr.Logger, pl policy.Loader, clusterVersion ...string) (*policy.Policies, error) {
+	policies, err := Policies(ctx, config, c, cac, log, pl, clusterVersion...)
 	if err != nil {
-		return Misconfiguration{}, err
+		return nil, err
 	}
+	if err := policies.Load(); err != nil {
+		return nil, fmt.Errorf("load policies: %w", err)
+	}
+
+	if err := policies.InitScanner(); err != nil {
+		return nil, fmt.Errorf("init scanner: %w", err)
+	}
+	return policies, nil
+}
+
+func filter(results scan.Results, resource client.Object, bi trivyoperator.BuildInfo, cd trivyoperator.ConfigData, c etc.Config, defaultSeverity string) Misconfiguration {
+	misconfiguration := Misconfiguration{}
 	infraChecks := make([]v1alpha1.Check, 0)
 	checks := make([]v1alpha1.Check, 0)
+
 	for _, result := range results {
-		if !policies.HasSeverity(result.Severity()) {
+		if !policy.HasSeverity(result.Severity(), defaultSeverity) {
 			continue
 		}
 
-		id := policies.GetResultID(result)
+		id := policy.GetResultID(result)
 
 		// record only misconfig failed checks
 		if cd.ReportRecordFailedChecksOnly() && result.Status() == scan.StatusPassed {
 			continue
 		}
 		currentCheck := getCheck(result, id)
-		if len(currentCheck.Messages) == 0 || (len(currentCheck.Messages) == 1 && len(strings.TrimSpace(currentCheck.Messages[0])) == 0) {
+		if currentCheck == nil {
 			continue
 		}
 		if infraCheck(id) {
@@ -68,11 +81,11 @@ func evaluate(ctx context.Context, policies *policy.Policies, resource client.Ob
 				continue
 			}
 			if k8sCoreComponent(resource) {
-				infraChecks = append(infraChecks, currentCheck)
+				infraChecks = append(infraChecks, *currentCheck)
 			}
 			continue
 		}
-		checks = append(checks, currentCheck)
+		checks = append(checks, *currentCheck)
 	}
 	kind := resource.GetObjectKind().GroupVersionKind().Kind
 	if kube.IsRoleTypes(kube.Kind(kind)) && !c.MergeRbacFindingWithConfigAudit {
@@ -81,7 +94,7 @@ func evaluate(ctx context.Context, policies *policy.Policies, resource client.Ob
 			Summary: v1alpha1.RbacAssessmentSummaryFromChecks(checks),
 			Checks:  checks,
 		}
-		return misconfiguration, nil
+		return misconfiguration
 	}
 	misconfiguration.configAuditReportData = v1alpha1.ConfigAuditReportData{
 		UpdateTimestamp: metav1.NewTime(ext.NewSystemClock().Now()),
@@ -96,7 +109,17 @@ func evaluate(ctx context.Context, policies *policy.Policies, resource client.Ob
 			Checks:  infraChecks,
 		}
 	}
-	return misconfiguration, nil
+
+	return misconfiguration
+}
+
+func evaluate(ctx context.Context, policies *policy.Policies, resource client.Object, bi trivyoperator.BuildInfo, cd trivyoperator.ConfigData, c etc.Config, inputs ...[]byte) (Misconfiguration, error) {
+	results, err := policies.Eval(ctx, resource, inputs...)
+	if err != nil {
+		return Misconfiguration{}, err
+	}
+
+	return filter(results, resource, bi, cd, c, policies.GetDefaultSeverity()), nil
 }
 
 func scanner(bi trivyoperator.BuildInfo) v1alpha1.Scanner {

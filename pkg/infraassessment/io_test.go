@@ -1,19 +1,18 @@
 package infraassessment_test
 
 import (
-	"context"
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
-
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 func TestReadWriter(t *testing.T) {
@@ -24,7 +23,7 @@ func TestReadWriter(t *testing.T) {
 		testClient := fake.NewClientBuilder().WithScheme(kubernetesScheme).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := infraassessment.NewReadWriter(&resolver)
-		err := readWriter.WriteReport(context.TODO(), v1alpha1.InfraAssessmentReport{
+		err := readWriter.WriteReport(t.Context(), v1alpha1.InfraAssessmentReport{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "InfraAssessmentReport",
 				APIVersion: "aquasecurity.github.io/v1alpha1",
@@ -48,7 +47,7 @@ func TestReadWriter(t *testing.T) {
 		require.NoError(t, err)
 
 		var found v1alpha1.InfraAssessmentReport
-		err = testClient.Get(context.TODO(), types.NamespacedName{Namespace: "qa", Name: "role-app"}, &found)
+		err = testClient.Get(t.Context(), types.NamespacedName{Namespace: "qa", Name: "role-app"}, &found)
 		require.NoError(t, err)
 
 		assert.Equal(t, v1alpha1.InfraAssessmentReport{
@@ -101,7 +100,7 @@ func TestReadWriter(t *testing.T) {
 		}).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := infraassessment.NewReadWriter(&resolver)
-		err := readWriter.WriteReport(context.TODO(), v1alpha1.InfraAssessmentReport{
+		err := readWriter.WriteReport(t.Context(), v1alpha1.InfraAssessmentReport{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "InfraAssessmentReport",
 				APIVersion: "aquasecurity.github.io/v1alpha1",
@@ -126,7 +125,7 @@ func TestReadWriter(t *testing.T) {
 		require.NoError(t, err)
 
 		var found v1alpha1.InfraAssessmentReport
-		err = testClient.Get(context.TODO(), types.NamespacedName{Namespace: "qa", Name: "role-app"}, &found)
+		err = testClient.Get(t.Context(), types.NamespacedName{Namespace: "qa", Name: "role-app"}, &found)
 		require.NoError(t, err)
 
 		assert.Equal(t, v1alpha1.InfraAssessmentReport{
@@ -182,7 +181,7 @@ func TestReadWriter(t *testing.T) {
 			}).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := infraassessment.NewReadWriter(&resolver)
-		found, err := readWriter.FindReportByOwner(context.TODO(), kube.ObjectRef{
+		found, err := readWriter.FindReportByOwner(t.Context(), kube.ObjectRef{
 			Kind:      kube.KindDeployment,
 			Name:      "role-my-deploy",
 			Namespace: "my-namespace",
@@ -238,7 +237,7 @@ func TestReadWriter(t *testing.T) {
 			}).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := infraassessment.NewReadWriter(&resolver)
-		found, err := readWriter.FindReportByOwner(context.TODO(), kube.ObjectRef{
+		found, err := readWriter.FindReportByOwner(t.Context(), kube.ObjectRef{
 			Kind:      kube.KindRole,
 			Name:      "system:controller:token-cleaner",
 			Namespace: "kube-system",

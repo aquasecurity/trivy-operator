@@ -1,4 +1,6 @@
----
+version: 2
+
+project_name: build_e2e
 release:
   draft: false
   prerelease: auto
@@ -26,7 +28,7 @@ archives:
 checksum:
   name_template: checksums.txt
 snapshot:
-  name_template: "{{ .FullCommit }}"
+  version_template: "{{ .FullCommit }}"
 changelog:
   sort: asc
   filters:
@@ -36,7 +38,7 @@ changelog:
       - ^release
 dockers:
   - image_templates:
-      - ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-amd64
+      - mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}-amd64
     use: buildx
     goos: linux
     dockerfile: build/trivy-operator/Dockerfile
@@ -56,6 +58,6 @@ dockers:
         .Version }}/
       - --platform=linux/amd64
 docker_manifests:
-  - name_template: ghcr.io/aquasecurity/trivy-operator:{{ .Version }}
+  - name_template: mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}
     image_templates:
-      - ghcr.io/aquasecurity/trivy-operator:{{ .Version }}-amd64
+      - mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}-amd64

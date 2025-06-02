@@ -82,6 +82,9 @@ serviceMonitor:
   enabled: true
 trivy:
   ignoreUnfixed: true
+service:
+  # disabled ensures that the pod gets a ClusterIP.
+  headless: false    
 ```
 
 In the changes above, we tell the Trivy Helm Chart to first, enable the ServiceMonitor and then to ignore all vulnerabilities that do not have a fix available yet. The ServiceMonitor is required to allow Prometheus to discover the Trivy Operator Service and scrape its metrics.
@@ -141,12 +144,6 @@ kubectl port-forward service/prom-grafana -n monitoring 3000:80
 In a new terminal, we are going to port-forward to the Trivy Operator service to access the metrics provided by the operator.
 
 Note that this operation is optional and just used to demonstrate where you can find the metrics to then query them in a better way through Prometheus and Grafana.
-
-Run the following command to remove the headless setting  `clusterIP: None` by editing `trivy-operator` service:
-
-```
-kubectl edit service trivy-operator -n trivy-system
-```
 
 Run the following command to port-forward the Trivy Operator Service:
 
@@ -210,7 +207,7 @@ Once pasted, you should see the following dashboard as part of your Dashboard li
 
 #### Using the Grafana Helm Chart
 
-The Grafana Helm chart supports importing the dashboard. To import the dashbaord using the ID, the Helm chart requires both a dashboard provider, as well as the dashboard itself as shown in the snippet below.
+The Grafana Helm chart supports importing the dashboard. To import the dashboard using the ID, the Helm chart requires both a dashboard provider, as well as the dashboard itself as shown in the snippet below.
 In the [Grafana Helm chart documentation](https://github.com/grafana/helm-charts/tree/main/charts/grafana#import-dashboards), you find examples of importing a dashboard with the dashboard ID. 
 
 ```yaml

@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/aquasecurity/trivy-operator/pkg/operator"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	_ "go.uber.org/automaxprocs"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+
+	"github.com/aquasecurity/trivy-operator/pkg/operator"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+
+	_ "go.uber.org/automaxprocs"
 )
 
 var (

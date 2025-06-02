@@ -8,12 +8,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gstruct"
@@ -374,9 +374,9 @@ func Test_secretsReader_CredentialsByServer(t *testing.T) {
 			},
 		}
 
-		auths, err := sr.CredentialsByServer(t.Context(), &pod, map[string]string{}, false, false)
+		auths, err := sr.CredentialsByServer(t.Context(), &pod, make(map[string]string), false, false)
 		require.NoError(t, err)
-		assert.Equal(t, 0, len(auths))
+		assert.Empty(t, auths)
 	})
 
 	t.Run("Test with secrets configured but globalAccess disabled should map container images to Docker authentication credentials from serviceaccount secret", func(t *testing.T) {
@@ -452,7 +452,7 @@ func Test_secretsReader_CredentialsByServer(t *testing.T) {
 			"default": "regcred",
 		}, true, true)
 		require.NoError(t, err)
-		assert.Equal(t, 1, len(auths))
+		assert.Len(t, auths, 1)
 		assert.Equal(t, map[string]docker.Auth{
 			"quay.io": {Auth: "", Username: "admin,user", Password: "Password12345,Admin12345"},
 		}, auths)

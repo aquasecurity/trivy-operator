@@ -209,7 +209,7 @@ func (r *secretsReader) GetSecretsFromEnv(ctx context.Context, secretsInfo map[s
 	return secretsFromEnv, nil
 }
 
-func (r *secretsReader) CredentialsByServer(ctx context.Context, workload client.Object, secretsInfo map[string]string, multiSecretSupport bool, globalAccessEnabled bool) (map[string]docker.Auth, error) {
+func (r *secretsReader) CredentialsByServer(ctx context.Context, workload client.Object, secretsInfo map[string]string, multiSecretSupport, globalAccessEnabled bool) (map[string]docker.Auth, error) {
 	var imagePullSecrets []corev1.Secret
 
 	if globalAccessEnabled {

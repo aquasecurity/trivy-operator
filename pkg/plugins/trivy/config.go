@@ -2,21 +2,17 @@ package trivy
 
 import (
 	"fmt"
-
 	"path/filepath"
-
 	"strconv"
 	"strings"
 
-	"github.com/aquasecurity/trivy-operator/pkg/utils"
-	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
-
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
-
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
+	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 )
 
 const (
@@ -405,7 +401,7 @@ func (c Config) GenerateIgnoreFileVolumeIfAvailable(trivyConfigName string) (*co
 
 func (c Config) GenerateSslCertDirVolumeIfAvailable(trivyConfigName string) (*corev1.Volume, *corev1.VolumeMount) {
 	var sslCertDirHost string
-	if sslCertDirHost = c.GetSslCertDir(); len(sslCertDirHost) == 0 {
+	if sslCertDirHost = c.GetSslCertDir(); sslCertDirHost == "" {
 		return nil, nil
 	}
 	volume := corev1.Volume{

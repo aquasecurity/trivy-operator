@@ -4,17 +4,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/aquasecurity/trivy/pkg/fanal/types"
-	mp "github.com/aquasecurity/trivy/pkg/policy"
-	"github.com/bluele/gcache"
-	"github.com/go-logr/logr"
-	"golang.org/x/xerrors"
 	"os"
 	"path/filepath"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/bluele/gcache"
+	"github.com/go-logr/logr"
+	"golang.org/x/xerrors"
+	ctrl "sigs.k8s.io/controller-runtime"
+
+	"github.com/aquasecurity/trivy/pkg/fanal/types"
+	mp "github.com/aquasecurity/trivy/pkg/policy"
 )
 
 const (
@@ -66,16 +68,16 @@ func (pl *policyLoader) GetPoliciesAndBundlePath() ([]string, []string, error) {
 		return policies, bundlePaths, nil
 	}
 	if policies, ok = plc.([]string); !ok {
-		return []string{}, []string{}, fmt.Errorf("failed to get policies from cache")
+		return []string{}, []string{}, errors.New("failed to get policies from cache")
 	}
 	if bundlePaths, ok = bndl.([]string); !ok {
-		return []string{}, []string{}, fmt.Errorf("failed to get bundlePath from cache")
+		return []string{}, []string{}, errors.New("failed to get bundlePath from cache")
 	}
 	return policies, bundlePaths, nil
 
 }
 
-func (pl *policyLoader) getPoliciesFromCache() (interface{}, interface{}, error) {
+func (pl *policyLoader) getPoliciesFromCache() (any, any, error) {
 	pl.mutex.RLock()
 	defer pl.mutex.RUnlock()
 	policies, err := pl.cache.Get(bundlePolicies)
@@ -118,8 +120,8 @@ func (pl *policyLoader) getBuiltInPolicies(ctx context.Context) ([]string, error
 }
 
 func LoadPoliciesData(policyPath []string) ([]string, error) {
-	policiesList := []string{}
-	fileList := []string{}
+	var policiesList []string
+	var fileList []string
 	err := filepath.Walk(policyPath[0], func(path string, f os.FileInfo, err error) error {
 		if strings.Contains(path, "policies/kubernetes/") { // load only k8s policies
 			fileList = append(fileList, path)

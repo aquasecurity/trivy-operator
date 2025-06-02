@@ -4,16 +4,16 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/aquasecurity/trivy-operator/pkg/ext"
-
-	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/tools/leaderelection/resourcelock"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
+
+	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
 // InstallModePredicate is a predicate.Predicate that determines whether to

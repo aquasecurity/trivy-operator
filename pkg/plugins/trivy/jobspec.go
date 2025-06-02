@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"strings"
 
+	containerimage "github.com/google/go-containerregistry/pkg/name"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/ptr"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	containerimage "github.com/google/go-containerregistry/pkg/name"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 const (
@@ -132,7 +132,7 @@ func getScanResultVolumeMount() corev1.VolumeMount {
 	}
 }
 
-func ConfigWorkloadAnnotationEnvVars(workload client.Object, annotation string, envVarName string, trivyConfigName string, configKey string) corev1.EnvVar {
+func ConfigWorkloadAnnotationEnvVars(workload client.Object, annotation, envVarName, trivyConfigName, configKey string) corev1.EnvVar {
 	if value, ok := workload.GetAnnotations()[annotation]; ok {
 		return corev1.EnvVar{
 			Name:  envVarName,
@@ -240,7 +240,7 @@ func CreateSbomDataAsSecret(bom v1alpha1.BOM, secretName string) (corev1.Secret,
 }
 
 // CreateVolumeSbomFiles creates a volume and volume mount for the sbom data
-func CreateVolumeSbomFiles(volumeMounts *[]corev1.VolumeMount, volumes *[]corev1.Volume, secretName *string, fileName string, mountPath string, cname string) {
+func CreateVolumeSbomFiles(volumeMounts *[]corev1.VolumeMount, volumes *[]corev1.Volume, secretName *string, fileName, mountPath, cname string) {
 	vname := fmt.Sprintf("sbomvol-%s", cname)
 	sbomMount := corev1.VolumeMount{
 		Name:      vname,

@@ -5,17 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
-	control "github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
-	"github.com/aquasecurity/trivy-operator/pkg/ext"
-	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	"github.com/aquasecurity/trivy-operator/pkg/utils"
-
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
-	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -24,6 +13,17 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
+	control "github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
+	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
+	"github.com/aquasecurity/trivy-operator/pkg/policy"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
 )
 
 type TTLReportReconciler struct {

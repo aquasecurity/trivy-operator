@@ -95,7 +95,7 @@ func (c Config) GetTargetNamespaces() []string {
 
 func (c Config) GetPrivateRegistryScanSecretsNames() (map[string]string, error) {
 	privateRegistryScanSecretsNames := c.PrivateRegistryScanSecretsNames
-	secretsInfoMap := map[string]string{}
+	secretsInfoMap := make(map[string]string)
 	if privateRegistryScanSecretsNames != "" {
 		err := json.Unmarshal([]byte(privateRegistryScanSecretsNames), &secretsInfoMap)
 		if err != nil {

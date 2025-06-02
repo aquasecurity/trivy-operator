@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestBase64Decode(t *testing.T) {
@@ -22,8 +23,8 @@ func TestBase64Decode(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := base64Decode(strings.NewReader(tt.data))
-			assert.NoError(t, err)
-			assert.Equal(t, string(got), tt.want)
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, string(got))
 		})
 	}
 }
@@ -45,8 +46,8 @@ func TestDecompressBzip2(t *testing.T) {
 				assert.Error(t, err)
 			} else {
 				b, err := io.ReadAll(got)
-				assert.NoError(t, err)
-				assert.Equal(t, string(b), tt.want)
+				require.NoError(t, err)
+				assert.Equal(t, tt.want, string(b))
 			}
 		})
 	}
@@ -71,12 +72,12 @@ func TestIllegalChar(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			f, err := os.Open("./testdata/fixture/" + tt.dataPath)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			defer f.Close()
 			b, err := base64Decode(f)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			_, err = decompressBzip2(b)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 	}
 }

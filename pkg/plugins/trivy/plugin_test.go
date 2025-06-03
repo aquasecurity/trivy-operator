@@ -7381,6 +7381,19 @@ func TestGetInitContainers(t *testing.T) {
 				"trivy.command":          string(trivy.Image),
 			},
 		},
+		{
+			name: "Client-server mode with image command java-db from private registry",
+			configData: map[string]string{
+				"trivy.dbRepository":     trivy.DefaultDBRepository,
+				"trivy.javaDbRepository": "my-private-registry.io/aquasec/trivy-java-db",
+				"trivy.skipJavaDBUpdate": "false",
+				"trivy.repository":       "gcr.io/aquasec/trivy",
+				"trivy.tag":              "0.35.0",
+				"trivy.mode":             string(trivy.ClientServer),
+				"trivy.serverURL":        "http://trivy.trivy:4954",
+				"trivy.command":          string(trivy.Image),
+			},
+		},
 	}
 
 	for _, tc := range testCases {

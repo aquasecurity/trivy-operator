@@ -184,8 +184,8 @@ jobs:
           args: release -f=goreleaser-e2e.yaml --snapshot --skip=publish --clean
       - name: Install kind and create cluster
         run: >
-          curl -Lo ./kind https://kind.sigs.k8s.io/dl/${{ env.KIND_VERSION
-          }}/kind-linux-amd64
+          # Using outdated version of kind to test cluster vulnerability reports
+          curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.17.0/kind-linux-amd64
 
           chmod +x ./kind
 

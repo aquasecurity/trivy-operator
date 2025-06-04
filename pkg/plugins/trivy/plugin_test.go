@@ -7418,6 +7418,12 @@ func TestGetInitContainers(t *testing.T) {
 				},
 			).Build()
 
+			// a number of init containers is 2 for Standalone, and 1 for ClientServer mode
+			numInitContainers := 2
+			if tc.configData["trivy.mode"] == string(trivy.ClientServer) {
+				numInitContainers = 1
+			}
+
 			pluginContext := trivyoperator.NewPluginContext().
 				WithName(trivy.Plugin).
 				WithNamespace("trivyoperator-ns").
@@ -7439,18 +7445,20 @@ func TestGetInitContainers(t *testing.T) {
 			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil, make(map[string]v1alpha1.SbomReportData))
 			require.NoError(t, err)
 
-			assert.Len(t, jobSpec.InitContainers, 2)
-			// Assert first init container to download trivy-db from private registry
-			trivyDbInitContainer := jobSpec.InitContainers[0]
+			assert.Len(t, jobSpec.InitContainers, numInitContainers)
 
-			containsDownloadDBOnly := false
-			for _, arg := range trivyDbInitContainer.Args {
-				if arg == "--download-db-only" {
-					containsDownloadDBOnly = true
-					break
+			trivyDbInitContainer := jobSpec.InitContainers[0]
+			if tc.configData["trivy.mode"] == string(trivy.Standalone) {
+				// Assert first init container to download trivy-db from private registry
+				containsDownloadDBOnly := false
+				for _, arg := range trivyDbInitContainer.Args {
+					if arg == "--download-db-only" {
+						containsDownloadDBOnly = true
+						break
+					}
 				}
+				assert.True(t, containsDownloadDBOnly, "Expected first init container to only download try-db")
 			}
-			assert.True(t, containsDownloadDBOnly, "Expected first init container to only download try-db")
 
 			hasTrivyUsername := false
 			hasTrivyPassword := false
@@ -7465,8 +7473,7 @@ func TestGetInitContainers(t *testing.T) {
 			assert.True(t, hasTrivyUsername, "Expected init container to have username env var for private trivy-db registry")
 			assert.True(t, hasTrivyPassword, "Expected init container to have password env var for private trivy-db registry")
 
-			// Assert second init container to download java-db from private registry
-			javaDbInitContainer := jobSpec.InitContainers[1]
+			javaDbInitContainer := jobSpec.InitContainers[numInitContainers-1]
 
 			containsDownloadJavaDBOnly := false
 			for _, arg := range javaDbInitContainer.Args {
@@ -7489,7 +7496,6 @@ func TestGetInitContainers(t *testing.T) {
 			}
 			assert.True(t, hasTrivyUsername, "Expected init container to have username env var for private java-db registry")
 			assert.True(t, hasTrivyPassword, "Expected init container to have password env var for private java-db registry")
-
 		})
 	}
 }

@@ -279,7 +279,3 @@ jobs:
           kubectl logs -n trivy-system deployment/trivy-operator
           echo "reports:"
           kubectl get clustervulnerabilityreports.aquasecurity.github.io -A
-
-      - name: Delete kind cluster
-        run: |
-          kind delete cluster

@@ -6199,11 +6199,11 @@ default ignore = false`,
 							"--cache-dir",
 							"/tmp/trivy/.cache",
 							"image",
+							"--config",
+							"/etc/trivy/trivy-config.yaml",
 							"--download-db-only",
 							"--db-repository",
 							trivy.DefaultDBRepository,
-							"--config",
-							"/etc/trivy/trivy-config.yaml",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{

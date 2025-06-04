@@ -182,21 +182,13 @@ jobs:
         with:
           version: v2.4.8
           args: release -f=goreleaser-e2e.yaml --snapshot --skip=publish --clean
-      - name: Install kind and create cluster
-        run: >
-          # Using outdated version of kind to test cluster vulnerability reports
 
-          curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.24.0/kind-linux-amd64
+      - name: Setup Kubernetes cluster (KIND)
+        uses: engineerd/setup-kind@v0.6.2
+        with:
+          version: ${{ env.KIND_VERSION }}
+          image: kindest/node:v1.31.0@sha256:53df588e04085fd41ae12de0c3fe4c72f7013bba32a20e7325357a1ac94ba865   # Using outdated version of k8s to test the cluster vulnerability reports
 
-          chmod +x ./kind
-
-          sudo mv ./kind /usr/local/bin/kind
-
-          kind create cluster
-
-          curl -LO https://dl.k8s.io/release/v1.26.0/bin/linux/amd64/kubectl
-
-          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
       - name: Test connection to Kubernetes cluster
         run: |
           kubectl cluster-info

@@ -682,8 +682,10 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef, tri
 	args = append([]string{"trivy"}, args...)
 	// Add compress arguments.
 	// Sync is required to flush buffer to stdout before exiting.
-	args = append(args, "--output", fmt.Sprintf("/tmp/scan/%s", resultFileName))
-	args = append(args, fmt.Sprintf(`&& bzip2 -c /tmp/scan/%s | base64 && sync`, resultFileName))
+	args = append(args,
+		"--output",
+		fmt.Sprintf("/tmp/scan/%s", resultFileName),
+		fmt.Sprintf(`&& bzip2 -c /tmp/scan/%s | base64 && sync`, resultFileName))
 
 	return []string{"/bin/sh"}, append([]string{"-c"}, strings.Join(args, " "))
 }

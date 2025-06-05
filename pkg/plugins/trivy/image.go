@@ -137,6 +137,53 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 		return corev1.PodSpec{}, nil, err
 	}
 
+	if config.TrivyDBRepositoryCredentialsSet() {
+		dockerConfigVolumeMount := []corev1.VolumeMount{
+			{
+				Name:      dockerConfigVolumeName,
+				ReadOnly:  false,
+				MountPath: "/root/.docker",
+			},
+		}
+		dockerConfigVolume := []corev1.Volume{
+			{
+				Name: dockerConfigVolumeName,
+				VolumeSource: corev1.VolumeSource{
+					EmptyDir: &corev1.EmptyDirVolumeSource{
+						Medium: corev1.StorageMediumDefault,
+					},
+				},
+			},
+		}
+		volumes = append(volumes, dockerConfigVolume...)
+		volumeMounts = append(volumeMounts, dockerConfigVolumeMount...)
+
+		dbRepository, err := config.GetDBRepository()
+		if err != nil {
+			return corev1.PodSpec{}, nil, err
+		}
+
+		javaDbRegistry, err := containerimage.ParseReference(dbRepository)
+		if err != nil {
+			return corev1.PodSpec{}, nil, fmt.Errorf("failed to parse db registry image: %w", err)
+		}
+
+		initContainers = append(initContainers, corev1.Container{
+			Name:                     p.idGenerator.GenerateID(),
+			Image:                    trivyImageRef,
+			ImagePullPolicy:          corev1.PullPolicy(config.GetImagePullPolicy()),
+			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
+			Env:                      initContainerEnvVar(trivyConfigName, config),
+			Command: []string{
+				"trivy",
+			},
+			Args:            []string{"registry", "login", javaDbRegistry.Context().Registry.Name()}, // TRIVY_USERNAME and TRIVY_PASSWORD are set up in initContainerEnvVar()
+			Resources:       resourceRequirements,
+			SecurityContext: securityContext,
+			VolumeMounts:    volumeMounts,
+		})
+	}
+
 	mode := config.GetMode()
 
 	if mode == Standalone {
@@ -145,6 +192,7 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
+
 		initContainers = append(initContainers, corev1.Container{
 			Name:                     p.idGenerator.GenerateID(),
 			Image:                    trivyImageRef,
@@ -155,22 +203,6 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 				"trivy",
 			},
 			Args:            append(args, "--download-db-only", "--db-repository", dbRepository),
-			Resources:       resourceRequirements,
-			SecurityContext: securityContext,
-			VolumeMounts:    volumeMounts,
-		})
-	}
-	if !config.GetSkipJavaDBUpdate() && config.TrivyDBRepositoryCredentialsSet() {
-		initContainers = append(initContainers, corev1.Container{
-			Name:                     p.idGenerator.GenerateID(),
-			Image:                    trivyImageRef,
-			ImagePullPolicy:          corev1.PullPolicy(config.GetImagePullPolicy()),
-			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
-			Env:                      initContainerEnvVar(trivyConfigName, config),
-			Command: []string{
-				"trivy",
-			},
-			Args:            append(args, "--download-java-db-only", "--java-db-repository", config.GetJavaDBRepository()),
 			Resources:       resourceRequirements,
 			SecurityContext: securityContext,
 			VolumeMounts:    volumeMounts,

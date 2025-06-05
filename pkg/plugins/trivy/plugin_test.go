@@ -7454,7 +7454,7 @@ func TestGetInitContainers(t *testing.T) {
 
 			assert.Len(t, jobSpec.InitContainers, numInitContainers)
 
-			trivyDbInitContainer := jobSpec.InitContainers[0]
+			trivyDbInitContainer := jobSpec.InitContainers[numInitContainers-1]
 			if tc.configData["trivy.mode"] == string(trivy.Standalone) {
 				// Assert first init container to download trivy-db from private registry
 				containsDownloadDBOnly := false
@@ -7464,7 +7464,7 @@ func TestGetInitContainers(t *testing.T) {
 						break
 					}
 				}
-				assert.True(t, containsDownloadDBOnly, "Expected first init container to only download try-db")
+				assert.True(t, containsDownloadDBOnly, "Expected second init container to only download try-db")
 			}
 
 			hasTrivyUsername := false
@@ -7480,11 +7480,11 @@ func TestGetInitContainers(t *testing.T) {
 			assert.True(t, hasTrivyUsername, "Expected init container to have username env var for private trivy-db registry")
 			assert.True(t, hasTrivyPassword, "Expected init container to have password env var for private trivy-db registry")
 
-			javaDbInitContainer := jobSpec.InitContainers[numInitContainers-1]
+			loginInitContainer := jobSpec.InitContainers[0]
 
 			containsDownloadJavaDBOnly := false
-			for _, arg := range javaDbInitContainer.Args {
-				if arg == "--download-java-db-only" {
+			for _, arg := range loginInitContainer.Args {
+				if arg == "login" {
 					containsDownloadJavaDBOnly = true
 					break
 				}
@@ -7493,7 +7493,7 @@ func TestGetInitContainers(t *testing.T) {
 
 			hasTrivyUsername = false
 			hasTrivyPassword = false
-			for _, envVar := range javaDbInitContainer.Env {
+			for _, envVar := range loginInitContainer.Env {
 				if envVar.Name == "TRIVY_USERNAME" {
 					hasTrivyUsername = true
 				}

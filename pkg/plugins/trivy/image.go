@@ -738,7 +738,7 @@ func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomF
 	}
 	var serverUrlParms string
 	if mode == ClientServer {
-		serverUrlParms = fmt.Sprintf("--server '%s' ", trivyServerURL)
+		serverUrlParms = fmt.Sprintf("--server '%s'", trivyServerURL)
 	}
 	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy sbom %s %s %s %s --cache-dir /tmp/trivy/.cache --format json %s --output /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64 && sync`, slow, sbomFile, vulnTypeFlag, skipUpdate, serverUrlParms, resultFileName, resultFileName)}
 }

@@ -7464,7 +7464,7 @@ func TestGetInitContainers(t *testing.T) {
 						break
 					}
 				}
-				assert.True(t, containsDownloadDBOnly, "Expected second init container to only download try-db")
+				assert.True(t, containsDownloadDBOnly, "Expected second init container to only download trivy-db")
 			}
 
 			hasTrivyUsername := false
@@ -7482,14 +7482,14 @@ func TestGetInitContainers(t *testing.T) {
 
 			loginInitContainer := jobSpec.InitContainers[0]
 
-			containsDownloadJavaDBOnly := false
+			containsLoginContainer := false
 			for _, arg := range loginInitContainer.Args {
 				if arg == "login" {
-					containsDownloadJavaDBOnly = true
+					containsLoginContainer = true
 					break
 				}
 			}
-			assert.True(t, containsDownloadJavaDBOnly, "Expected second init container to only download java-db")
+			assert.True(t, containsLoginContainer, "Expected a login init container")
 
 			hasTrivyUsername = false
 			hasTrivyPassword = false

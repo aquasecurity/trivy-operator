@@ -740,7 +740,7 @@ func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomF
 	if mode == ClientServer {
 		serverUrlParms = fmt.Sprintf("--server '%s' ", trivyServerURL)
 	}
-	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy sbom %s %s %s %s --cache-dir /tmp/trivy/.cache --quiet --format json %s --output /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64 && sync`, slow, sbomFile, vulnTypeFlag, skipUpdate, serverUrlParms, resultFileName, resultFileName)}
+	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy sbom %s %s %s %s --cache-dir /tmp/trivy/.cache --format json %s --output /tmp/scan/%s &&  bzip2 -c /tmp/scan/%s | base64 && sync`, slow, sbomFile, vulnTypeFlag, skipUpdate, serverUrlParms, resultFileName, resultFileName)}
 }
 
 func vulnTypeFilter(ctx trivyoperator.PluginContext) []string {

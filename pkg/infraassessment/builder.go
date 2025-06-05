@@ -186,7 +186,7 @@ func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
 			// Write the cluster infra assessment report to a file
 			reportDir := b.Config.AltReportDir
 			infraAssessmentDir := filepath.Join(reportDir, "cluster_infra_assessment_reports")
-			if err := os.MkdirAll(infraAssessmentDir, 0750); err != nil {
+			if err := os.MkdirAll(infraAssessmentDir, 0o750); err != nil {
 				return fmt.Errorf("failed to make infraAssessmentDir %s: %w", infraAssessmentDir, err)
 			}
 
@@ -200,7 +200,7 @@ func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
 			workloadName := report.Labels["trivy-operator.resource.name"]
 
 			reportPath := filepath.Join(infraAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-			err = os.WriteFile(reportPath, reportData, 0600)
+			err = os.WriteFile(reportPath, reportData, 0o600)
 			if err != nil {
 				return fmt.Errorf("failed to write cluster infra assessment report: %w", err)
 			}

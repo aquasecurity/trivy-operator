@@ -79,7 +79,7 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 			serverUrl:      "",
 			resultFileName: "output.json",
 			compressedLogs: "true",
-			wantArgs:       []string{"-c", "trivy sbom --slow /tmp/scan/bom.json  --skip-db-update  --cache-dir /tmp/trivy/.cache --quiet --format json > /tmp/scan/output.json &&  bzip2 -c /tmp/scan/output.json | base64 && sync"},
+			wantArgs:       []string{"-c", "trivy sbom --slow /tmp/scan/bom.json  --skip-db-update --cache-dir /tmp/trivy/.cache --format json  --output /tmp/scan/output.json &&  bzip2 -c /tmp/scan/output.json | base64 && sync"},
 			wantCmd:        []string{"/bin/sh"},
 		},
 		{
@@ -99,7 +99,7 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 			serverUrl:      "http://trivy-server:8080",
 			resultFileName: "output.json",
 			compressedLogs: "true",
-			wantArgs:       []string{"-c", "trivy sbom --slow /tmp/scan/bom.json    --cache-dir /tmp/trivy/.cache --quiet --format json --server 'http://trivy-server:8080' > /tmp/scan/output.json &&  bzip2 -c /tmp/scan/output.json | base64 && sync"},
+			wantArgs:       []string{"-c", "trivy sbom --slow /tmp/scan/bom.json   --cache-dir /tmp/trivy/.cache --format json --server 'http://trivy-server:8080' --output /tmp/scan/output.json &&  bzip2 -c /tmp/scan/output.json | base64 && sync"},
 			wantCmd:        []string{"/bin/sh"},
 		},
 		{

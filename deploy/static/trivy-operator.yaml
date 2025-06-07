@@ -3665,6 +3665,7 @@ rules:
       - create
       - get
       - delete
+      - update
 ---
 # Source: trivy-operator/templates/rbac/rolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1

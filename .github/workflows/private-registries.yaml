@@ -104,6 +104,3 @@ jobs:
           ./bin/kuttl test --start-kind=false --config tests/e2e/config/image-private-registries-sa.yaml
 
           ./tests/resources-cleanup-private.sh > /dev/null 2>&1
-      - name: Delete kind cluster
-        run: |
-          kind delete cluster

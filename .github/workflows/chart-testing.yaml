@@ -86,6 +86,3 @@ jobs:
 
       - name: Run chart-testing
         run: ct lint-and-install --validate-maintainers=false --charts deploy/helm
-      - name: Delete kind cluster
-        run: |
-          kind delete cluster

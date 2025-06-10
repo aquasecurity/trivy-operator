@@ -685,7 +685,7 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef, tri
 	args = append(args,
 		"--output",
 		fmt.Sprintf("/tmp/scan/%s 2>/tmp/scan/%s.log", resultFileName, resultFileName),
-		fmt.Sprintf(`&& bzip2 -c /tmp/scan/%s | base64 && sync`, resultFileName))
+		fmt.Sprintf(`&& bzip2 -c /tmp/scan/%s | base64`, resultFileName))
 
 	return []string{"/bin/sh"}, append([]string{"-c"}, strings.Join(args, " "))
 }
@@ -742,7 +742,7 @@ func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomF
 	if mode == ClientServer {
 		serverUrlParms = fmt.Sprintf("--server '%s'", trivyServerURL)
 	}
-	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy sbom %s %s %s %s --cache-dir /tmp/trivy/.cache --format json %s --output /tmp/scan/%s 2>/tmp/scan/%s.log && bzip2 -c /tmp/scan/%s | base64 && sync`, slow, sbomFile, vulnTypeFlag, skipUpdate, serverUrlParms, resultFileName, resultFileName, resultFileName)}
+	return []string{"/bin/sh"}, []string{"-c", fmt.Sprintf(`trivy sbom %s %s %s %s --cache-dir /tmp/trivy/.cache --format json %s --output /tmp/scan/%s 2>/tmp/scan/%s.log && bzip2 -c /tmp/scan/%s | base64`, slow, sbomFile, vulnTypeFlag, skipUpdate, serverUrlParms, resultFileName, resultFileName, resultFileName)}
 }
 
 func vulnTypeFilter(ctx trivyoperator.PluginContext) []string {

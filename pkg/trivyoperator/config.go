@@ -38,6 +38,7 @@ func NewScheme() *runtime.Scheme {
 	_ = coordinationv1.AddToScheme(scheme)
 	_ = apiextensionsv1.AddToScheme(scheme)
 	_ = ocpappsv1.Install(scheme)
+	_ = metav1.AddMetaToScheme(scheme)
 	return scheme
 }
 

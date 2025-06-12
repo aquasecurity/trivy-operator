@@ -60,11 +60,22 @@ func (r *ChecksLoader) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Re
 
 	var cm corev1.ConfigMap
 	if err := r.cl.Get(ctx, req.NamespacedName, &cm); err != nil {
-		if req.Name == trivyoperator.TrivyConfigMapName {
+		switch req.Name {
+		case trivyoperator.TrivyConfigMapName:
 			log.V(1).Info("Checks removed since trivy config is removed")
+			r.policies = nil
+		case trivyoperator.PoliciesConfigMapName:
+			log.V(1).Info("Checks removed since policies config is removed")
 			r.policies = nil
 		}
 		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	// Invalidate cached policies when any relevant ConfigMap is updated
+	switch req.Name {
+	case trivyoperator.TrivyConfigMapName, trivyoperator.PoliciesConfigMapName:
+		log.V(1).Info("ConfigMap updated, invalidating cached policies", "configMap", req.Name)
+		r.policies = nil
 	}
 
 	if err := r.loadChecks(ctx); err != nil {

@@ -357,7 +357,12 @@ func (o *ObjectResolver) ObjectFromObjectRef(ctx context.Context, ref ObjectRef)
 	case KindService:
 		obj = &corev1.Service{}
 	case KindConfigMap:
-		obj = &corev1.ConfigMap{}
+		obj = &metav1.PartialObjectMetadata{
+			TypeMeta: metav1.TypeMeta{
+				APIVersion: "v1",
+				Kind:       "ConfigMap",
+			},
+		}
 	case KindRole:
 		obj = &rbacv1.Role{}
 	case KindRoleBinding:

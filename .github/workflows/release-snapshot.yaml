@@ -48,7 +48,6 @@ jobs:
           image-ref: 'mirror.gcr.io/aquasec/trivy-operator:${{ github.sha }}-amd64'
           exit-code: '1'
           ignore-unfixed: true
-          severity: 'CRITICAL,HIGH'
       - name: Notify dedicated teams channel
         uses: jdcargile/ms-teams-notification@v1.4
         if: failure()

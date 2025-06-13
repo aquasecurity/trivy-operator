@@ -52,11 +52,11 @@
 
 6. Verify that the `release` workflow has built and published the following artifacts
    1. Trivy-operator container images published to DockerHub
-       `docker.io/aquasec/trivy-operator:0.27.0`
+       `docker.io/aquasec/trivy-operator:0.27.1`
    2. Trivy-operator container images published to Amazon ECR Public Gallery
-       `public.ecr.aws/aquasecurity/trivy-operator:0.27.0`
+       `public.ecr.aws/aquasecurity/trivy-operator:0.27.1`
    3. Trivy-operator container images published to GitHub Container Registry
-       `ghcr.io/aquasecurity/trivy-operator:0.27.0`
+       `ghcr.io/aquasecurity/trivy-operator:0.27.1`
 
 7. Submit trivy-operator Operator to OperatorHub and ArtifactHUB by opening the PR to the <https://github.com/k8s-operatorhub/community-operators> repository.
 

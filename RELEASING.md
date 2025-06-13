@@ -46,8 +46,8 @@
 5. Create an annotated git tag and push it to the `upstream`. This will trigger the [`.github/workflows/release.yaml`] workflow
 
    ```sh
-   git tag -v0.27.0 -m 'Release v0.27.0'
-   git push upstream v0.27.0
+   git tag -v0.27.1 -m 'Release v0.27.1'
+   git push upstream v0.27.1
    ```
 
 6. Verify that the `release` workflow has built and published the following artifacts

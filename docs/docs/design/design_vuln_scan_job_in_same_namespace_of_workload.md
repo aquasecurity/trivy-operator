@@ -219,6 +219,6 @@ With this approach trivy operator will not have to worry about managing(create/d
     - As we will run scan job with service account of workload and if there are some very strict PSP defined in the cluster
     then scan job will be blocked due to the PSP.
   
-[ECR registry configuration]: https://aquasecurity.github.io/trivy-operator/v0.27.0/integrations/managed-registries/#amazon-elastic-container-registry-ecr
+[ECR registry configuration]: https://aquasecurity.github.io/trivy-operator/v0.27.1/integrations/managed-registries/#amazon-elastic-container-registry-ecr
 [IAM role to service account]: https://docs.aws.amazon.com/eks/latest/userguide/specify-service-account-role.html
 [Trivy fs command]: https://aquasecurity.github.io/trivy-operator/latest/docs/design/design_trivy_file_system_scanner/

@@ -115,7 +115,7 @@ jobs:
     needs:
       - operator-envtest
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -150,6 +150,11 @@ jobs:
           KUBECONFIG: /home/runner/.kube/config
           OPERATOR_NAMESPACE: trivy-system
           OPERATOR_TARGET_NAMESPACES: default
+
+      - name: The job has failed - print the logs
+        if: ${{ failure() }}
+        run: >
+          kubectl logs -n trivy-system deployment/trivy-operator
 
       - name: Upload code coverage
         uses: codecov/codecov-action@v5

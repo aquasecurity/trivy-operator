@@ -77,6 +77,9 @@ configuration settings for common use cases. For example, switch Trivy from [Sta
 |`alternateReportStorage.podSecurityContext.runAsUser`| `10000` | Specifies the UNIX user ID that all processes in the container should run as (for the persistent volume), ensuring they don’t execute as the root user and limiting their privileges.|
 |`alternateReportStorage.podSecurityContext.fsGroup`| `10000` | Defines a UNIX group ID that Kubernetes will use to change the ownership of any mounted volumes so that files created by the container (persistent volume) are accessible to processes running under that group.|
 
+!!! note
+    For parameters that use time values, such as `ScanJobTTL`, valid time units are "ns", "us" (or "µs"), "ms", "s", "m", and "h".
+
 !!! tip
     You can delete a configuration key.For example, the following `kubectl patch` command deletes the `trivy.httpProxy` key:
     ```

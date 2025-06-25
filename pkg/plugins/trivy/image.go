@@ -137,12 +137,16 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 		return corev1.PodSpec{}, nil, err
 	}
 
+	dockerConfigPath := ""
+
 	if config.TrivyDBRepositoryCredentialsSet() {
+		dockerConfigPath = "/docker-config/"
+
 		dockerConfigVolumeMount := []corev1.VolumeMount{
 			{
 				Name:      dockerConfigVolumeName,
 				ReadOnly:  false,
-				MountPath: "/root/.docker",
+				MountPath: dockerConfigPath,
 			},
 		}
 		dockerConfigVolume := []corev1.Volume{
@@ -173,7 +177,7 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 			Image:                    trivyImageRef,
 			ImagePullPolicy:          corev1.PullPolicy(config.GetImagePullPolicy()),
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
-			Env:                      initContainerEnvVar(trivyConfigName, config),
+			Env:                      initContainerEnvVar(trivyConfigName, config, dockerConfigPath),
 			Command: []string{
 				"trivy",
 			},
@@ -198,7 +202,7 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 			Image:                    trivyImageRef,
 			ImagePullPolicy:          corev1.PullPolicy(config.GetImagePullPolicy()),
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
-			Env:                      initContainerEnvVar(trivyConfigName, config),
+			Env:                      initContainerEnvVar(trivyConfigName, config, dockerConfigPath),
 			Command: []string{
 				"trivy",
 			},
@@ -242,6 +246,12 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 			constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
 			constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
 			constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
+		}
+		if dockerConfigPath != "" {
+			env = append(env, corev1.EnvVar{
+				Name:  "DOCKER_CONFIG",
+				Value: dockerConfigPath,
+			})
 		}
 		if mode == ClientServer {
 			env = append(env,
@@ -394,7 +404,7 @@ func getAdditionalVolumes(config *Config, trivyConfigName string, workload clien
 	return volumes, volumeMounts
 }
 
-func initContainerEnvVar(trivyConfigName string, config Config) []corev1.EnvVar {
+func initContainerEnvVar(trivyConfigName string, config Config, dockerConfigPath string) []corev1.EnvVar {
 	envs := []corev1.EnvVar{
 		constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
 		constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
@@ -412,6 +422,12 @@ func initContainerEnvVar(trivyConfigName string, config Config) []corev1.EnvVar 
 		envs = append(envs, corev1.EnvVar{
 			Name:  "TRIVY_INSECURE",
 			Value: "true",
+		})
+	}
+	if dockerConfigPath != "" {
+		envs = append(envs, corev1.EnvVar{
+			Name:  "DOCKER_CONFIG",
+			Value: dockerConfigPath,
 		})
 	}
 	return envs

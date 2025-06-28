@@ -102,7 +102,7 @@ var allowedConfigMaps = set.New(
 var configPredicate = func(namespace string) predicate.Predicate {
 	return predicate.NewPredicateFuncs(func(obj client.Object) bool {
 		if allowedConfigMaps.Contains(obj.GetName()) {
-			return false
+			return true
 		}
 		return obj.GetNamespace() == namespace
 	})

@@ -5,7 +5,8 @@
 # If left blank, the chart will default to the individually set 'image.registry' values
 global:
   image:
-    registry: ""
+    # -- registry is the default registry for all images in this chart, unless explicitly set in the image values.
+    registry: "mirror.gcr.io"
 
 # -- managedBy is similar to .Release.Service but allows to overwrite the value
 managedBy: Helm
@@ -203,7 +204,7 @@ operator:
   pprofBindAddress: ""
 
 image:
-  registry: "mirror.gcr.io"
+  registry: ""
   repository: "aquasec/trivy-operator"
   # -- tag is an override of the image tag, which is by default set by the
   # appVersion field in Chart.yaml.
@@ -356,7 +357,7 @@ trivy:
   createConfig: true
   image:
     # -- registry of the Trivy image
-    registry: mirror.gcr.io
+    registry: ""
     # -- repository of the Trivy image
     repository: aquasec/trivy
     # -- tag version of the Trivy image
@@ -546,8 +547,12 @@ trivy:
   serverCustomHeaders: ~
   # serverCustomHeaders: "foo=bar"
 
-  dbRegistry: "mirror.gcr.io"
-  dbRepository: "aquasec/trivy-db"
+  db:
+    image:
+      # -- the registry for the vulnerability database image (falls back to global.image.registry if not set)
+      registry: ""
+      # -- the repository for the vulnerability database image
+      repository: "aquasec/trivy-db"
 
   # -- The username for dbRepository authentication
   #
@@ -558,8 +563,12 @@ trivy:
   dbRepositoryPassword: ~
 
   # -- javaDbRegistry is the registry for the Java vulnerability database.
-  javaDbRegistry: "mirror.gcr.io"
-  javaDbRepository: "aquasec/trivy-java-db"
+  javaDb:
+    image:
+      # -- the registry for the Java vulnerability database image (falls back to global.image.registry if not set)
+      registry: ""
+      # -- the repository for the Java vulnerability database image
+      repository: "aquasec/trivy-java-db"
 
   # -- The Flag to enable insecure connection for downloading trivy-db via proxy (air-gaped env)
   #
@@ -729,12 +738,13 @@ priorityClassName: ""
 automountServiceAccountToken: true
 
 policiesBundle:
-  # -- registry of the policies bundle
-  registry: mirror.gcr.io
-  # -- repository of the policies bundle
-  repository: aquasec/trivy-checks
-  # -- tag version of the policies bundle
-  tag: 1
+  image:
+    # -- registry of the policies bundle (falls back to global.image.registry if not set)
+    registry: ""
+    # -- repository of the policies bundle
+    repository: aquasec/trivy-checks
+    # -- tag version of the policies bundle
+    tag: "1"
   # -- registryUser is the user for the registry
   registryUser: ~
   # -- registryPassword is the password for the registry
@@ -750,15 +760,16 @@ policiesBundle:
 nodeCollector:
   # -- useNodeSelector determine if to use nodeSelector (by auto detecting node name) with node-collector scan job
   useNodeSelector: true
-  # -- registry of the node-collector image
-  registry: ghcr.io
-  # -- repository of the node-collector image
-  repository: aquasecurity/node-collector
-  # -- tag version of the node-collector image
-  tag: 0.3.1
-  # -- imagePullSecret is the secret name to be used when pulling node-collector image from private registries example : reg-secret
-  # It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace
-  imagePullSecret: ~
+  image:
+    # -- registry of the node-collector image (falls back to global.image.registry if not set)
+    registry: ghcr.io
+    # -- repository of the node-collector image
+    repository: aquasecurity/node-collector
+    # -- tag version of the node-collector image
+    tag: 0.3.1
+    # -- imagePullSecret is the secret name to be used when pulling node-collector image from private registries example : reg-secret
+    # It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace
+    imagePullSecret: ~
   # -- excludeNodes comma-separated node labels that the node-collector job should exclude from scanning (example kubernetes.io/arch=arm64,team=dev)
   excludeNodes:
   # -- tolerations to be applied to the node-collector so that they can run on nodes with matching taints

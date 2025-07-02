@@ -20,11 +20,8 @@ builds:
       - amd64
 archives:
   - name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
-    builds:
+    ids:
       - trivy-operator
-    format_overrides:
-      - goos: windows
-        format: zip
 checksum:
   name_template: checksums.txt
 snapshot:

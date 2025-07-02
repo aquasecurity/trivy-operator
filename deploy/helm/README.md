@@ -23,20 +23,21 @@ Keeps security report resources updated
 | excludeNamespaces | string | `""` | excludeNamespaces is a comma separated list of namespaces (or glob patterns) to be excluded from scanning. Only applicable in the all namespaces install mode, i.e. when the targetNamespaces values is a blank string. |
 | extraEnv | list | `[]` | extraEnv is a list of extra environment variables for the trivy-operator. |
 | fullnameOverride | string | `""` | fullnameOverride override operator full name |
-| global | object | `{"image":{"registry":""}}` | global values provide a centralized configuration for 'image.registry', reducing the potential for errors. If left blank, the chart will default to the individually set 'image.registry' values |
+| global | object | `{"image":{"registry":"mirror.gcr.io"}}` | global values provide a centralized configuration for 'image.registry', reducing the potential for errors. If left blank, the chart will default to the individually set 'image.registry' values |
+| global.image.registry | string | `"mirror.gcr.io"` | registry is the default registry for all images in this chart, unless explicitly set in the image values. |
 | hostAliases | list | `[]` | hostAliases for `deployment` (TrivyOperator) and `statefulset` (TrivyServer) |
 | image.pullPolicy | string | `"IfNotPresent"` | pullPolicy set the operator pullPolicy |
 | image.pullSecrets | list | `[]` | pullSecrets set the operator pullSecrets |
-| image.registry | string | `"mirror.gcr.io"` |  |
+| image.registry | string | `""` |  |
 | image.repository | string | `"aquasec/trivy-operator"` |  |
 | image.tag | string | `""` | tag is an override of the image tag, which is by default set by the appVersion field in Chart.yaml. |
 | managedBy | string | `"Helm"` | managedBy is similar to .Release.Service but allows to overwrite the value |
 | nameOverride | string | `""` | nameOverride override operator name |
 | nodeCollector.excludeNodes | string | `nil` | excludeNodes comma-separated node labels that the node-collector job should exclude from scanning (example kubernetes.io/arch=arm64,team=dev) |
-| nodeCollector.imagePullSecret | string | `nil` | imagePullSecret is the secret name to be used when pulling node-collector image from private registries example : reg-secret It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace |
-| nodeCollector.registry | string | `"ghcr.io"` | registry of the node-collector image |
-| nodeCollector.repository | string | `"aquasecurity/node-collector"` | repository of the node-collector image |
-| nodeCollector.tag | string | `"0.3.1"` | tag version of the node-collector image |
+| nodeCollector.image.imagePullSecret | string | `nil` | imagePullSecret is the secret name to be used when pulling node-collector image from private registries example : reg-secret It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace |
+| nodeCollector.image.registry | string | `"ghcr.io"` | registry of the node-collector image (falls back to global.image.registry if not set) |
+| nodeCollector.image.repository | string | `"aquasecurity/node-collector"` | repository of the node-collector image |
+| nodeCollector.image.tag | string | `"0.3.1"` | tag version of the node-collector image |
 | nodeCollector.tolerations | list | `[]` | tolerations to be applied to the node-collector so that they can run on nodes with matching taints |
 | nodeCollector.useNodeSelector | bool | `true` | useNodeSelector determine if to use nodeSelector (by auto detecting node name) with node-collector scan job |
 | nodeCollector.volumeMounts | list | `[{"mountPath":"/var/lib/etcd","name":"var-lib-etcd","readOnly":true},{"mountPath":"/var/lib/kubelet","name":"var-lib-kubelet","readOnly":true},{"mountPath":"/var/lib/kube-scheduler","name":"var-lib-kube-scheduler","readOnly":true},{"mountPath":"/var/lib/kube-controller-manager","name":"var-lib-kube-controller-manager","readOnly":true},{"mountPath":"/etc/systemd","name":"etc-systemd","readOnly":true},{"mountPath":"/lib/systemd/","name":"lib-systemd","readOnly":true},{"mountPath":"/etc/kubernetes","name":"etc-kubernetes","readOnly":true},{"mountPath":"/etc/cni/net.d/","name":"etc-cni-netd","readOnly":true}]` | node-collector pod volume mounts definition for collecting config files information |
@@ -99,12 +100,12 @@ Keeps security report resources updated
 | podAnnotations | object | `{}` | podAnnotations annotations added to the operator's pod |
 | podSecurityContext | object | `{}` |  |
 | policiesBundle.existingSecret | bool | `false` | existingSecret if a secret containing registry credentials that have been created outside the chart (e.g external-secrets, sops, etc...). Keys must be at least one of the following: policies.bundle.oci.user, policies.bundle.oci.password Overrides policiesBundle.registryUser, policiesBundle.registryPassword values. Note: The secret has to be named "trivy-operator". |
+| policiesBundle.image.registry | string | `""` | registry of the policies bundle (falls back to global.image.registry if not set) |
+| policiesBundle.image.repository | string | `"aquasec/trivy-checks"` | repository of the policies bundle |
+| policiesBundle.image.tag | string | `"1"` | tag version of the policies bundle |
 | policiesBundle.insecure | bool | `false` | insecure is the flag to enable insecure connection to the policy bundle registry |
-| policiesBundle.registry | string | `"mirror.gcr.io"` | registry of the policies bundle |
 | policiesBundle.registryPassword | string | `nil` | registryPassword is the password for the registry |
 | policiesBundle.registryUser | string | `nil` | registryUser is the user for the registry |
-| policiesBundle.repository | string | `"aquasec/trivy-checks"` | repository of the policies bundle |
-| policiesBundle.tag | int | `1` | tag version of the policies bundle |
 | priorityClassName | string | `""` | priorityClassName set the operator priorityClassName |
 | rbac.create | bool | `true` |  |
 | resources | object | `{}` |  |
@@ -134,8 +135,8 @@ Keeps security report resources updated
 | trivy.command | string | `"image"` | command. One of `image`, `filesystem` or `rootfs` scanning, depending on the target type required for the scan. For 'filesystem' and `rootfs` scanning, ensure that the `trivyOperator.scanJobPodTemplateContainerSecurityContext` is configured to run as the root user (runAsUser = 0). |
 | trivy.configFile | string | `nil` | configFile can be used to tell Trivy to use specific options available only in the config file (e.g. Mirror registries). |
 | trivy.createConfig | bool | `true` | createConfig indicates whether to create config objects |
-| trivy.dbRegistry | string | `"mirror.gcr.io"` |  |
-| trivy.dbRepository | string | `"aquasec/trivy-db"` |  |
+| trivy.db.image.registry | string | `""` | the registry for the vulnerability database image (falls back to global.image.registry if not set) |
+| trivy.db.image.repository | string | `"aquasec/trivy-db"` | the repository for the vulnerability database image |
 | trivy.dbRepositoryInsecure | string | `"false"` | The Flag to enable insecure connection for downloading trivy-db via proxy (air-gaped env)  |
 | trivy.dbRepositoryPassword | string | `nil` | The password for dbRepository authentication  |
 | trivy.dbRepositoryUsername | string | `nil` | The username for dbRepository authentication  |
@@ -150,14 +151,15 @@ Keeps security report resources updated
 | trivy.ignoreUnfixed | bool | `false` | ignoreUnfixed is the flag to show only fixed vulnerabilities in vulnerabilities reported by Trivy. Set to true to enable it.  |
 | trivy.image.imagePullSecret | string | `nil` | imagePullSecret is the secret name to be used when pulling trivy image from private registries example : reg-secret It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace |
 | trivy.image.pullPolicy | string | `"IfNotPresent"` | pullPolicy is the imge pull policy used for trivy image , valid values are (Always, Never, IfNotPresent) |
-| trivy.image.registry | string | `"mirror.gcr.io"` | registry of the Trivy image |
+| trivy.image.registry | string | `""` | registry of the Trivy image |
 | trivy.image.repository | string | `"aquasec/trivy"` | repository of the Trivy image |
 | trivy.image.tag | string | `"0.65.0"` | tag version of the Trivy image |
 | trivy.imageScanCacheDir | string | `"/tmp/trivy/.cache"` | imageScanCacheDir the flag to set custom path for trivy image scan `cache-dir` parameter. Only applicable in image scan mode. |
 | trivy.includeDevDeps | bool | `false` | includeDevDeps include development dependencies in the report (supported: npm, yarn) (default: false) note: this flag is only applicable when trivy.command is set to filesystem |
 | trivy.insecureRegistries | object | `{}` | The registry to which insecure connections are allowed. There can be multiple registries with different keys. |
-| trivy.javaDbRegistry | string | `"mirror.gcr.io"` | javaDbRegistry is the registry for the Java vulnerability database. |
-| trivy.javaDbRepository | string | `"aquasec/trivy-java-db"` |  |
+| trivy.javaDb | object | `{"image":{"registry":"","repository":"aquasec/trivy-java-db"}}` | javaDbRegistry is the registry for the Java vulnerability database. |
+| trivy.javaDb.image.registry | string | `""` | the registry for the Java vulnerability database image (falls back to global.image.registry if not set) |
+| trivy.javaDb.image.repository | string | `"aquasec/trivy-java-db"` | the repository for the Java vulnerability database image |
 | trivy.labels | object | `{}` | labels is the extra labels to be used for trivy server statefulset |
 | trivy.mode | string | `"Standalone"` | mode is the Trivy client mode. Either Standalone or ClientServer. Depending on the active mode other settings might be applicable or required. |
 | trivy.noProxy | string | `nil` | noProxy is a comma separated list of IPs and domain names that are not subject to proxy settings. |

@@ -275,7 +275,7 @@ jobs:
 
       - name: The job has failed - print the logs
         if: ${{ failure() }}
-        run: >
+        run: |
           kubectl logs -n trivy-system deployment/trivy-operator
           echo "reports:"
           kubectl get clustervulnerabilityreports.aquasecurity.github.io -A

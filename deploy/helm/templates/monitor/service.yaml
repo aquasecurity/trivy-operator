@@ -11,6 +11,12 @@ spec:
   {{- if and (.Values.service.headless) (eq .Values.service.type "ClusterIP") }}
   clusterIP: None
   {{- end }}
+  {{- if .Values.service.ipFamilyPolicy }}
+  ipFamilyPolicy: {{ .Values.service.ipFamilyPolicy }}
+  {{- end }}
+  {{- if .Values.service.ipFamilies }}
+  ipFamilies: {{ toYaml .Values.service.ipFamilies | nindent 4 }}
+  {{- end }}
   ports:
     - name: metrics
       port: {{ .Values.service.metricsPort }}

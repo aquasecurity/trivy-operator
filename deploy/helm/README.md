@@ -114,6 +114,8 @@ Keeps security report resources updated
 | service.metricsPort | int | `80` | port exposed by the Service |
 | service.nodePort | string | `nil` | the nodeport to use when service type is LoadBalancer or NodePort. If not set, Kubernetes automatically select one. |
 | service.type | string | `"ClusterIP"` | the Service type |
+| service.ipFamilyPolicy | string | `""` | The IP family policy used for the service |
+| service.ipFamilies | list | `[]` | List of IP families for the service. Can be "IPv4" and/or "IPv6" |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created. |
 | serviceAccount.name | string | `""` | name specifies the name of the k8s Service Account. If not set and create is true, a name is generated using the fullname template. |

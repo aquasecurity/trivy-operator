@@ -23,7 +23,7 @@
       2. Update the `appVersion` property
    2. Update the `app.kubernetes.io/version` labels in the following files:
       1. [`deploy/static/namespace.yaml`]
-      2. [`deploy/helm/templates/specs/nsa-1.0.yaml`]
+      2. [`deploy/helm/templates/specs/k8s-nsa-1.0.yaml`]
    3. Update static resources from Helm chart by running the mage target:
 
       ```sh

@@ -225,6 +225,11 @@ service:
   type: ClusterIP
   # -- the nodeport to use when service type is LoadBalancer or NodePort. If not set, Kubernetes automatically select one.
   nodePort:
+  # -- the IP family policy for the Service to be able to configure dual-stack; see [Configure dual-stack](https://kubernetes.io/docs/concepts/services-networking/dual-stack/#services).
+  ipFamilyPolicy: ""
+  # -- a list of IP families for the Service that should be supported, in the order in which they should be applied to ClusterIP. Can be "IPv4" and/or "IPv6".
+  ipFamilies: []
+
 
 # -- Prometheus ServiceMonitor configuration -- to install the trivy operator with the ServiceMonitor
 # you must have Prometheus already installed and running. If you do not have Prometheus installed, enabling this will

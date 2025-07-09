@@ -379,6 +379,48 @@ func (h *Helper) HasConfigAuditReportOwnedBy(ctx context.Context, obj client.Obj
 	}
 }
 
+func (h *Helper) HasScanJobPodOwnedBy(ctx context.Context, obj client.Object) func() (bool, error) {
+	return func() (bool, error) {
+		gvk, err := apiutil.GVKForObject(obj, h.scheme)
+		if err != nil {
+			return false, err
+		}
+		var podList corev1.PodList
+		err = h.kubeClient.List(ctx, &podList, client.MatchingLabels{
+			trivyoperator.LabelResourceKind:      gvk.Kind,
+			trivyoperator.LabelResourceName:      obj.GetName(),
+			trivyoperator.LabelResourceNamespace: obj.GetNamespace(),
+		})
+		if err != nil {
+			return false, err
+		}
+		return len(podList.Items) == 1, nil
+	}
+}
+
+func (h *Helper) GetScanJobPodOwnedBy(ctx context.Context, obj client.Object) func() (corev1.Pod, error) {
+	return func() (corev1.Pod, error) {
+		gvk, err := apiutil.GVKForObject(obj, h.scheme)
+		if err != nil {
+			return corev1.Pod{}, err
+		}
+		var podList corev1.PodList
+		err = h.kubeClient.List(ctx, &podList, client.MatchingLabels{
+			trivyoperator.LabelResourceKind:      gvk.Kind,
+			trivyoperator.LabelResourceName:      obj.GetName(),
+			trivyoperator.LabelResourceNamespace: obj.GetNamespace(),
+		})
+		if err != nil {
+			return corev1.Pod{}, err
+		}
+
+		if len(podList.Items) == 0 {
+			return corev1.Pod{}, fmt.Errorf("no scan job pod found for owner %s/%s", obj.GetNamespace(), obj.GetName())
+		}
+		return podList.Items[0], nil
+	}
+}
+
 func (h *Helper) DeleteConfigAuditReportOwnedBy(ctx context.Context, obj client.Object) error {
 	gvk, err := apiutil.GVKForObject(obj, h.scheme)
 	if err != nil {

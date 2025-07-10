@@ -7,6 +7,9 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  {{- if .Values.alternateReportStorage.storageClassName }}
+  storageClassName: {{ .Values.alternateReportStorage.storageClassName }}
+  {{- end }}
   resources:
     requests:
       storage: {{ .Values.alternateReportStorage.storage }}

@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/ubi-minimal@sha256:383329bf9c4f968e87e85d30ba3a5cb988a3bbde28b8e4932dcd3a025fd9c98c
+FROM registry.access.redhat.com/ubi9/ubi-minimal@sha256:aa891eebbcaf8a9e9a3ba6f5797b5b03f3f3d38578f822ef07368bf5e010d79
 
 RUN microdnf install shadow-utils
 RUN useradd -u 10000 trivyoperator

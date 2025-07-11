@@ -1,3 +1,6 @@
+# If you need to update the base image, please refer to the following link:
+# https://catalog.redhat.com/software/containers/ubi9/ubi-minimal/615bd9b4075b022acc111bf5?container-tabs=gti&gti-tabs=unauthenticated
+
 FROM registry.access.redhat.com/ubi9/ubi-minimal@sha256:aa891eebbcaf8a9e9a3ba6f5797b5b03f3f3d38578f822ef07368bf5e010d79
 
 RUN microdnf install shadow-utils

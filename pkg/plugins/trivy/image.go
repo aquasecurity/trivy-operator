@@ -668,24 +668,27 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef, tri
 		args = append(args, pkgList)
 	}
 
-	// Return early when compressing logs is disabled.
-	compressLogs := trivyOperatorConfig.CompressLogs()
-	if !compressLogs {
-		return []string{"trivy"}, args
-	}
-
 	if trivyConfig.ConfigFileExists() {
 		args = append(args, "--config", configFileMountPath)
 	}
 
 	// Add command to args as it is now need to pipe output to compress.
 	args = append([]string{"trivy"}, args...)
-	// Add compress arguments.
-	// Sync is required to flush buffer to stdout before exiting.
 	args = append(args,
 		"--output",
 		fmt.Sprintf("/tmp/scan/%s 2>/tmp/scan/%s.log", resultFileName, resultFileName),
-		fmt.Sprintf(`&& bzip2 -c /tmp/scan/%s | base64`, resultFileName))
+	)
+
+	if trivyOperatorConfig.CompressLogs() {
+		// Add compress arguments.
+		args = append(args,
+			fmt.Sprintf(`&& bzip2 -c /tmp/scan/%s | base64`, resultFileName),
+		)
+	} else {
+		args = append(args,
+			fmt.Sprintf(`&& cat /tmp/scan/%s`, resultFileName),
+		)
+	}
 
 	return []string{"/bin/sh"}, append([]string{"-c"}, strings.Join(args, " "))
 }

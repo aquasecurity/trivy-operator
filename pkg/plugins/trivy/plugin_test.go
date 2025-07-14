@@ -8037,7 +8037,7 @@ func TestParseImageRef(t *testing.T) {
 			expectedArtifact: v1alpha1.Artifact{
 				Repository: "prometheus-operator/prometheus-operator",
 				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-				Tag:        "v0.64.1",
+				Tag:        "v0.63.0",
 			},
 		},
 		{

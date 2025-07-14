@@ -735,9 +735,8 @@ func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomF
 		args = append(args, skipUpdate)
 	}
 	outputFile := fmt.Sprintf("/tmp/scan/%s", resultFileName)
-	args = append(args, "--output", outputFile)
 
-	args = append(args, fmt.Sprintf("2>/tmp/scan/%s.log", resultFileName))
+	args = append(args, "--output", outputFile, fmt.Sprintf("2>/tmp/scan/%s.log", resultFileName))
 
 	if compressLogs {
 		args = append(args, fmt.Sprintf("&& bzip2 -c %s | base64", outputFile))

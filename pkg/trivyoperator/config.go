@@ -120,7 +120,7 @@ func GetDefaultConfig() ConfigData {
 		KeyScanJobcompressLogs:          "true",
 		keyComplianceFailEntriesLimit:   "10",
 		KeyReportRecordFailedChecksOnly: "true",
-		KeyNodeCollectorImageRef:        "gcr.io/aquasecurity/node-collector:0.3.1",
+		KeyNodeCollectorImageRef:        "ghcr.io/aquasecurity/node-collector:0.3.1",
 		KeyPoliciesBundleOciRef:         "mirror.gcr.io/aquasec/trivy-checks:1",
 	}
 }

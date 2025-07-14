@@ -48,11 +48,7 @@ linters:
         - appendAssign
         - commentedOutCode
         - hugeParam
-        - indexAlloc
-        - octalLiteral
         - rangeValCopy
-        - regexpSimplify
-        - sloppyReassign
         - unnamedResult
         - whyNoLint
       enabled-tags:

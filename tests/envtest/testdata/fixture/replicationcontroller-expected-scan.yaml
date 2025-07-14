@@ -47,7 +47,7 @@ spec:
       containers:
         - args:
             - -c
-            - trivy image nginx --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --quiet --security-checks vuln,secret --skip-update --slow > /tmp/scan/result_nginx.json && bzip2 -c /tmp/scan/result_nginx.json | base64 && sync
+            - trivy image nginx --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64
           command:
             - /bin/sh
           env:

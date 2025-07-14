@@ -48,7 +48,12 @@ jobs:
           image-ref: 'mirror.gcr.io/aquasec/trivy-operator:${{ github.sha }}-amd64'
           exit-code: '1'
           ignore-unfixed: true
-          severity: 'CRITICAL,HIGH'
+      - name: Scan Trivy Operator (ubi) image for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'mirror.gcr.io/aquasec/trivy-operator:${{ github.sha }}-ubi9-amd64'
+          exit-code: '1'
+          ignore-unfixed: true
       - name: Notify dedicated teams channel
         uses: jdcargile/ms-teams-notification@v1.4
         if: failure()

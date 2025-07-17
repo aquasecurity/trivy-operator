@@ -738,6 +738,47 @@ func TestPolicies_Eval(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:               "using a correct deployment rule for a pod",
+			resource:           simpleNginxPod,
+			useBuiltInPolicies: false,
+			policies: map[string]string{
+				"policy.always_false.kinds": "Deployment",
+				"policy.always_false.rego": `
+   package trivyoperator.policy.k8s.custom
+   __rego_metadata__ := {
+        "id": "CUSTOMCHECK",
+        "title": "custom check title",
+        "severity": "LOW",
+        "type": "Kubernetes Security Check",
+        "description": "custom check description",
+    }
+
+   alwaysTrue {
+      1 == 1
+   }
+
+   deny[res] {
+        alwaysTrue
+		res := {
+				"msg": "the check should be always failed",
+			}
+   }`,
+			},
+			results: []Result{
+				{
+					Metadata: Metadata{
+						ID:          "CUSTOMCHECK",
+						Title:       "custom check title",
+						Description: "custom check description",
+						Severity:    "LOW",
+						Type:        "Kubernetes Security Check",
+					},
+					Messages: []string{"the check should be always failed"},
+					Success:  false,
+				},
+			},
+		},
 	}
 
 	for _, tc := range testCases {

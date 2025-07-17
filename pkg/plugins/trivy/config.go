@@ -28,6 +28,8 @@ const (
 	keyTrivySlow                                = "trivy.slow"
 	keyTrivyVulnType                            = "trivy.vulnType"
 	keyTrivyIgnoreUnfixed                       = "trivy.ignoreUnfixed"
+	keyTrivySkipVersionCheck                    = "trivy.skipVersionCheck"
+	keyTrivyDisableTelemetry                    = "trivy.disableTelemetry"
 	keyTrivyOfflineScan                         = "trivy.offlineScan"
 	keyTrivyTimeout                             = "trivy.timeout"
 	keyTrivyIgnoreFile                          = "trivy.ignoreFile"
@@ -272,6 +274,14 @@ func (c Config) GetSeverity() string {
 
 func (c Config) GetSlow() bool {
 	return c.getBoolValue(keyTrivySlow, true)
+}
+
+func (c Config) GetSkipVersionCheck() bool {
+	return c.getBoolValue(keyTrivySkipVersionCheck, false)
+}
+
+func (c Config) GetDisableTelemetry() bool {
+	return c.getBoolValue(keyTrivyDisableTelemetry, false)
 }
 
 func (c Config) GetVulnType() string {

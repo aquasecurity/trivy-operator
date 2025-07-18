@@ -264,6 +264,30 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 								},
 							},
 							{
+								Name: "TRIVY_SKIP_VERSION_CHECK",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipVersionCheck",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_DISABLE_TELEMETRY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.disableTelemetry",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_JAVA_DB_REPOSITORY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -543,6 +567,30 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.offlineScan",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_SKIP_VERSION_CHECK",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipVersionCheck",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_DISABLE_TELEMETRY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.disableTelemetry",
 										Optional: ptr.To[bool](true),
 									},
 								},
@@ -831,6 +879,30 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.offlineScan",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_SKIP_VERSION_CHECK",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipVersionCheck",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_DISABLE_TELEMETRY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.disableTelemetry",
 										Optional: ptr.To[bool](true),
 									},
 								},
@@ -1139,6 +1211,30 @@ CVE-2019-1543`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.offlineScan",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_SKIP_VERSION_CHECK",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipVersionCheck",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_DISABLE_TELEMETRY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.disableTelemetry",
 										Optional: ptr.To[bool](true),
 									},
 								},
@@ -1457,6 +1553,30 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "TRIVY_SKIP_VERSION_CHECK",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipVersionCheck",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_DISABLE_TELEMETRY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.disableTelemetry",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_JAVA_DB_REPOSITORY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -1753,6 +1873,30 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "TRIVY_SKIP_VERSION_CHECK",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipVersionCheck",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_DISABLE_TELEMETRY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.disableTelemetry",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_JAVA_DB_REPOSITORY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -2041,6 +2185,30 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "TRIVY_SKIP_VERSION_CHECK",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipVersionCheck",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_DISABLE_TELEMETRY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.disableTelemetry",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_JAVA_DB_REPOSITORY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -2273,6 +2441,30 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "TRIVY_SKIP_VERSION_CHECK",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipVersionCheck",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_DISABLE_TELEMETRY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.disableTelemetry",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_JAVA_DB_REPOSITORY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -2497,6 +2689,30 @@ default ignore = false`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.offlineScan",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_SKIP_VERSION_CHECK",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipVersionCheck",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_DISABLE_TELEMETRY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.disableTelemetry",
 										Optional: ptr.To[bool](true),
 									},
 								},
@@ -2732,6 +2948,30 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "TRIVY_SKIP_VERSION_CHECK",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipVersionCheck",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_DISABLE_TELEMETRY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.disableTelemetry",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_JAVA_DB_REPOSITORY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -2961,6 +3201,30 @@ default ignore = false`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.offlineScan",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_SKIP_VERSION_CHECK",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipVersionCheck",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_DISABLE_TELEMETRY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.disableTelemetry",
 										Optional: ptr.To[bool](true),
 									},
 								},
@@ -3215,6 +3479,30 @@ CVE-2019-1543`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.offlineScan",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_SKIP_VERSION_CHECK",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipVersionCheck",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_DISABLE_TELEMETRY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.disableTelemetry",
 										Optional: ptr.To[bool](true),
 									},
 								},
@@ -3480,6 +3768,30 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "TRIVY_SKIP_VERSION_CHECK",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipVersionCheck",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_DISABLE_TELEMETRY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.disableTelemetry",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_JAVA_DB_REPOSITORY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -3714,6 +4026,30 @@ default ignore = false`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.offlineScan",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_SKIP_VERSION_CHECK",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipVersionCheck",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_DISABLE_TELEMETRY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.disableTelemetry",
 										Optional: ptr.To[bool](true),
 									},
 								},
@@ -5331,6 +5667,30 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "TRIVY_SKIP_VERSION_CHECK",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipVersionCheck",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_DISABLE_TELEMETRY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.disableTelemetry",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_JAVA_DB_REPOSITORY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -5623,6 +5983,30 @@ default ignore = false`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.offlineScan",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_SKIP_VERSION_CHECK",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipVersionCheck",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_DISABLE_TELEMETRY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.disableTelemetry",
 										Optional: ptr.To[bool](true),
 									},
 								},
@@ -5945,6 +6329,30 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "TRIVY_SKIP_VERSION_CHECK",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipVersionCheck",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_DISABLE_TELEMETRY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.disableTelemetry",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_JAVA_DB_REPOSITORY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -6253,6 +6661,30 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "TRIVY_SKIP_VERSION_CHECK",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipVersionCheck",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_DISABLE_TELEMETRY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.disableTelemetry",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_JAVA_DB_REPOSITORY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -6554,6 +6986,30 @@ default ignore = false`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.offlineScan",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_SKIP_VERSION_CHECK",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.skipVersionCheck",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "TRIVY_DISABLE_TELEMETRY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.disableTelemetry",
 										Optional: ptr.To[bool](true),
 									},
 								},

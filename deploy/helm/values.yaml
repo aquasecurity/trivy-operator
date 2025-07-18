@@ -811,6 +811,8 @@ alternateReportStorage:
   mountPath: "/mnt/data/trivy-operator"
   volumeName: "trivy-operator-pvc"
   storage: "10Gi"
+  # -- storageClassName for the PVC (optional, uses cluster default if not specified)
+  storageClassName: ""
   podSecurityContext:
     runAsUser: 10000
     fsGroup: 10000

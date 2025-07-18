@@ -6,6 +6,7 @@ import (
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -61,6 +62,10 @@ var _ = BeforeSuite(func() {
 	Expect(err).ToNot(HaveOccurred())
 
 	scheme = trivyoperator.NewScheme()
+
+	// Register v1.PartialObjectMetadata to avoid panic in EnqueueRequestForOwner
+	err = metav1.AddMetaToScheme(scheme)
+	Expect(err).ToNot(HaveOccurred())
 	kubeClient, err = client.New(kubeConfig, client.Options{
 		Scheme: scheme,
 	})

@@ -93,7 +93,10 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				return obj, nil
 			},
 		},
-		Controller: controllerconfig.Controller{SkipNameValidation: &skipNameValidation},
+		Controller: controllerconfig.Controller{
+			SkipNameValidation: &skipNameValidation,
+		},
+		PprofBindAddress: operatorConfig.PprofBindAddress,
 	}
 
 	if operatorConfig.LeaderElectionEnabled {

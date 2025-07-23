@@ -99,6 +99,9 @@ func (p *Policies) Libraries() map[string]string {
 
 func (p *Policies) PoliciesByKind(kind string) (map[string]string, error) {
 	results := p.kindPolicies[kind]
+	if results == nil {
+		results = make(map[string]string)
+	}
 	if kube.IsWorkload(kind) {
 		for name, policy := range p.kindPolicies[kindWorkload] {
 			results[name] = policy
@@ -277,6 +280,18 @@ func (p *Policies) rbacDisabled(rbacEnable bool, kind string) bool {
 
 // Eval evaluates Rego policies with Kubernetes resource client.Object as input.
 func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[]byte) (scan.Results, error) {
+	resourceKind := resource.GetObjectKind().GroupVersionKind().Kind
+	policies, err := p.loadPolicies(resourceKind)
+	if err != nil {
+		return nil, fmt.Errorf("failed listing externalPolicies by kind: %s: %w", resourceKind, err)
+	}
+
+	commonLoadedPolicies := p.loaded
+	p.loaded = append(p.loaded, policies...)
+	defer func() {
+		p.loaded = commonLoadedPolicies
+	}()
+
 	memfs := memoryfs.New()
 	inputResource, err := resourceBytes(resource, inputs)
 	if err != nil {
@@ -288,10 +303,8 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[
 		return nil, err
 	}
 
-	if p.scanner == nil {
-		if err := p.InitScanner(); err != nil {
-			return nil, fmt.Errorf("init scanner: %w", err)
-		}
+	if err := p.InitScanner(); err != nil {
+		return nil, fmt.Errorf("init scanner: %w", err)
 	}
 
 	scanResult, err := p.scanner.ScanFS(ctx, memfs, inputFolder)

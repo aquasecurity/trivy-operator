@@ -53,6 +53,7 @@ type k8sScanner interface {
 
 type Policies struct {
 	data           map[string]string
+	kindPolicies   map[string]map[string]string
 	log            logr.Logger
 	cac            configauditreport.ConfigAuditConfig
 	clusterVersion string
@@ -97,36 +98,18 @@ func (p *Policies) Libraries() map[string]string {
 }
 
 func (p *Policies) PoliciesByKind(kind string) (map[string]string, error) {
-	policies := make(map[string]string)
-	for key, value := range p.data {
-		if strings.HasSuffix(key, keySuffixRego) && strings.HasPrefix(key, keyPrefixPolicy) {
-			// Check if kinds were defined for this policy
-			kindsKey := strings.TrimSuffix(key, keySuffixRego) + keySuffixKinds
-			if _, ok := p.data[kindsKey]; !ok {
-				return nil, fmt.Errorf("kinds not defined for policy: %s", key)
-			}
-		}
-
-		if !strings.HasSuffix(key, keySuffixKinds) {
-			continue
-		}
-		for _, k := range strings.Split(value, ",") {
-			if k == kindWorkload && !kube.IsWorkload(kind) {
-				continue
-			}
-			if k != kindAny && k != kindWorkload && k != kind {
-				continue
-			}
-			policyKey := strings.TrimSuffix(key, keySuffixKinds) + keySuffixRego
-			var ok bool
-
-			policies[policyKey], ok = p.data[policyKey]
-			if !ok {
-				return nil, fmt.Errorf("expected policy not found: %s", policyKey)
-			}
+	results := p.kindPolicies[kind]
+	if kube.IsWorkload(kind) {
+		for name, policy := range p.kindPolicies[kindWorkload] {
+			results[name] = policy
 		}
 	}
-	return policies, nil
+	if anyPolicies, ok := p.kindPolicies[kindAny]; ok {
+		for name, policy := range anyPolicies {
+			results[name] = policy
+		}
+	}
+	return results, nil
 }
 
 func (p *Policies) getCachedHash(kind string) (string, error) {
@@ -201,11 +184,26 @@ func (p *Policies) Load() error {
 		p.loaded = append(p.loaded, lib)
 	}
 
-	for key, policy := range p.data {
-		if !strings.HasSuffix(key, keySuffixRego) {
+	p.kindPolicies = make(map[string]map[string]string)
+
+	for key, value := range p.data {
+		if !strings.HasSuffix(key, keySuffixKinds) {
 			continue
 		}
-		p.loaded = append(p.loaded, policy)
+
+		policyKey := strings.TrimSuffix(key, keySuffixKinds) + keySuffixRego
+
+		policy, ok := p.data[policyKey]
+		if !ok {
+			return fmt.Errorf("expected policy not found: %s", policyKey)
+		}
+
+		for _, kind := range strings.Split(value, ",") {
+			if p.kindPolicies[kind] == nil {
+				p.kindPolicies[kind] = make(map[string]string)
+			}
+			p.kindPolicies[kind][policyKey] = policy
+		}
 	}
 
 	return nil

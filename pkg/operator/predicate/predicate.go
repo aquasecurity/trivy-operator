@@ -12,6 +12,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
@@ -208,3 +209,42 @@ var IsKbom = predicate.NewPredicateFuncs(func(obj client.Object) bool {
 	}
 	return false
 })
+
+// WorkloadPodSpecChangedPredicate creates a predicate that only triggers reconciliation
+// when the workload's podSpec actually changes, not just metadata updates.
+func WorkloadPodSpecChangedPredicate() predicate.Predicate {
+	return predicate.Funcs{
+		UpdateFunc: func(e event.UpdateEvent) bool {
+			if e.ObjectOld == nil || e.ObjectNew == nil {
+				return true // Always process creation/deletion
+			}
+
+			// Extract podSpecs from both old and new objects
+			oldPodSpec, err := kube.GetPodSpec(e.ObjectOld)
+			if err != nil {
+				return true // If we can't get podSpec, process it
+			}
+
+			newPodSpec, err := kube.GetPodSpec(e.ObjectNew)
+			if err != nil {
+				return true // If we can't get podSpec, process it
+			}
+
+			// Compare podSpec hashes
+			oldHash := kube.ComputeHash(oldPodSpec)
+			newHash := kube.ComputeHash(newPodSpec)
+
+			// Only reconcile if podSpec actually changed
+			return oldHash != newHash
+		},
+		CreateFunc: func(e event.CreateEvent) bool {
+			return true // Always process new workloads
+		},
+		DeleteFunc: func(e event.DeleteEvent) bool {
+			return true // Always process deletions (for cleanup)
+		},
+		GenericFunc: func(e event.GenericEvent) bool {
+			return true // Process generic events
+		},
+	}
+}

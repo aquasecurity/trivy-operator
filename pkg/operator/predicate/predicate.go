@@ -237,13 +237,13 @@ func WorkloadPodSpecChangedPredicate() predicate.Predicate {
 			// Only reconcile if podSpec actually changed
 			return oldHash != newHash
 		},
-		CreateFunc: func(e event.CreateEvent) bool {
+		CreateFunc: func(_ event.CreateEvent) bool {
 			return true // Always process new workloads
 		},
-		DeleteFunc: func(e event.DeleteEvent) bool {
+		DeleteFunc: func(_ event.DeleteEvent) bool {
 			return true // Always process deletions (for cleanup)
 		},
-		GenericFunc: func(e event.GenericEvent) bool {
+		GenericFunc: func(_ event.GenericEvent) bool {
 			return true // Process generic events
 		},
 	}

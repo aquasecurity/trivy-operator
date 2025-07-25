@@ -3,6 +3,7 @@ package predicate
 import (
 	"path/filepath"
 	"strings"
+	"time"
 
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -217,6 +218,12 @@ func WorkloadPodSpecChangedPredicate() predicate.Predicate {
 		UpdateFunc: func(e event.UpdateEvent) bool {
 			if e.ObjectOld == nil || e.ObjectNew == nil {
 				return true // Always process creation/deletion
+			}
+
+			// Always allow reconciliation for newly created resources (within a reasonable time window)
+			// This helps avoid race conditions during rapid ReplicaSet initialization
+			if e.ObjectNew.GetCreationTimestamp().Time.After(time.Now().Add(-30 * time.Second)) {
+				return true
 			}
 
 			// Extract podSpecs from both old and new objects

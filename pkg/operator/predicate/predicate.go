@@ -5,11 +5,13 @@ import (
 	"strings"
 	"time"
 
+	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/tools/leaderelection/resourcelock"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/event"
+	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
@@ -211,29 +213,103 @@ var IsKbom = predicate.NewPredicateFuncs(func(obj client.Object) bool {
 	return false
 })
 
+// isWorkloadInitializing detects if any workload is in its initialization phase
+// Uses ObservedGeneration lag as the primary signal
+func isWorkloadInitializing(_, newObj client.Object) bool {
+	logger := log.Log.WithName("predicate").WithValues(
+		"kind", newObj.GetObjectKind().GroupVersionKind().Kind,
+		"name", newObj.GetName(),
+		"namespace", newObj.GetNamespace(),
+	)
+
+	// Check if controller hasn't caught up with spec changes
+	switch obj := newObj.(type) {
+	case *appsv1.ReplicaSet:
+		isInitializing := obj.Status.ObservedGeneration < obj.Generation
+		if isInitializing {
+			logger.V(1).Info("Workload initializing: ObservedGeneration lag",
+				"generation", obj.Generation,
+				"observedGeneration", obj.Status.ObservedGeneration)
+		}
+		return isInitializing
+	case *appsv1.Deployment:
+		isInitializing := obj.Status.ObservedGeneration < obj.Generation
+		if isInitializing {
+			logger.V(1).Info("Workload initializing: ObservedGeneration lag",
+				"generation", obj.Generation,
+				"observedGeneration", obj.Status.ObservedGeneration)
+		}
+		return isInitializing
+	case *appsv1.StatefulSet:
+		isInitializing := obj.Status.ObservedGeneration < obj.Generation
+		if isInitializing {
+			logger.V(1).Info("Workload initializing: ObservedGeneration lag",
+				"generation", obj.Generation,
+				"observedGeneration", obj.Status.ObservedGeneration)
+		}
+		return isInitializing
+	case *appsv1.DaemonSet:
+		isInitializing := obj.Status.ObservedGeneration < obj.Generation
+		if isInitializing {
+			logger.V(1).Info("Workload initializing: ObservedGeneration lag",
+				"generation", obj.Generation,
+				"observedGeneration", obj.Status.ObservedGeneration)
+		}
+		return isInitializing
+	default:
+		// For workloads without ObservedGeneration (Jobs, CronJobs, Pods, custom resources),
+		// use a conservative time window to handle initialization scenarios
+		age := time.Since(newObj.GetCreationTimestamp().Time)
+		isInitializing := age < 30*time.Second
+		if isInitializing {
+			logger.V(1).Info("Workload initializing: time window fallback",
+				"age", age.String(),
+				"window", "30s")
+		}
+		return isInitializing
+	}
+}
+
 // WorkloadPodSpecChangedPredicate creates a predicate that only triggers reconciliation
 // when the workload's podSpec actually changes, not just metadata updates.
 func WorkloadPodSpecChangedPredicate() predicate.Predicate {
 	return predicate.Funcs{
 		UpdateFunc: func(e event.UpdateEvent) bool {
+			logger := log.Log.WithName("predicate").WithValues(
+				"kind", e.ObjectNew.GetObjectKind().GroupVersionKind().Kind,
+				"name", e.ObjectNew.GetName(),
+				"namespace", e.ObjectNew.GetNamespace(),
+			)
+
 			if e.ObjectOld == nil || e.ObjectNew == nil {
 				return true // Always process creation/deletion
 			}
 
-			// Always allow reconciliation for newly created resources (within a reasonable time window)
-			// This helps avoid race conditions during rapid ReplicaSet initialization
-			if e.ObjectNew.GetCreationTimestamp().Time.After(time.Now().Add(-30 * time.Second)) {
+			// Generation-based detection
+			// Kubernetes increments generation when spec fields change
+			if e.ObjectOld.GetGeneration() != e.ObjectNew.GetGeneration() {
+				logger.V(1).Info("Allowing reconciliation: generation changed",
+					"oldGeneration", e.ObjectOld.GetGeneration(),
+					"newGeneration", e.ObjectNew.GetGeneration())
+				return true // Definite spec change
+			}
+
+			// Detect workload initialization state
+			if isWorkloadInitializing(e.ObjectOld, e.ObjectNew) {
+				logger.V(1).Info("Allowing reconciliation: workload initializing")
 				return true
 			}
 
-			// Extract podSpecs from both old and new objects
+			// Fallback to podSpec comparison for edge cases
 			oldPodSpec, err := kube.GetPodSpec(e.ObjectOld)
 			if err != nil {
+				logger.V(1).Info("Allowing reconciliation: cannot get old podSpec", "error", err)
 				return true // If we can't get podSpec, process it
 			}
 
 			newPodSpec, err := kube.GetPodSpec(e.ObjectNew)
 			if err != nil {
+				logger.V(1).Info("Allowing reconciliation: cannot get new podSpec", "error", err)
 				return true // If we can't get podSpec, process it
 			}
 
@@ -242,7 +318,18 @@ func WorkloadPodSpecChangedPredicate() predicate.Predicate {
 			newHash := kube.ComputeHash(newPodSpec)
 
 			// Only reconcile if podSpec actually changed
-			return oldHash != newHash
+			if oldHash != newHash {
+				logger.V(1).Info("Allowing reconciliation: podSpec changed",
+					"oldHash", oldHash, "newHash", newHash)
+				return true
+			}
+
+			// If we reach here, this is just a metadata/status update
+			logger.V(1).Info("Filtering reconciliation: metadata-only update",
+				"oldGeneration", e.ObjectOld.GetGeneration(),
+				"newGeneration", e.ObjectNew.GetGeneration(),
+				"podSpecHash", oldHash)
+			return false
 		},
 		CreateFunc: func(_ event.CreateEvent) bool {
 			return true // Always process new workloads

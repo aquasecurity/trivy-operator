@@ -99,7 +99,8 @@ func ParseReference(ref string) (containerimage.Reference, error) {
 
 func (b *ReportBuilder) NamespacedReport() (v1alpha1.SbomReport, error) {
 	reportLabels := map[string]string{
-		trivyoperator.LabelContainerName: b.container,
+		trivyoperator.LabelContainerName:   b.container,
+		trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
 	}
 
 	// append matching resource labels by config to report
@@ -151,6 +152,7 @@ func (b *ReportBuilder) ClusterReport() v1alpha1.ClusterSbomReport {
 	artifactRef := ArtifactRef(b.data)
 	reportLabels := map[string]string{
 		trivyoperator.LabelResourceImageID: artifactRef,
+		trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
 	}
 	kube.AppendCustomLabels(b.additionalReportLabels, reportLabels)
 	clusterReport := v1alpha1.ClusterSbomReport{

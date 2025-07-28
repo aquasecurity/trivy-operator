@@ -59,6 +59,7 @@ func TestReportBuilder(t *testing.T) {
 					trivyoperator.LabelResourceNamespace: "qa",
 					trivyoperator.LabelResourceSpecHash:  "xyz",
 					trivyoperator.LabelPluginConfigHash:  "nop",
+					trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
 					"tier":                               "tier-1",
 				},
 			},

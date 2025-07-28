@@ -86,6 +86,7 @@ func TestReportBuilder(t *testing.T) {
 					trivyoperator.LabelResourceNamespace: "qa",
 					trivyoperator.LabelResourceSpecHash:  "xyz",
 					trivyoperator.LabelPluginConfigHash:  "nop",
+					trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
 					"tier":                               "tier-1",
 				},
 			},
@@ -133,6 +134,7 @@ func TestReportBuilder(t *testing.T) {
 					trivyoperator.LabelResourceNamespace: "",
 					trivyoperator.LabelResourceSpecHash:  "xyz",
 					trivyoperator.LabelPluginConfigHash:  "nop",
+					trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
 					"tier":                               "tier-1",
 				},
 				Annotations: map[string]string{
@@ -164,6 +166,7 @@ func rbacReport() v1alpha1.RbacAssessmentReport {
 				trivyoperator.LabelResourceNamespace: "qa",
 				trivyoperator.LabelResourceSpecHash:  "xyz",
 				trivyoperator.LabelPluginConfigHash:  "nop",
+				trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
 				"tier":                               "tier-1",
 			},
 		},

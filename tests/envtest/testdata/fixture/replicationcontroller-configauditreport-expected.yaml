@@ -9,6 +9,7 @@ metadata:
     trivy-operator.resource.kind: ReplicationController
     trivy-operator.resource.name: nginx
     trivy-operator.resource.namespace: default
+    app.kubernetes.io/managed-by: trivy-operator
   name: replicationcontroller-nginx
   namespace: default
   ownerReferences:

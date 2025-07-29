@@ -190,6 +190,14 @@ func (p *Policies) Load() error {
 	p.kindPolicies = make(map[string]map[string]string)
 
 	for key, value := range p.data {
+		if strings.HasSuffix(key, keySuffixRego) && strings.HasPrefix(key, keyPrefixPolicy) {
+			// Check if kinds were defined for this policy
+			kindsKey := strings.TrimSuffix(key, keySuffixRego) + keySuffixKinds
+			if _, ok := p.data[kindsKey]; !ok {
+				return fmt.Errorf("kinds not defined for policy: %s", key)
+			}
+		}
+
 		if !strings.HasSuffix(key, keySuffixKinds) {
 			continue
 		}

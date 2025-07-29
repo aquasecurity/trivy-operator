@@ -13,7 +13,8 @@ Keeps security report resources updated
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` | affinity set the operator affinity |
-| alternateReportStorage | object | `{"enabled":false,"mountPath":"/mnt/data/trivy-operator","podSecurityContext":{"fsGroup":10000,"runAsUser":10000},"storage":"10Gi","volumeName":"trivy-operator-pvc"}` | alternateReportStorage is the flag to enable alternate storage for all trivy reports (crds) in the form json files inside of a persistent volume |
+| alternateReportStorage | object | `{"enabled":false,"mountPath":"/mnt/data/trivy-operator","podSecurityContext":{"fsGroup":10000,"runAsUser":10000},"storage":"10Gi","storageClassName":"","volumeName":"trivy-operator-pvc"}` | alternateReportStorage is the flag to enable alternate storage for all trivy reports (crds) in the form json files inside of a persistent volume |
+| alternateReportStorage.storageClassName | string | `""` | storageClassName for the PVC (optional, uses cluster default if not specified) |
 | automountServiceAccountToken | bool | `true` | automountServiceAccountToken the flag to enable automount for service account token |
 | compliance.cron | string | `"0 */6 * * *"` | cron this flag control the cron interval for compliance report generation |
 | compliance.failEntriesLimit | int | `10` | failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report this limit is for preventing the report from being too large per control checks |
@@ -150,7 +151,7 @@ Keeps security report resources updated
 | trivy.image.pullPolicy | string | `"IfNotPresent"` | pullPolicy is the imge pull policy used for trivy image , valid values are (Always, Never, IfNotPresent) |
 | trivy.image.registry | string | `"mirror.gcr.io"` | registry of the Trivy image |
 | trivy.image.repository | string | `"aquasec/trivy"` | repository of the Trivy image |
-| trivy.image.tag | string | `"0.63.0"` | tag version of the Trivy image |
+| trivy.image.tag | string | `"0.64.1"` | tag version of the Trivy image |
 | trivy.imageScanCacheDir | string | `"/tmp/trivy/.cache"` | imageScanCacheDir the flag to set custom path for trivy image scan `cache-dir` parameter. Only applicable in image scan mode. |
 | trivy.includeDevDeps | bool | `false` | includeDevDeps include development dependencies in the report (supported: npm, yarn) (default: false) note: this flag is only applicable when trivy.command is set to filesystem |
 | trivy.insecureRegistries | object | `{}` | The registry to which insecure connections are allowed. There can be multiple registries with different keys. |

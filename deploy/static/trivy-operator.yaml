@@ -3236,11 +3236,10 @@ data:
   node.collector.imageRef: "ghcr.io/aquasecurity/node-collector:0.3.1"
   policies.bundle.oci.ref: "mirror.gcr.io/aquasec/trivy-checks:1"
   policies.bundle.insecure: "false"
-  vulnerabilityCacheEnabled: "true"
-  vulnerabilityCacheTTL: 24h
-
 
   node.collector.nodeSelector: "true"
+  vulnerabilityCacheEnabled: "true"
+  vulnerabilityCacheTTL: "24h"
 ---
 # Source: trivy-operator/templates/configmaps/trivy-operator-config.yaml
 kind: ConfigMap

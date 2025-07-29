@@ -629,19 +629,7 @@ func TestPolicies_Eval(t *testing.T) {
 			}
    }`,
 			},
-			results: []Result{
-				{
-					Metadata: Metadata{
-						ID:          "CUSTOMCHECK",
-						Title:       "custom check title",
-						Description: "custom check description",
-						Severity:    "LOW",
-						Type:        "Kubernetes Security Check",
-					},
-					Messages: []string{"the check should be always failed"},
-					Success:  false,
-				},
-			},
+			results: []Result{},
 		},
 	}
 

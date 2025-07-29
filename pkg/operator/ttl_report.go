@@ -57,6 +57,9 @@ func (r *TTLReportReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	if r.Config.ClusterSbomCacheEnable {
 		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.ClusterSbomReport{}})
 	}
+	if r.Config.VulnerabilityScannerEnabled {
+		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.ImageVulnerabilityReport{}})
+	}
 	installModePredicate, err := predicate.InstallModePredicate(r.Config)
 	if err != nil {
 		return err
@@ -91,6 +94,7 @@ func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespa
 		}
 		return ctrl.Result{}, fmt.Errorf("getting report from cache: %w", err)
 	}
+	log.V(1).Info("Processing report for TTL check", "kind", reportType.GetObjectKind().GroupVersionKind().Kind)
 	ttlReportAnnotationStr, ok := reportType.GetAnnotations()[v1alpha1.TTLReportAnnotation]
 	if !ok {
 		log.V(1).Info("Ignoring report without TTL set")
@@ -101,26 +105,30 @@ func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespa
 		return ctrl.Result{}, fmt.Errorf("failed parsing %v with value %v %w", v1alpha1.TTLReportAnnotation, ttlReportAnnotationStr, err)
 	}
 	ttlExpired, durationToTTLExpiration := utils.IsTTLExpired(reportTTLTime, reportType.GetCreationTimestamp().Time, r.Clock)
+	log.V(1).Info("TTL check result", "ttlExpired", ttlExpired, "creationTimestamp", reportType.GetCreationTimestamp().Time, "ttlDuration", reportTTLTime, "durationToTTLExpiration", durationToTTLExpiration)
 
 	if ttlExpired && r.applicableForDeletion(ctx, reportType, ttlReportAnnotationStr) {
-		log.V(1).Info("Removing report with expired TTL or Historical")
+		log.V(1).Info("Removing report with expired TTL or Historical", "kind", reportType.GetObjectKind().GroupVersionKind().Kind)
 		err := r.Client.Delete(ctx, reportType, &client.DeleteOptions{})
 		if err != nil && !errors.IsNotFound(err) {
+			log.Error(err, "Failed to delete report")
 			return ctrl.Result{}, err
 		}
+		log.V(1).Info("Successfully deleted report or report not found", "kind", reportType.GetObjectKind().GroupVersionKind().Kind)
 		// Since the report is deleted there is no reason to requeue
 		return ctrl.Result{}, nil
 	}
-	log.V(1).Info("RequeueAfter", "durationToTTLExpiration", durationToTTLExpiration)
+	log.V(1).Info("RequeueAfter", "durationToTTLExpiration", durationToTTLExpiration, "ttlExpired", ttlExpired, "applicableForDeletion", r.applicableForDeletion(ctx, reportType, ttlReportAnnotationStr))
 	if ttlExpired {
 		durationToTTLExpiration = reportTTLTime
+		log.V(1).Info("TTL expired but not applicable for deletion, requeueing with full TTL duration", "newDurationToTTLExpiration", durationToTTLExpiration)
 	}
 	return ctrl.Result{RequeueAfter: durationToTTLExpiration}, nil
 }
 
 func (r *TTLReportReconciler) applicableForDeletion(ctx context.Context, report client.Object, ttlReportAnnotationStr string) bool {
 	reportKind := report.GetObjectKind().GroupVersionKind().Kind
-	if reportKind == "VulnerabilityReport" || reportKind == "ExposedSecretReport" || reportKind == "ClusterSbomReport" {
+	if reportKind == "VulnerabilityReport" || reportKind == "ExposedSecretReport" || reportKind == "ClusterSbomReport" || reportKind == "ImageVulnerabilityReport" {
 		return true
 	}
 	if ttlReportAnnotationStr == time.Duration(0).String() { // check if it marked as historical report

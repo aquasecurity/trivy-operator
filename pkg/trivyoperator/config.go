@@ -78,10 +78,12 @@ const (
 	KeyScanJobContainerSecurityContext     = "scanJob.podTemplateContainerSecurityContext"
 	keyScanJobPodSecurityContext           = "scanJob.podTemplatePodSecurityContext"
 	keyScanJobPodTemplateLabels            = "scanJob.podTemplateLabels"
-	keyScanJobExcludeImags                 = "scanJob.excludeImages"
+	keyScanJobExcludeImages                = "scanJob.excludeImages"
 	KeyScanJobPodPriorityClassName         = "scanJob.podPriorityClassName"
 	keyComplianceFailEntriesLimit          = "compliance.failEntriesLimit"
 	keySkipResourceByLabels                = "skipResourceByLabels"
+	keyVulnerabilityCacheEnabled           = "vulnerabilityCacheEnabled"
+	keyVulnerabilityCacheTTL               = "vulnerabilityCacheTTL"
 	KeyReportResourceLabels                = "report.resourceLabels"
 	KeyReportRecordFailedChecksOnly        = "report.recordFailedChecksOnly"
 	KeyMetricsResourceLabelsPrefix         = "metrics.resourceLabelsPrefix"
@@ -122,6 +124,8 @@ func GetDefaultConfig() ConfigData {
 		KeyReportRecordFailedChecksOnly: "true",
 		KeyNodeCollectorImageRef:        "ghcr.io/aquasecurity/node-collector:0.3.1",
 		KeyPoliciesBundleOciRef:         "mirror.gcr.io/aquasec/trivy-checks:1",
+		keyVulnerabilityCacheEnabled:    "true",
+		keyVulnerabilityCacheTTL:        "24h",
 	}
 }
 
@@ -148,6 +152,17 @@ func (c ConfigData) ExposedSecretsScannerEnabled() bool {
 // GenerateSbomEnabled returns if the sbom generation is enabled
 func (c ConfigData) GenerateSbomEnabled() bool {
 	return c.getBoolKey(KeyGenerateSbom)
+}
+
+func (c ConfigData) VulnerabilityCacheEnabled() bool {
+	return c.getBoolKey(keyVulnerabilityCacheEnabled)
+}
+
+func (c ConfigData) VulnerabilityCacheTTL() string {
+	if ttl, ok := c[keyVulnerabilityCacheTTL]; ok {
+		return ttl
+	}
+	return "24h"
 }
 
 func (c ConfigData) getBoolKey(key string) bool {
@@ -207,7 +222,7 @@ func (c ConfigData) GetScanJobTolerations() ([]corev1.Toleration, error) {
 
 func (c ConfigData) ExcludeImages() []string {
 	patterns := make([]string, 0)
-	if excludeImagesPattern, ok := c[keyScanJobExcludeImags]; ok {
+	if excludeImagesPattern, ok := c[keyScanJobExcludeImages]; ok {
 		for _, s := range strings.Split(excludeImagesPattern, ",") {
 			if strings.TrimSpace(s) == "" {
 				continue

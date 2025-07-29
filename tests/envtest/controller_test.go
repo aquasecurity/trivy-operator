@@ -101,6 +101,7 @@ var _ = Describe("Workload controller", func() {
 
 		ca.Labels["plugin-config-hash"] = "<HASH>"
 		ca.Labels["resource-spec-hash"] = "<HASH>"
+		delete(ca.Labels, "app.kubernetes.io/managed-by")
 		ca.Report.UpdateTimestamp = metav1.Time{}
 		sort.Sort(ByCheckID(ca.Report.Checks))
 		return ca

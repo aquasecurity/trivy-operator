@@ -28,15 +28,17 @@ func TestReportBuilder(t *testing.T) {
 					APIVersion: "apps/v1",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "some-owner",
-					Namespace: "qa",
-					Labels:    labels.Set{"tier": "tier-1", "owner": "team-a"},
+					Name:        "some-owner",
+					Namespace:   "qa",
+					Labels:      labels.Set{"tier": "tier-1", "owner": "team-a"},
+					Annotations: labels.Set{"test-annotation": "this is a test", "ignored-annotation": "should not be present"},
 				},
 			}).
 			ResourceSpecHash("xyz").
 			PluginConfigHash("nop").
 			Data(v1alpha1.InfraAssessmentReportData{}).
 			ResourceLabelsToInclude([]string{"tier"}).
+			ResourceAnnotationsToInclude([]string{"test-annotation"}).
 			GetReport()
 
 		g.Expect(err).ToNot(HaveOccurred())
@@ -60,6 +62,9 @@ func TestReportBuilder(t *testing.T) {
 					trivyoperator.LabelResourceSpecHash:  "xyz",
 					trivyoperator.LabelPluginConfigHash:  "nop",
 					"tier":                               "tier-1",
+				},
+				Annotations: map[string]string{
+					"test-annotation": "this is a test",
 				},
 			},
 			Report: v1alpha1.InfraAssessmentReportData{},

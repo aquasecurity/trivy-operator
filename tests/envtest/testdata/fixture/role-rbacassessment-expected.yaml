@@ -7,6 +7,7 @@ metadata:
   labels:
     trivy-operator.resource.name: proxy
     trivy-operator.resource.kind: Role
+    app.kubernetes.io/managed-by: trivy-operator
   name: role-proxy
   namespace: default
   ownerReferences:

@@ -136,6 +136,7 @@ var _ = Describe("Workload controller", func() {
 		ca.SetLabels(map[string]string{
 			"trivy-operator.resource.kind": "Role",
 			"trivy-operator.resource.name": "proxy",
+			"app.kubernetes.io/managed-by": "trivy-operator",
 		})
 		ca.ResourceVersion = ""
 		ca.CreationTimestamp = metav1.Time{}

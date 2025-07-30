@@ -130,6 +130,8 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	}
 
 	kubeConfig, err := ctrl.GetConfig()
+	kubeConfig.ContentType = "application/vnd.kubernetes.protobuf"
+
 	if err != nil {
 		return fmt.Errorf("getting kube client config: %w", err)
 	}

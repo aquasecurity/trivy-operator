@@ -280,6 +280,7 @@ func (b *VulnerabilityReportBuilder) Build() *v1alpha1.VulnerabilityReport {
 				trivyoperator.LabelResourceKind:      string(b.ownerKind),
 				trivyoperator.LabelResourceName:      b.ownerName,
 				trivyoperator.LabelResourceNamespace: b.namespace,
+				trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
 			},
 		},
 		Report: v1alpha1.VulnerabilityReportData{
@@ -351,6 +352,7 @@ func (h *Helper) HasVulnerabilityReportOwnedBy(ctx context.Context, obj client.O
 			trivyoperator.LabelResourceKind:      gvk.Kind,
 			trivyoperator.LabelResourceName:      obj.GetName(),
 			trivyoperator.LabelResourceNamespace: obj.GetNamespace(),
+			trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
 		})
 		if err != nil {
 			return false, err
@@ -370,6 +372,7 @@ func (h *Helper) HasConfigAuditReportOwnedBy(ctx context.Context, obj client.Obj
 			trivyoperator.LabelResourceKind:      gvk.Kind,
 			trivyoperator.LabelResourceName:      obj.GetName(),
 			trivyoperator.LabelResourceNamespace: obj.GetNamespace(),
+			trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
 		})
 		if err != nil {
 			return false, err
@@ -390,6 +393,7 @@ func (h *Helper) HasScanJobPodOwnedBy(ctx context.Context, obj client.Object) fu
 			trivyoperator.LabelResourceKind:      gvk.Kind,
 			trivyoperator.LabelResourceName:      obj.GetName(),
 			trivyoperator.LabelResourceNamespace: obj.GetNamespace(),
+			trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
 		})
 		if err != nil {
 			return false, err
@@ -409,6 +413,7 @@ func (h *Helper) GetScanJobPodOwnedBy(ctx context.Context, obj client.Object) fu
 			trivyoperator.LabelResourceKind:      gvk.Kind,
 			trivyoperator.LabelResourceName:      obj.GetName(),
 			trivyoperator.LabelResourceNamespace: obj.GetNamespace(),
+			trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
 		})
 		if err != nil {
 			return corev1.Pod{}, err
@@ -431,6 +436,7 @@ func (h *Helper) DeleteConfigAuditReportOwnedBy(ctx context.Context, obj client.
 		trivyoperator.LabelResourceKind:      gvk.Kind,
 		trivyoperator.LabelResourceName:      obj.GetName(),
 		trivyoperator.LabelResourceNamespace: obj.GetNamespace(),
+		trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
 	})
 	if err != nil {
 		return err

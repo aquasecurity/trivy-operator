@@ -13,6 +13,7 @@ metadata:
     trivy-operator.resource.kind: ReplicaSet
     trivy-operator.resource.name: coredns-558bd4d5dc
     trivy-operator.resource.namespace: kube-system
+    app.kubernetes.io/managed-by: trivy-operator
   name: replicaset-coredns-558bd4d5dc-coredns
   namespace: kube-system
   ownerReferences:

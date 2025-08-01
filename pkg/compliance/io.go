@@ -17,6 +17,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy/pkg/compliance/report"
 	ttypes "github.com/aquasecurity/trivy/pkg/types"
 )
@@ -94,6 +95,9 @@ func (w *cm) createComplianceReport(ctx context.Context, reportSpec v1alpha1.Rep
 	r := v1alpha1.ClusterComplianceReport{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: strings.ToLower(reportSpec.Compliance.ID),
+			Labels: map[string]string{
+				trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+			},
 		},
 		Status: reportStatus,
 	}
@@ -105,7 +109,11 @@ func (w *cm) createComplianceReport(ctx context.Context, reportSpec v1alpha1.Rep
 		return nil, fmt.Errorf("compliance crd with name %s is missing", reportSpec.Compliance.ID)
 	}
 	copied := existing.DeepCopy()
-	copied.Labels = r.Labels
+	// Preserve existing labels and add/update managed-by label
+	if copied.Labels == nil {
+		copied.Labels = make(map[string]string)
+	}
+	copied.Labels[trivyoperator.LabelK8SAppManagedBy] = trivyoperator.AppTrivyOperator
 	copied.Status = r.Status
 	copied.Spec = reportSpec
 	copied.Status.UpdateTimestamp = metav1.NewTime(ext.NewSystemClock().Now())

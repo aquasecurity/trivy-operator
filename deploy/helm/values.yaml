@@ -199,6 +199,12 @@ operator:
   # -- valuesFromSecret name of a Secret to apply OPERATOR_* environment variables. Will override Helm AND ConfigMap values.
   valuesFromSecret: ""
 
+  # -- VulnerabilityCacheEnabled the flag to enable vulnerability cache to store ImageVulnerabilityReports for reuse across workloads
+  vulnerabilityCacheEnabled: true
+
+  # -- vulnerabilityCacheTTL the TTL for cached vulnerability reports (e.g., "24h" for 24 hours)
+  vulnerabilityCacheTTL: "24h"
+
 image:
   registry: "mirror.gcr.io"
   repository: "aquasec/trivy-operator"

@@ -89,6 +89,8 @@ Keeps security report resources updated
 | operator.trivyServerHealthCheckCacheExpiration | string | `"10h"` | trivyServerHealthCheckCacheExpiration The flag to set the interval for trivy server health cache before it invalidate |
 | operator.valuesFromConfigMap | string | `""` | vaulesFromConfigMap name of a ConfigMap to apply OPERATOR_* environment variables. Will override Helm values. |
 | operator.valuesFromSecret | string | `""` | valuesFromSecret name of a Secret to apply OPERATOR_* environment variables. Will override Helm AND ConfigMap values. |
+| operator.vulnerabilityCacheEnabled | bool | `true` | VulnerabilityCacheEnabled the flag to enable vulnerability cache to store ImageVulnerabilityReports for reuse across workloads |
+| operator.vulnerabilityCacheTTL | string | `"24h"` | vulnerabilityCacheTTL the TTL for cached vulnerability reports (e.g., "24h" for 24 hours) |
 | operator.vulnerabilityScannerEnabled | bool | `true` | the flag to enable vulnerability scanner |
 | operator.vulnerabilityScannerScanOnlyCurrentRevisions | bool | `true` | vulnerabilityScannerScanOnlyCurrentRevisions the flag to only create vulnerability scans on the current revision of a deployment. |
 | operator.webhookBroadcastCustomHeaders | string | `""` | webhookBroadcastCustomHeaders the flag to set webhook endpoint sent with custom defined headers if webhookBroadcastURL is enabled |

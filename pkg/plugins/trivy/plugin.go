@@ -80,7 +80,7 @@ func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 	return ctx.EnsureConfig(trivyoperator.PluginConfig{
 		Data: map[string]string{
 			keyTrivyImageRepository:           DefaultImageRepository,
-			keyTrivyImageTag:                  "0.52.2",
+			keyTrivyImageTag:                  "0.64.1",
 			KeyTrivySeverity:                  DefaultSeverity,
 			keyTrivySlow:                      "true",
 			keyTrivyMode:                      string(Standalone),
@@ -114,8 +114,11 @@ func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client
 const (
 	tmpVolumeName               = "tmp"
 	ignoreFileVolumeName        = "ignorefile"
+	configFileVolumeName        = "configfile"
 	sslCertDirVolumeName        = "ssl-cert-dir"
 	ignoreFileName              = ".trivyignore"
+	configFileName              = "trivy-config.yaml"
+	configFileMountPath         = "/etc/trivy/" + configFileName
 	ignoreFileMountPath         = "/etc/trivy/" + ignoreFileName
 	ignorePolicyVolumeName      = "ignorepolicy"
 	ignorePolicyName            = "policy.rego"
@@ -155,7 +158,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 
 	imageDigest := p.getImageDigest(reports)
 
-	registry, artifact, err := p.parseImageRef(imageRef, imageDigest)
+	registry, artifact, err := ParseImageRef(imageRef, imageDigest)
 	if err != nil {
 		return vulnReport, secretReport, nil, err
 	}
@@ -213,7 +216,7 @@ func (p *plugin) NewConfigForConfigAudit(ctx trivyoperator.PluginContext) (confi
 	return getConfig(ctx)
 }
 
-func (p *plugin) parseImageRef(imageRef, imageDigest string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
+func ParseImageRef(imageRef, imageDigest string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
 	ref, err := containerimage.ParseReference(imageRef)
 	if err != nil {
 		return v1alpha1.Registry{}, v1alpha1.Artifact{}, err
@@ -229,6 +232,7 @@ func (p *plugin) parseImageRef(imageRef, imageDigest string) (v1alpha1.Registry,
 		artifact.Tag = t.TagStr()
 	case containerimage.Digest:
 		artifact.Digest = t.DigestStr()
+		artifact.Tag = strings.TrimPrefix(strings.TrimSuffix(strings.TrimPrefix(imageRef, ref.Context().Name()), "@"+artifact.Digest), ":")
 	}
 	if artifact.Digest == "" {
 		artifact.Digest = imageDigest

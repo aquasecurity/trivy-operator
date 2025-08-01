@@ -1,159 +1,162 @@
-linters-settings:
-  depguard:
-    rules:
-      main:
-        list-mode: lax
-        deny:
-          # Cannot use gomodguard, which examines go.mod, as "golang.org/x/exp/slices" is not a module and doesn't appear in go.mod.
-          - pkg: "golang.org/x/exp/slices"
-            desc: "Use 'slices' instead"
-          - pkg: "golang.org/x/exp/maps"
-            desc: "Use 'maps' or 'github.com/samber/lo' instead"
-  dupl:
-    threshold: 100
-  errcheck:
-    check-type-assertions: true
-    check-blank: true
-  gci:
-    sections:
-      - standard
-      - default
-      - prefix(github.com/aquasecurity/)
-      - blank
-      - dot
-  goconst:
-    min-len: 3
-    min-occurrences: 3
-  gocritic:
-    disabled-checks:
-      - appendAssign
-      - unnamedResult
-      - whyNoLint
-      - indexAlloc
-      - octalLiteral
-      - hugeParam
-      - rangeValCopy
-      - regexpSimplify
-      - sloppyReassign
-      - commentedOutCode
-    enabled-tags:
-      - diagnostic
-      - style
-      - performance
-      - experimental
-      - opinionated
-    settings:
-      ruleguard:
-        failOn: all
-        rules: '${configDir}/misc/lint/rules.go'
-  gocyclo:
-    min-complexity: 40
-  gofmt:
-    simplify: false
-    rewrite-rules:
-      - pattern: 'interface{}'
-        replacement: 'any'
-  gomodguard:
-    blocked:
-      modules:
-        - github.com/hashicorp/go-version:
-            recommendations:
-              - github.com/aquasecurity/go-version
-            reason: "`aquasecurity/go-version` is designed for our use-cases"
-        - github.com/Masterminds/semver:
-            recommendations:
-              - github.com/aquasecurity/go-version
-            reason: "`aquasecurity/go-version` is designed for our use-cases"
-  gosec:
-    excludes:
-      - G101
-      - G114
-      - G115
-      - G204
-      - G304
-      - G402
-  govet:
-    check-shadowing: false
-  misspell:
-    locale: US
-    ignore-words:
-      - behaviour
-      - licence
-      - optimise
-      - simmilar
-  perfsprint:
-    # Optimizes even if it requires an int or uint type cast.
-    int-conversion: false
-    # Optimizes into `err.Error()` even if it is only equivalent for non-nil errors.
-    err-error: true
-    # Optimizes `fmt.Errorf`.
-    errorf: true
-    # Optimizes `fmt.Sprintf` with only one argument.
-    sprintf1: false
-    # Optimizes into strings concatenation.
-    strconcat: false
-  revive:
-    ignore-generated-header: true
-  testifylint:
-    enable-all: true
+version: "2"
+run:
+  go: "1.24"
 linters:
-  disable-all: true
+  default: none
   enable:
     - bodyclose
+    - contextcheck
     - depguard
-    - gci
+    - errorlint
     - goconst
     - gocritic
     - gocyclo
-    - gofmt
     - gomodguard
     - gosec
     - govet
     - ineffassign
     - misspell
+    - nolintlint
     - perfsprint
     - revive
-    - tenv
+    - staticcheck
     - testifylint
-    - typecheck
     - unconvert
     - unused
     - usestdlibvars
-
-run:
-  go: '1.23'
-  timeout: 30m
-
+    - usetesting
+  settings:
+    depguard:
+      rules:
+        main:
+          list-mode: lax
+          deny:
+            - pkg: golang.org/x/exp/slices
+              desc: Use 'slices' instead
+            - pkg: golang.org/x/exp/maps
+              desc: Use 'maps' or 'github.com/samber/lo' instead
+    dupl:
+      threshold: 100
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+    goconst:
+      min-len: 3
+      min-occurrences: 3
+    gocritic:
+      disabled-checks:
+        - appendAssign
+        - commentedOutCode
+        - hugeParam
+        - rangeValCopy
+        - unnamedResult
+        - whyNoLint
+      enabled-tags:
+        - diagnostic
+        - experimental
+        - opinionated
+        - performance
+        - style
+      settings:
+        ruleguard:
+          failOn: all
+          rules: ${base-path}/misc/lint/rules.go
+    gocyclo:
+      min-complexity: 40
+    gomodguard:
+      blocked:
+        modules:
+          - github.com/hashicorp/go-version:
+              recommendations:
+                - github.com/aquasecurity/go-version
+              reason: '`aquasecurity/go-version` is designed for our use-cases'
+          - github.com/Masterminds/semver:
+              recommendations:
+                - github.com/aquasecurity/go-version
+              reason: '`aquasecurity/go-version` is designed for our use-cases'
+    gosec:
+      excludes:
+        - G101
+        - G114
+        - G115
+        - G204
+        - G304
+        - G402
+    misspell:
+      locale: US
+      ignore-rules:
+        - behaviour
+        - licence
+        - optimise
+        - simmilar
+    nolintlint:
+      # Enable to require nolint directives to mention the specific linter being suppressed.
+      require-specific: true
+    perfsprint:
+      int-conversion: false
+      err-error: true
+      errorf: true
+      sprintf1: false
+      strconcat: false
+    revive:
+      # https://github.com/mgechev/revive/blob/HEAD/RULES_DESCRIPTIONS.md
+      rules:
+        - name: context-as-argument
+          arguments:
+            - allow-types-before: "*testing.T"
+        - name: context-keys-type
+        - name: duplicated-imports
+        - name: early-return
+          arguments:
+            - "preserve-scope"
+        - name: if-return
+        - name: indent-error-flow
+          arguments:
+            - "preserve-scope"
+        - name: superfluous-else
+          arguments:
+            - "preserve-scope"
+        - name: unused-parameter
+          arguments:
+            - allow-regex: "^_"
+        - name: use-any
+        - name: use-errors-new
+        - name: useless-break
+        - name: var-declaration
+    staticcheck:
+      checks:
+        - all
+        - -QF1008 # Omit embedded fields from selector expression
+        - -ST1000 # Incorrect or missing package comment
+        - -ST1001 # Dot imports are discouraged
+        - -ST1003 # Poorly chosen identifier
+        - -ST1020 # The documentation of an exported function should start with the function’s name
+        - -ST1021 # The documentation of an exported type should start with type’s name
+    testifylint:
+      enable-all: true
+  exclusions:
+    rules:
+      - linters:
+          - goconst
+        path: .*_test.go$
+    warn-unused: true
 issues:
-  exclude-files:
-    - "mock_*.go$"
-    - "examples/*"
-  exclude-dirs:
-    - "pkg/iac/scanners/terraform/parser/funcs" # copies of Terraform functions
-  exclude-rules:
-    - path: ".*_test.go$"
-      linters:
-        - goconst
-        - gosec
-        - unused
-    - path: ".*_test.go$"
-      linters:
-        - govet
-      text: "copylocks:"
-    - path: ".*_test.go$"
-      linters:
-        - gocritic
-      text: "commentFormatting:"
-    - path: ".*_test.go$"
-      linters:
-        - gocritic
-      text: "exitAfterDefer:"
-    - path: ".*_test.go$"
-      linters:
-        - gocritic
-      text: "importShadow:"
-    - linters:
-        - perfsprint
-      text: "fmt.Sprint"
-  exclude-use-default: false
+  max-issues-per-linter: 0
   max-same-issues: 0
+formatters:
+  enable:
+    - gci
+    - gofmt
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/aquasecurity/)
+        - blank
+        - dot
+    gofmt:
+      simplify: false
+      rewrite-rules:
+        - pattern: interface{}
+          replacement: any

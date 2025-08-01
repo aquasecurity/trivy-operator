@@ -1,7 +1,6 @@
 package sbomreport_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -24,7 +23,7 @@ func TestNewReadWriter(t *testing.T) {
 		testClient := fake.NewClientBuilder().WithScheme(kubernetesScheme).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := sbomreport.NewReadWriter(&resolver)
-		err := readWriter.Write(context.TODO(), []v1alpha1.SbomReport{
+		err := readWriter.Write(t.Context(), []v1alpha1.SbomReport{
 			{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "deployment-app1-container1",
@@ -54,7 +53,7 @@ func TestNewReadWriter(t *testing.T) {
 		})
 		require.NoError(t, err)
 		var list v1alpha1.SbomReportList
-		err = testClient.List(context.TODO(), &list)
+		err = testClient.List(t.Context(), &list)
 		require.NoError(t, err)
 		reports := make(map[string]v1alpha1.SbomReport)
 		for _, item := range list.Items {
@@ -132,7 +131,7 @@ func TestNewReadWriter(t *testing.T) {
 			}).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := sbomreport.NewReadWriter(&resolver)
-		err := readWriter.Write(context.TODO(), []v1alpha1.SbomReport{
+		err := readWriter.Write(t.Context(), []v1alpha1.SbomReport{
 			{
 				TypeMeta: metav1.TypeMeta{
 					APIVersion: "aquasecurity.github.io/v1alpha1",
@@ -171,7 +170,7 @@ func TestNewReadWriter(t *testing.T) {
 		require.NoError(t, err)
 
 		var found v1alpha1.SbomReport
-		err = testClient.Get(context.TODO(), types.NamespacedName{
+		err = testClient.Get(t.Context(), types.NamespacedName{
 			Namespace: "qa",
 			Name:      "deployment-app1-container1",
 		}, &found)
@@ -195,7 +194,7 @@ func TestNewReadWriter(t *testing.T) {
 			},
 		}, found)
 
-		err = testClient.Get(context.TODO(), types.NamespacedName{
+		err = testClient.Get(t.Context(), types.NamespacedName{
 			Namespace: "qa",
 			Name:      "deployment-app1-container2",
 		}, &found)
@@ -260,7 +259,7 @@ func TestNewReadWriter(t *testing.T) {
 		}).Build()
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := sbomreport.NewReadWriter(&resolver)
-		list, err := readWriter.FindByOwner(context.TODO(), kube.ObjectRef{
+		list, err := readWriter.FindByOwner(t.Context(), kube.ObjectRef{
 			Kind:      kube.KindDeployment,
 			Name:      "my-deploy",
 			Namespace: "my-namespace",

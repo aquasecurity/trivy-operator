@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -139,7 +141,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 			return ctrl.Result{}, fmt.Errorf("getting core pods and nodes count : %w", err)
 		}
 		// validate that all core components resources has been collected
-		if !(len(nodeInfo) == numOfNodes && len(components) == numOfPods) {
+		if len(nodeInfo) != numOfNodes || len(components) != numOfPods {
 			return ctrl.Result{}, nil
 		}
 		name := fmt.Sprintf("%s/%s", K8sRegistry, K8sRepo)
@@ -206,7 +208,27 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 			Data(sbomReportData).
 			AdditionalReportLabels(map[string]string{trivyoperator.LabelKbom: kbom})
 		sbomReport := sbomReportBuilder.ClusterReport()
-		return ctrl.Result{}, r.SbomReadWriter.WriteCluster(ctx, []v1alpha1.ClusterSbomReport{sbomReport})
+		if !r.Config.AltReportStorageEnabled || r.Config.AltReportDir == "" {
+			return ctrl.Result{}, r.SbomReadWriter.WriteCluster(ctx, []v1alpha1.ClusterSbomReport{sbomReport})
+		}
+		// Write the sbom report to a file
+		reportDir := r.Config.AltReportDir
+		sbomReportDir := filepath.Join(reportDir, "cluster_sbom_reports")
+		if err := os.MkdirAll(sbomReportDir, 0o750); err != nil {
+			return ctrl.Result{}, fmt.Errorf("failed to make sbomReportDir %s: %w", sbomReportDir, err)
+		}
+
+		reportData, err := json.Marshal(sbomReport)
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("failed to marshal sbom report: %w", err)
+		}
+
+		reportPath := filepath.Join(sbomReportDir, fmt.Sprintf("%s.json", sbomReport.Name))
+		err = os.WriteFile(reportPath, reportData, 0o600)
+		if err != nil {
+			return ctrl.Result{}, fmt.Errorf("failed to write sbom report: %w", err)
+		}
+		return ctrl.Result{}, nil
 	}
 }
 
@@ -277,7 +299,7 @@ func (r *ClusterController) numOfCoreComponentPodsAndNodes(ctx context.Context) 
 		"": trivyoperator.LabelCoreComponent,
 	}
 
-	if r.isOpenShift() {
+	if r.isOpenShift(ctx) {
 		coreK8slabels = map[string]string{
 			"openshift-kube-apiserver":          trivyoperator.LabelOpenShiftAPIServer,
 			"openshift-kube-controller-manager": trivyoperator.LabelOpenShiftControllerManager,
@@ -307,8 +329,7 @@ func (r *ClusterController) numOfCoreComponentPodsAndNodes(ctx context.Context) 
 	return corePodsCount + len(addonPods.Items), len(nodes.Items), nil
 }
 
-func (r *ClusterController) isOpenShift() bool {
-	ctx := context.Background()
+func (r *ClusterController) isOpenShift(ctx context.Context) bool {
 	_, err := r.clientset.CoreV1().Namespaces().Get(ctx, "openshift-kube-apiserver", metav1.GetOptions{})
 	return !k8sapierror.IsNotFound(err)
 }

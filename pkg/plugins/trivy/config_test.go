@@ -1,7 +1,6 @@
 package trivy
 
 import (
-	"context"
 	"testing"
 	"time"
 
@@ -277,6 +276,62 @@ func TestConfig_GetCommand(t *testing.T) {
 			command := tc.configData.GetCommand()
 			assert.Equal(t, tc.expectedCommand, command)
 
+		})
+	}
+}
+
+func TestConfig_GenerateConfigFile(t *testing.T) {
+	const localTrivyConfigName = "trivy"
+	tests := []struct {
+		name        string
+		configData  Config
+		volume      *corev1.Volume
+		volumeMount *corev1.VolumeMount
+	}{
+		{
+			name: "good way with config data",
+			configData: Config{
+				PluginConfig: trivyoperator.PluginConfig{
+					Data: map[string]string{
+						"trivy.configFile": "severity: HIGH",
+					},
+				},
+			},
+			volume: &corev1.Volume{
+				Name: "configfile",
+				VolumeSource: corev1.VolumeSource{
+					ConfigMap: &corev1.ConfigMapVolumeSource{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: localTrivyConfigName,
+						},
+						Items: []corev1.KeyToPath{
+							{
+								Key:  "trivy.configFile",
+								Path: "trivy-config.yaml",
+							},
+						},
+					},
+				},
+			},
+			volumeMount: &corev1.VolumeMount{
+				Name:      "configfile",
+				MountPath: "/etc/trivy/trivy-config.yaml",
+				SubPath:   "trivy-config.yaml",
+			},
+		},
+		{
+			name:        "without config",
+			configData:  Config{},
+			volume:      nil,
+			volumeMount: nil,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			v, vm := test.configData.GenerateConfigFileVolumeIfAvailable(localTrivyConfigName)
+			assert.Equal(t, test.volume, v)
+			assert.Equal(t, test.volumeMount, vm)
 		})
 	}
 }
@@ -705,7 +760,7 @@ func TestPlugin_Init(t *testing.T) {
 		err := p.Init(pluginContext)
 		require.NoError(t, err)
 		var cm corev1.ConfigMap
-		err = testClient.Get(context.Background(), types.NamespacedName{
+		err = testClient.Get(t.Context(), types.NamespacedName{
 			Namespace: "trivyoperator-ns",
 			Name:      "trivy-operator-trivy-config",
 		}, &cm)
@@ -721,7 +776,7 @@ func TestPlugin_Init(t *testing.T) {
 			},
 			Data: map[string]string{
 				"trivy.repository":                DefaultImageRepository,
-				"trivy.tag":                       "0.52.2",
+				"trivy.tag":                       "0.64.1",
 				"trivy.severity":                  DefaultSeverity,
 				"trivy.slow":                      "true",
 				"trivy.mode":                      string(Standalone),
@@ -770,7 +825,7 @@ func TestPlugin_Init(t *testing.T) {
 		err := p.Init(pluginContext)
 		require.NoError(t, err)
 		var cm corev1.ConfigMap
-		err = testClient.Get(context.Background(), types.NamespacedName{
+		err = testClient.Get(t.Context(), types.NamespacedName{
 			Namespace: "trivyoperator-ns",
 			Name:      "trivy-operator-trivy-config",
 		}, &cm)

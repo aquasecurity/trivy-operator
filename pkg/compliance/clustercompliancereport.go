@@ -2,7 +2,10 @@ package compliance
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -32,12 +35,9 @@ type ClusterComplianceReportReconciler struct {
 // +kubebuilder:rbac:groups=aquasecurity.github.io,resources=clustercompliancedetailreports,verbs=get;list;watch;create;update;patch;delete
 
 func (r *ClusterComplianceReportReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	if err := ctrl.NewControllerManagedBy(mgr).
+	return ctrl.NewControllerManagedBy(mgr).
 		For(&v1alpha1.ClusterComplianceReport{}).
-		Complete(r.reconcileComplianceReport()); err != nil {
-		return err
-	}
-	return nil
+		Complete(r.reconcileComplianceReport())
 }
 
 func (r *ClusterComplianceReportReconciler) reconcileComplianceReport() reconcile.Func {
@@ -64,11 +64,35 @@ func (r *ClusterComplianceReportReconciler) generateComplianceReport(ctx context
 			return fmt.Errorf("failed to check report cron expression %w", err)
 		}
 		if utils.DurationExceeded(durationToNextGeneration) || r.Config.InvokeClusterComplianceOnce {
+			if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
+				// Write the compliance report to a file
+				reportDir := r.Config.AltReportDir
+				complianceReportDir := filepath.Join(reportDir, "cluster_compliance_report")
+				if err := os.MkdirAll(complianceReportDir, 0o750); err != nil {
+					return fmt.Errorf("failed to create report directory: %w", err)
+				}
+				reportData, err := json.Marshal(report)
+				if err != nil {
+					log.Error(err, "Failed to marshal compliance report")
+					return err
+				}
+
+				reportPath := filepath.Join(complianceReportDir, fmt.Sprintf("%s-%s.json", report.Kind, report.Name))
+				log.Info("Writing cluster compliance report to alternate storage", "path", reportPath)
+				err = os.WriteFile(reportPath, reportData, 0o600)
+				if err != nil {
+					log.Error(err, "Failed to write compliance report", "path", reportPath)
+					return err
+				}
+				log.Info("Cluster compliance report written", "path", reportPath)
+
+				return nil
+			}
 			err = r.Mgr.GenerateComplianceReport(ctx, report.Spec)
 			if err != nil {
 				log.Error(err, "failed to generate compliance report")
+				return err
 			}
-			return err
 		}
 		if r.Config.InvokeClusterComplianceOnce { // for demo or testing purposes
 			return nil

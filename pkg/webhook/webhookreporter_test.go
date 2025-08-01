@@ -81,7 +81,7 @@ func Test_sendReports(t *testing.T) {
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ts := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 				b, _ := io.ReadAll(r.Body)
 				assert.JSONEq(t, tc.want, string(b))
 			}))

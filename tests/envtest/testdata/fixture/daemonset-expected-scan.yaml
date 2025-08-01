@@ -47,7 +47,7 @@ spec:
       containers:
         - args:
             - -c
-            - trivy image --slow 'quay.io/fluentd_elasticsearch/fluentd:v2.5.2' --security-checks vuln,secret --image-config-scanners secret   --skip-update  --cache-dir /tmp/trivy/.cache --quiet  --format json > /tmp/scan/result_fluentd-elasticsearch.json &&  bzip2 -c /tmp/scan/result_fluentd-elasticsearch.json | base64
+            - trivy image quay.io/fluentd_elasticsearch/fluentd:v2.5.2 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_fluentd-elasticsearch.json 2>/tmp/scan/result_fluentd-elasticsearch.json.log && bzip2 -c /tmp/scan/result_fluentd-elasticsearch.json | base64
           command:
             - /bin/sh
           env:

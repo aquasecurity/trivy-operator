@@ -134,7 +134,7 @@ go tool cover -html=coverage.txt
 
 ### Run Operator envtest
 
-The Operator envtest spin us partial k8s components (api-server, etcd) and test controllers for reousce, workload, ttl, rbac and more
+The Operator envtest spins up partial k8s components (api-server, etcd) and test controllers for resource, workload, ttl, rbac and more
 
 ```
 mage test:envtest
@@ -303,7 +303,7 @@ kubectl delete -k deploy/static
      OPERATOR_CONFIG_AUDIT_SCANNER_ENABLED=true \
      OPERATOR_RBAC_ASSESSMENT_SCANNER_ENABLED=true \
      OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS=false \
-     OPERATOR_VULNERABILITY_SCANNER_REPORT_TTL="" \
+     OPERATOR_SCANNER_REPORT_TTL="" \
      OPERATOR_BATCH_DELETE_LIMIT=3 \
      OPERATOR_BATCH_DELETE_DELAY="30s" \
      go run cmd/trivy-operator/main.go

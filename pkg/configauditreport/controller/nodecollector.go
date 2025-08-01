@@ -2,8 +2,11 @@ package controller
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 
 	"github.com/go-logr/logr"
 	batchv1 "k8s.io/api/batch/v1"
@@ -40,13 +43,13 @@ type NodeCollectorJobController struct {
 	configauditreport.PluginInMemory
 	InfraReadWriter infraassessment.ReadWriter
 	trivyoperator.BuildInfo
+	ChecksLoader *ChecksLoader
 }
 
 // +kubebuilder:rbac:groups=batch,resources=jobs,verbs=get;list;watch;create;delete
 
 func (r *NodeCollectorJobController) SetupWithManager(mgr ctrl.Manager) error {
 	var predicates []predicate.Predicate
-
 	predicates = append(predicates, ManagedByTrivyOperator, IsNodeInfoCollector, JobHasAnyCondition)
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&batchv1.Job{}, builder.WithPredicates(predicates...)).
@@ -132,17 +135,15 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 	if err != nil {
 		return err
 	}
-	cac, err := r.NewConfigForConfigAudit(r.PluginContext)
-	if err != nil {
-		return err
-	}
-	policies, err := Policies(ctx, r.Config, r.Client, cac, r.Logger, r.PolicyLoader)
-	if err != nil {
-		return fmt.Errorf("getting policies: %w", err)
-	}
+
 	resourceHash, err := kube.ComputeSpecHash(node)
 	if err != nil {
 		return fmt.Errorf("computing spec hash: %w", err)
+	}
+
+	policies, err := r.ChecksLoader.GetPolicies(ctx)
+	if err != nil {
+		return fmt.Errorf("get policies: %w", err)
 	}
 
 	policiesHash, err := policies.Hash(string(kube.KindNode))
@@ -167,6 +168,36 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 		Data(misConfigData.infraAssessmentReportData)
 	if r.Config.ScannerReportTTL != nil {
 		infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
+	}
+	// Not writing if alternate storage is enabled
+	if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
+		log.V(1).Info("Writing infra assessment report to alternate storage", "dir", r.Config.AltReportDir)
+		clusterInfraReport, err := infraReportBuilder.GetClusterReport()
+		if err != nil {
+			return fmt.Errorf("failed to get cluster infra report: %w", err)
+		}
+		// Write the cluster infra assessment report to a file
+		reportDir := r.Config.AltReportDir
+		clusterInfraReportDir := filepath.Join(reportDir, "cluster_infra_assessment_reports")
+		if err := os.MkdirAll(clusterInfraReportDir, 0o750); err != nil {
+			log.Error(err, "failed to create infra assessment report directory")
+			return err
+		}
+
+		reportData, err := json.Marshal(misConfigData.infraAssessmentReportData)
+		if err != nil {
+			return fmt.Errorf("failed to marshal compliance report: %w", err)
+		}
+		labels := clusterInfraReport.GetLabels()
+		// Extract workload kind and name from report labels
+		workloadKind := labels["trivy-operator.resource.kind"]
+		workloadName := labels["trivy-operator.resource.name"]
+		reportPath := filepath.Join(clusterInfraReportDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
+		err = os.WriteFile(reportPath, reportData, 0o600)
+		if err != nil {
+			return fmt.Errorf("failed to write compliance report: %w", err)
+		}
+		return nil
 	}
 	if err := infraReportBuilder.Write(ctx, r.InfraReadWriter); err != nil {
 		return err

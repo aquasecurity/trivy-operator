@@ -1,15 +1,12 @@
 package policy_test
 
 import (
-	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
-	"reflect"
 	"sort"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/bluele/gcache"
 	appsv1 "k8s.io/api/apps/v1"
@@ -21,6 +18,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
@@ -30,6 +28,63 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+var (
+	cacheReportTTL = time.Hour * 24
+
+	simpleNginxPod = &corev1.Pod{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "Pod",
+			APIVersion: "v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{},
+		Spec: corev1.PodSpec{
+			Containers: []corev1.Container{
+				{
+					Name:  "nginx",
+					Image: "nginx:1.16",
+				},
+			},
+		},
+	}
+)
+
+func TestPolicies_Hash(t *testing.T) {
+	t.Run("Should return hash for valid policies", func(t *testing.T) {
+		g := NewGomegaWithT(t)
+		config := policy.NewPolicies(map[string]string{
+			"policy.valid.rego":  "<REGO_CONTENT>",
+			"policy.valid.kinds": "Pod",
+		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1", &cacheReportTTL)
+
+		hash, err := config.Hash("Pod")
+		g.Expect(err).ToNot(HaveOccurred())
+		g.Expect(hash).ToNot(BeEmpty())
+	})
+	t.Run("Should compute correct hash for given policies", func(t *testing.T) {
+		g := NewGomegaWithT(t)
+		policies := map[string]string{
+			"policy.policy1.rego":  "package test\nallow = true",
+			"policy.policy1.kinds": "Pod",
+			"policy.policy2.rego":  "package test\nallow = false",
+			"policy.policy2.kinds": "Workload",
+		}
+		config := policy.NewPolicies(policies, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1", &cacheReportTTL)
+
+		// Sort policy content before computing the expected hash
+		policyContents := []string{
+			"package test\nallow = true",
+			"package test\nallow = false",
+		}
+		sort.Strings(policyContents)
+
+		expectedHash := kube.ComputeHash(policyContents)
+
+		hash, err := config.Hash("Pod")
+		g.Expect(err).ToNot(HaveOccurred())
+		g.Expect(hash).To(Equal(expectedHash))
+	})
+}
+
 func TestPolicies_PoliciesByKind(t *testing.T) {
 	t.Run("Should return error when kinds are not defined for policy", func(t *testing.T) {
 		g := NewGomegaWithT(t)
@@ -37,7 +92,7 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 			"library.kubernetes.rego":        "<REGO_A>",
 			"library.utils.rego":             "<REGO_B>",
 			"policy.access_to_host_pid.rego": "<REGO_C>",
-		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1")
+		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1", &cacheReportTTL)
 		_, err := config.PoliciesByKind("Pod")
 		g.Expect(err).To(MatchError("kinds not defined for policy: policy.access_to_host_pid.rego"))
 	})
@@ -46,7 +101,7 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 		g := NewGomegaWithT(t)
 		config := policy.NewPolicies(map[string]string{
 			"policy.access_to_host_pid.kinds": "Workload",
-		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1")
+		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1", &cacheReportTTL)
 		_, err := config.PoliciesByKind("Pod")
 		g.Expect(err).To(MatchError("expected policy not found: policy.access_to_host_pid.rego"))
 	})
@@ -73,7 +128,7 @@ func TestPolicies_PoliciesByKind(t *testing.T) {
 			"policy.privileged": "<REGO_E>",
 			// This one should be skipped (no policy. prefix)
 			"foo": "bar",
-		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1")
+		}, testConfig{}, ctrl.Log.WithName("policy logger"), policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1", &cacheReportTTL)
 		g.Expect(config.PoliciesByKind("Pod")).To(Equal(map[string]string{
 			"policy.access_to_host_pid.rego":                "<REGO_C>",
 			"policy.cpu_not_limited.rego":                   "<REGO_D>",
@@ -147,12 +202,11 @@ func TestPolicies_Supported(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			ready, err := policy.NewPolicies(tc.data, testConfig{}, log, policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1").SupportedKind(tc.resource, tc.rbacEnable)
+			ready, err := policy.NewPolicies(tc.data, testConfig{}, log, policy.NewPolicyLoader("", gcache.New(1).LRU().Build(), types.RegistryOptions{}), "1.27.1", &cacheReportTTL).SupportedKind(tc.resource, tc.rbacEnable)
 			g.Expect(err).ToNot(HaveOccurred())
 			g.Expect(ready).To(Equal(tc.expected))
 		})
 	}
-
 }
 
 func TestPolicies_Eval(t *testing.T) {
@@ -347,142 +401,6 @@ func TestPolicies_Eval(t *testing.T) {
 			expectedError: `failed to load rego policies from [externalPolicies]: 1 error occurred: externalPolicies/file_0.rego:1: rego_parse_error: illegal token\\n\\t$^&!\\n\\t^`,
 		},
 		{
-			name:          "Should eval deny rule with any resource and multiple messages",
-			expectedError: "failed to run policy checks on resources",
-			resource: &appsv1.Deployment{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Deployment",
-					APIVersion: "appsv1",
-				},
-				Spec: appsv1.DeploymentSpec{
-					Template: corev1.PodTemplateSpec{
-						Spec: corev1.PodSpec{
-							Containers: []corev1.Container{
-								{
-									Name:  "nginx",
-									Image: "nginx:1.16",
-								},
-							},
-						},
-					},
-				},
-			},
-			useBuiltInPolicies: false,
-			policies: map[string]string{
-				"policy.uses_image_tag_latest.kinds": "Workload",
-				"policy.uses_image_tag_latest.rego": `package test
-
-		__rego_metadata__ := {
-			"id": "KSV013",
-			"avd_id": "AVD-KSV-0013",
-			"title": "Image tag ':latest' used",
-			"short_code": "use-specific-tags",
-			"version": "v1.0.0",
-			"severity": "LOW",
-			"type": "Kubernetes Security Check",
-			"description": "It is best to avoid using the ':latest' image tag when deploying containers in production. Doing so makes it hard to track which version of the image is running, and hard to roll back the version.",
-			"recommended_actions": "Use a specific container image tag that is not 'latest'.",
-			"url": "https://kubernetes.io/docs/concepts/configuration/overview/#container-images",
-		}
-
-		messages = [ "msg1", "msg2" ]
-
-		deny[res] {
-
-			msg := messages[_]
-
-			res := {
-				"msg": msg,
-				"id": __rego_metadata__.id,
-				"title": __rego_metadata__.title,
-				"severity": __rego_metadata__.severity,
-				"type": __rego_metadata__.type,
-			}
-		}`,
-			},
-			results: []Result{
-				{
-					Metadata: Metadata{
-						ID:          "KSV013",
-						Title:       "Image tag ':latest' used",
-						Description: "It is best to avoid using the ':latest' image tag when deploying containers in production. Doing so makes it hard to track which version of the image is running, and hard to roll back the version.",
-						Severity:    "LOW",
-						Type:        "Kubernetes Security Check",
-					},
-					Messages: []string{"msg1", "msg2"},
-					Success:  false,
-				},
-			},
-		},
-		{
-			name:          "Should eval warn rule with any resource and multiple messages",
-			expectedError: "failed to run policy checks on resources",
-			resource: &appsv1.Deployment{
-				TypeMeta: metav1.TypeMeta{
-					Kind:       "Deployment",
-					APIVersion: "appsv1",
-				},
-				Spec: appsv1.DeploymentSpec{
-					Template: corev1.PodTemplateSpec{
-						Spec: corev1.PodSpec{
-							Containers: []corev1.Container{
-								{
-									Name:  "nginx",
-									Image: "nginx:1.16",
-								},
-							},
-						},
-					},
-				},
-			},
-			useBuiltInPolicies: false,
-			policies: map[string]string{
-				"policy.uses_image_tag_latest.kinds": "Workload",
-				"policy.uses_image_tag_latest.rego": `package test
-
-		__rego_metadata__ := {
-			"id": "KSV013",
-			"avd_id": "AVD-KSV-0013",
-			"title": "Image tag ':latest' used",
-			"short_code": "use-specific-tags",
-			"version": "v1.0.0",
-			"severity": "LOW",
-			"type": "Kubernetes Security Check",
-			"description": "It is best to avoid using the ':latest' image tag when deploying containers in production. Doing so makes it hard to track which version of the image is running, and hard to roll back the version.",
-			"recommended_actions": "Use a specific container image tag that is not 'latest'.",
-			"url": "https://kubernetes.io/docs/concepts/configuration/overview/#container-images",
-		}
-
-		messages = [ "msg1", "msg2" ]
-
-		deny[res] {
-
-			msg := messages[_]
-
-			res := {
-				"msg": msg,
-				"id": __rego_metadata__.id,
-				"title": __rego_metadata__.title,
-				"severity": __rego_metadata__.severity,
-				"type": __rego_metadata__.type,
-			}
-		}`,
-			},
-			results: []Result{
-				{
-					Metadata: Metadata{
-						ID:          "KSV013",
-						Title:       "Image tag ':latest' used",
-						Description: "It is best to avoid using the ':latest' image tag when deploying containers in production. Doing so makes it hard to track which version of the image is running, and hard to roll back the version.",
-						Severity:    "LOW",
-						Type:        "Kubernetes Security Check",
-					},
-					Messages: []string{"msg1", "msg2"},
-					Success:  false,
-				},
-			},
-		},
-		{
 			name: "Should eval warn role rule with built in policies",
 			resource: &rbacv1.Role{
 				TypeMeta: metav1.TypeMeta{
@@ -498,7 +416,18 @@ func TestPolicies_Eval(t *testing.T) {
 			},
 			useBuiltInPolicies: true,
 			policies:           make(map[string]string),
-			results:            getBuildInResults(t, "./testdata/fixture/builtin_role_result.json"),
+			results: []Result{
+				{
+					Metadata: Metadata{
+						ID:          "KSV054",
+						Title:       "Do not allow attaching to shell on pods",
+						Description: "Check whether role permits attaching to shell on pods",
+						Severity:    "HIGH",
+						Type:        "Kubernetes Security Check",
+					},
+					Success: true,
+				},
+			},
 		},
 		{
 			name: "Should eval return error no policies found",
@@ -518,19 +447,122 @@ func TestPolicies_Eval(t *testing.T) {
 			policies:           make(map[string]string),
 			expectedError:      policy.PoliciesNotFoundError,
 		},
+		{
+			name:               "using a custom rule - check passed",
+			resource:           simpleNginxPod,
+			useBuiltInPolicies: false,
+			policies: map[string]string{
+				"policy.uses_image_tag_latest.kinds": "Pod",
+				"policy.uses_image_tag_latest.rego": `
+   package trivyoperator.policy.k8s.custom
+   __rego_metadata__ := {
+        "id": "CUSTOMCHECK",
+        "title": "custom check title",
+        "severity": "LOW",
+        "type": "Kubernetes Security Check",
+        "description": "custom check description",
+    }
+
+   alwaysFalse {
+      1 == 0
+   }
+
+   deny[res] {
+        alwaysFalse
+		res := {
+				"msg": "the check should always pass",
+			}
+   }`,
+			},
+			results: []Result{
+				{
+					Metadata: Metadata{
+						ID:          "CUSTOMCHECK",
+						Title:       "custom check title",
+						Description: "custom check description",
+						Severity:    "LOW",
+						Type:        "Kubernetes Security Check",
+					},
+					Success: true,
+				},
+			},
+		},
+		{
+			name:               "using a custom rule - check failed",
+			resource:           simpleNginxPod,
+			useBuiltInPolicies: false,
+			policies: map[string]string{
+				"policy.uses_image_tag_latest.kinds": "Pod",
+				"policy.uses_image_tag_latest.rego": `
+   package trivyoperator.policy.k8s.custom
+   __rego_metadata__ := {
+        "id": "CUSTOMCHECK",
+        "title": "custom check title",
+        "severity": "LOW",
+        "type": "Kubernetes Security Check",
+        "description": "custom check description",
+    }
+
+   alwaysTrue {
+      1 == 1
+   }
+
+   deny[res] {
+        alwaysTrue
+		res := {
+				"msg": "the check should be always failed",
+			}
+   }`,
+			},
+			results: []Result{
+				{
+					Metadata: Metadata{
+						ID:          "CUSTOMCHECK",
+						Title:       "custom check title",
+						Description: "custom check description",
+						Severity:    "LOW",
+						Type:        "Kubernetes Security Check",
+					},
+					Messages: []string{"the check should be always failed"},
+					Success:  false,
+				},
+			},
+		},
+		{
+			name:               "using a custom rule with incorrect name",
+			resource:           simpleNginxPod,
+			useBuiltInPolicies: false,
+			policies: map[string]string{
+				"policy.uses_image_tag_latest.kinds": "Pod",
+				"policy.uses_image_tag_latest.rego": `
+   package myfunnyname.policy.k8s.custom
+   __rego_metadata__ := {
+        "id": "CUSTOMCHECK",
+        "title": "custom check title",
+        "severity": "LOW",
+        "type": "Kubernetes Security Check",
+        "description": "custom check description",
+    }
+
+   deny[{"msg": "this message should be hidden"}]`,
+			},
+			results: []Result{}, // passing an invalid policy should not return any results but not an error
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewGomegaWithT(t)
 			log := ctrl.Log.WithName("resourcecontroller")
-			checks, err := policy.NewPolicies(tc.policies, newTestConfig(tc.useBuiltInPolicies), log, &TestLoader{}, "1.27.1").Eval(context.TODO(), tc.resource)
+			p := policy.NewPolicies(tc.policies, newTestConfig(tc.useBuiltInPolicies), log, &TestLoader{}, "1.27.1", &cacheReportTTL)
+			g.Expect(p.Load()).ToNot(HaveOccurred())
+			checks, err := p.Eval(t.Context(), tc.resource)
 			if tc.expectedError != "" {
 				g.Expect(err).To(HaveOccurred())
-			} else {
-				g.Expect(err).ToNot(HaveOccurred())
-				g.Expect(reflect.DeepEqual(getPolicyResults(checks), tc.results))
+				return
 			}
+			g.Expect(err).ToNot(HaveOccurred())
+			g.Expect(getPolicyResults(checks)).Should(Equal(tc.results))
 		})
 	}
 }
@@ -830,20 +862,6 @@ func getPolicyResults(results scan.Results) Results {
 		}
 		pr := Result{Metadata: Metadata{ID: id, Title: result.Rule().Summary, Severity: v1alpha1.Severity(result.Severity()), Type: "Kubernetes Security Check", Description: result.Rule().Explanation}, Success: result.Status() == scan.StatusPassed, Messages: msgs}
 		prs = append(prs, pr)
-	}
-	sort.Sort(resultSort(prs))
-	return prs
-}
-
-func getBuildInResults(t *testing.T, filePath string) Results {
-	var prs Results
-	b, err := os.ReadFile(filePath)
-	if err != nil {
-		t.Error(err)
-	}
-	err = json.Unmarshal(b, &prs)
-	if err != nil {
-		t.Error(err)
 	}
 	sort.Sort(resultSort(prs))
 	return prs

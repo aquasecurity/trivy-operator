@@ -47,7 +47,7 @@ spec:
       containers:
         - args:
             - -c
-            - trivy image --slow 'k8s.gcr.io/nginx-slim:0.8' --security-checks vuln,secret --image-config-scanners secret   --skip-update  --cache-dir /tmp/trivy/.cache --quiet  --format json > /tmp/scan/result_nginx.json &&  bzip2 -c /tmp/scan/result_nginx.json | base64
+            - trivy image k8s.gcr.io/nginx-slim:0.8 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64
           command:
             - /bin/sh
           env:

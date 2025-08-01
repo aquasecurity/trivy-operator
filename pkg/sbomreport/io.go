@@ -17,6 +17,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	fg "github.com/aquasecurity/trivy/pkg/flag"
 	tr "github.com/aquasecurity/trivy/pkg/report"
@@ -48,6 +49,7 @@ type ReadWriter interface {
 
 type readWriter struct {
 	*kube.ObjectResolver
+	etc.Config
 }
 
 // NewReadWriter constructs a new ReadWriter which is using the client package
@@ -61,6 +63,9 @@ func NewReadWriter(objectResolver *kube.ObjectResolver) ReadWriter {
 
 func (r *readWriter) Write(ctx context.Context, reports []v1alpha1.SbomReport) error {
 	for _, report := range reports {
+		if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
+			return nil
+		}
 		err := r.createOrUpdate(ctx, report)
 		if err != nil {
 			return err
@@ -71,6 +76,9 @@ func (r *readWriter) Write(ctx context.Context, reports []v1alpha1.SbomReport) e
 
 func (r *readWriter) WriteCluster(ctx context.Context, reports []v1alpha1.ClusterSbomReport) error {
 	for _, report := range reports {
+		if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
+			return nil
+		}
 		err := r.createOrUpdateCluster(ctx, report)
 		if err != nil {
 			return err

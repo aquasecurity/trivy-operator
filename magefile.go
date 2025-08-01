@@ -50,7 +50,7 @@ var (
 
 	IMAGE_TAG                 = "dev"
 	TRIVY_OPERATOR_IMAGE      = "aquasecurity/trivy-operator:" + IMAGE_TAG
-	TRIVY_OPERATOR_IMAGE_UBI8 = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-ubi8"
+	TRIVY_OPERATOR_IMAGE_UBI9 = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-ubi9"
 
 	MKDOCS_IMAGE = "aquasec/mkdocs-material:trivy-operator"
 	MKDOCS_PORT  = 8000
@@ -121,9 +121,12 @@ func (t Test) Unit() error {
 
 // Target for running integration tests for Trivy Operator.
 func (t Test) Integration() error {
+	fmt.Println("Preparing integration tests for Trivy Operator...")
+	mg.Deps(checkEnvKubeconfig, checkEnvOperatorNamespace, checkEnvOperatorTargetNamespace, getGinkgo)
+	mg.Deps(prepareImages)
+
 	fmt.Println("Running integration tests for Trivy Operator...")
-	mg.Deps(checkKubeconfig, getGinkgo)
-	return sh.RunV(GINKGO, "-coverprofile=coverage.txt",
+	return sh.RunV(GINKGO, "-v", "-coverprofile=coverage.txt",
 		"-coverpkg=github.com/aquasecurity/trivy-operator/pkg/operator,"+
 			"github.com/aquasecurity/trivy-operator/pkg/operator/predicate,"+
 			"github.com/aquasecurity/trivy-operator/pkg/operator/controller,"+
@@ -134,14 +137,45 @@ func (t Test) Integration() error {
 		"./tests/itest/trivy-operator")
 }
 
-// Target for checking if KUBECONFIG environment variable is set.
-func checkKubeconfig() error {
-	kubeconfig := os.Getenv("KUBECONFIG")
-	if kubeconfig == "" {
-		return fmt.Errorf("Environment variable KUBECONFIG is not set")
+// Target for downloading test images and upload them into KinD
+func prepareImages() error {
+	images := []string{
+		"mirror.gcr.io/knqyf263/vuln-image:1.2.3",
+		"wordpress:4.9",
+		"wordpress:6.7",
 	}
-	fmt.Println("KUBECONFIG=", kubeconfig)
+	fmt.Printf("Preparing %d image(s) for Trivy Operator...\n", len(images))
+	for _, image := range images {
+		fmt.Printf("Preparing image %q for Trivy Operator...\n", image)
+		err := sh.Run("docker", "pull", image)
+		if err != nil {
+			return fmt.Errorf("couldn't pull image %q: %v", image, err)
+		}
+		err = sh.Run("kind", "load", "docker-image", image)
+		if err != nil {
+			return fmt.Errorf("couldn't load image %q: %v", image, err)
+		}
+	}
 	return nil
+}
+
+// Targets for checking if environment variables are set.
+func checkEnvironmentVariable(name string) error {
+	envVar := os.Getenv(name)
+	if envVar == "" {
+		return fmt.Errorf("Environment variable %q is not set", name)
+	}
+	fmt.Println(name, "=", envVar)
+	return nil
+}
+func checkEnvKubeconfig() error {
+	return checkEnvironmentVariable("KUBECONFIG")
+}
+func checkEnvOperatorNamespace() error {
+	return checkEnvironmentVariable("OPERATOR_NAMESPACE")
+}
+func checkEnvOperatorTargetNamespace() error {
+	return checkEnvironmentVariable("OPERATOR_TARGET_NAMESPACES")
 }
 
 // Target for removing build artifacts
@@ -155,7 +189,7 @@ func (t Tool) Clean() {
 func (b Build) DockerAll() {
 	fmt.Println("Building Docker images for all binaries...")
 	b.Docker()
-	b.DockerUbi8()
+	b.DockerUbi9()
 }
 
 // Target for building Docker image for trivy-operator
@@ -164,17 +198,17 @@ func (b Build) Docker() error {
 	return sh.RunV("docker", "build", "--no-cache", "-t", TRIVY_OPERATOR_IMAGE, "-f", "build/trivy-operator/Dockerfile", "bin")
 }
 
-// Target for building Docker image for trivy-operator ubi8
-func (b Build) DockerUbi8() error {
-	fmt.Println("Building Docker image for trivy-operator ubi8...")
-	return sh.RunV("docker", "build", "--no-cache", "-f", "build/trivy-operator/Dockerfile.ubi8", "-t", TRIVY_OPERATOR_IMAGE_UBI8, "bin")
+// Target for building Docker image for trivy-operator ubi9
+func (b Build) DockerUbi9() error {
+	fmt.Println("Building Docker image for trivy-operator ubi9...")
+	return sh.RunV("docker", "build", "--no-cache", "-f", "build/trivy-operator/Dockerfile.ubi9", "-t", TRIVY_OPERATOR_IMAGE_UBI9, "bin")
 }
 
 // Target for loading Docker images into the KIND cluster
 func (b Build) KindLoadImages() error {
 	fmt.Println("Loading Docker images into the KIND cluster...")
-	mg.Deps(b.Docker, b.DockerUbi8)
-	return sh.RunV(KIND, "load", "docker-image", TRIVY_OPERATOR_IMAGE, TRIVY_OPERATOR_IMAGE_UBI8)
+	mg.Deps(b.Docker, b.DockerUbi9)
+	return sh.RunV(KIND, "load", "docker-image", TRIVY_OPERATOR_IMAGE, TRIVY_OPERATOR_IMAGE_UBI9)
 }
 
 type Docs mg.Namespace
@@ -326,17 +360,17 @@ func (Lint) Fix() error {
 
 // GolangciLint installs golangci-lint
 func (t Tool) GolangciLint() error {
-	const version = "v1.61.0"
+	const version = "v2.1.6"
 	bin := filepath.Join(GOBIN, "golangci-lint")
 	if exists(bin) && t.matchGolangciLintVersion(bin, version) {
 		return nil
 	}
-	command := fmt.Sprintf("curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b %s %s", GOBIN, version)
+	command := fmt.Sprintf("curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b %s %s", GOBIN, version)
 	return sh.Run("bash", "-c", command)
 }
 
 func (Tool) matchGolangciLintVersion(bin, version string) bool {
-	out, err := sh.Output(bin, "version", "--format", "json")
+	out, err := sh.Output(bin, "version", "--json")
 	if err != nil {
 		slog.Error("Unable to get golangci-lint version", slog.Any("err", err))
 		return false

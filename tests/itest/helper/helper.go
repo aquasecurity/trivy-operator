@@ -62,10 +62,12 @@ func (b *PodBuilder) WithNamespace(namespace string) *PodBuilder {
 	return b
 }
 
-func (b *PodBuilder) WithContainer(name, image string) *PodBuilder {
+func (b *PodBuilder) WithContainer(name, image string, commands, args []string) *PodBuilder {
 	b.containers = append(b.containers, corev1.Container{
-		Name:  name,
-		Image: image,
+		Name:    name,
+		Image:   image,
+		Command: commands,
+		Args:    args,
 	})
 	return b
 }
@@ -237,7 +239,7 @@ var (
 	trivyScanner = v1alpha1.Scanner{
 		Name:    v1alpha1.ScannerNameTrivy,
 		Vendor:  "Aqua Security",
-		Version: "0.24.0",
+		Version: "0.27.3",
 	}
 )
 
@@ -328,9 +330,9 @@ func NewHelper(c client.Client) *Helper {
 	}
 }
 
-func (h *Helper) HasActiveReplicaSet(namespace, name string) func() (bool, error) {
+func (h *Helper) HasActiveReplicaSet(ctx context.Context, namespace, name string) func() (bool, error) {
 	return func() (bool, error) {
-		rs, err := h.GetActiveReplicaSetForDeployment(namespace, name)
+		rs, err := h.GetActiveReplicaSetForDeployment(ctx, namespace, name)
 		if err != nil {
 			return false, err
 		}
@@ -338,14 +340,14 @@ func (h *Helper) HasActiveReplicaSet(namespace, name string) func() (bool, error
 	}
 }
 
-func (h *Helper) HasVulnerabilityReportOwnedBy(obj client.Object) func() (bool, error) {
+func (h *Helper) HasVulnerabilityReportOwnedBy(ctx context.Context, obj client.Object) func() (bool, error) {
 	return func() (bool, error) {
 		gvk, err := apiutil.GVKForObject(obj, h.scheme)
 		if err != nil {
 			return false, err
 		}
 		var reportList v1alpha1.VulnerabilityReportList
-		err = h.kubeClient.List(context.Background(), &reportList, client.MatchingLabels{
+		err = h.kubeClient.List(ctx, &reportList, client.MatchingLabels{
 			trivyoperator.LabelResourceKind:      gvk.Kind,
 			trivyoperator.LabelResourceName:      obj.GetName(),
 			trivyoperator.LabelResourceNamespace: obj.GetNamespace(),
@@ -357,14 +359,14 @@ func (h *Helper) HasVulnerabilityReportOwnedBy(obj client.Object) func() (bool, 
 	}
 }
 
-func (h *Helper) HasConfigAuditReportOwnedBy(obj client.Object) func() (bool, error) {
+func (h *Helper) HasConfigAuditReportOwnedBy(ctx context.Context, obj client.Object) func() (bool, error) {
 	return func() (bool, error) {
 		gvk, err := apiutil.GVKForObject(obj, h.scheme)
 		if err != nil {
 			return false, err
 		}
 		var reportsList v1alpha1.ConfigAuditReportList
-		err = h.kubeClient.List(context.Background(), &reportsList, client.MatchingLabels{
+		err = h.kubeClient.List(ctx, &reportsList, client.MatchingLabels{
 			trivyoperator.LabelResourceKind:      gvk.Kind,
 			trivyoperator.LabelResourceName:      obj.GetName(),
 			trivyoperator.LabelResourceNamespace: obj.GetNamespace(),
@@ -377,13 +379,55 @@ func (h *Helper) HasConfigAuditReportOwnedBy(obj client.Object) func() (bool, er
 	}
 }
 
-func (h *Helper) DeleteConfigAuditReportOwnedBy(obj client.Object) error {
+func (h *Helper) HasScanJobPodOwnedBy(ctx context.Context, obj client.Object) func() (bool, error) {
+	return func() (bool, error) {
+		gvk, err := apiutil.GVKForObject(obj, h.scheme)
+		if err != nil {
+			return false, err
+		}
+		var podList corev1.PodList
+		err = h.kubeClient.List(ctx, &podList, client.MatchingLabels{
+			trivyoperator.LabelResourceKind:      gvk.Kind,
+			trivyoperator.LabelResourceName:      obj.GetName(),
+			trivyoperator.LabelResourceNamespace: obj.GetNamespace(),
+		})
+		if err != nil {
+			return false, err
+		}
+		return len(podList.Items) == 1, nil
+	}
+}
+
+func (h *Helper) GetScanJobPodOwnedBy(ctx context.Context, obj client.Object) func() (corev1.Pod, error) {
+	return func() (corev1.Pod, error) {
+		gvk, err := apiutil.GVKForObject(obj, h.scheme)
+		if err != nil {
+			return corev1.Pod{}, err
+		}
+		var podList corev1.PodList
+		err = h.kubeClient.List(ctx, &podList, client.MatchingLabels{
+			trivyoperator.LabelResourceKind:      gvk.Kind,
+			trivyoperator.LabelResourceName:      obj.GetName(),
+			trivyoperator.LabelResourceNamespace: obj.GetNamespace(),
+		})
+		if err != nil {
+			return corev1.Pod{}, err
+		}
+
+		if len(podList.Items) == 0 {
+			return corev1.Pod{}, fmt.Errorf("no scan job pod found for owner %s/%s", obj.GetNamespace(), obj.GetName())
+		}
+		return podList.Items[0], nil
+	}
+}
+
+func (h *Helper) DeleteConfigAuditReportOwnedBy(ctx context.Context, obj client.Object) error {
 	gvk, err := apiutil.GVKForObject(obj, h.scheme)
 	if err != nil {
 		return err
 	}
 	var reportsList v1alpha1.ConfigAuditReportList
-	err = h.kubeClient.List(context.Background(), &reportsList, client.MatchingLabels{
+	err = h.kubeClient.List(ctx, &reportsList, client.MatchingLabels{
 		trivyoperator.LabelResourceKind:      gvk.Kind,
 		trivyoperator.LabelResourceName:      obj.GetName(),
 		trivyoperator.LabelResourceNamespace: obj.GetNamespace(),
@@ -392,14 +436,14 @@ func (h *Helper) DeleteConfigAuditReportOwnedBy(obj client.Object) error {
 		return err
 	}
 
-	return h.kubeClient.Delete(context.Background(), &reportsList.Items[0])
+	return h.kubeClient.Delete(ctx, &reportsList.Items[0])
 }
 
-func (h *Helper) GetActiveReplicaSetForDeployment(namespace, name string) (*appsv1.ReplicaSet, error) {
+func (h *Helper) GetActiveReplicaSetForDeployment(ctx context.Context, namespace, name string) (*appsv1.ReplicaSet, error) {
 	var deployment appsv1.Deployment
 	var replicaSetList appsv1.ReplicaSetList
 
-	err := h.kubeClient.Get(context.TODO(), types.NamespacedName{
+	err := h.kubeClient.Get(ctx, types.NamespacedName{
 		Name: name, Namespace: namespace,
 	}, &deployment)
 	if err != nil {
@@ -412,7 +456,7 @@ func (h *Helper) GetActiveReplicaSetForDeployment(namespace, name string) (*apps
 	}
 	selector := labels.Set(deploymentSelector)
 
-	err = h.kubeClient.List(context.TODO(), &replicaSetList, client.MatchingLabels(selector))
+	err = h.kubeClient.List(ctx, &replicaSetList, client.MatchingLabels(selector))
 
 	if err != nil {
 		return nil, err
@@ -428,19 +472,19 @@ func (h *Helper) GetActiveReplicaSetForDeployment(namespace, name string) (*apps
 	return nil, nil
 }
 
-// nolint:staticcheck
-func (h *Helper) UpdateDeploymentImage(namespace, name string) error {
+//nolint:staticcheck
+func (h *Helper) UpdateDeploymentImage(ctx context.Context, namespace, name string) error {
 	// TODO Check kubectl set image implementation
 	return wait.PollImmediate(5*time.Second, 2*time.Minute, func() (bool, error) {
 		var deployment appsv1.Deployment
-		err := h.kubeClient.Get(context.TODO(), types.NamespacedName{Name: name, Namespace: namespace}, &deployment)
+		err := h.kubeClient.Get(ctx, types.NamespacedName{Name: name, Namespace: namespace}, &deployment)
 		if err != nil {
 			return false, err
 		}
 
 		dcDeploy := deployment.DeepCopy()
-		dcDeploy.Spec.Template.Spec.Containers[0].Image = "wordpress:5"
-		err = h.kubeClient.Update(context.TODO(), dcDeploy)
+		dcDeploy.Spec.Template.Spec.Containers[0].Image = "wordpress:6.7"
+		err = h.kubeClient.Update(ctx, dcDeploy)
 		if err != nil && errors.IsConflict(err) {
 			return false, nil
 		}

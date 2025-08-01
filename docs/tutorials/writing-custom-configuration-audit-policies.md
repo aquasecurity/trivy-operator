@@ -14,7 +14,7 @@ To define such a policy, you must first define its metadata. This includes setti
 `__rego_metadata__` rule, which defines the following composite value:
 
 ```opa
-package trivyoperator.policy.k8s.custom
+package trivyoperator.recommended_labels
 
 import data.lib.result
 import future.keywords.in
@@ -30,7 +30,7 @@ __rego_metadata__ := {
 }
 ```
 
-Note that the `recommended_labels` policy is scoped to the `trivyoperator.policy.k8s.custom` package to avoid naming
+Note that the `recommended_labels` policy must be scoped to the `trivyoperator` package to avoid naming
 collision with built-in policies that are pre-installed with trivy-operator.
 
 Once we've got our metadata defined, we need to create the logic of the policy, which is done in the `deny` or `warn`
@@ -110,12 +110,9 @@ metadata:
 data:
   policy.recommended_labels.kinds: "*"
   policy.recommended_labels.rego: |
-  package trivyoperator.policy.k8s.custom
+    package trivyoperator.recommended_labels
 
-   import data.lib.result
-   import future.keywords.in
-
-   __rego_metadata__ := {
+    __rego_metadata__ := {
       "id": "recommended_labels",
       "title": "Recommended labels",
       "severity": "LOW",
@@ -123,20 +120,21 @@ data:
       "description": "A common set of labels allows tools to work interoperably, describing objects in a common manner that all tools can understand.",
       "recommended_actions": "Take full advantage of using recommended labels and apply them on every resource object.",
       "url": "https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/",
-  }
+    }
 
-   __rego_input__ := {
-      "combine": false,
-      "selector": [{"type": "kubernetes"}],
-  }
+    recommended_labels := [
+      "app.kubernetes.io/name",
+      "app.kubernetes.io/version",
+    ]
 
-   deny[res] {
-      input.kind == "Pod"
-      some container in input.spec.containers
-      not startswith(container.image, "hooli.com")
-      msg := sprintf("Image '%v' comes from untrusted registry", [container.image])
-      res := result.new(msg, container)
-  }
+    deny[res] {
+      provided := {label | input.metadata.labels[label]}
+      required := {label | label := recommended_labels[_]}
+      missing := required - provided
+      count(missing) > 0
+      msg := sprintf("You must provide labels: %v", [missing])
+      res := {"msg": msg}
+    }
 ```
 
 In this example, to add a new policy, you must define two data entries in the `trivy-operator-policies-config`

@@ -29,3 +29,7 @@ updates:
       github-actions:
         patterns:
           - "*"
+  - package-ecosystem: docker
+    directory: /build/trivy-operator
+    schedule:
+      interval: daily

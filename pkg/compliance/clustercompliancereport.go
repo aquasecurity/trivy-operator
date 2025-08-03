@@ -20,6 +20,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
+	"github.com/aquasecurity/trivy-operator/pkg/webhook"
 )
 
 type ClusterComplianceReportReconciler struct {
@@ -85,6 +86,13 @@ func (r *ClusterComplianceReportReconciler) generateComplianceReport(ctx context
 					return err
 				}
 				log.Info("Cluster compliance report written", "path", reportPath)
+
+				// Send webhook notification for compliance report
+				if r.Config.WebhookBroadcastURL != "" {
+					if err := webhook.SendWebhookReport(&report, r.Config); err != nil {
+						log.Error(err, "Failed to send compliance report via webhook")
+					}
+				}
 
 				return nil
 			}

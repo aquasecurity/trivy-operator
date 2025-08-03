@@ -33,6 +33,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy/pkg/iac/scan"
+	"github.com/aquasecurity/trivy-operator/pkg/webhook"
 )
 
 // ResourceController watches all Kubernetes kinds and generates
@@ -334,6 +335,13 @@ func (r *ResourceController) writeAlternateReports(resource client.Object, misCo
 		}
 		log.Info("Config audit report written", "path", configReportPath)
 
+		// Send webhook notification for config audit report
+		if r.Config.WebhookBroadcastURL != "" {
+			if err := webhook.SendWebhookReport(misConfigData.configAuditReportData, r.Config); err != nil {
+				log.Error(err, "Failed to send config audit report via webhook")
+			}
+		}
+
 		// Write infra assessment report to a file
 		infraReportData, err := json.Marshal(misConfigData.infraAssessmentReportData)
 		if err != nil {
@@ -346,6 +354,13 @@ func (r *ResourceController) writeAlternateReports(resource client.Object, misCo
 		}
 		log.Info("Infra assessment report written", "path", infraReportPath)
 
+		// Send webhook notification for infra assessment report
+		if r.Config.WebhookBroadcastURL != "" {
+			if err := webhook.SendWebhookReport(misConfigData.infraAssessmentReportData, r.Config); err != nil {
+				log.Error(err, "Failed to send infra assessment report via webhook")
+			}
+		}
+
 		// Write RBAC assessment report to a file
 		rbacReportData, err := json.Marshal(misConfigData.rbacAssessmentReportData)
 		if err != nil {
@@ -357,6 +372,13 @@ func (r *ResourceController) writeAlternateReports(resource client.Object, misCo
 			return ctrl.Result{}, err
 		}
 		log.Info("RBAC assessment report written", "path", rbacReportPath)
+
+		// Send webhook notification for RBAC assessment report
+		if r.Config.WebhookBroadcastURL != "" {
+			if err := webhook.SendWebhookReport(misConfigData.rbacAssessmentReportData, r.Config); err != nil {
+				log.Error(err, "Failed to send RBAC assessment report via webhook")
+			}
+		}
 	}
 	return ctrl.Result{}, nil
 }

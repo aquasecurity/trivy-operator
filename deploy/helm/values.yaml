@@ -322,8 +322,12 @@ trivyOperator:
   # -- scanJobPodPriorityClassName Priority class name to be set on the pods created by trivy operator jobs. This accepts a string value
   scanJobPodPriorityClassName: ""
 
-  # -- reportResourceLabels comma-separated scanned resource labels which the user wants to include in the Prometheus
-  # metrics report. Example: `owner,app`
+  # -- reportResourceAnnotations comma-separated representation of the scanned resource annotations which the user wants to include
+  # in report metadata. Example: `owner,app,tier`
+  reportResourceAnnotations: ""
+
+  # -- reportResourceLabels comma-separated representation of the scanned resource labels which the user wants to include
+  # in the Prometheus metrics and report metadata. Example: `owner,app`
   reportResourceLabels: ""
 
   # -- reportRecordFailedChecksOnly flag is to record only failed checks on misconfiguration reports (config-audit and rbac assessment)
@@ -335,6 +339,10 @@ trivyOperator:
   # -- metricsResourceLabelsPrefix Prefix that will be prepended to the labels names indicated in `reportResourceLabels`
   # when including them in the Prometheus metrics
   metricsResourceLabelsPrefix: "k8s_label_"
+
+  # -- additionalAnnotations comma-separated representation of the annotations which the user wants the reports to be
+  # annotated with. Example: `foo=bar,env=stage` will annotate the reports with the annotations `foo: bar` and `env: stage`
+  additionalReportAnnotations: ""
 
   # -- additionalReportLabels comma-separated representation of the labels which the user wants the scanner pods to be
   # labeled with. Example: `foo=bar,env=stage` will labeled the reports with the labels `foo: bar` and `env: stage`

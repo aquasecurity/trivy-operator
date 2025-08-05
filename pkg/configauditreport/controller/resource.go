@@ -32,8 +32,8 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	"github.com/aquasecurity/trivy/pkg/iac/scan"
 	"github.com/aquasecurity/trivy-operator/pkg/webhook"
+	"github.com/aquasecurity/trivy/pkg/iac/scan"
 )
 
 // ResourceController watches all Kubernetes kinds and generates

@@ -109,11 +109,7 @@ func (w *cm) createComplianceReport(ctx context.Context, reportSpec v1alpha1.Rep
 		return nil, fmt.Errorf("compliance crd with name %s is missing", reportSpec.Compliance.ID)
 	}
 	copied := existing.DeepCopy()
-	// Preserve existing labels and add/update managed-by label
-	if copied.Labels == nil {
-		copied.Labels = make(map[string]string)
-	}
-	copied.Labels[trivyoperator.LabelK8SAppManagedBy] = trivyoperator.AppTrivyOperator
+	copied.Labels = r.Labels
 	copied.Status = r.Status
 	copied.Spec = reportSpec
 	copied.Status.UpdateTimestamp = metav1.NewTime(ext.NewSystemClock().Now())

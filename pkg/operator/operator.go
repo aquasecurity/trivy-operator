@@ -72,7 +72,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				DisableFor: []client.Object{
 					&corev1.Secret{},
 					&corev1.ServiceAccount{},
-					&corev1.ConfigMap{},
 				},
 			},
 		},
@@ -90,6 +89,13 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 					}
 				}
 
+				if cm, ok := obj.(*corev1.ConfigMap); ok {
+					// Strip data from ALL ConfigMaps except the two operator ConfigMaps
+					if cm.Name != trivyoperator.PoliciesConfigMapName && cm.Name != trivyoperator.TrivyConfigMapName {
+						cm.Data = nil
+						cm.BinaryData = nil
+					}
+				}
 				return obj, nil
 			},
 		},

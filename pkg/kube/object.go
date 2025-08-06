@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"k8s.io/utils/strings/slices"
 	"strconv"
 	"strings"
 
@@ -91,14 +92,8 @@ func IsBuiltInWorkload(controller *metav1.OwnerReference) bool {
 // IsWorkload returns true if the specified resource kinds represents Kubernetes
 // workload, false otherwise.
 func IsWorkload(kind string) bool {
-	return kind == "Pod" ||
-		kind == "Deployment" ||
-		kind == "ReplicaSet" ||
-		kind == "ReplicationController" ||
-		kind == "StatefulSet" ||
-		kind == "DaemonSet" ||
-		kind == "Job" ||
-		kind == "CronJob"
+	workloads := []string{"pod", "deployment", "replicaset", "replicationcontroller", "statefulset", "daemonset", "job", "cronjob"}
+	return slices.Contains(workloads, strings.ToLower(kind))
 }
 
 // IsClusterScopedKind returns true if the specified kind is ClusterRole,
@@ -709,6 +704,19 @@ type Resource struct {
 	Kind       Kind
 	ForObject  client.Object
 	OwnsObject client.Object
+}
+
+func DefaultNonWorkloadResources() []Resource {
+	// Add non workload related resources
+	return []Resource{
+		{Kind: KindService, ForObject: &corev1.Service{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
+		{Kind: KindConfigMap, ForObject: &corev1.ConfigMap{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
+		{Kind: KindRole, ForObject: &rbacv1.Role{}, OwnsObject: &v1alpha1.RbacAssessmentReport{}},
+		{Kind: KindRoleBinding, ForObject: &rbacv1.RoleBinding{}, OwnsObject: &v1alpha1.RbacAssessmentReport{}},
+		{Kind: KindNetworkPolicy, ForObject: &networkingv1.NetworkPolicy{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
+		{Kind: KindResourceQuota, ForObject: &corev1.ResourceQuota{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
+		{Kind: KindLimitRange, ForObject: &corev1.LimitRange{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
+	}
 }
 
 // GetWorkloadResource returns a Resource object which can be used by controllers for reconciliation

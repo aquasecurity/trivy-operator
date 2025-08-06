@@ -3,10 +3,10 @@ package controller
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
-	networkingv1 "k8s.io/api/networking/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -47,7 +47,14 @@ func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 	// Determine which Kubernetes workloads the controller will reconcile and add them to resources
 	targetWorkloads := r.Config.GetTargetWorkloads()
 	workloadResources := make([]kube.Resource, 0)
+
+	var customTargets []string
+
 	for _, tw := range targetWorkloads {
+		if !kube.IsWorkload(tw) {
+			customTargets = append(customTargets, tw)
+			continue
+		}
 		var resource kube.Resource
 		if err := resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, r.ObjectResolver); err != nil {
 			return err
@@ -55,18 +62,39 @@ func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 		workloadResources = append(workloadResources, resource)
 	}
 
-	// Add non workload related resources
-	resources := []kube.Resource{
-		{Kind: kube.KindService, ForObject: &corev1.Service{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
-		{Kind: kube.KindConfigMap, ForObject: &corev1.ConfigMap{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
-		{Kind: kube.KindRole, ForObject: &rbacv1.Role{}, OwnsObject: &v1alpha1.RbacAssessmentReport{}},
-		{Kind: kube.KindRoleBinding, ForObject: &rbacv1.RoleBinding{}, OwnsObject: &v1alpha1.RbacAssessmentReport{}},
-		{Kind: kube.KindNetworkPolicy, ForObject: &networkingv1.NetworkPolicy{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
-		{Kind: kube.KindResourceQuota, ForObject: &corev1.ResourceQuota{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
-		{Kind: kube.KindLimitRange, ForObject: &corev1.LimitRange{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
+	resources := kube.DefaultNonWorkloadResources()
+	resources = append(resources, workloadResources...)
+
+	clusterResources := []kube.Resource{
+		{Kind: kube.KindClusterRole, ForObject: &rbacv1.ClusterRole{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
+		{Kind: kube.KindClusterRoleBindings, ForObject: &rbacv1.ClusterRoleBinding{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
+		{Kind: kube.KindCustomResourceDefinition, ForObject: &apiextensionsv1.CustomResourceDefinition{}, OwnsObject: &v1alpha1.ClusterConfigAuditReport{}},
 	}
 
-	resources = append(resources, workloadResources...)
+	if len(customTargets) > 0 {
+		for _, target := range customTargets {
+			schm := r.Scheme()
+
+			for gvk := range schm.AllKnownTypes() {
+				if target == strings.ToLower(gvk.Kind) {
+					obj, err := schm.New(gvk)
+					if err != nil {
+						return fmt.Errorf("cannot create object for GVK %v: %w", gvk, err)
+					}
+					typedObj, ok := obj.(client.Object)
+					if !ok {
+						return fmt.Errorf("object does not implement client.Object: %T", obj)
+					}
+					resources = append(resources, kube.Resource{
+						Kind:       kube.Kind(gvk.Kind),
+						ForObject:  typedObj,
+						OwnsObject: &v1alpha1.ConfigAuditReport{},
+					})
+				}
+			}
+		}
+	}
+
 	for _, configResource := range resources {
 		if err := ctrl.NewControllerManagedBy(mgr).
 			For(&corev1.ConfigMap{}, builder.WithPredicates(
@@ -77,13 +105,6 @@ func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 			Complete(r.reconcileConfig(configResource.Kind)); err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", configResource.Kind, err)
 		}
-
-	}
-
-	clusterResources := []kube.Resource{
-		{Kind: kube.KindClusterRole, ForObject: &rbacv1.ClusterRole{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
-		{Kind: kube.KindClusterRoleBindings, ForObject: &rbacv1.ClusterRoleBinding{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
-		{Kind: kube.KindCustomResourceDefinition, ForObject: &apiextensionsv1.CustomResourceDefinition{}, OwnsObject: &v1alpha1.ClusterConfigAuditReport{}},
 	}
 
 	for _, resource := range clusterResources {
@@ -99,7 +120,6 @@ func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 	}
 
 	return nil
-
 }
 
 func (r *PolicyConfigController) reconcileConfig(kind kube.Kind) reconcile.Func {

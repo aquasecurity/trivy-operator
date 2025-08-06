@@ -54,7 +54,7 @@ type Config struct {
 	WebhookBroadcastTimeout                      *time.Duration `env:"OPERATOR_WEBHOOK_BROADCAST_TIMEOUT" envDefault:"30s"`
 	WebhookBroadcastCustomHeaders                string         `env:"OPERATOR_WEBHOOK_BROADCAST_CUSTOM_HEADERS"`
 	WebhookSendDeletedReports                    bool           `env:"OPERATOR_SEND_DELETED_REPORTS" envDefault:"false"`
-	TargetWorkloads                              string         `env:"OPERATOR_TARGET_WORKLOADS" envDefault:"Pod,ReplicaSet,ReplicationController,StatefulSet,DaemonSet,CronJob,Job"`
+	TargetWorkloads                              string         `env:"OPERATOR_TARGET_WORKLOADS" envDefault:"Pod,ReplicaSet,ReplicationController,StatefulSet,DaemonSet,CronJob,Job,PersistentVolume"`
 	AccessGlobalSecretsAndServiceAccount         bool           `env:"OPERATOR_ACCESS_GLOBAL_SECRETS_SERVICE_ACCOUNTS" envDefault:"true"`
 	PrivateRegistryScanSecretsNames              string         `env:"OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES"`
 	BuiltInTrivyServer                           bool           `env:"OPERATOR_BUILT_IN_TRIVY_SERVER" envDefault:"false"`

@@ -1,20 +1,19 @@
-# test-values.yaml
 targetNamespaces: "default"
 
 trivy:
   configFile:
     vulnerability:
       vex:
-        - /tmp/trivy-vex/empty.openvex.json
+        - /tmp/trivy-vex/flink.openvex.json
 
-# trivyOperator:
-#   scanJobCustomVolumes:
-#     - name: vex-data-volume
-#       configMap:
-#         name: trivy-vex-files
+trivyOperator:
+  scanJobCustomVolumes:
+    - name: vex-data-volume
+      configMap:
+        name: trivy-vex-files
 
-#   scanJobCustomVolumesMount:
-#     - name: vex-data-volume
-#       mountPath: /tmp/trivy-vex
-#       readOnly: true
+  scanJobCustomVolumesMount:
+    - name: vex-data-volume
+      mountPath: /tmp/trivy-vex
+      readOnly: true
 

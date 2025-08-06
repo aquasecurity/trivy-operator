@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trivy-vex-files
+  namespace: trivy-system 
+data:
+  flink.openvex.json: |
+    {
+        "@context": "https://openvex.dev/ns/v0.2.0",
+        "@id": "https://cheetah.${DOMAIN}/vex-documents/1",
+        "author": "Rene og Christopher - Software Engineering",
+        "timestamp": "2025-07-01T11:15:00Z",
+        "version": 1,
+        "statements": [
+            {
+                "vulnerability": { "name": "CVE-2022-41409" },
+                "products": [ { "@id": "pkg:deb/ubuntu/libpcre2-8-0@10.39-3ubuntu0.1?arch=amd64&distro=ubuntu-22.04" } ],
+                "status": "not_affected",
+                "justification": "code_not_reachable"
+            }
+        ]
+    }

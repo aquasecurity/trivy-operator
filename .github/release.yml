@@ -8,6 +8,9 @@ changelog:
     - title: 🐛 Notable Fixes 🐛
       labels:
         - bug
+    - title: 🏎️ Performance Improvements 🏎️
+      labels:
+        - perf
     - title: 📝 Documentation && Miscellaneous 🔧
       labels:
         - documentation
@@ -15,3 +18,4 @@ changelog:
     - title: 👒 Dependencies 👒
       labels:
         - deps
+

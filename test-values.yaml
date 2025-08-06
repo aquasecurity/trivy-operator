@@ -1,5 +1,11 @@
 targetNamespaces: "default"
 
+image:
+  registry: docker.io
+  repository: aquasecurity/trivy-operator
+  tag: dev
+  pullPolicy: Never
+
 trivy:
   configFile:
     vulnerability:

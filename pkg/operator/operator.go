@@ -105,6 +105,12 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		PprofBindAddress: operatorConfig.PprofBindAddress,
 	}
 
+	// Enable profiling if the flag is set.
+	if operatorConfig.PprofBindAddress != "" {
+		setupLog.Info("Enabling Go profiling", "address", operatorConfig.PprofBindAddress)
+		options.PprofBindAddress = operatorConfig.PprofBindAddress
+	}
+
 	if operatorConfig.LeaderElectionEnabled {
 		options.LeaderElection = operatorConfig.LeaderElectionEnabled
 		options.LeaderElectionID = operatorConfig.LeaderElectionID

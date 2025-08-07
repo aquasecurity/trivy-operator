@@ -5,7 +5,6 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 	"time"
 
@@ -29,7 +28,7 @@ func testingLogger(t *testing.T) logr.Logger {
 
 type dummyMgr struct{}
 
-func (d dummyMgr) GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportSpec) error {
+func (d dummyMgr) GenerateComplianceReport(_ context.Context, _ v1alpha1.ReportSpec) error {
 	// No-op for testing webhook
 	return nil
 }
@@ -95,9 +94,9 @@ func TestClusterComplianceReportReconciler_WebhookCalled(t *testing.T) {
 		Clock:  ext.NewSystemClock(),
 	}
 
-	_, err := reconciler.generateComplianceReport(context.TODO(), types.NamespacedName{Name: "test-report"})
+	_, err := reconciler.generateComplianceReport(t.Context(), types.NamespacedName{Name: "test-report"})
 	require.NoError(t, err)
 
 	assert.True(t, webhookCalled, "Expected webhook to be called")
-	assert.True(t, strings.Contains(receivedBody, "test-report"), "Expected report name in webhook payload")
+	assert.Contains(t, receivedBody, "test-report", "Expected report name in webhook payload")
 }

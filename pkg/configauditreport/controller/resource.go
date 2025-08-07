@@ -336,11 +336,7 @@ func (r *ResourceController) writeAlternateReports(resource client.Object, misCo
 		log.Info("Config audit report written", "path", configReportPath)
 
 		// Send webhook notification for config audit report
-		if r.Config.WebhookBroadcastURL != "" {
-			if err := webhook.SendWebhookReport(misConfigData.configAuditReportData, r.Config); err != nil {
-				log.Error(err, "Failed to send config audit report via webhook")
-			}
-		}
+		webhook.SendWebhookReport(misConfigData.configAuditReportData, r.Config, log)
 
 		// Write infra assessment report to a file
 		infraReportData, err := json.Marshal(misConfigData.infraAssessmentReportData)
@@ -355,11 +351,7 @@ func (r *ResourceController) writeAlternateReports(resource client.Object, misCo
 		log.Info("Infra assessment report written", "path", infraReportPath)
 
 		// Send webhook notification for infra assessment report
-		if r.Config.WebhookBroadcastURL != "" {
-			if err := webhook.SendWebhookReport(misConfigData.infraAssessmentReportData, r.Config); err != nil {
-				log.Error(err, "Failed to send infra assessment report via webhook")
-			}
-		}
+		webhook.SendWebhookReport(misConfigData.infraAssessmentReportData, r.Config, log)
 
 		// Write RBAC assessment report to a file
 		rbacReportData, err := json.Marshal(misConfigData.rbacAssessmentReportData)
@@ -374,11 +366,8 @@ func (r *ResourceController) writeAlternateReports(resource client.Object, misCo
 		log.Info("RBAC assessment report written", "path", rbacReportPath)
 
 		// Send webhook notification for RBAC assessment report
-		if r.Config.WebhookBroadcastURL != "" {
-			if err := webhook.SendWebhookReport(misConfigData.rbacAssessmentReportData, r.Config); err != nil {
-				log.Error(err, "Failed to send RBAC assessment report via webhook")
-			}
-		}
+		webhook.SendWebhookReport(misConfigData.rbacAssessmentReportData, r.Config, log)
+
 	}
 	return ctrl.Result{}, nil
 }

@@ -1,4 +1,4 @@
-targetNamespaces: "default"
+targetNamespaces: "trivy-system"
 
 image:
   registry: docker.io
@@ -22,4 +22,7 @@ trivyOperator:
     - name: vex-data-volume
       mountPath: /tmp/trivy-vex
       readOnly: true
+    - name: configfile
+      mountPath: /etc/trivy/trivy.yaml
+      subPath: trivy.yaml
 

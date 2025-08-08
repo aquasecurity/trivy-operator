@@ -6,6 +6,7 @@ metadata:
   labels:
     trivy-operator.resource.kind: Pod
     trivy-operator.resource.namespace: kube-system
+    app.kubernetes.io/managed-by: trivy-operator
   name: pod-my-pod-kube-apiserver
   namespace: kube-system
   ownerReferences:

@@ -136,6 +136,7 @@ var _ = Describe("Workload controller", func() {
 		ca.SetLabels(map[string]string{
 			"trivy-operator.resource.kind": "Role",
 			"trivy-operator.resource.name": "proxy",
+			"app.kubernetes.io/managed-by": "trivy-operator",
 		})
 		ca.ResourceVersion = ""
 		ca.CreationTimestamp = metav1.Time{}
@@ -168,6 +169,7 @@ var _ = Describe("Workload controller", func() {
 		ca.Kind = "InfraAssessmentReport"
 		ca.UID = ""
 		ca.SetLabels(map[string]string{
+			"app.kubernetes.io/managed-by":      "trivy-operator",
 			"trivy-operator.resource.kind":      "Pod",
 			"trivy-operator.resource.namespace": "kube-system",
 		})

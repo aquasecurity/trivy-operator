@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: testing
+  name: testing
+  namespace: trivy-system
+spec:
+  containers:
+  - image: nginx
+    name: testing
+    resources: {}
+    volumeMounts:
+    - mountPath: /tmp
+      name: tmp
+    - mountPath: /tmp/trivy-vex
+      name: vex-data-volume
+      readOnly: true
+    - mountPath: /etc/trivy/trivy.yaml
+      name: configfile
+      subPath: trivy.yaml
+    - mountPath: /tmp/scan
+      name: scanresult
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+  volumes:
+  - emptyDir: {}
+    name: tmp
+  - emptyDir: {}
+    name: scanresult
+  - configMap:
+      defaultMode: 420
+      items:
+      - key: trivy.configFile
+        path: trivy.yaml
+      name: trivy-operator-trivy-config
+    name: configfile
+  - configMap:
+      defaultMode: 420
+      name: trivy-vex-files
+    name: vex-data-volume
+status: {}

@@ -117,7 +117,7 @@ const (
 	configFileVolumeName        = "configfile"
 	sslCertDirVolumeName        = "ssl-cert-dir"
 	ignoreFileName              = ".trivyignore"
-	configFileName              = "trivy-config.yaml"
+	configFileName              = "trivy.yaml"
 	configFileMountPath         = "/etc/trivy/" + configFileName
 	ignoreFileMountPath         = "/etc/trivy/" + ignoreFileName
 	ignorePolicyVolumeName      = "ignorepolicy"

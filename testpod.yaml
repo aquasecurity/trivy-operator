@@ -1,8 +1,8 @@
-# test-pod.yaml
 apiVersion: v1
 kind: Pod
 metadata:
   name: nginx-test-pod
+  namespace: trivy-system
   labels:
     app: nginx-test
 spec:

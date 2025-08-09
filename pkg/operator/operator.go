@@ -102,7 +102,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		Controller: controllerconfig.Controller{
 			SkipNameValidation: &skipNameValidation,
 		},
-		PprofBindAddress: operatorConfig.PprofBindAddress,
 	}
 
 	// Enable profiling if the flag is set.

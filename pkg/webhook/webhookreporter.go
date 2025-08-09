@@ -68,7 +68,22 @@ func (r *WebhookReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		}
 
 	}
+
 	return nil
+}
+
+// SendWebhookReport sends a report directly via webhook without going through CRD reconciliation
+// This is used when AltReportStorageEnabled is true and reports are written to filesystem
+func SendWebhookReport(reportObj any, config etc.Config, log logr.Logger) {
+	if config.WebhookBroadcastURL == "" {
+		return // No webhook URL configured
+	}
+
+	webhookBroadcastCustomHeaders := config.GetWebhookBroadcastCustomHeaders()
+	err := sendReport(reportObj, config.WebhookBroadcastURL, *config.WebhookBroadcastTimeout, webhookBroadcastCustomHeaders)
+	if err != nil {
+		log.Error(err, "Failed to call webhook")
+	}
 }
 
 func (r *WebhookReconciler) reconcileReport(reportType client.Object) reconcile.Func {

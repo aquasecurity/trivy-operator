@@ -336,7 +336,7 @@ func (r *ResourceController) writeAlternateReports(resource client.Object, misCo
 		log.Info("Config audit report written", "path", configReportPath)
 
 		// Send webhook notification for config audit report
-		webhook.SendWebhookReport(misConfigData.configAuditReportData, r.Config, log)
+		webhook.SendWebhookReport(configReportData, r.Config, log)
 
 		// Write infra assessment report to a file
 		infraReportData, err := json.Marshal(misConfigData.infraAssessmentReportData)
@@ -351,7 +351,7 @@ func (r *ResourceController) writeAlternateReports(resource client.Object, misCo
 		log.Info("Infra assessment report written", "path", infraReportPath)
 
 		// Send webhook notification for infra assessment report
-		webhook.SendWebhookReport(misConfigData.infraAssessmentReportData, r.Config, log)
+		webhook.SendWebhookReport(infraReportData, r.Config, log)
 
 		// Write RBAC assessment report to a file
 		rbacReportData, err := json.Marshal(misConfigData.rbacAssessmentReportData)
@@ -366,7 +366,7 @@ func (r *ResourceController) writeAlternateReports(resource client.Object, misCo
 		log.Info("RBAC assessment report written", "path", rbacReportPath)
 
 		// Send webhook notification for RBAC assessment report
-		webhook.SendWebhookReport(misConfigData.rbacAssessmentReportData, r.Config, log)
+		webhook.SendWebhookReport(rbacReportData, r.Config, log)
 
 	}
 	return ctrl.Result{}, nil

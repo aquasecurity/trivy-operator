@@ -74,13 +74,13 @@ func (r *WebhookReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 // SendWebhookReport sends a report directly via webhook without going through CRD reconciliation
 // This is used when AltReportStorageEnabled is true and reports are written to filesystem
-func SendWebhookReport(reportObj any, config etc.Config, log logr.Logger) {
+func SendWebhookReport(reportData []byte, config etc.Config, log logr.Logger) {
 	if config.WebhookBroadcastURL == "" {
 		return // No webhook URL configured
 	}
 
 	webhookBroadcastCustomHeaders := config.GetWebhookBroadcastCustomHeaders()
-	err := sendReport(reportObj, config.WebhookBroadcastURL, *config.WebhookBroadcastTimeout, webhookBroadcastCustomHeaders)
+	err := sendEncodedReport(reportData, config.WebhookBroadcastURL, *config.WebhookBroadcastTimeout, webhookBroadcastCustomHeaders)
 	if err != nil {
 		log.Error(err, "Failed to call webhook")
 	}
@@ -116,6 +116,31 @@ func (r *WebhookReconciler) reconcileReport(reportType client.Object) reconcile.
 		}
 		return ctrl.Result{}, sendReport(reportType, r.WebhookBroadcastURL, *r.WebhookBroadcastTimeout, webhookBroadcastCustomHeaders)
 	}
+}
+
+func sendEncodedReport(data []byte, endpoint string, timeout time.Duration, headerValues http.Header) error {
+	hc := http.Client{
+		Timeout: timeout,
+	}
+
+	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(data))
+	if err != nil {
+		return fmt.Errorf("failed to make a new request: %w", err)
+	}
+
+	headerValues.Set("Content-Type", "application/json")
+	req.Header = headerValues
+
+	resp, err := hc.Do(req)
+	defer func() {
+		if resp != nil {
+			_ = resp.Body.Close()
+		}
+	}()
+	if err != nil {
+		return fmt.Errorf("failed to send reports to endpoint: %w", err)
+	}
+	return nil
 }
 
 func sendReport[T any](reports T, endpoint string, timeout time.Duration, headerValues http.Header) error {

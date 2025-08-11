@@ -23,6 +23,6 @@ trivyOperator:
       mountPath: /tmp/trivy-vex
       readOnly: true
     - name: configfile
-      mountPath: /etc/trivy/trivy.yaml
+      mountPath: /etc/trivy/trivy-config.yaml
       subPath: trivy.yaml
 

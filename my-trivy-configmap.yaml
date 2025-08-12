@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: my-trivy-vex-config # A unique name for our ConfigMap
-data:
-  trivy.yaml: |
-    vulnerability:
-      vex:
-        - /tmp/trivy-vex/flink.openvex.json

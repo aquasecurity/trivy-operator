@@ -13,8 +13,14 @@ data:
         "version": 1,
         "statements": [
             {
-                "vulnerability": { "name": "CVE-2022-41409" },
-                "products": [ { "@id": "pkg:deb/ubuntu/libpcre2-8-0@10.39-3ubuntu0.1?arch=amd64&distro=ubuntu-22.04" } ],
+                "vulnerability": { "name": "CVE-2023-27533" },
+                "products": [ { "@id": "pkg:deb/debian/curl@7.64.0-4%2Bdeb10u2?arch=amd64&distro=debian-10.9" } ],
+                "status": "not_affected",
+                "justification": "code_not_reachable"
+            },
+            {
+                "vulnerability": { "name": "CVE-2023-27533" },
+                "products": [ { "@id": "pkg:deb/debian/libcurl4@7.64.0-4%2Bdeb10u2?arch=amd64&distro=debian-10.9" } ],
                 "status": "not_affected",
                 "justification": "code_not_reachable"
             }

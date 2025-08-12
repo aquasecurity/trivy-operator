@@ -82,7 +82,7 @@ data:
   {{- end }}
   {{- if .Values.trivy.configFile }}
   trivy.configFile: |
-    {{- .Values.trivy.configFile | toYaml | nindent 4 }}
+{{- .Values.trivy.configFile | toYaml | nindent 4 }}
   {{- end }}
   {{- if .Values.trivy.ignoreFile }}
   trivy.ignoreFile: |

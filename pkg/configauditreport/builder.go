@@ -21,14 +21,16 @@ import (
 )
 
 type ReportBuilder struct {
-	scheme                  *runtime.Scheme
-	controller              client.Object
-	resourceSpecHash        string
-	pluginConfigHash        string
-	data                    v1alpha1.ConfigAuditReportData
-	reportTTL               *time.Duration
-	resourceLabelsToInclude []string
-	additionalReportLabels  labels.Set
+	scheme                       *runtime.Scheme
+	controller                   client.Object
+	resourceSpecHash             string
+	pluginConfigHash             string
+	data                         v1alpha1.ConfigAuditReportData
+	reportTTL                    *time.Duration
+	resourceLabelsToInclude      []string
+	additionalReportLabels       labels.Set
+	resourceAnnotationsToInclude []string
+	additionalReportAnnotations  map[string]string
 	etc.Config
 }
 
@@ -63,13 +65,23 @@ func (b *ReportBuilder) ReportTTL(ttl *time.Duration) *ReportBuilder {
 	return b
 }
 
+func (b *ReportBuilder) ResourceLabelsToInclude(resourceLabelsToInclude []string) *ReportBuilder {
+	b.resourceLabelsToInclude = resourceLabelsToInclude
+	return b
+}
+
 func (b *ReportBuilder) AdditionalReportLabels(additionalReportLabels map[string]string) *ReportBuilder {
 	b.additionalReportLabels = additionalReportLabels
 	return b
 }
 
-func (b *ReportBuilder) ResourceLabelsToInclude(resourceLabelsToInclude []string) *ReportBuilder {
-	b.resourceLabelsToInclude = resourceLabelsToInclude
+func (b *ReportBuilder) ResourceAnnotationsToInclude(resourceAnnotationsToInclude []string) *ReportBuilder {
+	b.resourceAnnotationsToInclude = resourceAnnotationsToInclude
+	return b
+}
+
+func (b *ReportBuilder) AdditionalReportAnnotations(additionalReportAnnotations map[string]string) *ReportBuilder {
+	b.additionalReportAnnotations = additionalReportAnnotations
 	return b
 }
 
@@ -96,10 +108,17 @@ func (b *ReportBuilder) GetClusterReport() (v1alpha1.ClusterConfigAuditReport, e
 		labelsSet[trivyoperator.LabelPluginConfigHash] = b.pluginConfigHash
 	}
 
+	annotationsSet := make(map[string]string)
+	// append matching resource annotations by config to report
+	kube.AppendResourceAnnotations(b.resourceAnnotationsToInclude, b.controller.GetAnnotations(), annotationsSet)
+	// append custom annotations by config to report
+	kube.AppendCustomAnnotations(b.additionalReportAnnotations, annotationsSet)
+
 	report := v1alpha1.ClusterConfigAuditReport{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   b.reportName(),
-			Labels: labelsSet,
+			Name:        b.reportName(),
+			Labels:      labelsSet,
+			Annotations: annotationsSet,
 		},
 		Report: b.data,
 	}
@@ -136,18 +155,24 @@ func (b *ReportBuilder) GetReport() (v1alpha1.ConfigAuditReport, error) {
 		labelsSet[trivyoperator.LabelPluginConfigHash] = b.pluginConfigHash
 	}
 
+	annotationsSet := make(map[string]string)
+	// append matching resource annotations by config to report
+	kube.AppendResourceAnnotations(b.resourceAnnotationsToInclude, b.controller.GetAnnotations(), annotationsSet)
+	// append custom annotations by config to report
+	kube.AppendCustomAnnotations(b.additionalReportAnnotations, annotationsSet)
+
+	if b.reportTTL != nil {
+		annotationsSet[v1alpha1.TTLReportAnnotation] = b.reportTTL.String()
+	}
+
 	report := v1alpha1.ConfigAuditReport{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      b.reportName(),
-			Namespace: b.controller.GetNamespace(),
-			Labels:    labelsSet,
+			Name:        b.reportName(),
+			Namespace:   b.controller.GetNamespace(),
+			Labels:      labelsSet,
+			Annotations: annotationsSet,
 		},
 		Report: b.data,
-	}
-	if b.reportTTL != nil {
-		report.Annotations = map[string]string{
-			v1alpha1.TTLReportAnnotation: b.reportTTL.String(),
-		}
 	}
 	err := kube.ObjectToObjectMeta(b.controller, &report.ObjectMeta)
 	if err != nil {

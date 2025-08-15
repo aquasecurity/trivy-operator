@@ -10,8 +10,6 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	corev1 "k8s.io/api/core/v1"
-	networkingv1 "k8s.io/api/networking/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -90,6 +88,11 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 	targetWorkloads := r.Config.GetTargetWorkloads()
 	targetWorkloads = append(targetWorkloads, strings.ToLower(string(kube.KindIngress)))
 	for _, tw := range targetWorkloads {
+		// skip custom targets that are not workloads
+		if !kube.IsWorkload(tw) {
+			continue
+		}
+
 		var resource kube.Resource
 		err = resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, r.ObjectResolver)
 		if err != nil {
@@ -105,15 +108,7 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 	}
 
 	// Add non workload related resources
-	resources := []kube.Resource{
-		{Kind: kube.KindService, ForObject: &corev1.Service{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
-		{Kind: kube.KindConfigMap, ForObject: &corev1.ConfigMap{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
-		{Kind: kube.KindRole, ForObject: &rbacv1.Role{}, OwnsObject: &v1alpha1.RbacAssessmentReport{}},
-		{Kind: kube.KindRoleBinding, ForObject: &rbacv1.RoleBinding{}, OwnsObject: &v1alpha1.RbacAssessmentReport{}},
-		{Kind: kube.KindNetworkPolicy, ForObject: &networkingv1.NetworkPolicy{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
-		{Kind: kube.KindResourceQuota, ForObject: &corev1.ResourceQuota{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
-		{Kind: kube.KindLimitRange, ForObject: &corev1.LimitRange{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
-	}
+	resources := kube.DefaultNonWorkloadResources()
 
 	for _, configResource := range resources {
 		if err := r.buildControlMgr(mgr, configResource, installModePredicate).

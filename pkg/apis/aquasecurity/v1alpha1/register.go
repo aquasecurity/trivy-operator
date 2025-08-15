@@ -35,6 +35,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&RbacAssessmentReportList{},
 		&ClusterRbacAssessmentReport{},
 		&ClusterRbacAssessmentReportList{},
+		&ImageVulnerabilityReport{},
+		&ImageVulnerabilityReportList{},
 		&InfraAssessmentReport{},
 		&InfraAssessmentReportList{},
 		&ClusterInfraAssessmentReport{},

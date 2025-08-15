@@ -3059,6 +3059,8 @@ data:
   trivy.javaDbRepository: "mirror.gcr.io/aquasec/trivy-java-db"
   trivy.command: "image"
   trivy.sbomSources: ""
+  trivy.skipVersionCheck: "false"
+  trivy.disableTelemetry: "false"
   trivy.dbRepositoryInsecure: "false"
   trivy.useBuiltinRegoPolicies: "false"
   trivy.useEmbeddedRegoPolicies: "true"

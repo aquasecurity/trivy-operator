@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"k8s.io/utils/strings/slices"
+	"slices"
 	"strconv"
 	"strings"
 

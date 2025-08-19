@@ -498,11 +498,11 @@ trivy:
   resources:
     requests:
       cpu: 100m
-      memory: 100M
+      memory: 200M  # Increased for better performance
       # ephemeralStorage: "2Gi"
     limits:
       cpu: 500m
-      memory: 500M
+      memory: 1Gi   # Increased for large scans
       # ephemeralStorage: "2Gi"
 
   # -- githubToken is the GitHub access token used by Trivy to download the vulnerabilities

@@ -95,3 +95,9 @@ data:
   {{- end }}
 
   node.collector.nodeSelector: {{ .Values.nodeCollector.useNodeSelector | quote }}
+  {{- with .Values.operator.vulnerabilityCacheEnabled }}
+  vulnerabilityCacheEnabled: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.operator.vulnerabilityCacheTTL }}
+  vulnerabilityCacheTTL: {{ . | quote }}
+  {{- end }}

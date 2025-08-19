@@ -70,6 +70,16 @@ func NewPolicies(data map[string]string, cac configauditreport.ConfigAuditConfig
 	if exp != nil {
 		expiration = *exp
 	}
+
+	// Create cache with eviction callback for memory monitoring
+	cache := gcache.New(maxCachedK8sResources).
+		LRU().
+		EvictedFunc(func(key, value interface{}) {
+			// Log cache evictions to monitor memory pressure
+			log.V(2).Info("Policy cache eviction", "key", key)
+		}).
+		Build()
+
 	return &Policies{
 		data:           data,
 		log:            log,
@@ -77,7 +87,7 @@ func NewPolicies(data map[string]string, cac configauditreport.ConfigAuditConfig
 		policyLoader:   pl,
 		clusterVersion: serverVersion,
 		policyFS:       memoryfs.New(),
-		cache:          gcache.New(maxCachedK8sResources).LRU().Build(),
+		cache:          cache,
 		cacheExpire:    expiration,
 	}
 }

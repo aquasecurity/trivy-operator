@@ -10,7 +10,9 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -42,7 +44,6 @@ type PolicyConfigController struct {
 
 // Controller for trivy-operator-policies-config in the operator namespace; must be cluster scoped even with namespace predicate
 // +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch
-
 func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 
 	// Determine which Kubernetes workloads the controller will reconcile and add them to resources
@@ -88,11 +89,20 @@ func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 			if !ok {
 				return fmt.Errorf("object does not implement client.Object: %T", obj)
 			}
-
-			clusterResources = append(clusterResources, kube.Resource{
+			if !r.isNamespaced(gvk) {
+				// If the resource is not namespaced, we add it to clusterResources
+				clusterResources = append(clusterResources, kube.Resource{
+					Kind:       kube.Kind(gvk.Kind),
+					ForObject:  typedObj,
+					OwnsObject: &v1alpha1.ClusterConfigAuditReport{},
+				})
+				continue
+			}
+			// If the resource is namespaced, we add it to resources
+			resources = append(resources, kube.Resource{
 				Kind:       kube.Kind(gvk.Kind),
 				ForObject:  typedObj,
-				OwnsObject: &v1alpha1.ClusterConfigAuditReport{},
+				OwnsObject: &v1alpha1.ConfigAuditReport{},
 			})
 		}
 	}
@@ -122,6 +132,12 @@ func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 	}
 
 	return nil
+}
+
+func (r *PolicyConfigController) isNamespaced(gvk schema.GroupVersionKind) bool {
+	mapper := r.Client.RESTMapper()
+	mapping, _ := mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
+	return mapping.Scope.Name() == meta.RESTScopeNameNamespace
 }
 
 func (r *PolicyConfigController) reconcileConfig(kind kube.Kind) reconcile.Func {

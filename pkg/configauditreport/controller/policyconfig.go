@@ -24,6 +24,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy/pkg/set"
 )
 
 // PolicyConfigController watches changes on policies config map and generates
@@ -48,11 +49,11 @@ func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 	targetWorkloads := r.Config.GetTargetWorkloads()
 	workloadResources := make([]kube.Resource, 0)
 
-	var customTargets []string
+	customTargets := set.New[string]()
 
 	for _, tw := range targetWorkloads {
 		if !kube.IsWorkload(tw) {
-			customTargets = append(customTargets, tw)
+			customTargets.Append(strings.ToLower(tw))
 			continue
 		}
 		var resource kube.Resource
@@ -71,27 +72,28 @@ func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 		{Kind: kube.KindCustomResourceDefinition, ForObject: &apiextensionsv1.CustomResourceDefinition{}, OwnsObject: &v1alpha1.ClusterConfigAuditReport{}},
 	}
 
-	if len(customTargets) > 0 {
-		for _, target := range customTargets {
-			schm := r.Scheme()
+	if customTargets.Size() > 0 {
+		schm := r.Scheme()
+		allKinds := schm.AllKnownTypes()
 
-			for gvk := range schm.AllKnownTypes() {
-				if target == strings.ToLower(gvk.Kind) {
-					obj, err := schm.New(gvk)
-					if err != nil {
-						return fmt.Errorf("cannot create object for GVK %v: %w", gvk, err)
-					}
-					typedObj, ok := obj.(client.Object)
-					if !ok {
-						return fmt.Errorf("object does not implement client.Object: %T", obj)
-					}
-					resources = append(resources, kube.Resource{
-						Kind:       kube.Kind(gvk.Kind),
-						ForObject:  typedObj,
-						OwnsObject: &v1alpha1.ConfigAuditReport{},
-					})
-				}
+		for gvk := range allKinds {
+			if !customTargets.Contains(strings.ToLower(gvk.Kind)) {
+				continue
 			}
+			obj, err := schm.New(gvk)
+			if err != nil {
+				return fmt.Errorf("cannot create object for GVK %v: %w", gvk, err)
+			}
+			typedObj, ok := obj.(client.Object)
+			if !ok {
+				return fmt.Errorf("object does not implement client.Object: %T", obj)
+			}
+
+			clusterResources = append(clusterResources, kube.Resource{
+				Kind:       kube.Kind(gvk.Kind),
+				ForObject:  typedObj,
+				OwnsObject: &v1alpha1.ClusterConfigAuditReport{},
+			})
 		}
 	}
 

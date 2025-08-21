@@ -200,7 +200,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		WithObjectResolver(&objectResolver).
 		GetConfigAuditPlugin()
 
-	scoreResolver := kube.NewScopeResolver(mgr.GetClient())
+	scopeResolver := kube.NewScopeResolver(mgr.GetClient())
 
 	if operatorConfig.VulnerabilityScannerEnabled || operatorConfig.ExposedSecretScannerEnabled || operatorConfig.SbomGenerationEnable {
 		trivyOperatorConfig.Set(trivyoperator.KeyVulnerabilityScannerEnabled, strconv.FormatBool(operatorConfig.VulnerabilityScannerEnabled))
@@ -314,7 +314,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			ClusterVersion:   gitVersion,
 			CacheSyncTimeout: *operatorConfig.ControllerCacheSyncTimeout,
 			ChecksLoader:     checksLoader,
-			ScopeResolver:    scoreResolver,
+			ScopeResolver:    scopeResolver,
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup resource controller: %w", err)
 		}
@@ -326,7 +326,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			PluginContext:  pluginContext,
 			PluginInMemory: pluginConfig,
 			ClusterVersion: gitVersion,
-			ScopeResolver:  scoreResolver,
+			ScopeResolver:  scopeResolver,
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup policy config controller: %w", err)
 		}
@@ -359,7 +359,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
 				BuildInfo:       buildInfo,
 				ChecksLoader:    checksLoader,
-				ScopeResolver:   scoreResolver,
+				ScopeResolver:   scopeResolver,
 			}).SetupWithManager(mgr); err != nil {
 				return fmt.Errorf("unable to setup node collector controller: %w", err)
 			}

@@ -3,16 +3,11 @@ package controller
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
-	rbacv1 "k8s.io/api/rbac/v1"
-	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -26,7 +21,6 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	"github.com/aquasecurity/trivy/pkg/set"
 )
 
 // PolicyConfigController watches changes on policies config map and generates
@@ -40,71 +34,17 @@ type PolicyConfigController struct {
 	PolicyLoader policy.Loader
 	configauditreport.PluginInMemory
 	ClusterVersion string
+	ScopeResolver  *kube.ScopeResolver
 }
 
 // Controller for trivy-operator-policies-config in the operator namespace; must be cluster scoped even with namespace predicate
 // +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch
 func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
-
-	// Determine which Kubernetes workloads the controller will reconcile and add them to resources
 	targetWorkloads := r.Config.GetTargetWorkloads()
-	workloadResources := make([]kube.Resource, 0)
 
-	customTargets := set.New[string]()
-
-	for _, tw := range targetWorkloads {
-		if !kube.IsWorkload(tw) {
-			customTargets.Append(strings.ToLower(tw))
-			continue
-		}
-		var resource kube.Resource
-		if err := resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, r.ObjectResolver); err != nil {
-			return err
-		}
-		workloadResources = append(workloadResources, resource)
-	}
-
-	resources := kube.DefaultNonWorkloadResources()
-	resources = append(resources, workloadResources...)
-
-	clusterResources := []kube.Resource{
-		{Kind: kube.KindClusterRole, ForObject: &rbacv1.ClusterRole{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
-		{Kind: kube.KindClusterRoleBindings, ForObject: &rbacv1.ClusterRoleBinding{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
-		{Kind: kube.KindCustomResourceDefinition, ForObject: &apiextensionsv1.CustomResourceDefinition{}, OwnsObject: &v1alpha1.ClusterConfigAuditReport{}},
-	}
-
-	if customTargets.Size() > 0 {
-		schm := r.Scheme()
-		allKinds := schm.AllKnownTypes()
-
-		for gvk := range allKinds {
-			if !customTargets.Contains(strings.ToLower(gvk.Kind)) {
-				continue
-			}
-			obj, err := schm.New(gvk)
-			if err != nil {
-				return fmt.Errorf("cannot create object for GVK %v: %w", gvk, err)
-			}
-			typedObj, ok := obj.(client.Object)
-			if !ok {
-				return fmt.Errorf("object does not implement client.Object: %T", obj)
-			}
-			if !r.isNamespaced(gvk) {
-				// If the resource is not namespaced, we add it to clusterResources
-				clusterResources = append(clusterResources, kube.Resource{
-					Kind:       kube.Kind(gvk.Kind),
-					ForObject:  typedObj,
-					OwnsObject: &v1alpha1.ClusterConfigAuditReport{},
-				})
-				continue
-			}
-			// If the resource is namespaced, we add it to resources
-			resources = append(resources, kube.Resource{
-				Kind:       kube.Kind(gvk.Kind),
-				ForObject:  typedObj,
-				OwnsObject: &v1alpha1.ConfigAuditReport{},
-			})
-		}
+	resources, clusterResources, err := kube.GetActiveResource(targetWorkloads, r.ObjectResolver, r.Scheme(), r.ScopeResolver)
+	if err != nil {
+		return fmt.Errorf("unable to setup resources for PolicyConfigController: %w", err)
 	}
 
 	for _, configResource := range resources {
@@ -130,14 +70,7 @@ func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 			return err
 		}
 	}
-
 	return nil
-}
-
-func (r *PolicyConfigController) isNamespaced(gvk schema.GroupVersionKind) bool {
-	mapper := r.Client.RESTMapper()
-	mapping, _ := mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
-	return mapping.Scope.Name() == meta.RESTScopeNameNamespace
 }
 
 func (r *PolicyConfigController) reconcileConfig(kind kube.Kind) reconcile.Func {

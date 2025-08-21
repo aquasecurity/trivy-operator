@@ -51,6 +51,7 @@ type ResourceController struct {
 	ClusterVersion   string
 	CacheSyncTimeout time.Duration
 	ChecksLoader     *ChecksLoader
+	ScopeResolver    *kube.ScopeResolver
 }
 
 // +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
@@ -241,6 +242,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		// create config-audit report
 		if !kube.IsRoleTypes(kube.Kind(kind)) || r.MergeRbacFindingWithConfigAudit {
 			reportBuilder := configauditreport.NewReportBuilder(r.Client.Scheme()).
+				ScopeResolver(r.ScopeResolver).
 				Controller(resource).
 				ResourceSpecHash(resourceHash).
 				PluginConfigHash(policiesHash).
@@ -256,6 +258,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			// create infra-assessment report
 			if k8sCoreComponent(resource) && r.Config.InfraAssessmentScannerEnabled {
 				infraReportBuilder := infraassessment.NewReportBuilder(r.Client.Scheme()).
+					ScopeResolver(r.ScopeResolver).
 					Controller(resource).
 					ResourceSpecHash(resourceHash).
 					PluginConfigHash(policiesHash).
@@ -273,6 +276,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		// create rbac-assessment report
 		if kube.IsRoleTypes(kube.Kind(kind)) && r.Config.RbacAssessmentScannerEnabled && !r.MergeRbacFindingWithConfigAudit {
 			rbacReportBuilder := rbacassessment.NewReportBuilder(r.Client.Scheme()).
+				ScopeResolver(r.ScopeResolver).
 				Controller(resource).
 				ResourceSpecHash(resourceHash).
 				PluginConfigHash(policiesHash).
@@ -361,7 +365,7 @@ func (r *ResourceController) hasReport(ctx context.Context, owner kube.ObjectRef
 	if kube.IsRoleTypes(owner.Kind) {
 		io = r.RbacReadWriter
 	}
-	if kube.IsClusterScopedKind(string(owner.Kind)) {
+	if r.ScopeResolver.IsClusterScope(string(owner.Kind)) {
 		hasClusterReport, err := r.hasClusterReport(ctx, owner, podSpecHash, pluginConfigHash, io)
 		if err != nil {
 			return false, err

@@ -30,12 +30,18 @@ type ReportBuilder struct {
 	resourceLabelsToInclude []string
 	additionalReportLabels  labels.Set
 	etc.Config
+	scopeResolver *kube.ScopeResolver
 }
 
 func NewReportBuilder(scheme *runtime.Scheme) *ReportBuilder {
 	return &ReportBuilder{
 		scheme: scheme,
 	}
+}
+
+func (b *ReportBuilder) ScopeResolver(sr *kube.ScopeResolver) *ReportBuilder {
+	b.scopeResolver = sr
+	return b
 }
 
 func (b *ReportBuilder) Controller(controller client.Object) *ReportBuilder {
@@ -170,7 +176,7 @@ func (b *ReportBuilder) GetReport() (v1alpha1.ConfigAuditReport, error) {
 }
 
 func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
-	if kube.IsClusterScopedKind(b.controller.GetObjectKind().GroupVersionKind().Kind) {
+	if b.scopeResolver != nil && b.scopeResolver.IsClusterScope(b.controller.GetObjectKind().GroupVersionKind().Kind) {
 		report, err := b.GetClusterReport()
 		if err != nil {
 			return err

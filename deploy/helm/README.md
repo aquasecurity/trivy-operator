@@ -78,6 +78,8 @@ Keeps security report resources updated
 | operator.replicas | int | `1` | replicas the number of replicas of the operator's pod |
 | operator.revisionHistoryLimit | string | `nil` | number of old history to retain to allow rollback (if not set, default Kubernetes value is set to 10) |
 | operator.sbomGenerationEnabled | bool | `true` | the flag to enable sbom generation, required for enabling ClusterVulnerabilityReports |
+| operator.scanJobQueueFullTimeout | string | `"5s"` | scanJobQueueFullTimeout the duration to wait before giving up on creating a scan job when the job queue is full |
+| operator.scanJobResultWaitTimeout | string | `"30s"` | scanJobResultWaitTimeout the duration to wait before giving up on waiting for a scan job result |
 | operator.scanJobTTL | string | `""` | scanJobTTL the set automatic cleanup time after the job is completed |
 | operator.scanJobTimeout | string | `"5m"` | scanJobTimeout the length of time to wait before giving up on a scan job |
 | operator.scanJobsConcurrentLimit | int | `10` | scanJobsConcurrentLimit the maximum number of scan jobs create by the operator |

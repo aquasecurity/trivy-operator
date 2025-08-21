@@ -248,11 +248,11 @@ func ObjectRefFromKindAndObjectKey(kind Kind, name client.ObjectKey) ObjectRef {
 // adding it as the trivy-operator.LabelResourceSpecHash label to an instance of a
 // security report.
 func ComputeSpecHash(obj client.Object) (string, error) {
-	switch t := obj.(type) {
+	switch obj.(type) {
 	case *corev1.Pod, *appsv1.Deployment, *appsv1.ReplicaSet, *corev1.ReplicationController, *appsv1.StatefulSet, *appsv1.DaemonSet, *batchv1.CronJob, *batchv1beta1.CronJob, *batchv1.Job:
 		spec, err := GetPodSpec(obj)
 		if err != nil {
-			return "", err
+			return "", fmt.Errorf("error getting pod spec for %T: %w", obj, err)
 		}
 		return ComputeHash(spec), nil
 	case *corev1.Service:
@@ -280,7 +280,7 @@ func ComputeSpecHash(obj client.Object) (string, error) {
 	case *apiextensionsv1.CustomResourceDefinition:
 		return ComputeHash(obj), nil
 	default:
-		return "", fmt.Errorf("computing spec hash of unsupported object: %T", t)
+		return ComputeHash(obj), nil
 	}
 }
 
@@ -379,6 +379,27 @@ func (o *CompatibleObjectMapper) GetSupportedObjectByKind(kind Kind, defaultObje
 	return supportedObjectsByK8sKind(api)
 }
 
+// ObjectByKind returns a new client.Object based on the specified Kind.
+func ObjectByKind(kind string, schm *runtime.Scheme) (client.Object, error) {
+	kind = strings.ToLower(kind)
+	for gvk := range schm.AllKnownTypes() {
+		if !strings.EqualFold(gvk.Kind, kind) {
+			continue
+		}
+		obj, err := schm.New(gvk)
+		if err != nil {
+			return nil, fmt.Errorf("cannot create object for GVK %v: %w", gvk, err)
+		}
+		typedObj, ok := obj.(client.Object)
+		if !ok {
+			return nil, fmt.Errorf("object does not implement client.Object: %T", obj)
+		}
+		return typedObj, nil
+
+	}
+	return nil, nil
+}
+
 func (o *ObjectResolver) ObjectFromObjectRef(ctx context.Context, ref ObjectRef) (client.Object, error) {
 	var obj client.Object
 	switch ref.Kind {
@@ -425,7 +446,11 @@ func (o *ObjectResolver) ObjectFromObjectRef(ctx context.Context, ref ObjectRef)
 	case KindClusterSbomReport:
 		obj = &v1alpha1.ClusterSbomReport{}
 	default:
-		return nil, fmt.Errorf("unknown kind: %s", ref.Kind)
+		var err error
+		obj, err = ObjectByKind(string(ref.Kind), o.Scheme())
+		if err != nil {
+			return nil, fmt.Errorf("getting object by kind %s: %w", ref.Kind, err)
+		}
 	}
 	err := o.Client.Get(ctx, client.ObjectKey{
 		Name:      ref.Name,

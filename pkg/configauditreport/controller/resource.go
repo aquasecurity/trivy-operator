@@ -10,8 +10,6 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	rbacv1 "k8s.io/api/rbac/v1"
-	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -88,17 +86,13 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 	// Determine which Kubernetes workloads the controller will reconcile and add them to resources
 	targetWorkloads := r.Config.GetTargetWorkloads()
 	targetWorkloads = append(targetWorkloads, strings.ToLower(string(kube.KindIngress)))
-	for _, tw := range targetWorkloads {
-		// skip custom targets that are not workloads
-		if !kube.IsWorkload(tw) {
-			continue
-		}
 
-		var resource kube.Resource
-		err = resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, r.ObjectResolver)
-		if err != nil {
-			return err
-		}
+	resources, clusterResources, err := kube.GetActiveResource(targetWorkloads, r.ObjectResolver, r.Scheme(), r.ScopeResolver)
+	if err != nil {
+		return fmt.Errorf("unable to setup resources for ResourceController: %w", err)
+	}
+
+	for _, resource := range resources {
 		resourceBuilder := r.buildControlMgr(mgr, resource, installModePredicate)
 		if r.Config.InfraAssessmentScannerEnabled {
 			resourceBuilder.Owns(&v1alpha1.InfraAssessmentReport{})
@@ -106,22 +100,6 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		if err = resourceBuilder.Complete(r.reconcileResource(resource.Kind)); err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", resource.Kind, err)
 		}
-	}
-
-	// Add non workload related resources
-	resources := kube.DefaultNonWorkloadResources()
-
-	for _, configResource := range resources {
-		if err := r.buildControlMgr(mgr, configResource, installModePredicate).
-			Complete(r.reconcileResource(configResource.Kind)); err != nil {
-			return fmt.Errorf("constructing controller for %s: %w", configResource.Kind, err)
-		}
-	}
-
-	clusterResources := []kube.Resource{
-		{Kind: kube.KindClusterRole, ForObject: &rbacv1.ClusterRole{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
-		{Kind: kube.KindClusterRoleBindings, ForObject: &rbacv1.ClusterRoleBinding{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
-		{Kind: kube.KindCustomResourceDefinition, ForObject: &apiextensionsv1.CustomResourceDefinition{}, OwnsObject: &v1alpha1.ClusterConfigAuditReport{}},
 	}
 
 	for _, resource := range clusterResources {

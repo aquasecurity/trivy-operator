@@ -73,6 +73,7 @@ Keeps security report resources updated
 | operator.namespace | string | `""` | namespace to install the operator, defaults to the .Release.Namespace |
 | operator.noProxy | string | `nil` | noProxy is a comma separated list of IPs and domain names that are not subject to proxy settings. |
 | operator.podLabels | object | `{}` | additional labels for the operator pod |
+| operator.pprofBindAddress | string | `""` | pprofBindAddress the address to bind the pprof server to. By default, it is not enabled. |
 | operator.privateRegistryScanSecretsNames | object | `{}` | privateRegistryScanSecretsNames is map of namespace:secrets, secrets are comma seperated which can be used to authenticate in private registries in case if there no imagePullSecrets provided example : {"mynamespace":"mySecrets,anotherSecret"} |
 | operator.rbacAssessmentScannerEnabled | bool | `true` | rbacAssessmentScannerEnabled the flag to enable rbac assessment scanner |
 | operator.replicas | int | `1` | replicas the number of replicas of the operator's pod |

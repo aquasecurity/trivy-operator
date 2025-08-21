@@ -99,7 +99,15 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				return obj, nil
 			},
 		},
-		Controller: controllerconfig.Controller{SkipNameValidation: &skipNameValidation},
+		Controller: controllerconfig.Controller{
+			SkipNameValidation: &skipNameValidation,
+		},
+	}
+
+	// Enable profiling if the flag is set.
+	if operatorConfig.PprofBindAddress != "" {
+		setupLog.Info("Enabling Go profiling", "address", operatorConfig.PprofBindAddress)
+		options.PprofBindAddress = operatorConfig.PprofBindAddress
 	}
 
 	if operatorConfig.LeaderElectionEnabled {

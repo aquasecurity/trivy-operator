@@ -199,6 +199,9 @@ operator:
   # -- valuesFromSecret name of a Secret to apply OPERATOR_* environment variables. Will override Helm AND ConfigMap values.
   valuesFromSecret: ""
 
+  # -- pprofBindAddress the address to bind the pprof server to. By default, it is not enabled.
+  pprofBindAddress: ""
+
 image:
   registry: "mirror.gcr.io"
   repository: "aquasec/trivy-operator"

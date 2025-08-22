@@ -208,7 +208,6 @@ operator:
   # -- pprofBindAddress the address to bind the pprof server to. By default, it is not enabled.
   pprofBindAddress: ""
 
-
 image:
   registry: "mirror.gcr.io"
   repository: "aquasec/trivy-operator"

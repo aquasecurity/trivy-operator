@@ -181,7 +181,9 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	if err != nil {
 		return err
 	}
-	objectResolver := kube.NewObjectResolver(mgr.GetClient(), compatibleObjectMapper)
+
+	k8sScopeResolver := kube.NewK8sScopeResolver(mgr.GetClient())
+	objectResolver := kube.NewObjectResolver(mgr.GetClient(), compatibleObjectMapper, k8sScopeResolver)
 	limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
 	logsReader := kube.NewLogsReader(clientSet)
 	secretsReader := kube.NewSecretsReader(mgr.GetClient())
@@ -207,8 +209,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		WithClient(mgr.GetClient()).
 		WithObjectResolver(&objectResolver).
 		GetConfigAuditPlugin()
-
-	scopeResolver := kube.NewScopeResolver(mgr.GetClient())
 
 	if operatorConfig.VulnerabilityScannerEnabled || operatorConfig.ExposedSecretScannerEnabled || operatorConfig.SbomGenerationEnable {
 		trivyOperatorConfig.Set(trivyoperator.KeyVulnerabilityScannerEnabled, strconv.FormatBool(operatorConfig.VulnerabilityScannerEnabled))
@@ -322,7 +322,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			ClusterVersion:   gitVersion,
 			CacheSyncTimeout: *operatorConfig.ControllerCacheSyncTimeout,
 			ChecksLoader:     checksLoader,
-			ScopeResolver:    scopeResolver,
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup resource controller: %w", err)
 		}
@@ -334,7 +333,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			PluginContext:  pluginContext,
 			PluginInMemory: pluginConfig,
 			ClusterVersion: gitVersion,
-			ScopeResolver:  scopeResolver,
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup policy config controller: %w", err)
 		}
@@ -367,7 +365,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
 				BuildInfo:       buildInfo,
 				ChecksLoader:    checksLoader,
-				ScopeResolver:   scopeResolver,
 			}).SetupWithManager(mgr); err != nil {
 				return fmt.Errorf("unable to setup node collector controller: %w", err)
 			}

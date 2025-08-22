@@ -30,7 +30,7 @@ type ReportBuilder struct {
 	resourceLabelsToInclude []string
 	additionalReportLabels  labels.Set
 	etc.Config
-	scopeResolver *kube.ScopeResolver
+	scopeResolver *kube.K8sScope
 }
 
 func NewReportBuilder(scheme *runtime.Scheme) *ReportBuilder {
@@ -39,7 +39,7 @@ func NewReportBuilder(scheme *runtime.Scheme) *ReportBuilder {
 	}
 }
 
-func (b *ReportBuilder) ScopeResolver(sr *kube.ScopeResolver) *ReportBuilder {
+func (b *ReportBuilder) ScopeResolver(sr *kube.K8sScope) *ReportBuilder {
 	b.scopeResolver = sr
 	return b
 }

@@ -34,7 +34,6 @@ type PolicyConfigController struct {
 	PolicyLoader policy.Loader
 	configauditreport.PluginInMemory
 	ClusterVersion string
-	ScopeResolver  *kube.ScopeResolver
 }
 
 // Controller for trivy-operator-policies-config in the operator namespace; must be cluster scoped even with namespace predicate
@@ -42,7 +41,7 @@ type PolicyConfigController struct {
 func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 	targetWorkloads := r.Config.GetTargetWorkloads()
 
-	resources, clusterResources, err := kube.GetActiveResource(targetWorkloads, r.ObjectResolver, r.Scheme(), r.ScopeResolver)
+	resources, clusterResources, err := kube.GetActiveResource(targetWorkloads, r.ObjectResolver, r.Scheme())
 	if err != nil {
 		return fmt.Errorf("unable to setup resources for PolicyConfigController: %w", err)
 	}

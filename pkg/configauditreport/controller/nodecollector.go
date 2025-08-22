@@ -43,8 +43,7 @@ type NodeCollectorJobController struct {
 	configauditreport.PluginInMemory
 	InfraReadWriter infraassessment.ReadWriter
 	trivyoperator.BuildInfo
-	ChecksLoader  *ChecksLoader
-	ScopeResolver *kube.ScopeResolver
+	ChecksLoader *ChecksLoader
 }
 
 // +kubebuilder:rbac:groups=batch,resources=jobs,verbs=get;list;watch;create;delete
@@ -161,7 +160,7 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 		return fmt.Errorf("failed to evaluate policies on Node : %w", err)
 	}
 	infraReportBuilder := infraassessment.NewReportBuilder(r.Client.Scheme()).
-		ScopeResolver(r.ScopeResolver).
+		ScopeResolver(&r.ObjectResolver.K8sScope).
 		Controller(node).
 		ResourceSpecHash(resourceHash).
 		PluginConfigHash(policiesHash).

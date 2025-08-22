@@ -100,7 +100,7 @@ func IsWorkload(kind string) bool {
 
 // GetActiveResource returns a list of active resources based on the target workloads.
 // it includes namespaced and cluster-scope resources.
-func GetActiveResource(targetWorkloads []string, objectResolver ObjectResolver, schm *runtime.Scheme, sr *ScopeResolver) ([]Resource, []Resource, error) {
+func GetActiveResource(targetWorkloads []string, objectResolver ObjectResolver, schm *runtime.Scheme) ([]Resource, []Resource, error) {
 	customTargets := set.New[string]()
 	workloadResources := make([]Resource, 0)
 	for _, tw := range targetWorkloads {
@@ -139,7 +139,7 @@ func GetActiveResource(targetWorkloads []string, objectResolver ObjectResolver, 
 			if !ok {
 				return nil, nil, fmt.Errorf("object does not implement client.Object: %T", obj)
 			}
-			if sr.IsClusterScope(kind) {
+			if objectResolver.IsClusterScope(kind) {
 				// If the resource is not namespaced, we add it to clusterResources
 				clusterResources = append(clusterResources, Resource{
 					Kind:       Kind(gvk.Kind),
@@ -328,10 +328,11 @@ type CompatibleObjectMapper struct {
 type ObjectResolver struct {
 	client.Client
 	CompatibleMgr
+	K8sScope
 }
 
-func NewObjectResolver(c client.Client, cm CompatibleMgr) ObjectResolver {
-	return ObjectResolver{c, cm}
+func NewObjectResolver(c client.Client, cm CompatibleMgr, sc K8sScope) ObjectResolver {
+	return ObjectResolver{c, cm, sc}
 }
 
 // InitCompatibleMgr initializes a CompatibleObjectMapper who store a map the of supported kinds with it compatible Objects (group/api/kind)

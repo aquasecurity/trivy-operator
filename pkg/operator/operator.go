@@ -182,8 +182,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		return err
 	}
 
-	k8sScopeResolver := kube.NewK8sScopeResolver(mgr.GetClient())
-	objectResolver := kube.NewObjectResolver(mgr.GetClient(), compatibleObjectMapper, k8sScopeResolver)
+	objectResolver := kube.NewObjectResolver(mgr.GetClient(), compatibleObjectMapper)
 	limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
 	logsReader := kube.NewLogsReader(clientSet)
 	secretsReader := kube.NewSecretsReader(mgr.GetClient())

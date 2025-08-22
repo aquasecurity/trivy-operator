@@ -112,7 +112,7 @@ func TestIsWorkload(t *testing.T) {
 }
 
 func TestIsClusterScopedKind(t *testing.T) {
-	sr := kube.NewScopeResolver(fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).Build())
+	sr := kube.NewK8sScopeResolver(fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).Build())
 
 	testCases := []struct {
 		kind string

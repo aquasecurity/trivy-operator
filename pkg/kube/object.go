@@ -331,8 +331,8 @@ type ObjectResolver struct {
 	K8sScope
 }
 
-func NewObjectResolver(c client.Client, cm CompatibleMgr, sc K8sScope) ObjectResolver {
-	return ObjectResolver{c, cm, sc}
+func NewObjectResolver(c client.Client, cm CompatibleMgr) ObjectResolver {
+	return ObjectResolver{c, cm, NewK8sScopeResolver(c)}
 }
 
 // InitCompatibleMgr initializes a CompatibleObjectMapper who store a map the of supported kinds with it compatible Objects (group/api/kind)

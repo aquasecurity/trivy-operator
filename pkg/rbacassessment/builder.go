@@ -90,6 +90,7 @@ func (b *ReportBuilder) reportName() string {
 
 func (b *ReportBuilder) GetClusterReport() (v1alpha1.ClusterRbacAssessmentReport, error) {
 	labelsSet := make(labels.Set)
+	labelsSet[trivyoperator.LabelK8SAppManagedBy] = trivyoperator.AppTrivyOperator
 	// append matching resource labels by config to report
 	kube.AppendResourceLabels(b.resourceLabelsToInclude, b.controller.GetLabels(), labelsSet)
 	// append custom labels by config to report
@@ -130,6 +131,7 @@ func (b *ReportBuilder) GetClusterReport() (v1alpha1.ClusterRbacAssessmentReport
 
 func (b *ReportBuilder) GetReport() (v1alpha1.RbacAssessmentReport, error) {
 	labelsSet := make(labels.Set)
+	labelsSet[trivyoperator.LabelK8SAppManagedBy] = trivyoperator.AppTrivyOperator
 	// append matching resource labels by config to report
 	kube.AppendResourceLabels(b.resourceLabelsToInclude, b.controller.GetLabels(), labelsSet)
 	// append custom labels by config to report

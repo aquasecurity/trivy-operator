@@ -8,6 +8,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/apimachinery/pkg/util/rand"
@@ -455,6 +456,79 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 				Expect(err).ToNot(HaveOccurred())
 			})
 
+		})
+
+		Context("When PersistentVolume is created", func() {
+
+			var ctx context.Context
+			var pv *corev1.PersistentVolume
+
+			BeforeEach(func() {
+				ctx = context.Background()
+				pv = &corev1.PersistentVolume{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "pv-" + rand.String(5),
+					},
+					Spec: corev1.PersistentVolumeSpec{
+						Capacity: corev1.ResourceList{
+							corev1.ResourceStorage: resource.MustParse("1Gi"),
+						},
+						AccessModes:                   []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
+						PersistentVolumeReclaimPolicy: corev1.PersistentVolumeReclaimDelete,
+						PersistentVolumeSource: corev1.PersistentVolumeSource{
+							HostPath: &corev1.HostPathVolumeSource{Path: "/tmp"},
+						},
+					},
+				}
+
+				err := inputs.Create(ctx, pv)
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("Should create ClusterConfigAuditReport", func() {
+				Eventually(inputs.HasClusterConfigAuditReportOwnedBy(ctx, pv), inputs.AssertTimeout).Should(BeTrue())
+			})
+
+			AfterEach(func() {
+				err := inputs.Delete(ctx, pv)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("When PersistentVolumeClaim is created", func() {
+
+			var ctx context.Context
+			var pvc *corev1.PersistentVolumeClaim
+
+			BeforeEach(func() {
+				ctx = context.Background()
+				qty := resource.MustParse("1Gi")
+				pvc = &corev1.PersistentVolumeClaim{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: inputs.PrimaryNamespace,
+						Name:      "pvc-" + rand.String(5),
+					},
+					Spec: corev1.PersistentVolumeClaimSpec{
+						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
+						Resources: corev1.VolumeResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceStorage: qty,
+							},
+						},
+					},
+				}
+				err := inputs.Create(ctx, pvc)
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("Should create ConfigAuditReport", func() {
+				Eventually(inputs.HasConfigAuditReportOwnedBy(ctx, pvc), inputs.AssertTimeout).Should(BeTrue())
+			})
+
+			AfterEach(func() {
+				err := inputs.Delete(ctx, pvc)
+				Expect(err).ToNot(HaveOccurred())
+			})
 		})
 	}
 }

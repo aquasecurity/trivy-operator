@@ -380,27 +380,6 @@ func (o *CompatibleObjectMapper) GetSupportedObjectByKind(kind Kind, defaultObje
 	return supportedObjectsByK8sKind(api)
 }
 
-// ObjectByKind returns a new client.Object based on the specified Kind.
-func ObjectByKind(kind string, schm *runtime.Scheme) (client.Object, error) {
-	kind = strings.ToLower(kind)
-	for gvk := range schm.AllKnownTypes() {
-		if !strings.EqualFold(gvk.Kind, kind) {
-			continue
-		}
-		obj, err := schm.New(gvk)
-		if err != nil {
-			return nil, fmt.Errorf("cannot create object for GVK %v: %w", gvk, err)
-		}
-		typedObj, ok := obj.(client.Object)
-		if !ok {
-			return nil, fmt.Errorf("object does not implement client.Object: %T", obj)
-		}
-		return typedObj, nil
-
-	}
-	return nil, nil
-}
-
 func (o *ObjectResolver) ObjectFromObjectRef(ctx context.Context, ref ObjectRef) (client.Object, error) {
 	var obj client.Object
 	switch ref.Kind {
@@ -447,10 +426,17 @@ func (o *ObjectResolver) ObjectFromObjectRef(ctx context.Context, ref ObjectRef)
 	case KindClusterSbomReport:
 		obj = &v1alpha1.ClusterSbomReport{}
 	default:
-		var err error
-		obj, err = ObjectByKind(string(ref.Kind), o.Scheme())
+		gvk, ok := o.K8sScope.GVKbyKind(string(ref.Kind))
+		if !ok {
+			return nil, fmt.Errorf("can't get GVK by kind %s", ref.Kind)
+		}
+		rawobj, err := o.Scheme().New(gvk)
 		if err != nil {
-			return nil, fmt.Errorf("getting object by kind %s: %w", ref.Kind, err)
+			return nil, fmt.Errorf("cannot create object for GVK %v: %w", gvk, err)
+		}
+		obj, ok = rawobj.(client.Object)
+		if !ok {
+			return nil, fmt.Errorf("object does not implement client.Object: %T", obj)
 		}
 	}
 	err := o.Client.Get(ctx, client.ObjectKey{

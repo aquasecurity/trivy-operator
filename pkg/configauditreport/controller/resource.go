@@ -84,7 +84,6 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 
 	// Determine which Kubernetes workloads the controller will reconcile and add them to resources
 	targetWorkloads := r.Config.GetTargetWorkloads()
-	targetWorkloads = append(targetWorkloads, strings.ToLower(string(kube.KindIngress)))
 
 	resources, clusterResources, err := kube.GetActiveResource(targetWorkloads, r.ObjectResolver, r.Scheme())
 	if err != nil {

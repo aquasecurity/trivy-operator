@@ -131,7 +131,7 @@ func (c Config) GetTargetWorkloads() []string {
 		return strings.Split(strings.ToLower(workloads), ",")
 	}
 
-	return []string{"pod", "replicaset", "replicationcontroller", "statefulset", "daemonset", "cronjob", "job"}
+	return []string{"pod", "replicaset", "replicationcontroller", "statefulset", "daemonset", "cronjob", "job", "persistentvolume"}
 }
 
 // InstallMode represents multitenancy support defined by the Operator Lifecycle Manager spec.

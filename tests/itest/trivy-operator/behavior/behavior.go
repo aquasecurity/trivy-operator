@@ -569,7 +569,7 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 				Expect(pluginCM).ToNot(BeNil(), "plugin configmap not found")
 
 				if pluginCM.Data == nil {
-					pluginCM.Data = map[string]string{}
+					pluginCM.Data = make(map[string]string)
 				}
 				originalKinds = pluginCM.Data["trivy.supportedConfigAuditKinds"]
 
@@ -615,7 +615,7 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 					cm, err := findPluginConfigMap(ctx)
 					if err == nil && cm != nil {
 						if cm.Data == nil {
-							cm.Data = map[string]string{}
+							cm.Data = make(map[string]string)
 						}
 						cm.Data["trivy.supportedConfigAuditKinds"] = originalKinds
 						_ = inputs.Client.Update(ctx, cm)

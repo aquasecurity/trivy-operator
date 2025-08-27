@@ -110,7 +110,7 @@ func GetActiveResource(targetWorkloads []string, objectResolver ObjectResolver, 
 		}
 		var resource Resource
 		if err := resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, objectResolver); err != nil {
-			return nil, nil, fmt.Errorf("faild to get workload resource for %s: %w", tw, err)
+			return nil, nil, fmt.Errorf("failed to get workload resource for %s: %w", tw, err)
 		}
 		workloadResources = append(workloadResources, resource)
 	}

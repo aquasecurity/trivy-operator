@@ -3,6 +3,7 @@ package behavior
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -14,6 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/rand"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/tests/itest/helper"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -528,6 +530,110 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 			AfterEach(func() {
 				err := inputs.Delete(ctx, pvc)
 				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("When PersistentVolumeClaim scanning is disabled", func() {
+
+			var (
+				ctx           context.Context
+				pluginCM      *corev1.ConfigMap
+				pvc           *corev1.PersistentVolumeClaim
+				originalKinds string
+				cleanupPVC    func()
+				restoreConfig func()
+			)
+
+			findPluginConfigMap := func(ctx context.Context) (*corev1.ConfigMap, error) {
+				var cms corev1.ConfigMapList
+				if err := inputs.Client.List(ctx, &cms, &client.ListOptions{}); err != nil {
+					return nil, err
+				}
+				name := trivyoperator.GetPluginConfigMapName("Trivy")
+				for i := range cms.Items {
+					cm := cms.Items[i]
+					if cm.Name == name {
+						cpy := cm.DeepCopy()
+						return cpy, nil
+					}
+				}
+				return nil, nil
+			}
+
+			BeforeEach(func() {
+				ctx = context.Background()
+
+				var err error
+				pluginCM, err = findPluginConfigMap(ctx)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(pluginCM).ToNot(BeNil(), "plugin configmap not found")
+
+				if pluginCM.Data == nil {
+					pluginCM.Data = map[string]string{}
+				}
+				originalKinds = pluginCM.Data["trivy.supportedConfigAuditKinds"]
+
+				kinds := originalKinds
+				if kinds == "" {
+					kinds = "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
+				}
+				parts := []string{}
+				for _, k := range strings.Split(kinds, ",") {
+					k = strings.TrimSpace(k)
+					if k == "PersistentVolumeClaim" {
+						continue
+					}
+					parts = append(parts, k)
+				}
+				pluginCM.Data["trivy.supportedConfigAuditKinds"] = strings.Join(parts, ",")
+				err = inputs.Client.Update(ctx, pluginCM)
+				Expect(err).ToNot(HaveOccurred())
+
+				// allow operator to reload config
+				time.Sleep(2 * time.Second)
+
+				qty := resource.MustParse("1Gi")
+				pvc = &corev1.PersistentVolumeClaim{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: inputs.PrimaryNamespace,
+						Name:      "pvc-" + rand.String(5),
+					},
+					Spec: corev1.PersistentVolumeClaimSpec{
+						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
+						Resources: corev1.VolumeResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceStorage: qty,
+							},
+						},
+					},
+				}
+				err = inputs.Create(ctx, pvc)
+				Expect(err).ToNot(HaveOccurred())
+
+				cleanupPVC = func() { _ = inputs.Delete(ctx, pvc) }
+				restoreConfig = func() {
+					cm, err := findPluginConfigMap(ctx)
+					if err == nil && cm != nil {
+						if cm.Data == nil {
+							cm.Data = map[string]string{}
+						}
+						cm.Data["trivy.supportedConfigAuditKinds"] = originalKinds
+						_ = inputs.Client.Update(ctx, cm)
+					}
+				}
+			})
+
+			AfterEach(func() {
+				if cleanupPVC != nil {
+					cleanupPVC()
+				}
+				if restoreConfig != nil {
+					restoreConfig()
+				}
+			})
+
+			It("Should not create ConfigAuditReport for PVC", func() {
+				Consistently(inputs.HasConfigAuditReportOwnedBy(ctx, pvc), time.Minute, inputs.PollingInterval).Should(BeFalse())
 			})
 		})
 	}

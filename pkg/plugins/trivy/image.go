@@ -677,21 +677,20 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef, tri
 	args = append(args,
 		"--output",
 		fmt.Sprintf("/tmp/scan/%s 2>/tmp/scan/%s.log", resultFileName, resultFileName),
+		buildTrailingCommandArgs(resultFileName, trivyOperatorConfig.CompressLogs()),
 	)
-
-	args = append(args, buildTrailingCommandArgs(resultFileName, trivyOperatorConfig.CompressLogs())...)
 
 	return []string{"/bin/sh"}, append([]string{"-c"}, strings.Join(args, " "))
 }
 
-func buildTrailingCommandArgs(resultFileName string, compressLogs bool) []string {
-	result := []string{}
+func buildTrailingCommandArgs(resultFileName string, compressLogs bool) string {
+	var cmd string
 	if compressLogs {
-		result = append(result, fmt.Sprintf("&& bzip2 -c /tmp/scan/%s | base64", resultFileName))
+		cmd = fmt.Sprintf("bzip2 -c /tmp/scan/%s | base64", resultFileName)
 	} else {
-		result = append(result, fmt.Sprintf("&& cat /tmp/scan/%s", resultFileName))
+		cmd = fmt.Sprintf("cat /tmp/scan/%s", resultFileName)
 	}
-	return result
+	return fmt.Sprintf("; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/%s.log; else %s; fi; exit $rc", resultFileName, cmd)
 }
 
 func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomFile, trivyServerURL, resultFileName string) ([]string, []string) {
@@ -737,8 +736,10 @@ func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomF
 	}
 	outputFile := fmt.Sprintf("/tmp/scan/%s", resultFileName)
 
-	args = append(args, "--output", outputFile, fmt.Sprintf("2>/tmp/scan/%s.log", resultFileName))
-	args = append(args, buildTrailingCommandArgs(resultFileName, compressLogs)...)
+	args = append(args,
+		"--output", outputFile, fmt.Sprintf("2>/tmp/scan/%s.log", resultFileName),
+		buildTrailingCommandArgs(resultFileName, compressLogs),
+	)
 	return []string{"/bin/sh"}, append([]string{"-c"}, strings.Join(args, " "))
 }
 

@@ -24,6 +24,7 @@ type SbomSummary struct {
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"
 // +kubebuilder:printcolumn:name="Components",type=integer,JSONPath=`.report.summary.componentsCount`,priority=1,description="The number of dependencies in bom"
 // +kubebuilder:printcolumn:name="Dependencies",type=integer,JSONPath=`.report.summary.dependenciesCount`,priority=1,description="The the number of components in bom"
+// +genclient
 
 // SbomReport summarizes components and dependencies found in container image
 type SbomReport struct {
@@ -149,6 +150,7 @@ type SbomReportList struct {
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"
 // +kubebuilder:printcolumn:name="Components",type=integer,JSONPath=`.report.summary.componentsCount`,priority=1,description="The number of dependencies in bom"
 // +kubebuilder:printcolumn:name="Dependencies",type=integer,JSONPath=`.report.summary.dependenciesCount`,priority=1,description="The the number of components in bom"
+// +genclient
 
 // ClusterSbomReport summarizes components and dependencies found in container image
 type ClusterSbomReport struct {

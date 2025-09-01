@@ -139,19 +139,50 @@ func (t Test) Integration() error {
 
 // Target for downloading test images and upload them into KinD
 func prepareImages() error {
+	err := sh.Run("docker", "pull", "mirror.gcr.io/knqyf263/vuln-image:1.2.3")
+	if err != nil {
+		return fmt.Errorf("couldn't pull image 'mirror.gcr.io/knqyf263/vuln-image:1.2.3': %v", err)
+	}
+	const buildCommand = `FROM %s
+CMD ["/bin/sh", "-c", "while true; do sleep 30; done;"]`
+
 	images := []string{
-		"mirror.gcr.io/knqyf263/vuln-image:1.2.3",
-		"wordpress:4.9",
-		"wordpress:6.7",
+		"docker.io/library/alpine:3.21.1",
+		"docker.io/library/alpine:3.22.1",
 	}
 	fmt.Printf("Preparing %d image(s) for Trivy Operator...\n", len(images))
 	for _, image := range images {
-		fmt.Printf("Preparing image %q for Trivy Operator...\n", image)
-		err := sh.Run("docker", "pull", image)
-		if err != nil {
-			return fmt.Errorf("couldn't pull image %q: %v", image, err)
+		metadata := strings.Split(image, ":")
+		if len(metadata) != 2 {
+			return fmt.Errorf("invalid image format: %s", image)
 		}
-		err = sh.Run("kind", "load", "docker-image", image)
+		imageRunner := fmt.Sprintf("%s-runner:%s", metadata[0], metadata[1])
+
+		dockerfile, err := os.CreateTemp("", "dockerfile-*")
+		if err != nil {
+			return fmt.Errorf("could not create temporary dockerfile: %v", err)
+		}
+		defer os.Remove(dockerfile.Name())
+		if err = os.WriteFile(dockerfile.Name(), []byte(fmt.Sprintf(buildCommand, image)), 0644); err != nil {
+			return fmt.Errorf("failed to write to temp file: %v", err)
+		}
+
+		fmt.Printf("Preparing image %q for Trivy Operator...\n", imageRunner)
+		args := []string{
+			"build",
+			"--platform", "linux/amd64",
+			"-t", imageRunner,
+			"-f",
+			dockerfile.Name(),
+			".",
+		}
+
+		err = sh.Run("docker", args...)
+		if err != nil {
+			return fmt.Errorf("couldn't build image %q: %v", image, err)
+		}
+
+		err = sh.Run("kind", "load", "docker-image", imageRunner)
 		if err != nil {
 			return fmt.Errorf("couldn't load image %q: %v", image, err)
 		}

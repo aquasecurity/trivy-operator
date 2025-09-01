@@ -483,7 +483,7 @@ func (h *Helper) UpdateDeploymentImage(ctx context.Context, namespace, name stri
 		}
 
 		dcDeploy := deployment.DeepCopy()
-		dcDeploy.Spec.Template.Spec.Containers[0].Image = "wordpress:6.7"
+		dcDeploy.Spec.Template.Spec.Containers[0].Image = "alpine-runner:3.22.1"
 		err = h.kubeClient.Update(ctx, dcDeploy)
 		if err != nil && errors.IsConflict(err) {
 			return false, nil

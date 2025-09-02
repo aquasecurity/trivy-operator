@@ -30,7 +30,7 @@ jobs:
           remove-swapfile: 'true'
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Setup Go
@@ -38,7 +38,7 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Install tools
-        uses: aquaproj/aqua-installer@v4.0.0
+        uses: aquaproj/aqua-installer@v4.0.2
         with:
           aqua_version: v1.25.0
       - name: Run unit tests
@@ -51,13 +51,13 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
       - name: Install tools
-        uses: aquaproj/aqua-installer@v4.0.0
+        uses: aquaproj/aqua-installer@v4.0.2
         with:
           aqua_version: v1.25.0
       - name: Setup Kubernetes cluster (KIND)
@@ -109,7 +109,7 @@ jobs:
       - name: Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Setup Go
@@ -117,20 +117,20 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Install cosign
-        uses: sigstore/cosign-installer@v3.8.2
+        uses: sigstore/cosign-installer@v3.9.2
       - name: Login to docker.io registry
-        uses: docker/login-action@v3.4.0
+        uses: docker/login-action@v3.5.0
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Login to ECR
-        uses: docker/login-action@v3.4.0
+        uses: docker/login-action@v3.5.0
         with:
           registry: public.ecr.aws
           username: ${{ secrets.ECR_ACCESS_KEY_ID }}
           password: ${{ secrets.ECR_SECRET_ACCESS_KEY }}
       - name: Login to ghcr.io
-        uses: docker/login-action@v3.4.0
+        uses: docker/login-action@v3.5.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}

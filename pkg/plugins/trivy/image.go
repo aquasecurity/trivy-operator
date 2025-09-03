@@ -845,6 +845,9 @@ func (p *plugin) newSecretWithAggregateImagePullCredentials(obj client.Object, c
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: vulnerabilityreport.RegistryCredentialsSecretName(obj),
+			Labels: map[string]string{
+				trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+			},
 		},
 		Data: secretData,
 	}

@@ -170,7 +170,7 @@ require (
 	github.com/go-openapi/validate v0.24.0 // indirect
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
-	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
+	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/gocsaf/csaf/v3 v3.3.0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.3 // indirect
@@ -300,7 +300,7 @@ require (
 	github.com/tonistiigi/go-csvvalue v0.0.0-20240814133006-030d3b2625d0 // indirect
 	github.com/transparency-dev/merkle v0.0.2 // indirect
 	github.com/twitchtv/twirp v8.1.3+incompatible // indirect
-	github.com/ulikunitz/xz v0.5.12 // indirect
+	github.com/ulikunitz/xz v0.5.15 // indirect
 	github.com/vbatts/tar-split v0.12.1 // indirect
 	github.com/vektah/gqlparser/v2 v2.5.28 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect

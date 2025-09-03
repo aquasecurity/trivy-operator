@@ -16,6 +16,7 @@ import (
 
 	"github.com/aquasecurity/trivy-operator/pkg/operator"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/tests/itest/helper"
 	"github.com/aquasecurity/trivy-operator/tests/itest/trivy-operator/behavior"
@@ -83,6 +84,10 @@ var _ = BeforeSuite(func() {
 		Data: map[string]string{
 			"trivy.useBuiltinRegoPolicies":    "true",
 			"trivy.supportedConfigAuditKinds": "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota,PersistentVolume,PersistentVolumeClaim",
+			"trivy.repository":                trivy.DefaultImageRepository,
+			"trivy.tag":                       "0.65.0",
+			"trivy.dbRepository":              trivy.DefaultDBRepository,
+			"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
 		},
 	}
 	_ = kubeClient.Create(context.Background(), pluginCM)

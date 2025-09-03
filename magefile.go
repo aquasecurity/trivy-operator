@@ -123,7 +123,6 @@ func (t Test) Unit() error {
 func (t Test) Integration() error {
 	fmt.Println("Preparing integration tests for Trivy Operator...")
 	mg.Deps(checkEnvKubeconfig, checkEnvOperatorNamespace, checkEnvOperatorTargetNamespace, getGinkgo)
-	mg.Deps(prepareImages)
 
 	fmt.Println("Running integration tests for Trivy Operator...")
 	return sh.RunV(GINKGO, "-v", "-coverprofile=coverage.txt",
@@ -135,59 +134,6 @@ func (t Test) Integration() error {
 			"github.com/aquasecurity/trivy-operator/pkg/configauditreport,"+
 			"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport",
 		"./tests/itest/trivy-operator")
-}
-
-// Target for downloading test images and upload them into KinD
-func prepareImages() error {
-	err := sh.Run("docker", "pull", "mirror.gcr.io/knqyf263/vuln-image:1.2.3")
-	if err != nil {
-		return fmt.Errorf("couldn't pull image 'mirror.gcr.io/knqyf263/vuln-image:1.2.3': %v", err)
-	}
-	const buildCommand = `FROM %s
-CMD ["/bin/sh", "-c", "while true; do sleep 30; done;"]`
-
-	images := []string{
-		"docker.io/library/alpine:3.21.1",
-		"docker.io/library/alpine:3.22.1",
-	}
-	fmt.Printf("Preparing %d image(s) for Trivy Operator...\n", len(images))
-	for _, image := range images {
-		metadata := strings.Split(image, ":")
-		if len(metadata) != 2 {
-			return fmt.Errorf("invalid image format: %s", image)
-		}
-		imageRunner := fmt.Sprintf("%s-runner:%s", metadata[0], metadata[1])
-
-		dockerfile, err := os.CreateTemp("", "dockerfile-*")
-		if err != nil {
-			return fmt.Errorf("could not create temporary dockerfile: %v", err)
-		}
-		defer os.Remove(dockerfile.Name())
-		if err = os.WriteFile(dockerfile.Name(), []byte(fmt.Sprintf(buildCommand, image)), 0644); err != nil {
-			return fmt.Errorf("failed to write to temp file: %v", err)
-		}
-
-		fmt.Printf("Preparing image %q for Trivy Operator...\n", imageRunner)
-		args := []string{
-			"build",
-			"--platform", "linux/amd64",
-			"-t", imageRunner,
-			"-f",
-			dockerfile.Name(),
-			".",
-		}
-
-		err = sh.Run("docker", args...)
-		if err != nil {
-			return fmt.Errorf("couldn't build image %q: %v", image, err)
-		}
-
-		err = sh.Run("kind", "load", "docker-image", imageRunner)
-		if err != nil {
-			return fmt.Errorf("couldn't load image %q: %v", image, err)
-		}
-	}
-	return nil
 }
 
 // Targets for checking if environment variables are set.

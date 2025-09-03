@@ -76,7 +76,11 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 				deploy = helper.NewDeployment().
 					WithRandomName(inputs.PrimaryWorkloadPrefix).
 					WithNamespace(inputs.PrimaryNamespace).
-					WithContainer("alpine-runner", "alpine-runner:3.21.1").
+					WithContainer(
+						"alpine-runner",
+						"alpine:3.21.1",
+						[]string{"/bin/sh"},
+						[]string{"-c", "while true; do sleep 30; done;"}).
 					Build()
 
 				err := inputs.Create(ctx, deploy)
@@ -109,7 +113,11 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 				deploy = helper.NewDeployment().
 					WithRandomName(inputs.PrimaryWorkloadPrefix).
 					WithNamespace(inputs.PrimaryNamespace).
-					WithContainer("alpine-runner", "alpine-runner:3.21.1").
+					WithContainer(
+						"alpine-runner",
+						"alpine:3.21.1",
+						[]string{"/bin/sh"},
+						[]string{"-c", "while true; do sleep 30; done;"}).
 					Build()
 
 				err := inputs.Create(ctx, deploy)
@@ -126,7 +134,7 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 				By("Waiting for VulnerabilityReport")
 				Eventually(inputs.HasVulnerabilityReportOwnedBy(ctx, rs), inputs.AssertTimeout).Should(BeTrue())
 
-				By("Updating deployment image to alpine-runner:3.22.1")
+				By("Updating deployment image to alpine:3.22.1")
 				err = inputs.UpdateDeploymentImage(ctx, inputs.PrimaryNamespace, deploy.Name)
 				Expect(err).ToNot(HaveOccurred())
 
@@ -252,7 +260,11 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 				deploy = helper.NewDeployment().
 					WithRandomName(inputs.PrimaryWorkloadPrefix).
 					WithNamespace(inputs.PrimaryNamespace).
-					WithContainer("alpine-runner", "alpine-runner:3.21.1").
+					WithContainer(
+						"alpine-runner",
+						"alpine:3.21.1",
+						[]string{"/bin/sh"},
+						[]string{"-c", "while true; do sleep 30; done;"}).
 					Build()
 
 				err := inputs.Create(ctx, deploy)
@@ -285,7 +297,11 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 				deploy = helper.NewDeployment().
 					WithRandomName(inputs.PrimaryWorkloadPrefix).
 					WithNamespace(inputs.PrimaryNamespace).
-					WithContainer("alpine-runner", "alpine-runner:3.21.1").
+					WithContainer(
+						"alpine-runner",
+						"alpine:3.21.1",
+						[]string{"/bin/sh"},
+						[]string{"-c", "while true; do sleep 30; done;"}).
 					Build()
 
 				err := inputs.Create(ctx, deploy)
@@ -302,7 +318,7 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 				By("Waiting for ConfigAuditReport")
 				Eventually(inputs.HasConfigAuditReportOwnedBy(ctx, rs), inputs.AssertTimeout).Should(BeTrue())
 
-				By("Updating deployment image to alpine-runner:3.22.2")
+				By("Updating deployment image to alpine:3.22.2")
 				err = inputs.UpdateDeploymentImage(ctx, inputs.PrimaryNamespace, deploy.Name)
 				Expect(err).ToNot(HaveOccurred())
 
@@ -384,7 +400,11 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 				deploy = helper.NewDeployment().
 					WithRandomName(inputs.PrimaryWorkloadPrefix).
 					WithNamespace(inputs.PrimaryNamespace).
-					WithContainer("alpine-runner", "alpine-runner:3.21.1").
+					WithContainer(
+						"alpine-runner",
+						"alpine:3.21.1",
+						[]string{"/bin/sh"},
+						[]string{"-c", "while true; do sleep 30; done;"}).
 					Build()
 
 				err := inputs.Create(ctx, deploy)

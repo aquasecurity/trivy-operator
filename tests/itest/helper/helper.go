@@ -200,10 +200,12 @@ func (b *DeploymentBuilder) WithNamespace(namespace string) *DeploymentBuilder {
 	return b
 }
 
-func (b *DeploymentBuilder) WithContainer(name, image string) *DeploymentBuilder {
+func (b *DeploymentBuilder) WithContainer(name, image string, commands, args []string) *DeploymentBuilder {
 	b.containers = append(b.containers, corev1.Container{
-		Name:  name,
-		Image: image,
+		Name:    name,
+		Image:   image,
+		Command: commands,
+		Args:    args,
 	})
 	return b
 }
@@ -483,7 +485,7 @@ func (h *Helper) UpdateDeploymentImage(ctx context.Context, namespace, name stri
 		}
 
 		dcDeploy := deployment.DeepCopy()
-		dcDeploy.Spec.Template.Spec.Containers[0].Image = "alpine-runner:3.22.1"
+		dcDeploy.Spec.Template.Spec.Containers[0].Image = "alpine:3.22.1"
 		err = h.kubeClient.Update(ctx, dcDeploy)
 		if err != nil && errors.IsConflict(err) {
 			return false, nil

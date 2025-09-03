@@ -112,6 +112,8 @@ func TestIsWorkload(t *testing.T) {
 }
 
 func TestIsClusterScopedKind(t *testing.T) {
+	sr := kube.NewK8sScopeResolver(fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).Build())
+
 	testCases := []struct {
 		kind string
 		want bool
@@ -143,7 +145,7 @@ func TestIsClusterScopedKind(t *testing.T) {
 	}
 	for _, tt := range testCases {
 		t.Run(fmt.Sprintf("Should return %t when controller kind is %s", tt.want, tt.kind), func(t *testing.T) {
-			assert.Equal(t, tt.want, kube.IsClusterScopedKind(tt.kind))
+			assert.Equal(t, tt.want, sr.IsClusterScope(tt.kind))
 		})
 	}
 }
@@ -1564,59 +1566,6 @@ func TestIsRoleTypes(t *testing.T) {
 	for _, tt := range testCases {
 		t.Run(fmt.Sprintf("Should return %t when  kind is %s", tt.want, tt.kind), func(t *testing.T) {
 			assert.Equal(t, tt.want, kube.IsRoleTypes(kube.Kind(tt.kind)))
-		})
-	}
-}
-
-func TestIsValidK8sKinds(t *testing.T) {
-	testCases := []struct {
-		kind string
-		want bool
-	}{
-		{
-			kind: "Pod",
-			want: true,
-		},
-		{
-			kind: "ClusterRole",
-			want: true,
-		},
-		{
-			kind: "Deployment",
-			want: true,
-		},
-		{
-			kind: "ReplicationController",
-			want: true,
-		},
-		{
-			kind: "StatefulSet",
-			want: true,
-		},
-		{
-			kind: "Job",
-			want: true,
-		},
-		{
-			kind: "Deployment",
-			want: true,
-		},
-		{
-			kind: "CronJob",
-			want: true,
-		},
-		{
-			kind: "CustomResourceDefinition",
-			want: true,
-		},
-		{
-			kind: "Test",
-			want: false,
-		},
-	}
-	for _, tt := range testCases {
-		t.Run(fmt.Sprintf("Should return %t when kind is %s", tt.want, tt.kind), func(t *testing.T) {
-			assert.Equal(t, tt.want, kube.IsValidK8sKind(tt.kind))
 		})
 	}
 }

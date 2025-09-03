@@ -23,6 +23,8 @@ type Config struct {
 	ConcurrentScanJobsLimit                      int            `env:"OPERATOR_CONCURRENT_SCAN_JOBS_LIMIT" envDefault:"10"`
 	ConcurrentNodeCollectorLimit                 int            `env:"OPERATOR_CONCURRENT_NODE_COLLECTOR_LIMIT" envDefault:"1"`
 	ScanJobRetryAfter                            time.Duration  `env:"OPERATOR_SCAN_JOB_RETRY_AFTER" envDefault:"30s"`
+	ScanJobResultWaitTimeout                     time.Duration  `env:"OPERATOR_SCAN_JOB_RESULT_WAIT_TIMEOUT" envDefault:"30s"`
+	ScanJobResultQueueFullTimeout                time.Duration  `env:"OPERATOR_SCAN_JOB_QUEUE_FULL_TIMEOUT" envDefault:"5s"`
 	BatchDeleteLimit                             int            `env:"OPERATOR_BATCH_DELETE_LIMIT" envDefault:"10"`
 	BatchDeleteDelay                             time.Duration  `env:"OPERATOR_BATCH_DELETE_DELAY" envDefault:"10s"`
 	MetricsBindAddress                           string         `env:"OPERATOR_METRICS_BIND_ADDRESS" envDefault:":8080"`

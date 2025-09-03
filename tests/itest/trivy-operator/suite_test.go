@@ -70,7 +70,7 @@ var _ = BeforeSuite(func() {
 		AssertTimeout:         5 * time.Minute,
 		PollingInterval:       5 * time.Second,
 		PrimaryNamespace:      corev1.NamespaceDefault,
-		PrimaryWorkloadPrefix: "wordpress",
+		PrimaryWorkloadPrefix: "alpine-runner",
 		Client:                kubeClient,
 		Helper:                helper.NewHelper(kubeClient),
 	}

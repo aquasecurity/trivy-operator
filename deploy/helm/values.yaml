@@ -624,6 +624,20 @@ trivy:
     # -- the number of replicas of the trivy-server
     replicas: 1
 
+    # -- volumes set trivy-server volumes
+    extraServerVolumes:
+      # Statefulset volumeMounts
+      volumeMounts: []
+        # - name: trusted-ca
+        #   mountPath: /etc/ssl/trusted-ca
+        #   subPath: trusted-ca.crt
+        #   readOnly: true
+      # Statefulset volumes
+      volumes: []
+        # - name: trusted-ca
+        #   secret:
+        #     secretName: trusted-ca
+
   # -- vaulesFromConfigMap name of a ConfigMap to apply TRIVY_* environment variables. Will override Helm values.
   valuesFromConfigMap: ""
 

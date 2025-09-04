@@ -156,8 +156,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 						metaObj.GetObjectMeta().SetLabels(filteredLabels)
 					}
 
-					// Clear resource version to reduce memory footprint
-					metaObj.GetObjectMeta().SetResourceVersion("")
+					// Clear managed fields to reduce memory footprint
 					metaObj.GetObjectMeta().SetManagedFields(nil)
 				}
 

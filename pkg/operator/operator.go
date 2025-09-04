@@ -56,14 +56,11 @@ func isEssentialAnnotation(key string) bool {
 
 	// Keep essential Kubernetes annotations
 	// ref: https://kubernetes.io/docs/reference/labels-annotations-taints/
-	essentialAnnotations := []string{
+	for _, essential := range []string{
 		"app.kubernetes.io/",
 		"kubernetes.io/",
 		"service.kubernetes.io/",
-		"deployment.kubernetes.io/revision",
-	}
-
-	for _, essential := range essentialAnnotations {
+	} {
 		if strings.HasPrefix(key, essential) {
 			return true
 		}
@@ -81,7 +78,7 @@ func isEssentialLabel(key string) bool {
 	}
 
 	// Keep essential Kubernetes labels
-	essentialLabels := []string{
+	for _, essential := range []string{
 		"app.kubernetes.io/",
 		"app",
 		"version",
@@ -90,9 +87,7 @@ func isEssentialLabel(key string) bool {
 		"controller-revision-hash",
 		"job-name",
 		"controller-uid",
-	}
-
-	for _, essential := range essentialLabels {
+	} {
 		if key == essential || strings.HasPrefix(key, essential) {
 			return true
 		}

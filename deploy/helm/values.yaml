@@ -199,6 +199,9 @@ operator:
   # -- valuesFromSecret name of a Secret to apply OPERATOR_* environment variables. Will override Helm AND ConfigMap values.
   valuesFromSecret: ""
 
+  # -- pprofBindAddress the address to bind the pprof server to. By default, it is not enabled.
+  pprofBindAddress: ""
+
 image:
   registry: "mirror.gcr.io"
   repository: "aquasec/trivy-operator"
@@ -357,7 +360,7 @@ trivy:
     # -- repository of the Trivy image
     repository: aquasec/trivy
     # -- tag version of the Trivy image
-    tag: 0.63.0
+    tag: 0.65.0
     # -- imagePullSecret is the secret name to be used when pulling trivy image from private registries example : reg-secret
     # It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace
     imagePullSecret: ~
@@ -811,6 +814,8 @@ alternateReportStorage:
   mountPath: "/mnt/data/trivy-operator"
   volumeName: "trivy-operator-pvc"
   storage: "10Gi"
+  # -- storageClassName for the PVC (optional, uses cluster default if not specified)
+  storageClassName: ""
   podSecurityContext:
     runAsUser: 10000
     fsGroup: 10000

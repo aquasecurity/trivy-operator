@@ -91,6 +91,13 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 		secrets = append(secrets, secret)
 	}
 
+	cacheDir := config.GetImageScanCacheDir()
+	args := []string{
+		"--cache-dir",
+		cacheDir,
+		"image",
+	}
+
 	trivyConfigName := trivyoperator.GetPluginConfigMapName(Plugin)
 
 	volumeMounts := []corev1.VolumeMount{
@@ -118,20 +125,10 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 	if volume, volumeMount := config.GenerateConfigFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
 		volumes = append(volumes, *volume)
 		volumeMounts = append(volumeMounts, *volumeMount)
+		args = append(args, "--config", configFileMountPath)
 	}
 
 	var initContainers []corev1.Container
-
-	cacheDir := config.GetImageScanCacheDir()
-
-	args := []string{
-		"--cache-dir",
-		cacheDir,
-		"image",
-	}
-	if config.ConfigFileExists() {
-		args = append(args, "--config", configFileMountPath)
-	}
 
 	trivyImageRef, err := config.GetImageRef()
 	if err != nil {

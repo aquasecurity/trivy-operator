@@ -9,7 +9,6 @@ import (
 
 	"github.com/bluele/gcache"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/kubernetes"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -46,56 +45,6 @@ var (
 	setupLog = log.Log.WithName("operator")
 )
 
-func isEssentialAnnotation(key string) bool {
-	// Keep trivy-operator specific annotations
-	if strings.HasPrefix(key, "trivy-operator.") ||
-		strings.HasPrefix(key, "aquasecurity.github.io/") ||
-		strings.HasPrefix(key, "trivyoperator.") {
-		return true
-	}
-
-	// Keep essential Kubernetes annotations
-	// ref: https://kubernetes.io/docs/reference/labels-annotations-taints/
-	for _, essential := range []string{
-		"app.kubernetes.io/",
-		"kubernetes.io/",
-		"service.kubernetes.io/",
-	} {
-		if strings.HasPrefix(key, essential) {
-			return true
-		}
-	}
-
-	return false
-}
-
-func isEssentialLabel(key string) bool {
-	// Keep trivy-operator specific labels
-	if strings.HasPrefix(key, "trivy-operator.") ||
-		strings.HasPrefix(key, "aquasecurity.github.io/") ||
-		strings.HasPrefix(key, "trivyoperator.") {
-		return true
-	}
-
-	// Keep essential Kubernetes labels
-	for _, essential := range []string{
-		"app.kubernetes.io/",
-		"app",
-		"version",
-		"tier",
-		"pod-template-hash",
-		"controller-revision-hash",
-		"job-name",
-		"controller-uid",
-	} {
-		if key == essential || strings.HasPrefix(key, essential) {
-			return true
-		}
-	}
-
-	return false
-}
-
 // Start starts all registered reconcilers and blocks until the context is canceled.
 // Returns an error if there is an error starting any reconciler.
 //
@@ -127,46 +76,14 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		},
 		Cache: cache.Options{
 			DefaultTransform: func(obj any) (any, error) {
-				obj, err := cache.TransformStripManagedFields()(obj)
-				if err != nil {
-					return obj, err
-				}
-				if metaObj, ok := obj.(metav1.ObjectMetaAccessor); ok {
-					annotations := metaObj.GetObjectMeta().GetAnnotations()
-					if annotations != nil {
-						// Keep only essential annotations to reduce memory
-						filteredAnnotations := make(map[string]string)
-						for k, v := range annotations {
-							if isEssentialAnnotation(k) {
-								filteredAnnotations[k] = v
-							}
-						}
-						metaObj.GetObjectMeta().SetAnnotations(filteredAnnotations)
-					}
-
-					// Clear labels that are not essential for trivy-operator
-					labels := metaObj.GetObjectMeta().GetLabels()
-					if labels != nil {
-						filteredLabels := make(map[string]string)
-						for k, v := range labels {
-							if isEssentialLabel(k) {
-								filteredLabels[k] = v
-							}
-						}
-						metaObj.GetObjectMeta().SetLabels(filteredLabels)
-					}
-
-					// Clear managed fields to reduce memory footprint
-					metaObj.GetObjectMeta().SetManagedFields(nil)
-				}
-
 				if cm, ok := obj.(*corev1.ConfigMap); ok {
-					// Strip data from ALL ConfigMaps except the two operator ConfigMaps
+					// Strip data from ALL ConfigMaps except the operator ConfigMaps
 					if cm.Name != trivyoperator.PoliciesConfigMapName && cm.Name != trivyoperator.TrivyConfigMapName {
 						cm.Data = nil
 						cm.BinaryData = nil
 					}
 				}
+
 				return obj, nil
 			},
 		},

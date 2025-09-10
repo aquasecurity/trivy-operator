@@ -63,6 +63,7 @@ type Config struct {
 	ControllerCacheSyncTimeout                   *time.Duration `env:"CONTROLLER_CACHE_SYNC_TIMEOUT" envDefault:"5m"`
 	AltReportStorageEnabled                      bool           `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_ENABLED" envDefault:"false"`
 	AltReportDir                                 string         `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_DIR" envDefault:""`
+	AltReportPrettyPrint                         bool           `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_PRETTY_PRINT" envDefault:"false"`
 	PprofBindAddress                             string         `env:"OPERATOR_PPROF_BIND_ADDRESS" envDefault:""`
 }
 

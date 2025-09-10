@@ -2,7 +2,6 @@ package infraassessment
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -22,6 +21,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
 )
 
 type ReportBuilder struct {
@@ -185,14 +185,10 @@ func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
 			log.V(1).Info("Writing cluster Infra assessment report to alternate storage", "dir", b.Config.AltReportDir)
 			// Write the cluster infra assessment report to a file
 			reportDir := b.Config.AltReportDir
+			reportPrettyPrint := b.Config.AltReportPrettyPrint
 			infraAssessmentDir := filepath.Join(reportDir, "cluster_infra_assessment_reports")
 			if err := os.MkdirAll(infraAssessmentDir, 0o750); err != nil {
 				return fmt.Errorf("failed to make infraAssessmentDir %s: %w", infraAssessmentDir, err)
-			}
-
-			reportData, err := json.Marshal(report)
-			if err != nil {
-				return fmt.Errorf("failed to marshal cluster infra assessment report: %w", err)
 			}
 
 			// Extract workload kind and name from report labels
@@ -200,7 +196,7 @@ func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
 			workloadName := report.Labels["trivy-operator.resource.name"]
 
 			reportPath := filepath.Join(infraAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-			err = os.WriteFile(reportPath, reportData, 0o600)
+			err = utils.StreamReportToFile(report, reportPath, 0o600, reportPrettyPrint)
 			if err != nil {
 				return fmt.Errorf("failed to write cluster infra assessment report: %w", err)
 			}

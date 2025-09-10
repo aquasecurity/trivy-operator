@@ -2,7 +2,6 @@ package controller
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -26,6 +25,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
 
 	. "github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 )
@@ -171,6 +171,7 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 	}
 	// Not writing if alternate storage is enabled
 	if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
+		reportPrettyPrint := r.Config.AltReportPrettyPrint
 		log.V(1).Info("Writing infra assessment report to alternate storage", "dir", r.Config.AltReportDir)
 		clusterInfraReport, err := infraReportBuilder.GetClusterReport()
 		if err != nil {
@@ -184,16 +185,12 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 			return err
 		}
 
-		reportData, err := json.Marshal(misConfigData.infraAssessmentReportData)
-		if err != nil {
-			return fmt.Errorf("failed to marshal compliance report: %w", err)
-		}
 		labels := clusterInfraReport.GetLabels()
 		// Extract workload kind and name from report labels
 		workloadKind := labels["trivy-operator.resource.kind"]
 		workloadName := labels["trivy-operator.resource.name"]
 		reportPath := filepath.Join(clusterInfraReportDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-		err = os.WriteFile(reportPath, reportData, 0o600)
+		err = utils.StreamReportToFile(misConfigData.infraAssessmentReportData, reportPath, 0o600, reportPrettyPrint)
 		if err != nil {
 			return fmt.Errorf("failed to write compliance report: %w", err)
 		}

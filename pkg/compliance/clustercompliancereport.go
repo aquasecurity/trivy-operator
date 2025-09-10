@@ -2,7 +2,6 @@ package compliance
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -67,19 +66,14 @@ func (r *ClusterComplianceReportReconciler) generateComplianceReport(ctx context
 			if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
 				// Write the compliance report to a file
 				reportDir := r.Config.AltReportDir
+				reportPrettyPrint := r.Config.AltReportPrettyPrint
 				complianceReportDir := filepath.Join(reportDir, "cluster_compliance_report")
 				if err := os.MkdirAll(complianceReportDir, 0o750); err != nil {
 					return fmt.Errorf("failed to create report directory: %w", err)
 				}
-				reportData, err := json.Marshal(report)
-				if err != nil {
-					log.Error(err, "Failed to marshal compliance report")
-					return err
-				}
-
 				reportPath := filepath.Join(complianceReportDir, fmt.Sprintf("%s-%s.json", report.Kind, report.Name))
 				log.Info("Writing cluster compliance report to alternate storage", "path", reportPath)
-				err = os.WriteFile(reportPath, reportData, 0o600)
+				err = utils.StreamReportToFile(report, reportPath, 0o600, reportPrettyPrint)
 				if err != nil {
 					log.Error(err, "Failed to write compliance report", "path", reportPath)
 					return err

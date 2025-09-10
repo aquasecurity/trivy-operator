@@ -2,7 +2,6 @@ package compliance
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -17,6 +16,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	"github.com/aquasecurity/trivy/pkg/compliance/report"
 	ttypes "github.com/aquasecurity/trivy/pkg/types"
 )
@@ -55,6 +55,7 @@ func (w *cm) GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportS
 	}
 
 	if w.Config.AltReportStorageEnabled && w.Config.AltReportDir != "" {
+		reportPrettyPrint := w.Config.AltReportPrettyPrint
 		operatorNamespace, err := w.GetOperatorNamespace()
 		if err != nil {
 			return fmt.Errorf("failed to get operator namespace: %w", err)
@@ -70,14 +71,9 @@ func (w *cm) GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportS
 			return err
 		}
 
-		reportData, err := json.Marshal(updatedReport)
-		if err != nil {
-			return fmt.Errorf("failed to marshal compliance report: %w", err)
-		}
-
 		reportPath := filepath.Join(complianceReportDir, fmt.Sprintf("%s-%s.json", updatedReport.Kind, updatedReport.Name))
 		log.Info("Writing cluster compliance report to alternate storage", "path", reportPath)
-		err = os.WriteFile(reportPath, reportData, 0o600)
+		err = utils.StreamReportToFile(updatedReport, reportPath, 0o600, reportPrettyPrint)
 		if err != nil {
 			return fmt.Errorf("failed to write compliance report: %w", err)
 		}

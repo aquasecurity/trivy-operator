@@ -13,7 +13,8 @@ Keeps security report resources updated
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` | affinity set the operator affinity |
-| alternateReportStorage | object | `{"enabled":false,"mountPath":"/mnt/data/trivy-operator","podSecurityContext":{"fsGroup":10000,"runAsUser":10000},"storage":"10Gi","storageClassName":"","volumeName":"trivy-operator-pvc"}` | alternateReportStorage is the flag to enable alternate storage for all trivy reports (crds) in the form json files inside of a persistent volume |
+| alternateReportStorage | object | `{"enabled":false,"mountPath":"/mnt/data/trivy-operator","podSecurityContext":{"fsGroup":10000,"runAsUser":10000},"prettyPrint":false,"storage":"10Gi","storageClassName":"","volumeName":"trivy-operator-pvc"}` | alternateReportStorage is the flag to enable alternate storage for all trivy reports (crds) in the form json files inside of a persistent volume |
+| alternateReportStorage.prettyPrint | bool | `false` | prettyPrint enables pretty printing the report JSON so that it is more human readable |
 | alternateReportStorage.storageClassName | string | `""` | storageClassName for the PVC (optional, uses cluster default if not specified) |
 | automountServiceAccountToken | bool | `true` | automountServiceAccountToken the flag to enable automount for service account token |
 | compliance.cron | string | `"0 */6 * * *"` | cron this flag control the cron interval for compliance report generation |

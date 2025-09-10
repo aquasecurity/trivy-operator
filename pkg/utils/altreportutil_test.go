@@ -54,59 +54,62 @@ type TestVulnerability struct {
 }
 
 func TestStreamReportToFile(t *testing.T) {
+	mockReport := TestVulnerabilityReport{
+		APIVersion: "aquasecurity.github.io/v1alpha1",
+		Kind:       "VulnerabilityReport",
+		Metadata: TestReportMetadata{
+			Name:      "test-vulnerability-report",
+			Namespace: "default",
+			Labels: map[string]string{
+				"app.kubernetes.io/name":  "test-app",
+				"trivy-operator.resource": "test",
+			},
+		},
+		Report: TestVulnerabilityData{
+			Scanner: TestScanner{
+				Name:    "Trivy",
+				Vendor:  "Aqua Security",
+				Version: "v0.65.0",
+			},
+			Summary: TestSummary{
+				CriticalCount: 2,
+				HighCount:     5,
+				MediumCount:   3,
+				LowCount:      1,
+			},
+			Vulnerabilities: []TestVulnerability{
+				{
+					VulnerabilityID: "CVE-2023-1234",
+					Severity:        "CRITICAL",
+					Title:           "Test Critical Vulnerability",
+					Description:     "A test critical vulnerability for unit testing",
+					FixedVersion:    "1.2.3",
+					Links:           []string{"https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-1234"},
+				},
+				{
+					VulnerabilityID: "CVE-2023-5678",
+					Severity:        "HIGH",
+					Title:           "Test High Vulnerability",
+					Description:     "A test high vulnerability for unit testing",
+					FixedVersion:    "1.2.4",
+					Links:           []string{"https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-5678"},
+				},
+			},
+		},
+	}
+
 	tests := []struct {
 		name           string
 		report         any
 		setupFile      func(t *testing.T) string
 		validateResult func(t *testing.T, filePath string, originalReport any)
+		expectPretty   bool
 		expectError    bool
 		errorContains  string
 	}{
 		{
-			name: "successful streaming of vulnerability report",
-			report: TestVulnerabilityReport{
-				APIVersion: "aquasecurity.github.io/v1alpha1",
-				Kind:       "VulnerabilityReport",
-				Metadata: TestReportMetadata{
-					Name:      "test-vulnerability-report",
-					Namespace: "default",
-					Labels: map[string]string{
-						"app.kubernetes.io/name":  "test-app",
-						"trivy-operator.resource": "test",
-					},
-				},
-				Report: TestVulnerabilityData{
-					Scanner: TestScanner{
-						Name:    "Trivy",
-						Vendor:  "Aqua Security",
-						Version: "v0.65.0",
-					},
-					Summary: TestSummary{
-						CriticalCount: 2,
-						HighCount:     5,
-						MediumCount:   3,
-						LowCount:      1,
-					},
-					Vulnerabilities: []TestVulnerability{
-						{
-							VulnerabilityID: "CVE-2023-1234",
-							Severity:        "CRITICAL",
-							Title:           "Test Critical Vulnerability",
-							Description:     "A test critical vulnerability for unit testing",
-							FixedVersion:    "1.2.3",
-							Links:           []string{"https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-1234"},
-						},
-						{
-							VulnerabilityID: "CVE-2023-5678",
-							Severity:        "HIGH",
-							Title:           "Test High Vulnerability",
-							Description:     "A test high vulnerability for unit testing",
-							FixedVersion:    "1.2.4",
-							Links:           []string{"https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-5678"},
-						},
-					},
-				},
-			},
+			name:   "successful streaming of vulnerability report (pretty printed)",
+			report: mockReport,
 			setupFile: func(t *testing.T) string {
 				tmpDir := t.TempDir()
 				return filepath.Join(tmpDir, "vulnerability-report.json")
@@ -137,7 +140,44 @@ func TestStreamReportToFile(t *testing.T) {
 				assert.Contains(t, string(content), "  \"apiVersion\":")
 				assert.Contains(t, string(content), "    \"name\":")
 			},
-			expectError: false,
+			expectPretty: true,
+			expectError:  false,
+		},
+		{
+			name:   "successful streaming of vulnerability report (single line)",
+			report: mockReport,
+			setupFile: func(t *testing.T) string {
+				tmpDir := t.TempDir()
+				return filepath.Join(tmpDir, "vulnerability-report.json")
+			},
+			validateResult: func(t *testing.T, filePath string, originalReport any) {
+				// Check file exists
+				assert.FileExists(t, filePath)
+
+				// Read file content
+				content, err := os.ReadFile(filePath)
+				require.NoError(t, err)
+
+				// Validate JSON structure
+				var decodedReport TestVulnerabilityReport
+				err = json.Unmarshal(content, &decodedReport)
+				require.NoError(t, err)
+
+				// Validate content matches original
+				original := originalReport.(TestVulnerabilityReport)
+				assert.Equal(t, original.APIVersion, decodedReport.APIVersion)
+				assert.Equal(t, original.Kind, decodedReport.Kind)
+				assert.Equal(t, original.Metadata.Name, decodedReport.Metadata.Name)
+				assert.Equal(t, original.Report.Scanner.Name, decodedReport.Report.Scanner.Name)
+				assert.Equal(t, original.Report.Summary.CriticalCount, decodedReport.Report.Summary.CriticalCount)
+				assert.Len(t, decodedReport.Report.Vulnerabilities, 2)
+
+				// Validate pretty printing (indentation)
+				assert.Contains(t, string(content), "\"apiVersion\":")
+				assert.Contains(t, string(content), "\"name\":")
+			},
+			expectPretty: true,
+			expectError:  false,
 		},
 		{
 			name:   "failure due to invalid directory path",
@@ -149,6 +189,7 @@ func TestStreamReportToFile(t *testing.T) {
 				// File should not exist
 				assert.NoFileExists(t, filePath)
 			},
+			expectPretty:  false,
 			expectError:   true,
 			errorContains: "failed to create file",
 		},
@@ -170,6 +211,7 @@ func TestStreamReportToFile(t *testing.T) {
 					assert.Equal(t, int64(0), info.Size())
 				}
 			},
+			expectPretty:  false,
 			expectError:   true,
 			errorContains: "failed to encode report",
 		},
@@ -180,7 +222,7 @@ func TestStreamReportToFile(t *testing.T) {
 			filePath := tt.setupFile(t)
 
 			// Execute the function under test
-			err := StreamReportToFile(tt.report, filePath, 0o666, false)
+			err := StreamReportToFile(tt.report, filePath, 0o666, tt.expectPretty)
 
 			// Validate error expectations
 			if tt.expectError {

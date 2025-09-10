@@ -31,6 +31,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	vc "github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
 	"github.com/aquasecurity/trivy/pkg/clock"
 	"github.com/aquasecurity/trivy/pkg/flag"
@@ -213,18 +214,14 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 		}
 		// Write the sbom report to a file
 		reportDir := r.Config.AltReportDir
+		reportPrettyPrint := r.Config.AltReportPrettyPrint
 		sbomReportDir := filepath.Join(reportDir, "cluster_sbom_reports")
 		if err := os.MkdirAll(sbomReportDir, 0o750); err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to make sbomReportDir %s: %w", sbomReportDir, err)
 		}
 
-		reportData, err := json.Marshal(sbomReport)
-		if err != nil {
-			return ctrl.Result{}, fmt.Errorf("failed to marshal sbom report: %w", err)
-		}
-
 		reportPath := filepath.Join(sbomReportDir, fmt.Sprintf("%s.json", sbomReport.Name))
-		err = os.WriteFile(reportPath, reportData, 0o600)
+		err = utils.StreamReportToFile(sbomReport, reportPath, 0o600, reportPrettyPrint)
 		if err != nil {
 			return ctrl.Result{}, fmt.Errorf("failed to write sbom report: %w", err)
 		}

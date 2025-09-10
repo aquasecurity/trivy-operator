@@ -2,7 +2,6 @@ package controller
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -32,6 +31,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	"github.com/aquasecurity/trivy/pkg/iac/scan"
 )
 
@@ -300,6 +300,7 @@ func (r *ResourceController) writeAlternateReports(resource client.Object, misCo
 	if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
 		// Get the report directory from the environment variable
 		reportDir := r.Config.AltReportDir
+		reportPrettyPrint := r.Config.AltReportPrettyPrint
 		// Create subdirectories for each type of report
 		configAuditDir := filepath.Join(reportDir, "config_audit_reports")
 		rbacAssessmentDir := filepath.Join(reportDir, "rbac_assessment_reports")
@@ -323,36 +324,24 @@ func (r *ResourceController) writeAlternateReports(resource client.Object, misCo
 		workloadName := resource.GetName()
 
 		// Write config audit report to a file
-		configReportData, err := json.Marshal(misConfigData.configAuditReportData)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
 		configReportPath := filepath.Join(configAuditDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-		err = os.WriteFile(configReportPath, configReportData, 0o600)
+		err := utils.StreamReportToFile(misConfigData.configAuditReportData, configReportPath, 0o600, reportPrettyPrint)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
 		log.Info("Config audit report written", "path", configReportPath)
 
 		// Write infra assessment report to a file
-		infraReportData, err := json.Marshal(misConfigData.infraAssessmentReportData)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
 		infraReportPath := filepath.Join(infraAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-		err = os.WriteFile(infraReportPath, infraReportData, 0o600)
+		err = utils.StreamReportToFile(misConfigData.infraAssessmentReportData, infraReportPath, 0o600, reportPrettyPrint)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
 		log.Info("Infra assessment report written", "path", infraReportPath)
 
 		// Write RBAC assessment report to a file
-		rbacReportData, err := json.Marshal(misConfigData.rbacAssessmentReportData)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
 		rbacReportPath := filepath.Join(rbacAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-		err = os.WriteFile(rbacReportPath, rbacReportData, 0o600)
+		err = utils.StreamReportToFile(misConfigData.rbacAssessmentReportData, rbacReportPath, 0o600, reportPrettyPrint)
 		if err != nil {
 			return ctrl.Result{}, err
 		}

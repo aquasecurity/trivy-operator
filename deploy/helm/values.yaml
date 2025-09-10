@@ -811,6 +811,7 @@ nodeCollector:
 # -- alternateReportStorage is the flag to enable alternate storage for all trivy reports (crds) in the form json files inside of a persistent volume
 alternateReportStorage:
   enabled: false
+  prettyPrint: false
   mountPath: "/mnt/data/trivy-operator"
   volumeName: "trivy-operator-pvc"
   storage: "10Gi"

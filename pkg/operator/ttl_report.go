@@ -119,7 +119,24 @@ func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespa
 }
 
 func (r *TTLReportReconciler) applicableForDeletion(ctx context.Context, report client.Object, ttlReportAnnotationStr string) bool {
-	reportKind := report.GetObjectKind().GroupVersionKind().Kind
+    reportKind := report.GetObjectKind().GroupVersionKind().Kind
+    // In controller-runtime >= v0.22 fake client may not set GVK on Get; fall back to Go type
+    if reportKind == "" {
+        switch report.(type) {
+        case *v1alpha1.VulnerabilityReport:
+            reportKind = "VulnerabilityReport"
+        case *v1alpha1.ExposedSecretReport:
+            reportKind = "ExposedSecretReport"
+        case *v1alpha1.ClusterSbomReport:
+            reportKind = "ClusterSbomReport"
+        case *v1alpha1.ConfigAuditReport:
+            reportKind = "ConfigAuditReport"
+        case *v1alpha1.InfraAssessmentReport:
+            reportKind = "InfraAssessmentReport"
+        case *v1alpha1.RbacAssessmentReport:
+            reportKind = "RbacAssessmentReport"
+        }
+    }
 	if reportKind == "VulnerabilityReport" || reportKind == "ExposedSecretReport" || reportKind == "ClusterSbomReport" {
 		return true
 	}

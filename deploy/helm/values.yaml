@@ -199,6 +199,12 @@ operator:
   # -- valuesFromSecret name of a Secret to apply OPERATOR_* environment variables. Will override Helm AND ConfigMap values.
   valuesFromSecret: ""
 
+  # -- scanJobResultWaitTimeout the duration to wait before giving up on waiting for a scan job result
+  scanJobResultWaitTimeout: "30s"
+
+  # -- scanJobQueueFullTimeout the duration to wait before giving up on creating a scan job when the job queue is full
+  scanJobQueueFullTimeout: "5s"
+
   # -- pprofBindAddress the address to bind the pprof server to. By default, it is not enabled.
   pprofBindAddress: ""
 

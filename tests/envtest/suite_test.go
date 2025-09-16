@@ -103,6 +103,9 @@ var _ = BeforeSuite(func() {
 		InfraAssessmentScannerEnabled: true,
 		ClusterComplianceEnabled:      true,
 		InvokeClusterComplianceOnce:   true,
+		ScanJobResultQueueFullTimeout: 5 * time.Second,
+		ScanJobResultWaitTimeout:      30 * time.Second,
+		ScanJobRetryAfter:             30 * time.Second,
 	}
 
 	trivyOperatorConfig := trivyoperator.GetDefaultConfig()

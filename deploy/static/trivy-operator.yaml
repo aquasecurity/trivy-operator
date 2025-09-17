@@ -3047,7 +3047,7 @@ metadata:
     app.kubernetes.io/managed-by: kubectl
 data:
   trivy.repository: "mirror.gcr.io/aquasec/trivy"
-  trivy.tag: "0.65.0"
+  trivy.tag: "0.66.0"
   trivy.imagePullPolicy: "IfNotPresent"
   trivy.additionalVulnerabilityReportFields: ""
   trivy.severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"

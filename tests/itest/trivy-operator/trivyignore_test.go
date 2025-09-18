@@ -28,8 +28,8 @@ var _ = Describe("Trivy ignoreFile integration", func() {
 		ctx = context.Background()
 	})
 
-	It("hides CVE-2025-47907 when set in .trivyignore", func() {
-		const IgnoredCVE = "CVE-2025-47907"
+	It("hides CVE when set in .trivyignore", func() {
+		const IgnoredCVE = "CVE-2018-14618"
 
 		// Patch trivy-operator-trivy-config ConfigMap to include CVEToIgnore in trivy.ignoreFile
 		operatorConfig, err := etc.GetOperatorConfig()
@@ -53,13 +53,13 @@ var _ = Describe("Trivy ignoreFile integration", func() {
 		Expect(kubeClient.Update(ctx, cm)).To(Succeed())
 
 		// Brief wait to reduce races where a scan could start before CM is observed by the controller
-		time.Sleep(3 * time.Second)
+		time.Sleep(5 * time.Second)
 
 		// Create an unmanaged Pod using kube-bench image and assert the ignored CVE is not reported
 		pod := helper.NewPod().
 			WithRandomName("trivyignore-kubebench").
 			WithNamespace(inputs.PrimaryNamespace).
-			WithContainer("kube-bench", "aquasec/kube-bench:v0.11.1", []string{"/bin/sh", "-c", "--"}, []string{"while true; do sleep 30; done;"}).
+			WithContainer("kube-bench", "mirror.gcr.io/knqyf263/vuln-image:1.2.3", []string{"/bin/sh", "-c", "--"}, []string{"while true; do sleep 30; done;"}).
 			Build()
 
 		By("Creating kube-bench Pod")

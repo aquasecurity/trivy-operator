@@ -40,12 +40,13 @@ var _ = Describe("Trivy ignoreFile integration", func() {
 		cm := &corev1.ConfigMap{}
 		Expect(kubeClient.Get(ctx, clientObjectKey(operatorNamespace, trivyoperator.TrivyConfigMapName), cm)).To(Succeed())
 
-		// Merge with existing content if present; ensure CVEToIgnore is present as a separate line
+		// Merge with existing content if present; ensure IgnoredCVE is present as a separate line
 		current := cm.Data["trivy.ignoreFile"]
 		if !strings.Contains(current, IgnoredCVE) {
 			if current != "" && !strings.HasSuffix(current, "\n") {
 				current += "\n"
 			}
+			current += fmt.Sprintf("%s\n", IgnoredCVE)
 		}
 		cm.Data["trivy.ignoreFile"] = current
 

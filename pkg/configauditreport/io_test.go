@@ -26,10 +26,6 @@ func TestReadWriter(t *testing.T) {
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := configauditreport.NewReadWriter(&resolver)
 		err := readWriter.WriteReport(t.Context(), v1alpha1.ConfigAuditReport{
-			TypeMeta: metav1.TypeMeta{
-				Kind:       "ConfigAuditReport",
-				APIVersion: "aquasecurity.github.io/v1alpha1",
-			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "deployment-app",
 				Namespace: "qa",
@@ -53,10 +49,6 @@ func TestReadWriter(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, v1alpha1.ConfigAuditReport{
-			TypeMeta: metav1.TypeMeta{
-				Kind:       "ConfigAuditReport",
-				APIVersion: "aquasecurity.github.io/v1alpha1",
-			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "deployment-app",
 				Namespace: "qa",
@@ -78,10 +70,6 @@ func TestReadWriter(t *testing.T) {
 
 	t.Run("Should update ConfigAuditReport", func(t *testing.T) {
 		testClient := fake.NewClientBuilder().WithScheme(kubernetesScheme).WithObjects(&v1beta1.CronJob{}, &v1alpha1.ConfigAuditReport{
-			TypeMeta: metav1.TypeMeta{
-				Kind:       "ConfigAuditReport",
-				APIVersion: "aquasecurity.github.io/v1alpha1",
-			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:            "deployment-app",
 				Namespace:       "qa",
@@ -103,10 +91,6 @@ func TestReadWriter(t *testing.T) {
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := configauditreport.NewReadWriter(&resolver)
 		err := readWriter.WriteReport(t.Context(), v1alpha1.ConfigAuditReport{
-			TypeMeta: metav1.TypeMeta{
-				Kind:       "ConfigAuditReport",
-				APIVersion: "aquasecurity.github.io/v1alpha1",
-			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "deployment-app",
 				Namespace: "qa",
@@ -131,10 +115,6 @@ func TestReadWriter(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, v1alpha1.ConfigAuditReport{
-			TypeMeta: metav1.TypeMeta{
-				Kind:       "ConfigAuditReport",
-				APIVersion: "aquasecurity.github.io/v1alpha1",
-			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "deployment-app",
 				Namespace: "qa",
@@ -268,10 +248,6 @@ func TestReadWriter(t *testing.T) {
 		resolver := kube.NewObjectResolver(testClient, &kube.CompatibleObjectMapper{})
 		readWriter := configauditreport.NewReadWriter(&resolver)
 		err := readWriter.WriteClusterReport(t.Context(), v1alpha1.ClusterConfigAuditReport{
-			TypeMeta: metav1.TypeMeta{
-				Kind:       "ClusterConfigAuditReport",
-				APIVersion: "aquasecurity.github.io/v1alpha1",
-			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "clusterrole-admin",
 				Labels: map[string]string{
@@ -293,10 +269,6 @@ func TestReadWriter(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, v1alpha1.ClusterConfigAuditReport{
-			TypeMeta: metav1.TypeMeta{
-				Kind:       "ClusterConfigAuditReport",
-				APIVersion: "aquasecurity.github.io/v1alpha1",
-			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "clusterrole-admin",
 				Labels: map[string]string{
@@ -368,10 +340,6 @@ func TestReadWriter(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, v1alpha1.ClusterConfigAuditReport{
-			TypeMeta: metav1.TypeMeta{
-				Kind:       "ClusterConfigAuditReport",
-				APIVersion: "aquasecurity.github.io/v1alpha1",
-			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "clusterrole-admin",
 				Labels: map[string]string{

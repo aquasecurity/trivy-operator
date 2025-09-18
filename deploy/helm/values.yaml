@@ -458,6 +458,10 @@ trivy:
   #   - CVE-1970-0001
   #   - CVE-1970-0002
 
+  # -- ignoreFileName sets the file name that will be mounted inside the scanner container.
+  # Defaults to ".trivyignore" if not set.
+  ignoreFileName: ""
+
   # -- configFile can be used to tell Trivy to use specific options available only in the config file (e.g. Mirror registries).
   configFile: ~
   # configFile:

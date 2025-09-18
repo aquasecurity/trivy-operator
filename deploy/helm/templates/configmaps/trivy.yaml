@@ -88,6 +88,9 @@ data:
   trivy.ignoreFile: |
   {{- .Values.trivy.ignoreFile | toYaml | nindent 4 }}
   {{- end }}
+  {{- with .Values.trivy.ignoreFileName }}
+  trivy.ignoreFileName: {{ . | quote }}
+  {{- end }}
   {{- range $k, $v := .Values.trivy }}
   {{- if hasPrefix "ignorePolicy" $k }}
   trivy.{{- $k }}: |

@@ -69,6 +69,73 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 
 		})
 
+		Context("When PersistentVolumeClaim is created", func() {
+
+			var ctx context.Context
+			var pvc *corev1.PersistentVolumeClaim
+
+			BeforeEach(func() {
+				ctx = context.Background()
+				qty := resource.MustParse("1Gi")
+				pvc = &corev1.PersistentVolumeClaim{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: inputs.PrimaryNamespace,
+						Name:      "pvc-" + rand.String(5),
+					},
+					Spec: corev1.PersistentVolumeClaimSpec{
+						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
+						Resources: corev1.VolumeResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceStorage: qty,
+							},
+						},
+					},
+				}
+				err := inputs.Create(ctx, pvc)
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("Should not create VulnerabilityReport", func() {
+				Consistently(inputs.HasVulnerabilityReportOwnedBy(ctx, pvc), time.Minute, inputs.PollingInterval).Should(BeFalse())
+			})
+
+			AfterEach(func() {
+				err := inputs.Delete(ctx, pvc)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("When unsupported resource Secret is created", func() {
+
+			var ctx context.Context
+			var secret *corev1.Secret
+
+			BeforeEach(func() {
+				ctx = context.Background()
+				secret = &corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: inputs.PrimaryNamespace,
+						Name:      "secret-" + rand.String(5),
+					},
+					Type: corev1.SecretTypeOpaque,
+					StringData: map[string]string{
+						"foo": "bar",
+					},
+				}
+				err := inputs.Create(ctx, secret)
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("Should not create VulnerabilityReport", func() {
+				Consistently(inputs.HasVulnerabilityReportOwnedBy(ctx, secret), time.Minute, inputs.PollingInterval).Should(BeFalse())
+			})
+
+			AfterEach(func() {
+				err := inputs.Delete(ctx, secret)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
 		Context("When Deployment is created", func() {
 
 			var ctx context.Context

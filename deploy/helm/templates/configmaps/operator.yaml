@@ -78,6 +78,12 @@ data:
   report.resourceLabels: {{ . | quote }}
   metrics.resourceLabelsPrefix: {{ $.Values.trivyOperator.metricsResourceLabelsPrefix | quote }}
   {{- end }}
+  {{- with .Values.trivyOperator.reportResourceAnnotations }}
+  report.resourceAnnotations: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.trivyOperator.additionalReportAnnotations }}
+  report.additionalAnnotations: {{ . | quote }}
+  {{- end }}
   {{- with .Values.trivyOperator.reportRecordFailedChecksOnly }}
   report.recordFailedChecksOnly: {{ . | quote }}
   {{- end }}

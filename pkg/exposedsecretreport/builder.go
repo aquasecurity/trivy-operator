@@ -18,13 +18,15 @@ import (
 )
 
 type ReportBuilder struct {
-	scheme                  *runtime.Scheme
-	controller              client.Object
-	container               string
-	hash                    string
-	data                    v1alpha1.ExposedSecretReportData
-	resourceLabelsToInclude []string
-	additionalReportLabels  labels.Set
+	scheme                       *runtime.Scheme
+	controller                   client.Object
+	container                    string
+	hash                         string
+	data                         v1alpha1.ExposedSecretReportData
+	resourceLabelsToInclude      []string
+	additionalReportLabels       labels.Set
+	resourceAnnotationsToInclude []string
+	additionalReportAnnotations  map[string]string
 }
 
 func NewReportBuilder(scheme *runtime.Scheme) *ReportBuilder {
@@ -63,6 +65,16 @@ func (b *ReportBuilder) AdditionalReportLabels(additionalReportLabels map[string
 	return b
 }
 
+func (b *ReportBuilder) ResourceAnnotationsToInclude(resourceAnnotationsToInclude []string) *ReportBuilder {
+	b.resourceAnnotationsToInclude = resourceAnnotationsToInclude
+	return b
+}
+
+func (b *ReportBuilder) AdditionalReportAnnotations(additionalReportAnnotations map[string]string) *ReportBuilder {
+	b.additionalReportAnnotations = additionalReportAnnotations
+	return b
+}
+
 func (b *ReportBuilder) reportName() string {
 	kind := b.controller.GetObjectKind().GroupVersionKind().Kind
 	name := b.controller.GetName()
@@ -88,11 +100,18 @@ func (b *ReportBuilder) Get() (v1alpha1.ExposedSecretReport, error) {
 		reportLabels[trivyoperator.LabelResourceSpecHash] = b.hash
 	}
 
+	annotationsSet := make(map[string]string)
+	// append matching resource annotations by config to report
+	kube.AppendResourceAnnotations(b.resourceAnnotationsToInclude, b.controller.GetAnnotations(), annotationsSet)
+	// append custom annotations by config to report
+	kube.AppendCustomAnnotations(b.additionalReportAnnotations, annotationsSet)
+
 	report := v1alpha1.ExposedSecretReport{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      b.reportName(),
-			Namespace: b.controller.GetNamespace(),
-			Labels:    reportLabels,
+			Name:        b.reportName(),
+			Namespace:   b.controller.GetNamespace(),
+			Labels:      reportLabels,
+			Annotations: annotationsSet,
 		},
 		Report: b.data,
 	}

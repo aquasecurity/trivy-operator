@@ -2,6 +2,7 @@ package trivy
 
 import (
 	"fmt"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -359,7 +360,7 @@ func (c Config) GetIgnoreFileName() string {
 
 // IgnoreFileMountPath returns full mount path for the ignore file.
 func (c Config) IgnoreFileMountPath() string {
-	return filepath.Join("/etc/trivy", c.GetIgnoreFileName())
+	return path.Join("/etc", "trivy", c.GetIgnoreFileName())
 }
 func (c Config) ConfigFileExists() bool {
 	_, ok := c.Data[keyTrivyConfigFile]

@@ -436,6 +436,10 @@ trivy:
 
   # -- slow this flag is to use less CPU/memory for scanning though it takes more time than normal scanning. It fits small-footprint
   slow: true
+  # -- skipVersionCheck is the flag to skip version check for Trivy.
+  skipVersionCheck: false
+  # -- disableTelemetry is the flag to disable telemetry for Trivy.
+  disableTelemetry: false
   # -- ignoreUnfixed is the flag to show only fixed vulnerabilities in
   # vulnerabilities reported by Trivy. Set to true to enable it.
   #

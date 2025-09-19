@@ -140,6 +140,7 @@ Keeps security report resources updated
 | trivy.dbRepositoryPassword | string | `nil` | The password for dbRepository authentication  |
 | trivy.dbRepositoryUsername | string | `nil` | The username for dbRepository authentication  |
 | trivy.debug | bool | `false` | debug One of `true` or `false`. Enables debug mode. |
+| trivy.disableTelemetry | bool | `false` | disableTelemetry is the flag to disable telemetry for Trivy. |
 | trivy.existingSecret | bool | `false` | existingSecret if a secret containing gitHubToken, serverToken or serverCustomHeaders has been created outside the chart (e.g external-secrets, sops, etc...). Keys must be at least one of the following: trivy.githubToken, trivy.serverToken, trivy.serverCustomHeaders Overrides trivy.gitHubToken, trivy.serverToken, trivy.serverCustomHeaders values. Note: The secret has to be named "trivy-operator-trivy-config". |
 | trivy.externalRegoPoliciesEnabled | bool | `false` | The Flag to enable the usage of external rego policies config-map, this should be used when the user wants to use their own rego policies  |
 | trivy.filesystemScanCacheDir | string | `"/var/trivyoperator/trivy-db"` | filesystemScanCacheDir the flag to set custom path for trivy filesystem scan `cache-dir` parameter. Only applicable in filesystem scan mode. |
@@ -184,6 +185,7 @@ Keeps security report resources updated
 | trivy.skipDirs | string | `nil` | a comma separated list of directories for Trivy to skip |
 | trivy.skipFiles | string | `nil` | a comma separated list of file paths for Trivy to skip |
 | trivy.skipJavaDBUpdate | bool | `false` | skipJavaDBUpdate is the flag to enable skip Java index databases update for Trivy client. |
+| trivy.skipVersionCheck | bool | `false` | skipVersionCheck is the flag to skip version check for Trivy. |
 | trivy.slow | bool | `true` | slow this flag is to use less CPU/memory for scanning though it takes more time than normal scanning. It fits small-footprint |
 | trivy.sslCertDir | string | `nil` | sslCertDir can be used to override the system default locations for SSL certificate files directory, example: /ssl/certs |
 | trivy.storageClassEnabled | bool | `true` | whether to use a storage class for trivy server or emptydir (one mey want to use ephemeral storage) |

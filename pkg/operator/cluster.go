@@ -277,7 +277,8 @@ func (r *ClusterController) reconcileKbom() reconcile.Func {
 				APIVersion: "v1alpha1",
 			},
 			ObjectMeta: metav1.ObjectMeta{
-				Name: kbom.Name,
+				Name:      kbom.Name,
+				Namespace: r.Config.Namespace,
 			},
 			Spec: corev1.PodSpec{
 				Containers: []corev1.Container{{

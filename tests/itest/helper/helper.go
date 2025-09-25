@@ -476,7 +476,7 @@ func (h *Helper) GetActiveReplicaSetForDeployment(ctx context.Context, namespace
 
 //nolint:staticcheck
 func (h *Helper) UpdateDeploymentImage(ctx context.Context, namespace, name string) error {
-	// TODO Check kubectl set image implementation
+	// Trigger a rollout by updating a pod template annotation to a new timestamp
 	return wait.PollImmediate(5*time.Second, 2*time.Minute, func() (bool, error) {
 		var deployment appsv1.Deployment
 		err := h.kubeClient.Get(ctx, types.NamespacedName{Name: name, Namespace: namespace}, &deployment)
@@ -485,7 +485,10 @@ func (h *Helper) UpdateDeploymentImage(ctx context.Context, namespace, name stri
 		}
 
 		dcDeploy := deployment.DeepCopy()
-		dcDeploy.Spec.Template.Spec.Containers[0].Image = "alpine:3.22.1"
+		if dcDeploy.Spec.Template.Annotations == nil {
+			dcDeploy.Spec.Template.Annotations = make(map[string]string)
+		}
+		dcDeploy.Spec.Template.Annotations["itest.rollout/timestamp"] = time.Now().Format(time.RFC3339Nano)
 		err = h.kubeClient.Update(ctx, dcDeploy)
 		if err != nil && errors.IsConflict(err) {
 			return false, nil
@@ -499,6 +502,18 @@ func (h *Helper) DeploymentIsReady(deploy client.ObjectKey) func() (bool, error)
 	return func() (bool, error) {
 		var d appsv1.Deployment
 		err := h.kubeClient.Get(context.TODO(), client.ObjectKey{Namespace: deploy.Namespace, Name: deploy.Name}, &d)
+		if err != nil {
+			return false, err
+		}
+		return d.Status.ReadyReplicas == *d.Spec.Replicas, nil
+	}
+}
+
+// DeploymentIsReadyWithContext is a context-aware variant for linters that require passing context.
+func (h *Helper) DeploymentIsReadyWithContext(ctx context.Context, deploy client.ObjectKey) func() (bool, error) {
+	return func() (bool, error) {
+		var d appsv1.Deployment
+		err := h.kubeClient.Get(ctx, client.ObjectKey{Namespace: deploy.Namespace, Name: deploy.Name}, &d)
 		if err != nil {
 			return false, err
 		}

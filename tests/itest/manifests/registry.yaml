@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: itest-registry
+  labels:
+    app: itest-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: itest-registry
+  template:
+    metadata:
+      labels:
+        app: itest-registry
+    spec:
+      containers:
+        - name: registry
+          image: registry:2
+          ports:
+            - containerPort: 5000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: itest-registry
+  labels:
+    app: itest-registry
+spec:
+  selector:
+    app: itest-registry
+  ports:
+    - name: http
+      port: 5000
+      targetPort: 5000
+

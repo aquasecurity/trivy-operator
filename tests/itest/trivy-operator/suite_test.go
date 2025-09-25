@@ -2,6 +2,7 @@ package trivy_operator
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
+	trivydb "github.com/aquasecurity/trivy-db/pkg/db"
 	"github.com/aquasecurity/trivy-operator/pkg/operator"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -35,6 +37,7 @@ var (
 	kubeClient client.Client
 	startCtx   context.Context
 	stopFunc   context.CancelFunc
+	opNS       string
 )
 
 var (
@@ -66,6 +69,11 @@ var _ = BeforeSuite(func() {
 	})
 	Expect(err).ToNot(HaveOccurred())
 
+	By("Using pre-provisioned in-cluster registry")
+	opNS, err = operatorConfig.GetOperatorNamespace()
+	Expect(err).ToNot(HaveOccurred())
+	regHost := fmt.Sprintf("%s.%s.svc:5000", "itest-registry", opNS)
+
 	inputs = behavior.Inputs{
 		AssertTimeout:         5 * time.Minute,
 		PollingInterval:       5 * time.Second,
@@ -83,6 +91,32 @@ var _ = BeforeSuite(func() {
 		err = operator.Start(startCtx, buildInfo, operatorConfig)
 		Expect(err).ToNot(HaveOccurred())
 	}()
+
+	By("Overriding Trivy plugin config to use local DB")
+	// Wait for the plugin ConfigMap to be created by the operator, then patch required keys.
+	opNS, err = operatorConfig.GetOperatorNamespace()
+	Expect(err).ToNot(HaveOccurred())
+
+	// Wait until the ConfigMap exists
+	Eventually(func(_ Gomega) error {
+		cm := &corev1.ConfigMap{}
+		err := kubeClient.Get(context.Background(), client.ObjectKey{Namespace: opNS, Name: trivyoperator.GetPluginConfigMapName("trivy")}, cm)
+		if err != nil {
+			return err
+		}
+		return nil
+	}, 2*time.Minute, 2*time.Second).Should(Succeed())
+
+	// Patch only the keys we need: db repo, insecure flag, and skip Java DB update
+	cm := &corev1.ConfigMap{}
+	Expect(kubeClient.Get(context.Background(), client.ObjectKey{Namespace: opNS, Name: trivyoperator.GetPluginConfigMapName("trivy")}, cm)).To(Succeed())
+	if cm.Data == nil {
+		cm.Data = make(map[string]string)
+	}
+	cm.Data["trivy.dbRepository"] = fmt.Sprintf("%s/trivy-db:%d", regHost, trivydb.SchemaVersion)
+	cm.Data["trivy.dbRepositoryInsecure"] = "true"
+	cm.Data["trivy.skipJavaDBUpdate"] = "true"
+	Expect(kubeClient.Update(context.Background(), cm)).To(Succeed())
 
 })
 

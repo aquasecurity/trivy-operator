@@ -13,10 +13,24 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
-	//"github.com/aquasecurity/trivy/pkg/log"
+	"archive/tar"
+	"net"
+
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
+
+	"github.com/google/go-containerregistry/pkg/name"
+	"github.com/google/go-containerregistry/pkg/v1/empty"
+	"github.com/google/go-containerregistry/pkg/v1/mutate"
+	"github.com/google/go-containerregistry/pkg/v1/remote"
+	"github.com/google/go-containerregistry/pkg/v1/tarball"
+	"github.com/google/go-containerregistry/pkg/v1/types"
+
+	fixtures "github.com/aquasecurity/bolt-fixtures"
+	trivydb "github.com/aquasecurity/trivy-db/pkg/db"
+	"github.com/aquasecurity/trivy/pkg/db"
 )
 
 var (
@@ -122,10 +136,10 @@ func (t Test) Unit() error {
 // Target for running integration tests for Trivy Operator.
 func (t Test) Integration() error {
 	fmt.Println("Preparing integration tests for Trivy Operator...")
-	mg.Deps(checkEnvKubeconfig, checkEnvOperatorNamespace, checkEnvOperatorTargetNamespace, getGinkgo)
+	mg.Deps(checkEnvKubeconfig, checkEnvOperatorNamespace, checkEnvOperatorTargetNamespace, getGinkgo, t.SetupRegistry, t.SeedRegistry)
 
 	fmt.Println("Running integration tests for Trivy Operator...")
-	return sh.RunV(GINKGO, "-v", "-coverprofile=coverage.txt",
+	err := sh.RunV(GINKGO, "-v", "-coverprofile=coverage.txt",
 		"-coverpkg=github.com/aquasecurity/trivy-operator/pkg/operator,"+
 			"github.com/aquasecurity/trivy-operator/pkg/operator/predicate,"+
 			"github.com/aquasecurity/trivy-operator/pkg/operator/controller,"+
@@ -134,6 +148,9 @@ func (t Test) Integration() error {
 			"github.com/aquasecurity/trivy-operator/pkg/configauditreport,"+
 			"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport",
 		"./tests/itest/trivy-operator")
+	// Cleanup registry resources regardless of test result
+	_ = t.CleanupRegistry()
+	return err
 }
 
 // Targets for checking if environment variables are set.
@@ -153,6 +170,145 @@ func checkEnvOperatorNamespace() error {
 }
 func checkEnvOperatorTargetNamespace() error {
 	return checkEnvironmentVariable("OPERATOR_TARGET_NAMESPACES")
+}
+
+// SetupRegistry applies the in-cluster registry resources and waits for readiness
+func (t Test) SetupRegistry() error {
+	fmt.Println("Setting up in-cluster test registry...")
+	ns := os.Getenv("OPERATOR_NAMESPACE")
+	if ns == "" {
+		return fmt.Errorf("OPERATOR_NAMESPACE must be set")
+	}
+	// Apply resources
+	if err := sh.RunV("kubectl", "apply", "-n", ns, "-f", "tests/itest/manifests/registry.yaml"); err != nil {
+		return err
+	}
+	// Wait for rollout
+	return sh.RunV("kubectl", "-n", ns, "rollout", "status", "deployment/itest-registry", "--timeout=120s")
+}
+
+// CleanupRegistry deletes the in-cluster registry resources (best-effort)
+func (t Test) CleanupRegistry() error {
+	fmt.Println("Cleaning up in-cluster test registry...")
+	ns := os.Getenv("OPERATOR_NAMESPACE")
+	if ns == "" {
+		// If namespace is not set, nothing to cleanup
+		return nil
+	}
+	return sh.RunV("kubectl", "delete", "-n", ns, "-f", "tests/itest/manifests/registry.yaml", "--ignore-not-found=true")
+}
+
+// SeedRegistry builds a deterministic Trivy DB from fixtures and pushes it to the in-cluster registry via port-forward.
+func (t Test) SeedRegistry() error {
+	fmt.Println("Seeding in-cluster registry with deterministic Trivy DB...")
+	ns := os.Getenv("OPERATOR_NAMESPACE")
+	if ns == "" {
+		return fmt.Errorf("OPERATOR_NAMESPACE must be set")
+	}
+
+	// Build test DB from fixture
+	tmpDir, err := os.MkdirTemp("", "trivy-db-cache-")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(tmpDir)
+
+	dbDir := db.Dir(tmpDir)
+	dbPath := trivydb.Path(dbDir)
+	if err := os.MkdirAll(dbDir, 0o700); err != nil {
+		return err
+	}
+	fixturePath := filepath.Join(PWD, "tests/itest/testdata/fixtures/happy.yaml")
+	loader, err := fixtures.New(dbPath, []string{fixturePath})
+	if err != nil {
+		return err
+	}
+	if err := loader.Load(); err != nil {
+		return err
+	}
+	if err := loader.Close(); err != nil {
+		return err
+	}
+	if err := db.Init(dbDir); err != nil {
+		return err
+	}
+
+	// Archive db dir
+	tarPath := filepath.Join(tmpDir, "db.tar")
+	if err := archiveDir(dbDir, tarPath); err != nil {
+		return fmt.Errorf("Error archiving db dir: %w", err)
+	}
+
+	// Build OCI image with required media type and annotation
+	layer, err := tarball.LayerFromFile(tarPath, tarball.WithMediaType(types.MediaType("application/vnd.aquasec.trivy.db.layer.v1.tar+gzip")))
+	if err != nil {
+		return fmt.Errorf("Error loading layer from tarball: %w", err)
+	}
+	img, err := mutate.Append(empty.Image, mutate.Addendum{Layer: layer, Annotations: map[string]string{"org.opencontainers.image.title": "db.tar.gz"}})
+	if err != nil {
+		return fmt.Errorf("unable to append layer image: %w", err)
+	}
+
+	// Ensure registry pod is Ready (so that service has endpoints)
+	if err := sh.RunV("kubectl", "-n", ns, "wait", "--for=condition=Ready", "pod", "-l", "app=itest-registry", "--timeout=300s"); err != nil {
+		return fmt.Errorf("waiting for image to be ready: %w", err)
+	}
+
+	// Find a free local port and start kubectl port-forward
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		return fmt.Errorf("failed to listen: %v", err)
+	}
+	localPort := l.Addr().(*net.TCPAddr).Port
+	_ = l.Close()
+
+	pf := exec.Command("kubectl", "-n", ns, "port-forward", "svc/itest-registry", fmt.Sprintf("%d:5000", localPort))
+	pf.Stdout = os.Stdout
+	pf.Stderr = os.Stderr
+	if err := pf.Start(); err != nil {
+		return err
+	}
+	defer func() { _ = pf.Process.Kill(); _ = pf.Wait() }()
+
+	// Wait until the port-forward is ready
+	if err := waitForPort("127.0.0.1", localPort, 60*time.Second); err != nil {
+		return err
+	}
+
+	// Push image to forwarded registry
+	ref, err := name.NewTag(fmt.Sprintf("127.0.0.1:%d/trivy-db:%d", localPort, trivydb.SchemaVersion), name.Insecure)
+	if err != nil {
+		return err
+	}
+	if err := remote.Write(ref, img); err != nil {
+		return err
+	}
+	return nil
+}
+
+func archiveDir(srcDir, dstTar string) error {
+	f, err := os.Create(dstTar)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	tw := tar.NewWriter(f)
+	defer tw.Close()
+	return tw.AddFS(os.DirFS(srcDir))
+}
+
+func waitForPort(host string, port int, timeout time.Duration) error {
+	deadline := time.Now().Add(timeout)
+	addr := fmt.Sprintf("%s:%d", host, port)
+	for time.Now().Before(deadline) {
+		conn, err := net.DialTimeout("tcp", addr, 500*time.Millisecond)
+		if err == nil {
+			_ = conn.Close()
+			return nil
+		}
+		time.Sleep(300 * time.Millisecond)
+	}
+	return fmt.Errorf("port %s not ready in %s", addr, timeout)
 }
 
 // Target for removing build artifacts

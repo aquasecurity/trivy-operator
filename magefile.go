@@ -22,12 +22,14 @@ import (
 var (
 	// Default targets
 	ENV = map[string]string{
-		"CGO_ENABLED": "0",
-		"GOBIN":       LOCALBIN,
+		"CGO_ENABLED":  "0",
+		"GOEXPERIMENT": "jsonv2",
+		"GOBIN":        LOCALBIN,
 	}
 	LINUX_ENV = map[string]string{
-		"CGO_ENABLED": "0",
-		"GOOS":        "linux",
+		"CGO_ENABLED":  "0",
+		"GOEXPERIMENT": "jsonv2",
+		"GOOS":         "linux",
 	}
 
 	GOBINENV = map[string]string{

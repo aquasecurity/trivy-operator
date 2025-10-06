@@ -1526,7 +1526,7 @@ func (in *VulnerabilityReportData) DeepCopyInto(out *VulnerabilityReportData) {
 	out.Scanner = in.Scanner
 	out.Registry = in.Registry
 	out.Artifact = in.Artifact
-	out.OS = in.OS
+	in.OS.DeepCopyInto(&out.OS)
 	out.Summary = in.Summary
 	if in.Vulnerabilities != nil {
 		in, out := &in.Vulnerabilities, &out.Vulnerabilities

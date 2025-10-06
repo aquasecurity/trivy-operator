@@ -70,7 +70,7 @@ var (
 	ENVTEST        = filepath.Join(LOCALBIN, "setup-envtest")
 
 	// Controller Tools Version
-	CONTROLLER_TOOLS_VERSION = "v0.14.0"
+	CONTROLLER_TOOLS_VERSION = "v0.18.0"
 )
 
 //func init() {
@@ -268,14 +268,14 @@ func (g Generate) verifyFilesDiff() error {
 func (g Generate) Code() error {
 	fmt.Println("Generating code and manifests...")
 	mg.Deps(controllerGen)
-	return sh.RunV(CONTROLLER_GEN, "object:headerFile=hack/boilerplate.go.txt", "paths=./pkg/...", "+rbac:roleName=trivy-operator", "output:rbac:artifacts:config=deploy/helm/generated")
+	return sh.RunWithV(ENV, CONTROLLER_GEN, "object:headerFile=hack/boilerplate.go.txt", "paths=./pkg/...", "+rbac:roleName=trivy-operator", "output:rbac:artifacts:config=deploy/helm/generated")
 }
 
 // Target for generating CRDs and updating static YAML
 func (g Generate) Manifests() error {
 	fmt.Println("Generating CRDs and updating static YAML...")
 	mg.Deps(controllerGen)
-	err := sh.RunV(CONTROLLER_GEN, "crd:allowDangerousTypes=true", "paths=./pkg/apis/...", "output:crd:artifacts:config=deploy/helm/crds")
+	err := sh.RunWithV(ENV, CONTROLLER_GEN, "crd:allowDangerousTypes=true", "paths=./pkg/apis/...", "output:crd:artifacts:config=deploy/helm/crds")
 	if err != nil {
 		return err
 	}

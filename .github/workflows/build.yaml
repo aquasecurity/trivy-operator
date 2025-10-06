@@ -48,6 +48,8 @@ jobs:
         with:
           args: --verbose
           version: v2.5.0
+        env:
+          GOEXPERIMENT: jsonv2
       - name: Verify YAML code
         uses: ibiqlik/action-yamllint@v3
       - name: Vendor Go modules

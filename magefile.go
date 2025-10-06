@@ -324,7 +324,12 @@ func (t Test) Envtest() error {
 		return err
 	}
 	mg.Deps(t.envTestBin)
-	return sh.RunWithV(map[string]string{"KUBEBUILDER_ASSETS": output}, "go", "test", "-v", "-timeout", "60s", "-coverprofile=coverage.txt", "./tests/envtest/...")
+
+	envs := map[string]string{
+		"KUBEBUILDER_ASSETS": output,
+		"GOEXPERIMENT":       "jsonv2",
+	}
+	return sh.RunWithV(envs, "go", "test", "-v", "-timeout", "60s", "-coverprofile=coverage.txt", "./tests/envtest/...")
 }
 
 // removeDir removes the directory at the given path.

@@ -165,6 +165,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_CLI_EXPERIMENTAL: enabled
+      GOEXPERIMENT: jsonv2
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3

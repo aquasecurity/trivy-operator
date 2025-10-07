@@ -1,0 +1,1504 @@
+Running tests...
+	github.com/aquasecurity/trivy-operator/cmd/trivy-operator		coverage: 0.0% of statements
+?   	github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity	[no test files]
+=== RUN   TestStringToSeverity
+=== RUN   TestStringToSeverity/xxx
+=== RUN   TestStringToSeverity/CRITICAL
+=== RUN   TestStringToSeverity/HIGH
+=== RUN   TestStringToSeverity/MEDIUM
+=== RUN   TestStringToSeverity/LOW
+--- PASS: TestStringToSeverity (0.00s)
+    --- PASS: TestStringToSeverity/xxx (0.00s)
+    --- PASS: TestStringToSeverity/CRITICAL (0.00s)
+    --- PASS: TestStringToSeverity/HIGH (0.00s)
+    --- PASS: TestStringToSeverity/MEDIUM (0.00s)
+    --- PASS: TestStringToSeverity/LOW (0.00s)
+=== RUN   TestConfigAuditSummaryFromChecks
+--- PASS: TestConfigAuditSummaryFromChecks (0.00s)
+=== RUN   TestInfraAssessmentSummaryFromChecks
+--- PASS: TestInfraAssessmentSummaryFromChecks (0.00s)
+=== RUN   TestRbacAssessmentSummaryFromChecks
+--- PASS: TestRbacAssessmentSummaryFromChecks (0.00s)
+PASS
+coverage: 4.0% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1	0.016s	coverage: 4.0% of statements
+=== RUN   TestGenerateComplianceReport
+=== RUN   TestGenerateComplianceReport/build_summary_report
+=== RUN   TestGenerateComplianceReport/build_detail_report
+--- PASS: TestGenerateComplianceReport (0.09s)
+    --- PASS: TestGenerateComplianceReport/build_summary_report (0.08s)
+    --- PASS: TestGenerateComplianceReport/build_detail_report (0.00s)
+PASS
+coverage: 42.2% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/compliance	0.120s	coverage: 42.2% of statements
+=== RUN   TestReportBuilder
+=== RUN   TestReportBuilder/Should_build_report_for_namespaced_resource
+=== RUN   TestReportBuilder/Should_build_report_for_cluster_scoped_resource
+=== RUN   TestReportBuilder/Should_build_report_with_lowercase_name
+--- PASS: TestReportBuilder (0.00s)
+    --- PASS: TestReportBuilder/Should_build_report_for_namespaced_resource (0.00s)
+    --- PASS: TestReportBuilder/Should_build_report_for_cluster_scoped_resource (0.00s)
+    --- PASS: TestReportBuilder/Should_build_report_with_lowercase_name (0.00s)
+=== RUN   TestReadWriter
+=== RUN   TestReadWriter/Should_create_ConfigAuditReport
+=== RUN   TestReadWriter/Should_update_ConfigAuditReport
+=== RUN   TestReadWriter/Should_find_ConfigAuditReport_by_owner
+=== RUN   TestReadWriter/Should_find_ConfigAuditReport_by_owner_with_special_name
+=== RUN   TestReadWriter/Should_create_ClusterConfigAuditReport
+=== RUN   TestReadWriter/Should_update_ClusterConfigAuditReport
+=== RUN   TestReadWriter/Should_find_ClusterConfigAuditReport_by_owner
+--- PASS: TestReadWriter (0.09s)
+    --- PASS: TestReadWriter/Should_create_ConfigAuditReport (0.08s)
+    --- PASS: TestReadWriter/Should_update_ConfigAuditReport (0.00s)
+    --- PASS: TestReadWriter/Should_find_ConfigAuditReport_by_owner (0.00s)
+    --- PASS: TestReadWriter/Should_find_ConfigAuditReport_by_owner_with_special_name (0.00s)
+    --- PASS: TestReadWriter/Should_create_ClusterConfigAuditReport (0.00s)
+    --- PASS: TestReadWriter/Should_update_ClusterConfigAuditReport (0.00s)
+    --- PASS: TestReadWriter/Should_find_ClusterConfigAuditReport_by_owner (0.00s)
+PASS
+coverage: 72.2% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/configauditreport	0.116s	coverage: 72.2% of statements
+=== RUN   TestFilter
+=== RUN   TestFilter/good_case
+=== RUN   TestFilter/failed_checks_only
+--- PASS: TestFilter (0.00s)
+    --- PASS: TestFilter/good_case (0.00s)
+    --- PASS: TestFilter/failed_checks_only (0.00s)
+PASS
+coverage: 4.0% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller	0.082s	coverage: 4.0% of statements
+=== RUN   TestNewBasicAuth
+--- PASS: TestNewBasicAuth (0.00s)
+=== RUN   TestConfig_Read
+=== RUN   TestConfig_Read/Should_return_empty_credentials_when_content_is_empty_JSON_object
+=== RUN   TestConfig_Read/Should_return_empty_credentials_when_content_is_null_JSON
+=== RUN   TestConfig_Read/Should_return_error_when_content_is_blank
+=== RUN   TestConfig_Read/Should_return_server_credentials_stored_as_username_and_password_encoded_in_the_auth_property
+=== RUN   TestConfig_Read/Should_return_server_credentials_stored_in_username_and_password_properties
+=== RUN   TestConfig_Read/Should_skip_empty_server_entries
+=== RUN   TestConfig_Read/Should_return_error_when_auth_is_not_username_and_password_concatenated_with_a_colon
+=== RUN   TestConfig_Read/Should_process_legacy_.dockercfg_json
+--- PASS: TestConfig_Read (0.00s)
+    --- PASS: TestConfig_Read/Should_return_empty_credentials_when_content_is_empty_JSON_object (0.00s)
+    --- PASS: TestConfig_Read/Should_return_empty_credentials_when_content_is_null_JSON (0.00s)
+    --- PASS: TestConfig_Read/Should_return_error_when_content_is_blank (0.00s)
+    --- PASS: TestConfig_Read/Should_return_server_credentials_stored_as_username_and_password_encoded_in_the_auth_property (0.00s)
+    --- PASS: TestConfig_Read/Should_return_server_credentials_stored_in_username_and_password_properties (0.00s)
+    --- PASS: TestConfig_Read/Should_skip_empty_server_entries (0.00s)
+    --- PASS: TestConfig_Read/Should_return_error_when_auth_is_not_username_and_password_concatenated_with_a_colon (0.00s)
+    --- PASS: TestConfig_Read/Should_process_legacy_.dockercfg_json (0.00s)
+=== RUN   TestGetServerFromDockerAuthKey
+=== RUN   TestGetServerFromDockerAuthKey/34.86.43.13:80
+=== RUN   TestGetServerFromDockerAuthKey/core.harbor.domain:8080
+=== RUN   TestGetServerFromDockerAuthKey/rg.pl-waw.scw.cloud/trivyoperator
+=== RUN   TestGetServerFromDockerAuthKey/rg.pl-waw.scw.cloud:7777/private
+=== RUN   TestGetServerFromDockerAuthKey/registry.aquasec.com
+=== RUN   TestGetServerFromDockerAuthKey/https://index.docker.io/v1/
+=== RUN   TestGetServerFromDockerAuthKey/https://registry:3780/
+--- PASS: TestGetServerFromDockerAuthKey (0.00s)
+    --- PASS: TestGetServerFromDockerAuthKey/34.86.43.13:80 (0.00s)
+    --- PASS: TestGetServerFromDockerAuthKey/core.harbor.domain:8080 (0.00s)
+    --- PASS: TestGetServerFromDockerAuthKey/rg.pl-waw.scw.cloud/trivyoperator (0.00s)
+    --- PASS: TestGetServerFromDockerAuthKey/rg.pl-waw.scw.cloud:7777/private (0.00s)
+    --- PASS: TestGetServerFromDockerAuthKey/registry.aquasec.com (0.00s)
+    --- PASS: TestGetServerFromDockerAuthKey/https://index.docker.io/v1/ (0.00s)
+    --- PASS: TestGetServerFromDockerAuthKey/https://registry:3780/ (0.00s)
+=== RUN   TestGetServerFromImageRef
+=== RUN   TestGetServerFromImageRef/nginx:1.16
+=== RUN   TestGetServerFromImageRef/aquasec/trivy:0.10.0
+=== RUN   TestGetServerFromImageRef/docker.io/aquasec/harbor-scanner-trivy:0.10.0
+=== RUN   TestGetServerFromImageRef/index.docker.io/aquasec/harbor-scanner-trivy:0.10.0
+=== RUN   TestGetServerFromImageRef/gcr.io/google-samples/hello-app:1.0
+--- PASS: TestGetServerFromImageRef (0.00s)
+    --- PASS: TestGetServerFromImageRef/nginx:1.16 (0.00s)
+    --- PASS: TestGetServerFromImageRef/aquasec/trivy:0.10.0 (0.00s)
+    --- PASS: TestGetServerFromImageRef/docker.io/aquasec/harbor-scanner-trivy:0.10.0 (0.00s)
+    --- PASS: TestGetServerFromImageRef/index.docker.io/aquasec/harbor-scanner-trivy:0.10.0 (0.00s)
+    --- PASS: TestGetServerFromImageRef/gcr.io/google-samples/hello-app:1.0 (0.00s)
+=== RUN   TestBasicAuth_Decode
+=== RUN   TestBasicAuth_Decode/Decode_GCR
+--- PASS: TestBasicAuth_Decode (0.00s)
+    --- PASS: TestBasicAuth_Decode/Decode_GCR (0.00s)
+PASS
+coverage: 79.6% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/docker	0.005s	coverage: 79.6% of statements
+=== RUN   TestReportBuilder
+--- PASS: TestReportBuilder (0.00s)
+=== RUN   TestNewReadWriter
+=== RUN   TestNewReadWriter/Should_create_ExposedSecretReports
+=== RUN   TestNewReadWriter/Should_update_ExposedSecretReports
+=== RUN   TestNewReadWriter/Should_find_ExposedSecretReports
+--- PASS: TestNewReadWriter (0.08s)
+    --- PASS: TestNewReadWriter/Should_create_ExposedSecretReports (0.08s)
+    --- PASS: TestNewReadWriter/Should_update_ExposedSecretReports (0.00s)
+    --- PASS: TestNewReadWriter/Should_find_ExposedSecretReports (0.00s)
+PASS
+coverage: 73.4% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport	0.111s	coverage: 73.4% of statements
+=== RUN   TestMinInt
+=== RUN   TestMinInt/(2,_3):_2
+=== RUN   TestMinInt/(5,_4):_4
+=== RUN   TestMinInt/(4,_4):_4
+--- PASS: TestMinInt (0.00s)
+    --- PASS: TestMinInt/(2,_3):_2 (0.00s)
+    --- PASS: TestMinInt/(5,_4):_4 (0.00s)
+    --- PASS: TestMinInt/(4,_4):_4 (0.00s)
+=== RUN   TestGoogleUUIDGenerator_GenerateID
+=== RUN   TestGoogleUUIDGenerator_GenerateID/Should_return_unique_identifiers
+--- PASS: TestGoogleUUIDGenerator_GenerateID (0.00s)
+    --- PASS: TestGoogleUUIDGenerator_GenerateID/Should_return_unique_identifiers (0.00s)
+=== RUN   TestSimpleIDGenerator_GenerateID
+--- PASS: TestSimpleIDGenerator_GenerateID (0.00s)
+PASS
+coverage: 43.8% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/ext	0.004s	coverage: 43.8% of statements
+=== RUN   TestReportBuilder
+=== RUN   TestReportBuilder/Should_build_report_for_namespaced_resource
+=== RUN   TestReportBuilder/Should_build_cluster_report_for_cluster_scoped_resource
+=== RUN   TestReportBuilder/Should_build_report_with_additional_labels
+=== RUN   TestReportBuilder/Should_build_report_without_additional_labels
+--- PASS: TestReportBuilder (0.00s)
+    --- PASS: TestReportBuilder/Should_build_report_for_namespaced_resource (0.00s)
+    --- PASS: TestReportBuilder/Should_build_cluster_report_for_cluster_scoped_resource (0.00s)
+    --- PASS: TestReportBuilder/Should_build_report_with_additional_labels (0.00s)
+    --- PASS: TestReportBuilder/Should_build_report_without_additional_labels (0.00s)
+=== RUN   TestReadWriter
+=== RUN   TestReadWriter/Should_create_InfraAssessmentReport
+=== RUN   TestReadWriter/Should_update_InfraAssessmentReport
+=== RUN   TestReadWriter/Should_find_InfraAssessmentReport_by_owner
+=== RUN   TestReadWriter/Should_find_InfraAssessmentReport_by_owner_with_special_name
+--- PASS: TestReadWriter (0.08s)
+    --- PASS: TestReadWriter/Should_create_InfraAssessmentReport (0.07s)
+    --- PASS: TestReadWriter/Should_update_InfraAssessmentReport (0.00s)
+    --- PASS: TestReadWriter/Should_find_InfraAssessmentReport_by_owner (0.00s)
+    --- PASS: TestReadWriter/Should_find_InfraAssessmentReport_by_owner_with_special_name (0.01s)
+PASS
+coverage: 53.1% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/infraassessment	0.114s	coverage: 53.1% of statements
+=== RUN   TestIsBuiltInWorkload
+=== RUN   TestIsBuiltInWorkload/Should_return_true_when_controller_kind_is_ReplicationController
+=== RUN   TestIsBuiltInWorkload/Should_return_true_when_controller_kind_is_ReplicaSet
+=== RUN   TestIsBuiltInWorkload/Should_return_true_when_controller_kind_is_StatefulSet
+=== RUN   TestIsBuiltInWorkload/Should_return_true_when_controller_kind_is_DaemonSet
+=== RUN   TestIsBuiltInWorkload/Should_return_true_when_controller_kind_is_Job
+=== RUN   TestIsBuiltInWorkload/Should_return_false_when_controller_kind_is_ArgoCD
+--- PASS: TestIsBuiltInWorkload (0.00s)
+    --- PASS: TestIsBuiltInWorkload/Should_return_true_when_controller_kind_is_ReplicationController (0.00s)
+    --- PASS: TestIsBuiltInWorkload/Should_return_true_when_controller_kind_is_ReplicaSet (0.00s)
+    --- PASS: TestIsBuiltInWorkload/Should_return_true_when_controller_kind_is_StatefulSet (0.00s)
+    --- PASS: TestIsBuiltInWorkload/Should_return_true_when_controller_kind_is_DaemonSet (0.00s)
+    --- PASS: TestIsBuiltInWorkload/Should_return_true_when_controller_kind_is_Job (0.00s)
+    --- PASS: TestIsBuiltInWorkload/Should_return_false_when_controller_kind_is_ArgoCD (0.00s)
+=== RUN   TestIsWorkload
+=== RUN   TestIsWorkload/Pod
+=== RUN   TestIsWorkload/Deployment
+=== RUN   TestIsWorkload/ReplicaSet
+=== RUN   TestIsWorkload/ReplicationController
+=== RUN   TestIsWorkload/StatefulSet
+=== RUN   TestIsWorkload/DaemonSet
+=== RUN   TestIsWorkload/Job
+=== RUN   TestIsWorkload/CronJob
+=== RUN   TestIsWorkload/ConfigMap
+=== RUN   TestIsWorkload/Ingress
+--- PASS: TestIsWorkload (0.00s)
+    --- PASS: TestIsWorkload/Pod (0.00s)
+    --- PASS: TestIsWorkload/Deployment (0.00s)
+    --- PASS: TestIsWorkload/ReplicaSet (0.00s)
+    --- PASS: TestIsWorkload/ReplicationController (0.00s)
+    --- PASS: TestIsWorkload/StatefulSet (0.00s)
+    --- PASS: TestIsWorkload/DaemonSet (0.00s)
+    --- PASS: TestIsWorkload/Job (0.00s)
+    --- PASS: TestIsWorkload/CronJob (0.00s)
+    --- PASS: TestIsWorkload/ConfigMap (0.00s)
+    --- PASS: TestIsWorkload/Ingress (0.00s)
+=== RUN   TestIsClusterScopedKind
+=== RUN   TestIsClusterScopedKind/Should_return_false_when_controller_kind_is_Role
+=== RUN   TestIsClusterScopedKind/Should_return_false_when_controller_kind_is_RoleBinding
+=== RUN   TestIsClusterScopedKind/Should_return_true_when_controller_kind_is_ClusterRole
+=== RUN   TestIsClusterScopedKind/Should_return_true_when_controller_kind_is_ClusterRoleBinding
+=== RUN   TestIsClusterScopedKind/Should_return_true_when_controller_kind_is_CustomResourceDefinition
+=== RUN   TestIsClusterScopedKind/Should_return_false_when_controller_kind_is_Pod
+--- PASS: TestIsClusterScopedKind (0.00s)
+    --- PASS: TestIsClusterScopedKind/Should_return_false_when_controller_kind_is_Role (0.00s)
+    --- PASS: TestIsClusterScopedKind/Should_return_false_when_controller_kind_is_RoleBinding (0.00s)
+    --- PASS: TestIsClusterScopedKind/Should_return_true_when_controller_kind_is_ClusterRole (0.00s)
+    --- PASS: TestIsClusterScopedKind/Should_return_true_when_controller_kind_is_ClusterRoleBinding (0.00s)
+    --- PASS: TestIsClusterScopedKind/Should_return_true_when_controller_kind_is_CustomResourceDefinition (0.00s)
+    --- PASS: TestIsClusterScopedKind/Should_return_false_when_controller_kind_is_Pod (0.00s)
+=== RUN   TestObjectRefToLabels
+=== RUN   TestObjectRefToLabels/Should_map_object_with_simple_name
+=== RUN   TestObjectRefToLabels/Should_map_object_with_name_that_is_not_a_valid_label
+--- PASS: TestObjectRefToLabels (0.00s)
+    --- PASS: TestObjectRefToLabels/Should_map_object_with_simple_name (0.00s)
+    --- PASS: TestObjectRefToLabels/Should_map_object_with_name_that_is_not_a_valid_label (0.00s)
+=== RUN   TestObjectToObjectMeta
+=== RUN   TestObjectToObjectMeta/Should_map_object_with_simple_name
+=== RUN   TestObjectToObjectMeta/Should_map_object_with_name_that_is_not_a_valid_label
+=== RUN   TestObjectToObjectMeta/Should_map_object_and_merge_labels_and_annotations
+--- PASS: TestObjectToObjectMeta (0.00s)
+    --- PASS: TestObjectToObjectMeta/Should_map_object_with_simple_name (0.00s)
+    --- PASS: TestObjectToObjectMeta/Should_map_object_with_name_that_is_not_a_valid_label (0.00s)
+    --- PASS: TestObjectToObjectMeta/Should_map_object_and_merge_labels_and_annotations (0.00s)
+=== RUN   TestContainerImages_AsJSON_And_FromJSON
+--- PASS: TestContainerImages_AsJSON_And_FromJSON (0.00s)
+=== RUN   TestObjectRefFromKindAndObjectKey
+--- PASS: TestObjectRefFromKindAndObjectKey (0.00s)
+=== RUN   TestGetPodSpec
+=== RUN   TestGetPodSpec/Should_return_PodSpec_for_Pod
+=== RUN   TestGetPodSpec/Should_return_PodSpec_for_Deployment
+=== RUN   TestGetPodSpec/Should_return_PodSpec_for_ReplicaSet
+=== RUN   TestGetPodSpec/Should_return_PodSpec_for_ReplicationController
+=== RUN   TestGetPodSpec/Should_return_PodSpec_for_StatefulSet
+=== RUN   TestGetPodSpec/Should_return_PodSpec_for_DaemonSet
+=== RUN   TestGetPodSpec/Should_return_PodSpec_for_CronJob
+=== RUN   TestGetPodSpec/Should_return_PodSpec_for_CronJob#01
+=== RUN   TestGetPodSpec/Should_return_PodSpec_for_Job
+=== RUN   TestGetPodSpec/Should_return_error_for_Service
+--- PASS: TestGetPodSpec (0.00s)
+    --- PASS: TestGetPodSpec/Should_return_PodSpec_for_Pod (0.00s)
+    --- PASS: TestGetPodSpec/Should_return_PodSpec_for_Deployment (0.00s)
+    --- PASS: TestGetPodSpec/Should_return_PodSpec_for_ReplicaSet (0.00s)
+    --- PASS: TestGetPodSpec/Should_return_PodSpec_for_ReplicationController (0.00s)
+    --- PASS: TestGetPodSpec/Should_return_PodSpec_for_StatefulSet (0.00s)
+    --- PASS: TestGetPodSpec/Should_return_PodSpec_for_DaemonSet (0.00s)
+    --- PASS: TestGetPodSpec/Should_return_PodSpec_for_CronJob (0.00s)
+    --- PASS: TestGetPodSpec/Should_return_PodSpec_for_CronJob#01 (0.00s)
+    --- PASS: TestGetPodSpec/Should_return_PodSpec_for_Job (0.00s)
+    --- PASS: TestGetPodSpec/Should_return_error_for_Service (0.00s)
+=== RUN   TestObjectResolver_RelatedReplicaSetName
+=== RUN   TestObjectResolver_RelatedReplicaSetName/Should_return_error_for_unsupported_kind
+=== RUN   TestObjectResolver_RelatedReplicaSetName/Should_return_ReplicaSet_name_for_the_specified_Deployment
+=== RUN   TestObjectResolver_RelatedReplicaSetName/Should_return_ReplicaSet_name_for_the_specified_Deployment#01
+--- PASS: TestObjectResolver_RelatedReplicaSetName (0.08s)
+    --- PASS: TestObjectResolver_RelatedReplicaSetName/Should_return_error_for_unsupported_kind (0.00s)
+    --- PASS: TestObjectResolver_RelatedReplicaSetName/Should_return_ReplicaSet_name_for_the_specified_Deployment (0.00s)
+    --- PASS: TestObjectResolver_RelatedReplicaSetName/Should_return_ReplicaSet_name_for_the_specified_Deployment#01 (0.00s)
+=== RUN   TestObjectRefFromObjectMeta
+=== RUN   TestObjectRefFromObjectMeta/Test_Role
+=== RUN   TestObjectRefFromObjectMeta/Test_RoleBinding
+=== RUN   TestObjectRefFromObjectMeta/Kind_ClusterRole
+=== RUN   TestObjectRefFromObjectMeta/Kind_ClusterRoleBinding
+=== RUN   TestObjectRefFromObjectMeta/Kind_Pod
+=== RUN   TestObjectRefFromObjectMeta/Kind_Deployment
+=== RUN   TestObjectRefFromObjectMeta/Kind_DaemonSet
+=== RUN   TestObjectRefFromObjectMeta/Should_return_error_when_trivy-operator.resource.kind_label_is_missing
+--- PASS: TestObjectRefFromObjectMeta (0.00s)
+    --- PASS: TestObjectRefFromObjectMeta/Test_Role (0.00s)
+    --- PASS: TestObjectRefFromObjectMeta/Test_RoleBinding (0.00s)
+    --- PASS: TestObjectRefFromObjectMeta/Kind_ClusterRole (0.00s)
+    --- PASS: TestObjectRefFromObjectMeta/Kind_ClusterRoleBinding (0.00s)
+    --- PASS: TestObjectRefFromObjectMeta/Kind_Pod (0.00s)
+    --- PASS: TestObjectRefFromObjectMeta/Kind_Deployment (0.00s)
+    --- PASS: TestObjectRefFromObjectMeta/Kind_DaemonSet (0.00s)
+    --- PASS: TestObjectRefFromObjectMeta/Should_return_error_when_trivy-operator.resource.kind_label_is_missing (0.00s)
+=== RUN   TestGetActivePodsMatchingLabels
+=== RUN   TestGetActivePodsMatchingLabels/found_active_pods
+=== RUN   TestGetActivePodsMatchingLabels/active_pods_not_found
+--- PASS: TestGetActivePodsMatchingLabels (0.00s)
+    --- PASS: TestGetActivePodsMatchingLabels/found_active_pods (0.00s)
+    --- PASS: TestGetActivePodsMatchingLabels/active_pods_not_found (0.00s)
+=== RUN   TestObjectResolver_ReportOwner
+=== RUN   TestObjectResolver_ReportOwner/Should_return_ReplicaSet_for_Deployment
+=== RUN   TestObjectResolver_ReportOwner/Should_return_ReplicaSet_for_ReplicaSet
+=== RUN   TestObjectResolver_ReportOwner/Should_return_ReplicaSet_for_Pod
+=== RUN   TestObjectResolver_ReportOwner/Should_return_Pod_for_unmanaged_Pod
+=== RUN   TestObjectResolver_ReportOwner/Should_return_Job_for_unmanaged_Job
+=== RUN   TestObjectResolver_ReportOwner/Should_return_Job_for_Pod
+=== RUN   TestObjectResolver_ReportOwner/Should_return_ConfigMap_for_ConfigMap
+--- PASS: TestObjectResolver_ReportOwner (0.00s)
+    --- PASS: TestObjectResolver_ReportOwner/Should_return_ReplicaSet_for_Deployment (0.00s)
+    --- PASS: TestObjectResolver_ReportOwner/Should_return_ReplicaSet_for_ReplicaSet (0.00s)
+    --- PASS: TestObjectResolver_ReportOwner/Should_return_ReplicaSet_for_Pod (0.00s)
+    --- PASS: TestObjectResolver_ReportOwner/Should_return_Pod_for_unmanaged_Pod (0.00s)
+    --- PASS: TestObjectResolver_ReportOwner/Should_return_Job_for_unmanaged_Job (0.00s)
+    --- PASS: TestObjectResolver_ReportOwner/Should_return_Job_for_Pod (0.00s)
+    --- PASS: TestObjectResolver_ReportOwner/Should_return_ConfigMap_for_ConfigMap (0.00s)
+=== RUN   TestObjectResolver_IsActiveReplicaSet
+=== RUN   TestObjectResolver_IsActiveReplicaSet/activeReplicaset
+=== RUN   TestObjectResolver_IsActiveReplicaSet/noneActiveReplicaset
+=== RUN   TestObjectResolver_IsActiveReplicaSet/standAloneReplicaset
+--- PASS: TestObjectResolver_IsActiveReplicaSet (0.00s)
+    --- PASS: TestObjectResolver_IsActiveReplicaSet/activeReplicaset (0.00s)
+    --- PASS: TestObjectResolver_IsActiveReplicaSet/noneActiveReplicaset (0.00s)
+    --- PASS: TestObjectResolver_IsActiveReplicaSet/standAloneReplicaset (0.00s)
+=== RUN   TestObjectResolver_IsActiveReplicationController
+=== RUN   TestObjectResolver_IsActiveReplicationController/active_Replication_Controller
+=== RUN   TestObjectResolver_IsActiveReplicationController/Non_active_replication_controller
+=== RUN   TestObjectResolver_IsActiveReplicationController/Standalone_replication_controller
+--- PASS: TestObjectResolver_IsActiveReplicationController (0.00s)
+    --- PASS: TestObjectResolver_IsActiveReplicationController/active_Replication_Controller (0.00s)
+    --- PASS: TestObjectResolver_IsActiveReplicationController/Non_active_replication_controller (0.00s)
+    --- PASS: TestObjectResolver_IsActiveReplicationController/Standalone_replication_controller (0.00s)
+=== RUN   TestIsRoleTypes
+=== RUN   TestIsRoleTypes/Should_return_true_when__kind_is_Role
+=== RUN   TestIsRoleTypes/Should_return_true_when__kind_is_ClusterRole
+=== RUN   TestIsRoleTypes/Should_return_false_when__kind_is_Pod
+--- PASS: TestIsRoleTypes (0.00s)
+    --- PASS: TestIsRoleTypes/Should_return_true_when__kind_is_Role (0.00s)
+    --- PASS: TestIsRoleTypes/Should_return_true_when__kind_is_ClusterRole (0.00s)
+    --- PASS: TestIsRoleTypes/Should_return_false_when__kind_is_Pod (0.00s)
+=== RUN   TestIsValidK8sKinds
+=== RUN   TestIsValidK8sKinds/Should_return_true_when_kind_is_Pod
+=== RUN   TestIsValidK8sKinds/Should_return_true_when_kind_is_ClusterRole
+=== RUN   TestIsValidK8sKinds/Should_return_true_when_kind_is_Deployment
+=== RUN   TestIsValidK8sKinds/Should_return_true_when_kind_is_ReplicationController
+=== RUN   TestIsValidK8sKinds/Should_return_true_when_kind_is_StatefulSet
+=== RUN   TestIsValidK8sKinds/Should_return_true_when_kind_is_Job
+=== RUN   TestIsValidK8sKinds/Should_return_true_when_kind_is_Deployment#01
+=== RUN   TestIsValidK8sKinds/Should_return_true_when_kind_is_CronJob
+=== RUN   TestIsValidK8sKinds/Should_return_true_when_kind_is_CustomResourceDefinition
+=== RUN   TestIsValidK8sKinds/Should_return_false_when_kind_is_Test
+--- PASS: TestIsValidK8sKinds (0.00s)
+    --- PASS: TestIsValidK8sKinds/Should_return_true_when_kind_is_Pod (0.00s)
+    --- PASS: TestIsValidK8sKinds/Should_return_true_when_kind_is_ClusterRole (0.00s)
+    --- PASS: TestIsValidK8sKinds/Should_return_true_when_kind_is_Deployment (0.00s)
+    --- PASS: TestIsValidK8sKinds/Should_return_true_when_kind_is_ReplicationController (0.00s)
+    --- PASS: TestIsValidK8sKinds/Should_return_true_when_kind_is_StatefulSet (0.00s)
+    --- PASS: TestIsValidK8sKinds/Should_return_true_when_kind_is_Job (0.00s)
+    --- PASS: TestIsValidK8sKinds/Should_return_true_when_kind_is_Deployment#01 (0.00s)
+    --- PASS: TestIsValidK8sKinds/Should_return_true_when_kind_is_CronJob (0.00s)
+    --- PASS: TestIsValidK8sKinds/Should_return_true_when_kind_is_CustomResourceDefinition (0.00s)
+    --- PASS: TestIsValidK8sKinds/Should_return_false_when_kind_is_Test (0.00s)
+=== RUN   TestIsRoleRelatedNamespaceScope
+=== RUN   TestIsRoleRelatedNamespaceScope/Should_return_true_when__kind_is_Role
+=== RUN   TestIsRoleRelatedNamespaceScope/Should_return_false_when__kind_is_ClusterRole
+=== RUN   TestIsRoleRelatedNamespaceScope/Should_return_true_when__kind_is_RoleBinding
+--- PASS: TestIsRoleRelatedNamespaceScope (0.00s)
+    --- PASS: TestIsRoleRelatedNamespaceScope/Should_return_true_when__kind_is_Role (0.00s)
+    --- PASS: TestIsRoleRelatedNamespaceScope/Should_return_false_when__kind_is_ClusterRole (0.00s)
+    --- PASS: TestIsRoleRelatedNamespaceScope/Should_return_true_when__kind_is_RoleBinding (0.00s)
+=== RUN   TestGetContainerImagesFromPodSpec
+--- PASS: TestGetContainerImagesFromPodSpec (0.00s)
+=== RUN   TestGetContainerImagesFromContainersList
+--- PASS: TestGetContainerImagesFromContainersList (0.00s)
+=== RUN   TestGetContainerImagesFromJob
+=== RUN   TestGetContainerImagesFromJob/Should_return_error_when_annotation_is_not_set
+=== RUN   TestGetContainerImagesFromJob/Should_return_error_when_annotation_is_set_but_has_invalid_value
+=== RUN   TestGetContainerImagesFromJob/Should_return_ContainerImages_when_annotation_is_set
+--- PASS: TestGetContainerImagesFromJob (0.00s)
+    --- PASS: TestGetContainerImagesFromJob/Should_return_error_when_annotation_is_not_set (0.00s)
+    --- PASS: TestGetContainerImagesFromJob/Should_return_error_when_annotation_is_set_but_has_invalid_value (0.00s)
+    --- PASS: TestGetContainerImagesFromJob/Should_return_ContainerImages_when_annotation_is_set (0.00s)
+=== RUN   TestComputeHash
+=== RUN   TestComputeHash/Should_return_the_same_hash_when_pointers_change_but_values_stay_the_same
+=== RUN   TestComputeHash/Should_return_different_hash_when_pointers_point_to_different_values
+=== RUN   TestComputeHash/Should_return_unique_hashes
+--- PASS: TestComputeHash (0.00s)
+    --- PASS: TestComputeHash/Should_return_the_same_hash_when_pointers_change_but_values_stay_the_same (0.00s)
+    --- PASS: TestComputeHash/Should_return_different_hash_when_pointers_point_to_different_values (0.00s)
+    --- PASS: TestComputeHash/Should_return_unique_hashes (0.00s)
+=== RUN   TestMapDockerRegistryServersToAuths
+=== RUN   TestMapDockerRegistryServersToAuths/should_map_Docker_registry_servers_to_Docker_authentication_credentials
+=== RUN   TestMapDockerRegistryServersToAuths/should_skip_secret_of_type_"kubernetes.io/dockercfg"
+=== RUN   TestMapDockerRegistryServersToAuths/Test_with_service_account_and_secret_with_same_registry_domain_should_map_container_images_to_Docker_authentication_credentials_from_Pod_secret
+=== RUN   TestMapDockerRegistryServersToAuths/Test_with_service_account_and_secret_with_same_registry_domain_should_map_container_images_to_Docker_authentication_credentials_from_Pod_secret_with_multi_secret_support
+--- PASS: TestMapDockerRegistryServersToAuths (0.00s)
+    --- PASS: TestMapDockerRegistryServersToAuths/should_map_Docker_registry_servers_to_Docker_authentication_credentials (0.00s)
+    --- PASS: TestMapDockerRegistryServersToAuths/should_skip_secret_of_type_"kubernetes.io/dockercfg" (0.00s)
+    --- PASS: TestMapDockerRegistryServersToAuths/Test_with_service_account_and_secret_with_same_registry_domain_should_map_container_images_to_Docker_authentication_credentials_from_Pod_secret (0.00s)
+    --- PASS: TestMapDockerRegistryServersToAuths/Test_with_service_account_and_secret_with_same_registry_domain_should_map_container_images_to_Docker_authentication_credentials_from_Pod_secret_with_multi_secret_support (0.00s)
+=== RUN   TestMapContainerNamesToDockerAuths
+=== RUN   TestMapContainerNamesToDockerAuths/should_map_container_images_to_Docker_authentication_credentials
+=== RUN   TestMapContainerNamesToDockerAuths/should_map_container_images_to_Docker_authentication_credentials_where_server_has_wildcard_prefixed
+--- PASS: TestMapContainerNamesToDockerAuths (0.00s)
+    --- PASS: TestMapContainerNamesToDockerAuths/should_map_container_images_to_Docker_authentication_credentials (0.00s)
+    --- PASS: TestMapContainerNamesToDockerAuths/should_map_container_images_to_Docker_authentication_credentials_where_server_has_wildcard_prefixed (0.00s)
+=== RUN   TestListImagePullSecretsByPodSpec
+=== RUN   TestListImagePullSecretsByPodSpec/Test_no_error_when_service_account_not_found
+=== RUN   TestListImagePullSecretsByPodSpec/Test_with_no_service_account_but_with_one_secrets_should_return_one_pull_image_secret_from_corev1.Secret
+=== RUN   TestListImagePullSecretsByPodSpec/Test_with_service_account_and_no_secret_should_return_one_pull_image_secret_from_corev1.ServiceAccount
+=== RUN   TestListImagePullSecretsByPodSpec/Test_with_service_account_and_secret_should_return_one_pull_image_secret_from_corev1.ServiceAccount_and_corev1.Secret_
+=== RUN   TestListImagePullSecretsByPodSpec/Test_with_no_service_account_and_no_secrets_should_return_error_no_secret_found
+=== RUN   TestListImagePullSecretsByPodSpec/Test_with_service_account_with_bad_image_pull_secret_and_no_secrets_should_not_return_error_when_no_secret_found
+--- PASS: TestListImagePullSecretsByPodSpec (0.02s)
+    --- PASS: TestListImagePullSecretsByPodSpec/Test_no_error_when_service_account_not_found (0.00s)
+    --- PASS: TestListImagePullSecretsByPodSpec/Test_with_no_service_account_but_with_one_secrets_should_return_one_pull_image_secret_from_corev1.Secret (0.00s)
+    --- PASS: TestListImagePullSecretsByPodSpec/Test_with_service_account_and_no_secret_should_return_one_pull_image_secret_from_corev1.ServiceAccount (0.00s)
+    --- PASS: TestListImagePullSecretsByPodSpec/Test_with_service_account_and_secret_should_return_one_pull_image_secret_from_corev1.ServiceAccount_and_corev1.Secret_ (0.00s)
+    --- PASS: TestListImagePullSecretsByPodSpec/Test_with_no_service_account_and_no_secrets_should_return_error_no_secret_found (0.00s)
+    --- PASS: TestListImagePullSecretsByPodSpec/Test_with_service_account_with_bad_image_pull_secret_and_no_secrets_should_not_return_error_when_no_secret_found (0.01s)
+=== RUN   Test_secretsReader_CredentialsByServer
+=== RUN   Test_secretsReader_CredentialsByServer/Test_with_no_secrets_or_serviceaccounts_configured_and_globalAccess_disabled_should_not_map_any_credentials
+=== RUN   Test_secretsReader_CredentialsByServer/Test_with_secrets_configured_but_globalAccess_disabled_should_map_container_images_to_Docker_authentication_credentials_from_serviceaccount_secret
+=== RUN   Test_secretsReader_CredentialsByServer/Test_with_secrets_configured_and_globalAccess_enabled_should_map_container_images_to_Docker_authentication_credentials_from_serviceaccount_and_imagePullSecret
+--- PASS: Test_secretsReader_CredentialsByServer (0.01s)
+    --- PASS: Test_secretsReader_CredentialsByServer/Test_with_no_secrets_or_serviceaccounts_configured_and_globalAccess_disabled_should_not_map_any_credentials (0.00s)
+    --- PASS: Test_secretsReader_CredentialsByServer/Test_with_secrets_configured_but_globalAccess_disabled_should_map_container_images_to_Docker_authentication_credentials_from_serviceaccount_secret (0.00s)
+    --- PASS: Test_secretsReader_CredentialsByServer/Test_with_secrets_configured_and_globalAccess_enabled_should_map_container_images_to_Docker_authentication_credentials_from_serviceaccount_and_imagePullSecret (0.00s)
+PASS
+coverage: 55.2% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/kube	0.160s	coverage: 55.2% of statements
+=== RUN   TestErrors
+Running Suite: Metrics Suite - /home/davidcoppa/d/trivy-operator-d/pkg/metrics
+==============================================================================
+Random Seed: [1m1759843620[0m
+
+Will run [1m41[0m of [1m41[0m specs
+[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m
+
+[38;5;10m[1mRan 41 of 41 Specs in 0.228 seconds[0m
+[38;5;10m[1mSUCCESS![0m -- [38;5;10m[1m41 Passed[0m | [38;5;9m[1m0 Failed[0m | [38;5;11m[1m0 Pending[0m | [38;5;14m[1m0 Skipped[0m
+--- PASS: TestErrors (0.23s)
+=== RUN   TestSanitizeLabelName
+=== RUN   TestSanitizeLabelName/valid_label
+=== RUN   TestSanitizeLabelName/label_with_slash
+=== RUN   TestSanitizeLabelName/label_with_dot
+=== RUN   TestSanitizeLabelName/label_with_dot_and_slash
+--- PASS: TestSanitizeLabelName (0.00s)
+    --- PASS: TestSanitizeLabelName/valid_label (0.00s)
+    --- PASS: TestSanitizeLabelName/label_with_slash (0.00s)
+    --- PASS: TestSanitizeLabelName/label_with_dot (0.00s)
+    --- PASS: TestSanitizeLabelName/label_with_dot_and_slash (0.00s)
+PASS
+coverage: 84.2% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/metrics	0.264s	coverage: 84.2% of statements
+=== RUN   TestMapResources
+=== RUN   TestMapResources/core_component
+=== RUN   TestMapResources/addon
+=== RUN   TestMapResources/openshift_apiserver
+=== RUN   TestMapResources/openshift_controller_manager
+=== RUN   TestMapResources/openshift_scheduler
+=== RUN   TestMapResources/openshift_etcd
+--- PASS: TestMapResources (0.00s)
+    --- PASS: TestMapResources/core_component (0.00s)
+    --- PASS: TestMapResources/addon (0.00s)
+    --- PASS: TestMapResources/openshift_apiserver (0.00s)
+    --- PASS: TestMapResources/openshift_controller_manager (0.00s)
+    --- PASS: TestMapResources/openshift_scheduler (0.00s)
+    --- PASS: TestMapResources/openshift_etcd (0.00s)
+=== RUN   TestRegenerateReportIfExpired
+=== RUN   TestRegenerateReportIfExpired/Report_timestamp_exceeds_TTL
+--- PASS: TestRegenerateReportIfExpired (0.20s)
+    --- PASS: TestRegenerateReportIfExpired/Report_timestamp_exceeds_TTL (0.18s)
+PASS
+coverage: 7.9% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/operator	0.368s	coverage: 7.9% of statements
+=== RUN   TestOperator_GetTargetNamespaces
+=== RUN   TestOperator_GetTargetNamespaces/Should_return_all_namespaces
+=== RUN   TestOperator_GetTargetNamespaces/Should_return_single_namespace
+=== RUN   TestOperator_GetTargetNamespaces/Should_return_multiple_namespaces
+--- PASS: TestOperator_GetTargetNamespaces (0.00s)
+    --- PASS: TestOperator_GetTargetNamespaces/Should_return_all_namespaces (0.00s)
+    --- PASS: TestOperator_GetTargetNamespaces/Should_return_single_namespace (0.00s)
+    --- PASS: TestOperator_GetTargetNamespaces/Should_return_multiple_namespaces (0.00s)
+=== RUN   TestOperator_ResolveInstallMode
+=== RUN   TestOperator_ResolveInstallMode/Should_resolve_OwnNamespace
+=== RUN   TestOperator_ResolveInstallMode/Should_resolve_SingleNamespace
+=== RUN   TestOperator_ResolveInstallMode/Should_resolve_MultiNamespace
+=== RUN   TestOperator_ResolveInstallMode/Should_resolve_AllNamespaces
+--- PASS: TestOperator_ResolveInstallMode (0.00s)
+    --- PASS: TestOperator_ResolveInstallMode/Should_resolve_OwnNamespace (0.00s)
+    --- PASS: TestOperator_ResolveInstallMode/Should_resolve_SingleNamespace (0.00s)
+    --- PASS: TestOperator_ResolveInstallMode/Should_resolve_MultiNamespace (0.00s)
+    --- PASS: TestOperator_ResolveInstallMode/Should_resolve_AllNamespaces (0.00s)
+=== RUN   TestOperator_GetWebhookBroadcastCustomHeaders
+=== RUN   TestOperator_GetWebhookBroadcastCustomHeaders/Should_return_single_custom_header
+=== RUN   TestOperator_GetWebhookBroadcastCustomHeaders/Should_return_multiple_custom_headers
+--- PASS: TestOperator_GetWebhookBroadcastCustomHeaders (0.00s)
+    --- PASS: TestOperator_GetWebhookBroadcastCustomHeaders/Should_return_single_custom_header (0.00s)
+    --- PASS: TestOperator_GetWebhookBroadcastCustomHeaders/Should_return_multiple_custom_headers (0.00s)
+=== RUN   TestOperator_GetTargetWorkloads
+=== RUN   TestOperator_GetTargetWorkloads/Should_return_all_target_workloads
+=== RUN   TestOperator_GetTargetWorkloads/Should_return_single_workload
+=== RUN   TestOperator_GetTargetWorkloads/Should_return_multiple_workloads
+--- PASS: TestOperator_GetTargetWorkloads (0.00s)
+    --- PASS: TestOperator_GetTargetWorkloads/Should_return_all_target_workloads (0.00s)
+    --- PASS: TestOperator_GetTargetWorkloads/Should_return_single_workload (0.00s)
+    --- PASS: TestOperator_GetTargetWorkloads/Should_return_multiple_workloads (0.00s)
+=== RUN   TestOperator_GetPrivateRegistryScanSecretsNames
+=== RUN   TestOperator_GetPrivateRegistryScanSecretsNames/Should_return_namespace_with_multi_secrets
+=== RUN   TestOperator_GetPrivateRegistryScanSecretsNames/Should_return_namespace_with_singlt_secrets
+=== RUN   TestOperator_GetPrivateRegistryScanSecretsNames/Should_return_empty_map
+--- PASS: TestOperator_GetPrivateRegistryScanSecretsNames (0.00s)
+    --- PASS: TestOperator_GetPrivateRegistryScanSecretsNames/Should_return_namespace_with_multi_secrets (0.00s)
+    --- PASS: TestOperator_GetPrivateRegistryScanSecretsNames/Should_return_namespace_with_singlt_secrets (0.00s)
+    --- PASS: TestOperator_GetPrivateRegistryScanSecretsNames/Should_return_empty_map (0.00s)
+PASS
+coverage: 77.3% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/operator/etc	0.014s	coverage: 77.3% of statements
+=== RUN   TestPredicate
+Running Suite: Jobs Suite - /home/davidcoppa/d/trivy-operator-d/pkg/operator/jobs
+=================================================================================
+Random Seed: [1m1759843624[0m
+
+Will run [1m5[0m of [1m5[0m specs
+[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m
+
+[38;5;10m[1mRan 5 of 5 Specs in 0.167 seconds[0m
+[38;5;10m[1mSUCCESS![0m -- [38;5;10m[1m5 Passed[0m | [38;5;9m[1m0 Failed[0m | [38;5;11m[1m0 Pending[0m | [38;5;14m[1m0 Skipped[0m
+--- PASS: TestPredicate (0.17s)
+PASS
+coverage: 84.2% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/operator/jobs	0.244s	coverage: 84.2% of statements
+=== RUN   TestPredicate
+Running Suite: Predicate Suite - /home/davidcoppa/d/trivy-operator-d/pkg/operator/predicate
+===========================================================================================
+Random Seed: [1m1759843624[0m
+
+Will run [1m28[0m of [1m28[0m specs
+[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m[38;5;10m•[0m
+
+[38;5;10m[1mRan 28 of 28 Specs in 0.002 seconds[0m
+[38;5;10m[1mSUCCESS![0m -- [38;5;10m[1m28 Passed[0m | [38;5;9m[1m0 Failed[0m | [38;5;11m[1m0 Pending[0m | [38;5;14m[1m0 Skipped[0m
+--- PASS: TestPredicate (0.00s)
+PASS
+coverage: 60.0% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/operator/predicate	0.057s	coverage: 60.0% of statements
+	github.com/aquasecurity/trivy-operator/pkg/operator/workload		coverage: 0.0% of statements
+	github.com/aquasecurity/trivy-operator/pkg/plugins		coverage: 0.0% of statements
+=== RUN   TestConfig_GetImageRef
+=== RUN   TestConfig_GetImageRef/Should_return_error
+=== RUN   TestConfig_GetImageRef/Should_return_error#01
+=== RUN   TestConfig_GetImageRef/Should_return_error#02
+=== RUN   TestConfig_GetImageRef/Should_return_image_reference_from_config_data
+--- PASS: TestConfig_GetImageRef (0.00s)
+    --- PASS: TestConfig_GetImageRef/Should_return_error (0.00s)
+    --- PASS: TestConfig_GetImageRef/Should_return_error#01 (0.00s)
+    --- PASS: TestConfig_GetImageRef/Should_return_error#02 (0.00s)
+    --- PASS: TestConfig_GetImageRef/Should_return_image_reference_from_config_data (0.00s)
+=== RUN   TestConfig_GetAdditionalVulnerabilityReportFields
+=== RUN   TestConfig_GetAdditionalVulnerabilityReportFields/no_additional_fields_are_set
+=== RUN   TestConfig_GetAdditionalVulnerabilityReportFields/all_additional_fields_are_set
+=== RUN   TestConfig_GetAdditionalVulnerabilityReportFields/some_additional_fields_are_set
+--- PASS: TestConfig_GetAdditionalVulnerabilityReportFields (0.00s)
+    --- PASS: TestConfig_GetAdditionalVulnerabilityReportFields/no_additional_fields_are_set (0.00s)
+    --- PASS: TestConfig_GetAdditionalVulnerabilityReportFields/all_additional_fields_are_set (0.00s)
+    --- PASS: TestConfig_GetAdditionalVulnerabilityReportFields/some_additional_fields_are_set (0.00s)
+=== RUN   TestConfig_GetMode
+=== RUN   TestConfig_GetMode/Should_return_Standalone
+=== RUN   TestConfig_GetMode/Should_return_ClientServer
+=== RUN   TestConfig_GetMode/Should_return_error_when_value_is_not_set
+=== RUN   TestConfig_GetMode/Should_return_error_when_value_is_not_allowed
+--- PASS: TestConfig_GetMode (0.00s)
+    --- PASS: TestConfig_GetMode/Should_return_Standalone (0.00s)
+    --- PASS: TestConfig_GetMode/Should_return_ClientServer (0.00s)
+    --- PASS: TestConfig_GetMode/Should_return_error_when_value_is_not_set (0.00s)
+    --- PASS: TestConfig_GetMode/Should_return_error_when_value_is_not_allowed (0.00s)
+=== RUN   TestGetSlow
+=== RUN   TestGetSlow/slow_param_set_to_true
+=== RUN   TestGetSlow/slow_param_set_to_false
+=== RUN   TestGetSlow/slow_param_set_to_no_valid_value
+=== RUN   TestGetSlow/slow_param_set_to_no__value
+--- PASS: TestGetSlow (0.00s)
+    --- PASS: TestGetSlow/slow_param_set_to_true (0.00s)
+    --- PASS: TestGetSlow/slow_param_set_to_false (0.00s)
+    --- PASS: TestGetSlow/slow_param_set_to_no_valid_value (0.00s)
+    --- PASS: TestGetSlow/slow_param_set_to_no__value (0.00s)
+=== RUN   TestConfig_GetCommand
+=== RUN   TestConfig_GetCommand/Should_return_image
+=== RUN   TestConfig_GetCommand/Should_return_image_when_value_is_not_set
+=== RUN   TestConfig_GetCommand/Should_return_filesystem
+=== RUN   TestConfig_GetCommand/Should_return_rootfs
+=== RUN   TestConfig_GetCommand/Should_return_error_when_value_is_not_allowed
+--- PASS: TestConfig_GetCommand (0.00s)
+    --- PASS: TestConfig_GetCommand/Should_return_image (0.00s)
+    --- PASS: TestConfig_GetCommand/Should_return_image_when_value_is_not_set (0.00s)
+    --- PASS: TestConfig_GetCommand/Should_return_filesystem (0.00s)
+    --- PASS: TestConfig_GetCommand/Should_return_rootfs (0.00s)
+    --- PASS: TestConfig_GetCommand/Should_return_error_when_value_is_not_allowed (0.00s)
+=== RUN   TestConfig_GenerateConfigFile
+=== RUN   TestConfig_GenerateConfigFile/good_way_with_config_data
+=== RUN   TestConfig_GenerateConfigFile/without_config
+--- PASS: TestConfig_GenerateConfigFile (0.00s)
+    --- PASS: TestConfig_GenerateConfigFile/good_way_with_config_data (0.00s)
+    --- PASS: TestConfig_GenerateConfigFile/without_config (0.00s)
+=== RUN   TestVulnType
+=== RUN   TestVulnType/valid_vuln_type_os
+=== RUN   TestVulnType/valid_vuln_type_library
+=== RUN   TestVulnType/empty_vuln_type
+=== RUN   TestVulnType/non_valid_vuln_type
+--- PASS: TestVulnType (0.00s)
+    --- PASS: TestVulnType/valid_vuln_type_os (0.00s)
+    --- PASS: TestVulnType/valid_vuln_type_library (0.00s)
+    --- PASS: TestVulnType/empty_vuln_type (0.00s)
+    --- PASS: TestVulnType/non_valid_vuln_type (0.00s)
+=== RUN   TestConfig_GetResourceRequirements
+=== RUN   TestConfig_GetResourceRequirements/Should_return_empty_requirements_by_default
+=== RUN   TestConfig_GetResourceRequirements/Should_return_configured_resource_requirement
+=== RUN   TestConfig_GetResourceRequirements/Should_return_error_if_resource_is_not_parseable
+--- PASS: TestConfig_GetResourceRequirements (0.00s)
+    --- PASS: TestConfig_GetResourceRequirements/Should_return_empty_requirements_by_default (0.00s)
+    --- PASS: TestConfig_GetResourceRequirements/Should_return_configured_resource_requirement (0.00s)
+    --- PASS: TestConfig_GetResourceRequirements/Should_return_error_if_resource_is_not_parseable (0.00s)
+=== RUN   TestConfig_IgnoreFileExists
+=== RUN   TestConfig_IgnoreFileExists/Should_return_false
+=== RUN   TestConfig_IgnoreFileExists/Should_return_true
+--- PASS: TestConfig_IgnoreFileExists (0.00s)
+    --- PASS: TestConfig_IgnoreFileExists/Should_return_false (0.00s)
+    --- PASS: TestConfig_IgnoreFileExists/Should_return_true (0.00s)
+=== RUN   TestConfig_IgnoreUnfixed
+=== RUN   TestConfig_IgnoreUnfixed/Should_return_false
+=== RUN   TestConfig_IgnoreUnfixed/Should_return_true
+=== RUN   TestConfig_IgnoreUnfixed/Should_return_false_when_set_it_as_false
+--- PASS: TestConfig_IgnoreUnfixed (0.00s)
+    --- PASS: TestConfig_IgnoreUnfixed/Should_return_false (0.00s)
+    --- PASS: TestConfig_IgnoreUnfixed/Should_return_true (0.00s)
+    --- PASS: TestConfig_IgnoreUnfixed/Should_return_false_when_set_it_as_false (0.00s)
+=== RUN   TestConfig_OfflineScan
+=== RUN   TestConfig_OfflineScan/Should_return_false
+=== RUN   TestConfig_OfflineScan/Should_return_true
+=== RUN   TestConfig_OfflineScan/Should_return_false_when_set_it_as_false
+--- PASS: TestConfig_OfflineScan (0.00s)
+    --- PASS: TestConfig_OfflineScan/Should_return_false (0.00s)
+    --- PASS: TestConfig_OfflineScan/Should_return_true (0.00s)
+    --- PASS: TestConfig_OfflineScan/Should_return_false_when_set_it_as_false (0.00s)
+=== RUN   TestConfig_dbRepositoryInsecure
+=== RUN   TestConfig_dbRepositoryInsecure/good_value_Should_return_false
+=== RUN   TestConfig_dbRepositoryInsecure/good_value_Should_return_true
+=== RUN   TestConfig_dbRepositoryInsecure/bad_value_Should_return_false
+=== RUN   TestConfig_dbRepositoryInsecure/no_value_Should_return_false
+--- PASS: TestConfig_dbRepositoryInsecure (0.00s)
+    --- PASS: TestConfig_dbRepositoryInsecure/good_value_Should_return_false (0.00s)
+    --- PASS: TestConfig_dbRepositoryInsecure/good_value_Should_return_true (0.00s)
+    --- PASS: TestConfig_dbRepositoryInsecure/bad_value_Should_return_false (0.00s)
+    --- PASS: TestConfig_dbRepositoryInsecure/no_value_Should_return_false (0.00s)
+=== RUN   TestConfig_GetInsecureRegistries
+=== RUN   TestConfig_GetInsecureRegistries/Should_return_nil_map_when_there_is_no_key_with_insecureRegistry._prefix
+=== RUN   TestConfig_GetInsecureRegistries/Should_return_insecure_registries_in_map
+--- PASS: TestConfig_GetInsecureRegistries (0.00s)
+    --- PASS: TestConfig_GetInsecureRegistries/Should_return_nil_map_when_there_is_no_key_with_insecureRegistry._prefix (0.00s)
+    --- PASS: TestConfig_GetInsecureRegistries/Should_return_insecure_registries_in_map (0.00s)
+=== RUN   TestConfig_GetNonSSLRegistries
+=== RUN   TestConfig_GetNonSSLRegistries/Should_return_nil_map_when_there_is_no_key_with_nonSslRegistry._prefix
+=== RUN   TestConfig_GetNonSSLRegistries/Should_return_insecure_registries_in_map
+--- PASS: TestConfig_GetNonSSLRegistries (0.00s)
+    --- PASS: TestConfig_GetNonSSLRegistries/Should_return_nil_map_when_there_is_no_key_with_nonSslRegistry._prefix (0.00s)
+    --- PASS: TestConfig_GetNonSSLRegistries/Should_return_insecure_registries_in_map (0.00s)
+=== RUN   TestConfig_GetMirrors
+=== RUN   TestConfig_GetMirrors/Should_return_empty_map_when_there_is_no_key_with_mirrors.registry._prefix
+=== RUN   TestConfig_GetMirrors/Should_return_mirrors_in_a_map
+--- PASS: TestConfig_GetMirrors (0.00s)
+    --- PASS: TestConfig_GetMirrors/Should_return_empty_map_when_there_is_no_key_with_mirrors.registry._prefix (0.00s)
+    --- PASS: TestConfig_GetMirrors/Should_return_mirrors_in_a_map (0.00s)
+=== RUN   TestPlugin_Init
+=== RUN   TestPlugin_Init/Should_create_the_default_config
+=== RUN   TestPlugin_Init/Should_not_overwrite_existing_config
+--- PASS: TestPlugin_Init (0.14s)
+    --- PASS: TestPlugin_Init/Should_create_the_default_config (0.13s)
+    --- PASS: TestPlugin_Init/Should_not_overwrite_existing_config (0.01s)
+=== RUN   TestPlugin_FindIgnorePolicyKey
+=== RUN   TestPlugin_FindIgnorePolicyKey/empty
+=== RUN   TestPlugin_FindIgnorePolicyKey/fallback
+=== RUN   TestPlugin_FindIgnorePolicyKey/fallback_namespace
+=== RUN   TestPlugin_FindIgnorePolicyKey/fallback_namespace_workload
+=== RUN   TestPlugin_FindIgnorePolicyKey/fallback_namespace_other-workload
+=== RUN   TestPlugin_FindIgnorePolicyKey/fallback_other-namespace_other-workload
+--- PASS: TestPlugin_FindIgnorePolicyKey (0.00s)
+    --- PASS: TestPlugin_FindIgnorePolicyKey/empty (0.00s)
+    --- PASS: TestPlugin_FindIgnorePolicyKey/fallback (0.00s)
+    --- PASS: TestPlugin_FindIgnorePolicyKey/fallback_namespace (0.00s)
+    --- PASS: TestPlugin_FindIgnorePolicyKey/fallback_namespace_workload (0.00s)
+    --- PASS: TestPlugin_FindIgnorePolicyKey/fallback_namespace_other-workload (0.00s)
+    --- PASS: TestPlugin_FindIgnorePolicyKey/fallback_other-namespace_other-workload (0.00s)
+=== RUN   TestPlugin_GetIncludeDevDeps
+=== RUN   TestPlugin_GetIncludeDevDeps/includeDevDeps_enabled
+=== RUN   TestPlugin_GetIncludeDevDeps/includeDevDeps_not_set
+--- PASS: TestPlugin_GetIncludeDevDeps (0.00s)
+    --- PASS: TestPlugin_GetIncludeDevDeps/includeDevDeps_enabled (0.00s)
+    --- PASS: TestPlugin_GetIncludeDevDeps/includeDevDeps_not_set (0.00s)
+=== RUN   TestPlugin_GetSbomSources
+=== RUN   TestPlugin_GetSbomSources/GetSbomSources_not_set
+=== RUN   TestPlugin_GetSbomSources/GetSbomSources_with_oci_and_rekor
+--- PASS: TestPlugin_GetSbomSources (0.00s)
+    --- PASS: TestPlugin_GetSbomSources/GetSbomSources_not_set (0.00s)
+    --- PASS: TestPlugin_GetSbomSources/GetSbomSources_with_oci_and_rekor (0.00s)
+=== RUN   TestGetSbomFSScanningArgs
+=== RUN   TestGetSbomFSScanningArgs/command_and_args_for_standalone_mode
+=== RUN   TestGetSbomFSScanningArgs/command_and_args_for_client/server_mode
+--- PASS: TestGetSbomFSScanningArgs (0.01s)
+    --- PASS: TestGetSbomFSScanningArgs/command_and_args_for_standalone_mode (0.00s)
+    --- PASS: TestGetSbomFSScanningArgs/command_and_args_for_client/server_mode (0.01s)
+=== RUN   TestGetFSScanningArgs
+=== RUN   TestGetFSScanningArgs/command_and_args_for_standalone_mode
+=== RUN   TestGetFSScanningArgs/command_and_args_for_client/server_mode
+--- PASS: TestGetFSScanningArgs (0.01s)
+    --- PASS: TestGetFSScanningArgs/command_and_args_for_standalone_mode (0.00s)
+    --- PASS: TestGetFSScanningArgs/command_and_args_for_client/server_mode (0.01s)
+=== RUN   TestSlow
+=== RUN   TestSlow/slow_param_set_to_true
+=== RUN   TestSlow/slow_param_set_to_false
+=== RUN   TestSlow/slow_param_set_to_no_valid_value
+=== RUN   TestSlow/slow_param_set_to_true_and_trivy_tag_is_less_then_0.35.0
+=== RUN   TestSlow/slow_param_set_to_true_and_trivy_tag_is_bigger_then_0.35.0
+--- PASS: TestSlow (0.00s)
+    --- PASS: TestSlow/slow_param_set_to_true (0.00s)
+    --- PASS: TestSlow/slow_param_set_to_false (0.00s)
+    --- PASS: TestSlow/slow_param_set_to_no_valid_value (0.00s)
+    --- PASS: TestSlow/slow_param_set_to_true_and_trivy_tag_is_less_then_0.35.0 (0.00s)
+    --- PASS: TestSlow/slow_param_set_to_true_and_trivy_tag_is_bigger_then_0.35.0 (0.00s)
+=== RUN   TestScanner
+=== RUN   TestScanner/scanner_with_trivy_tag_lower_then_v0.37.0
+=== RUN   TestScanner/scanner_with_trivy_tag_equal_then_v0.37.0
+=== RUN   TestScanner/scanner_with_trivy_tag_higher_then_v0.38.0
+=== RUN   TestScanner/scanner_with_no_trivy_tag_lower
+--- PASS: TestScanner (0.00s)
+    --- PASS: TestScanner/scanner_with_trivy_tag_lower_then_v0.37.0 (0.00s)
+    --- PASS: TestScanner/scanner_with_trivy_tag_equal_then_v0.37.0 (0.00s)
+    --- PASS: TestScanner/scanner_with_trivy_tag_higher_then_v0.38.0 (0.00s)
+    --- PASS: TestScanner/scanner_with_no_trivy_tag_lower (0.00s)
+=== RUN   TestSkipDBUpdate
+=== RUN   TestSkipDBUpdate/skip_update_DB_with_trivy_tag_lower_then_v0.37.0
+=== RUN   TestSkipDBUpdate/skip_update_DB_with_trivy_tag_equal_then_v0.37.0
+=== RUN   TestSkipDBUpdate/skip_update_DB_with_trivy_tag_higher_then_v0.37.0
+=== RUN   TestSkipDBUpdate/skip_update_DB_with_no_trivy_tag_lower
+--- PASS: TestSkipDBUpdate (0.00s)
+    --- PASS: TestSkipDBUpdate/skip_update_DB_with_trivy_tag_lower_then_v0.37.0 (0.00s)
+    --- PASS: TestSkipDBUpdate/skip_update_DB_with_trivy_tag_equal_then_v0.37.0 (0.00s)
+    --- PASS: TestSkipDBUpdate/skip_update_DB_with_trivy_tag_higher_then_v0.37.0 (0.00s)
+    --- PASS: TestSkipDBUpdate/skip_update_DB_with_no_trivy_tag_lower (0.00s)
+=== RUN   TestSkipJavaDBUpdate
+=== RUN   TestSkipJavaDBUpdate/skip_update_Java_DB_with_trivy_tag_lower_then_v0.37.0
+=== RUN   TestSkipJavaDBUpdate/skip_update_Java_DB_with_trivy_tag_equal_to_v0.37.0
+=== RUN   TestSkipJavaDBUpdate/skip_update_Java_DB_with_trivy_tag_higher_then_v0.37.0
+=== RUN   TestSkipJavaDBUpdate/skip_update_Java_DB_with_no_trivy_tag
+=== RUN   TestSkipJavaDBUpdate/skip_update_Java_DB_with_skip_false
+--- PASS: TestSkipJavaDBUpdate (0.00s)
+    --- PASS: TestSkipJavaDBUpdate/skip_update_Java_DB_with_trivy_tag_lower_then_v0.37.0 (0.00s)
+    --- PASS: TestSkipJavaDBUpdate/skip_update_Java_DB_with_trivy_tag_equal_to_v0.37.0 (0.00s)
+    --- PASS: TestSkipJavaDBUpdate/skip_update_Java_DB_with_trivy_tag_higher_then_v0.37.0 (0.00s)
+    --- PASS: TestSkipJavaDBUpdate/skip_update_Java_DB_with_no_trivy_tag (0.00s)
+    --- PASS: TestSkipJavaDBUpdate/skip_update_Java_DB_with_skip_false (0.00s)
+=== RUN   TestCheckGcpCrOrPrivateRegistry
+--- PASS: TestCheckGcpCrOrPrivateRegistry (0.00s)
+=== RUN   TestGetMirroredImage
+=== RUN   TestGetMirroredImage/Mirror_not_match
+=== RUN   TestGetMirroredImage/Mirror_match
+=== RUN   TestGetMirroredImage/Broken_image
+--- PASS: TestGetMirroredImage (0.00s)
+    --- PASS: TestGetMirroredImage/Mirror_not_match (0.00s)
+    --- PASS: TestGetMirroredImage/Mirror_match (0.00s)
+    --- PASS: TestGetMirroredImage/Broken_image (0.00s)
+=== RUN   TestGetSbomScanCommandAndArgs
+=== RUN   TestGetSbomScanCommandAndArgs/command_and_args_for_standalone_mode_compress
+=== RUN   TestGetSbomScanCommandAndArgs/command_and_args_for_standalone_mode_non_compress
+=== RUN   TestGetSbomScanCommandAndArgs/command_and_args_for_client/server_mode_compress
+=== RUN   TestGetSbomScanCommandAndArgs/command_and_args_for_client/server_mode_non_compress
+--- PASS: TestGetSbomScanCommandAndArgs (0.03s)
+    --- PASS: TestGetSbomScanCommandAndArgs/command_and_args_for_standalone_mode_compress (0.00s)
+    --- PASS: TestGetSbomScanCommandAndArgs/command_and_args_for_standalone_mode_non_compress (0.00s)
+    --- PASS: TestGetSbomScanCommandAndArgs/command_and_args_for_client/server_mode_compress (0.02s)
+    --- PASS: TestGetSbomScanCommandAndArgs/command_and_args_for_client/server_mode_non_compress (0.01s)
+=== RUN   TestCreateSbomDataSecret
+=== RUN   TestCreateSbomDataSecret/cretae_valid_sbom_data
+--- PASS: TestCreateSbomDataSecret (0.00s)
+    --- PASS: TestCreateSbomDataSecret/cretae_valid_sbom_data (0.00s)
+=== RUN   TestCreateVolumes
+=== RUN   TestCreateVolumes/cretae_volumes
+--- PASS: TestCreateVolumes (0.00s)
+    --- PASS: TestCreateVolumes/cretae_volumes (0.00s)
+=== RUN   TestPlugin_GetScanJobSpec
+=== RUN   TestPlugin_GetScanJobSpec/Standalone_mode_without_insecure_expectedRegistry
+=== RUN   TestPlugin_GetScanJobSpec/Standalone_mode_with_insecure_expectedRegistry
+=== RUN   TestPlugin_GetScanJobSpec/Standalone_mode_with_non-SSL_expectedRegistry
+=== RUN   TestPlugin_GetScanJobSpec/Standalone_mode_with_trivyignore_file
+=== RUN   TestPlugin_GetScanJobSpec/Standalone_mode_with_trivy_ignore_policy
+=== RUN   TestPlugin_GetScanJobSpec/Standalone_mode_with_mirror
+=== RUN   TestPlugin_GetScanJobSpec/Standalone_mode_with_custom_db_repositories
+=== RUN   TestPlugin_GetScanJobSpec/ClientServer_mode_without_insecure_registry
+=== RUN   TestPlugin_GetScanJobSpec/ClientServer_mode_without_insecure_registry#01
+=== RUN   TestPlugin_GetScanJobSpec/ClientServer_mode_with_insecure_server
+=== RUN   TestPlugin_GetScanJobSpec/ClientServer_mode_with_non-SSL_registry
+=== RUN   TestPlugin_GetScanJobSpec/ClientServer_mode_with_trivyignore_file
+=== RUN   TestPlugin_GetScanJobSpec/ClientServer_mode_with_trivy_ignore_policy
+=== RUN   TestPlugin_GetScanJobSpec/ClientServer_mode_with_custom_db_repositories
+=== RUN   TestPlugin_GetScanJobSpec/Trivy_fs_scan_command_in_Standalone_mode
+=== RUN   TestPlugin_GetScanJobSpec/Trivy_fs_scan_command_in_ClientServer_mode
+=== RUN   TestPlugin_GetScanJobSpec/Trivy_rootfs_scan_command_in_Standalone_mode
+=== RUN   TestPlugin_GetScanJobSpec/Trivy_rootfs_scan_command_in_ClientServer_mode
+=== RUN   TestPlugin_GetScanJobSpec/Standalone_mode_with_ECR_image_and_mirror
+=== RUN   TestPlugin_GetScanJobSpec/Standalone_mode_with_credentials
+=== RUN   TestPlugin_GetScanJobSpec/Standalone_mode_with_credentials_and_mirror
+=== RUN   TestPlugin_GetScanJobSpec/Standalone_mode_with_uncompressed_logs
+=== RUN   TestPlugin_GetScanJobSpec/Standalone_mode_with_config_file
+=== RUN   TestPlugin_GetScanJobSpec/Trivy_fs_scan_command_in_Standalone_mode#01
+--- PASS: TestPlugin_GetScanJobSpec (0.10s)
+    --- PASS: TestPlugin_GetScanJobSpec/Standalone_mode_without_insecure_expectedRegistry (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/Standalone_mode_with_insecure_expectedRegistry (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/Standalone_mode_with_non-SSL_expectedRegistry (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/Standalone_mode_with_trivyignore_file (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/Standalone_mode_with_trivy_ignore_policy (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/Standalone_mode_with_mirror (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/Standalone_mode_with_custom_db_repositories (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/ClientServer_mode_without_insecure_registry (0.03s)
+    --- PASS: TestPlugin_GetScanJobSpec/ClientServer_mode_without_insecure_registry#01 (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/ClientServer_mode_with_insecure_server (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/ClientServer_mode_with_non-SSL_registry (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/ClientServer_mode_with_trivyignore_file (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/ClientServer_mode_with_trivy_ignore_policy (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/ClientServer_mode_with_custom_db_repositories (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/Trivy_fs_scan_command_in_Standalone_mode (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/Trivy_fs_scan_command_in_ClientServer_mode (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/Trivy_rootfs_scan_command_in_Standalone_mode (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/Trivy_rootfs_scan_command_in_ClientServer_mode (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/Standalone_mode_with_ECR_image_and_mirror (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/Standalone_mode_with_credentials (0.01s)
+    --- PASS: TestPlugin_GetScanJobSpec/Standalone_mode_with_credentials_and_mirror (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/Standalone_mode_with_uncompressed_logs (0.00s)
+    --- PASS: TestPlugin_GetScanJobSpec/Standalone_mode_with_config_file (0.01s)
+    --- PASS: TestPlugin_GetScanJobSpec/Trivy_fs_scan_command_in_Standalone_mode#01 (0.00s)
+=== RUN   TestPlugin_ParseReportData
+=== RUN   TestPlugin_ParseReportData/Should_convert_both_vulnerability_and_exposedsecret_report_in_JSON_format_when_input_is_quiet
+=== RUN   TestPlugin_ParseReportData/Should_convert_both_vulnerability_and_exposedsecret_report_in_JSON_format_when_input_is_quiet#01
+=== RUN   TestPlugin_ParseReportData/Should_convert_vulnerability_report_in_JSON_format_when_OS_is_not_detected
+=== RUN   TestPlugin_ParseReportData/Should_only_parse_vulnerability_report
+=== RUN   TestPlugin_ParseReportData/Should_only_parse_exposedsecret_report
+=== RUN   TestPlugin_ParseReportData/Should_return_error_when_image_reference_cannot_be_parsed
+--- PASS: TestPlugin_ParseReportData (0.04s)
+    --- PASS: TestPlugin_ParseReportData/Should_convert_both_vulnerability_and_exposedsecret_report_in_JSON_format_when_input_is_quiet (0.02s)
+    --- PASS: TestPlugin_ParseReportData/Should_convert_both_vulnerability_and_exposedsecret_report_in_JSON_format_when_input_is_quiet#01 (0.00s)
+    --- PASS: TestPlugin_ParseReportData/Should_convert_vulnerability_report_in_JSON_format_when_OS_is_not_detected (0.00s)
+    --- PASS: TestPlugin_ParseReportData/Should_only_parse_vulnerability_report (0.00s)
+    --- PASS: TestPlugin_ParseReportData/Should_only_parse_exposedsecret_report (0.00s)
+    --- PASS: TestPlugin_ParseReportData/Should_return_error_when_image_reference_cannot_be_parsed (0.00s)
+=== RUN   TestGetScoreFromCVSS
+=== RUN   TestGetScoreFromCVSS/Should_return_nvd_score_when_nvd_and_vendor_v3_score_exist
+=== RUN   TestGetScoreFromCVSS/Should_return_nvd_score_when_vendor_v3_score_is_nil
+=== RUN   TestGetScoreFromCVSS/Should_return_nvd_score_when_vendor_doesn't_exist
+=== RUN   TestGetScoreFromCVSS/Should_return_vendor_score_when_nvd_doesn't_exist
+=== RUN   TestGetScoreFromCVSS/Should_return_nil_when_vendor_and_nvd_both_v3_scores_are_nil
+=== RUN   TestGetScoreFromCVSS/Should_return_nil_when_cvss_doesn't_exist
+--- PASS: TestGetScoreFromCVSS (0.00s)
+    --- PASS: TestGetScoreFromCVSS/Should_return_nvd_score_when_nvd_and_vendor_v3_score_exist (0.00s)
+    --- PASS: TestGetScoreFromCVSS/Should_return_nvd_score_when_vendor_v3_score_is_nil (0.00s)
+    --- PASS: TestGetScoreFromCVSS/Should_return_nvd_score_when_vendor_doesn't_exist (0.00s)
+    --- PASS: TestGetScoreFromCVSS/Should_return_vendor_score_when_nvd_doesn't_exist (0.00s)
+    --- PASS: TestGetScoreFromCVSS/Should_return_nil_when_vendor_and_nvd_both_v3_scores_are_nil (0.00s)
+    --- PASS: TestGetScoreFromCVSS/Should_return_nil_when_cvss_doesn't_exist (0.00s)
+=== RUN   TestGetCVSSV3
+=== RUN   TestGetCVSSV3/Should_return_vendor_score_when_vendor_v3_score_exist
+=== RUN   TestGetCVSSV3/Should_return_nil_when_vendor_and_nvd_both_v3_scores_are_nil
+=== RUN   TestGetCVSSV3/Should_return_nil_when_cvss_doesn't_exist
+--- PASS: TestGetCVSSV3 (0.00s)
+    --- PASS: TestGetCVSSV3/Should_return_vendor_score_when_vendor_v3_score_exist (0.00s)
+    --- PASS: TestGetCVSSV3/Should_return_nil_when_vendor_and_nvd_both_v3_scores_are_nil (0.00s)
+    --- PASS: TestGetCVSSV3/Should_return_nil_when_cvss_doesn't_exist (0.00s)
+=== RUN   TestGetContainers
+=== RUN   TestGetContainers/Standalone_mode_with_image_command
+=== RUN   TestGetContainers/ClientServer_mode_with_image_command
+=== RUN   TestGetContainers/Standalone_mode_with_filesystem_command
+--- PASS: TestGetContainers (0.01s)
+    --- PASS: TestGetContainers/Standalone_mode_with_image_command (0.00s)
+    --- PASS: TestGetContainers/ClientServer_mode_with_image_command (0.00s)
+    --- PASS: TestGetContainers/Standalone_mode_with_filesystem_command (0.00s)
+=== RUN   TestGetInitContainers
+=== RUN   TestGetInitContainers/Standalone_mode_with_image_command_java-db_from_private_registry
+--- PASS: TestGetInitContainers (0.00s)
+    --- PASS: TestGetInitContainers/Standalone_mode_with_image_command_java-db_from_private_registry (0.00s)
+=== RUN   TestSkipDirFileEnvVars
+=== RUN   TestSkipDirFileEnvVars/read_skip_file_from_annotation
+=== RUN   TestSkipDirFileEnvVars/read_skip_file_from_config
+=== RUN   TestSkipDirFileEnvVars/read_skip_dir_from_annotation
+=== RUN   TestSkipDirFileEnvVars/read_skip_dir_from_config
+--- PASS: TestSkipDirFileEnvVars (0.00s)
+    --- PASS: TestSkipDirFileEnvVars/read_skip_file_from_annotation (0.00s)
+    --- PASS: TestSkipDirFileEnvVars/read_skip_file_from_config (0.00s)
+    --- PASS: TestSkipDirFileEnvVars/read_skip_dir_from_annotation (0.00s)
+    --- PASS: TestSkipDirFileEnvVars/read_skip_dir_from_config (0.00s)
+=== RUN   TestGetClientServerSkipUpdate
+=== RUN   TestGetClientServerSkipUpdate/clientServerSkipUpdate_param_set_to_true
+=== RUN   TestGetClientServerSkipUpdate/clientServerSkipUpdate_param_set_to_false
+=== RUN   TestGetClientServerSkipUpdate/clientServerSkipUpdate_param_set_to_no_valid_value
+=== RUN   TestGetClientServerSkipUpdate/clientServerSkipUpdate_param_set_to_no_value
+--- PASS: TestGetClientServerSkipUpdate (0.00s)
+    --- PASS: TestGetClientServerSkipUpdate/clientServerSkipUpdate_param_set_to_true (0.00s)
+    --- PASS: TestGetClientServerSkipUpdate/clientServerSkipUpdate_param_set_to_false (0.00s)
+    --- PASS: TestGetClientServerSkipUpdate/clientServerSkipUpdate_param_set_to_no_valid_value (0.00s)
+    --- PASS: TestGetClientServerSkipUpdate/clientServerSkipUpdate_param_set_to_no_value (0.00s)
+=== RUN   TestGetSkipJavaDBUpdate
+=== RUN   TestGetSkipJavaDBUpdate/skipJavaDBUpdate_param_set_to_true
+=== RUN   TestGetSkipJavaDBUpdate/skipJavaDBUpdate_param_set_to_false
+=== RUN   TestGetSkipJavaDBUpdate/skipJavaDBUpdate_param_set_to_no_valid_value
+=== RUN   TestGetSkipJavaDBUpdate/skipJavaDBUpdate_param_set_to_no__value
+--- PASS: TestGetSkipJavaDBUpdate (0.00s)
+    --- PASS: TestGetSkipJavaDBUpdate/skipJavaDBUpdate_param_set_to_true (0.00s)
+    --- PASS: TestGetSkipJavaDBUpdate/skipJavaDBUpdate_param_set_to_false (0.00s)
+    --- PASS: TestGetSkipJavaDBUpdate/skipJavaDBUpdate_param_set_to_no_valid_value (0.00s)
+    --- PASS: TestGetSkipJavaDBUpdate/skipJavaDBUpdate_param_set_to_no__value (0.00s)
+=== RUN   TestGetImageScanCacheDir
+=== RUN   TestGetImageScanCacheDir/imageScanCacheDir_param_set_non-default_path
+=== RUN   TestGetImageScanCacheDir/imageScanCacheDir_param_set_as_empty_string
+=== RUN   TestGetImageScanCacheDir/imageScanCacheDir_param_unset
+--- PASS: TestGetImageScanCacheDir (0.00s)
+    --- PASS: TestGetImageScanCacheDir/imageScanCacheDir_param_set_non-default_path (0.00s)
+    --- PASS: TestGetImageScanCacheDir/imageScanCacheDir_param_set_as_empty_string (0.00s)
+    --- PASS: TestGetImageScanCacheDir/imageScanCacheDir_param_unset (0.00s)
+=== RUN   TestGetFilesystemScanCacheDir
+=== RUN   TestGetFilesystemScanCacheDir/filesystemScanCacheDir_param_set_non-default_path
+=== RUN   TestGetFilesystemScanCacheDir/filesystemScanCacheDir_param_set_as_empty_string
+=== RUN   TestGetFilesystemScanCacheDir/filesystemScanCacheDir_param_unset
+--- PASS: TestGetFilesystemScanCacheDir (0.00s)
+    --- PASS: TestGetFilesystemScanCacheDir/filesystemScanCacheDir_param_set_non-default_path (0.00s)
+    --- PASS: TestGetFilesystemScanCacheDir/filesystemScanCacheDir_param_set_as_empty_string (0.00s)
+    --- PASS: TestGetFilesystemScanCacheDir/filesystemScanCacheDir_param_unset (0.00s)
+=== RUN   TestExcludeImages
+=== RUN   TestExcludeImages/exclude_images_single_pattern_match
+=== RUN   TestExcludeImages/exclude_images_multi_pattern_match
+=== RUN   TestExcludeImages/exclude_images_multi_pattern_no_match
+=== RUN   TestExcludeImages/exclude_images_no_pattern
+=== RUN   TestExcludeImages/exclude_a_specific_image
+=== RUN   TestExcludeImages/exclude_images_from_mcr
+--- PASS: TestExcludeImages (0.00s)
+    --- PASS: TestExcludeImages/exclude_images_single_pattern_match (0.00s)
+    --- PASS: TestExcludeImages/exclude_images_multi_pattern_match (0.00s)
+    --- PASS: TestExcludeImages/exclude_images_multi_pattern_no_match (0.00s)
+    --- PASS: TestExcludeImages/exclude_images_no_pattern (0.00s)
+    --- PASS: TestExcludeImages/exclude_a_specific_image (0.00s)
+    --- PASS: TestExcludeImages/exclude_images_from_mcr (0.00s)
+=== RUN   TestParseImageRef
+=== RUN   TestParseImageRef/short_image_ref_with_latest_tag
+=== RUN   TestParseImageRef/short_repo_with_default_lib_with_latest_tag
+=== RUN   TestParseImageRef/well_known_image_without_tag_&_digest
+=== RUN   TestParseImageRef/docker_expectedRegistry_image_ref_with_tag
+=== RUN   TestParseImageRef/short_repo_with_private_repo_with_tag
+=== RUN   TestParseImageRef/with_tag
+=== RUN   TestParseImageRef/artifact_registry_image_ref_with_tag
+=== RUN   TestParseImageRef/repo_with_digest
+=== RUN   TestParseImageRef/private_expectedRegistry_image_ref_tag_&_with_digest
+=== RUN   TestParseImageRef/incorrect_input
+--- PASS: TestParseImageRef (0.00s)
+    --- PASS: TestParseImageRef/short_image_ref_with_latest_tag (0.00s)
+    --- PASS: TestParseImageRef/short_repo_with_default_lib_with_latest_tag (0.00s)
+    --- PASS: TestParseImageRef/well_known_image_without_tag_&_digest (0.00s)
+    --- PASS: TestParseImageRef/docker_expectedRegistry_image_ref_with_tag (0.00s)
+    --- PASS: TestParseImageRef/short_repo_with_private_repo_with_tag (0.00s)
+    --- PASS: TestParseImageRef/with_tag (0.00s)
+    --- PASS: TestParseImageRef/artifact_registry_image_ref_with_tag (0.00s)
+    --- PASS: TestParseImageRef/repo_with_digest (0.00s)
+    --- PASS: TestParseImageRef/private_expectedRegistry_image_ref_tag_&_with_digest (0.00s)
+    --- PASS: TestParseImageRef/incorrect_input (0.00s)
+PASS
+coverage: 77.0% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/plugins/trivy	0.453s	coverage: 77.0% of statements
+=== RUN   TestPolicies_Hash
+=== RUN   TestPolicies_Hash/Should_return_hash_for_valid_policies
+=== RUN   TestPolicies_Hash/Should_compute_correct_hash_for_given_policies
+--- PASS: TestPolicies_Hash (0.00s)
+    --- PASS: TestPolicies_Hash/Should_return_hash_for_valid_policies (0.00s)
+    --- PASS: TestPolicies_Hash/Should_compute_correct_hash_for_given_policies (0.00s)
+=== RUN   TestPolicies_PoliciesByKind
+=== RUN   TestPolicies_PoliciesByKind/Should_return_error_when_kinds_are_not_defined_for_policy
+=== RUN   TestPolicies_PoliciesByKind/Should_return_error_when_policy_is_not_found
+=== RUN   TestPolicies_PoliciesByKind/Should_return_policies_as_Rego_modules
+--- PASS: TestPolicies_PoliciesByKind (0.00s)
+    --- PASS: TestPolicies_PoliciesByKind/Should_return_error_when_kinds_are_not_defined_for_policy (0.00s)
+    --- PASS: TestPolicies_PoliciesByKind/Should_return_error_when_policy_is_not_found (0.00s)
+    --- PASS: TestPolicies_PoliciesByKind/Should_return_policies_as_Rego_modules (0.00s)
+=== RUN   TestPolicies_Supported
+=== RUN   TestPolicies_Supported/Should_return_true_for_workload_policies
+=== RUN   TestPolicies_Supported/Should_return_true_if_there_is_at_least_one_policy
+=== RUN   TestPolicies_Supported/Should_return_false_if_Role_kind_and_rbac_disable
+=== RUN   TestPolicies_Supported/Should_return_true_if_Pod_kind_and_rbac_disable
+--- PASS: TestPolicies_Supported (0.00s)
+    --- PASS: TestPolicies_Supported/Should_return_true_for_workload_policies (0.00s)
+    --- PASS: TestPolicies_Supported/Should_return_true_if_there_is_at_least_one_policy (0.00s)
+    --- PASS: TestPolicies_Supported/Should_return_false_if_Role_kind_and_rbac_disable (0.00s)
+    --- PASS: TestPolicies_Supported/Should_return_true_if_Pod_kind_and_rbac_disable (0.00s)
+=== RUN   TestPolicies_Eval
+=== RUN   TestPolicies_Eval/Should_eval_deny_rule_with_invalid_resource_as_failed_check
+=== RUN   TestPolicies_Eval/Should_eval_deny_rule_with_valid_resource_as_successful_check
+=== RUN   TestPolicies_Eval/Should_return_error_when_policy_cannot_be_parsed
+=== RUN   TestPolicies_Eval/Should_return_error_when_library_cannot_be_parsed
+=== RUN   TestPolicies_Eval/Should_eval_warn_role_rule_with_built_in_policies
+=== RUN   TestPolicies_Eval/Should_eval_return_error_no_policies_found
+=== RUN   TestPolicies_Eval/using_a_custom_rule_-_check_passed
+=== RUN   TestPolicies_Eval/using_a_custom_rule_-_check_failed
+=== RUN   TestPolicies_Eval/using_a_custom_rule_with_incorrect_name
+--- PASS: TestPolicies_Eval (3.15s)
+    --- PASS: TestPolicies_Eval/Should_eval_deny_rule_with_invalid_resource_as_failed_check (1.03s)
+    --- PASS: TestPolicies_Eval/Should_eval_deny_rule_with_valid_resource_as_successful_check (0.35s)
+    --- PASS: TestPolicies_Eval/Should_return_error_when_policy_cannot_be_parsed (0.29s)
+    --- PASS: TestPolicies_Eval/Should_return_error_when_library_cannot_be_parsed (0.30s)
+    --- PASS: TestPolicies_Eval/Should_eval_warn_role_rule_with_built_in_policies (0.31s)
+    --- PASS: TestPolicies_Eval/Should_eval_return_error_no_policies_found (0.21s)
+    --- PASS: TestPolicies_Eval/using_a_custom_rule_-_check_passed (0.20s)
+    --- PASS: TestPolicies_Eval/using_a_custom_rule_-_check_failed (0.26s)
+    --- PASS: TestPolicies_Eval/using_a_custom_rule_with_incorrect_name (0.18s)
+=== RUN   TestNewMetadata
+=== RUN   TestNewMetadata/Should_return_error_when_value_is_nil
+=== RUN   TestNewMetadata/Should_return_error_when_severity_key_is_not_set
+=== RUN   TestNewMetadata/Should_return_error_when_severity_value_is_nil
+=== RUN   TestNewMetadata/Should_return_error_when_severity_value_is_blank
+=== RUN   TestNewMetadata/Should_return_error_when_severity_value_is_invalid
+=== RUN   TestNewMetadata/Should_return_error_when_id_key_is_not_set
+=== RUN   TestNewMetadata/Should_return_error_when_id_value_is_nil
+=== RUN   TestNewMetadata/Should_return_error_when_id_value_is_blank
+=== RUN   TestNewMetadata/Should_return_error_when_id_value_is_not_string
+=== RUN   TestNewMetadata/Should_return_error_when_title_key_is_not_set
+=== RUN   TestNewMetadata/Should_return_error_when_title_value_is_nil
+=== RUN   TestNewMetadata/Should_return_error_when_title_value_is_blank
+=== RUN   TestNewMetadata/Should_return_error_when_type_key_is_not_set
+=== RUN   TestNewMetadata/Should_return_error_when_type_value_is_nil
+=== RUN   TestNewMetadata/Should_return_error_when_type_value_is_blank
+=== RUN   TestNewMetadata/Should_return_error_when_description_key_is_not_set
+=== RUN   TestNewMetadata/Should_return_metadata
+--- PASS: TestNewMetadata (0.00s)
+    --- PASS: TestNewMetadata/Should_return_error_when_value_is_nil (0.00s)
+    --- PASS: TestNewMetadata/Should_return_error_when_severity_key_is_not_set (0.00s)
+    --- PASS: TestNewMetadata/Should_return_error_when_severity_value_is_nil (0.00s)
+    --- PASS: TestNewMetadata/Should_return_error_when_severity_value_is_blank (0.00s)
+    --- PASS: TestNewMetadata/Should_return_error_when_severity_value_is_invalid (0.00s)
+    --- PASS: TestNewMetadata/Should_return_error_when_id_key_is_not_set (0.00s)
+    --- PASS: TestNewMetadata/Should_return_error_when_id_value_is_nil (0.00s)
+    --- PASS: TestNewMetadata/Should_return_error_when_id_value_is_blank (0.00s)
+    --- PASS: TestNewMetadata/Should_return_error_when_id_value_is_not_string (0.00s)
+    --- PASS: TestNewMetadata/Should_return_error_when_title_key_is_not_set (0.00s)
+    --- PASS: TestNewMetadata/Should_return_error_when_title_value_is_nil (0.00s)
+    --- PASS: TestNewMetadata/Should_return_error_when_title_value_is_blank (0.00s)
+    --- PASS: TestNewMetadata/Should_return_error_when_type_key_is_not_set (0.00s)
+    --- PASS: TestNewMetadata/Should_return_error_when_type_value_is_nil (0.00s)
+    --- PASS: TestNewMetadata/Should_return_error_when_type_value_is_blank (0.00s)
+    --- PASS: TestNewMetadata/Should_return_error_when_description_key_is_not_set (0.00s)
+    --- PASS: TestNewMetadata/Should_return_metadata (0.00s)
+=== RUN   TestNewMessage
+=== RUN   TestNewMessage/Should_return_error_when_values_is_nil
+=== RUN   TestNewMessage/Should_return_error_when_msg_key_is_not_set
+=== RUN   TestNewMessage/Should_return_error_when_msg_value_is_nil
+=== RUN   TestNewMessage/Should_return_error_when_msg_value_is_blank
+=== RUN   TestNewMessage/Should_return_result
+--- PASS: TestNewMessage (0.00s)
+    --- PASS: TestNewMessage/Should_return_error_when_values_is_nil (0.00s)
+    --- PASS: TestNewMessage/Should_return_error_when_msg_key_is_not_set (0.00s)
+    --- PASS: TestNewMessage/Should_return_error_when_msg_value_is_nil (0.00s)
+    --- PASS: TestNewMessage/Should_return_error_when_msg_value_is_blank (0.00s)
+    --- PASS: TestNewMessage/Should_return_result (0.00s)
+PASS
+coverage: 58.5% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/policy	3.265s	coverage: 58.5% of statements
+=== RUN   TestReportBuilder
+=== RUN   TestReportBuilder/Should_build_report_for_namespaced_resource
+=== RUN   TestReportBuilder/Should_build_report_for_namespaced_resource_with_capital_letter
+=== RUN   TestReportBuilder/Should_build_report_for_cluster_scoped_resource
+=== RUN   TestReportBuilder/Should_build_config_audit_report_for_cluster_scoped_resource_with_managed-by_label
+=== RUN   TestReportBuilder/Should_build_RBAC_assessment_report_with_additional_labels
+--- PASS: TestReportBuilder (0.00s)
+    --- PASS: TestReportBuilder/Should_build_report_for_namespaced_resource (0.00s)
+    --- PASS: TestReportBuilder/Should_build_report_for_namespaced_resource_with_capital_letter (0.00s)
+    --- PASS: TestReportBuilder/Should_build_report_for_cluster_scoped_resource (0.00s)
+    --- PASS: TestReportBuilder/Should_build_config_audit_report_for_cluster_scoped_resource_with_managed-by_label (0.00s)
+    --- PASS: TestReportBuilder/Should_build_RBAC_assessment_report_with_additional_labels (0.00s)
+=== RUN   TestReadWriter
+=== RUN   TestReadWriter/Should_create_RbacAssessmentReport
+=== RUN   TestReadWriter/Should_update_RbacAssessmentReport
+=== RUN   TestReadWriter/Should_find_RbacAssessmentReport_by_owner
+=== RUN   TestReadWriter/Should_find_RbacAssessmentReport_by_owner_with_special_name
+=== RUN   TestReadWriter/Should_create_ClusterRbacAssessmentReport
+=== RUN   TestReadWriter/Should_update_ClusterRbacAssessmentReport
+=== RUN   TestReadWriter/Should_find_ClusterRbacAssessmentReport_by_owner
+--- PASS: TestReadWriter (0.13s)
+    --- PASS: TestReadWriter/Should_create_RbacAssessmentReport (0.12s)
+    --- PASS: TestReadWriter/Should_update_RbacAssessmentReport (0.00s)
+    --- PASS: TestReadWriter/Should_find_RbacAssessmentReport_by_owner (0.00s)
+    --- PASS: TestReadWriter/Should_find_RbacAssessmentReport_by_owner_with_special_name (0.00s)
+    --- PASS: TestReadWriter/Should_create_ClusterRbacAssessmentReport (0.00s)
+    --- PASS: TestReadWriter/Should_update_ClusterRbacAssessmentReport (0.00s)
+    --- PASS: TestReadWriter/Should_find_ClusterRbacAssessmentReport_by_owner (0.00s)
+PASS
+coverage: 65.4% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/rbacassessment	0.207s	coverage: 65.4% of statements
+=== RUN   TestReportBuilder
+--- PASS: TestReportBuilder (0.00s)
+=== RUN   TestArtifactRef
+=== RUN   TestArtifactRef/get_image_ref_with_library
+=== RUN   TestArtifactRef/get_image_ref_without_library
+=== RUN   TestArtifactRef/get_image_ref_without_index
+=== RUN   TestArtifactRef/get_image_ref_non_docker_registry
+--- PASS: TestArtifactRef (0.00s)
+    --- PASS: TestArtifactRef/get_image_ref_with_library (0.00s)
+    --- PASS: TestArtifactRef/get_image_ref_without_library (0.00s)
+    --- PASS: TestArtifactRef/get_image_ref_without_index (0.00s)
+    --- PASS: TestArtifactRef/get_image_ref_non_docker_registry (0.00s)
+=== RUN   TestNewReadWriter
+=== RUN   TestNewReadWriter/Should_create_SbomReports
+=== RUN   TestNewReadWriter/Should_update_SbomReports
+=== RUN   TestNewReadWriter/Should_find_SbomReports
+--- PASS: TestNewReadWriter (0.09s)
+    --- PASS: TestNewReadWriter/Should_create_SbomReports (0.09s)
+    --- PASS: TestNewReadWriter/Should_update_SbomReports (0.00s)
+    --- PASS: TestNewReadWriter/Should_find_SbomReports (0.00s)
+=== RUN   TestImageRef
+=== RUN   TestImageRef/get_image_ref_with_library
+=== RUN   TestImageRef/get_image_ref_without_library
+=== RUN   TestImageRef/get_image_ref_without_index
+=== RUN   TestImageRef/get_image_ref_non_docker_registry
+--- PASS: TestImageRef (0.00s)
+    --- PASS: TestImageRef/get_image_ref_with_library (0.00s)
+    --- PASS: TestImageRef/get_image_ref_without_library (0.00s)
+    --- PASS: TestImageRef/get_image_ref_without_index (0.00s)
+    --- PASS: TestImageRef/get_image_ref_non_docker_registry (0.00s)
+PASS
+coverage: 40.4% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/sbomreport	0.222s	coverage: 40.4% of statements
+=== RUN   TestConfigData_GetVulnerabilityReportsScanner
+=== RUN   TestConfigData_GetVulnerabilityReportsScanner/Should_return_Trivy
+=== RUN   TestConfigData_GetVulnerabilityReportsScanner/Should_return_error_when_value_is_not_set
+--- PASS: TestConfigData_GetVulnerabilityReportsScanner (0.00s)
+    --- PASS: TestConfigData_GetVulnerabilityReportsScanner/Should_return_Trivy (0.00s)
+    --- PASS: TestConfigData_GetVulnerabilityReportsScanner/Should_return_error_when_value_is_not_set (0.00s)
+=== RUN   TestConfigData_GetConfigAuditReportsScanner
+=== RUN   TestConfigData_GetConfigAuditReportsScanner/Should_return_Trivy
+=== RUN   TestConfigData_GetConfigAuditReportsScanner/Scaner_is_not_set
+--- PASS: TestConfigData_GetConfigAuditReportsScanner (0.00s)
+    --- PASS: TestConfigData_GetConfigAuditReportsScanner/Should_return_Trivy (0.00s)
+    --- PASS: TestConfigData_GetConfigAuditReportsScanner/Scaner_is_not_set (0.00s)
+=== RUN   TestConfigData_GetScanJobAffinity
+=== RUN   TestConfigData_GetScanJobAffinity/no_scanJob.affinity_in_ConfigData
+=== RUN   TestConfigData_GetScanJobAffinity/scanJob.affinity_value_is_not_json
+=== RUN   TestConfigData_GetScanJobAffinity/empty_JSON_array
+=== RUN   TestConfigData_GetScanJobAffinity/valid_affinity
+--- PASS: TestConfigData_GetScanJobAffinity (0.00s)
+    --- PASS: TestConfigData_GetScanJobAffinity/no_scanJob.affinity_in_ConfigData (0.00s)
+    --- PASS: TestConfigData_GetScanJobAffinity/scanJob.affinity_value_is_not_json (0.00s)
+    --- PASS: TestConfigData_GetScanJobAffinity/empty_JSON_array (0.00s)
+    --- PASS: TestConfigData_GetScanJobAffinity/valid_affinity (0.00s)
+=== RUN   TestConfigData_GetScanJobTolerations
+=== RUN   TestConfigData_GetScanJobTolerations/no_scanJob.tolerations_in_ConfigData
+=== RUN   TestConfigData_GetScanJobTolerations/scanJob.tolerations_value_is_not_json
+=== RUN   TestConfigData_GetScanJobTolerations/empty_JSON_array
+=== RUN   TestConfigData_GetScanJobTolerations/one_valid_toleration
+=== RUN   TestConfigData_GetScanJobTolerations/multiple_valid_tolerations
+--- PASS: TestConfigData_GetScanJobTolerations (0.00s)
+    --- PASS: TestConfigData_GetScanJobTolerations/no_scanJob.tolerations_in_ConfigData (0.00s)
+    --- PASS: TestConfigData_GetScanJobTolerations/scanJob.tolerations_value_is_not_json (0.00s)
+    --- PASS: TestConfigData_GetScanJobTolerations/empty_JSON_array (0.00s)
+    --- PASS: TestConfigData_GetScanJobTolerations/one_valid_toleration (0.00s)
+    --- PASS: TestConfigData_GetScanJobTolerations/multiple_valid_tolerations (0.00s)
+=== RUN   TestConfigData_GetImagePullSecret
+=== RUN   TestConfigData_GetImagePullSecret/no_image_pull_secrets_in_ConfigData
+=== RUN   TestConfigData_GetImagePullSecret/one_valid_imagePullSecret
+--- PASS: TestConfigData_GetImagePullSecret (0.00s)
+    --- PASS: TestConfigData_GetImagePullSecret/no_image_pull_secrets_in_ConfigData (0.00s)
+    --- PASS: TestConfigData_GetImagePullSecret/one_valid_imagePullSecret (0.00s)
+=== RUN   TestConfigData_GetScanJobPodPriorityClassName
+=== RUN   TestConfigData_GetScanJobPodPriorityClassName/no_scanJob.podPriorityClassName_in_ConfigData
+=== RUN   TestConfigData_GetScanJobPodPriorityClassName/scanJob.podPriorityClassName_value_is_not_string
+=== RUN   TestConfigData_GetScanJobPodPriorityClassName/empty_string_value
+=== RUN   TestConfigData_GetScanJobPodPriorityClassName/one_valid_string
+--- PASS: TestConfigData_GetScanJobPodPriorityClassName (0.00s)
+    --- PASS: TestConfigData_GetScanJobPodPriorityClassName/no_scanJob.podPriorityClassName_in_ConfigData (0.00s)
+    --- PASS: TestConfigData_GetScanJobPodPriorityClassName/scanJob.podPriorityClassName_value_is_not_string (0.00s)
+    --- PASS: TestConfigData_GetScanJobPodPriorityClassName/empty_string_value (0.00s)
+    --- PASS: TestConfigData_GetScanJobPodPriorityClassName/one_valid_string (0.00s)
+=== RUN   TestConfigData_TestConfigData_GetNodeCollectorVolumes
+=== RUN   TestConfigData_TestConfigData_GetNodeCollectorVolumes/no_node-collector_volumes_in_ConfigData
+=== RUN   TestConfigData_TestConfigData_GetNodeCollectorVolumes/no_node-collector_volumes_value_is_not_json
+=== RUN   TestConfigData_TestConfigData_GetNodeCollectorVolumes/empty_JSON_array
+=== RUN   TestConfigData_TestConfigData_GetNodeCollectorVolumes/_JSON_with_valid_data
+--- PASS: TestConfigData_TestConfigData_GetNodeCollectorVolumes (0.00s)
+    --- PASS: TestConfigData_TestConfigData_GetNodeCollectorVolumes/no_node-collector_volumes_in_ConfigData (0.00s)
+    --- PASS: TestConfigData_TestConfigData_GetNodeCollectorVolumes/no_node-collector_volumes_value_is_not_json (0.00s)
+    --- PASS: TestConfigData_TestConfigData_GetNodeCollectorVolumes/empty_JSON_array (0.00s)
+    --- PASS: TestConfigData_TestConfigData_GetNodeCollectorVolumes/_JSON_with_valid_data (0.00s)
+=== RUN   TestConfigData_TestConfigData_GetNodeCollectorVolumeMounts
+=== RUN   TestConfigData_TestConfigData_GetNodeCollectorVolumeMounts/no_node-collector_volume_mounts_in_ConfigData
+=== RUN   TestConfigData_TestConfigData_GetNodeCollectorVolumeMounts/no_node-collector_volume_mounts_value_is_not_json
+=== RUN   TestConfigData_TestConfigData_GetNodeCollectorVolumeMounts/empty_JSON_array
+=== RUN   TestConfigData_TestConfigData_GetNodeCollectorVolumeMounts/_JSON_with_valid_data
+--- PASS: TestConfigData_TestConfigData_GetNodeCollectorVolumeMounts (0.00s)
+    --- PASS: TestConfigData_TestConfigData_GetNodeCollectorVolumeMounts/no_node-collector_volume_mounts_in_ConfigData (0.00s)
+    --- PASS: TestConfigData_TestConfigData_GetNodeCollectorVolumeMounts/no_node-collector_volume_mounts_value_is_not_json (0.00s)
+    --- PASS: TestConfigData_TestConfigData_GetNodeCollectorVolumeMounts/empty_JSON_array (0.00s)
+    --- PASS: TestConfigData_TestConfigData_GetNodeCollectorVolumeMounts/_JSON_with_valid_data (0.00s)
+=== RUN   TestConfigData_GetScanJobCustomVolumes
+=== RUN   TestConfigData_GetScanJobCustomVolumes/no_scan_Job_volumes_in_ConfigData
+=== RUN   TestConfigData_GetScanJobCustomVolumes/scan_Job_volumes_value_is_not_json
+=== RUN   TestConfigData_GetScanJobCustomVolumes/empty_JSON_array
+=== RUN   TestConfigData_GetScanJobCustomVolumes/_JSON_with_valid_data
+--- PASS: TestConfigData_GetScanJobCustomVolumes (0.00s)
+    --- PASS: TestConfigData_GetScanJobCustomVolumes/no_scan_Job_volumes_in_ConfigData (0.00s)
+    --- PASS: TestConfigData_GetScanJobCustomVolumes/scan_Job_volumes_value_is_not_json (0.00s)
+    --- PASS: TestConfigData_GetScanJobCustomVolumes/empty_JSON_array (0.00s)
+    --- PASS: TestConfigData_GetScanJobCustomVolumes/_JSON_with_valid_data (0.00s)
+=== RUN   TestConfigData_GetScanJobcustomVolumeMounts
+=== RUN   TestConfigData_GetScanJobcustomVolumeMounts/no_scan_job_volume_mounts_in_ConfigData
+=== RUN   TestConfigData_GetScanJobcustomVolumeMounts/no_scan_job_volume_mounts_value_is_not_json
+=== RUN   TestConfigData_GetScanJobcustomVolumeMounts/empty_JSON_array
+=== RUN   TestConfigData_GetScanJobcustomVolumeMounts/_JSON_with_valid_data
+--- PASS: TestConfigData_GetScanJobcustomVolumeMounts (0.00s)
+    --- PASS: TestConfigData_GetScanJobcustomVolumeMounts/no_scan_job_volume_mounts_in_ConfigData (0.00s)
+    --- PASS: TestConfigData_GetScanJobcustomVolumeMounts/no_scan_job_volume_mounts_value_is_not_json (0.00s)
+    --- PASS: TestConfigData_GetScanJobcustomVolumeMounts/empty_JSON_array (0.00s)
+    --- PASS: TestConfigData_GetScanJobcustomVolumeMounts/_JSON_with_valid_data (0.00s)
+=== RUN   TestAutomountServiceAccountToken
+=== RUN   TestAutomountServiceAccountToken/no_scanJob.automountServiceAccountToken_in_ConfigData
+=== RUN   TestAutomountServiceAccountToken/scanJob.automountServiceAccountToken_false
+=== RUN   TestAutomountServiceAccountToken/scanJob.automountServiceAccountToken_true
+--- PASS: TestAutomountServiceAccountToken (0.00s)
+    --- PASS: TestAutomountServiceAccountToken/no_scanJob.automountServiceAccountToken_in_ConfigData (0.00s)
+    --- PASS: TestAutomountServiceAccountToken/scanJob.automountServiceAccountToken_false (0.00s)
+    --- PASS: TestAutomountServiceAccountToken/scanJob.automountServiceAccountToken_true (0.00s)
+=== RUN   TestConfigData_GetScanJobAnnotations
+=== RUN   TestConfigData_GetScanJobAnnotations/scan_job_annotations_can_be_fetched_successfully
+=== RUN   TestConfigData_GetScanJobAnnotations/gracefully_deal_with_unprovided_annotations
+=== RUN   TestConfigData_GetScanJobAnnotations/raise_an_error_on_being_provided_with_annotations_in_wrong_format
+=== RUN   TestConfigData_GetScanJobAnnotations/raise_an_error_on_being_provided_with_annotations_in_wrong_format#01
+--- PASS: TestConfigData_GetScanJobAnnotations (0.00s)
+    --- PASS: TestConfigData_GetScanJobAnnotations/scan_job_annotations_can_be_fetched_successfully (0.00s)
+    --- PASS: TestConfigData_GetScanJobAnnotations/gracefully_deal_with_unprovided_annotations (0.00s)
+    --- PASS: TestConfigData_GetScanJobAnnotations/raise_an_error_on_being_provided_with_annotations_in_wrong_format (0.00s)
+    --- PASS: TestConfigData_GetScanJobAnnotations/raise_an_error_on_being_provided_with_annotations_in_wrong_format#01 (0.00s)
+=== RUN   TestConfigData_GetScanJobNodeSelector
+=== RUN   TestConfigData_GetScanJobNodeSelector/scan_job_template_nodeSelector_can_be_fetched_successfully
+=== RUN   TestConfigData_GetScanJobNodeSelector/gracefully_deal_with_unprovided_nodeSelector
+=== RUN   TestConfigData_GetScanJobNodeSelector/raise_an_error_on_being_provided_with_empty_nodeSelector
+=== RUN   TestConfigData_GetScanJobNodeSelector/raise_an_error_on_being_provided_with_template_nodeSelector_in_wrong_format
+--- PASS: TestConfigData_GetScanJobNodeSelector (0.00s)
+    --- PASS: TestConfigData_GetScanJobNodeSelector/scan_job_template_nodeSelector_can_be_fetched_successfully (0.00s)
+    --- PASS: TestConfigData_GetScanJobNodeSelector/gracefully_deal_with_unprovided_nodeSelector (0.00s)
+    --- PASS: TestConfigData_GetScanJobNodeSelector/raise_an_error_on_being_provided_with_empty_nodeSelector (0.00s)
+    --- PASS: TestConfigData_GetScanJobNodeSelector/raise_an_error_on_being_provided_with_template_nodeSelector_in_wrong_format (0.00s)
+=== RUN   TestConfigData_GetScanJobPodTemplateLabels
+=== RUN   TestConfigData_GetScanJobPodTemplateLabels/scan_job_template_labels_with_additional_comma_at_the_end_can_be_fetched_successfully
+=== RUN   TestConfigData_GetScanJobPodTemplateLabels/scan_job_template_labels_can_be_fetched_successfully
+=== RUN   TestConfigData_GetScanJobPodTemplateLabels/gracefully_deal_with_unprovided_labels
+=== RUN   TestConfigData_GetScanJobPodTemplateLabels/raise_an_error_on_being_provided_with_labels_in_wrong_format
+=== RUN   TestConfigData_GetScanJobPodTemplateLabels/raise_an_error_on_being_provided_with_template_labels_in_wrong_format
+--- PASS: TestConfigData_GetScanJobPodTemplateLabels (0.00s)
+    --- PASS: TestConfigData_GetScanJobPodTemplateLabels/scan_job_template_labels_with_additional_comma_at_the_end_can_be_fetched_successfully (0.00s)
+    --- PASS: TestConfigData_GetScanJobPodTemplateLabels/scan_job_template_labels_can_be_fetched_successfully (0.00s)
+    --- PASS: TestConfigData_GetScanJobPodTemplateLabels/gracefully_deal_with_unprovided_labels (0.00s)
+    --- PASS: TestConfigData_GetScanJobPodTemplateLabels/raise_an_error_on_being_provided_with_labels_in_wrong_format (0.00s)
+    --- PASS: TestConfigData_GetScanJobPodTemplateLabels/raise_an_error_on_being_provided_with_template_labels_in_wrong_format (0.00s)
+=== RUN   TestConfigData_GetScanContainerSecurityContext
+=== RUN   TestConfigData_GetScanContainerSecurityContext/scan_job_template_[container]_SecurityContext_can_be_fetched_successfully
+=== RUN   TestConfigData_GetScanContainerSecurityContext/gracefully_deal_with_unprovided_securityContext
+=== RUN   TestConfigData_GetScanContainerSecurityContext/raise_an_error_on_being_provided_with_securityContext_in_wrong_format
+--- PASS: TestConfigData_GetScanContainerSecurityContext (0.00s)
+    --- PASS: TestConfigData_GetScanContainerSecurityContext/scan_job_template_[container]_SecurityContext_can_be_fetched_successfully (0.00s)
+    --- PASS: TestConfigData_GetScanContainerSecurityContext/gracefully_deal_with_unprovided_securityContext (0.00s)
+    --- PASS: TestConfigData_GetScanContainerSecurityContext/raise_an_error_on_being_provided_with_securityContext_in_wrong_format (0.00s)
+=== RUN   TestConfigData_GetScanJobPodSecurityContext
+=== RUN   TestConfigData_GetScanJobPodSecurityContext/scan_job_template_podSecurityContext_can_be_fetched_successfully
+=== RUN   TestConfigData_GetScanJobPodSecurityContext/gracefully_deal_with_unprovided_securityContext
+=== RUN   TestConfigData_GetScanJobPodSecurityContext/raise_an_error_on_being_provided_with_securityContext_in_wrong_format
+--- PASS: TestConfigData_GetScanJobPodSecurityContext (0.00s)
+    --- PASS: TestConfigData_GetScanJobPodSecurityContext/scan_job_template_podSecurityContext_can_be_fetched_successfully (0.00s)
+    --- PASS: TestConfigData_GetScanJobPodSecurityContext/gracefully_deal_with_unprovided_securityContext (0.00s)
+    --- PASS: TestConfigData_GetScanJobPodSecurityContext/raise_an_error_on_being_provided_with_securityContext_in_wrong_format (0.00s)
+=== RUN   TestConfigData_GetComplianceFailEntriesLimit
+=== RUN   TestConfigData_GetComplianceFailEntriesLimit/Should_return_compliance_fail_entries_limit_default_value
+=== RUN   TestConfigData_GetComplianceFailEntriesLimit/Should_return_compliance_fail_entries_limit_from_config_data
+--- PASS: TestConfigData_GetComplianceFailEntriesLimit (0.00s)
+    --- PASS: TestConfigData_GetComplianceFailEntriesLimit/Should_return_compliance_fail_entries_limit_default_value (0.00s)
+    --- PASS: TestConfigData_GetComplianceFailEntriesLimit/Should_return_compliance_fail_entries_limit_from_config_data (0.00s)
+=== RUN   TestGetScanJobCompressLogs
+=== RUN   TestGetScanJobCompressLogs/should_return_Scan_Job_compress_logs__default_value
+=== RUN   TestGetScanJobCompressLogs/Should_return_scan_job_compress_logs_true
+=== RUN   TestGetScanJobCompressLogs/Should_return_scan_job_compress_logs_false
+--- PASS: TestGetScanJobCompressLogs (0.00s)
+    --- PASS: TestGetScanJobCompressLogs/should_return_Scan_Job_compress_logs__default_value (0.00s)
+    --- PASS: TestGetScanJobCompressLogs/Should_return_scan_job_compress_logs_true (0.00s)
+    --- PASS: TestGetScanJobCompressLogs/Should_return_scan_job_compress_logs_false (0.00s)
+=== RUN   TestGetVersionFromImageRef
+=== RUN   TestGetVersionFromImageRef/docker.io/aquasec/trivy:0.9.1
+=== RUN   TestGetVersionFromImageRef/docker.io/aquasec/trivy@sha256:5020dac24a63ef4f24452a0c63ebbfe93a5309e40f6353d1ee8221d2184ee954
+=== RUN   TestGetVersionFromImageRef/aquasec/trivy:0.9.1
+=== RUN   TestGetVersionFromImageRef/aquasec/trivy:latest
+=== RUN   TestGetVersionFromImageRef/aquasec/trivy
+--- PASS: TestGetVersionFromImageRef (0.00s)
+    --- PASS: TestGetVersionFromImageRef/docker.io/aquasec/trivy:0.9.1 (0.00s)
+    --- PASS: TestGetVersionFromImageRef/docker.io/aquasec/trivy@sha256:5020dac24a63ef4f24452a0c63ebbfe93a5309e40f6353d1ee8221d2184ee954 (0.00s)
+    --- PASS: TestGetVersionFromImageRef/aquasec/trivy:0.9.1 (0.00s)
+    --- PASS: TestGetVersionFromImageRef/aquasec/trivy:latest (0.00s)
+    --- PASS: TestGetVersionFromImageRef/aquasec/trivy (0.00s)
+=== RUN   TestConfigManager_Read
+--- PASS: TestConfigManager_Read (0.00s)
+=== RUN   TestConfigManager_EnsureDefault
+=== RUN   TestConfigManager_EnsureDefault/Should_create_ConfigMaps_and_Secret
+=== RUN   TestConfigManager_EnsureDefault/Should_not_modify_ConfigMaps_nor_Secret
+--- PASS: TestConfigManager_EnsureDefault (0.00s)
+    --- PASS: TestConfigManager_EnsureDefault/Should_create_ConfigMaps_and_Secret (0.00s)
+    --- PASS: TestConfigManager_EnsureDefault/Should_not_modify_ConfigMaps_nor_Secret (0.00s)
+=== RUN   TestConfigManager_Delete
+=== RUN   TestConfigManager_Delete/Should_not_return_error_when_ConfigMap_and_secret_do_not_exist
+=== RUN   TestConfigManager_Delete/Should_delete_ConfigMap_and_secret
+--- PASS: TestConfigManager_Delete (0.00s)
+    --- PASS: TestConfigManager_Delete/Should_not_return_error_when_ConfigMap_and_secret_do_not_exist (0.00s)
+    --- PASS: TestConfigManager_Delete/Should_delete_ConfigMap_and_secret (0.00s)
+=== RUN   TestConfigData_VulnerabilityScannerEnabled
+=== RUN   TestConfigData_VulnerabilityScannerEnabled/Should_return_false_when_key_is_not_set
+=== RUN   TestConfigData_VulnerabilityScannerEnabled/Should_return_false_when_key_is_set_'false'
+=== RUN   TestConfigData_VulnerabilityScannerEnabled/Should_return_true_when_key_is_set_'true'
+--- PASS: TestConfigData_VulnerabilityScannerEnabled (0.00s)
+    --- PASS: TestConfigData_VulnerabilityScannerEnabled/Should_return_false_when_key_is_not_set (0.00s)
+    --- PASS: TestConfigData_VulnerabilityScannerEnabled/Should_return_false_when_key_is_set_'false' (0.00s)
+    --- PASS: TestConfigData_VulnerabilityScannerEnabled/Should_return_true_when_key_is_set_'true' (0.00s)
+=== RUN   TestConfigData_ExposedSecretsScannerEnabled
+=== RUN   TestConfigData_ExposedSecretsScannerEnabled/Should_return_false_when_key_is_not_set
+=== RUN   TestConfigData_ExposedSecretsScannerEnabled/Should_return_false_when_key_is_set_'false'
+=== RUN   TestConfigData_ExposedSecretsScannerEnabled/Should_return_true_when_key_is_set_'true'
+--- PASS: TestConfigData_ExposedSecretsScannerEnabled (0.00s)
+    --- PASS: TestConfigData_ExposedSecretsScannerEnabled/Should_return_false_when_key_is_not_set (0.00s)
+    --- PASS: TestConfigData_ExposedSecretsScannerEnabled/Should_return_false_when_key_is_set_'false' (0.00s)
+    --- PASS: TestConfigData_ExposedSecretsScannerEnabled/Should_return_true_when_key_is_set_'true' (0.00s)
+=== RUN   TestConfigData_GetExcludeImages
+=== RUN   TestConfigData_GetExcludeImages/multi_pattern
+=== RUN   TestConfigData_GetExcludeImages/single_pattern
+=== RUN   TestConfigData_GetExcludeImages/no_pattern
+--- PASS: TestConfigData_GetExcludeImages (0.00s)
+    --- PASS: TestConfigData_GetExcludeImages/multi_pattern (0.00s)
+    --- PASS: TestConfigData_GetExcludeImages/single_pattern (0.00s)
+    --- PASS: TestConfigData_GetExcludeImages/no_pattern (0.00s)
+=== RUN   TestGetPluginConfigMapName
+--- PASS: TestGetPluginConfigMapName (0.00s)
+=== RUN   TestPluginContext_GetConfig
+=== RUN   TestPluginContext_GetConfig/Should_return_PluginConfig_from_ConfigMap
+=== RUN   TestPluginContext_GetConfig/Should_return_PluginConfig_from_ConfigMap_and_Secret
+--- PASS: TestPluginContext_GetConfig (0.05s)
+    --- PASS: TestPluginContext_GetConfig/Should_return_PluginConfig_from_ConfigMap (0.05s)
+    --- PASS: TestPluginContext_GetConfig/Should_return_PluginConfig_from_ConfigMap_and_Secret (0.00s)
+PASS
+coverage: 67.7% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/trivyoperator	0.075s	coverage: 67.7% of statements
+=== RUN   TestBase64Decode
+=== RUN   TestBase64Decode/decode_basic_data
+--- PASS: TestBase64Decode (0.00s)
+    --- PASS: TestBase64Decode/decode_basic_data (0.00s)
+=== RUN   TestDecompressBzip2
+=== RUN   TestDecompressBzip2/decompress_basic_data
+=== RUN   TestDecompressBzip2/decompress_basic_bad_data
+--- PASS: TestDecompressBzip2 (0.00s)
+    --- PASS: TestDecompressBzip2/decompress_basic_data (0.00s)
+    --- PASS: TestDecompressBzip2/decompress_basic_bad_data (0.00s)
+=== RUN   TestIllegalChar
+=== RUN   TestIllegalChar/base64_illegal_char_before
+=== RUN   TestIllegalChar/base64_illegal_char_after
+--- PASS: TestIllegalChar (0.00s)
+    --- PASS: TestIllegalChar/base64_illegal_char_before (0.00s)
+    --- PASS: TestIllegalChar/base64_illegal_char_after (0.00s)
+=== RUN   TestNextCronDuration
+=== RUN   TestNextCronDuration/good_cron
+=== RUN   TestNextCronDuration/bad_cron
+--- PASS: TestNextCronDuration (0.00s)
+    --- PASS: TestNextCronDuration/good_cron (0.00s)
+    --- PASS: TestNextCronDuration/bad_cron (0.00s)
+=== RUN   TestDurationExceeded
+=== RUN   TestDurationExceeded/duration_future
+=== RUN   TestDurationExceeded/duration_now
+=== RUN   TestDurationExceeded/duration_pass
+--- PASS: TestDurationExceeded (0.00s)
+    --- PASS: TestDurationExceeded/duration_future (0.00s)
+    --- PASS: TestDurationExceeded/duration_now (0.00s)
+    --- PASS: TestDurationExceeded/duration_pass (0.00s)
+=== RUN   TestTTLIsNotExpired
+--- PASS: TestTTLIsNotExpired (0.00s)
+=== RUN   TestTTLIsExpired
+--- PASS: TestTTLIsExpired (0.00s)
+=== RUN   TestMapResources
+=== RUN   TestMapResources/with_workload
+=== RUN   TestMapResources/dup_kinds
+=== RUN   TestMapResources/empty_kinds
+=== RUN   TestMapResources/non_valid_kinds
+--- PASS: TestMapResources (0.00s)
+    --- PASS: TestMapResources/with_workload (0.00s)
+    --- PASS: TestMapResources/dup_kinds (0.00s)
+    --- PASS: TestMapResources/empty_kinds (0.00s)
+    --- PASS: TestMapResources/non_valid_kinds (0.00s)
+PASS
+coverage: 71.8% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/utils	0.026s	coverage: 71.8% of statements
+=== RUN   TestReportBuilder
+--- PASS: TestReportBuilder (0.00s)
+=== RUN   TestScanJobBuilder
+=== RUN   TestScanJobBuilder/Should_get_scan_job_with_labels
+=== RUN   TestScanJobBuilder/Should_get_scan_job_with_annotations
+=== RUN   TestScanJobBuilder/Should_get_scan_job_running_in_workload_namespace
+=== RUN   TestScanJobBuilder/Should_get_scan_job_in_operator_namespace_for_cluster-scoped_resources_when_VulnerabilityScansInSameNamespace_is_enabled
+=== RUN   TestScanJobBuilder/Shoud_set_scan_job_with_custom_volume_and_volume_mount
+--- PASS: TestScanJobBuilder (0.00s)
+    --- PASS: TestScanJobBuilder/Should_get_scan_job_with_labels (0.00s)
+    --- PASS: TestScanJobBuilder/Should_get_scan_job_with_annotations (0.00s)
+    --- PASS: TestScanJobBuilder/Should_get_scan_job_running_in_workload_namespace (0.00s)
+    --- PASS: TestScanJobBuilder/Should_get_scan_job_in_operator_namespace_for_cluster-scoped_resources_when_VulnerabilityScansInSameNamespace_is_enabled (0.00s)
+    --- PASS: TestScanJobBuilder/Shoud_set_scan_job_with_custom_volume_and_volume_mount (0.00s)
+=== RUN   TestNewReadWriter
+=== RUN   TestNewReadWriter/Should_create_VulnerabilityReports
+=== RUN   TestNewReadWriter/Should_update_VulnerabilityReports
+=== RUN   TestNewReadWriter/Should_find_VulnerabilityReports
+--- PASS: TestNewReadWriter (0.05s)
+    --- PASS: TestNewReadWriter/Should_create_VulnerabilityReports (0.05s)
+    --- PASS: TestNewReadWriter/Should_update_VulnerabilityReports (0.00s)
+    --- PASS: TestNewReadWriter/Should_find_VulnerabilityReports (0.00s)
+=== RUN   TestBySeverity
+--- PASS: TestBySeverity (0.00s)
+=== RUN   TestOrderedBy
+--- PASS: TestOrderedBy (0.00s)
+PASS
+coverage: 50.4% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport	0.077s	coverage: 50.4% of statements
+=== RUN   TestIsSbomExceededSecretSizeLimit
+=== RUN   TestIsSbomExceededSecretSizeLimit/bom_with_valid_size
+=== RUN   TestIsSbomExceededSecretSizeLimit/bom_with_bad_size
+--- PASS: TestIsSbomExceededSecretSizeLimit (0.00s)
+    --- PASS: TestIsSbomExceededSecretSizeLimit/bom_with_valid_size (0.00s)
+    --- PASS: TestIsSbomExceededSecretSizeLimit/bom_with_bad_size (0.00s)
+=== RUN   TestDeletionOfCompletedScanJobs
+=== RUN   TestDeletionOfCompletedScanJobs/Job_immediately_deleted_when_ScannerReportTTL_is_empty
+=== RUN   TestDeletionOfCompletedScanJobs/Job_not_deleted_when_ScannerReportTTL_has_been_set
+--- PASS: TestDeletionOfCompletedScanJobs (0.06s)
+    --- PASS: TestDeletionOfCompletedScanJobs/Job_immediately_deleted_when_ScannerReportTTL_is_empty (0.05s)
+    --- PASS: TestDeletionOfCompletedScanJobs/Job_not_deleted_when_ScannerReportTTL_has_been_set (0.00s)
+=== RUN   TestStreamReportToFile
+=== RUN   TestStreamReportToFile/successful_streaming_of_vulnerability_report
+=== RUN   TestStreamReportToFile/failure_due_to_invalid_directory_path
+=== RUN   TestStreamReportToFile/failure_due_to_non-serializable_data
+--- PASS: TestStreamReportToFile (0.00s)
+    --- PASS: TestStreamReportToFile/successful_streaming_of_vulnerability_report (0.00s)
+    --- PASS: TestStreamReportToFile/failure_due_to_invalid_directory_path (0.00s)
+    --- PASS: TestStreamReportToFile/failure_due_to_non-serializable_data (0.00s)
+=== RUN   TestStreamReportToFilePermissions
+--- PASS: TestStreamReportToFilePermissions (0.00s)
+=== RUN   TestServerHealthCheck
+=== RUN   TestServerHealthCheck/initial_cache_is_empty_server_is_responding_update_cache
+=== RUN   TestServerHealthCheck/server_is_responding_read_from_cache
+=== RUN   TestServerHealthCheck/cache_expire_check_with_server
+=== RUN   TestServerHealthCheck/server_is_not_responding
+--- PASS: TestServerHealthCheck (6.00s)
+    --- PASS: TestServerHealthCheck/initial_cache_is_empty_server_is_responding_update_cache (0.00s)
+    --- PASS: TestServerHealthCheck/server_is_responding_read_from_cache (0.00s)
+    --- PASS: TestServerHealthCheck/cache_expire_check_with_server (6.00s)
+    --- PASS: TestServerHealthCheck/server_is_not_responding (0.00s)
+PASS
+coverage: 15.4% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller	6.114s	coverage: 15.4% of statements
+=== RUN   Test_sendReports
+=== RUN   Test_sendReports/happy_path,_vuln_report_data
+=== RUN   Test_sendReports/happy_path,_secret_report_data
+=== RUN   Test_sendReports/sad_path,_timeout_occurs
+=== RUN   Test_sendReports/sad_path,_bad_report
+--- PASS: Test_sendReports (0.00s)
+    --- PASS: Test_sendReports/happy_path,_vuln_report_data (0.00s)
+    --- PASS: Test_sendReports/happy_path,_secret_report_data (0.00s)
+    --- PASS: Test_sendReports/sad_path,_timeout_occurs (0.00s)
+    --- PASS: Test_sendReports/sad_path,_bad_report (0.00s)
+PASS
+coverage: 30.0% of statements
+ok  	github.com/aquasecurity/trivy-operator/pkg/webhook	0.024s	coverage: 30.0% of statements
+=== RUN   TestAPIs
+    suite_test.go:54: Skipping env tests
+--- SKIP: TestAPIs (0.00s)
+PASS
+coverage: [no statements]
+ok  	github.com/aquasecurity/trivy-operator/tests/envtest	0.052s	coverage: [no statements]
+	github.com/aquasecurity/trivy-operator/tests/itest/helper		coverage: 0.0% of statements
+=== RUN   TestVulnerabilityReportMatcher
+=== RUN   TestVulnerabilityReportMatcher/Should_return_error_when_actual_is_not_VulnerabilityReport
+=== RUN   TestVulnerabilityReportMatcher/Should_return_true_when_VulnerabilityReport_matches
+--- PASS: TestVulnerabilityReportMatcher (0.00s)
+    --- PASS: TestVulnerabilityReportMatcher/Should_return_error_when_actual_is_not_VulnerabilityReport (0.00s)
+    --- PASS: TestVulnerabilityReportMatcher/Should_return_true_when_VulnerabilityReport_matches (0.00s)
+=== RUN   TestConfigAuditReportMatcher
+=== RUN   TestConfigAuditReportMatcher/Should_return_error_when_actual_is_not_ConfigAuditReport
+=== RUN   TestConfigAuditReportMatcher/Should_return_true_when_ConfigAuditReport_matches
+--- PASS: TestConfigAuditReportMatcher (0.00s)
+    --- PASS: TestConfigAuditReportMatcher/Should_return_error_when_actual_is_not_ConfigAuditReport (0.00s)
+    --- PASS: TestConfigAuditReportMatcher/Should_return_true_when_ConfigAuditReport_matches (0.00s)
+PASS
+coverage: 78.7% of statements
+ok  	github.com/aquasecurity/trivy-operator/tests/itest/matcher	0.025s	coverage: 78.7% of statements
+=== RUN   TestTrivyOperator
+    suite_test.go:46: Skipping integration test
+--- SKIP: TestTrivyOperator (0.00s)
+PASS
+coverage: [no statements]
+ok  	github.com/aquasecurity/trivy-operator/tests/itest/trivy-operator	0.049s	coverage: [no statements]
+	github.com/aquasecurity/trivy-operator/tests/itest/trivy-operator/behavior		coverage: 0.0% of statements

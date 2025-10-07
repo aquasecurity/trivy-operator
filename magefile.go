@@ -22,12 +22,14 @@ import (
 var (
 	// Default targets
 	ENV = map[string]string{
-		"CGO_ENABLED": "0",
-		"GOBIN":       LOCALBIN,
+		"CGO_ENABLED":  "0",
+		"GOEXPERIMENT": "jsonv2",
+		"GOBIN":        LOCALBIN,
 	}
 	LINUX_ENV = map[string]string{
-		"CGO_ENABLED": "0",
-		"GOOS":        "linux",
+		"CGO_ENABLED":  "0",
+		"GOEXPERIMENT": "jsonv2",
+		"GOOS":         "linux",
 	}
 
 	GOBINENV = map[string]string{
@@ -68,7 +70,7 @@ var (
 	ENVTEST        = filepath.Join(LOCALBIN, "setup-envtest")
 
 	// Controller Tools Version
-	CONTROLLER_TOOLS_VERSION = "v0.14.0"
+	CONTROLLER_TOOLS_VERSION = "v0.18.0"
 )
 
 //func init() {
@@ -126,7 +128,7 @@ func (t Test) Integration() error {
 	mg.Deps(prepareImages)
 
 	fmt.Println("Running integration tests for Trivy Operator...")
-	return sh.RunV(GINKGO, "-v", "-coverprofile=coverage.txt",
+	return sh.RunWithV(ENV, GINKGO, "-v", "-coverprofile=coverage.txt",
 		"-coverpkg=github.com/aquasecurity/trivy-operator/pkg/operator,"+
 			"github.com/aquasecurity/trivy-operator/pkg/operator/predicate,"+
 			"github.com/aquasecurity/trivy-operator/pkg/operator/controller,"+
@@ -266,14 +268,14 @@ func (g Generate) verifyFilesDiff() error {
 func (g Generate) Code() error {
 	fmt.Println("Generating code and manifests...")
 	mg.Deps(controllerGen)
-	return sh.RunV(CONTROLLER_GEN, "object:headerFile=hack/boilerplate.go.txt", "paths=./pkg/...", "+rbac:roleName=trivy-operator", "output:rbac:artifacts:config=deploy/helm/generated")
+	return sh.RunWithV(ENV, CONTROLLER_GEN, "object:headerFile=hack/boilerplate.go.txt", "paths=./pkg/...", "+rbac:roleName=trivy-operator", "output:rbac:artifacts:config=deploy/helm/generated")
 }
 
 // Target for generating CRDs and updating static YAML
 func (g Generate) Manifests() error {
 	fmt.Println("Generating CRDs and updating static YAML...")
 	mg.Deps(controllerGen)
-	err := sh.RunV(CONTROLLER_GEN, "crd:allowDangerousTypes=true", "paths=./pkg/apis/...", "output:crd:artifacts:config=deploy/helm/crds")
+	err := sh.RunWithV(ENV, CONTROLLER_GEN, "crd:allowDangerousTypes=true", "paths=./pkg/apis/...", "output:crd:artifacts:config=deploy/helm/crds")
 	if err != nil {
 		return err
 	}
@@ -322,7 +324,12 @@ func (t Test) Envtest() error {
 		return err
 	}
 	mg.Deps(t.envTestBin)
-	return sh.RunWithV(map[string]string{"KUBEBUILDER_ASSETS": output}, "go", "test", "-v", "-timeout", "60s", "-coverprofile=coverage.txt", "./tests/envtest/...")
+
+	envs := map[string]string{
+		"KUBEBUILDER_ASSETS": output,
+		"GOEXPERIMENT":       "jsonv2",
+	}
+	return sh.RunWithV(envs, "go", "test", "-v", "-timeout", "60s", "-coverprofile=coverage.txt", "./tests/envtest/...")
 }
 
 // removeDir removes the directory at the given path.

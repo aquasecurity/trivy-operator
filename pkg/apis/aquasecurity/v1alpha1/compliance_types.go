@@ -3,8 +3,7 @@ package v1alpha1
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/aquasecurity/trivy/pkg/compliance/report"
-	"github.com/aquasecurity/trivy/pkg/compliance/spec"
+	compliance "github.com/aquasecurity/trivy/pkg/compliance/types"
 	defsecTypes "github.com/aquasecurity/trivy/pkg/iac/types"
 )
 
@@ -168,7 +167,7 @@ type ComplianceCheck struct {
 }
 
 // ToComplianceSpec map data from crd compliance spec to trivy compliance spec
-func ToComplianceSpec(cSpec Compliance) spec.ComplianceSpec {
+func ToComplianceSpec(cSpec Compliance) compliance.Spec {
 	specControls := make([]defsecTypes.Control, 0)
 	for _, control := range cSpec.Controls {
 		sChecks := make([]defsecTypes.SpecCheck, 0)
@@ -192,11 +191,11 @@ func ToComplianceSpec(cSpec Compliance) spec.ComplianceSpec {
 		RelatedResources: cSpec.RelatedResources,
 		Controls:         specControls,
 	}
-	return spec.ComplianceSpec{Spec: compSpec}
+	return compliance.Spec{Spec: compSpec}
 }
 
 // FromSummaryReport map data from trivy summary report to crd summary report
-func FromSummaryReport(sr *report.SummaryReport) *SummaryReport {
+func FromSummaryReport(sr *compliance.SummaryReport) *SummaryReport {
 	summaryControls := make([]ControlCheckSummary, 0)
 	for _, sr := range sr.SummaryControls {
 		summaryControls = append(summaryControls, ControlCheckSummary{
@@ -214,7 +213,7 @@ func FromSummaryReport(sr *report.SummaryReport) *SummaryReport {
 }
 
 // FromDetailReport map data from trivy summary report to crd summary report
-func FromDetailReport(sr *report.ComplianceReport) *ComplianceReport {
+func FromDetailReport(sr *compliance.Report) *ComplianceReport {
 	controlResults := make([]*ControlCheckResult, 0)
 	for _, sr := range sr.Results {
 		checks := make([]ComplianceCheck, 0)
@@ -258,7 +257,7 @@ func FromDetailReport(sr *report.ComplianceReport) *ComplianceReport {
 	}
 }
 
-func TotalsCheckCount(sr *report.ComplianceReport) ComplianceSummary {
+func TotalsCheckCount(sr *compliance.Report) ComplianceSummary {
 	var passCount int
 	var failCount int
 	for _, sr := range sr.Results {

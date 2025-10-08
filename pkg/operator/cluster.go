@@ -10,7 +10,6 @@ import (
 	"sync"
 	"time"
 
-	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	k8sapierror "k8s.io/apimachinery/pkg/api/errors"
@@ -32,8 +31,8 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	vc "github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
-	"github.com/aquasecurity/trivy/pkg/clock"
 	"github.com/aquasecurity/trivy/pkg/flag"
+	"github.com/aquasecurity/trivy/pkg/k8s"
 	"github.com/aquasecurity/trivy/pkg/k8s/report"
 	triv "github.com/aquasecurity/trivy/pkg/k8s/scanner"
 	ty "github.com/aquasecurity/trivy/pkg/types"
@@ -66,8 +65,16 @@ type ClusterController struct {
 
 func (r *ClusterController) SetupWithManager(mgr ctrl.Manager) error {
 	coreComponentsResources := []kube.Resource{
-		{Kind: kube.KindNode, ForObject: &corev1.Node{}, OwnsObject: &v1alpha1.ClusterVulnerabilityReport{}},
-		{Kind: kube.KindPod, ForObject: &corev1.Pod{}, OwnsObject: &v1alpha1.ClusterVulnerabilityReport{}},
+		{
+			Kind:       kube.KindNode,
+			ForObject:  &corev1.Node{},
+			OwnsObject: &v1alpha1.ClusterVulnerabilityReport{},
+		},
+		{
+			Kind:       kube.KindPod,
+			ForObject:  &corev1.Pod{},
+			OwnsObject: &v1alpha1.ClusterVulnerabilityReport{},
+		},
 	}
 
 	for _, resource := range coreComponentsResources {
@@ -150,8 +157,11 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 			ID:         name,
 			Type:       "Cluster",
 			Version:    r.version,
-			Properties: map[string]string{"Name": r.name, "Type": "cluster"},
-			NodesInfo:  nodeInfo,
+			Properties: map[string]string{
+				"Name": r.name,
+				"Type": "cluster",
+			},
+			NodesInfo: nodeInfo,
 		}
 		ar, err := trivyk8s.BomToArtifacts(br)
 		if err != nil {
@@ -177,8 +187,11 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 			return ctrl.Result{}, err
 		}
 		output := new(bytes.Buffer)
-		w := report.NewCycloneDXWriter(output, cdx.BOMFileFormatJSON, apiVersion)
-		err = w.Write(ctx, k8sreport.BOM)
+		err = k8s.Write(ctx, k8sreport, report.Option{
+			Format:     ty.FormatCycloneDX,
+			Output:     output,
+			APIVersion: apiVersion,
+		})
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -189,7 +202,7 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 		}
 
 		sbomReportData := v1alpha1.SbomReportData{
-			UpdateTimestamp: metav1.NewTime(clock.Now(ctx)),
+			UpdateTimestamp: metav1.NewTime(time.Now()),
 			Scanner: v1alpha1.Scanner{
 				Name:    v1alpha1.ScannerNameTrivy,
 				Vendor:  "Aqua Security",
@@ -280,10 +293,12 @@ func (r *ClusterController) reconcileKbom() reconcile.Func {
 				Name: kbom.Name,
 			},
 			Spec: corev1.PodSpec{
-				Containers: []corev1.Container{{
-					Name:  kbomScanJobIdentifier,
-					Image: fmt.Sprintf("%s/%s:%s", K8sRegistry, K8sRepo, r.version),
-				}},
+				Containers: []corev1.Container{
+					{
+						Name:  kbomScanJobIdentifier,
+						Image: fmt.Sprintf("%s/%s:%s", K8sRegistry, K8sRepo, r.version),
+					},
+				},
 			},
 		}, map[string]v1alpha1.SbomReportData{kbomScanJobIdentifier: dbs})
 		if err != nil {

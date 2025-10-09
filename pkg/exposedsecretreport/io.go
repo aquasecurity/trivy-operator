@@ -2,6 +2,7 @@ package exposedsecretreport
 
 import (
 	"context"
+	"time"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -94,7 +95,7 @@ func (r *readWriter) FindByOwner(ctx context.Context, owner kube.ObjectRef) ([]v
 
 func BuildExposedSecretsReportData(clock ext.Clock, registry v1alpha1.Registry, artifact v1alpha1.Artifact, version string, secrets []v1alpha1.ExposedSecret) v1alpha1.ExposedSecretReportData {
 	return v1alpha1.ExposedSecretReportData{
-		UpdateTimestamp: metav1.NewTime(clock.Now()),
+		UpdateTimestamp: metav1.NewTime(time.Now()),
 		Scanner: v1alpha1.Scanner{
 			Name:    v1alpha1.ScannerNameTrivy,
 			Vendor:  "Aqua Security",

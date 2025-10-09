@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"testing/fstest"
 	"time"
 
 	"github.com/bluele/gcache"
@@ -25,7 +26,6 @@ import (
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/kubernetes"
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/options"
 	"github.com/aquasecurity/trivy/pkg/iac/severity"
-	"github.com/aquasecurity/trivy/pkg/mapfs"
 )
 
 const (
@@ -312,7 +312,7 @@ func (p *Policies) InitScanner() error {
 			return err
 		}
 	}
-	dataFS, dataPaths, err := createDataFS([]string{}, p.clusterVersion)
+	dataFS, dataPaths, err := createDataFS(p.clusterVersion)
 	if err != nil {
 		return fmt.Errorf("create data fs: %w", err)
 	}
@@ -389,27 +389,21 @@ func createPolicyInputFS(memfs *memoryfs.FS, folderName string, fileData []strin
 	return nil
 }
 
-func createDataFS(dataPaths []string, k8sVersion string) (fs.FS, []string, error) {
-	fsys := mapfs.New()
+// createDataFS creates a virtual filesystem for Kubernetes scanning.
+// It uses fstest.MapFS, which is primarily designed for testing, but provides
+// a sufficient implementation for this use case where we need a simple in-memory
+// filesystem to pass Kubernetes version information to the scanner.
+func createDataFS(k8sVersion string) (fs.FS, []string, error) {
+	fsys := fstest.MapFS{}
 
 	// Create a virtual file for Kubernetes scanning
 	if k8sVersion != "" {
-		if err := fsys.MkdirAll("system", 0o700); err != nil {
-			return nil, nil, err
-		}
 		data := []byte(fmt.Sprintf(`{"k8s": {"version": %q}}`, k8sVersion))
-		if err := fsys.WriteVirtualFile("system/k8s-version.json", data, 0o600); err != nil {
-			return nil, nil, err
-		}
-	}
-	for _, path := range dataPaths {
-		if err := fsys.CopyFilesUnder(path); err != nil {
-			return nil, nil, err
+		fsys["system/k8s-version.json"] = &fstest.MapFile{
+			Data: data,
+			Mode: 0o600,
 		}
 	}
 
-	// data paths are no longer needed as fs.FS contains only needed files now.
-	dataPaths = []string{"."}
-
-	return fsys, dataPaths, nil
+	return fsys, []string{"."}, nil
 }

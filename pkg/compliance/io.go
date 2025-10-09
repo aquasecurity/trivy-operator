@@ -18,7 +18,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	"github.com/aquasecurity/trivy/pkg/compliance/report"
+	"github.com/aquasecurity/trivy/pkg/compliance"
 	ttypes "github.com/aquasecurity/trivy/pkg/types"
 )
 
@@ -119,17 +119,23 @@ func (w *cm) createComplianceReport(ctx context.Context, reportSpec v1alpha1.Rep
 // BuildComplianceReport build compliance based on report type {summary | detail}
 func (w *cm) buildComplianceReport(spec v1alpha1.ReportSpec, complianceResults []ttypes.Results) (v1alpha1.ReportStatus, error) {
 	trivyCompSpec := v1alpha1.ToComplianceSpec(spec.Compliance)
-	cr, err := report.BuildComplianceReport(complianceResults, trivyCompSpec)
+	cr, err := compliance.BuildReport(complianceResults, trivyCompSpec)
 	if err != nil {
 		return v1alpha1.ReportStatus{}, err
 	}
 	summary := v1alpha1.TotalsCheckCount(cr)
 	switch spec.ReportFormat {
 	case v1alpha1.ReportSummary:
-		rs := report.BuildSummary(cr)
-		return v1alpha1.ReportStatus{SummaryReport: v1alpha1.FromSummaryReport(rs), Summary: summary}, nil
+		rs := compliance.BuildSummary(cr)
+		return v1alpha1.ReportStatus{
+			SummaryReport: v1alpha1.FromSummaryReport(rs),
+			Summary:       summary,
+		}, nil
 	case v1alpha1.ReportDetail:
-		return v1alpha1.ReportStatus{DetailReport: v1alpha1.FromDetailReport(cr), Summary: summary}, nil
+		return v1alpha1.ReportStatus{
+			DetailReport: v1alpha1.FromDetailReport(cr),
+			Summary:      summary,
+		}, nil
 	default:
 		return v1alpha1.ReportStatus{}, errors.New("report type is invalid")
 	}
@@ -207,16 +213,18 @@ func reportsToResults(checks []v1alpha1.Check, name, namespace string) ttypes.Re
 				id = fmt.Sprintf("%s-%s-%s", "AVD", "KCV", strings.ReplaceAll(check.ID, "KCV", ""))
 			}
 		}
-		misconfigResult := ttypes.Result{Target: fmt.Sprintf("%s/%s", namespace, name),
-			Misconfigurations: []ttypes.DetectedMisconfiguration{{
-				AVDID:       id,
-				Title:       check.Title,
-				Description: check.Description,
-				Message:     check.Description,
-				Resolution:  check.Remediation,
-				Severity:    string(check.Severity),
-				Status:      status,
-			},
+		misconfigResult := ttypes.Result{
+			Target: fmt.Sprintf("%s/%s", namespace, name),
+			Misconfigurations: []ttypes.DetectedMisconfiguration{
+				{
+					AVDID:       id,
+					Title:       check.Title,
+					Description: check.Description,
+					Message:     check.Description,
+					Resolution:  check.Remediation,
+					Severity:    string(check.Severity),
+					Status:      status,
+				},
 			},
 		}
 		results = append(results, misconfigResult)

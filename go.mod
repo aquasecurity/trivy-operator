@@ -5,8 +5,8 @@ go 1.25
 require (
 	github.com/CycloneDX/cyclonedx-go v0.9.2
 	github.com/aquasecurity/go-version v0.0.1
-	github.com/aquasecurity/trivy v0.67.0
-	github.com/aquasecurity/trivy-checks v1.11.3-0.20250604022615-9a7efa7c9169
+	github.com/aquasecurity/trivy v0.67.2
+	github.com/aquasecurity/trivy-checks v1.12.1
 	github.com/aquasecurity/trivy-kubernetes v0.9.1
 	github.com/aws/aws-sdk-go-v2 v1.39.2
 	github.com/bluele/gcache v0.0.2
@@ -360,7 +360,7 @@ require (
 	helm.sh/helm/v3 v3.19.0 // indirect
 	k8s.io/apiserver v0.34.0 // indirect
 	k8s.io/kubectl v0.34.0 // indirect
-	mvdan.cc/sh/v3 v3.11.0 // indirect
+	mvdan.cc/sh/v3 v3.12.0 // indirect
 	oras.land/oras-go/v2 v2.6.0 // indirect
 	sigs.k8s.io/kustomize/api v0.20.1 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.20.1 // indirect

@@ -3,7 +3,7 @@ module github.com/aquasecurity/trivy-operator
 go 1.25
 
 require (
-	github.com/CycloneDX/cyclonedx-go v0.9.2
+	github.com/CycloneDX/cyclonedx-go v0.9.3
 	github.com/aquasecurity/go-version v0.0.1
 	github.com/aquasecurity/trivy v0.67.0
 	github.com/aquasecurity/trivy-checks v1.11.3-0.20250604022615-9a7efa7c9169
@@ -20,12 +20,12 @@ require (
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
 	github.com/liamg/memoryfs v1.6.0
 	github.com/magefile/mage v1.15.0
-	github.com/onsi/ginkgo/v2 v2.25.3
+	github.com/onsi/ginkgo/v2 v2.26.0
 	github.com/onsi/gomega v1.38.2
 	github.com/openshift/api v0.0.0-20231025170628-b8a18fdc040d
 	github.com/prometheus/client_golang v1.23.2
-	github.com/quasilyte/go-ruleguard/dsl v0.3.22
-	github.com/samber/lo v1.51.0
+	github.com/quasilyte/go-ruleguard/dsl v0.3.23
+	github.com/samber/lo v1.52.0
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/automaxprocs v1.6.0
 	go.uber.org/multierr v1.11.0

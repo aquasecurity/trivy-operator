@@ -53,23 +53,21 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 	clusterSboms map[string]v1alpha1.SbomReportData) (corev1.PodSpec, []*corev1.Secret, error) {
 	var secret *corev1.Secret
 	var secrets []*corev1.Secret
-	var containersSpec []corev1.Container
 
 	spec, err := kube.GetPodSpec(workload)
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
 	}
 
-	for _, c := range getContainers(spec) {
-		optionalMirroredImage, err := GetMirroredImage(c.Image, config.GetMirrors())
+	containerImages := kube.GetContainerImagesFromPodSpec(spec, ctx.GetTrivyOperatorConfig().GetSkipInitContainers())
+	for containerName, containerImage := range containerImages {
+		optionalMirroredImage, err := GetMirroredImage(containerImage, config.GetMirrors())
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
-		c.Image = optionalMirroredImage
-		containersSpec = append(containersSpec, c)
+		containerImages[containerName] = optionalMirroredImage
 	}
 
-	containerImages := kube.GetContainerImagesFromContainersList(containersSpec)
 	containersCredentials, err := kube.MapContainerNamesToDockerAuths(containerImages, credentials)
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
@@ -199,8 +197,8 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
-	for _, c := range containersSpec {
-		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), c.Image) {
+	for containerName, containerImage := range containerImages {
+		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), containerImage) {
 			continue
 		}
 		env := []corev1.EnvVar{
@@ -235,7 +233,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 			})
 		}
 
-		region := CheckAwsEcrPrivateRegistry(c.Image)
+		region := CheckAwsEcrPrivateRegistry(containerImage)
 		if region != "" {
 			env = append(env, corev1.EnvVar{
 				Name:  "AWS_REGION",
@@ -248,11 +246,11 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 				Value: "true",
 			})
 		}
-		if _, ok := containersCredentials[c.Name]; ok && secret != nil {
-			registryUsernameKey := fmt.Sprintf("%s.username", c.Name)
-			registryPasswordKey := fmt.Sprintf("%s.password", c.Name)
+		if _, ok := containersCredentials[containerName]; ok && secret != nil {
+			registryUsernameKey := fmt.Sprintf("%s.username", containerName)
+			registryPasswordKey := fmt.Sprintf("%s.password", containerName)
 			secretName := secret.Name
-			if CheckGcpCrOrPrivateRegistry(c.Image) &&
+			if CheckGcpCrOrPrivateRegistry(containerImage) &&
 				ctx.GetTrivyOperatorConfig().GetScanJobUseGCRServiceAccount() {
 				createEnvandVolumeForGcr(&env, &volumeMounts, &volumes, &registryPasswordKey, &secretName)
 			} else {
@@ -281,12 +279,12 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 
 		}
 
-		env, err = appendTrivyInsecureEnv(config, c.Image, env)
+		env, err = appendTrivyInsecureEnv(config, containerImage, env)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
 
-		env, err = appendTrivyNonSSLEnv(config, c.Image, env)
+		env, err = appendTrivyNonSSLEnv(config, containerImage, env)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
@@ -296,28 +294,28 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 			return corev1.PodSpec{}, nil, err
 		}
 
-		imageRef, err := containerimage.ParseReference(c.Image)
+		imageRef, err := containerimage.ParseReference(containerImage)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
-		resultFileName := getUniqueScanResultFileName(c.Name)
+		resultFileName := getUniqueScanResultFileName(containerName)
 		cmd, args := getCommandAndArgs(ctx, Standalone, imageRef.String(), "", resultFileName)
 		if len(clusterSboms) > 0 { // trivy sbom ...
-			if sbomreportData, ok := clusterSboms[c.Name]; ok {
-				secretName := fmt.Sprintf("sbom-%s", c.Name)
+			if sbomreportData, ok := clusterSboms[containerName]; ok {
+				secretName := fmt.Sprintf("sbom-%s", containerName)
 				secret, err := CreateSbomDataAsSecret(sbomreportData.Bom, secretName)
 				if err != nil {
 					return corev1.PodSpec{}, nil, err
 				}
 				secrets = append(secrets, &secret)
 				fileName := fmt.Sprintf("%s.json", secretName)
-				mountPath := fmt.Sprintf("/sbom-%s", c.Name)
-				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, c.Name)
+				mountPath := fmt.Sprintf("/sbom-%s", containerName)
+				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, containerName)
 				cmd, args = GetSbomScanCommandAndArgs(ctx, Standalone, fmt.Sprintf("%s/%s", mountPath, fileName), "", resultFileName)
 			}
 		}
 		containers = append(containers, corev1.Container{
-			Name:                     c.Name,
+			Name:                     containerName,
 			Image:                    trivyImageRef,
 			ImagePullPolicy:          corev1.PullPolicy(config.GetImagePullPolicy()),
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
@@ -352,7 +350,6 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Config, workload client.Object, credentials map[string]docker.Auth, securityContext *corev1.SecurityContext, p *plugin, clusterSboms map[string]v1alpha1.SbomReportData) (corev1.PodSpec, []*corev1.Secret, error) {
 	var secret *corev1.Secret
 	var secrets []*corev1.Secret
-	var containersSpec []corev1.Container
 	spec, err := kube.GetPodSpec(workload)
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
@@ -368,16 +365,15 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 		return corev1.PodSpec{}, nil, err
 	}
 
-	for _, c := range getContainers(spec) {
-		optionalMirroredImage, err := GetMirroredImage(c.Image, config.GetMirrors())
+	containerImages := kube.GetContainerImagesFromPodSpec(spec, ctx.GetTrivyOperatorConfig().GetSkipInitContainers())
+	for containerName, containerImage := range containerImages {
+		optionalMirroredImage, err := GetMirroredImage(containerImage, config.GetMirrors())
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
-		c.Image = optionalMirroredImage
-		containersSpec = append(containersSpec, c)
+		containerImages[containerName] = optionalMirroredImage
 	}
 
-	containerImages := kube.GetContainerImagesFromContainersList(containersSpec)
 	containersCredentials, err := kube.MapContainerNamesToDockerAuths(containerImages, credentials)
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
@@ -428,8 +424,8 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
-	for _, container := range containersSpec {
-		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), container.Image) {
+	for containerName, containerImage := range containerImages {
+		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), containerImage) {
 			continue
 		}
 		env := []corev1.EnvVar{
@@ -466,7 +462,7 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 			})
 		}
 
-		region := CheckAwsEcrPrivateRegistry(container.Image)
+		region := CheckAwsEcrPrivateRegistry(containerImage)
 		if region != "" {
 			env = append(env, corev1.EnvVar{
 				Name:  "AWS_REGION",
@@ -474,13 +470,13 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 			})
 		}
 
-		if auth, ok := containersCredentials[container.Name]; ok && secret != nil {
-			if CheckGcpCrOrPrivateRegistry(container.Image) && auth.Username == "_json_key" {
-				registryServiceAccountAuthKey := fmt.Sprintf("%s.password", container.Name)
+		if auth, ok := containersCredentials[containerName]; ok && secret != nil {
+			if CheckGcpCrOrPrivateRegistry(containerImage) && auth.Username == "_json_key" {
+				registryServiceAccountAuthKey := fmt.Sprintf("%s.password", containerName)
 				createEnvandVolumeForGcr(&env, &volumeMounts, &volumes, &registryServiceAccountAuthKey, &secret.Name)
 			} else {
-				registryUsernameKey := fmt.Sprintf("%s.username", container.Name)
-				registryPasswordKey := fmt.Sprintf("%s.password", container.Name)
+				registryUsernameKey := fmt.Sprintf("%s.username", containerName)
+				registryPasswordKey := fmt.Sprintf("%s.password", containerName)
 				env = append(env, corev1.EnvVar{
 					Name: "TRIVY_USERNAME",
 					ValueFrom: &corev1.EnvVarSource{
@@ -505,12 +501,12 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 			}
 		}
 
-		env, err = appendTrivyInsecureEnv(config, container.Image, env)
+		env, err = appendTrivyInsecureEnv(config, containerImage, env)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
 
-		env, err = appendTrivyNonSSLEnv(config, container.Image, env)
+		env, err = appendTrivyNonSSLEnv(config, containerImage, env)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
@@ -536,28 +532,28 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
-		imageRef, err := containerimage.ParseReference(container.Image)
+		imageRef, err := containerimage.ParseReference(containerImage)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
-		resultFileName := getUniqueScanResultFileName(container.Name)
+		resultFileName := getUniqueScanResultFileName(containerName)
 		cmd, args := getCommandAndArgs(ctx, ClientServer, imageRef.String(), encodedTrivyServerURL.String(), resultFileName)
 		if len(clusterSboms) > 0 { // trivy sbom ...
-			if sbomreportData, ok := clusterSboms[container.Name]; ok {
-				secretName := fmt.Sprintf("sbom-%s", container.Name)
+			if sbomreportData, ok := clusterSboms[containerName]; ok {
+				secretName := fmt.Sprintf("sbom-%s", containerName)
 				secret, err := CreateSbomDataAsSecret(sbomreportData.Bom, secretName)
 				if err != nil {
 					return corev1.PodSpec{}, nil, err
 				}
 				secrets = append(secrets, &secret)
 				fileName := fmt.Sprintf("%s.json", secretName)
-				mountPath := fmt.Sprintf("/sbom-%s", container.Name)
-				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, container.Name)
+				mountPath := fmt.Sprintf("/sbom-%s", containerName)
+				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, containerName)
 				cmd, args = GetSbomScanCommandAndArgs(ctx, ClientServer, fmt.Sprintf("%s/%s", mountPath, fileName), encodedTrivyServerURL.String(), resultFileName)
 			}
 		}
 		containers = append(containers, corev1.Container{
-			Name:                     container.Name,
+			Name:                     containerName,
 			Image:                    trivyImageRef,
 			ImagePullPolicy:          corev1.PullPolicy(config.GetImagePullPolicy()),
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,

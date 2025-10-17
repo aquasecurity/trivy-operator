@@ -3,7 +3,6 @@ package trivy_operator
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
@@ -40,15 +39,7 @@ var _ = Describe("Trivy ignoreFile integration", func() {
 		cm := &corev1.ConfigMap{}
 		Expect(kubeClient.Get(ctx, clientObjectKey(operatorNamespace, trivyoperator.TrivyConfigMapName), cm)).To(Succeed())
 
-		// Merge with existing content if present; ensure IgnoredCVE is present as a separate line
-		current := cm.Data["trivy.ignoreFile"]
-		if !strings.Contains(current, IgnoredCVE) {
-			if current != "" && !strings.HasSuffix(current, "\n") {
-				current += "\n"
-			}
-			current += fmt.Sprintf("%s\n", IgnoredCVE)
-		}
-		cm.Data["trivy.ignoreFile"] = current
+		cm.Data["trivy.ignoreFile"] = fmt.Sprintf("%s\n", IgnoredCVE)
 
 		By("Updating trivy.ignoreFile in ConfigMap")
 		Expect(kubeClient.Update(ctx, cm)).To(Succeed())

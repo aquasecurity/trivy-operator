@@ -34,13 +34,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
       - name: Install tools
-        uses: aquaproj/aqua-installer@v4.0.0
+        uses: aquaproj/aqua-installer@v4.0.3
         with:
           aqua_version: v1.25.0
       - name: Verify Go code
@@ -74,13 +74,13 @@ jobs:
           remove-cached-tools: 'true'
           remove-swapfile: 'true'
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
       - name: Install tools
-        uses: aquaproj/aqua-installer@v4.0.0
+        uses: aquaproj/aqua-installer@v4.0.3
         with:
           aqua_version: v1.25.0
       - name: Run unit tests
@@ -97,13 +97,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
       - name: Install tools
-        uses: aquaproj/aqua-installer@v4.0.0
+        uses: aquaproj/aqua-installer@v4.0.3
         with:
           aqua_version: v1.25.0
       - name: Run envtest
@@ -120,15 +120,15 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
 
       - name: Install tools
-        uses: aquaproj/aqua-installer@v4.0.0
+        uses: aquaproj/aqua-installer@v4.0.3
         with:
           aqua_version: v1.25.0
 
@@ -187,9 +187,9 @@ jobs:
       - name: Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
       - name: Release snapshot

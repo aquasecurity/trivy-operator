@@ -231,6 +231,9 @@ func CreateSbomDataAsSecret(bom v1alpha1.BOM, secretName string) (corev1.Secret,
 	secret := corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: secretName,
+			Labels: map[string]string{
+				trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+			},
 		},
 		Data: map[string][]byte{
 			"bom": bomByte,

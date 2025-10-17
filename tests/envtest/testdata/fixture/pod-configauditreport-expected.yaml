@@ -9,6 +9,7 @@ metadata:
     trivy-operator.resource.kind: Pod
     trivy-operator.resource.name: my-pod
     trivy-operator.resource.namespace: default
+    app.kubernetes.io/managed-by: trivy-operator
   name: pod-my-pod
   namespace: default
   ownerReferences:

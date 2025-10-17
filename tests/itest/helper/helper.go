@@ -382,6 +382,26 @@ func (h *Helper) HasConfigAuditReportOwnedBy(ctx context.Context, obj client.Obj
 	}
 }
 
+func (h *Helper) HasClusterConfigAuditReportOwnedBy(ctx context.Context, obj client.Object) func() (bool, error) {
+	return func() (bool, error) {
+		gvk, err := apiutil.GVKForObject(obj, h.scheme)
+		if err != nil {
+			return false, err
+		}
+		var reportsList v1alpha1.ClusterConfigAuditReportList
+		err = h.kubeClient.List(ctx, &reportsList, client.MatchingLabels{
+			trivyoperator.LabelResourceKind:      gvk.Kind,
+			trivyoperator.LabelResourceName:      obj.GetName(),
+			trivyoperator.LabelResourceNamespace: obj.GetNamespace(),
+		})
+		if err != nil {
+			return false, err
+		}
+
+		return len(reportsList.Items) == 1 && reportsList.Items[0].DeletionTimestamp == nil, nil
+	}
+}
+
 func (h *Helper) HasScanJobPodOwnedBy(ctx context.Context, obj client.Object) func() (bool, error) {
 	return func() (bool, error) {
 		gvk, err := apiutil.GVKForObject(obj, h.scheme)

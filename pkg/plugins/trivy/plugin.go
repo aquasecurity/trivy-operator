@@ -119,7 +119,6 @@ const (
 	ignoreFileName              = ".trivyignore"
 	configFileName              = "trivy-config.yaml"
 	configFileMountPath         = "/etc/trivy/" + configFileName
-	ignoreFileMountPath         = "/etc/trivy/" + ignoreFileName
 	ignorePolicyVolumeName      = "ignorepolicy"
 	ignorePolicyName            = "policy.rego"
 	ignorePolicyMountPath       = "/etc/trivy/" + ignorePolicyName

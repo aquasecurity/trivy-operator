@@ -69,6 +69,18 @@ spec:
                   key: trivy.offlineScan
                   name: trivy-operator-trivy-config
                   optional: true
+            - name: TRIVY_SKIP_VERSION_CHECK
+              valueFrom:
+                configMapKeyRef:
+                  key: trivy.skipVersionCheck
+                  name: trivy-operator-trivy-config
+                  optional: true
+            - name: TRIVY_DISABLE_TELEMETRY
+              valueFrom:
+                configMapKeyRef:
+                  key: trivy.disableTelemetry
+                  name: trivy-operator-trivy-config
+                  optional: true
             - name: TRIVY_JAVA_DB_REPOSITORY
               valueFrom:
                 configMapKeyRef:

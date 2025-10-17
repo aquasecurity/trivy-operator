@@ -329,6 +329,8 @@ func (r *ClusterController) numOfCoreComponentPodsAndNodes(ctx context.Context) 
 	return corePodsCount + len(addonPods.Items), len(nodes.Items), nil
 }
 
+// +kubebuilder:rbac:groups="",resources=namespaces,verbs=get
+
 func (r *ClusterController) isOpenShift(ctx context.Context) bool {
 	_, err := r.clientset.CoreV1().Namespaces().Get(ctx, "openshift-kube-apiserver", metav1.GetOptions{})
 	return !k8sapierror.IsNotFound(err)

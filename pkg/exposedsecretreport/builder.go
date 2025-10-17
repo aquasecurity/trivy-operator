@@ -76,7 +76,8 @@ func (b *ReportBuilder) reportName() string {
 
 func (b *ReportBuilder) Get() (v1alpha1.ExposedSecretReport, error) {
 	reportLabels := map[string]string{
-		trivyoperator.LabelContainerName: b.container,
+		trivyoperator.LabelContainerName:   b.container,
+		trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
 	}
 
 	// append matching resource labels by config to report

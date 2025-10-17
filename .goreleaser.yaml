@@ -7,6 +7,7 @@ release:
 env:
   - GO111MODULE=on
   - CGO_ENABLED=0
+  - GOEXPERIMENT=jsonv2
 before:
   hooks:
     - go mod download

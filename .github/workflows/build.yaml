@@ -47,7 +47,9 @@ jobs:
         uses: golangci/golangci-lint-action@v8.0.0
         with:
           args: --verbose
-          version: v2.1
+          version: v2.5.0
+        env:
+          GOEXPERIMENT: jsonv2
       - name: Verify YAML code
         uses: ibiqlik/action-yamllint@v3
       - name: Vendor Go modules
@@ -163,7 +165,20 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_CLI_EXPERIMENTAL: enabled
+      GOEXPERIMENT: jsonv2
     steps:
+      - name: Maximize build space
+        uses: AdityaGarg8/remove-unwanted-software@v5
+        with:
+          remove-android: 'true'
+          remove-dotnet: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
+          remove-large-packages: 'true'
+          remove-cached-tools: 'true'
+          remove-swapfile: 'true'
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx

@@ -52,6 +52,8 @@ data:
   trivy.javaDbRepository: "{{ .Values.trivy.javaDbRegistry }}/{{ .Values.trivy.javaDbRepository }}"
   trivy.command: {{ .Values.trivy.command | quote }}
   trivy.sbomSources: {{ .Values.trivy.sbomSources | quote }}
+  trivy.skipVersionCheck: {{ .Values.trivy.skipVersionCheck | quote }}
+  trivy.disableTelemetry: {{ .Values.trivy.disableTelemetry | quote }}
   {{- with .Values.trivy.skipFiles }}
   trivy.skipFiles: {{ . | quote }}
   {{- end }}

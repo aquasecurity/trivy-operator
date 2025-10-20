@@ -28,6 +28,8 @@ const (
 	keyTrivySlow                                = "trivy.slow"
 	keyTrivyVulnType                            = "trivy.vulnType"
 	keyTrivyIgnoreUnfixed                       = "trivy.ignoreUnfixed"
+	keyTrivySkipVersionCheck                    = "trivy.skipVersionCheck"
+	keyTrivyDisableTelemetry                    = "trivy.disableTelemetry"
 	keyTrivyOfflineScan                         = "trivy.offlineScan"
 	keyTrivyTimeout                             = "trivy.timeout"
 	keyTrivyIgnoreFile                          = "trivy.ignoreFile"
@@ -183,27 +185,11 @@ func (c Config) GetServerURL() (string, error) {
 }
 
 func (c Config) GetClientServerSkipUpdate() bool {
-	val, ok := c.Data[keyTrivyClientServerSkipUpdate]
-	if !ok {
-		return false
-	}
-	boolVal, err := strconv.ParseBool(val)
-	if err != nil {
-		return false
-	}
-	return boolVal
+	return c.getBoolValue(keyTrivyClientServerSkipUpdate, false)
 }
 
 func (c Config) GetIncludeDevDeps() bool {
-	val, ok := c.Data[keyIncludeDevDeps]
-	if !ok {
-		return false
-	}
-	boolVal, err := strconv.ParseBool(val)
-	if err != nil {
-		return false
-	}
-	return boolVal
+	return c.getBoolValue(keyIncludeDevDeps, false)
 }
 
 func (c Config) GetSbomSources() string {
@@ -215,15 +201,7 @@ func (c Config) GetSbomSources() string {
 }
 
 func (c Config) GetSkipJavaDBUpdate() bool {
-	val, ok := c.Data[keyTrivySkipJavaDBUpdate]
-	if !ok {
-		return false
-	}
-	boolVal, err := strconv.ParseBool(val)
-	if err != nil {
-		return false
-	}
-	return boolVal
+	return c.getBoolValue(keyTrivySkipJavaDBUpdate, false)
 }
 
 func (c Config) GetJavaDBRepository() string {
@@ -262,12 +240,7 @@ func (c Config) GetServerInsecure() bool {
 }
 
 func (c Config) GetDBRepositoryInsecure() bool {
-	val, ok := c.Data[keyTrivyDBRepositoryInsecure]
-	if !ok {
-		return false
-	}
-	boolVal, _ := strconv.ParseBool(val)
-	return boolVal
+	return c.getBoolValue(keyTrivyDBRepositoryInsecure, false)
 }
 func (c Config) GetUseBuiltinRegoPolicies() bool {
 	val, ok := c.Data[keyTrivyUseBuiltinRegoPolicies]
@@ -281,15 +254,7 @@ func (c Config) GetUseBuiltinRegoPolicies() bool {
 	return boolVal
 }
 func (c Config) GetUseEmbeddedRegoPolicies() bool {
-	val, ok := c.Data[keyTrivyUseEmbeddedRegoPolicies]
-	if !ok {
-		return false
-	}
-	boolVal, err := strconv.ParseBool(val)
-	if err != nil {
-		return false
-	}
-	return boolVal
+	return c.getBoolValue(keyTrivyUseEmbeddedRegoPolicies, false)
 }
 func (c Config) GetSslCertDir() string {
 	val, ok := c.Data[keyTrivySslCertDir]
@@ -308,15 +273,15 @@ func (c Config) GetSeverity() string {
 }
 
 func (c Config) GetSlow() bool {
-	val, ok := c.Data[keyTrivySlow]
-	if !ok {
-		return true
-	}
-	boolVal, err := strconv.ParseBool(val)
-	if err != nil {
-		return true
-	}
-	return boolVal
+	return c.getBoolValue(keyTrivySlow, true)
+}
+
+func (c Config) GetSkipVersionCheck() bool {
+	return c.getBoolValue(keyTrivySkipVersionCheck, false)
+}
+
+func (c Config) GetDisableTelemetry() bool {
+	return c.getBoolValue(keyTrivyDisableTelemetry, false)
 }
 
 func (c Config) GetVulnType() string {
@@ -329,6 +294,18 @@ func (c Config) GetVulnType() string {
 		return ""
 	}
 	return trimmedVulnType
+}
+
+func (c Config) getBoolValue(name string, defValue bool) bool {
+	val, ok := c.Data[name]
+	if !ok {
+		return defValue
+	}
+	boolVal, err := strconv.ParseBool(val)
+	if err != nil {
+		return defValue
+	}
+	return boolVal
 }
 
 func (c Config) GetSupportedConfigAuditKinds() []string {

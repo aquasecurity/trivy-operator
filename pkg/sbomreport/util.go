@@ -77,9 +77,9 @@ func cycloneDxLicensesToReportLicenses(licenses *cdx.Licenses) []v1alpha1.Licens
 	reportLicenses := make([]v1alpha1.LicenseChoice, 0)
 	if licenses != nil {
 		for _, l := range *licenses {
-			var li v1alpha1.License
+			var li *v1alpha1.License
 			if l.License != nil {
-				li = v1alpha1.License{
+				li = &v1alpha1.License{
 					ID:   l.License.ID,
 					Name: l.License.Name,
 					URL:  l.License.URL,

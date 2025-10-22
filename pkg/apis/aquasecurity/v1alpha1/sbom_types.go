@@ -98,8 +98,8 @@ type Dependency struct {
 }
 
 type LicenseChoice struct {
-	License    License `json:"license,omitempty"`
-	Expression string  `json:"expression,omitempty"`
+	License    *License `json:"license,omitempty"`
+	Expression string   `json:"expression,omitempty"`
 }
 
 type License struct {

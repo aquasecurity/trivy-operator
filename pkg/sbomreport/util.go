@@ -39,9 +39,9 @@ func cycloneDxMetadataToReportMetadata(cmetadata *cdx.Metadata, version string) 
 }
 
 func cycloneDxComponentToReportComponent(cComp cdx.Component) *v1alpha1.Component {
-	var oe v1alpha1.OrganizationalEntity
+	var oe *v1alpha1.OrganizationalEntity
 	if cComp.Supplier != nil {
-		oe = v1alpha1.OrganizationalEntity{
+		oe = &v1alpha1.OrganizationalEntity{
 			Name: cComp.Supplier.Name,
 			URL:  cComp.Supplier.URL,
 		}

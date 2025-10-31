@@ -111,6 +111,9 @@ spec:
             - name: {{ .Values.alternateReportStorage.volumeName }}
               mountPath: {{ .Values.alternateReportStorage.mountPath }}
           {{- end }}
+      {{- if .Values.operator.extraContainers }}
+        {{- toYaml .Values.operator.extraContainers | nindent 8 }}
+      {{- end }}
       {{- with .Values.image.pullSecrets }}
       imagePullSecrets: {{- toYaml . | nindent 8 }}
       {{- end }}

@@ -135,5 +135,8 @@ data:
   TRIVY_JAVA_DB_REPOSITORY: "{{ .Values.trivy.javaDbRegistry }}/{{ .Values.trivy.javaDbRepository }}"
   TRIVY_INSECURE: "{{ .Values.operator.builtInServerRegistryInsecure }}"
   {{- end }}
+  {{- with .Values.trivy.tmpDir }}
+  trivy.tmpDir: {{ . | quote }}
+  {{- end }}
 {{- end }}
 {{- end }}

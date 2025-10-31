@@ -49,6 +49,7 @@ const (
 	keyTrivyDBRepositoryPassword                = "trivy.dbRepositoryPassword" // #nosec G101
 	keyTrivyJavaDBRepository                    = "trivy.javaDbRepository"
 	keyTrivyDBRepositoryInsecure                = "trivy.dbRepositoryInsecure"
+	keyTrivyTmpDir							 								= "trivy.tmpDir"
 
 	keyTrivyUseBuiltinRegoPolicies    = "trivy.useBuiltinRegoPolicies"
 	keyTrivyUseEmbeddedRegoPolicies   = "trivy.useEmbeddedRegoPolicies"

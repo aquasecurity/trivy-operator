@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
@@ -38,14 +38,14 @@ func TestClusterComplianceReconciler_generateComplianceReport(t *testing.T) {
 	now := time.Date(2024, 1, 1, 10, 0, 0, 0, time.UTC)
 	mkReport := func(createdAgo, updatedAgo time.Duration, cron string, format v1alpha1.ReportType) *v1alpha1.ClusterComplianceReport {
 		return &v1alpha1.ClusterComplianceReport{
-			TypeMeta:   v1.TypeMeta{Kind: "ClusterComplianceReport"},
-			ObjectMeta: v1.ObjectMeta{Name: "nsa", CreationTimestamp: v1.NewTime(now.Add(-createdAgo))},
+			TypeMeta:   metav1.TypeMeta{Kind: "ClusterComplianceReport"},
+			ObjectMeta: metav1.ObjectMeta{Name: "nsa", CreationTimestamp: metav1.NewTime(now.Add(-createdAgo))},
 			Spec: v1alpha1.ReportSpec{
 				Cron:         cron,
 				ReportFormat: format,
 				Compliance:   v1alpha1.Compliance{ID: "nsa", Title: "nsa"},
 			},
-			Status: v1alpha1.ReportStatus{UpdateTimestamp: v1.NewTime(now.Add(-updatedAgo))},
+			Status: v1alpha1.ReportStatus{UpdateTimestamp: metav1.NewTime(now.Add(-updatedAgo))},
 		}
 	}
 

@@ -58,12 +58,12 @@ func TestClusterComplianceReconciler_generateComplianceReport(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		setup  func(t *testing.T) (*ClusterComplianceReportReconciler, types.NamespacedName, *fakeMgr, string)
+		setup  func() (*ClusterComplianceReportReconciler, types.NamespacedName, *fakeMgr, string)
 		expect expectation
 	}{
 		{
 			name: "not found is ignored",
-			setup: func(t *testing.T) (*ClusterComplianceReportReconciler, types.NamespacedName, *fakeMgr, string) {
+			setup: func() (*ClusterComplianceReportReconciler, types.NamespacedName, *fakeMgr, string) {
 				fm := &fakeMgr{}
 				r := &ClusterComplianceReportReconciler{
 					Client: fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).Build(),
@@ -76,7 +76,7 @@ func TestClusterComplianceReconciler_generateComplianceReport(t *testing.T) {
 		},
 		{
 			name: "not due requeues",
-			setup: func(t *testing.T) (*ClusterComplianceReportReconciler, types.NamespacedName, *fakeMgr, string) {
+			setup: func() (*ClusterComplianceReportReconciler, types.NamespacedName, *fakeMgr, string) {
 				cr := mkReport(2*time.Minute, 0, "* * * * *", v1alpha1.ReportSummary) // updated at now
 				c := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(cr).Build()
 				fm := &fakeMgr{}
@@ -87,7 +87,7 @@ func TestClusterComplianceReconciler_generateComplianceReport(t *testing.T) {
 		},
 		{
 			name: "due with alt storage writes file",
-			setup: func(t *testing.T) (*ClusterComplianceReportReconciler, types.NamespacedName, *fakeMgr, string) {
+			setup: func() (*ClusterComplianceReportReconciler, types.NamespacedName, *fakeMgr, string) {
 				dir := t.TempDir()
 				cr := mkReport(10*time.Minute, 2*time.Minute, "* * * * *", v1alpha1.ReportSummary)
 				c := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(cr).Build()
@@ -99,7 +99,7 @@ func TestClusterComplianceReconciler_generateComplianceReport(t *testing.T) {
 		},
 		{
 			name: "invoke once calls mgr",
-			setup: func(t *testing.T) (*ClusterComplianceReportReconciler, types.NamespacedName, *fakeMgr, string) {
+			setup: func() (*ClusterComplianceReportReconciler, types.NamespacedName, *fakeMgr, string) {
 				cr := mkReport(10*time.Minute, 2*time.Minute, "* * * * *", v1alpha1.ReportSummary)
 				c := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(cr).Build()
 				fm := &fakeMgr{}
@@ -110,7 +110,7 @@ func TestClusterComplianceReconciler_generateComplianceReport(t *testing.T) {
 		},
 		{
 			name: "invalid cron returns error",
-			setup: func(t *testing.T) (*ClusterComplianceReportReconciler, types.NamespacedName, *fakeMgr, string) {
+			setup: func() (*ClusterComplianceReportReconciler, types.NamespacedName, *fakeMgr, string) {
 				cr := mkReport(0, 0, "invalid cron", v1alpha1.ReportSummary)
 				c := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(cr).Build()
 				fm := &fakeMgr{}
@@ -123,7 +123,7 @@ func TestClusterComplianceReconciler_generateComplianceReport(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r, nn, fm, dir := tt.setup(t)
+			r, nn, fm, dir := tt.setup()
 			res, err := r.generateComplianceReport(context.TODO(), nn)
 
 			if tt.expect.wantErr {

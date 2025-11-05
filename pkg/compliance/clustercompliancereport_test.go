@@ -134,7 +134,7 @@ func TestClusterComplianceReconciler_generateComplianceReport(t *testing.T) {
 
 			assert.Equal(t, tt.expect.mgrCalled, fm.called)
 			if tt.expect.requeuePos {
-				assert.Greater(t, int64(res.RequeueAfter), int64(0))
+				assert.Positive(t, int64(res.RequeueAfter))
 			}
 
 			if tt.expect.wantFile {

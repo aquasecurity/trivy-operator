@@ -775,6 +775,13 @@ func appendTrivyNonSSLEnv(config Config, image string, env []corev1.EnvVar) ([]c
 }
 
 func createEnvandVolumeForGcr(env *[]corev1.EnvVar, volumeMounts *[]corev1.VolumeMount, volumes *[]corev1.Volume, registryPasswordKey, secretName *string) {
+	const googlecredVolumeName = "gcrvol"
+	for _, v := range *volumes {
+		if v.Name == googlecredVolumeName {
+			return
+		}
+	}
+
 	*env = append(*env,
 		corev1.EnvVar{
 			Name:  "TRIVY_USERNAME",
@@ -785,12 +792,12 @@ func createEnvandVolumeForGcr(env *[]corev1.EnvVar, volumeMounts *[]corev1.Volum
 			Value: "/cred/credential.json",
 		})
 	googlecredMount := corev1.VolumeMount{
-		Name:      "gcrvol",
+		Name:      googlecredVolumeName,
 		MountPath: "/cred",
 		ReadOnly:  true,
 	}
 	googlecredVolume := corev1.Volume{
-		Name: "gcrvol",
+		Name: googlecredVolumeName,
 		VolumeSource: corev1.VolumeSource{
 			Secret: &corev1.SecretVolumeSource{
 				SecretName: *secretName,

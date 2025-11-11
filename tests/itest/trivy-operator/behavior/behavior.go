@@ -13,7 +13,10 @@ import (
 	"k8s.io/apimachinery/pkg/util/rand"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	aquav1alpha1 "github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/tests/itest/helper"
+	"github.com/aquasecurity/trivy-operator/tests/itest/matcher"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -206,6 +209,103 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 		// TODO Add scenario for StatefulSet
 
 		// TODO Add scenario for DaemonSet
+
+		Context("When unmanaged Pod with initContainer is created (skipInitContainers=true)", func() {
+			var ctx context.Context
+			var pod *corev1.Pod
+			const initName = "init-busybox"
+			const appName = "nginx"
+
+			BeforeEach(func() {
+				ctx = context.Background()
+				pod = &corev1.Pod{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: inputs.PrimaryNamespace,
+						Name:      "pod-with-init-" + rand.String(5),
+					},
+					Spec: corev1.PodSpec{
+						InitContainers: []corev1.Container{
+							{Name: initName, Image: "busybox", Command: []string{"/bin/sh", "-c"}, Args: []string{"echo init && sleep 1"}},
+						},
+						Containers: []corev1.Container{
+							{Name: appName, Image: "nginx:1.16", Command: []string{"/bin/sh", "-c", "--"}, Args: []string{"while true; do sleep 30; done;"}},
+						},
+					},
+				}
+				err := inputs.Create(ctx, pod)
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("Should create VulnerabilityReport only for app container", func() {
+				Eventually(func(g Gomega) {
+					var list aquav1alpha1.VulnerabilityReportList
+					err := inputs.Client.List(ctx, &list, client.MatchingLabels{
+						trivyoperator.LabelResourceKind:      "Pod",
+						trivyoperator.LabelResourceName:      pod.GetName(),
+						trivyoperator.LabelResourceNamespace: pod.GetNamespace(),
+						trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
+					})
+					g.Expect(err).ToNot(HaveOccurred())
+					g.Expect(list.Items).To(HaveLen(1))
+					g.Expect(list.Items[0]).To(matcher.IsVulnerabilityReportForContainerOwnedBy(appName, pod))
+					g.Expect(list.Items[0].Labels[trivyoperator.LabelContainerName]).To(Equal(appName))
+				}, inputs.AssertTimeout, inputs.PollingInterval).Should(Succeed())
+			})
+
+			AfterEach(func() {
+				err := inputs.Delete(ctx, pod)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("When unmanaged Pod with initContainer is created (skipInitContainers=false)", func() {
+
+			var ctx context.Context
+			var pod *corev1.Pod
+			const initName = "init-busybox"
+			const appName = "nginx"
+
+			BeforeEach(func() {
+				ctx = context.Background()
+				pod = &corev1.Pod{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: inputs.PrimaryNamespace,
+						Name:      "pod-with-init-" + rand.String(5),
+					},
+					Spec: corev1.PodSpec{
+						InitContainers: []corev1.Container{
+							{Name: initName, Image: "busybox", Command: []string{"/bin/sh", "-c"}, Args: []string{"echo init && sleep 1"}},
+						},
+						Containers: []corev1.Container{
+							{Name: appName, Image: "nginx:1.16", Command: []string{"/bin/sh", "-c", "--"}, Args: []string{"while true; do sleep 30; done;"}},
+						},
+					},
+				}
+				err := inputs.Create(ctx, pod)
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("Should create VulnerabilityReports for both init and app containers", func() {
+				Eventually(func(g Gomega) {
+					var list aquav1alpha1.VulnerabilityReportList
+					err := inputs.Client.List(ctx, &list, client.MatchingLabels{
+						trivyoperator.LabelResourceKind:      "Pod",
+						trivyoperator.LabelResourceName:      pod.GetName(),
+						trivyoperator.LabelResourceNamespace: pod.GetNamespace(),
+						trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
+					})
+					g.Expect(err).ToNot(HaveOccurred())
+					g.Expect(list.Items).To(HaveLen(2))
+					g.Expect(list.Items).To(ContainElement(matcher.IsVulnerabilityReportForContainerOwnedBy(appName, pod)))
+					g.Expect(list.Items).To(ContainElement(matcher.IsVulnerabilityReportForContainerOwnedBy(initName, pod)))
+				}, inputs.AssertTimeout, inputs.PollingInterval).Should(Succeed())
+			})
+
+			AfterEach(func() {
+				err := inputs.Delete(ctx, pod)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
 	}
 }
 

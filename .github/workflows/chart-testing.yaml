@@ -41,7 +41,7 @@ jobs:
       - name: Release snapshot
         uses: goreleaser/goreleaser-action@v6
         with:
-          version: v2.4.8
+          version: v2.1.0
           args: release -f=goreleaser-e2e.yaml --snapshot --skip=publish --clean
 
       - name: Setup Kubernetes cluster (KIND)

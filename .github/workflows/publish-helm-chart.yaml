@@ -23,17 +23,17 @@ jobs:
       packages: write  # to push OCI chart package to GitHub Registry
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Install Helm
-        uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # v4.3.0
+        uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4.3.1
         with:
           version: v3.14.2
 
       - name: Set up python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.0.0
         with:
           python-version: '3.x'
           check-latest: true
@@ -86,7 +86,7 @@ jobs:
 
         # OCI registry as helm repository (helm 3.8+)
       - name: Login to GHCR
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -110,7 +110,7 @@ jobs:
 
       - name: Repository Dispatch Publish docs
         if: github.event.client_payload.action == 'chart-and-app-release' && !contains(steps.latest_tag.outputs.tag, 'rc')
-        uses: peter-evans/repository-dispatch@v3
+        uses: peter-evans/repository-dispatch@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: publish-docs

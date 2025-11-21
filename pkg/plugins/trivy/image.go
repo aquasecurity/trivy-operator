@@ -200,7 +200,10 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 	}
 
 	for _, c := range containersSpec {
-		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), c.Image) {
+		containerVolumeMounts := make([]corev1.VolumeMount, len(volumeMounts))
+		copy(containerVolumeMounts, volumeMounts)
+		
+		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), c.Image){
 			continue
 		}
 		env := []corev1.EnvVar{
@@ -254,7 +257,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 			secretName := secret.Name
 			if CheckGcpCrOrPrivateRegistry(c.Image) &&
 				ctx.GetTrivyOperatorConfig().GetScanJobUseGCRServiceAccount() {
-				createEnvandVolumeForGcr(&env, &volumeMounts, &volumes, &registryPasswordKey, &secretName)
+				createEnvandVolumeForGcr(&env, &containerVolumeMounts, &volumes, &registryPasswordKey, &secretName)
 			} else {
 				env = append(env, corev1.EnvVar{
 					Name: "TRIVY_USERNAME",
@@ -312,7 +315,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 				secrets = append(secrets, &secret)
 				fileName := fmt.Sprintf("%s.json", secretName)
 				mountPath := fmt.Sprintf("/sbom-%s", c.Name)
-				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, c.Name)
+				CreateVolumeSbomFiles(&containerVolumeMounts, &volumes, &secretName, fileName, mountPath, c.Name)
 				cmd, args = GetSbomScanCommandAndArgs(ctx, Standalone, fmt.Sprintf("%s/%s", mountPath, fileName), "", resultFileName)
 			}
 		}
@@ -326,7 +329,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 			Args:                     args,
 			Resources:                resourceRequirements,
 			SecurityContext:          securityContext,
-			VolumeMounts:             volumeMounts,
+			VolumeMounts:             containerVolumeMounts,
 		})
 	}
 
@@ -429,6 +432,9 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 	}
 
 	for _, container := range containersSpec {
+		containerVolumeMounts := make([]corev1.VolumeMount, len(volumeMounts))
+		copy(containerVolumeMounts, volumeMounts)
+
 		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), container.Image) {
 			continue
 		}
@@ -477,7 +483,7 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 		if auth, ok := containersCredentials[container.Name]; ok && secret != nil {
 			if CheckGcpCrOrPrivateRegistry(container.Image) && auth.Username == "_json_key" {
 				registryServiceAccountAuthKey := fmt.Sprintf("%s.password", container.Name)
-				createEnvandVolumeForGcr(&env, &volumeMounts, &volumes, &registryServiceAccountAuthKey, &secret.Name)
+				createEnvandVolumeForGcr(&env, &containerVolumeMounts, &volumes, &registryServiceAccountAuthKey, &secret.Name)
 			} else {
 				registryUsernameKey := fmt.Sprintf("%s.username", container.Name)
 				registryPasswordKey := fmt.Sprintf("%s.password", container.Name)
@@ -552,7 +558,7 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 				secrets = append(secrets, &secret)
 				fileName := fmt.Sprintf("%s.json", secretName)
 				mountPath := fmt.Sprintf("/sbom-%s", container.Name)
-				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, container.Name)
+				CreateVolumeSbomFiles(&containerVolumeMounts, &volumes, &secretName, fileName, mountPath, container.Name)
 				cmd, args = GetSbomScanCommandAndArgs(ctx, ClientServer, fmt.Sprintf("%s/%s", mountPath, fileName), encodedTrivyServerURL.String(), resultFileName)
 			}
 		}
@@ -566,7 +572,7 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 			Args:                     args,
 			Resources:                requirements,
 			SecurityContext:          securityContext,
-			VolumeMounts:             volumeMounts,
+			VolumeMounts:             containerVolumeMounts,
 		})
 	}
 

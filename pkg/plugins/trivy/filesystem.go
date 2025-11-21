@@ -157,6 +157,9 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 	}
 
 	for _, c := range getContainers(spec) {
+		containerVolumeMounts := make([]corev1.VolumeMount, len(volumeMounts))
+		copy(containerVolumeMounts, volumeMounts)
+
 		env := []corev1.EnvVar{
 			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, KeyTrivySeverity),
 			ConfigWorkloadAnnotationEnvVars(workload, SkipFilesAnnotation, "TRIVY_SKIP_FILES", trivyConfigName, keyTrivySkipFiles),
@@ -232,7 +235,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 				secrets = append(secrets, &secret)
 				fileName := fmt.Sprintf("%s.json", secretName)
 				mountPath := fmt.Sprintf("/sbom-%s", c.Name)
-				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, c.Name)
+				CreateVolumeSbomFiles(&containerVolumeMounts, &volumes, &secretName, fileName, mountPath, c.Name)
 				fscommand, args = GetSbomFSScanningArgs(ctx, Standalone, "", fmt.Sprintf("%s/%s", mountPath, fileName))
 			}
 		}
@@ -246,7 +249,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 			Args:                     args,
 			Resources:                resourceRequirements,
 			SecurityContext:          securityContext,
-			VolumeMounts:             volumeMounts,
+			VolumeMounts:             containerVolumeMounts,
 		})
 	}
 
@@ -381,6 +384,9 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 	}
 
 	for _, c := range getContainers(spec) {
+		containerVolumeMounts := make([]corev1.VolumeMount, len(volumeMounts))
+		copy(containerVolumeMounts, volumeMounts)
+
 		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), c.Image) {
 			continue
 		}
@@ -462,7 +468,7 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 				secrets = append(secrets, &secret)
 				fileName := fmt.Sprintf("%s.json", secretName)
 				mountPath := fmt.Sprintf("/sbom-%s", c.Name)
-				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, c.Name)
+				CreateVolumeSbomFiles(&containerVolumeMounts, &volumes, &secretName, fileName, mountPath, c.Name)
 				fscommand, args = GetSbomFSScanningArgs(ctx, ClientServer, encodedTrivyServerURL.String(), fmt.Sprintf("%s/%s", mountPath, fileName))
 			}
 		}
@@ -476,7 +482,7 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 			Args:                     args,
 			Resources:                resourceRequirements,
 			SecurityContext:          securityContext,
-			VolumeMounts:             volumeMounts,
+			VolumeMounts:             containerVolumeMounts,
 		})
 	}
 

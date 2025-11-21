@@ -104,6 +104,9 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 		volumes = append(volumes, *volume)
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
+
+	initContainerCopyBinaryVolumeMounts := make([]corev1.VolumeMount, len(volumeMounts))
+	copy(initContainerCopyBinaryVolumeMounts, volumeMounts)
 	initContainerCopyBinary := corev1.Container{
 		Name:                     p.idGenerator.GenerateID(),
 		Image:                    trivyImageRef,
@@ -117,9 +120,11 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 		},
 		Resources:       requirements,
 		SecurityContext: securityContext,
-		VolumeMounts:    volumeMounts,
+		VolumeMounts:    initContainerCopyBinaryVolumeMounts,
 	}
 
+	initContainerDBVolumeMounts := make([]corev1.VolumeMount, len(volumeMounts))
+	copy(initContainerDBVolumeMounts, volumeMounts)
 	initContainerDB := corev1.Container{
 		Name:                     p.idGenerator.GenerateID(),
 		Image:                    trivyImageRef,
@@ -139,7 +144,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 		},
 		Resources:       requirements,
 		SecurityContext: securityContext,
-		VolumeMounts:    volumeMounts,
+		VolumeMounts:    initContainerDBVolumeMounts,
 	}
 
 	containers := make([]corev1.Container, 0)
@@ -331,6 +336,8 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 		},
 	}
 
+	initContainerCopyBinaryVolumeMounts := make([]corev1.VolumeMount, len(volumeMounts))
+	copy(initContainerCopyBinaryVolumeMounts, volumeMounts)
 	initContainerCopyBinary := corev1.Container{
 		Name:                     p.idGenerator.GenerateID(),
 		Image:                    trivyImageRef,
@@ -344,7 +351,7 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 		},
 		Resources:       requirements,
 		SecurityContext: securityContext,
-		VolumeMounts:    volumeMounts,
+		VolumeMounts:    initContainerCopyBinaryVolumeMounts,
 	}
 
 	containers := make([]corev1.Container, 0)

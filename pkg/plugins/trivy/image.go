@@ -140,6 +140,8 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 		args = append(args, "--config", configFileMountPath)
 	}
 
+	initContainerDownloadDbVolumeMounts := make([]corev1.VolumeMount, len(volumeMounts))
+	copy(initContainerDownloadDbVolumeMounts, volumeMounts)
 	initContainers = append(initContainers, corev1.Container{
 		Name:                     p.idGenerator.GenerateID(),
 		Image:                    trivyImageRef,
@@ -152,7 +154,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 		Args:            args,
 		Resources:       requirements,
 		SecurityContext: securityContext,
-		VolumeMounts:    volumeMounts,
+		VolumeMounts:    initContainerDownloadDbVolumeMounts,
 	})
 
 	if !config.GetSkipJavaDBUpdate() && config.TrivyDBRepositoryCredentialsSet() {
@@ -168,6 +170,8 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 			argsDBUpdater = append(argsDBUpdater, "--config", configFileMountPath)
 		}
 
+		initContainerDownloadJavaDbVolumeMounts := make([]corev1.VolumeMount, len(volumeMounts))
+		copy(initContainerDownloadJavaDbVolumeMounts, volumeMounts)
 		initContainers = append(initContainers, corev1.Container{
 			Name:                     p.idGenerator.GenerateID(),
 			Image:                    trivyImageRef,
@@ -180,7 +184,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 			Args:            argsDBUpdater,
 			Resources:       requirements,
 			SecurityContext: securityContext,
-			VolumeMounts:    volumeMounts,
+			VolumeMounts:    initContainerDownloadJavaDbVolumeMounts,
 		})
 	}
 

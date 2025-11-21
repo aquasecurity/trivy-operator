@@ -6,4 +6,3 @@ metadata:
   namespace: trivy-system
 status:
   phase: Bound
-

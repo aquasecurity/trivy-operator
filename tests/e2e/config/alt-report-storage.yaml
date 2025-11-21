@@ -15,4 +15,3 @@ testDirs:
   - tests/e2e/alt-report-storage
 timeout: 300
 kindNodeCache: true
-

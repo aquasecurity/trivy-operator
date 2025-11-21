@@ -6,4 +6,3 @@ metadata:
   namespace: trivy-system
 data:
   trivy.reportDir: "/var/local-path-provisioner"
-

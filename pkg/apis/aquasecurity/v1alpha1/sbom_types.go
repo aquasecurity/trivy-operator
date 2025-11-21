@@ -71,16 +71,16 @@ type BOM struct {
 }
 
 type Component struct {
-	BOMRef     string               `json:"bom-ref,omitempty"`
-	Type       string               `json:"type,omitempty"`
-	Name       string               `json:"name,omitempty"`
-	Group      string               `json:"group,omitempty"`
-	Version    string               `json:"version,omitempty"`
-	PackageURL string               `json:"purl,omitempty"`
-	Supplier   OrganizationalEntity `json:"supplier,omitempty"`
-	Hashes     []Hash               `json:"hashes,omitempty"`
-	Licenses   []LicenseChoice      `json:"licenses,omitempty"`
-	Properties []Property           `json:"properties,omitempty"`
+	BOMRef     string                `json:"bom-ref,omitempty"`
+	Type       string                `json:"type,omitempty"`
+	Name       string                `json:"name,omitempty"`
+	Group      string                `json:"group,omitempty"`
+	Version    string                `json:"version,omitempty"`
+	PackageURL string                `json:"purl,omitempty"`
+	Supplier   *OrganizationalEntity `json:"supplier,omitempty"`
+	Hashes     []Hash                `json:"hashes,omitempty"`
+	Licenses   []LicenseChoice       `json:"licenses,omitempty"`
+	Properties []Property            `json:"properties,omitempty"`
 }
 
 type Tools struct {
@@ -98,8 +98,8 @@ type Dependency struct {
 }
 
 type LicenseChoice struct {
-	License    License `json:"license,omitempty"`
-	Expression string  `json:"expression,omitempty"`
+	License    *License `json:"license,omitempty"`
+	Expression string   `json:"expression,omitempty"`
 }
 
 type License struct {

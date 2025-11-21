@@ -293,8 +293,11 @@ jobs:
           ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: Alternate report storage (PVC-backed)
         run: |
-          kubectl create namespace e2e-test || true
+          kubectl create namespace e2e-test
+
           ./bin/kuttl test --start-kind=false --namespace e2e-test --config tests/e2e/config/alt-report-storage.yaml
+
+          ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: Node scan producing cluster infraassessment report
         run: >
           kubectl create namespace e2e-test

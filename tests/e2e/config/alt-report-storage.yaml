@@ -1,0 +1,18 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestSuite
+commands:
+  - command: helm install trivy-operator ./deploy/helm --namespace trivy-system \
+      --create-namespace \
+      --set="image.tag=e2e" \
+      --set="targetNamespaces=e2e-test" \
+      --set="operator.sbomGenerationEnabled=true" \
+      --set="alternateReportStorage.enabled=true" \
+      --set="alternateReportStorage.mountPath=/var/local-path-provisioner" \
+      --set="alternateReportStorage.volumeName=trivy-operator-pvc" \
+      --set="alternateReportStorage.storage=10Gi"
+testDirs:
+  - tests/e2e/alt-report-storage
+timeout: 300
+kindNodeCache: true
+

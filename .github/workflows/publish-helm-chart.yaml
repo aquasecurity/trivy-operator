@@ -50,6 +50,7 @@ jobs:
         with:
           version: ${{ env.KIND_VERSION }}
           node_image: ${{ env.KIND_IMAGE }}
+          config: tests/kind-config.yaml
 
       - name: Run chart-testing
         run: ct lint-and-install --validate-maintainers=false --charts deploy/helm

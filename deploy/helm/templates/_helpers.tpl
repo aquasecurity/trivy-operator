@@ -71,11 +71,27 @@ Create the name of the service account to use.
   {{- default .Release.Namespace .Values.operator.namespace }}
 {{- end }}
 
-{{/*
-Define the image registry to use if global values are set.
-*/}}
-{{- define "global.imageRegistry" -}}
-{{- if ((.Values.global).image).registry -}}
-  {{- .Values.global.image.registry }}
+{{- define "trivy-operator.imageRepository" -}}
+{{- $globalImage := index . 1 -}}
+{{- with index . 0 -}}
+{{- if .registry -}}
+{{- printf "%s/%s" .registry .repository }}
+{{- else if $globalImage.registry }}
+{{- printf "%s/%s" $globalImage.registry .repository }}
+{{- else -}}
+{{- .repository -}}
+{{- end -}}
+{{- end }}
+{{- end }}
+
+{{- define "trivy-operator.image" -}}
+{{- $globalImage := index . 1 -}}
+{{- $defaultTag := index . 2 -}}
+{{- with index . 0 -}}
+{{- include "trivy-operator.imageRepository" (tuple . $globalImage) -}}
+{{- if .digest -}}
+{{- printf "@%s" .digest }}
+{{- else -}}
+{{- printf ":%s" (.tag | default $defaultTag) }}{{- end -}}
 {{- end }}
 {{- end }}

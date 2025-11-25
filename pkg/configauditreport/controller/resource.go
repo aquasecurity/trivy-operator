@@ -32,6 +32,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy-operator/pkg/webhook"
 	"github.com/aquasecurity/trivy/pkg/iac/scan"
 )
 
@@ -334,6 +335,9 @@ func (r *ResourceController) writeAlternateReports(resource client.Object, misCo
 		}
 		log.Info("Config audit report written", "path", configReportPath)
 
+		// Send webhook notification for config audit report
+		webhook.SendWebhookReport(configReportData, r.Config, log)
+
 		// Write infra assessment report to a file
 		infraReportData, err := json.Marshal(misConfigData.infraAssessmentReportData)
 		if err != nil {
@@ -346,6 +350,9 @@ func (r *ResourceController) writeAlternateReports(resource client.Object, misCo
 		}
 		log.Info("Infra assessment report written", "path", infraReportPath)
 
+		// Send webhook notification for infra assessment report
+		webhook.SendWebhookReport(infraReportData, r.Config, log)
+
 		// Write RBAC assessment report to a file
 		rbacReportData, err := json.Marshal(misConfigData.rbacAssessmentReportData)
 		if err != nil {
@@ -357,6 +364,10 @@ func (r *ResourceController) writeAlternateReports(resource client.Object, misCo
 			return ctrl.Result{}, err
 		}
 		log.Info("RBAC assessment report written", "path", rbacReportPath)
+
+		// Send webhook notification for RBAC assessment report
+		webhook.SendWebhookReport(rbacReportData, r.Config, log)
+
 	}
 	return ctrl.Result{}, nil
 }

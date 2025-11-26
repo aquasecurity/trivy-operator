@@ -156,7 +156,9 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
-	for _, c := range getContainers(spec) {
+	// getContainers(spec, ctx.GetTrivyOperatorConfig().GetSkipInitContainers())
+
+	for containerName, containerImage := range kube.GetContainerImagesFromPodSpec(spec, ctx.GetTrivyOperatorConfig().GetSkipInitContainers()) {
 		env := []corev1.EnvVar{
 			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, KeyTrivySeverity),
 			ConfigWorkloadAnnotationEnvVars(workload, SkipFilesAnnotation, "TRIVY_SKIP_FILES", trivyConfigName, keyTrivySkipFiles),
@@ -201,7 +203,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 				trivyConfigName, keyTrivyOfflineScan))
 		}
 
-		env, err = appendTrivyInsecureEnv(config, c.Image, env)
+		env, err = appendTrivyInsecureEnv(config, containerImage, env)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
@@ -223,22 +225,22 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 		fscommand := []string{SharedVolumeLocationOfTrivy}
 		args := GetFSScanningArgs(ctx, command, Standalone, "")
 		if len(clusterSboms) > 0 { // trivy sbom ...
-			if sbomreportData, ok := clusterSboms[c.Name]; ok {
-				secretName := fmt.Sprintf("sbom-%s", c.Name)
+			if sbomreportData, ok := clusterSboms[containerName]; ok {
+				secretName := fmt.Sprintf("sbom-%s", containerName)
 				secret, err := CreateSbomDataAsSecret(sbomreportData.Bom, secretName)
 				if err != nil {
 					return corev1.PodSpec{}, nil, err
 				}
 				secrets = append(secrets, &secret)
 				fileName := fmt.Sprintf("%s.json", secretName)
-				mountPath := fmt.Sprintf("/sbom-%s", c.Name)
-				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, c.Name)
+				mountPath := fmt.Sprintf("/sbom-%s", containerName)
+				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, containerName)
 				fscommand, args = GetSbomFSScanningArgs(ctx, Standalone, "", fmt.Sprintf("%s/%s", mountPath, fileName))
 			}
 		}
 		containers = append(containers, corev1.Container{
-			Name:                     c.Name,
-			Image:                    c.Image,
+			Name:                     containerName,
+			Image:                    containerImage,
 			ImagePullPolicy:          pullPolicy,
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 			Env:                      env,
@@ -380,8 +382,8 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
-	for _, c := range getContainers(spec) {
-		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), c.Image) {
+	for containerName, containerImage := range kube.GetContainerImagesFromPodSpec(spec, ctx.GetTrivyOperatorConfig().GetSkipInitContainers()) {
+		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), containerImage) {
 			continue
 		}
 		env := []corev1.EnvVar{
@@ -425,7 +427,7 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 				trivyConfigName, keyTrivyOfflineScan))
 		}
 
-		env, err = appendTrivyInsecureEnv(config, c.Image, env)
+		env, err = appendTrivyInsecureEnv(config, containerImage, env)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
@@ -453,22 +455,22 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 		fscommand := []string{SharedVolumeLocationOfTrivy}
 		args := GetFSScanningArgs(ctx, command, ClientServer, encodedTrivyServerURL.String())
 		if len(clusterSboms) > 0 { // trivy sbom ...
-			if sbomreportData, ok := clusterSboms[c.Name]; ok {
-				secretName := fmt.Sprintf("sbom-%s", c.Name)
+			if sbomreportData, ok := clusterSboms[containerName]; ok {
+				secretName := fmt.Sprintf("sbom-%s", containerName)
 				secret, err := CreateSbomDataAsSecret(sbomreportData.Bom, secretName)
 				if err != nil {
 					return corev1.PodSpec{}, nil, err
 				}
 				secrets = append(secrets, &secret)
 				fileName := fmt.Sprintf("%s.json", secretName)
-				mountPath := fmt.Sprintf("/sbom-%s", c.Name)
-				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, c.Name)
+				mountPath := fmt.Sprintf("/sbom-%s", containerName)
+				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, containerName)
 				fscommand, args = GetSbomFSScanningArgs(ctx, ClientServer, encodedTrivyServerURL.String(), fmt.Sprintf("%s/%s", mountPath, fileName))
 			}
 		}
 		containers = append(containers, corev1.Container{
-			Name:                     c.Name,
-			Image:                    c.Image,
+			Name:                     containerName,
+			Image:                    containerImage,
 			ImagePullPolicy:          pullPolicy,
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 			Env:                      env,

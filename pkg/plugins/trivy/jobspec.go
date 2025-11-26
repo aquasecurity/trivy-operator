@@ -165,19 +165,6 @@ func getSecurityChecks(ctx trivyoperator.PluginContext) string {
 	return strings.Join(securityChecks, ",")
 }
 
-func getContainers(spec corev1.PodSpec) []corev1.Container {
-	containers := spec.Containers
-	containers = append(containers, spec.InitContainers...)
-
-	// ephemeral container are not the same type as Containers/InitContainers,
-	// then we add it in a different loop
-	for _, c := range spec.EphemeralContainers {
-		containers = append(containers, corev1.Container(c.EphemeralContainerCommon))
-	}
-
-	return containers
-}
-
 func constructEnvVarSourceFromSecret(envName, secretName, secretKey string) (res corev1.EnvVar) {
 	res = corev1.EnvVar{
 		Name: envName,

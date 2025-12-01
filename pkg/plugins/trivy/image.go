@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"regexp"
+	"slices"
 	"strings"
 
 	containerimage "github.com/google/go-containerregistry/pkg/name"
@@ -100,13 +101,13 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 
 	trivyConfigName := trivyoperator.GetPluginConfigMapName(Plugin)
 
-	volumeMounts := []corev1.VolumeMount{
-		{
-			Name:      tmpVolumeName,
-			ReadOnly:  false,
-			MountPath: "/tmp",
-		},
-	}
+	defaultTmpVolumeMounts := []corev1.VolumeMount{{
+		Name:      tmpVolumeName,
+		ReadOnly:  false,
+		MountPath: "/tmp",
+	}}
+
+	var volumeMounts []corev1.VolumeMount
 	volumes := []corev1.Volume{
 		{
 			Name: tmpVolumeName,
@@ -186,7 +187,7 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 			Args:            []string{"registry", "login", javaDbRegistry.Context().Registry.Name()}, // TRIVY_USERNAME and TRIVY_PASSWORD are set up in initContainerEnvVar()
 			Resources:       resourceRequirements,
 			SecurityContext: securityContext,
-			VolumeMounts:    volumeMounts,
+			VolumeMounts:    slices.Concat(defaultTmpVolumeMounts, volumeMounts),
 		})
 	}
 
@@ -211,7 +212,7 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 			Args:            append(args, "--download-db-only", "--db-repository", dbRepository),
 			Resources:       resourceRequirements,
 			SecurityContext: securityContext,
-			VolumeMounts:    volumeMounts,
+			VolumeMounts:    slices.Concat(defaultTmpVolumeMounts, volumeMounts),
 		})
 	}
 
@@ -238,6 +239,22 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), c.Image) {
 			continue
 		}
+
+		// Avoid premature tmp cleanup when using client server mode.
+		var containerVolumeMounts []corev1.VolumeMount
+		switch mode {
+		case ClientServer:
+			containerVolumeMounts = []corev1.VolumeMount{{
+				Name:      tmpVolumeName,
+				ReadOnly:  false,
+				MountPath: "/tmp",
+				SubPath:   c.Name,
+			}}
+		case Standalone:
+			containerVolumeMounts = slices.Clone(defaultTmpVolumeMounts)
+		}
+		containerVolumeMounts = slices.Concat(containerVolumeMounts, volumeMounts)
+
 		env := []corev1.EnvVar{
 			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, KeyTrivySeverity),
 			constructEnvVarSourceFromConfigMap("TRIVY_IGNORE_UNFIXED", trivyConfigName, keyTrivyIgnoreUnfixed),
@@ -307,7 +324,7 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 			registryPasswordKey := fmt.Sprintf("%s.password", c.Name)
 			if CheckGcpCrOrPrivateRegistry(c.Image) &&
 				ctx.GetTrivyOperatorConfig().GetScanJobUseGCRServiceAccount() {
-				createEnvandVolumeForGcr(&env, &volumeMounts, &volumes, &registryPasswordKey, &secret.Name)
+				createEnvandVolumeForGcr(&env, &containerVolumeMounts, &volumes, &registryPasswordKey, &secret.Name)
 			} else {
 				env = append(env, corev1.EnvVar{
 					Name: "TRIVY_USERNAME",
@@ -359,7 +376,7 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 				secrets = append(secrets, &secret)
 				fileName := fmt.Sprintf("%s.json", secretName)
 				mountPath := fmt.Sprintf("/sbom-%s", c.Name)
-				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, c.Name)
+				CreateVolumeSbomFiles(&containerVolumeMounts, &volumes, &secretName, fileName, mountPath, c.Name)
 				cmd, args = GetSbomScanCommandAndArgs(ctx, mode, fmt.Sprintf("%s/%s", mountPath, fileName), trivyServerURL, resultFileName)
 			}
 		}
@@ -373,7 +390,7 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 			Args:                     args,
 			Resources:                resourceRequirements,
 			SecurityContext:          securityContext,
-			VolumeMounts:             volumeMounts,
+			VolumeMounts:             containerVolumeMounts,
 		})
 	}
 	return corev1.PodSpec{
@@ -602,6 +619,14 @@ func appendTrivyNonSSLEnv(config Config, image string, env []corev1.EnvVar) ([]c
 
 func createEnvandVolumeForGcr(env *[]corev1.EnvVar, volumeMounts *[]corev1.VolumeMount, volumes *[]corev1.Volume, registryPasswordKey, secretName *string) {
 	const googlecredVolumeName = "gcrvol"
+
+	googlecredMount := corev1.VolumeMount{
+		Name:      googlecredVolumeName,
+		MountPath: "/cred",
+		ReadOnly:  true,
+	}
+	*volumeMounts = append(*volumeMounts, googlecredMount)
+
 	for _, v := range *volumes {
 		if v.Name == googlecredVolumeName {
 			return
@@ -617,11 +642,6 @@ func createEnvandVolumeForGcr(env *[]corev1.EnvVar, volumeMounts *[]corev1.Volum
 			Name:  "GOOGLE_APPLICATION_CREDENTIALS",
 			Value: "/cred/credential.json",
 		})
-	googlecredMount := corev1.VolumeMount{
-		Name:      googlecredVolumeName,
-		MountPath: "/cred",
-		ReadOnly:  true,
-	}
 	googlecredVolume := corev1.Volume{
 		Name: googlecredVolumeName,
 		VolumeSource: corev1.VolumeSource{
@@ -637,7 +657,6 @@ func createEnvandVolumeForGcr(env *[]corev1.EnvVar, volumeMounts *[]corev1.Volum
 		},
 	}
 	*volumes = append(*volumes, googlecredVolume)
-	*volumeMounts = append(*volumeMounts, googlecredMount)
 }
 
 func CheckGcpCrOrPrivateRegistry(imageUrl string) bool {

@@ -90,8 +90,7 @@ func TestCycloneDXBOMConversionAndValidity(t *testing.T) {
 			require.Equal(t, "CycloneDX", rbom.BOMFormat)
 			require.NotEmpty(t, rbom.SpecVersion)
 			require.NotNil(t, rbom.Metadata)
-			require.NotNil(t, rbom.Components)
-			require.Positive(t, len(rbom.Components), "components should not be empty")
+			require.NotEmpty(t, rbom.Components, "components should not be empty")
 			require.NotNil(t, rbom.Dependencies)
 
 			// Validate summary computation aligns with BOM content
@@ -103,7 +102,7 @@ func TestCycloneDXBOMConversionAndValidity(t *testing.T) {
 			// Verify license mapping specifics on first component
 			gotComp := rbom.Components[0]
 			if tc.wantLicensePresent {
-				require.True(t, len(gotComp.Licenses) > 0)
+				require.NotEmpty(t, gotComp.Licenses)
 				if tc.wantLicenseID != "" {
 					require.NotNil(t, gotComp.Licenses[0].License)
 					require.Equal(t, tc.wantLicenseID, gotComp.Licenses[0].License.ID)

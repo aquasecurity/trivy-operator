@@ -427,6 +427,10 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 		volumes = append(volumes, *volume)
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
+	if volume, volumeMount := config.GenerateConfigFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		volumeMounts = append(volumeMounts, *volumeMount)
+	}
 
 	for _, container := range containersSpec {
 		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), container.Image) {

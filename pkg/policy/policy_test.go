@@ -856,7 +856,7 @@ func getPolicyResults(results scan.Results) Results {
 		} else {
 			msgs = nil
 		}
-		id := result.Rule().AVDID
+		id := result.Rule().ID
 		if len(result.Rule().Aliases) > 0 {
 			id = result.Rule().Aliases[0]
 		}

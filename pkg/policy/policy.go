@@ -339,9 +339,9 @@ func resourceBytes(resource client.Object, inputs [][]byte) ([]byte, error) {
 	return inputResource, nil
 }
 
-// GetResultID return the result id found in aliases (legacy) otherwise use AvdID
+// GetResultID return the result id found in aliases (legacy) otherwise use ID
 func GetResultID(result scan.Result) string {
-	id := result.Rule().AVDID
+	id := result.Rule().ID
 	if len(result.Rule().Aliases) > 0 {
 		id = result.Rule().Aliases[0]
 	}

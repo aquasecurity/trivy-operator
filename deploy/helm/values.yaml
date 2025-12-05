@@ -257,7 +257,7 @@ trivyOperator:
   scanJobCompressLogs: true
   # -- scanJobsInSameNamespace control whether to run vulnerability scan jobs in same namespace of workload
   scanJobsInSameNamespace: false
-  # -- scanJobAffinity affinity to be applied to the scanner pods and node-collector
+  # -- scanJobAffinity affinity to be applied to the scanner pods
   scanJobAffinity: {}
   # -- scanJobTolerations tolerations to be applied to the scanner pods so that they can run on nodes with matching taints
   scanJobTolerations: []
@@ -765,6 +765,8 @@ nodeCollector:
   imagePullSecret: ~
   # -- excludeNodes comma-separated node labels that the node-collector job should exclude from scanning (example kubernetes.io/arch=arm64,team=dev)
   excludeNodes:
+  # -- affinity to be applied to the node-collector
+  affinity: {}
   # -- tolerations to be applied to the node-collector so that they can run on nodes with matching taints
   tolerations: []
   # -- If you do want to specify tolerations, uncomment the following lines, adjust them as necessary, and remove the

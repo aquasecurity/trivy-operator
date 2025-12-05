@@ -208,15 +208,16 @@ func reportsToResults(checks []v1alpha1.Check, name, namespace string) ttypes.Re
 			}
 		}
 		misconfigResult := ttypes.Result{Target: fmt.Sprintf("%s/%s", namespace, name),
-			Misconfigurations: []ttypes.DetectedMisconfiguration{{
-				AVDID:       id,
-				Title:       check.Title,
-				Description: check.Description,
-				Message:     check.Description,
-				Resolution:  check.Remediation,
-				Severity:    string(check.Severity),
-				Status:      status,
-			},
+			Misconfigurations: []ttypes.DetectedMisconfiguration{
+				{
+					ID:          id,
+					Title:       check.Title,
+					Description: check.Description,
+					Message:     check.Description,
+					Resolution:  check.Remediation,
+					Severity:    string(check.Severity),
+					Status:      status,
+				},
 			},
 		}
 		results = append(results, misconfigResult)

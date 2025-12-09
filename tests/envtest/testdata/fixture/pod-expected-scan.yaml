@@ -47,7 +47,7 @@ spec:
       containers:
         - args:
             - -c
-            - trivy image app-image:app-image-tag --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_app.json 2>/tmp/scan/result_app.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_app.json.log; else bzip2 -c /tmp/scan/result_app.json | base64; fi; exit $rc
+            - trivy image app-image:app-image-tag --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_app.json 2>/tmp/scan/result_app.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_app.json.log && sync; else bzip2 -c /tmp/scan/result_app.json | base64 && sync; fi; exit $rc
           command:
             - /bin/sh
           env:

@@ -694,7 +694,8 @@ func buildTrailingCommandArgs(resultFileName string, compressLogs bool) string {
 	} else {
 		cmd = fmt.Sprintf("cat /tmp/scan/%s", resultFileName)
 	}
-	return fmt.Sprintf("; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/%s.log; else %s; fi; exit $rc", resultFileName, cmd)
+	// Sync is required to flush the result to stdout before the scan job container exits, otherwise the output will be cut off halfway.
+	return fmt.Sprintf("; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/%s.log && sync; else %s && sync; fi; exit $rc", resultFileName, cmd)
 }
 
 func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomFile, trivyServerURL, resultFileName string) ([]string, []string) {

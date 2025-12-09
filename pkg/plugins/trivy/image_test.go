@@ -79,7 +79,7 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 			serverUrl:      "",
 			resultFileName: "result_output.json",
 			compressedLogs: "true",
-			wantArgs:       []string{"-c", "trivy --cache-dir /tmp/trivy/.cache sbom --format json /tmp/scan/bom.json --slow --skip-db-update --output /tmp/scan/result_output.json 2>/tmp/scan/result_output.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_output.json.log; else bzip2 -c /tmp/scan/result_output.json | base64; fi; exit $rc"},
+			wantArgs:       []string{"-c", "trivy --cache-dir /tmp/trivy/.cache sbom --format json /tmp/scan/bom.json --slow --skip-db-update --output /tmp/scan/result_output.json 2>/tmp/scan/result_output.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_output.json.log && sync; else bzip2 -c /tmp/scan/result_output.json | base64 && sync; fi; exit $rc"},
 			wantCmd:        []string{"/bin/sh"},
 		},
 		{
@@ -89,7 +89,7 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 			serverUrl:      "",
 			resultFileName: "result_output.json",
 			compressedLogs: "false",
-			wantArgs:       []string{"-c", "trivy --cache-dir /tmp/trivy/.cache sbom --format json /tmp/scan/bom.json --slow --skip-db-update --output /tmp/scan/result_output.json 2>/tmp/scan/result_output.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_output.json.log; else cat /tmp/scan/result_output.json; fi; exit $rc"},
+			wantArgs:       []string{"-c", "trivy --cache-dir /tmp/trivy/.cache sbom --format json /tmp/scan/bom.json --slow --skip-db-update --output /tmp/scan/result_output.json 2>/tmp/scan/result_output.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_output.json.log && sync; else cat /tmp/scan/result_output.json && sync; fi; exit $rc"},
 			wantCmd:        []string{"/bin/sh"},
 		},
 		{
@@ -99,7 +99,7 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 			serverUrl:      "http://trivy-server:8080",
 			resultFileName: "result_output.json",
 			compressedLogs: "true",
-			wantArgs:       []string{"-c", "trivy --cache-dir /tmp/trivy/.cache sbom --format json --server http://trivy-server:8080 /tmp/scan/bom.json --slow --output /tmp/scan/result_output.json 2>/tmp/scan/result_output.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_output.json.log; else bzip2 -c /tmp/scan/result_output.json | base64; fi; exit $rc"},
+			wantArgs:       []string{"-c", "trivy --cache-dir /tmp/trivy/.cache sbom --format json --server http://trivy-server:8080 /tmp/scan/bom.json --slow --output /tmp/scan/result_output.json 2>/tmp/scan/result_output.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_output.json.log && sync; else bzip2 -c /tmp/scan/result_output.json | base64 && sync; fi; exit $rc"},
 			wantCmd:        []string{"/bin/sh"},
 		},
 		{
@@ -109,7 +109,7 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 			serverUrl:      "http://trivy-server:8080",
 			resultFileName: "result_output.json",
 			compressedLogs: "false",
-			wantArgs:       []string{"-c", "trivy --cache-dir /tmp/trivy/.cache sbom --format json --server http://trivy-server:8080 /tmp/scan/bom.json --slow --output /tmp/scan/result_output.json 2>/tmp/scan/result_output.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_output.json.log; else cat /tmp/scan/result_output.json; fi; exit $rc"},
+			wantArgs:       []string{"-c", "trivy --cache-dir /tmp/trivy/.cache sbom --format json --server http://trivy-server:8080 /tmp/scan/bom.json --slow --output /tmp/scan/result_output.json 2>/tmp/scan/result_output.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_output.json.log && sync; else cat /tmp/scan/result_output.json && sync; fi; exit $rc"},
 			wantCmd:        []string{"/bin/sh"},
 		},
 	}

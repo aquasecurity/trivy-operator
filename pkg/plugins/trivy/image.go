@@ -278,7 +278,7 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 		if config.IgnoreFileExists() {
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_IGNOREFILE",
-				Value: ignoreFileMountPath,
+				Value: config.IgnoreFileMountPath(),
 			})
 		}
 		if config.FindIgnorePolicyKey(workload) != "" {

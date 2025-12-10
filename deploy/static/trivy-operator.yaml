@@ -890,6 +890,12 @@ spec:
                     description: Digest is a unique and immutable identifier of an
                       Artifact.
                     type: string
+                  labels:
+                    additionalProperties:
+                      type: string
+                    description: Labels is a map of key value pairs from the scanned
+                      artifact
+                    type: object
                   mimeType:
                     description: MimeType represents a type and format of an Artifact.
                     type: string
@@ -1301,6 +1307,12 @@ spec:
                     description: Digest is a unique and immutable identifier of an
                       Artifact.
                     type: string
+                  labels:
+                    additionalProperties:
+                      type: string
+                    description: Labels is a map of key value pairs from the scanned
+                      artifact
+                    type: object
                   mimeType:
                     description: MimeType represents a type and format of an Artifact.
                     type: string
@@ -1771,6 +1783,12 @@ spec:
                     description: Digest is a unique and immutable identifier of an
                       Artifact.
                     type: string
+                  labels:
+                    additionalProperties:
+                      type: string
+                    description: Labels is a map of key value pairs from the scanned
+                      artifact
+                    type: object
                   mimeType:
                     description: MimeType represents a type and format of an Artifact.
                     type: string
@@ -2328,6 +2346,12 @@ spec:
                     description: Digest is a unique and immutable identifier of an
                       Artifact.
                     type: string
+                  labels:
+                    additionalProperties:
+                      type: string
+                    description: Labels is a map of key value pairs from the scanned
+                      artifact
+                    type: object
                   mimeType:
                     description: MimeType represents a type and format of an Artifact.
                     type: string
@@ -2741,6 +2765,12 @@ spec:
                     description: Digest is a unique and immutable identifier of an
                       Artifact.
                     type: string
+                  labels:
+                    additionalProperties:
+                      type: string
+                    description: Labels is a map of key value pairs from the scanned
+                      artifact
+                    type: object
                   mimeType:
                     description: MimeType represents a type and format of an Artifact.
                     type: string

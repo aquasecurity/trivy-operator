@@ -7773,6 +7773,98 @@ func TestGetInitContainers(t *testing.T) {
 	}
 }
 
+// Ensure that when using GCR service account credentials for multiple GCR images,
+// the operator adds the GCR volume and mount only once (early return), resulting
+// in fewer effective invocations of the helper.
+func TestStandalone_GCRServiceAccount(t *testing.T) {
+	fakeclient := fake.NewClientBuilder().WithObjects(
+		&corev1.ConfigMap{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "trivy-operator-trivy-config",
+				Namespace: "trivyoperator-ns",
+			},
+			Data: map[string]string{
+				"trivy.repository":       "gcr.io/aquasec/trivy",
+				"trivy.tag":              "0.68.1",
+				"trivy.mode":             string(trivy.Standalone),
+				"trivy.dbRepository":     trivy.DefaultDBRepository,
+				"trivy.javaDbRepository": trivy.DefaultJavaDBRepository,
+			},
+		},
+	).Build()
+
+	// Two GCR images to trigger multiple potential invocations.
+	workload := &corev1.Pod{
+		TypeMeta:   metav1.TypeMeta{Kind: "Pod", APIVersion: "v1"},
+		ObjectMeta: metav1.ObjectMeta{Name: "gcr-pod", Namespace: "prod-ns"},
+		Spec: corev1.PodSpec{
+			Containers: []corev1.Container{
+				{Name: "app", Image: "gcr.io/company/application:1.0.0"},
+				{Name: "sidecar", Image: "us.gcr.io/company/sidecar:1.0.0"},
+			},
+		},
+	}
+
+	pluginContext := trivyoperator.NewPluginContext().
+		WithName(trivy.Plugin).
+		WithNamespace("trivyoperator-ns").
+		WithServiceAccountName("trivyoperator-sa").
+		WithClient(fakeclient).
+		WithTrivyOperatorConfig(map[string]string{
+			trivyoperator.KeyScanJobUseGCRServiceAccount: trivyoperator.TrueString,
+		}).
+		Get()
+
+	resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
+	instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
+
+	// Provide credentials for the GCR servers so that the plugin creates the aggregate secret
+	// and enters the credentials-handling path that may call the GCR helper.
+	creds := map[string]docker.Auth{
+		"gcr.io":    {Username: "u", Password: "p"},
+		"us.gcr.io": {Username: "u2", Password: "p2"},
+	}
+
+	jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workload, creds, nil, make(map[string]v1alpha1.SbomReportData))
+	require.NoError(t, err)
+
+	// Assert single GCR volume at pod level.
+	gcrVolCount := 0
+	for _, v := range jobSpec.Volumes {
+		if v.Name == "gcrvol" {
+			gcrVolCount++
+		}
+	}
+	assert.Equal(t, 1, gcrVolCount, "expected only one GCR volume to be added")
+
+	// Assert containers mount GCR volume at most once, and env var is present only once overall
+	// due to early return on subsequent helper invocations.
+	totalGcrMounts := 0
+	totalGacEnv := 0
+	totalTrivyUsernameEnv := 0
+	for _, c := range jobSpec.Containers {
+		for _, m := range c.VolumeMounts {
+			if m.Name == "gcrvol" {
+				totalGcrMounts++
+			}
+		}
+		for _, e := range c.Env {
+			if e.Name == "GOOGLE_APPLICATION_CREDENTIALS" {
+				totalGacEnv++
+				assert.Equal(t, "/cred/credential.json", e.Value)
+			}
+			if e.Name == "TRIVY_USERNAME" {
+				totalTrivyUsernameEnv++
+			}
+		}
+	}
+	// One mount per container, but created only once in the pod spec and shared.
+	assert.Equal(t, 2, totalGcrMounts, "expected GCR mount present once per container")
+	// Early return prevents re-adding envs; only the first container gets them.
+	assert.Equal(t, 1, totalGacEnv, "expected GOOGLE_APPLICATION_CREDENTIALS to be added once")
+	assert.Equal(t, 1, totalTrivyUsernameEnv, "expected TRIVY_USERNAME to be added once")
+}
+
 func getReportAsString(fixture string) string {
 	f, err := os.Open("./testdata/fixture/" + fixture)
 	if err != nil {

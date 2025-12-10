@@ -9,6 +9,7 @@ import (
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 )
 
 // Writer is the interface for saving v1alpha1.InfraAssessmentReport instances.
@@ -42,6 +43,7 @@ type ReadWriter interface {
 
 type readWriter struct {
 	*kube.ObjectResolver
+	etc.Config
 }
 
 // NewReadWriter constructs a new ReadWriter which is using the client package
@@ -61,6 +63,9 @@ func (r *readWriter) WriteReport(ctx context.Context, report v1alpha1.InfraAsses
 	}, &existing)
 
 	if err == nil {
+		if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
+			return nil
+		}
 		copied := existing.DeepCopy()
 		copied.Labels = report.Labels
 		copied.Report = report.Report
@@ -68,6 +73,10 @@ func (r *readWriter) WriteReport(ctx context.Context, report v1alpha1.InfraAsses
 	}
 
 	if errors.IsNotFound(err) {
+		// Not writing to ETCD memory because altReport storage is enabled
+		if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
+			return nil
+		}
 		return r.Create(ctx, &report)
 	}
 	return err
@@ -80,15 +89,20 @@ func (r *readWriter) WriteClusterReport(ctx context.Context, report v1alpha1.Clu
 	}, &existing)
 
 	if err == nil {
-		copied := existing.DeepCopy()
-		copied.Labels = report.Labels
-		copied.Report = report.Report
-
-		return r.Update(ctx, copied)
+		// Not writing to ETCD memory because altReport storage is enabled
+		if !r.Config.AltReportStorageEnabled || r.Config.AltReportDir == "" {
+			copied := existing.DeepCopy()
+			copied.Labels = report.Labels
+			copied.Report = report.Report
+			return r.Update(ctx, copied)
+		}
 	}
 
 	if errors.IsNotFound(err) {
-		return r.Create(ctx, &report)
+		// Not writing to ETCD memory because altReport storage is enabled
+		if !r.Config.AltReportStorageEnabled || r.Config.AltReportDir == "" {
+			return r.Create(ctx, &report)
+		}
 	}
 
 	return err

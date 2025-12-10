@@ -2,16 +2,22 @@ package compliance
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
+	"github.com/go-logr/logr"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy/pkg/compliance/report"
 	ttypes "github.com/aquasecurity/trivy/pkg/types"
 )
@@ -27,12 +33,14 @@ func NewMgr(c client.Client) Mgr {
 }
 
 type cm struct {
+	logr.Logger
+	etc.Config
 	client client.Client
 }
 
 // GenerateComplianceReport generate and public compliance report by spec
 func (w *cm) GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportSpec) error {
-	trivyResults, err := misconfigReportToTrivyResults(w.client, ctx)
+	trivyResults, err := misconfigReportToTrivyResults(ctx, w.client)
 	if err != nil {
 		return err
 	}
@@ -46,9 +54,39 @@ func (w *cm) GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportS
 	if err != nil {
 		return err
 	}
+
+	if w.Config.AltReportStorageEnabled && w.Config.AltReportDir != "" {
+		operatorNamespace, err := w.GetOperatorNamespace()
+		if err != nil {
+			return fmt.Errorf("failed to get operator namespace: %w", err)
+		}
+		log := w.Logger.WithValues("job", operatorNamespace)
+		log.V(1).Info("Writing cluster compliance reports to alternate storage", "dir", w.Config.AltReportDir)
+
+		// Write the compliance report to a file
+		reportDir := w.Config.AltReportDir
+		complianceReportDir := filepath.Join(reportDir, "cluster_compliance_report")
+		if err := os.MkdirAll(complianceReportDir, 0o750); err != nil {
+			w.Logger.Error(err, "could not create compliance report directory")
+			return err
+		}
+
+		reportData, err := json.Marshal(updatedReport)
+		if err != nil {
+			return fmt.Errorf("failed to marshal compliance report: %w", err)
+		}
+
+		reportPath := filepath.Join(complianceReportDir, fmt.Sprintf("%s-%s.json", updatedReport.Kind, updatedReport.Name))
+		log.Info("Writing cluster compliance report to alternate storage", "path", reportPath)
+		err = os.WriteFile(reportPath, reportData, 0o600)
+		if err != nil {
+			return fmt.Errorf("failed to write compliance report: %w", err)
+		}
+		log.Info("Cluster compliance report written", "path", reportPath)
+		return nil
+	}
 	// update compliance report status
 	return w.client.Status().Update(ctx, updatedReport)
-
 }
 
 // createComplianceReport create compliance report
@@ -57,6 +95,9 @@ func (w *cm) createComplianceReport(ctx context.Context, reportSpec v1alpha1.Rep
 	r := v1alpha1.ClusterComplianceReport{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: strings.ToLower(reportSpec.Compliance.ID),
+			Labels: map[string]string{
+				trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+			},
 		},
 		Status: reportStatus,
 	}
@@ -95,7 +136,7 @@ func (w *cm) buildComplianceReport(spec v1alpha1.ReportSpec, complianceResults [
 }
 
 // MisconfigReportToTrivyResults convert misconfig and infra assessment report Data to trivy results
-func misconfigReportToTrivyResults(cli client.Client, ctx context.Context) ([]ttypes.Results, error) {
+func misconfigReportToTrivyResults(ctx context.Context, cli client.Client) ([]ttypes.Results, error) {
 	resultsArray := make([]ttypes.Results, 0)
 	// collect configaudit report data
 	caObjList := &v1alpha1.ConfigAuditReportList{}

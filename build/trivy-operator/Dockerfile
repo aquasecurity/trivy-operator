@@ -1,4 +1,4 @@
-FROM alpine:3.20.6
+FROM alpine:3.23.0
 
 RUN apk update
 

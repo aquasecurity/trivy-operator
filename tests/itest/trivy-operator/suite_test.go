@@ -53,6 +53,8 @@ var _ = BeforeSuite(func() {
 	operatorConfig, err := etc.GetOperatorConfig()
 	Expect(err).ToNot(HaveOccurred())
 
+	ApplyTestConfiguration(&operatorConfig)
+
 	logf.SetLogger(zap.New(zap.WriteTo(GinkgoWriter), zap.UseDevMode(operatorConfig.LogDevMode)))
 
 	kubeConfig, err := ctrl.GetConfig()
@@ -66,6 +68,7 @@ var _ = BeforeSuite(func() {
 
 	inputs = behavior.Inputs{
 		AssertTimeout:         5 * time.Minute,
+		PollingInterval:       5 * time.Second,
 		PrimaryNamespace:      corev1.NamespaceDefault,
 		PrimaryWorkloadPrefix: "wordpress",
 		Client:                kubeClient,
@@ -82,6 +85,12 @@ var _ = BeforeSuite(func() {
 	}()
 
 })
+
+func ApplyTestConfiguration(operatorConfig *etc.Config) {
+	// Default is 0. Set to 30 seconds for testing scan job TTL behavior.
+	scanJobTTL := 30 * time.Second
+	operatorConfig.ScanJobTTL = &scanJobTTL
+}
 
 var _ = AfterSuite(func() {
 	By("Stopping Trivy operator")

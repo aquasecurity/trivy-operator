@@ -1,7 +1,6 @@
 package trivyoperator_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/onsi/gomega"
@@ -903,7 +902,7 @@ func TestConfigManager_Read(t *testing.T) {
 	)
 
 	data, err := trivyoperator.NewConfigManager(clientset, trivyoperator.NamespaceName).
-		Read(context.TODO())
+		Read(t.Context())
 
 	require.NoError(t, err)
 	assert.Equal(t, trivyoperator.ConfigData{
@@ -920,16 +919,16 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 		namespace := "trivyoperator-ns"
 		clientset := fake.NewSimpleClientset()
 
-		err := trivyoperator.NewConfigManager(clientset, namespace).EnsureDefault(context.TODO())
+		err := trivyoperator.NewConfigManager(clientset, namespace).EnsureDefault(t.Context())
 		g.Expect(err).ToNot(gomega.HaveOccurred())
 
 		cm, err := clientset.CoreV1().ConfigMaps(namespace).
-			Get(context.TODO(), trivyoperator.ConfigMapName, metav1.GetOptions{})
+			Get(t.Context(), trivyoperator.ConfigMapName, metav1.GetOptions{})
 		g.Expect(err).ToNot(gomega.HaveOccurred())
 		g.Expect(cm.Data).To(gomega.BeEquivalentTo(trivyoperator.GetDefaultConfig()))
 
 		secret, err := clientset.CoreV1().Secrets(namespace).
-			Get(context.TODO(), trivyoperator.SecretName, metav1.GetOptions{})
+			Get(t.Context(), trivyoperator.SecretName, metav1.GetOptions{})
 		g.Expect(err).ToNot(gomega.HaveOccurred())
 		g.Expect(secret.Data).To(gomega.BeEmpty())
 	})
@@ -968,11 +967,11 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 			},
 		)
 
-		err := trivyoperator.NewConfigManager(clientset, namespace).EnsureDefault(context.TODO())
+		err := trivyoperator.NewConfigManager(clientset, namespace).EnsureDefault(t.Context())
 		g.Expect(err).ToNot(gomega.HaveOccurred())
 
 		cm, err := clientset.CoreV1().ConfigMaps(namespace).
-			Get(context.TODO(), trivyoperator.ConfigMapName, metav1.GetOptions{})
+			Get(t.Context(), trivyoperator.ConfigMapName, metav1.GetOptions{})
 		g.Expect(err).ToNot(gomega.HaveOccurred())
 		g.Expect(cm.Data).To(gomega.Equal(map[string]string{
 			"foo":                        "bar",
@@ -980,14 +979,14 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 		}))
 
 		secret, err := clientset.CoreV1().Secrets(namespace).
-			Get(context.TODO(), trivyoperator.SecretName, metav1.GetOptions{})
+			Get(t.Context(), trivyoperator.SecretName, metav1.GetOptions{})
 		g.Expect(err).ToNot(gomega.HaveOccurred())
 		g.Expect(secret.Data).To(gomega.Equal(map[string][]byte{
 			"baz": []byte("s3cret"),
 		}))
 
 		pluginConfig, err := clientset.CoreV1().ConfigMaps(namespace).
-			Get(context.TODO(), trivyoperator.GetPluginConfigMapName("Trivy"), metav1.GetOptions{})
+			Get(t.Context(), trivyoperator.GetPluginConfigMapName("Trivy"), metav1.GetOptions{})
 		g.Expect(err).ToNot(gomega.HaveOccurred())
 		g.Expect(pluginConfig.Data).To(gomega.Equal(map[string]string{
 			"trivy.policy.my-check.rego": "<REGO>",
@@ -999,7 +998,7 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 func TestConfigManager_Delete(t *testing.T) {
 	t.Run("Should not return error when ConfigMap and secret do not exist", func(t *testing.T) {
 		clientset := fake.NewSimpleClientset()
-		err := trivyoperator.NewConfigManager(clientset, trivyoperator.NamespaceName).Delete(context.TODO())
+		err := trivyoperator.NewConfigManager(clientset, trivyoperator.NamespaceName).Delete(t.Context())
 		require.NoError(t, err)
 	})
 
@@ -1025,15 +1024,15 @@ func TestConfigManager_Delete(t *testing.T) {
 			},
 		)
 
-		err := trivyoperator.NewConfigManager(clientset, trivyoperator.NamespaceName).Delete(context.TODO())
+		err := trivyoperator.NewConfigManager(clientset, trivyoperator.NamespaceName).Delete(t.Context())
 		require.NoError(t, err)
 
 		_, err = clientset.CoreV1().ConfigMaps(trivyoperator.NamespaceName).
-			Get(context.TODO(), trivyoperator.ConfigMapName, metav1.GetOptions{})
+			Get(t.Context(), trivyoperator.ConfigMapName, metav1.GetOptions{})
 		assert.True(t, errors.IsNotFound(err))
 
 		_, err = clientset.CoreV1().Secrets(trivyoperator.NamespaceName).
-			Get(context.TODO(), trivyoperator.SecretName, metav1.GetOptions{})
+			Get(t.Context(), trivyoperator.SecretName, metav1.GetOptions{})
 		assert.True(t, errors.IsNotFound(err))
 	})
 }

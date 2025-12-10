@@ -71,9 +71,8 @@ const (
 	KeyScanJobCustomVolumes              = "scanJob.customVolumes"
 	KeyScanJobUseGCRServiceAccount       = "scanJob.useGCRServiceAccount"
 
-	keyScanJobNodeSelector = "scanJob.nodeSelector"
-	keyScanJobAnnotations  = "scanJob.annotations"
-	//nolint
+	keyScanJobNodeSelector                 = "scanJob.nodeSelector"
+	keyScanJobAnnotations                  = "scanJob.annotations"
 	keyscanJobAutomountServiceAccountToken = "scanJob.automountServiceAccountToken"
 	keySkipInitContainers                  = "scanJob.skipInitContainers"
 	KeyScanJobContainerSecurityContext     = "scanJob.podTemplateContainerSecurityContext"
@@ -121,7 +120,7 @@ func GetDefaultConfig() ConfigData {
 		KeyScanJobcompressLogs:          "true",
 		keyComplianceFailEntriesLimit:   "10",
 		KeyReportRecordFailedChecksOnly: "true",
-		KeyNodeCollectorImageRef:        "gcr.io/aquasecurity/node-collector:0.3.1",
+		KeyNodeCollectorImageRef:        "ghcr.io/aquasecurity/node-collector:0.3.1",
 		KeyPoliciesBundleOciRef:         "mirror.gcr.io/aquasec/trivy-checks:1",
 	}
 }

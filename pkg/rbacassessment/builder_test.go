@@ -86,6 +86,7 @@ func TestReportBuilder(t *testing.T) {
 					trivyoperator.LabelResourceNamespace: "qa",
 					trivyoperator.LabelResourceSpecHash:  "xyz",
 					trivyoperator.LabelPluginConfigHash:  "nop",
+					trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
 					"tier":                               "tier-1",
 				},
 			},
@@ -95,6 +96,57 @@ func TestReportBuilder(t *testing.T) {
 	})
 
 	t.Run("Should build report for cluster scoped resource", func(t *testing.T) {
+		g := NewGomegaWithT(t)
+
+		report, err := rbacassessment.NewReportBuilder(scheme.Scheme).
+			Controller(&rbacv1.ClusterRole{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "ClusterRole",
+					APIVersion: "rbac.authorization.k8s.io/v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:   "system:controller:node-controller",
+					Labels: labels.Set{"tier": "tier-1", "owner": "team-a"},
+				},
+			}).
+			ResourceSpecHash("xyz").
+			PluginConfigHash("nop").
+			Data(v1alpha1.RbacAssessmentReportData{}).
+			ResourceLabelsToInclude([]string{"tier"}).
+			GetClusterReport()
+
+		g.Expect(err).ToNot(HaveOccurred())
+		g.Expect(report).To(Equal(v1alpha1.ClusterRbacAssessmentReport{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "clusterrole-6f69bb5b79",
+				OwnerReferences: []metav1.OwnerReference{
+					{
+						APIVersion:         "rbac.authorization.k8s.io/v1",
+						Kind:               "ClusterRole",
+						Name:               "system:controller:node-controller",
+						Controller:         ptr.To(true),
+						BlockOwnerDeletion: ptr.To(false),
+					},
+				},
+				Labels: map[string]string{
+					trivyoperator.LabelResourceKind:      "ClusterRole",
+					trivyoperator.LabelResourceNameHash:  "6f69bb5b79",
+					trivyoperator.LabelResourceNamespace: "",
+					trivyoperator.LabelResourceSpecHash:  "xyz",
+					trivyoperator.LabelPluginConfigHash:  "nop",
+					trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
+					"tier":                               "tier-1",
+				},
+				Annotations: map[string]string{
+					trivyoperator.LabelResourceName: "system:controller:node-controller",
+				},
+			},
+			Report: v1alpha1.RbacAssessmentReportData{},
+		}))
+	})
+
+	// Add test to verify config audit reports don't accidentally get RBAC assessment labels
+	t.Run("Should build config audit report for cluster scoped resource with managed-by label", func(t *testing.T) {
 		g := NewGomegaWithT(t)
 
 		report, err := configauditreport.NewReportBuilder(scheme.Scheme).
@@ -133,6 +185,7 @@ func TestReportBuilder(t *testing.T) {
 					trivyoperator.LabelResourceNamespace: "",
 					trivyoperator.LabelResourceSpecHash:  "xyz",
 					trivyoperator.LabelPluginConfigHash:  "nop",
+					trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
 					"tier":                               "tier-1",
 				},
 				Annotations: map[string]string{
@@ -141,6 +194,59 @@ func TestReportBuilder(t *testing.T) {
 			},
 			Report: v1alpha1.ConfigAuditReportData{},
 		}))
+	})
+
+	t.Run("Should build RBAC assessment report with additional labels", func(t *testing.T) {
+		g := NewGomegaWithT(t)
+
+		additionalLabels := map[string]string{
+			"security-scan": "enabled",
+			"team":          "security",
+		}
+
+		report, err := rbacassessment.NewReportBuilder(scheme.Scheme).
+			Controller(&rbacv1.Role{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Role",
+					APIVersion: "rbac.authorization.k8s.io/v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-role",
+					Namespace: "production",
+					Labels:    labels.Set{"app": "web-server", "version": "v1.0"},
+				},
+				Rules: []rbacv1.PolicyRule{
+					{
+						APIGroups: []string{""},
+						Resources: []string{"pods"},
+						Verbs:     []string{"get", "list"},
+					},
+				},
+			}).
+			ResourceSpecHash("abc123").
+			PluginConfigHash("def456").
+			Data(v1alpha1.RbacAssessmentReportData{}).
+			ResourceLabelsToInclude([]string{"app"}).
+			AdditionalReportLabels(additionalLabels).
+			GetReport()
+
+		g.Expect(err).ToNot(HaveOccurred())
+
+		// Verify managed-by label is always present
+		g.Expect(report.Labels).To(HaveKeyWithValue(trivyoperator.LabelK8SAppManagedBy, trivyoperator.AppTrivyOperator))
+
+		// Verify additional labels are included
+		for key, value := range additionalLabels {
+			g.Expect(report.Labels).To(HaveKeyWithValue(key, value))
+		}
+
+		// Verify included resource labels
+		g.Expect(report.Labels).To(HaveKeyWithValue("app", "web-server"))
+
+		// Verify core trivy-operator labels
+		g.Expect(report.Labels).To(HaveKeyWithValue(trivyoperator.LabelResourceKind, "Role"))
+		g.Expect(report.Labels).To(HaveKeyWithValue(trivyoperator.LabelResourceName, "test-role"))
+		g.Expect(report.Labels).To(HaveKeyWithValue(trivyoperator.LabelResourceNamespace, "production"))
 	})
 }
 
@@ -164,6 +270,7 @@ func rbacReport() v1alpha1.RbacAssessmentReport {
 				trivyoperator.LabelResourceNamespace: "qa",
 				trivyoperator.LabelResourceSpecHash:  "xyz",
 				trivyoperator.LabelPluginConfigHash:  "nop",
+				trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
 				"tier":                               "tier-1",
 			},
 		},

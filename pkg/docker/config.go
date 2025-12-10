@@ -130,7 +130,7 @@ func GetServerFromImageRef(imageRef string) (string, error) {
 // For the sake of comparison we need to normalize the registry identifier.
 func GetServerFromDockerAuthKey(key string) (string, error) {
 
-	if !(strings.HasPrefix(key, "http://") || strings.HasPrefix(key, "https://")) {
+	if !strings.HasPrefix(key, "http://") && !strings.HasPrefix(key, "https://") {
 		key = fmt.Sprintf("https://%s", key)
 	}
 

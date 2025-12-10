@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
 	ocpappsv1 "github.com/openshift/api/apps/v1"
@@ -157,11 +158,11 @@ func ObjectRefFromObjectMeta(objectMeta metav1.ObjectMeta) (ObjectRef, error) {
 	}
 	var objname string
 	if _, found := objectMeta.Labels[trivyoperator.LabelResourceName]; !found {
-		if _, found := objectMeta.Annotations[trivyoperator.LabelResourceName]; found {
-			objname = objectMeta.Annotations[trivyoperator.LabelResourceName]
-		} else {
+		_, found := objectMeta.Annotations[trivyoperator.LabelResourceName]
+		if !found {
 			return ObjectRef{}, fmt.Errorf("required label does not exist: %s", trivyoperator.LabelResourceName)
 		}
+		objname = objectMeta.Annotations[trivyoperator.LabelResourceName]
 	} else {
 		objname = objectMeta.Labels[trivyoperator.LabelResourceName]
 	}
@@ -672,7 +673,7 @@ func (o *ObjectResolver) IsActiveReplicationController(ctx context.Context, work
 			return false, err
 		}
 		replicasetRevisionAnnotation := workloadObj.GetAnnotations()
-		latestRevision := fmt.Sprintf("%d", deploymentConfigObj.Status.LatestVersion)
+		latestRevision := strconv.FormatInt(deploymentConfigObj.Status.LatestVersion, 10)
 		return replicasetRevisionAnnotation[deploymentConfigAnnotation] == latestRevision, nil
 	}
 	return true, nil

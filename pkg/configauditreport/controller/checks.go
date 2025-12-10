@@ -10,14 +10,14 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/predicate"
+	k8spredicate "sigs.k8s.io/controller-runtime/pkg/predicate"
 
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-	"github.com/aquasecurity/trivy/pkg/set"
 )
 
 type ChecksLoader struct {
@@ -94,23 +94,15 @@ func (r *ChecksLoader) loadChecks(ctx context.Context) error {
 	return nil
 }
 
-var allowedConfigMaps = set.New(
-	trivyoperator.TrivyConfigMapName,
-	trivyoperator.PoliciesConfigMapName,
-)
-
-var configPredicate = func(namespace string) predicate.Predicate {
-	return predicate.NewPredicateFuncs(func(obj client.Object) bool {
-		if allowedConfigMaps.Contains(obj.GetName()) {
-			return false
-		}
-		return obj.GetNamespace() == namespace
-	})
-}
-
 func (r *ChecksLoader) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&corev1.ConfigMap{}, builder.WithPredicates(configPredicate(r.cfg.Namespace))).
+		For(&corev1.ConfigMap{}, builder.WithPredicates(
+			k8spredicate.Or(
+				predicate.HasName(trivyoperator.TrivyConfigMapName),
+				predicate.HasName(trivyoperator.PoliciesConfigMapName),
+			),
+			predicate.InNamespace(r.cfg.Namespace),
+		)).
 		Complete(r)
 }
 

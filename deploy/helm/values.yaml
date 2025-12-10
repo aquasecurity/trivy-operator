@@ -199,6 +199,9 @@ operator:
   # -- valuesFromSecret name of a Secret to apply OPERATOR_* environment variables. Will override Helm AND ConfigMap values.
   valuesFromSecret: ""
 
+  # -- pprofBindAddress the address to bind the pprof server to. By default, it is not enabled.
+  pprofBindAddress: ""
+
 image:
   registry: "mirror.gcr.io"
   repository: "aquasec/trivy-operator"
@@ -228,7 +231,7 @@ service:
 
 # -- Prometheus ServiceMonitor configuration -- to install the trivy operator with the ServiceMonitor
 # you must have Prometheus already installed and running. If you do not have Prometheus installed, enabling this will
-# have no effect.
+# produce an error.
 serviceMonitor:
   # -- enabled determines whether a serviceMonitor should be deployed
   enabled: false
@@ -252,6 +255,8 @@ trivyOperator:
   configAuditReportsPlugin: "Trivy"
   # -- scanJobCompressLogs control whether scanjob output should be compressed or plain
   scanJobCompressLogs: true
+  # -- scanJobsInSameNamespace control whether to run vulnerability scan jobs in same namespace of workload
+  scanJobsInSameNamespace: false
   # -- scanJobAffinity affinity to be applied to the scanner pods and node-collector
   scanJobAffinity: {}
   # -- scanJobTolerations tolerations to be applied to the scanner pods so that they can run on nodes with matching taints
@@ -355,7 +360,7 @@ trivy:
     # -- repository of the Trivy image
     repository: aquasec/trivy
     # -- tag version of the Trivy image
-    tag: 0.62.1
+    tag: 0.67.0
     # -- imagePullSecret is the secret name to be used when pulling trivy image from private registries example : reg-secret
     # It is the user responsibility to create the secret for the private registry in `trivy-operator` namespace
     imagePullSecret: ~
@@ -452,6 +457,19 @@ trivy:
   # ignoreFile:
   #   - CVE-1970-0001
   #   - CVE-1970-0002
+
+  # -- ignoreFileName sets the file name that will be mounted inside the scanner container.
+  # Defaults to ".trivyignore" if not set.
+  ignoreFileName: ""
+
+  # -- configFile can be used to tell Trivy to use specific options available only in the config file (e.g. Mirror registries).
+  configFile: ~
+  # configFile:
+  #   registry:
+  #     mirrors:
+  #       index.docker.io:
+  #       - mirror.with.bad.auth
+  #       - mirror.without.image
 
   # -- ignorePolicy can be used to tell Trivy to ignore vulnerabilities by a policy
   # If multiple policies would match, then the most specific one has precedence over the others.
@@ -609,6 +627,20 @@ trivy:
 
     # -- the number of replicas of the trivy-server
     replicas: 1
+
+    # -- volumes set trivy-server volumes
+    extraServerVolumes:
+      # Statefulset volumeMounts
+      volumeMounts: []
+        # - name: trusted-ca
+        #   mountPath: /etc/ssl/trusted-ca
+        #   subPath: trusted-ca.crt
+        #   readOnly: true
+      # Statefulset volumes
+      volumes: []
+        # - name: trusted-ca
+        #   secret:
+        #     secretName: trusted-ca
 
   # -- vaulesFromConfigMap name of a ConfigMap to apply TRIVY_* environment variables. Will override Helm values.
   valuesFromConfigMap: ""
@@ -794,3 +826,14 @@ nodeCollector:
     - name: etc-cni-netd
       hostPath:
         path: /etc/cni/net.d/
+# -- alternateReportStorage is the flag to enable alternate storage for all trivy reports (crds) in the form json files inside of a persistent volume
+alternateReportStorage:
+  enabled: false
+  mountPath: "/mnt/data/trivy-operator"
+  volumeName: "trivy-operator-pvc"
+  storage: "10Gi"
+  # -- storageClassName for the PVC (optional, uses cluster default if not specified)
+  storageClassName: ""
+  podSecurityContext:
+    runAsUser: 10000
+    fsGroup: 10000

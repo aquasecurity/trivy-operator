@@ -137,7 +137,7 @@ func (p *Policies) getCachedHash(kind string) (string, error) {
 	value, err := p.cache.Get(kind)
 	if err != nil {
 		if !errors.Is(err, gcache.KeyNotFoundError) {
-			return "", fmt.Errorf("failed to get hash from cache: %v", err)
+			return "", fmt.Errorf("failed to get hash from cache: %w", err)
 		}
 		return "", nil
 	}
@@ -156,7 +156,7 @@ func (p *Policies) setCachedHash(kind, hash string) error {
 func (p *Policies) Hash(kind string) (string, error) {
 	hash, err := p.getCachedHash(kind)
 	if err != nil {
-		return "", fmt.Errorf("failed to get cached hash for kind %s: %v", kind, err)
+		return "", fmt.Errorf("failed to get cached hash for kind %s: %w", kind, err)
 	}
 	if hash != "" {
 		return hash, nil
@@ -171,7 +171,7 @@ func (p *Policies) Hash(kind string) (string, error) {
 
 	hash = kube.ComputeHash(policies)
 	if err := p.setCachedHash(kind, hash); err != nil {
-		return "", fmt.Errorf("failed to set cached hash for kind %s: %v", kind, err)
+		return "", fmt.Errorf("failed to set cached hash for kind %s: %w", kind, err)
 	}
 	return hash, nil
 }
@@ -300,10 +300,6 @@ func (p *Policies) Eval(ctx context.Context, resource client.Object, inputs ...[
 	if err != nil {
 		return nil, err
 	}
-	// special case when lib return nil for both checks and error
-	if scanResult == nil {
-		return nil, errors.New("failed to run policy checks on resources")
-	}
 	return scanResult, nil
 }
 
@@ -398,11 +394,11 @@ func createDataFS(dataPaths []string, k8sVersion string) (fs.FS, []string, error
 
 	// Create a virtual file for Kubernetes scanning
 	if k8sVersion != "" {
-		if err := fsys.MkdirAll("system", 0700); err != nil {
+		if err := fsys.MkdirAll("system", 0o700); err != nil {
 			return nil, nil, err
 		}
 		data := []byte(fmt.Sprintf(`{"k8s": {"version": %q}}`, k8sVersion))
-		if err := fsys.WriteVirtualFile("system/k8s-version.json", data, 0600); err != nil {
+		if err := fsys.WriteVirtualFile("system/k8s-version.json", data, 0o600); err != nil {
 			return nil, nil, err
 		}
 	}

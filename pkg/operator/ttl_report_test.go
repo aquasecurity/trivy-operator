@@ -1,7 +1,6 @@
 package operator_test
 
 import (
-	"context"
 	"testing"
 	"time"
 
@@ -115,7 +114,7 @@ func TestRegenerateReportIfExpired(t *testing.T) {
 			nsName := types.NamespacedName{Namespace: ns, Name: vulnReport.Name}
 
 			// Check if TTL expired for the vulnerability report
-			_, err := instance.DeleteReportIfExpired(context.TODO(), nsName, &v1alpha1.VulnerabilityReport{})
+			_, err := instance.DeleteReportIfExpired(t.Context(), nsName, &v1alpha1.VulnerabilityReport{})
 			if tt.wantError {
 				require.Error(t, err)
 				return
@@ -123,7 +122,7 @@ func TestRegenerateReportIfExpired(t *testing.T) {
 			require.NoError(t, err)
 
 			vr := v1alpha1.VulnerabilityReport{}
-			err = instance.Client.Get(context.TODO(), nsName, &vr)
+			err = instance.Client.Get(t.Context(), nsName, &vr)
 
 			if tt.wantReportDeleted {
 				require.Error(t, err)

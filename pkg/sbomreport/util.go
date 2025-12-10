@@ -39,9 +39,9 @@ func cycloneDxMetadataToReportMetadata(cmetadata *cdx.Metadata, version string) 
 }
 
 func cycloneDxComponentToReportComponent(cComp cdx.Component) *v1alpha1.Component {
-	var oe v1alpha1.OrganizationalEntity
+	var oe *v1alpha1.OrganizationalEntity
 	if cComp.Supplier != nil {
-		oe = v1alpha1.OrganizationalEntity{
+		oe = &v1alpha1.OrganizationalEntity{
 			Name: cComp.Supplier.Name,
 			URL:  cComp.Supplier.URL,
 		}
@@ -77,9 +77,9 @@ func cycloneDxLicensesToReportLicenses(licenses *cdx.Licenses) []v1alpha1.Licens
 	reportLicenses := make([]v1alpha1.LicenseChoice, 0)
 	if licenses != nil {
 		for _, l := range *licenses {
-			var li v1alpha1.License
+			var li *v1alpha1.License
 			if l.License != nil {
-				li = v1alpha1.License{
+				li = &v1alpha1.License{
 					ID:   l.License.ID,
 					Name: l.License.Name,
 					URL:  l.License.URL,

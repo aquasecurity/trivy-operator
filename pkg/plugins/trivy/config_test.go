@@ -1,7 +1,6 @@
 package trivy
 
 import (
-	"context"
 	"testing"
 	"time"
 
@@ -277,6 +276,62 @@ func TestConfig_GetCommand(t *testing.T) {
 			command := tc.configData.GetCommand()
 			assert.Equal(t, tc.expectedCommand, command)
 
+		})
+	}
+}
+
+func TestConfig_GenerateConfigFile(t *testing.T) {
+	const localTrivyConfigName = "trivy"
+	tests := []struct {
+		name        string
+		configData  Config
+		volume      *corev1.Volume
+		volumeMount *corev1.VolumeMount
+	}{
+		{
+			name: "good way with config data",
+			configData: Config{
+				PluginConfig: trivyoperator.PluginConfig{
+					Data: map[string]string{
+						"trivy.configFile": "severity: HIGH",
+					},
+				},
+			},
+			volume: &corev1.Volume{
+				Name: "configfile",
+				VolumeSource: corev1.VolumeSource{
+					ConfigMap: &corev1.ConfigMapVolumeSource{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: localTrivyConfigName,
+						},
+						Items: []corev1.KeyToPath{
+							{
+								Key:  "trivy.configFile",
+								Path: "trivy-config.yaml",
+							},
+						},
+					},
+				},
+			},
+			volumeMount: &corev1.VolumeMount{
+				Name:      "configfile",
+				MountPath: "/etc/trivy/trivy-config.yaml",
+				SubPath:   "trivy-config.yaml",
+			},
+		},
+		{
+			name:        "without config",
+			configData:  Config{},
+			volume:      nil,
+			volumeMount: nil,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			v, vm := test.configData.GenerateConfigFileVolumeIfAvailable(localTrivyConfigName)
+			assert.Equal(t, test.volume, v)
+			assert.Equal(t, test.volumeMount, vm)
 		})
 	}
 }
@@ -705,7 +760,7 @@ func TestPlugin_Init(t *testing.T) {
 		err := p.Init(pluginContext)
 		require.NoError(t, err)
 		var cm corev1.ConfigMap
-		err = testClient.Get(context.Background(), types.NamespacedName{
+		err = testClient.Get(t.Context(), types.NamespacedName{
 			Namespace: "trivyoperator-ns",
 			Name:      "trivy-operator-trivy-config",
 		}, &cm)
@@ -721,7 +776,7 @@ func TestPlugin_Init(t *testing.T) {
 			},
 			Data: map[string]string{
 				"trivy.repository":                DefaultImageRepository,
-				"trivy.tag":                       "0.62.1",
+				"trivy.tag":                       "0.67.0",
 				"trivy.severity":                  DefaultSeverity,
 				"trivy.slow":                      "true",
 				"trivy.mode":                      string(Standalone),
@@ -741,10 +796,6 @@ func TestPlugin_Init(t *testing.T) {
 	t.Run("Should not overwrite existing config", func(t *testing.T) {
 		testClient := fake.NewClientBuilder().WithObjects(
 			&corev1.ConfigMap{
-				TypeMeta: metav1.TypeMeta{
-					APIVersion: "v1",
-					Kind:       "ConfigMap",
-				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:            "trivy-operator-trivy-config",
 					Namespace:       "trivyoperator-ns",
@@ -770,16 +821,12 @@ func TestPlugin_Init(t *testing.T) {
 		err := p.Init(pluginContext)
 		require.NoError(t, err)
 		var cm corev1.ConfigMap
-		err = testClient.Get(context.Background(), types.NamespacedName{
+		err = testClient.Get(t.Context(), types.NamespacedName{
 			Namespace: "trivyoperator-ns",
 			Name:      "trivy-operator-trivy-config",
 		}, &cm)
 		require.NoError(t, err)
 		assert.Equal(t, corev1.ConfigMap{
-			TypeMeta: metav1.TypeMeta{
-				APIVersion: "v1",
-				Kind:       "ConfigMap",
-			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:            "trivy-operator-trivy-config",
 				Namespace:       "trivyoperator-ns",
@@ -871,6 +918,44 @@ func TestPlugin_FindIgnorePolicyKey(t *testing.T) {
 				},
 			}
 			assert.Equal(t, tc.expectedKey, config.FindIgnorePolicyKey(workload))
+		})
+	}
+}
+
+func TestConfig_IgnoreFileMountPath(t *testing.T) {
+	tests := []struct {
+		name     string
+		value    string
+		setKey   bool
+		expected string
+	}{
+		{
+			name:     "default name when unset",
+			setKey:   false,
+			expected: "/etc/trivy/.trivyignore",
+		},
+		{
+			name:     "custom file name",
+			setKey:   true,
+			value:    "custom.ignore",
+			expected: "/etc/trivy/custom.ignore",
+		},
+		{
+			name:     "whitespace falls back to default",
+			setKey:   true,
+			value:    "   ",
+			expected: "/etc/trivy/.trivyignore",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := Config{PluginConfig: trivyoperator.PluginConfig{Data: make(map[string]string)}}
+			if tt.setKey {
+				cfg.Data[keyTrivyIgnoreFileName] = tt.value
+			}
+			got := cfg.IgnoreFileMountPath()
+			assert.Equal(t, tt.expected, got)
 		})
 	}
 }

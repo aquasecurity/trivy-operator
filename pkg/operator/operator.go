@@ -40,8 +40,6 @@ import (
 	vcontroller "github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/webhook"
 	"github.com/aquasecurity/trivy/pkg/fanal/types"
-	"github.com/aquasecurity/trivy/pkg/oci"
-	mp "github.com/aquasecurity/trivy/pkg/policy"
 )
 
 var (
@@ -50,7 +48,8 @@ var (
 
 // Start starts all registered reconcilers and blocks until the context is canceled.
 // Returns an error if there is an error starting any reconciler.
-// nolint: gocyclo
+//
+//nolint:gocyclo
 func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfig etc.Config) error {
 	installMode, operatorNamespace, targetNamespaces, err := operatorConfig.ResolveInstallMode()
 	if err != nil {
@@ -73,7 +72,6 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				DisableFor: []client.Object{
 					&corev1.Secret{},
 					&corev1.ServiceAccount{},
-					&corev1.ConfigMap{},
 				},
 			},
 		},
@@ -91,10 +89,25 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 					}
 				}
 
+				if cm, ok := obj.(*corev1.ConfigMap); ok {
+					// Strip data from ALL ConfigMaps except the two operator ConfigMaps
+					if cm.Name != trivyoperator.PoliciesConfigMapName && cm.Name != trivyoperator.TrivyConfigMapName {
+						cm.Data = nil
+						cm.BinaryData = nil
+					}
+				}
 				return obj, nil
 			},
 		},
-		Controller: controllerconfig.Controller{SkipNameValidation: &skipNameValidation},
+		Controller: controllerconfig.Controller{
+			SkipNameValidation: &skipNameValidation,
+		},
+	}
+
+	// Enable profiling if the flag is set.
+	if operatorConfig.PprofBindAddress != "" {
+		setupLog.Info("Enabling Go profiling", "address", operatorConfig.PprofBindAddress)
+		options.PprofBindAddress = operatorConfig.PprofBindAddress
 	}
 
 	if operatorConfig.LeaderElectionEnabled {
@@ -156,7 +169,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	}
 
 	configManager := trivyoperator.NewConfigManager(clientSet, operatorNamespace)
-	err = configManager.EnsureDefault(context.Background())
+	err = configManager.EnsureDefault(ctx)
 	if err != nil {
 		return err
 	}
@@ -164,7 +177,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	if err != nil {
 		return err
 	}
-	trivyOperatorConfig, err := configManager.Read(context.Background())
+	trivyOperatorConfig, err := configManager.Read(ctx)
 	if err != nil {
 		return err
 	}
@@ -461,7 +474,6 @@ func newWorkloadController(operatorConfig etc.Config,
 func buildPolicyLoader(tc trivyoperator.ConfigData) policy.Loader {
 	registryUser := tc.PolicyBundleOciUser()
 	registryPassword := tc.PolicyBundleOciPassword()
-	artifact := oci.NewArtifact(tc.PolicyBundleOciRef(), types.RegistryOptions{})
 	ro := types.RegistryOptions{}
 	if registryUser != "" && registryPassword != "" {
 		ro.Credentials = []types.Credential{
@@ -472,6 +484,5 @@ func buildPolicyLoader(tc trivyoperator.ConfigData) policy.Loader {
 		}
 	}
 	ro.Insecure = tc.PolicyBundleInsecure()
-	artifact.RegistryOptions = ro
-	return policy.NewPolicyLoader(tc.PolicyBundleOciRef(), gcache.New(2).LRU().Build(), ro, mp.WithOCIArtifact(artifact))
+	return policy.NewPolicyLoader(tc.PolicyBundleOciRef(), gcache.New(2).LRU().Build(), ro)
 }

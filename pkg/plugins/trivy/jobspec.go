@@ -18,7 +18,7 @@ import (
 
 const (
 	GCPCR_Image_Regex  = `^(us\.|eu\.|asia\.)?gcr\.io.*|^([a-zA-Z0-9-]+)-*-*.docker\.pkg\.dev.*`
-	AWSECR_Image_Regex = "^\\d+\\.dkr\\.ecr\\.(\\w+-\\w+-\\d+)\\.amazonaws\\.com\\/"
+	AWSECR_Image_Regex = `^\d+\.dkr\.ecr\.(\w+-\w+-\d+)\.amazonaws\.com/`
 	// SkipDirsAnnotation annotation  example: trivy-operator.aquasecurity.github.io/skip-dirs: "/tmp,/home"
 	SkipDirsAnnotation = "trivy-operator.aquasecurity.github.io/skip-dirs"
 	// SkipFilesAnnotation example: trivy-operator.aquasecurity.github.io/skip-files: "/src/Gemfile.lock,/examplebinary"
@@ -231,6 +231,9 @@ func CreateSbomDataAsSecret(bom v1alpha1.BOM, secretName string) (corev1.Secret,
 	secret := corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: secretName,
+			Labels: map[string]string{
+				trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+			},
 		},
 		Data: map[string][]byte{
 			"bom": bomByte,

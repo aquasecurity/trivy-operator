@@ -80,7 +80,7 @@ func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 	return ctx.EnsureConfig(trivyoperator.PluginConfig{
 		Data: map[string]string{
 			keyTrivyImageRepository:           DefaultImageRepository,
-			keyTrivyImageTag:                  "0.62.1",
+			keyTrivyImageTag:                  "0.67.0",
 			KeyTrivySeverity:                  DefaultSeverity,
 			keyTrivySlow:                      "true",
 			keyTrivyMode:                      string(Standalone),
@@ -114,9 +114,11 @@ func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client
 const (
 	tmpVolumeName               = "tmp"
 	ignoreFileVolumeName        = "ignorefile"
+	configFileVolumeName        = "configfile"
 	sslCertDirVolumeName        = "ssl-cert-dir"
 	ignoreFileName              = ".trivyignore"
-	ignoreFileMountPath         = "/etc/trivy/" + ignoreFileName
+	configFileName              = "trivy-config.yaml"
+	configFileMountPath         = "/etc/trivy/" + configFileName
 	ignorePolicyVolumeName      = "ignorepolicy"
 	ignorePolicyName            = "policy.rego"
 	ignorePolicyMountPath       = "/etc/trivy/" + ignorePolicyName

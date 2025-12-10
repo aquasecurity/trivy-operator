@@ -59,6 +59,7 @@ const (
 	keyTrivyServerURL              = "trivy.serverURL"
 	keyTrivyClientServerSkipUpdate = "trivy.clientServerSkipUpdate"
 	keyTrivySkipJavaDBUpdate       = "trivy.skipJavaDBUpdate"
+	keyTrivyCacheBackend           = "trivy.cacheBackend"
 	keyTrivyImageScanCacheDir      = "trivy.imageScanCacheDir"
 	keyTrivyFilesystemScanCacheDir = "trivy.filesystemScanCacheDir"
 	keyTrivyServerTokenHeader      = "trivy.serverTokenHeader"
@@ -240,6 +241,14 @@ func (c Config) TrivyDBRepositoryCredentialsSet() bool {
 	_, userOk := c.SecretData[keyTrivyDBRepositoryUsername]
 	_, passOk := c.SecretData[keyTrivyDBRepositoryPassword]
 	return userOk && passOk
+}
+
+func (c Config) GetCacheBackend() string {
+	val, ok := c.Data[keyTrivyCacheBackend]
+	if !ok {
+		return ""
+	}
+	return val
 }
 
 func (c Config) GetImageScanCacheDir() string {

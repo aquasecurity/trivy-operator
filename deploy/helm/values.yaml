@@ -587,6 +587,10 @@ trivy:
   # For 'filesystem' and `rootfs` scanning, ensure that the `trivyOperator.scanJobPodTemplateContainerSecurityContext` is configured
   # to run as the root user (runAsUser = 0).
   command: image
+  # -- cacheBackend the cache backend to use.
+  # -- defaults to filesystem (nil)
+  # -- supported values: filesystem, memory, redis
+  cacheBackend: ""
   # -- imageScanCacheDir the flag to set custom path for trivy image scan `cache-dir` parameter.
   # Only applicable in image scan mode.
   imageScanCacheDir: "/tmp/trivy/.cache"

@@ -623,7 +623,11 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef, tri
 
 	// Options in alphabetic order.
 	cacheDir := trivyConfig.GetImageScanCacheDir()
-	args = append(args, "--cache-dir", cacheDir, "--format", "json")
+	args = append(args, "--cache-dir", cacheDir)
+	if cacheBackend := trivyConfig.GetCacheBackend(); cacheBackend != "" {
+		args = append(args, "--cache-backend", cacheBackend)
+	}
+	args = append(args, "--format", "json")
 
 	imcs := imageConfigSecretScanner(trivyOperatorConfig)
 	if len(imcs) > 0 {

@@ -1,0 +1,22 @@
+---
+apiVersion: kuttl.dev/v1beta1
+kind: TestAssert
+timeout: 180
+commands:
+  - script: |
+      set -euo pipefail
+      # get operator pod
+      POD=$(kubectl -n trivy-system get pods -l app.kubernetes.io/name=trivy-operator -o jsonpath='{.items[0].metadata.name}')
+      echo "Operator pod: $POD"
+      # wait for vulnerability report file to be written in alternate storage
+      for i in $(seq 1 36); do
+        if kubectl -n trivy-system exec "$POD" -- sh -c '[ -f /var/local-path-provisioner/vulnerability_reports/Pod-my-pod-app.json ]'; then
+          echo "Found alternate vulnerability report file"
+          exit 0
+        fi
+        echo "Waiting for report file... ($i)"
+        sleep 5
+      done
+      echo "Alternate report file not found in time" >&2
+      kubectl -n trivy-system exec "$POD" -- sh -c 'ls -la /var/local-path-provisioner/vulnerability_reports || true'
+      exit 1

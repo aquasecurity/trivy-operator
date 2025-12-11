@@ -85,8 +85,6 @@ func (r *ClusterComplianceReportReconciler) generateComplianceReport(ctx context
 					return err
 				}
 				log.Info("Cluster compliance report written", "path", reportPath)
-
-				return nil
 			}
 			err = r.Mgr.GenerateComplianceReport(ctx, report.Spec)
 			if err != nil {

@@ -94,7 +94,7 @@ func TestClusterComplianceReconciler_generateComplianceReport(t *testing.T) {
 				r := &ClusterComplianceReportReconciler{Client: c, Mgr: fm, Clock: ext.NewFixedClock(now), Config: etc.Config{AltReportStorageEnabled: true, AltReportDir: dir}}
 				return r, types.NamespacedName{Name: "nsa"}, fm, dir
 			},
-			expect: expectation{wantErr: false, mgrCalled: false, requeuePos: false, wantFile: true},
+			expect: expectation{wantErr: false, mgrCalled: true, requeuePos: false, wantFile: true},
 		},
 		{
 			name: "invoke once calls mgr",

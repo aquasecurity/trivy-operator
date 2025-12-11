@@ -34,9 +34,10 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
+          check-latest: true
       - name: Install tools
         uses: aquaproj/aqua-installer@v4.0.0
         with:
@@ -53,9 +54,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
+          check-latest: true
       - name: Install tools
         uses: aquaproj/aqua-installer@v4.0.0
         with:
@@ -113,9 +115,10 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
+          check-latest: true
       - name: Install cosign
         uses: sigstore/cosign-installer@v3.8.2
       - name: Login to docker.io registry

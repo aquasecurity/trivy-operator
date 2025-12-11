@@ -214,6 +214,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 			constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
 			constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
 			constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
+			constructEnvVarSourceFromConfigMap("TMPDIR", trivyConfigName, keyTrivyTmpDir),
 		}
 
 		if config.GetSslCertDir() != "" {
@@ -450,6 +451,7 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 			constructEnvVarSourceFromConfigMap("TRIVY_TOKEN_HEADER", trivyConfigName, keyTrivyServerTokenHeader),
 			constructEnvVarSourceFromSecret("TRIVY_TOKEN", trivyConfigName, keyTrivyServerToken),
 			constructEnvVarSourceFromSecret("TRIVY_CUSTOM_HEADERS", trivyConfigName, keyTrivyServerCustomHeaders),
+			constructEnvVarSourceFromConfigMap("TMPDIR", trivyConfigName, keyTrivyTmpDir),
 		}
 		if config.GetSslCertDir() != "" {
 			env = append(env, corev1.EnvVar{

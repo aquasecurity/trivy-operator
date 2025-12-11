@@ -211,6 +211,7 @@ func reportsToResults(checks []v1alpha1.Check, name, namespace string) ttypes.Re
 			Misconfigurations: []ttypes.DetectedMisconfiguration{
 				{
 					ID:          id,
+					AVDID:       id,
 					Title:       check.Title,
 					Description: check.Description,
 					Message:     check.Description,

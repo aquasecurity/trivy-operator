@@ -2,6 +2,7 @@ package trivy
 
 import (
 	"fmt"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -31,6 +32,7 @@ const (
 	keyTrivyOfflineScan                         = "trivy.offlineScan"
 	keyTrivyTimeout                             = "trivy.timeout"
 	keyTrivyIgnoreFile                          = "trivy.ignoreFile"
+	keyTrivyIgnoreFileName                      = "trivy.ignoreFileName"
 	keyTrivyIgnorePolicy                        = "trivy.ignorePolicy"
 	keyTrivyInsecureRegistryPrefix              = "trivy.insecureRegistry."
 	keyTrivyNonSslRegistryPrefix                = "trivy.nonSslRegistry."
@@ -344,6 +346,23 @@ func (c Config) IgnoreFileExists() bool {
 	_, ok := c.Data[keyTrivyIgnoreFile]
 	return ok
 }
+
+// GetIgnoreFileName returns the ignore file name to be mounted inside the scanner container.
+// Defaults to the package-level default (".trivyignore") when not explicitly set.
+func (c Config) GetIgnoreFileName() string {
+	if v, ok := c.Data[keyTrivyIgnoreFileName]; ok {
+		v = strings.TrimSpace(v)
+		if v != "" {
+			return v
+		}
+	}
+	return ignoreFileName
+}
+
+// IgnoreFileMountPath returns full mount path for the ignore file.
+func (c Config) IgnoreFileMountPath() string {
+	return path.Join("/etc", "trivy", c.GetIgnoreFileName())
+}
 func (c Config) ConfigFileExists() bool {
 	_, ok := c.Data[keyTrivyConfigFile]
 	return ok
@@ -387,7 +406,7 @@ func (c Config) GenerateIgnoreFileVolumeIfAvailable(trivyConfigName string) (*co
 				Items: []corev1.KeyToPath{
 					{
 						Key:  keyTrivyIgnoreFile,
-						Path: ignoreFileName,
+						Path: c.GetIgnoreFileName(),
 					},
 				},
 			},
@@ -395,8 +414,8 @@ func (c Config) GenerateIgnoreFileVolumeIfAvailable(trivyConfigName string) (*co
 	}
 	volumeMount := corev1.VolumeMount{
 		Name:      ignoreFileVolumeName,
-		MountPath: ignoreFileMountPath,
-		SubPath:   ignoreFileName,
+		MountPath: c.IgnoreFileMountPath(),
+		SubPath:   c.GetIgnoreFileName(),
 	}
 	return &volume, &volumeMount
 }

@@ -221,7 +221,7 @@ func FromDetailReport(sr *report.ComplianceReport) *ComplianceReport {
 		for _, r := range sr.Results {
 			for _, ms := range r.Misconfigurations {
 				checks = append(checks, ComplianceCheck{
-					ID:          ms.AVDID,
+					ID:          ms.ID,
 					Target:      r.Target,
 					Title:       ms.Title,
 					Description: ms.Description,

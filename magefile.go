@@ -203,6 +203,9 @@ func (b Build) Docker() error {
 // Target for building Docker image for trivy-operator ubi9
 func (b Build) DockerUbi9() error {
 	fmt.Println("Building Docker image for trivy-operator ubi9...")
+	if err := sh.RunV("cp", "LICENSE", "./bin/LICENSE"); err != nil {
+		return fmt.Errorf("Could not copy license file: %v", err)
+	}
 	return sh.RunV("docker", "build", "--no-cache", "-f", "build/trivy-operator/Dockerfile.ubi9", "-t", TRIVY_OPERATOR_IMAGE_UBI9, "bin")
 }
 

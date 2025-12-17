@@ -3,9 +3,18 @@
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal@sha256:6fc28bcb6776e387d7a35a2056d9d2b985dc4e26031e98a2bd35a7137cd6fd71
 
+# Image metadata
+LABEL name="Trivy" \
+      maintainer="Aqua Security Software Ltd." \
+      vendor="Aqua Security Software Ltd."
+
 # Install shadow-utils non-interactively and clean up package metadata to keep image small
 RUN microdnf -y install shadow-utils \
     && microdnf clean all
+
+# Include license in the image
+RUN mkdir -p /licenses
+COPY LICENSE /licenses/LICENSE
 RUN useradd -u 10000 trivyoperator
 WORKDIR /opt/bin/
 COPY trivy-operator /usr/local/bin/trivy-operator

@@ -3,6 +3,7 @@ package metrics
 import (
 	"k8s.io/apimachinery/pkg/runtime"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -28,43 +29,43 @@ var _ = Describe("SeverityLabel", func() {
 
 		It("Critical", func() {
 			Expect(SeverityCritical()).
-				To(Equal(SeverityLabel{Label: CRITICAL_LABEL, Severity: v1alpha1.SeverityCritical}))
+				To(Equal(SeverityLabel{Label: CRITICAL_LABEL, Severity: shared.SeverityCritical}))
 		})
 		It("CRITICAL", func() {
 			Expect(NewSeverityLabel("CRITICAL")).
-				To(Equal(SeverityLabel{Label: CRITICAL_LABEL, Severity: v1alpha1.SeverityCritical}))
+				To(Equal(SeverityLabel{Label: CRITICAL_LABEL, Severity: shared.SeverityCritical}))
 		})
 		It("High", func() {
 			Expect(SeverityHigh()).
-				To(Equal(SeverityLabel{Label: HIGH_LABEL, Severity: v1alpha1.SeverityHigh}))
+				To(Equal(SeverityLabel{Label: HIGH_LABEL, Severity: shared.SeverityHigh}))
 		})
 		It("HIGH", func() {
 			Expect(NewSeverityLabel("HIGH")).
-				To(Equal(SeverityLabel{Label: HIGH_LABEL, Severity: v1alpha1.SeverityHigh}))
+				To(Equal(SeverityLabel{Label: HIGH_LABEL, Severity: shared.SeverityHigh}))
 		})
 		It("Medium", func() {
 			Expect(SeverityMedium()).
-				To(Equal(SeverityLabel{Label: MEDIUM_LABEL, Severity: v1alpha1.SeverityMedium}))
+				To(Equal(SeverityLabel{Label: MEDIUM_LABEL, Severity: shared.SeverityMedium}))
 		})
 		It("MEDIUM", func() {
 			Expect(NewSeverityLabel("MEDIUM")).
-				To(Equal(SeverityLabel{Label: MEDIUM_LABEL, Severity: v1alpha1.SeverityMedium}))
+				To(Equal(SeverityLabel{Label: MEDIUM_LABEL, Severity: shared.SeverityMedium}))
 		})
 		It("Low", func() {
 			Expect(SeverityLow()).
-				To(Equal(SeverityLabel{Label: LOW_LABEL, Severity: v1alpha1.SeverityLow}))
+				To(Equal(SeverityLabel{Label: LOW_LABEL, Severity: shared.SeverityLow}))
 		})
 		It("LOW", func() {
 			Expect(NewSeverityLabel("LOW")).
-				To(Equal(SeverityLabel{Label: LOW_LABEL, Severity: v1alpha1.SeverityLow}))
+				To(Equal(SeverityLabel{Label: LOW_LABEL, Severity: shared.SeverityLow}))
 		})
 		It("Unknown", func() {
 			Expect(SeverityUnknown()).
-				To(Equal(SeverityLabel{Label: UNKNOWN_LABEL, Severity: v1alpha1.SeverityUnknown}))
+				To(Equal(SeverityLabel{Label: UNKNOWN_LABEL, Severity: shared.SeverityUnknown}))
 		})
 		It("UNKNOWN", func() {
 			Expect(NewSeverityLabel("UNKNOWN")).
-				To(Equal(SeverityLabel{Label: UNKNOWN_LABEL, Severity: v1alpha1.SeverityUnknown}))
+				To(Equal(SeverityLabel{Label: UNKNOWN_LABEL, Severity: shared.SeverityUnknown}))
 		})
 
 	})

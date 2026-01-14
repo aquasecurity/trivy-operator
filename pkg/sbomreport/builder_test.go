@@ -11,6 +11,7 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/utils/ptr"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -73,10 +74,10 @@ func TestArtifactRef(t *testing.T) {
 		{
 			name: "get image ref with library",
 			data: v1alpha1.SbomReportData{
-				Registry: v1alpha1.Registry{
+				Registry: shared.Registry{
 					Server: "index.docker.io",
 				},
-				Artifact: v1alpha1.Artifact{
+				Artifact: shared.Artifact{
 					Repository: "library/alpine",
 					Tag:        "3.12.0",
 				},
@@ -86,10 +87,10 @@ func TestArtifactRef(t *testing.T) {
 		{
 			name: "get image ref without library",
 			data: v1alpha1.SbomReportData{
-				Registry: v1alpha1.Registry{
+				Registry: shared.Registry{
 					Server: "index.docker.io",
 				},
-				Artifact: v1alpha1.Artifact{
+				Artifact: shared.Artifact{
 					Repository: "alpine",
 					Tag:        "3.12.0",
 				},
@@ -99,10 +100,10 @@ func TestArtifactRef(t *testing.T) {
 		{
 			name: "get image ref without index",
 			data: v1alpha1.SbomReportData{
-				Registry: v1alpha1.Registry{
+				Registry: shared.Registry{
 					Server: "index.docker.io",
 				},
-				Artifact: v1alpha1.Artifact{
+				Artifact: shared.Artifact{
 					Repository: "rancher/local-path-provisioner",
 					Tag:        "v0.0.14",
 				},
@@ -112,10 +113,10 @@ func TestArtifactRef(t *testing.T) {
 		{
 			name: "get image ref non docker registry",
 			data: v1alpha1.SbomReportData{
-				Registry: v1alpha1.Registry{
+				Registry: shared.Registry{
 					Server: "k8s.gcr.io",
 				},
-				Artifact: v1alpha1.Artifact{
+				Artifact: shared.Artifact{
 					Repository: "kube-apiserver",
 					Tag:        "v1.21.1",
 				},

@@ -24,6 +24,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1beta1"
 )
 
 func NewScheme() *runtime.Scheme {
@@ -35,6 +36,7 @@ func NewScheme() *runtime.Scheme {
 	_ = rbacv1.AddToScheme(scheme)
 	_ = networkingv1.AddToScheme(scheme)
 	_ = v1alpha1.AddToScheme(scheme)
+	_ = v1beta1.AddToScheme(scheme)
 	_ = coordinationv1.AddToScheme(scheme)
 	_ = apiextensionsv1.AddToScheme(scheme)
 	_ = ocpappsv1.Install(scheme)

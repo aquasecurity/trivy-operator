@@ -5,58 +5,59 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 )
 
 func TestConfigAuditSummaryFromChecks(t *testing.T) {
 	checks := []v1alpha1.Check{
 		{
-			Severity: v1alpha1.SeverityCritical,
+			Severity: shared.SeverityCritical,
 		},
 		{
-			Severity: v1alpha1.SeverityCritical,
+			Severity: shared.SeverityCritical,
 			Success:  true,
 		},
 		{
-			Severity: v1alpha1.SeverityHigh,
+			Severity: shared.SeverityHigh,
 		},
 		{
-			Severity: v1alpha1.SeverityHigh,
+			Severity: shared.SeverityHigh,
 			Success:  true,
 		},
 		{
-			Severity: v1alpha1.SeverityCritical,
+			Severity: shared.SeverityCritical,
 		},
 		{
-			Severity: v1alpha1.SeverityCritical,
+			Severity: shared.SeverityCritical,
 			Success:  true,
 		},
 		{
-			Severity: v1alpha1.SeverityMedium,
+			Severity: shared.SeverityMedium,
 		},
 		{
-			Severity: v1alpha1.SeverityMedium,
+			Severity: shared.SeverityMedium,
 			Success:  true,
 		},
 		{
-			Severity: v1alpha1.SeverityMedium,
+			Severity: shared.SeverityMedium,
 		},
 		{
-			Severity: v1alpha1.SeverityMedium,
+			Severity: shared.SeverityMedium,
 			Success:  true,
 		},
 		{
-			Severity: v1alpha1.SeverityMedium,
+			Severity: shared.SeverityMedium,
 		},
 		{
-			Severity: v1alpha1.SeverityMedium,
+			Severity: shared.SeverityMedium,
 			Success:  true,
 		},
 		{
-			Severity: v1alpha1.SeverityLow,
+			Severity: shared.SeverityLow,
 		},
 		{
-			Severity: v1alpha1.SeverityLow,
+			Severity: shared.SeverityLow,
 			Success:  true,
 		},
 	}

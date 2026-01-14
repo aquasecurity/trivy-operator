@@ -4,52 +4,53 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 )
 
 type SeverityLabel struct {
-	Severity v1alpha1.Severity
+	Severity shared.Severity
 	Label    string
 }
 
 func SeverityCritical() SeverityLabel {
 	return SeverityLabel{
-		Severity: v1alpha1.SeverityCritical,
+		Severity: shared.SeverityCritical,
 		Label:    "Critical",
 	}
 }
 func SeverityHigh() SeverityLabel {
 	return SeverityLabel{
-		Severity: v1alpha1.SeverityHigh,
+		Severity: shared.SeverityHigh,
 		Label:    "High",
 	}
 }
 func SeverityMedium() SeverityLabel {
 	return SeverityLabel{
-		Severity: v1alpha1.SeverityMedium,
+		Severity: shared.SeverityMedium,
 		Label:    "Medium",
 	}
 }
 func SeverityLow() SeverityLabel {
 	return SeverityLabel{
-		Severity: v1alpha1.SeverityLow,
+		Severity: shared.SeverityLow,
 		Label:    "Low",
 	}
 }
 func SeverityUnknown() SeverityLabel {
 	return SeverityLabel{
-		Severity: v1alpha1.SeverityUnknown,
+		Severity: shared.SeverityUnknown,
 		Label:    "Unknown",
 	}
 }
 
-func NewSeverityLabel(severity v1alpha1.Severity) SeverityLabel {
-	m := map[v1alpha1.Severity]SeverityLabel{
-		v1alpha1.SeverityCritical: SeverityCritical(),
-		v1alpha1.SeverityHigh:     SeverityHigh(),
-		v1alpha1.SeverityMedium:   SeverityMedium(),
-		v1alpha1.SeverityLow:      SeverityLow(),
-		v1alpha1.SeverityUnknown:  SeverityUnknown(),
+func NewSeverityLabel(severity shared.Severity) SeverityLabel {
+	m := map[shared.Severity]SeverityLabel{
+		shared.SeverityCritical: SeverityCritical(),
+		shared.SeverityHigh:     SeverityHigh(),
+		shared.SeverityMedium:   SeverityMedium(),
+		shared.SeverityLow:      SeverityLow(),
+		shared.SeverityUnknown:  SeverityUnknown(),
 	}
 	if sevLbl, ok := m[severity]; ok {
 		return sevLbl

@@ -15,6 +15,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -164,7 +165,7 @@ func (b *ReportBuilder) ClusterReport() v1alpha1.ClusterSbomReport {
 	}
 	if b.cacheTTL != nil {
 		clusterReport.Annotations = map[string]string{
-			v1alpha1.TTLReportAnnotation: b.cacheTTL.String(),
+			shared.TTLReportAnnotation: b.cacheTTL.String(),
 		}
 	}
 	return clusterReport

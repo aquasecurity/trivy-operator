@@ -1,4 +1,4 @@
-package v1alpha1_test
+package shared_test
 
 import (
 	"testing"
@@ -6,13 +6,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 )
 
 func TestStringToSeverity(t *testing.T) {
 	testCases := []struct {
 		name             string
-		expectedSeverity v1alpha1.Severity
+		expectedSeverity shared.Severity
 		expectedError    string
 	}{
 		{
@@ -21,25 +21,25 @@ func TestStringToSeverity(t *testing.T) {
 		},
 		{
 			name:             "CRITICAL",
-			expectedSeverity: v1alpha1.SeverityCritical,
+			expectedSeverity: shared.SeverityCritical,
 		},
 		{
 			name:             "HIGH",
-			expectedSeverity: v1alpha1.SeverityHigh,
+			expectedSeverity: shared.SeverityHigh,
 		},
 		{
 			name:             "MEDIUM",
-			expectedSeverity: v1alpha1.SeverityMedium,
+			expectedSeverity: shared.SeverityMedium,
 		},
 		{
 			name:             "LOW",
-			expectedSeverity: v1alpha1.SeverityLow,
+			expectedSeverity: shared.SeverityLow,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			severity, err := v1alpha1.StringToSeverity(tc.name)
+			severity, err := shared.StringToSeverity(tc.name)
 			if tc.expectedError != "" {
 				assert.EqualError(t, err, tc.expectedError)
 			} else {

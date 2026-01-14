@@ -7,6 +7,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -68,7 +69,7 @@ func TestFilter(t *testing.T) {
 			defaultSeverity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
 			expectedMisconfiguration: Misconfiguration{
 				configAuditReportData: v1alpha1.ConfigAuditReportData{
-					Scanner: v1alpha1.Scanner{
+					Scanner: shared.Scanner{
 						Name:   "Trivy",
 						Vendor: "Aqua Security",
 					},
@@ -101,7 +102,7 @@ func TestFilter(t *testing.T) {
 			defaultSeverity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL",
 			expectedMisconfiguration: Misconfiguration{
 				configAuditReportData: v1alpha1.ConfigAuditReportData{
-					Scanner: v1alpha1.Scanner{
+					Scanner: shared.Scanner{
 						Name:   "Trivy",
 						Vendor: "Aqua Security",
 					},

@@ -12,7 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes/fake"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
@@ -28,7 +28,7 @@ func TestConfigData_GetVulnerabilityReportsScanner(t *testing.T) {
 			configData: trivyoperator.ConfigData{
 				"vulnerabilityReports.scanner": "Trivy",
 			},
-			expectedScanner: v1alpha1.ScannerNameTrivy,
+			expectedScanner: shared.ScannerNameTrivy,
 		},
 		{
 			name:          "Should return error when value is not set",
@@ -65,7 +65,7 @@ func TestConfigData_GetConfigAuditReportsScanner(t *testing.T) {
 		{
 			name:            "Scaner is not set",
 			configData:      trivyoperator.ConfigData{},
-			expectedScanner: trivyoperator.Scanner(v1alpha1.ScannerNameTrivy),
+			expectedScanner: trivyoperator.Scanner(shared.ScannerNameTrivy),
 		},
 	}
 	for _, tc := range testCases {

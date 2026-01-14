@@ -18,7 +18,7 @@ import (
 	"github.com/stretchr/testify/require"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/batch/v1"
-	"k8s.io/api/batch/v1beta1"
+	batchv1beta1 "k8s.io/api/batch/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -27,7 +27,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
 	dbtypes "github.com/aquasecurity/trivy-db/pkg/types"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1beta1"
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
@@ -7104,7 +7106,7 @@ default ignore = false`,
 						Namespace: "trivyoperator-ns",
 					},
 					Data: tc.config,
-				}, &v1beta1.CronJob{}).Build()
+				}, &batchv1beta1.CronJob{}).Build()
 			pluginContext := trivyoperator.NewPluginContext().
 				WithName(trivy.Plugin).
 				WithNamespace("trivyoperator-ns").
@@ -7136,40 +7138,40 @@ default ignore = false`,
 }
 
 var (
-	sampleVulnerabilityReport = v1alpha1.VulnerabilityReportData{
+	sampleVulnerabilityReport = v1beta1.VulnerabilityReportData{
 		UpdateTimestamp: metav1.NewTime(fixedTime),
-		Scanner: v1alpha1.Scanner{
-			Name:    v1alpha1.ScannerNameTrivy,
+		Scanner: shared.Scanner{
+			Name:    shared.ScannerNameTrivy,
 			Vendor:  "Aqua Security",
 			Version: "0.9.1",
 		},
-		Registry: v1alpha1.Registry{
+		Registry: shared.Registry{
 			Server: "index.docker.io",
 		},
-		Artifact: v1alpha1.Artifact{
+		Artifact: shared.Artifact{
 			Repository: "library/alpine",
 			Tag:        "3.10.2",
 			Digest:     "sha256:72c42ed48c3a2db31b7dafe17d275b634664a708d901ec9fd57b1529280f01fb",
 		},
-		OS: v1alpha1.OS{
+		OS: shared.OS{
 			Family: "alpine",
 			Name:   "3.10.2",
 			Eosl:   true,
 		},
-		Summary: v1alpha1.VulnerabilitySummary{
+		Summary: shared.VulnerabilitySummary{
 			CriticalCount: 0,
 			MediumCount:   1,
 			LowCount:      1,
 			NoneCount:     0,
 			UnknownCount:  0,
 		},
-		Vulnerabilities: []v1alpha1.Vulnerability{
+		Vulnerabilities: []v1beta1.Vulnerability{
 			{
 				VulnerabilityID:  "CVE-2019-1549",
 				Resource:         "openssl",
 				InstalledVersion: "1.1.1c-r0",
 				FixedVersion:     "1.1.1d-r0",
-				Severity:         v1alpha1.SeverityMedium,
+				Severity:         shared.SeverityMedium,
 				Title:            "openssl: information disclosure in fork()",
 				PrimaryLink:      "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-1549",
 				Links:            []string{},
@@ -7179,7 +7181,7 @@ var (
 				Resource:         "openssl",
 				InstalledVersion: "1.1.1c-r0",
 				FixedVersion:     "1.1.1d-r0",
-				Severity:         v1alpha1.SeverityLow,
+				Severity:         shared.SeverityLow,
 				Title:            "openssl: side-channel weak encryption vulnerability",
 				PrimaryLink:      "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-1547",
 				Links:            []string{},
@@ -7189,15 +7191,15 @@ var (
 
 	sampleExposedSecretReport = v1alpha1.ExposedSecretReportData{
 		UpdateTimestamp: metav1.NewTime(fixedTime),
-		Scanner: v1alpha1.Scanner{
-			Name:    v1alpha1.ScannerNameTrivy,
+		Scanner: shared.Scanner{
+			Name:    shared.ScannerNameTrivy,
 			Vendor:  "Aqua Security",
 			Version: "0.9.1",
 		},
-		Registry: v1alpha1.Registry{
+		Registry: shared.Registry{
 			Server: "index.docker.io",
 		},
-		Artifact: v1alpha1.Artifact{
+		Artifact: shared.Artifact{
 			Repository: "library/alpine",
 			Tag:        "3.10.2",
 			Digest:     "sha256:72c42ed48c3a2db31b7dafe17d275b634664a708d901ec9fd57b1529280f01fb",
@@ -7244,27 +7246,27 @@ var (
 		},
 	}
 
-	emptyVulnerabilityReport = v1alpha1.VulnerabilityReportData{
+	emptyVulnerabilityReport = v1beta1.VulnerabilityReportData{
 		UpdateTimestamp: metav1.NewTime(fixedTime),
-		Scanner: v1alpha1.Scanner{
-			Name:    v1alpha1.ScannerNameTrivy,
+		Scanner: shared.Scanner{
+			Name:    shared.ScannerNameTrivy,
 			Vendor:  "Aqua Security",
 			Version: "0.9.1",
 		},
-		Registry: v1alpha1.Registry{
+		Registry: shared.Registry{
 			Server: "index.docker.io",
 		},
-		Artifact: v1alpha1.Artifact{
+		Artifact: shared.Artifact{
 			Repository: "library/alpine",
 			Tag:        "3.10.2",
 			Digest:     "sha256:72c42ed48c3a2db31b7dafe17d275b634664a708d901ec9fd57b1529280f01fb",
 		},
-		OS: v1alpha1.OS{
+		OS: shared.OS{
 			Family: "alpine",
 			Name:   "3.10.2",
 			Eosl:   true,
 		},
-		Summary: v1alpha1.VulnerabilitySummary{
+		Summary: shared.VulnerabilitySummary{
 			CriticalCount: 0,
 			HighCount:     0,
 			MediumCount:   0,
@@ -7272,20 +7274,20 @@ var (
 			NoneCount:     0,
 			UnknownCount:  0,
 		},
-		Vulnerabilities: []v1alpha1.Vulnerability{},
+		Vulnerabilities: []v1beta1.Vulnerability{},
 	}
 
 	emptyExposedSecretReport = v1alpha1.ExposedSecretReportData{
 		UpdateTimestamp: metav1.NewTime(fixedTime),
-		Scanner: v1alpha1.Scanner{
-			Name:    v1alpha1.ScannerNameTrivy,
+		Scanner: shared.Scanner{
+			Name:    shared.ScannerNameTrivy,
 			Vendor:  "Aqua Security",
 			Version: "0.9.1",
 		},
-		Registry: v1alpha1.Registry{
+		Registry: shared.Registry{
 			Server: "index.docker.io",
 		},
-		Artifact: v1alpha1.Artifact{
+		Artifact: shared.Artifact{
 			Repository: "library/alpine",
 			Tag:        "3.10.2",
 			Digest:     "sha256:72c42ed48c3a2db31b7dafe17d275b634664a708d901ec9fd57b1529280f01fb",
@@ -7319,7 +7321,7 @@ func TestPlugin_ParseReportData(t *testing.T) {
 		imageRef                    string
 		input                       string
 		expectedError               error
-		expectedVulnerabilityReport v1alpha1.VulnerabilityReportData
+		expectedVulnerabilityReport v1beta1.VulnerabilityReportData
 		expectedExposedSecretReport v1alpha1.ExposedSecretReportData
 		compressed                  string
 	}{
@@ -8372,18 +8374,18 @@ func TestParseImageRef(t *testing.T) {
 		name             string
 		inputImageRef    string
 		inputImageID     string
-		expectedRegistry v1alpha1.Registry
-		expectedArtifact v1alpha1.Artifact
+		expectedRegistry shared.Registry
+		expectedArtifact shared.Artifact
 		expectedErr      error
 	}{
 		{
 			name:          "short image ref with latest tag",
 			inputImageRef: "nginx:v1.3.4",
 			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-			expectedRegistry: v1alpha1.Registry{
+			expectedRegistry: shared.Registry{
 				Server: "index.docker.io",
 			},
-			expectedArtifact: v1alpha1.Artifact{
+			expectedArtifact: shared.Artifact{
 				Repository: "library/nginx",
 				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 				Tag:        "v1.3.4",
@@ -8393,10 +8395,10 @@ func TestParseImageRef(t *testing.T) {
 			name:          "short repo with default lib with latest tag",
 			inputImageRef: "library/nginx:v.4.5.6",
 			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-			expectedRegistry: v1alpha1.Registry{
+			expectedRegistry: shared.Registry{
 				Server: "index.docker.io",
 			},
-			expectedArtifact: v1alpha1.Artifact{
+			expectedArtifact: shared.Artifact{
 				Repository: "library/nginx",
 				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 				Tag:        "v.4.5.6",
@@ -8406,10 +8408,10 @@ func TestParseImageRef(t *testing.T) {
 			name:          "well known image without tag & digest",
 			inputImageRef: "quay.io/centos/centos",
 			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-			expectedRegistry: v1alpha1.Registry{
+			expectedRegistry: shared.Registry{
 				Server: "quay.io",
 			},
-			expectedArtifact: v1alpha1.Artifact{
+			expectedArtifact: shared.Artifact{
 				Repository: "centos/centos",
 				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 				Tag:        "latest",
@@ -8419,10 +8421,10 @@ func TestParseImageRef(t *testing.T) {
 			name:          "docker expectedRegistry image ref with tag",
 			inputImageRef: "docker.io/library/alpine:v2.3.4",
 			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-			expectedRegistry: v1alpha1.Registry{
+			expectedRegistry: shared.Registry{
 				Server: "index.docker.io",
 			},
-			expectedArtifact: v1alpha1.Artifact{
+			expectedArtifact: shared.Artifact{
 				Repository: "library/alpine",
 				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 				Tag:        "v2.3.4",
@@ -8432,10 +8434,10 @@ func TestParseImageRef(t *testing.T) {
 			name:          "short repo with private repo with tag",
 			inputImageRef: "my-private-repo.company.com/my-app:1.2.3",
 			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-			expectedRegistry: v1alpha1.Registry{
+			expectedRegistry: shared.Registry{
 				Server: "my-private-repo.company.com",
 			},
-			expectedArtifact: v1alpha1.Artifact{
+			expectedArtifact: shared.Artifact{
 				Repository: "my-app",
 				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 				Tag:        "1.2.3",
@@ -8445,10 +8447,10 @@ func TestParseImageRef(t *testing.T) {
 			name:          "with tag",
 			inputImageRef: "quay.io/prometheus-operator/prometheus-operator:v0.63.0",
 			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-			expectedRegistry: v1alpha1.Registry{
+			expectedRegistry: shared.Registry{
 				Server: "quay.io",
 			},
-			expectedArtifact: v1alpha1.Artifact{
+			expectedArtifact: shared.Artifact{
 				Repository: "prometheus-operator/prometheus-operator",
 				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 				Tag:        "v0.63.0",
@@ -8458,10 +8460,10 @@ func TestParseImageRef(t *testing.T) {
 			name:          "artifact registry image ref with tag",
 			inputImageRef: "europe-west4-docker.pkg.dev/my-project/my-repo/my-app:1.0.0",
 			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-			expectedRegistry: v1alpha1.Registry{
+			expectedRegistry: shared.Registry{
 				Server: "europe-west4-docker.pkg.dev",
 			},
-			expectedArtifact: v1alpha1.Artifact{
+			expectedArtifact: shared.Artifact{
 				Repository: "my-project/my-repo/my-app",
 				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
 				Tag:        "1.0.0",
@@ -8471,10 +8473,10 @@ func TestParseImageRef(t *testing.T) {
 			name:          "repo with digest",
 			inputImageRef: "quay.io/prometheus-operator/prometheus-operator@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
 			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-			expectedRegistry: v1alpha1.Registry{
+			expectedRegistry: shared.Registry{
 				Server: "quay.io",
 			},
-			expectedArtifact: v1alpha1.Artifact{
+			expectedArtifact: shared.Artifact{
 				Repository: "prometheus-operator/prometheus-operator",
 				Digest:     "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
 				Tag:        "",
@@ -8484,10 +8486,10 @@ func TestParseImageRef(t *testing.T) {
 			name:          "private expectedRegistry image ref tag & with digest",
 			inputImageRef: "my-private-repo.company.com/my-app:some-tag@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
 			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
-			expectedRegistry: v1alpha1.Registry{
+			expectedRegistry: shared.Registry{
 				Server: "my-private-repo.company.com",
 			},
-			expectedArtifact: v1alpha1.Artifact{
+			expectedArtifact: shared.Artifact{
 				Repository: "my-app",
 				Digest:     "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
 				Tag:        "some-tag",

@@ -98,16 +98,9 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 
 	cacheDir := config.GetImageScanCacheDir()
 
-	volumeMounts := []corev1.VolumeMount{
-		{
-			Name:      tmpVolumeName,
-			ReadOnly:  false,
-			MountPath: "/tmp",
-		},
-	}
 	volumes := []corev1.Volume{
 		{
-			Name: tmpVolumeName,
+			Name: trivyCacheVolumeName,
 			VolumeSource: corev1.VolumeSource{
 				EmptyDir: &corev1.EmptyDirVolumeSource{
 					Medium: corev1.StorageMediumDefault,
@@ -115,20 +108,27 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 			},
 		},
 	}
+	sharedVolumeMounts := []corev1.VolumeMount{
+		{
+			Name:      trivyCacheVolumeName,
+			ReadOnly:  false,
+			MountPath: cacheDir,
+		},
+	}
 
 	if volume, volumeMount := config.GenerateSslCertDirVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
 		volumes = append(volumes, *volume)
-		volumeMounts = append(volumeMounts, *volumeMount)
+		sharedVolumeMounts = append(sharedVolumeMounts, *volumeMount)
 	}
 
 	if volume, volumeMount := config.GenerateConfigFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
 		volumes = append(volumes, *volume)
-		volumeMounts = append(volumeMounts, *volumeMount)
+		sharedVolumeMounts = append(sharedVolumeMounts, *volumeMount)
 	}
 
 	var initContainers []corev1.Container
 
-	args := []string{
+	argsDBUpdater := []string{
 		"--cache-dir",
 		cacheDir,
 		"image",
@@ -137,7 +137,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 		dbRepository,
 	}
 	if config.ConfigFileExists() {
-		args = append(args, "--config", configFileMountPath)
+		argsDBUpdater = append(argsDBUpdater, "--config", configFileMountPath)
 	}
 
 	initContainers = append(initContainers, corev1.Container{
@@ -149,14 +149,14 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 		Command: []string{
 			"trivy",
 		},
-		Args:            args,
+		Args:            argsDBUpdater,
 		Resources:       requirements,
 		SecurityContext: securityContext,
-		VolumeMounts:    volumeMounts,
+		VolumeMounts:    sharedVolumeMounts,
 	})
 
 	if !config.GetSkipJavaDBUpdate() && config.TrivyDBRepositoryCredentialsSet() {
-		argsDBUpdater := []string{
+		argsJavaDBUpdater := []string{
 			"--cache-dir",
 			cacheDir,
 			"image",
@@ -165,7 +165,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 			config.GetJavaDBRepository(),
 		}
 		if config.ConfigFileExists() {
-			argsDBUpdater = append(argsDBUpdater, "--config", configFileMountPath)
+			argsJavaDBUpdater = append(argsJavaDBUpdater, "--config", configFileMountPath)
 		}
 
 		initContainers = append(initContainers, corev1.Container{
@@ -177,32 +177,36 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 			Command: []string{
 				"trivy",
 			},
-			Args:            argsDBUpdater,
+			Args:            argsJavaDBUpdater,
 			Resources:       requirements,
 			SecurityContext: securityContext,
-			VolumeMounts:    volumeMounts,
+			VolumeMounts:    sharedVolumeMounts,
 		})
 	}
 
 	containers := make([]corev1.Container, 0)
 
-	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
+	sharedVolumeMounts = append(sharedVolumeMounts, getScanResultVolumeMount())
 	volumes = append(volumes, getScanResultVolume())
 
 	if volume, volumeMount := config.GenerateIgnoreFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
 		volumes = append(volumes, *volume)
-		volumeMounts = append(volumeMounts, *volumeMount)
+		sharedVolumeMounts = append(sharedVolumeMounts, *volumeMount)
 	}
 
 	if volume, volumeMount := config.GenerateIgnorePolicyVolumeIfAvailable(trivyConfigName, workload); volume != nil && volumeMount != nil {
 		volumes = append(volumes, *volume)
-		volumeMounts = append(volumeMounts, *volumeMount)
+		sharedVolumeMounts = append(sharedVolumeMounts, *volumeMount)
 	}
 
-	for _, c := range containersSpec {
-		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), c.Image) {
+	for _, container := range containersSpec {
+		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), container.Image) {
 			continue
 		}
+		volumes = append(volumes, getTmpVolume(container.Name))
+		volumeMounts := []corev1.VolumeMount{}
+		volumeMounts = append(volumeMounts, getTmpVolumeMount(container.Name))
+		volumeMounts = append(volumeMounts, sharedVolumeMounts...)
 		env := []corev1.EnvVar{
 			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, KeyTrivySeverity),
 			constructEnvVarSourceFromConfigMap("TRIVY_IGNORE_UNFIXED", trivyConfigName, keyTrivyIgnoreUnfixed),
@@ -235,7 +239,7 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 			})
 		}
 
-		region := CheckAwsEcrPrivateRegistry(c.Image)
+		region := CheckAwsEcrPrivateRegistry(container.Image)
 		if region != "" {
 			env = append(env, corev1.EnvVar{
 				Name:  "AWS_REGION",
@@ -248,11 +252,11 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 				Value: "true",
 			})
 		}
-		if _, ok := containersCredentials[c.Name]; ok && secret != nil {
-			registryUsernameKey := fmt.Sprintf("%s.username", c.Name)
-			registryPasswordKey := fmt.Sprintf("%s.password", c.Name)
+		if _, ok := containersCredentials[container.Name]; ok && secret != nil {
+			registryUsernameKey := fmt.Sprintf("%s.username", container.Name)
+			registryPasswordKey := fmt.Sprintf("%s.password", container.Name)
 			secretName := secret.Name
-			if CheckGcpCrOrPrivateRegistry(c.Image) &&
+			if CheckGcpCrOrPrivateRegistry(container.Image) &&
 				ctx.GetTrivyOperatorConfig().GetScanJobUseGCRServiceAccount() {
 				createEnvandVolumeForGcr(&env, &volumeMounts, &volumes, &registryPasswordKey, &secretName)
 			} else {
@@ -281,12 +285,12 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 
 		}
 
-		env, err = appendTrivyInsecureEnv(config, c.Image, env)
+		env, err = appendTrivyInsecureEnv(config, container.Image, env)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
 
-		env, err = appendTrivyNonSSLEnv(config, c.Image, env)
+		env, err = appendTrivyNonSSLEnv(config, container.Image, env)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
@@ -296,28 +300,28 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 			return corev1.PodSpec{}, nil, err
 		}
 
-		imageRef, err := containerimage.ParseReference(c.Image)
+		imageRef, err := containerimage.ParseReference(container.Image)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
-		resultFileName := getUniqueScanResultFileName(c.Name)
+		resultFileName := getUniqueScanResultFileName(container.Name)
 		cmd, args := getCommandAndArgs(ctx, Standalone, imageRef.String(), "", resultFileName)
 		if len(clusterSboms) > 0 { // trivy sbom ...
-			if sbomreportData, ok := clusterSboms[c.Name]; ok {
-				secretName := fmt.Sprintf("sbom-%s", c.Name)
+			if sbomreportData, ok := clusterSboms[container.Name]; ok {
+				secretName := fmt.Sprintf("sbom-%s", container.Name)
 				secret, err := CreateSbomDataAsSecret(sbomreportData.Bom, secretName)
 				if err != nil {
 					return corev1.PodSpec{}, nil, err
 				}
 				secrets = append(secrets, &secret)
 				fileName := fmt.Sprintf("%s.json", secretName)
-				mountPath := fmt.Sprintf("/sbom-%s", c.Name)
-				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, c.Name)
+				mountPath := fmt.Sprintf("/sbom-%s", container.Name)
+				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, container.Name)
 				cmd, args = GetSbomScanCommandAndArgs(ctx, Standalone, fmt.Sprintf("%s/%s", mountPath, fileName), "", resultFileName)
 			}
 		}
 		containers = append(containers, corev1.Container{
-			Name:                     c.Name,
+			Name:                     container.Name,
 			Image:                    trivyImageRef,
 			ImagePullPolicy:          corev1.PullPolicy(config.GetImagePullPolicy()),
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
@@ -390,52 +394,40 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 	containers := make([]corev1.Container, 0)
 
 	trivyConfigName := trivyoperator.GetPluginConfigMapName(Plugin)
-	// add tmp volume mount
-	volumeMounts := []corev1.VolumeMount{
-		{
-			Name:      tmpVolumeName,
-			ReadOnly:  false,
-			MountPath: "/tmp",
-		},
+
+	volumes := []corev1.Volume{}
+	sharedVolumeMounts := []corev1.VolumeMount{}
+
+	if volume, volumeMount := config.GenerateSslCertDirVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		sharedVolumeMounts = append(sharedVolumeMounts, *volumeMount)
+	}
+	if volume, volumeMount := config.GenerateConfigFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+		volumes = append(volumes, *volume)
+		sharedVolumeMounts = append(sharedVolumeMounts, *volumeMount)
 	}
 
-	// add tmp volume
-	volumes := []corev1.Volume{
-		{
-			Name: tmpVolumeName,
-			VolumeSource: corev1.VolumeSource{
-				EmptyDir: &corev1.EmptyDirVolumeSource{
-					Medium: corev1.StorageMediumDefault,
-				},
-			},
-		},
-	}
-
-	volumeMounts = append(volumeMounts, getScanResultVolumeMount())
+	sharedVolumeMounts = append(sharedVolumeMounts, getScanResultVolumeMount())
 	volumes = append(volumes, getScanResultVolume())
 
 	if volume, volumeMount := config.GenerateIgnoreFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
 		volumes = append(volumes, *volume)
-		volumeMounts = append(volumeMounts, *volumeMount)
-	}
-	if volume, volumeMount := config.GenerateIgnorePolicyVolumeIfAvailable(trivyConfigName, workload); volume != nil && volumeMount != nil {
-		volumes = append(volumes, *volume)
-		volumeMounts = append(volumeMounts, *volumeMount)
+		sharedVolumeMounts = append(sharedVolumeMounts, *volumeMount)
 	}
 
-	if volume, volumeMount := config.GenerateSslCertDirVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
+	if volume, volumeMount := config.GenerateIgnorePolicyVolumeIfAvailable(trivyConfigName, workload); volume != nil && volumeMount != nil {
 		volumes = append(volumes, *volume)
-		volumeMounts = append(volumeMounts, *volumeMount)
-	}
-	if volume, volumeMount := config.GenerateConfigFileVolumeIfAvailable(trivyConfigName); volume != nil && volumeMount != nil {
-		volumes = append(volumes, *volume)
-		volumeMounts = append(volumeMounts, *volumeMount)
+		sharedVolumeMounts = append(sharedVolumeMounts, *volumeMount)
 	}
 
 	for _, container := range containersSpec {
 		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), container.Image) {
 			continue
 		}
+		volumes = append(volumes, getTmpVolume(container.Name))
+		volumeMounts := []corev1.VolumeMount{}
+		volumeMounts = append(volumeMounts, getTmpVolumeMount(container.Name))
+		volumeMounts = append(volumeMounts, sharedVolumeMounts...)
 		env := []corev1.EnvVar{
 			constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
 			constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),

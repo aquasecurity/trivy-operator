@@ -132,6 +132,25 @@ func getScanResultVolumeMount() corev1.VolumeMount {
 	}
 }
 
+func getTmpVolume(containerName string) corev1.Volume {
+	return corev1.Volume{
+		Name: fmt.Sprintf("%s-%s", tmpVolumeName, containerName),
+		VolumeSource: corev1.VolumeSource{
+			EmptyDir: &corev1.EmptyDirVolumeSource{
+				Medium: corev1.StorageMediumDefault,
+			},
+		},
+	}
+}
+
+func getTmpVolumeMount(containerName string) corev1.VolumeMount {
+	return corev1.VolumeMount{
+		Name:      fmt.Sprintf("%s-%s", tmpVolumeName, containerName),
+		ReadOnly:  false,
+		MountPath: "/tmp",
+	}
+}
+
 func ConfigWorkloadAnnotationEnvVars(workload client.Object, annotation, envVarName, trivyConfigName, configKey string) corev1.EnvVar {
 	if value, ok := workload.GetAnnotations()[annotation]; ok {
 		return corev1.EnvVar{

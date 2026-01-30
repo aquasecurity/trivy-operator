@@ -1476,13 +1476,7 @@ spec:
                       description: VulnerabilityID the vulnerability identifier.
                       type: string
                   required:
-                  - fixedVersion
-                  - installedVersion
-                  - lastModifiedDate
-                  - publishedDate
-                  - resource
                   - severity
-                  - title
                   - vulnerabilityID
                   type: object
                 type: array
@@ -2916,13 +2910,7 @@ spec:
                       description: VulnerabilityID the vulnerability identifier.
                       type: string
                   required:
-                  - fixedVersion
-                  - installedVersion
-                  - lastModifiedDate
-                  - publishedDate
-                  - resource
                   - severity
-                  - title
                   - vulnerabilityID
                   type: object
                 type: array

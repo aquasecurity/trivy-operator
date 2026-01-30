@@ -247,6 +247,11 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 				Name:  "TRIVY_INSECURE",
 				Value: "true",
 			})
+		} else {
+			env, err = appendTrivyInsecureEnv(config, c.Image, env)
+			if err != nil {
+				return corev1.PodSpec{}, nil, err
+			}
 		}
 		if _, ok := containersCredentials[c.Name]; ok && secret != nil {
 			registryUsernameKey := fmt.Sprintf("%s.username", c.Name)
@@ -279,11 +284,6 @@ func GetPodSpecForStandaloneMode(ctx trivyoperator.PluginContext,
 				})
 			}
 
-		}
-
-		env, err = appendTrivyInsecureEnv(config, c.Image, env)
-		if err != nil {
-			return corev1.PodSpec{}, nil, err
 		}
 
 		env, err = appendTrivyNonSSLEnv(config, c.Image, env)
@@ -509,27 +509,21 @@ func GetPodSpecForClientServerMode(ctx trivyoperator.PluginContext, config Confi
 			}
 		}
 
-		env, err = appendTrivyInsecureEnv(config, container.Image, env)
-		if err != nil {
-			return corev1.PodSpec{}, nil, err
-		}
-
 		env, err = appendTrivyNonSSLEnv(config, container.Image, env)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
 
-		if config.GetServerInsecure() {
+		if config.GetServerInsecure() || config.GetDBRepositoryInsecure() {
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_INSECURE",
 				Value: "true",
 			})
-		}
-		if config.GetDBRepositoryInsecure() {
-			env = append(env, corev1.EnvVar{
-				Name:  "TRIVY_INSECURE",
-				Value: "true",
-			})
+		} else {
+			env, err = appendTrivyInsecureEnv(config, container.Image, env)
+			if err != nil {
+				return corev1.PodSpec{}, nil, err
+			}
 		}
 		requirements, err := config.GetResourceRequirements()
 		if err != nil {

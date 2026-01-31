@@ -2,7 +2,6 @@ package compliance
 
 import (
 	"context"
-	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -24,237 +23,247 @@ func TestGenerateComplianceReport(t *testing.T) {
 		reportType              string
 		wantStatus              *v1alpha1.ReportStatus
 	}{
-		{name: "build summary report", configAuditList: &v1alpha1.ConfigAuditReportList{
-			TypeMeta: v1.TypeMeta{Kind: "ConfigAuditReport"},
-			ListMeta: v1.ListMeta{},
-			Items: []v1alpha1.ConfigAuditReport{
-				{
-					ObjectMeta: v1.ObjectMeta{Name: "resource"},
-					Report: v1alpha1.ConfigAuditReportData{
-						Checks: []v1alpha1.Check{
-							{
-								ID:      "AVD-KSV-0001",
-								Title:   "some check",
-								Success: false,
-							},
-							{
-								ID:      "KSV003",
-								Title:   "another check",
-								Success: false,
-							},
-							{
-								ID:      "KCV0004",
-								Title:   "another check",
-								Success: false,
+		{
+			name: "build summary report",
+			configAuditList: &v1alpha1.ConfigAuditReportList{
+				TypeMeta: v1.TypeMeta{Kind: "ConfigAuditReport"},
+				ListMeta: v1.ListMeta{},
+				Items: []v1alpha1.ConfigAuditReport{
+					{
+						ObjectMeta: v1.ObjectMeta{Name: "resource"},
+						Report: v1alpha1.ConfigAuditReportData{
+							Checks: []v1alpha1.Check{
+								{
+									ID:      "AVD-KSV-0001",
+									Title:   "some check",
+									Success: false,
+								},
+								{
+									ID:      "KSV003",
+									Title:   "another check",
+									Success: false,
+								},
+								{
+									ID:      "KCV0004",
+									Title:   "another check",
+									Success: false,
+								},
 							},
 						},
 					},
 				},
-			}}, clusterComplianceReport: &v1alpha1.ClusterComplianceReport{
-			TypeMeta:   v1.TypeMeta{Kind: "ConfigAuditReport"},
-			ObjectMeta: v1.ObjectMeta{Name: "nsa"},
-			Spec: v1alpha1.ReportSpec{
-				ReportFormat: "summary",
-				Compliance: v1alpha1.Compliance{
+			},
+			clusterComplianceReport: &v1alpha1.ClusterComplianceReport{
+				TypeMeta:   v1.TypeMeta{Kind: "ConfigAuditReport"},
+				ObjectMeta: v1.ObjectMeta{Name: "nsa"},
+				Spec: v1alpha1.ReportSpec{
+					ReportFormat: "summary",
+					Compliance: v1alpha1.Compliance{
+						ID:    "nsa",
+						Title: "nsa",
+						Controls: []v1alpha1.Control{
+							{
+								ID:          "1.0",
+								Description: "check root permission",
+								Checks: []v1alpha1.SpecCheck{
+									{
+										ID: "AVD-KSV-0001",
+									},
+								},
+							},
+							{
+								ID:          "2.0",
+								Description: "check fs permission",
+								Checks: []v1alpha1.SpecCheck{
+									{
+										ID: "AVD-KSV-0002",
+									},
+								},
+							},
+							{
+								ID:          "3.0",
+								Description: "check network access",
+								Checks: []v1alpha1.SpecCheck{
+									{
+										ID: "AVD-KSV-0003",
+									},
+								},
+							},
+							{
+								ID:          "4.0",
+								Description: "check apiserver permission",
+								Checks: []v1alpha1.SpecCheck{
+									{
+										ID: "AVD-KCV-0004",
+									},
+								},
+							},
+						},
+					},
+				},
+			}, reportType: "summary", wantStatus: &v1alpha1.ReportStatus{
+				SummaryReport: &v1alpha1.SummaryReport{
 					ID:    "nsa",
 					Title: "nsa",
-					Controls: []v1alpha1.Control{
+					SummaryControls: []v1alpha1.ControlCheckSummary{
+						{
+							ID:        "1.0",
+							TotalFail: getIntPtr(1),
+						},
+						{
+							ID:        "2.0",
+							TotalFail: getIntPtr(0),
+						},
+						{
+							ID:        "3.0",
+							TotalFail: getIntPtr(1),
+						},
+						{
+							ID:        "4.0",
+							TotalFail: getIntPtr(1),
+						},
+					},
+				},
+			}},
+		{
+			name: "build detail report",
+			configAuditList: &v1alpha1.ConfigAuditReportList{
+				TypeMeta: v1.TypeMeta{Kind: "ConfigAuditReport"},
+				ListMeta: v1.ListMeta{},
+				Items: []v1alpha1.ConfigAuditReport{
+					{
+						ObjectMeta: v1.ObjectMeta{Name: "resource"},
+						Report: v1alpha1.ConfigAuditReportData{
+							Checks: []v1alpha1.Check{
+								{
+									ID:      "AVD-KSV-0001",
+									Title:   "some check",
+									Success: false,
+								},
+								{
+									ID:      "KSV003",
+									Title:   "another check",
+									Success: false,
+								},
+								{
+									ID:      "KCV0004",
+									Title:   "another check",
+									Success: false,
+								},
+							},
+						},
+					},
+				},
+			},
+			clusterComplianceReport: &v1alpha1.ClusterComplianceReport{
+				TypeMeta:   v1.TypeMeta{Kind: "ConfigAuditReport"},
+				ObjectMeta: v1.ObjectMeta{Name: "nsa"},
+				Spec: v1alpha1.ReportSpec{
+					ReportFormat: "all",
+					Compliance: v1alpha1.Compliance{
+						ID:    "nsa",
+						Title: "nsa",
+						Controls: []v1alpha1.Control{
+							{
+								ID:          "1.0",
+								Description: "check root permission",
+								Checks: []v1alpha1.SpecCheck{
+									{
+										ID: "AVD-KSV-0001",
+									},
+								},
+							},
+							{
+								ID:          "2.0",
+								Description: "check fs permission",
+								Checks: []v1alpha1.SpecCheck{
+									{
+										ID: "AVD-KSV-0002",
+									},
+								},
+							},
+							{
+								ID:          "3.0",
+								Description: "check network access",
+								Checks: []v1alpha1.SpecCheck{
+									{
+										ID: "AVD-KSV-0003",
+									},
+								},
+							},
+							{
+								ID:          "4.0",
+								Description: "check apiserver permission",
+								Checks: []v1alpha1.SpecCheck{
+									{
+										ID: "AVD-KCV-0004",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			reportType: "all",
+			wantStatus: &v1alpha1.ReportStatus{
+				DetailReport: &v1alpha1.ComplianceReport{
+					ID:    "nsa",
+					Title: "nsa",
+					Results: []*v1alpha1.ControlCheckResult{
 						{
 							ID:          "1.0",
 							Description: "check root permission",
-							Checks: []v1alpha1.SpecCheck{
+							Checks: []v1alpha1.ComplianceCheck{
 								{
-									ID: "AVD-KSV-0001",
+									ID:       "AVD-KSV-0001",
+									Title:    "some check",
+									Target:   "/resource",
+									Category: "Kubernetes Security Check",
+									Messages: []string{""},
+									Success:  false,
 								},
 							},
 						},
 						{
 							ID:          "2.0",
 							Description: "check fs permission",
-							Checks: []v1alpha1.SpecCheck{
+							Checks: []v1alpha1.ComplianceCheck{
 								{
-									ID: "AVD-KSV-0002",
+									Success: true,
 								},
 							},
 						},
 						{
 							ID:          "3.0",
 							Description: "check network access",
-							Checks: []v1alpha1.SpecCheck{
+							Checks: []v1alpha1.ComplianceCheck{
 								{
-									ID: "AVD-KSV-0003",
+									ID:       "AVD-KSV-0003",
+									Title:    "another check",
+									Target:   "/resource",
+									Category: "Kubernetes Security Check",
+									Messages: []string{""},
+									Success:  false,
 								},
 							},
 						},
 						{
 							ID:          "4.0",
 							Description: "check apiserver permission",
-							Checks: []v1alpha1.SpecCheck{
+							Checks: []v1alpha1.ComplianceCheck{
 								{
-									ID: "AVD-KCV-0004",
+									ID:       "AVD-KCV-0004",
+									Title:    "another check",
+									Target:   "/resource",
+									Category: "Kubernetes Security Check",
+									Messages: []string{""},
+									Success:  false,
 								},
 							},
 						},
 					},
 				},
-			},
-		}, reportType: "summary", wantStatus: &v1alpha1.ReportStatus{
-			SummaryReport: &v1alpha1.SummaryReport{
-				ID:    "nsa",
-				Title: "nsa",
-				SummaryControls: []v1alpha1.ControlCheckSummary{
-					{
-						ID:        "1.0",
-						TotalFail: getIntPtr(1),
-					},
-					{
-						ID:        "2.0",
-						TotalFail: getIntPtr(0),
-					},
-					{
-						ID:        "3.0",
-						TotalFail: getIntPtr(1),
-					},
-					{
-						ID:        "4.0",
-						TotalFail: getIntPtr(1),
-					},
-				},
-			},
-		}},
-		{name: "build detail report", configAuditList: &v1alpha1.ConfigAuditReportList{
-			TypeMeta: v1.TypeMeta{Kind: "ConfigAuditReport"},
-			ListMeta: v1.ListMeta{},
-			Items: []v1alpha1.ConfigAuditReport{
-				{
-					ObjectMeta: v1.ObjectMeta{Name: "resource"},
-					Report: v1alpha1.ConfigAuditReportData{
-						Checks: []v1alpha1.Check{
-							{
-								ID:      "AVD-KSV-0001",
-								Title:   "some check",
-								Success: false,
-							},
-							{
-								ID:      "KSV003",
-								Title:   "another check",
-								Success: false,
-							},
-							{
-								ID:      "KCV0004",
-								Title:   "another check",
-								Success: false,
-							},
-						},
-					},
-				},
-			}}, clusterComplianceReport: &v1alpha1.ClusterComplianceReport{
-			TypeMeta:   v1.TypeMeta{Kind: "ConfigAuditReport"},
-			ObjectMeta: v1.ObjectMeta{Name: "nsa"},
-			Spec: v1alpha1.ReportSpec{
-				ReportFormat: "all",
-				Compliance: v1alpha1.Compliance{
-					ID:    "nsa",
-					Title: "nsa",
-					Controls: []v1alpha1.Control{
-						{
-							ID:          "1.0",
-							Description: "check root permission",
-							Checks: []v1alpha1.SpecCheck{
-								{
-									ID: "AVD-KSV-0001",
-								},
-							},
-						},
-						{
-							ID:          "2.0",
-							Description: "check fs permission",
-							Checks: []v1alpha1.SpecCheck{
-								{
-									ID: "AVD-KSV-0002",
-								},
-							},
-						},
-						{
-							ID:          "3.0",
-							Description: "check network access",
-							Checks: []v1alpha1.SpecCheck{
-								{
-									ID: "AVD-KSV-0003",
-								},
-							},
-						},
-						{
-							ID:          "4.0",
-							Description: "check apiserver permission",
-							Checks: []v1alpha1.SpecCheck{
-								{
-									ID: "AVD-KCV-0004",
-								},
-							},
-						},
-					},
-				},
-			},
-		}, reportType: "all", wantStatus: &v1alpha1.ReportStatus{
-			DetailReport: &v1alpha1.ComplianceReport{
-				ID:    "nsa",
-				Title: "nsa",
-				Results: []*v1alpha1.ControlCheckResult{
-					{
-						ID:          "1.0",
-						Description: "check root permission",
-						Checks: []v1alpha1.ComplianceCheck{
-							{
-								ID:       "AVD-KSV-0001",
-								Title:    "some check",
-								Target:   "/resource",
-								Category: "Kubernetes Security Check",
-								Messages: []string{""},
-								Success:  false,
-							},
-						},
-					},
-					{
-						ID:          "2.0",
-						Description: "check fs permission",
-						Checks: []v1alpha1.ComplianceCheck{
-							{
-								Success: true,
-							},
-						},
-					},
-					{
-						ID:          "3.0",
-						Description: "check network access",
-						Checks: []v1alpha1.ComplianceCheck{
-							{
-								ID:       "AVD-KSV-0003",
-								Title:    "another check",
-								Target:   "/resource",
-								Category: "Kubernetes Security Check",
-								Messages: []string{""},
-								Success:  false,
-							},
-						},
-					},
-					{
-						ID:          "4.0",
-						Description: "check apiserver permission",
-						Checks: []v1alpha1.ComplianceCheck{
-							{
-								ID:       "AVD-KCV-0004",
-								Title:    "another check",
-								Target:   "/resource",
-								Category: "Kubernetes Security Check",
-								Messages: []string{""},
-								Success:  false,
-							},
-						},
-					},
-				},
-			},
-		}},
+			}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -269,10 +278,10 @@ func TestGenerateComplianceReport(t *testing.T) {
 			ccr, err := getReport(t.Context(), c)
 			require.NoError(t, err)
 			if tt.reportType == "summary" {
-				assert.True(t, reflect.DeepEqual(ccr.Status.SummaryReport, tt.wantStatus.SummaryReport))
+				assert.Equal(t, tt.wantStatus.SummaryReport, ccr.Status.SummaryReport)
 			}
 			if tt.reportType == "all" {
-				assert.True(t, reflect.DeepEqual(ccr.Status.DetailReport, tt.wantStatus.DetailReport))
+				assert.Equal(t, tt.wantStatus.DetailReport, ccr.Status.DetailReport)
 			}
 		})
 	}

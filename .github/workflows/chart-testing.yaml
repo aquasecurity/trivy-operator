@@ -33,9 +33,9 @@ jobs:
       - name: Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
       - name: Release snapshot
@@ -75,14 +75,14 @@ jobs:
           kind load image-archive trivy-operator.tar
 
       - name: Set up python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: '3.x'
           check-latest: true
 
       - name: Setup chart-testing
         id: lint
-        uses: helm/chart-testing-action@v2.7.0
+        uses: helm/chart-testing-action@v2.8.0
         with:
           # v6.0.0 resolved the compatibility issue with Python > 3.13. may be removed after the action itself is updated
           yamale_version: "6.0.0"

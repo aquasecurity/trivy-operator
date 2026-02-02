@@ -194,16 +194,16 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 				Name:  "TRIVY_INSECURE",
 				Value: "true",
 			})
+		} else {
+			env, err = appendTrivyInsecureEnv(config, c.Image, env)
+			if err != nil {
+				return corev1.PodSpec{}, nil, err
+			}
 		}
 
 		if config.OfflineScan() {
 			env = append(env, constructEnvVarSourceFromConfigMap("TRIVY_OFFLINE_SCAN",
 				trivyConfigName, keyTrivyOfflineScan))
-		}
-
-		env, err = appendTrivyInsecureEnv(config, c.Image, env)
-		if err != nil {
-			return corev1.PodSpec{}, nil, err
 		}
 
 		resourceRequirements, err := config.GetResourceRequirements()
@@ -425,16 +425,16 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 				trivyConfigName, keyTrivyOfflineScan))
 		}
 
-		env, err = appendTrivyInsecureEnv(config, c.Image, env)
-		if err != nil {
-			return corev1.PodSpec{}, nil, err
-		}
-
 		if config.GetServerInsecure() {
 			env = append(env, corev1.EnvVar{
 				Name:  "TRIVY_INSECURE",
 				Value: "true",
 			})
+		} else {
+			env, err = appendTrivyInsecureEnv(config, c.Image, env)
+			if err != nil {
+				return corev1.PodSpec{}, nil, err
+			}
 		}
 
 		resourceRequirements, err := config.GetResourceRequirements()

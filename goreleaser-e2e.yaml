@@ -64,6 +64,8 @@ dockers:
     goos: linux
     dockerfile: build/trivy-operator/Dockerfile.ubi9
     goarch: amd64
+    extra_files:
+      - LICENSE
     ids:
       - trivy-operator
     build_flag_templates:

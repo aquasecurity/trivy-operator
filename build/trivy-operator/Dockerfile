@@ -1,8 +1,6 @@
-FROM alpine:3.23.0
+FROM alpine:3.23.3
 
-RUN apk update
-
-RUN apk upgrade
+RUN apk --no-cache upgrade
 
 RUN adduser -u 10000 -D -g '' trivyoperator trivyoperator
 

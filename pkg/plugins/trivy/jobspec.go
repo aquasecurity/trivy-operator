@@ -51,22 +51,6 @@ type PodSpecMgr interface {
 func NewPodSpecMgr(config Config) PodSpecMgr {
 	mode := config.GetMode()
 	command := config.GetCommand()
-	if command == Image {
-		switch mode {
-		case Standalone:
-			return &ImageJobSpecMgr{
-				getPodSpecFunc: GetPodSpecForStandaloneMode,
-			}
-		case ClientServer:
-			return &ImageJobSpecMgr{
-				getPodSpecFunc: GetPodSpecForClientServerMode,
-			}
-		default:
-			return &ImageJobSpecMgr{
-				getPodSpecFunc: GetPodSpecForStandaloneMode,
-			}
-		}
-	}
 
 	if command == Filesystem || command == Rootfs {
 		switch mode {
@@ -85,7 +69,7 @@ func NewPodSpecMgr(config Config) PodSpecMgr {
 		}
 	}
 	return &ImageJobSpecMgr{
-		getPodSpecFunc: GetPodSpecForStandaloneMode,
+		getPodSpecFunc: GetPodSpecForImageScan,
 	}
 }
 

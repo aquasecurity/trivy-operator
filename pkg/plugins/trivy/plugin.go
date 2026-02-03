@@ -102,17 +102,19 @@ func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client
 	if err != nil {
 		return corev1.PodSpec{}, nil, err
 	}
-	var podSpec corev1.PodSpec
-	var secrets []*corev1.Secret
-	podSpec, secrets, err = NewPodSpecMgr(config).GetPodSpec(ctx, config, workload, credentials, securityContext, p, sbomClusterReport)
+	podSpec, secrets, err := NewPodSpecMgr(config).GetPodSpec(ctx, config, workload, credentials, securityContext, p, sbomClusterReport)
+	if err != nil {
+		return corev1.PodSpec{}, nil, err
+	}
 
 	// add image pull secret to be used when pulling trivy image fom private registry
 	podSpec.ImagePullSecrets = config.GetImagePullSecret()
-	return podSpec, secrets, err
+	return podSpec, secrets, nil
 }
 
 const (
 	tmpVolumeName               = "tmp"
+	dockerConfigVolumeName      = "dockerconfig"
 	ignoreFileVolumeName        = "ignorefile"
 	configFileVolumeName        = "configfile"
 	sslCertDirVolumeName        = "ssl-cert-dir"

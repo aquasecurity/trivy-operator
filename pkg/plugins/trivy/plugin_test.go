@@ -2201,42 +2201,6 @@ default ignore = false`,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
 							{
-								Name: "HTTP_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "HTTPS_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpsProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "NO_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.noProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
 								Name: "TRIVY_SEVERITY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -2310,6 +2274,42 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "HTTP_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "HTTPS_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpsProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "NO_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.noProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_TOKEN_HEADER",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -2374,6 +2374,7 @@ default ignore = false`,
 						},
 					},
 				},
+				SecurityContext: &corev1.PodSecurityContext{},
 			},
 		},
 		{
@@ -2430,42 +2431,6 @@ default ignore = false`,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
 							{
-								Name: "HTTP_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "HTTPS_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpsProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "NO_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.noProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
 								Name: "TRIVY_SEVERITY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -2539,6 +2504,42 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "HTTP_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "HTTPS_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpsProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "NO_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.noProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_TOKEN_HEADER",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -2603,6 +2604,7 @@ default ignore = false`,
 						},
 					},
 				},
+				SecurityContext: &corev1.PodSecurityContext{},
 			},
 		},
 		{
@@ -2660,42 +2662,6 @@ default ignore = false`,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
 							{
-								Name: "HTTP_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "HTTPS_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpsProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "NO_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.noProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
 								Name: "TRIVY_SEVERITY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -2764,6 +2730,42 @@ default ignore = false`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipDirs",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "HTTP_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "HTTPS_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpsProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "NO_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.noProxy",
 										Optional: ptr.To[bool](true),
 									},
 								},
@@ -2837,6 +2839,7 @@ default ignore = false`,
 						},
 					},
 				},
+				SecurityContext: &corev1.PodSecurityContext{},
 			},
 		},
 		{
@@ -2893,42 +2896,6 @@ default ignore = false`,
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
-							{
-								Name: "HTTP_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "HTTPS_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpsProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "NO_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.noProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
 							{
 								Name: "TRIVY_SEVERITY",
 								ValueFrom: &corev1.EnvVarSource{
@@ -3003,6 +2970,42 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "HTTP_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "HTTPS_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpsProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "NO_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.noProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_TOKEN_HEADER",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -3071,6 +3074,7 @@ default ignore = false`,
 						},
 					},
 				},
+				SecurityContext: &corev1.PodSecurityContext{},
 			},
 		},
 		{
@@ -3148,42 +3152,6 @@ CVE-2019-1543`,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
 							{
-								Name: "HTTP_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "HTTPS_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpsProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "NO_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.noProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
 								Name: "TRIVY_SEVERITY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -3252,6 +3220,42 @@ CVE-2019-1543`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipDirs",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "HTTP_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "HTTPS_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpsProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "NO_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.noProxy",
 										Optional: ptr.To[bool](true),
 									},
 								},
@@ -3331,6 +3335,7 @@ CVE-2019-1543`,
 						},
 					},
 				},
+				SecurityContext: &corev1.PodSecurityContext{},
 			},
 		},
 		{
@@ -3408,42 +3413,6 @@ default ignore = false`,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
 							{
-								Name: "HTTP_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "HTTPS_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpsProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "NO_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.noProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
 								Name: "TRIVY_SEVERITY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -3512,6 +3481,42 @@ default ignore = false`,
 											Name: "trivy-operator-trivy-config",
 										},
 										Key:      "trivy.skipDirs",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "HTTP_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "HTTPS_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpsProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "NO_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.noProxy",
 										Optional: ptr.To[bool](true),
 									},
 								},
@@ -3591,6 +3596,7 @@ default ignore = false`,
 						},
 					},
 				},
+				SecurityContext: &corev1.PodSecurityContext{},
 			},
 		},
 		{
@@ -3646,42 +3652,6 @@ default ignore = false`,
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
-							{
-								Name: "HTTP_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "HTTPS_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpsProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "NO_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.noProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
 							{
 								Name: "TRIVY_SEVERITY",
 								ValueFrom: &corev1.EnvVarSource{
@@ -3756,6 +3726,42 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "HTTP_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "HTTPS_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpsProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "NO_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.noProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_TOKEN_HEADER",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -3820,6 +3826,7 @@ default ignore = false`,
 						},
 					},
 				},
+				SecurityContext: &corev1.PodSecurityContext{},
 			},
 		},
 		{
@@ -6486,11 +6493,11 @@ default ignore = false`,
 							"--cache-dir",
 							"/tmp/trivy/.cache",
 							"image",
+							"--config",
+							"/etc/trivy/trivy-config.yaml",
 							"--download-db-only",
 							"--db-repository",
 							trivy.DefaultDBRepository,
-							"--config",
-							"/etc/trivy/trivy-config.yaml",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -7643,134 +7650,157 @@ func TestGetContainers(t *testing.T) {
 	}
 }
 
-func TestGetInitContainers(t *testing.T) {
+func TestGetInitContainers_StandaloneMode(t *testing.T) {
 	workloadSpec := &appsv1.ReplicaSet{
 		Spec: appsv1.ReplicaSetSpec{
 			Template: corev1.PodTemplateSpec{
-
-				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{
-						{Name: "container1", Image: "busybox:1.34.1"},
-					},
-				},
+				Spec: corev1.PodSpec{Containers: []corev1.Container{{Name: "container1", Image: "busybox:1.34.1"}}},
 			},
 		},
 	}
 
-	testCases := []struct {
-		name       string
-		configData map[string]string
-	}{
-		{
-			name: "Standalone mode with image command java-db from private registry",
-			configData: map[string]string{
-				"trivy.dbRepository":     trivy.DefaultDBRepository,
-				"trivy.javaDbRepository": "my-private-registry.io/aquasec/trivy-java-db",
-				"trivy.skipJavaDBUpdate": "false",
-				"trivy.repository":       "gcr.io/aquasec/trivy",
-				"trivy.tag":              "0.35.0",
-				"trivy.mode":             string(trivy.Standalone),
-				"trivy.command":          string(trivy.Image),
+	configData := map[string]string{
+		"trivy.dbRepository":     trivy.DefaultDBRepository,
+		"trivy.javaDbRepository": "my-private-registry.io/aquasec/trivy-java-db",
+		"trivy.skipJavaDBUpdate": "false",
+		"trivy.repository":       "gcr.io/aquasec/trivy",
+		"trivy.tag":              "0.35.0",
+		"trivy.mode":             string(trivy.Standalone),
+		"trivy.command":          string(trivy.Image),
+	}
+
+	fakeclient := fake.NewClientBuilder().WithObjects(
+		&corev1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: "trivy-operator-trivy-config", Namespace: "trivyoperator-ns"}, Data: configData},
+		&corev1.Secret{ObjectMeta: metav1.ObjectMeta{Name: "trivy-operator-trivy-config", Namespace: "trivyoperator-ns"}, Data: map[string][]byte{
+			"trivy.dbRepositoryUsername": []byte("my-username"),
+			"trivy.dbRepositoryPassword": []byte("my-password"),
+		}},
+	).Build()
+
+	pluginContext := trivyoperator.NewPluginContext().
+		WithName(trivy.Plugin).
+		WithNamespace("trivyoperator-ns").
+		WithServiceAccountName("trivyoperator-sa").
+		WithClient(fakeclient).
+		Get()
+
+	resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
+	instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
+	jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil, make(map[string]v1alpha1.SbomReportData))
+	require.NoError(t, err)
+
+	assert.Len(t, jobSpec.InitContainers, 2)
+
+	// Second init container should only download trivy-db
+	trivyDbInitContainer := jobSpec.InitContainers[1]
+	containsDownloadDBOnly := false
+	for _, arg := range trivyDbInitContainer.Args {
+		if arg == "--download-db-only" {
+			containsDownloadDBOnly = true
+			break
+		}
+	}
+	assert.True(t, containsDownloadDBOnly, "Expected second init container to only download trivy-db")
+
+	// Credentials must be present
+	hasUser, hasPass := false, false
+	for _, e := range trivyDbInitContainer.Env {
+		if e.Name == "TRIVY_USERNAME" {
+			hasUser = true
+		}
+		if e.Name == "TRIVY_PASSWORD" {
+			hasPass = true
+		}
+	}
+	assert.True(t, hasUser)
+	assert.True(t, hasPass)
+
+	// First init container should be a login container with creds
+	login := jobSpec.InitContainers[0]
+	hasLogin := false
+	for _, a := range login.Args {
+		if a == "login" {
+			hasLogin = true
+			break
+		}
+	}
+	assert.True(t, hasLogin)
+	hasUser, hasPass = false, false
+	for _, e := range login.Env {
+		if e.Name == "TRIVY_USERNAME" {
+			hasUser = true
+		}
+		if e.Name == "TRIVY_PASSWORD" {
+			hasPass = true
+		}
+	}
+	assert.True(t, hasUser)
+	assert.True(t, hasPass)
+}
+
+func TestGetInitContainers_ClientServerMode(t *testing.T) {
+	workloadSpec := &appsv1.ReplicaSet{
+		Spec: appsv1.ReplicaSetSpec{
+			Template: corev1.PodTemplateSpec{
+				Spec: corev1.PodSpec{Containers: []corev1.Container{{Name: "container1", Image: "busybox:1.34.1"}}},
 			},
 		},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			fakeclient := fake.NewClientBuilder().WithObjects(
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "trivy-operator-trivy-config",
-						Namespace: "trivyoperator-ns",
-					},
-					Data: tc.configData,
-				},
-				&corev1.Secret{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "trivy-operator-trivy-config",
-						Namespace: "trivyoperator-ns",
-					},
-					Data: map[string][]byte{
-						"trivy.dbRepositoryUsername": []byte("my-username"),
-						"trivy.dbRepositoryPassword": []byte("my-password"),
-					},
-				},
-			).Build()
-
-			pluginContext := trivyoperator.NewPluginContext().
-				WithName(trivy.Plugin).
-				WithNamespace("trivyoperator-ns").
-				WithServiceAccountName("trivyoperator-sa").
-				WithClient(fakeclient).
-				Get()
-
-			config, err := pluginContext.GetConfig()
-			if err != nil {
-				t.Fatalf("failed to get config: %v", err)
-			}
-			config.SecretData = map[string][]byte{
-				"my-username": []byte("my-username"),
-				"my-password": []byte("my-password"),
-			}
-
-			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
-			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
-			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil, make(map[string]v1alpha1.SbomReportData))
-			require.NoError(t, err)
-
-			assert.Len(t, jobSpec.InitContainers, 2)
-			// Assert first init container to download trivy-db from private registry
-			trivyDbInitContainer := jobSpec.InitContainers[0]
-
-			containsDownloadDBOnly := false
-			for _, arg := range trivyDbInitContainer.Args {
-				if arg == "--download-db-only" {
-					containsDownloadDBOnly = true
-					break
-				}
-			}
-			assert.True(t, containsDownloadDBOnly, "Expected first init container to only download try-db")
-
-			hasTrivyUsername := false
-			hasTrivyPassword := false
-			for _, envVar := range trivyDbInitContainer.Env {
-				if envVar.Name == "TRIVY_USERNAME" {
-					hasTrivyUsername = true
-				}
-				if envVar.Name == "TRIVY_PASSWORD" {
-					hasTrivyPassword = true
-				}
-			}
-			assert.True(t, hasTrivyUsername, "Expected init container to have username env var for private trivy-db registry")
-			assert.True(t, hasTrivyPassword, "Expected init container to have password env var for private trivy-db registry")
-
-			// Assert second init container to download java-db from private registry
-			javaDbInitContainer := jobSpec.InitContainers[1]
-
-			containsDownloadJavaDBOnly := false
-			for _, arg := range javaDbInitContainer.Args {
-				if arg == "--download-java-db-only" {
-					containsDownloadJavaDBOnly = true
-					break
-				}
-			}
-			assert.True(t, containsDownloadJavaDBOnly, "Expected second init container to only download java-db")
-
-			hasTrivyUsername = false
-			hasTrivyPassword = false
-			for _, envVar := range javaDbInitContainer.Env {
-				if envVar.Name == "TRIVY_USERNAME" {
-					hasTrivyUsername = true
-				}
-				if envVar.Name == "TRIVY_PASSWORD" {
-					hasTrivyPassword = true
-				}
-			}
-			assert.True(t, hasTrivyUsername, "Expected init container to have username env var for private java-db registry")
-			assert.True(t, hasTrivyPassword, "Expected init container to have password env var for private java-db registry")
-
-		})
+	configData := map[string]string{
+		"trivy.dbRepository":     trivy.DefaultDBRepository,
+		"trivy.javaDbRepository": "my-private-registry.io/aquasec/trivy-java-db",
+		"trivy.skipJavaDBUpdate": "false",
+		"trivy.repository":       "gcr.io/aquasec/trivy",
+		"trivy.tag":              "0.35.0",
+		"trivy.mode":             string(trivy.ClientServer),
+		"trivy.serverURL":        "http://trivy.trivy:4954",
+		"trivy.command":          string(trivy.Image),
 	}
+
+	fakeclient := fake.NewClientBuilder().WithObjects(
+		&corev1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: "trivy-operator-trivy-config", Namespace: "trivyoperator-ns"}, Data: configData},
+		&corev1.Secret{ObjectMeta: metav1.ObjectMeta{Name: "trivy-operator-trivy-config", Namespace: "trivyoperator-ns"}, Data: map[string][]byte{
+			"trivy.dbRepositoryUsername": []byte("my-username"),
+			"trivy.dbRepositoryPassword": []byte("my-password"),
+		}},
+	).Build()
+
+	pluginContext := trivyoperator.NewPluginContext().
+		WithName(trivy.Plugin).
+		WithNamespace("trivyoperator-ns").
+		WithServiceAccountName("trivyoperator-sa").
+		WithClient(fakeclient).
+		Get()
+
+	resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
+	instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
+	jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil, make(map[string]v1alpha1.SbomReportData))
+	require.NoError(t, err)
+
+	assert.Len(t, jobSpec.InitContainers, 1)
+
+	// Single init container should be login with credentials
+	login := jobSpec.InitContainers[0]
+	hasLogin := false
+	for _, a := range login.Args {
+		if a == "login" {
+			hasLogin = true
+			break
+		}
+	}
+	assert.True(t, hasLogin, "Expected a login init container")
+	hasUser, hasPass := false, false
+	for _, e := range login.Env {
+		if e.Name == "TRIVY_USERNAME" {
+			hasUser = true
+		}
+		if e.Name == "TRIVY_PASSWORD" {
+			hasPass = true
+		}
+	}
+	assert.True(t, hasUser, "Expected username env var for private java-db registry")
+	assert.True(t, hasPass, "Expected password env var for private java-db registry")
 }
 
 // Ensure that when using GCR service account credentials for multiple GCR images,

@@ -3,12 +3,12 @@ module github.com/aquasecurity/trivy-operator
 go 1.25.7
 
 require (
-	github.com/CycloneDX/cyclonedx-go v0.9.3
+	github.com/CycloneDX/cyclonedx-go v0.10.0
 	github.com/aquasecurity/go-version v0.0.1
 	github.com/aquasecurity/trivy v0.69.1
 	github.com/aquasecurity/trivy-checks v1.12.2-0.20251219190323-79d27547baf5
 	github.com/aquasecurity/trivy-kubernetes v0.9.1
-	github.com/aws/aws-sdk-go-v2 v1.41.0
+	github.com/aws/aws-sdk-go-v2 v1.41.1
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
@@ -20,8 +20,8 @@ require (
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
 	github.com/liamg/memoryfs v1.6.0
 	github.com/magefile/mage v1.15.0
-	github.com/onsi/ginkgo/v2 v2.25.3
-	github.com/onsi/gomega v1.38.2
+	github.com/onsi/ginkgo/v2 v2.28.1
+	github.com/onsi/gomega v1.39.0
 	github.com/openshift/api v0.0.0-20231025170628-b8a18fdc040d
 	github.com/prometheus/client_golang v1.23.2
 	github.com/quasilyte/go-ruleguard/dsl v0.3.23
@@ -356,8 +356,8 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	go.yaml.in/yaml/v4 v4.0.0-rc.3 // indirect
 	golang.org/x/exp v0.0.0-20250911091902-df9299821621 // indirect
-	golang.org/x/mod v0.31.0 // indirect
-	golang.org/x/net v0.48.0 // indirect
+	golang.org/x/mod v0.32.0 // indirect
+	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/oauth2 v0.34.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
 	google.golang.org/api v0.260.0 // indirect
@@ -402,7 +402,7 @@ require (
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
-	github.com/google/pprof v0.0.0-20250820193118-f64d9cf942d6 // indirect
+	github.com/google/pprof v0.0.0-20260115054156-294ebfa9ad83 // indirect
 	github.com/hashicorp/hcl/v2 v2.24.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -429,12 +429,12 @@ require (
 	github.com/yashtewari/glob-intersection v0.2.0 // indirect
 	github.com/zclconf/go-cty v1.17.0 // indirect
 	go.uber.org/zap v1.27.1 // indirect
-	golang.org/x/crypto v0.46.0 // indirect
-	golang.org/x/sys v0.39.0 // indirect
-	golang.org/x/term v0.38.0 // indirect
+	golang.org/x/crypto v0.47.0 // indirect
+	golang.org/x/sys v0.40.0 // indirect
+	golang.org/x/term v0.39.0 // indirect
 	golang.org/x/text v0.33.0
 	golang.org/x/time v0.14.0 // indirect
-	golang.org/x/tools v0.40.0 // indirect
+	golang.org/x/tools v0.41.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect

@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: trivy-operator-pvc
+  namespace: trivy-system
+status:
+  phase: Bound

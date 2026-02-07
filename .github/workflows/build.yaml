@@ -149,6 +149,7 @@ jobs:
         with:
           version: ${{ env.KIND_VERSION }}
           image: ${{ env.KIND_IMAGE }}
+          config: tests/kind-config.yaml
 
       - name: Test connection to Kubernetes cluster
         run: |
@@ -215,6 +216,7 @@ jobs:
         with:
           version: ${{ env.KIND_VERSION }}
           image: kindest/node:v1.31.0@sha256:53df588e04085fd41ae12de0c3fe4c72f7013bba32a20e7325357a1ac94ba865   # Using outdated version of k8s to test the cluster vulnerability reports
+          config: tests/kind-config.yaml
 
       - name: Test connection to Kubernetes cluster
         run: |
@@ -287,6 +289,13 @@ jobs:
           kubectl create namespace e2e-test
 
           ./bin/kuttl test --start-kind=false --namespace e2e-test --config tests/e2e/config/fs-sbom.yaml
+
+          ./tests/resources-cleanup.sh > /dev/null 2>&1
+      - name: Alternate report storage (PVC-backed)
+        run: |
+          kubectl create namespace e2e-test
+
+          ./bin/kuttl test --start-kind=false --namespace e2e-test --config tests/e2e/config/alt-report-storage.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
       - name: Node scan producing cluster infraassessment report

@@ -7172,7 +7172,6 @@ var (
 				Severity:         v1alpha1.SeverityMedium,
 				Title:            "openssl: information disclosure in fork()",
 				PrimaryLink:      "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-1549",
-				Links:            []string{},
 			},
 			{
 				VulnerabilityID:  "CVE-2019-1547",
@@ -7182,7 +7181,6 @@ var (
 				Severity:         v1alpha1.SeverityLow,
 				Title:            "openssl: side-channel weak encryption vulnerability",
 				PrimaryLink:      "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-1547",
-				Links:            []string{},
 			},
 		},
 	}

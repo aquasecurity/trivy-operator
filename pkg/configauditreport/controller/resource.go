@@ -241,7 +241,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
 			// Write reports to alternate storage if enabled
 			log.V(1).Info("Writing config, infra and rbac reports to alternate storage", "dir", r.Config.AltReportDir)
-			return r.writeAlternateReports(resource, misConfigData, log)
+			return r.writeAlternateReports(resource, misConfigData, resourceHash, policiesHash, resourceLabelsToInclude, additionalCustomLabel, log)
 		}
 		// create config-audit report
 		if !kube.IsRoleTypes(kube.Kind(kind)) || r.MergeRbacFindingWithConfigAudit {
@@ -295,7 +295,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 	}
 }
 
-func (r *ResourceController) writeAlternateReports(resource client.Object, misConfigData Misconfiguration, log logr.Logger) (ctrl.Result, error) {
+func (r *ResourceController) writeAlternateReports(resource client.Object, misConfigData Misconfiguration, resourceHash, policiesHash string, resourceLabelsToInclude []string, additionalCustomLabel map[string]string, log logr.Logger) (ctrl.Result, error) {
 	// Write reports to alternate storage if enabled
 	if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
 		// Get the report directory from the environment variable
@@ -321,42 +321,115 @@ func (r *ResourceController) writeAlternateReports(resource client.Object, misCo
 		// Extract workload kind and name from resource labels
 		workloadKind := resource.GetObjectKind().GroupVersionKind().Kind
 		workloadName := resource.GetName()
+		kind := kube.Kind(workloadKind)
 
-		// Write config audit report to a file
-		configReportData, err := json.Marshal(misConfigData.configAuditReportData)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		configReportPath := filepath.Join(configAuditDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-		err = os.WriteFile(configReportPath, configReportData, 0o600)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		log.Info("Config audit report written", "path", configReportPath)
+		// Build and write config audit report to a file (with full metadata)
+		if !kube.IsRoleTypes(kind) || r.MergeRbacFindingWithConfigAudit {
+			reportBuilder := configauditreport.NewReportBuilder(r.Client.Scheme()).
+				Controller(resource).
+				ResourceSpecHash(resourceHash).
+				PluginConfigHash(policiesHash).
+				ResourceLabelsToInclude(resourceLabelsToInclude).
+				AdditionalReportLabels(additionalCustomLabel).
+				Data(misConfigData.configAuditReportData)
+			if r.Config.ScannerReportTTL != nil {
+				reportBuilder.ReportTTL(r.Config.ScannerReportTTL)
+			}
 
-		// Write infra assessment report to a file
-		infraReportData, err := json.Marshal(misConfigData.infraAssessmentReportData)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		infraReportPath := filepath.Join(infraAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-		err = os.WriteFile(infraReportPath, infraReportData, 0o600)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		log.Info("Infra assessment report written", "path", infraReportPath)
+			var configReport interface{}
+			var err error
+			if kube.IsClusterScopedKind(workloadKind) {
+				configReport, err = reportBuilder.GetClusterReport()
+			} else {
+				configReport, err = reportBuilder.GetReport()
+			}
+			if err != nil {
+				return ctrl.Result{}, fmt.Errorf("building config audit report: %w", err)
+			}
 
-		// Write RBAC assessment report to a file
-		rbacReportData, err := json.Marshal(misConfigData.rbacAssessmentReportData)
-		if err != nil {
-			return ctrl.Result{}, err
+			configReportData, err := json.Marshal(configReport)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			configReportPath := filepath.Join(configAuditDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
+			err = os.WriteFile(configReportPath, configReportData, 0o600)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			log.Info("Config audit report written", "path", configReportPath)
 		}
-		rbacReportPath := filepath.Join(rbacAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-		err = os.WriteFile(rbacReportPath, rbacReportData, 0o600)
-		if err != nil {
-			return ctrl.Result{}, err
+
+		// Build and write infra assessment report to a file (with full metadata)
+		if k8sCoreComponent(resource) && r.Config.InfraAssessmentScannerEnabled {
+			infraReportBuilder := infraassessment.NewReportBuilder(r.Client.Scheme()).
+				Controller(resource).
+				ResourceSpecHash(resourceHash).
+				PluginConfigHash(policiesHash).
+				ResourceLabelsToInclude(resourceLabelsToInclude).
+				AdditionalReportLabels(additionalCustomLabel).
+				Data(misConfigData.infraAssessmentReportData)
+			if r.Config.ScannerReportTTL != nil {
+				infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
+			}
+
+			var infraReport interface{}
+			var err error
+			if kube.IsClusterScopedKind(workloadKind) {
+				infraReport, err = infraReportBuilder.GetClusterReport()
+			} else {
+				infraReport, err = infraReportBuilder.GetReport()
+			}
+			if err != nil {
+				return ctrl.Result{}, fmt.Errorf("building infra assessment report: %w", err)
+			}
+
+			infraReportData, err := json.Marshal(infraReport)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			infraReportPath := filepath.Join(infraAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
+			err = os.WriteFile(infraReportPath, infraReportData, 0o600)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			log.Info("Infra assessment report written", "path", infraReportPath)
 		}
-		log.Info("RBAC assessment report written", "path", rbacReportPath)
+
+		// Build and write RBAC assessment report to a file (with full metadata)
+		if kube.IsRoleTypes(kind) && r.Config.RbacAssessmentScannerEnabled && !r.MergeRbacFindingWithConfigAudit {
+			rbacReportBuilder := rbacassessment.NewReportBuilder(r.Client.Scheme()).
+				Controller(resource).
+				ResourceSpecHash(resourceHash).
+				PluginConfigHash(policiesHash).
+				ResourceLabelsToInclude(resourceLabelsToInclude).
+				AdditionalReportLabels(additionalCustomLabel).
+				Data(misConfigData.rbacAssessmentReportData)
+			if r.Config.ScannerReportTTL != nil {
+				rbacReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
+			}
+
+			var rbacReport interface{}
+			var err error
+			if kube.IsClusterScopedKind(workloadKind) {
+				rbacReport, err = rbacReportBuilder.GetClusterReport()
+			} else {
+				rbacReport, err = rbacReportBuilder.GetReport()
+			}
+			if err != nil {
+				return ctrl.Result{}, fmt.Errorf("building rbac assessment report: %w", err)
+			}
+
+			rbacReportData, err := json.Marshal(rbacReport)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			rbacReportPath := filepath.Join(rbacAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
+			err = os.WriteFile(rbacReportPath, rbacReportData, 0o600)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+			log.Info("RBAC assessment report written", "path", rbacReportPath)
+		}
 	}
 	return ctrl.Result{}, nil
 }

@@ -138,6 +138,8 @@ dockers:
     goos: linux
     dockerfile: build/trivy-operator/Dockerfile.ubi9
     goarch: arm64
+    extra_files:
+      - LICENSE
     ids:
       - trivy-operator
     build_flag_templates:
@@ -198,6 +200,8 @@ dockers:
     goos: linux
     dockerfile: build/trivy-operator/Dockerfile.ubi9
     goarch: s390x
+    extra_files:
+      - LICENSE
     ids:
       - trivy-operator
     build_flag_templates:
@@ -218,6 +222,8 @@ dockers:
     goos: linux
     dockerfile: build/trivy-operator/Dockerfile.ubi9
     goarch: ppc64le
+    extra_files:
+      - LICENSE
     ids:
       - trivy-operator
     build_flag_templates:

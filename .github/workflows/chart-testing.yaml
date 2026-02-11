@@ -61,6 +61,7 @@ jobs:
         with:
           version: ${{ env.KIND_VERSION }}
           image: ${{ env.KIND_IMAGE }}
+          config: tests/kind-config.yaml
 
       - name: Test connection to Kubernetes cluster
         run: |

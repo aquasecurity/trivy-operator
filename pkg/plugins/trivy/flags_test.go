@@ -14,15 +14,15 @@ func TestSlow(t *testing.T) {
 		name       string
 		configData trivyoperator.ConfigData
 		want       string
-	}{{
-
-		name: "slow param set to true",
-		configData: map[string]string{
-			"trivy.tag":  "0.35.0",
-			"trivy.slow": "true",
+	}{
+		{
+			name: "slow param set to true",
+			configData: map[string]string{
+				"trivy.tag":  "0.35.0",
+				"trivy.slow": "true",
+			},
+			want: "--slow",
 		},
-		want: "--slow",
-	},
 		{
 			name: "slow param set to false",
 			configData: map[string]string{
@@ -40,21 +40,36 @@ func TestSlow(t *testing.T) {
 			want: "--slow",
 		},
 		{
-			name: "slow param set to true and trivy tag is less then 0.35.0",
+			name: "slow param set to true and trivy tag is less than 0.35.0",
 			configData: map[string]string{
 				"trivy.slow": "true",
 				"trivy.tag":  "0.33.0",
 			},
 			want: "",
 		},
-
 		{
-			name: "slow param set to true and trivy tag is bigger then 0.35.0",
+			name: "slow param set to true and trivy tag is between 0.35.0 and 0.53.0",
 			configData: map[string]string{
 				"trivy.slow": "true",
-				"trivy.tag":  "0.36.0",
+				"trivy.tag":  "0.45.0",
 			},
 			want: "--slow",
+		},
+		{
+			name: "slow param set to true and trivy tag is 0.53.0",
+			configData: map[string]string{
+				"trivy.slow": "true",
+				"trivy.tag":  "0.53.0",
+			},
+			want: "--parallel 1",
+		},
+		{
+			name: "slow param set to true and trivy tag is greater than 0.53.0",
+			configData: map[string]string{
+				"trivy.slow": "true",
+				"trivy.tag":  "0.62.1",
+			},
+			want: "--parallel 1",
 		},
 	}
 	for _, tc := range testCases {

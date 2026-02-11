@@ -155,6 +155,11 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 	if err != nil {
 		return err
 	}
+	resourceAnnotationsToInclude := r.GetReportResourceAnnotations()
+	additionalCustomAnnotations, err := r.GetAdditionalReportAnnotations()
+	if err != nil {
+		return err
+	}
 	misConfigData, err := evaluate(ctx, policies, node, r.BuildInfo, r.ConfigData, r.Config, nodeInfo)
 	if err != nil {
 		return fmt.Errorf("failed to evaluate policies on Node : %w", err)
@@ -165,6 +170,8 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 		PluginConfigHash(policiesHash).
 		ResourceLabelsToInclude(resourceLabelsToInclude).
 		AdditionalReportLabels(additionalCustomLabels).
+		ResourceAnnotationsToInclude(resourceAnnotationsToInclude).
+		AdditionalReportAnnotations(additionalCustomAnnotations).
 		Data(misConfigData.infraAssessmentReportData)
 	if r.Config.ScannerReportTTL != nil {
 		infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)

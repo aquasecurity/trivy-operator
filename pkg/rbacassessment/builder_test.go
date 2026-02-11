@@ -29,9 +29,10 @@ func TestReportBuilder(t *testing.T) {
 					APIVersion: "rbac.authorization.k8s.io/v1",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "some-owner",
-					Namespace: "qa",
-					Labels:    labels.Set{"tier": "tier-1", "owner": "team-a"},
+					Name:        "some-owner",
+					Namespace:   "qa",
+					Labels:      labels.Set{"tier": "tier-1", "owner": "team-a"},
+					Annotations: labels.Set{"test-annotation": "this is a test", "ignored-annotation": "should not be present"},
 				},
 				Rules: []rbacv1.PolicyRule{},
 			}).
@@ -39,6 +40,7 @@ func TestReportBuilder(t *testing.T) {
 			PluginConfigHash("nop").
 			Data(v1alpha1.RbacAssessmentReportData{}).
 			ResourceLabelsToInclude([]string{"tier"}).
+			ResourceAnnotationsToInclude([]string{"test-annotation"}).
 			GetReport()
 		g.Expect(err).ToNot(HaveOccurred())
 		assessmentReport := rbacReport()
@@ -55,9 +57,10 @@ func TestReportBuilder(t *testing.T) {
 					APIVersion: "rbac.authorization.k8s.io/v1",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "some-Owner",
-					Namespace: "qa",
-					Labels:    labels.Set{"tier": "tier-1", "owner": "team-a"},
+					Name:        "some-Owner",
+					Namespace:   "qa",
+					Labels:      labels.Set{"tier": "tier-1", "owner": "team-a"},
+					Annotations: labels.Set{"test-annotation": "this is a test", "ignored-annotation": "should not be present"},
 				},
 				Rules: []rbacv1.PolicyRule{},
 			}).
@@ -65,6 +68,7 @@ func TestReportBuilder(t *testing.T) {
 			PluginConfigHash("nop").
 			Data(v1alpha1.RbacAssessmentReportData{}).
 			ResourceLabelsToInclude([]string{"tier"}).
+			ResourceAnnotationsToInclude([]string{"test-annotation"}).
 			GetReport()
 		g.Expect(err).ToNot(HaveOccurred())
 		assessmentReport := v1alpha1.RbacAssessmentReport{
@@ -88,6 +92,9 @@ func TestReportBuilder(t *testing.T) {
 					trivyoperator.LabelPluginConfigHash:  "nop",
 					trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
 					"tier":                               "tier-1",
+				},
+				Annotations: map[string]string{
+					"test-annotation": "this is a test",
 				},
 			},
 			Report: v1alpha1.RbacAssessmentReportData{},
@@ -156,14 +163,16 @@ func TestReportBuilder(t *testing.T) {
 					APIVersion: "rbac.authorization.k8s.io/v1",
 				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:   "system:controller:node-controller",
-					Labels: labels.Set{"tier": "tier-1", "owner": "team-a"},
+					Name:        "system:controller:node-controller",
+					Labels:      labels.Set{"tier": "tier-1", "owner": "team-a"},
+					Annotations: labels.Set{"test-annotation": "this is a test", "ignored-annotation": "should not be present"},
 				},
 			}).
 			ResourceSpecHash("xyz").
 			PluginConfigHash("nop").
 			Data(v1alpha1.ConfigAuditReportData{}).
 			ResourceLabelsToInclude([]string{"tier"}).
+			ResourceAnnotationsToInclude([]string{"test-annotation"}).
 			GetClusterReport()
 
 		g.Expect(err).ToNot(HaveOccurred())
@@ -190,6 +199,7 @@ func TestReportBuilder(t *testing.T) {
 				},
 				Annotations: map[string]string{
 					trivyoperator.LabelResourceName: "system:controller:node-controller",
+					"test-annotation":               "this is a test",
 				},
 			},
 			Report: v1alpha1.ConfigAuditReportData{},
@@ -272,6 +282,9 @@ func rbacReport() v1alpha1.RbacAssessmentReport {
 				trivyoperator.LabelPluginConfigHash:  "nop",
 				trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
 				"tier":                               "tier-1",
+			},
+			Annotations: map[string]string{
+				"test-annotation": "this is a test",
 			},
 		},
 		Report: v1alpha1.RbacAssessmentReportData{},

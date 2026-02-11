@@ -15,6 +15,7 @@ import (
 // +kubebuilder:printcolumn:name="Age",type=date,JSONPath=`.metadata.creationTimestamp`,description="The age of the report"
 // +kubebuilder:printcolumn:name="Fail",type=integer,JSONPath=`.status.summary.failCount`,priority=1,description="The number of checks that failed"
 // +kubebuilder:printcolumn:name="Pass",type=integer,JSONPath=`.status.summary.passCount`,priority=1,description="The number of checks that passed"
+// +genclient
 
 // ClusterComplianceReport is a specification for the ClusterComplianceReport resource.
 type ClusterComplianceReport struct {

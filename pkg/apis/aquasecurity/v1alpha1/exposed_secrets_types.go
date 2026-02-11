@@ -50,6 +50,7 @@ type ExposedSecret struct {
 // +kubebuilder:printcolumn:name="High",type=integer,JSONPath=`.report.summary.highCount`,priority=1,description="The number of high exposed secrets"
 // +kubebuilder:printcolumn:name="Medium",type=integer,JSONPath=`.report.summary.mediumCount`,priority=1,description="The number of medium exposed secrets"
 // +kubebuilder:printcolumn:name="Low",type=integer,JSONPath=`.report.summary.lowCount`,priority=1,description="The number of low exposed secrets"
+// +genclient
 
 // ExposedSecretReport summarizes exposed secrets in plaintext files built into container images.
 type ExposedSecretReport struct {

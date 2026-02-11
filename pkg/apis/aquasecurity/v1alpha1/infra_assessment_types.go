@@ -29,6 +29,7 @@ type InfraAssessmentSummary struct {
 // +kubebuilder:printcolumn:name="High",type=integer,JSONPath=`.report.summary.highCount`,priority=1,description="The number of failed checks with high severity"
 // +kubebuilder:printcolumn:name="Medium",type=integer,JSONPath=`.report.summary.mediumCount`,priority=1,description="The number of failed checks with medium severity"
 // +kubebuilder:printcolumn:name="Low",type=integer,JSONPath=`.report.summary.lowCount`,priority=1,description="The number of failed checks with low severity"
+// +genclient
 
 // ClusterInfraAssessmentReport is a specification for the ClusterInfraAssessmentReport resource.
 type ClusterInfraAssessmentReport struct {
@@ -56,6 +57,7 @@ type ClusterInfraAssessmentReportList struct {
 // +kubebuilder:printcolumn:name="High",type=integer,JSONPath=`.report.summary.highCount`,priority=1,description="The number of failed checks with high severity"
 // +kubebuilder:printcolumn:name="Medium",type=integer,JSONPath=`.report.summary.mediumCount`,priority=1,description="The number of failed checks with medium severity"
 // +kubebuilder:printcolumn:name="Low",type=integer,JSONPath=`.report.summary.lowCount`,priority=1,description="The number of failed checks with low severity"
+// +genclient
 
 // InfraAssessmentReport is a specification for the InfraAssessmentReport resource.
 type InfraAssessmentReport struct {

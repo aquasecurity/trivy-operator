@@ -234,8 +234,12 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 	}
 
 	var platform string
-	arch, err := p.objectResolver.GetNodeArch(context.Background(), workload)
-	if err == nil && arch != "" {
+	// Infer node arch from pod spec, and only call APIs if node selector is not specified
+	var arch = spec.NodeSelector[corev1.LabelArchStable]
+	if arch == "" && p.objectResolver != nil {
+		arch, _ = p.objectResolver.GetNodeArch(context.Background(), workload)
+	}
+	if arch != "" {
 		// Assuming 'linux' OS as per the implementation of LinuxNodeAffinity()
 		platform = "linux/" + arch
 	}

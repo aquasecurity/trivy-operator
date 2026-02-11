@@ -1,6 +1,7 @@
 package trivy
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"regexp"
@@ -232,6 +233,13 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 		trivyServerURL = parsedTrivyServerURL.String()
 	}
 
+	var platform string
+	arch, err := p.objectResolver.GetNodeArch(context.Background(), workload)
+	if err == nil && arch != "" {
+		// Assuming 'linux' OS as per the implementation of LinuxNodeAffinity()
+		platform = "linux/" + arch
+	}
+
 	containers := make([]corev1.Container, 0)
 
 	for _, c := range containersSpec {
@@ -348,7 +356,7 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 			return corev1.PodSpec{}, nil, err
 		}
 		resultFileName := getUniqueScanResultFileName(c.Name)
-		cmd, args := getCommandAndArgs(ctx, mode, imageRef.String(), trivyServerURL, resultFileName)
+		cmd, args := getCommandAndArgs(ctx, mode, imageRef.String(), trivyServerURL, resultFileName, platform)
 		if len(clusterSboms) > 0 { // trivy sbom ...
 			if sbomreportData, ok := clusterSboms[c.Name]; ok {
 				secretName := fmt.Sprintf("sbom-%s", c.Name)
@@ -360,7 +368,7 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 				fileName := fmt.Sprintf("%s.json", secretName)
 				mountPath := fmt.Sprintf("/sbom-%s", c.Name)
 				CreateVolumeSbomFiles(&volumeMounts, &volumes, &secretName, fileName, mountPath, c.Name)
-				cmd, args = GetSbomScanCommandAndArgs(ctx, mode, fmt.Sprintf("%s/%s", mountPath, fileName), trivyServerURL, resultFileName)
+				cmd, args = GetSbomScanCommandAndArgs(ctx, mode, fmt.Sprintf("%s/%s", mountPath, fileName), trivyServerURL, resultFileName, platform)
 			}
 		}
 		containers = append(containers, corev1.Container{
@@ -432,7 +440,7 @@ func initContainerEnvVar(trivyConfigName string, config Config, dockerConfigPath
 	return envs
 }
 
-func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef, trivyServerURL, resultFileName string) ([]string, []string) {
+func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef, trivyServerURL, resultFileName, platform string) ([]string, []string) {
 	trivyOperatorConfig := ctx.GetTrivyOperatorConfig()
 	trivyConfig, err := getConfig(ctx)
 
@@ -453,6 +461,10 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef, tri
 	imcs := imageConfigSecretScanner(trivyOperatorConfig)
 	if len(imcs) > 0 {
 		args = append(args, imcs...)
+	}
+
+	if platform != "" {
+		args = append(args, "--platform", platform)
 	}
 
 	sbomSources := trivyConfig.GetSbomSources()
@@ -522,7 +534,7 @@ func buildTrailingCommandArgs(resultFileName string, compressLogs bool) string {
 	return fmt.Sprintf("; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/%s.log; else %s; fi; exit $rc", resultFileName, cmd)
 }
 
-func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomFile, trivyServerURL, resultFileName string) ([]string, []string) {
+func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomFile, trivyServerURL, resultFileName, platform string) ([]string, []string) {
 	trivyConfig := ctx.GetTrivyOperatorConfig()
 	compressLogs := trivyConfig.CompressLogs()
 	c, err := getConfig(ctx)
@@ -550,6 +562,10 @@ func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomF
 	}
 
 	args = append(args, sbomFile)
+
+	if platform != "" {
+		args = append(args, "--platform", platform)
+	}
 
 	if slow != "" {
 		args = append(args, slow)

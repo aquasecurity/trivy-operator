@@ -1645,3 +1645,119 @@ func TestIsRoleRelatedNamespaceScope(t *testing.T) {
 		})
 	}
 }
+
+func TestObjectResolver_GetNodeArch(t *testing.T) {
+	testCases := []struct {
+		name     string
+		workload client.Object
+		node     *corev1.Node
+		pod      *corev1.Pod
+		want     string
+		wantErr  bool
+	}{
+		{
+			name: "Should return arm64 for pod on arm64 node",
+			workload: &corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-pod",
+					Namespace: "default",
+				},
+				Spec: corev1.PodSpec{
+					NodeName: "arm64-node",
+				},
+			},
+			node: &corev1.Node{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "arm64-node",
+					Labels: map[string]string{
+						corev1.LabelArchStable: "arm64",
+					},
+				},
+			},
+			want:    "arm64",
+			wantErr: false,
+		},
+		{
+			name: "Should return amd64 for pod on amd64 node",
+			workload: &corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-pod",
+					Namespace: "default",
+				},
+				Spec: corev1.PodSpec{
+					NodeName: "amd64-node",
+				},
+			},
+			node: &corev1.Node{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "amd64-node",
+					Labels: map[string]string{
+						corev1.LabelArchStable: "amd64",
+					},
+				},
+			},
+			want:    "amd64",
+			wantErr: false,
+		},
+		{
+			name: "Should return empty string when node has no arch label",
+			workload: &corev1.Pod{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-pod",
+					Namespace: "default",
+				},
+				Spec: corev1.PodSpec{
+					NodeName: "no-arch-node",
+				},
+			},
+			node: &corev1.Node{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:   "no-arch-node",
+					Labels: map[string]string{},
+				},
+			},
+			want:    "",
+			wantErr: false,
+		},
+		{
+			name: "Should return error for CronJob",
+			workload: &batchv1.CronJob{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test-cronjob",
+					Namespace: "default",
+				},
+			},
+			want:    "",
+			wantErr: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			ctx := t.Context()
+			objects := []client.Object{}
+			if tc.node != nil {
+				objects = append(objects, tc.node)
+			}
+			if tc.pod != nil {
+				objects = append(objects, tc.pod)
+			}
+			objects = append(objects, tc.workload)
+
+			client := fake.NewClientBuilder().
+				WithScheme(trivyoperator.NewScheme()).
+				WithObjects(objects...).
+				Build()
+
+			resolver := kube.NewObjectResolver(client, &kube.CompatibleObjectMapper{})
+			arch, err := resolver.GetNodeArch(ctx, tc.workload)
+
+			if tc.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tc.want, arch)
+			}
+		})
+	}
+}

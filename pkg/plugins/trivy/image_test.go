@@ -68,6 +68,7 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 		sbomFile       string
 		serverUrl      string
 		resultFileName string
+		platform       string
 		wantCmd        []string
 		wantArgs       []string
 		compressedLogs string
@@ -78,6 +79,7 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 			sbomFile:       "/tmp/scan/bom.json",
 			serverUrl:      "",
 			resultFileName: "result_output.json",
+			platform:       "",
 			compressedLogs: "true",
 			wantArgs:       []string{"-c", "trivy --cache-dir /tmp/trivy/.cache sbom --format json /tmp/scan/bom.json --slow --skip-db-update --output /tmp/scan/result_output.json 2>/tmp/scan/result_output.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_output.json.log; else bzip2 -c /tmp/scan/result_output.json | base64; fi; exit $rc"},
 			wantCmd:        []string{"/bin/sh"},
@@ -88,6 +90,7 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 			sbomFile:       "/tmp/scan/bom.json",
 			serverUrl:      "",
 			resultFileName: "result_output.json",
+			platform:       "",
 			compressedLogs: "false",
 			wantArgs:       []string{"-c", "trivy --cache-dir /tmp/trivy/.cache sbom --format json /tmp/scan/bom.json --slow --skip-db-update --output /tmp/scan/result_output.json 2>/tmp/scan/result_output.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_output.json.log; else cat /tmp/scan/result_output.json; fi; exit $rc"},
 			wantCmd:        []string{"/bin/sh"},
@@ -98,6 +101,7 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 			sbomFile:       "/tmp/scan/bom.json",
 			serverUrl:      "http://trivy-server:8080",
 			resultFileName: "result_output.json",
+			platform:       "",
 			compressedLogs: "true",
 			wantArgs:       []string{"-c", "trivy --cache-dir /tmp/trivy/.cache sbom --format json --server http://trivy-server:8080 /tmp/scan/bom.json --slow --output /tmp/scan/result_output.json 2>/tmp/scan/result_output.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_output.json.log; else bzip2 -c /tmp/scan/result_output.json | base64; fi; exit $rc"},
 			wantCmd:        []string{"/bin/sh"},
@@ -108,8 +112,42 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 			sbomFile:       "/tmp/scan/bom.json",
 			serverUrl:      "http://trivy-server:8080",
 			resultFileName: "result_output.json",
+			platform:       "",
 			compressedLogs: "false",
 			wantArgs:       []string{"-c", "trivy --cache-dir /tmp/trivy/.cache sbom --format json --server http://trivy-server:8080 /tmp/scan/bom.json --slow --output /tmp/scan/result_output.json 2>/tmp/scan/result_output.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_output.json.log; else cat /tmp/scan/result_output.json; fi; exit $rc"},
+			wantCmd:        []string{"/bin/sh"},
+		},
+		{
+			name:           "command and args with arm64 platform",
+			mode:           trivy.Standalone,
+			sbomFile:       "/tmp/scan/bom.json",
+			serverUrl:      "",
+			resultFileName: "result_output.json",
+			platform:       "linux/arm64",
+			compressedLogs: "false",
+			wantArgs:       []string{"-c", "trivy --cache-dir /tmp/trivy/.cache sbom --format json /tmp/scan/bom.json --platform linux/arm64 --slow --skip-db-update --output /tmp/scan/result_output.json 2>/tmp/scan/result_output.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_output.json.log; else cat /tmp/scan/result_output.json; fi; exit $rc"},
+			wantCmd:        []string{"/bin/sh"},
+		},
+		{
+			name:           "command and args with amd64 platform",
+			mode:           trivy.Standalone,
+			sbomFile:       "/tmp/scan/bom.json",
+			serverUrl:      "",
+			resultFileName: "result_output.json",
+			platform:       "linux/amd64",
+			compressedLogs: "false",
+			wantArgs:       []string{"-c", "trivy --cache-dir /tmp/trivy/.cache sbom --format json /tmp/scan/bom.json --platform linux/amd64 --slow --skip-db-update --output /tmp/scan/result_output.json 2>/tmp/scan/result_output.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_output.json.log; else cat /tmp/scan/result_output.json; fi; exit $rc"},
+			wantCmd:        []string{"/bin/sh"},
+		},
+		{
+			name:           "command and args with platform in client/server mode",
+			mode:           trivy.ClientServer,
+			sbomFile:       "/tmp/scan/bom.json",
+			serverUrl:      "http://trivy-server:8080",
+			resultFileName: "result_output.json",
+			platform:       "linux/arm64",
+			compressedLogs: "false",
+			wantArgs:       []string{"-c", "trivy --cache-dir /tmp/trivy/.cache sbom --format json --server http://trivy-server:8080 /tmp/scan/bom.json --platform linux/arm64 --slow --output /tmp/scan/result_output.json 2>/tmp/scan/result_output.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_output.json.log; else cat /tmp/scan/result_output.json; fi; exit $rc"},
 			wantCmd:        []string{"/bin/sh"},
 		},
 	}
@@ -140,7 +178,7 @@ func TestGetSbomScanCommandAndArgs(t *testing.T) {
 					"trivy.clientServerSkipUpdate": "false",
 				}).
 				Get()
-			cmd, args := trivy.GetSbomScanCommandAndArgs(pluginContext, tc.mode, tc.sbomFile, tc.serverUrl, tc.resultFileName)
+			cmd, args := trivy.GetSbomScanCommandAndArgs(pluginContext, tc.mode, tc.sbomFile, tc.serverUrl, tc.resultFileName, tc.platform)
 			assert.Equal(t, tc.wantCmd, cmd)
 			assert.Equal(t, tc.wantArgs, args)
 		})

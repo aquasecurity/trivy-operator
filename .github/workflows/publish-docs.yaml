@@ -24,19 +24,19 @@ jobs:
     steps:
       - name: Checkout main
         if: github.event.inputs.ref == ''
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.client_payload.tag }}
           persist-credentials: true
       - name: Checkout main
         if: github.event.inputs.ref != ''
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.ref }}
           persist-credentials: true
-      - uses: actions/setup-python@5db1cf9a59fb97c40a68accab29236f0da7e94db
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: 3.x
       - run: |

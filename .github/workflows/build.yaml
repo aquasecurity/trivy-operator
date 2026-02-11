@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Maximize build space
-        uses: AdityaGarg8/remove-unwanted-software@v5
+        uses: AdityaGarg8/remove-unwanted-software@90e01b21170618765a73370fcc3abbd1684a7793 # v5
         with:
           remove-android: 'true'
           remove-dotnet: 'true'
@@ -120,7 +120,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Maximize build space
-        uses: AdityaGarg8/remove-unwanted-software@v5
+        uses: AdityaGarg8/remove-unwanted-software@90e01b21170618765a73370fcc3abbd1684a7793 # v5
         with:
           remove-android: 'true'
           remove-dotnet: 'true'
@@ -180,7 +180,7 @@ jobs:
       GOEXPERIMENT: jsonv2
     steps:
       - name: Maximize build space
-        uses: AdityaGarg8/remove-unwanted-software@v5
+        uses: AdityaGarg8/remove-unwanted-software@90e01b21170618765a73370fcc3abbd1684a7793 # v5
         with:
           remove-android: 'true'
           remove-dotnet: 'true'

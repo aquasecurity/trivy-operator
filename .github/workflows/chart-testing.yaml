@@ -26,7 +26,7 @@ jobs:
       DOCKER_CLI_EXPERIMENTAL: enabled
     steps:
       - name: Maximize build space
-        uses: AdityaGarg8/remove-unwanted-software@v5
+        uses: AdityaGarg8/remove-unwanted-software@90e01b21170618765a73370fcc3abbd1684a7793 # v5
         with:
           remove-android: 'true'
           remove-dotnet: 'true'

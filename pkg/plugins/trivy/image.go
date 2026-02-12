@@ -233,17 +233,6 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 		trivyServerURL = parsedTrivyServerURL.String()
 	}
 
-	var platform string
-	// Infer node arch from pod spec, and only call APIs if node selector is not specified
-	var arch = spec.NodeSelector[corev1.LabelArchStable]
-	if arch == "" && p.objectResolver != nil {
-		arch, _ = p.objectResolver.GetNodeArch(context.Background(), workload)
-	}
-	if arch != "" {
-		// Assuming 'linux' OS as per the implementation of LinuxNodeAffinity()
-		platform = "linux/" + arch
-	}
-
 	containers := make([]corev1.Container, 0)
 
 	for _, c := range containersSpec {
@@ -360,6 +349,7 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 			return corev1.PodSpec{}, nil, err
 		}
 		resultFileName := getUniqueScanResultFileName(c.Name)
+		platform := getPlatform(workload, spec, p)
 		cmd, args := getCommandAndArgs(ctx, mode, imageRef.String(), trivyServerURL, resultFileName, platform)
 		if len(clusterSboms) > 0 { // trivy sbom ...
 			if sbomreportData, ok := clusterSboms[c.Name]; ok {
@@ -398,6 +388,20 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 		InitContainers:               initContainers,
 		SecurityContext:              &corev1.PodSecurityContext{},
 	}, secrets, nil
+}
+
+// getPlatform determines the platform (OS/arch) for Trivy image scanning.
+// Infer node arch from pod spec, and only query API if node selector is not specified.
+// Assuming 'linux' OS as per the implementation of LinuxNodeAffinity()
+func getPlatform(workload client.Object, spec corev1.PodSpec, p *plugin) string {
+	arch := spec.NodeSelector[corev1.LabelArchStable]
+	if arch == "" {
+		arch, _ = p.objectResolver.GetNodeArch(context.Background(), workload)
+	}
+	if arch != "" {
+		return "linux/" + arch
+	}
+	return ""
 }
 
 func getAdditionalVolumes(config *Config, trivyConfigName string, workload client.Object) ([]corev1.Volume, []corev1.VolumeMount) {

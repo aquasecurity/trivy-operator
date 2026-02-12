@@ -578,6 +578,22 @@ func (o *ObjectResolver) RelatedReplicaSetName(ctx context.Context, object Objec
 	return "", fmt.Errorf("can only get related ReplicaSet for Deployment or Pod, not %q", string(object.Kind))
 }
 
+// GetNodeArch returns the architecture label of the node where the workload is running.
+// Returns empty string if architecture cannot be determined.
+func (o *ObjectResolver) GetNodeArch(ctx context.Context, obj client.Object) (string, error) {
+	nodeName, err := o.GetNodeName(ctx, obj)
+	if err != nil {
+		return "", err
+	}
+
+	node := &corev1.Node{}
+	if err := o.Client.Get(ctx, client.ObjectKey{Name: nodeName}, node); err != nil {
+		return "", err
+	}
+
+	return node.Labels[corev1.LabelArchStable], nil
+}
+
 // GetNodeName returns the name of the node on which the given workload is
 // scheduled. If there are no running pods then the ErrNoRunningPods error is
 // returned. If there are no active ReplicaSets for the Deployment the

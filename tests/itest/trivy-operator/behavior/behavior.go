@@ -3,16 +3,19 @@ package behavior
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/apimachinery/pkg/util/rand"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/tests/itest/helper"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -64,6 +67,73 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 				Expect(err).ToNot(HaveOccurred())
 			})
 
+		})
+
+		Context("When PersistentVolumeClaim is created", func() {
+
+			var ctx context.Context
+			var pvc *corev1.PersistentVolumeClaim
+
+			BeforeEach(func() {
+				ctx = context.Background()
+				qty := resource.MustParse("1Gi")
+				pvc = &corev1.PersistentVolumeClaim{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: inputs.PrimaryNamespace,
+						Name:      "pvc-" + rand.String(5),
+					},
+					Spec: corev1.PersistentVolumeClaimSpec{
+						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
+						Resources: corev1.VolumeResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceStorage: qty,
+							},
+						},
+					},
+				}
+				err := inputs.Create(ctx, pvc)
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("Should not create VulnerabilityReport", func() {
+				Consistently(inputs.HasVulnerabilityReportOwnedBy(ctx, pvc), time.Minute, inputs.PollingInterval).Should(BeFalse())
+			})
+
+			AfterEach(func() {
+				err := inputs.Delete(ctx, pvc)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("When unsupported resource Secret is created", func() {
+
+			var ctx context.Context
+			var secret *corev1.Secret
+
+			BeforeEach(func() {
+				ctx = context.Background()
+				secret = &corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: inputs.PrimaryNamespace,
+						Name:      "secret-" + rand.String(5),
+					},
+					Type: corev1.SecretTypeOpaque,
+					StringData: map[string]string{
+						"foo": "bar",
+					},
+				}
+				err := inputs.Create(ctx, secret)
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("Should not create VulnerabilityReport", func() {
+				Consistently(inputs.HasVulnerabilityReportOwnedBy(ctx, secret), time.Minute, inputs.PollingInterval).Should(BeFalse())
+			})
+
+			AfterEach(func() {
+				err := inputs.Delete(ctx, secret)
+				Expect(err).ToNot(HaveOccurred())
+			})
 		})
 
 		Context("When Deployment is created", func() {
@@ -455,6 +525,183 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 				Expect(err).ToNot(HaveOccurred())
 			})
 
+		})
+
+		Context("When PersistentVolume is created", func() {
+
+			var ctx context.Context
+			var pv *corev1.PersistentVolume
+
+			BeforeEach(func() {
+				ctx = context.Background()
+				pv = &corev1.PersistentVolume{
+					ObjectMeta: metav1.ObjectMeta{
+						Name: "pv-" + rand.String(5),
+					},
+					Spec: corev1.PersistentVolumeSpec{
+						Capacity: corev1.ResourceList{
+							corev1.ResourceStorage: resource.MustParse("1Gi"),
+						},
+						AccessModes:                   []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
+						PersistentVolumeReclaimPolicy: corev1.PersistentVolumeReclaimDelete,
+						PersistentVolumeSource: corev1.PersistentVolumeSource{
+							HostPath: &corev1.HostPathVolumeSource{Path: "/tmp"},
+						},
+					},
+				}
+
+				err := inputs.Create(ctx, pv)
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("Should create ClusterConfigAuditReport", func() {
+				Eventually(inputs.HasClusterConfigAuditReportOwnedBy(ctx, pv), inputs.AssertTimeout).Should(BeTrue())
+			})
+
+			AfterEach(func() {
+				err := inputs.Delete(ctx, pv)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("When PersistentVolumeClaim is created", func() {
+
+			var ctx context.Context
+			var pvc *corev1.PersistentVolumeClaim
+
+			BeforeEach(func() {
+				ctx = context.Background()
+				qty := resource.MustParse("1Gi")
+				pvc = &corev1.PersistentVolumeClaim{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: inputs.PrimaryNamespace,
+						Name:      "pvc-" + rand.String(5),
+					},
+					Spec: corev1.PersistentVolumeClaimSpec{
+						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
+						Resources: corev1.VolumeResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceStorage: qty,
+							},
+						},
+					},
+				}
+				err := inputs.Create(ctx, pvc)
+				Expect(err).ToNot(HaveOccurred())
+			})
+
+			It("Should create ConfigAuditReport", func() {
+				Eventually(inputs.HasConfigAuditReportOwnedBy(ctx, pvc), inputs.AssertTimeout).Should(BeTrue())
+			})
+
+			AfterEach(func() {
+				err := inputs.Delete(ctx, pvc)
+				Expect(err).ToNot(HaveOccurred())
+			})
+		})
+
+		Context("When PersistentVolumeClaim scanning is disabled", func() {
+
+			var (
+				ctx           context.Context
+				pluginCM      *corev1.ConfigMap
+				pvc           *corev1.PersistentVolumeClaim
+				originalKinds string
+				cleanupPVC    func()
+				restoreConfig func()
+			)
+
+			findPluginConfigMap := func(ctx context.Context) (*corev1.ConfigMap, error) {
+				var cms corev1.ConfigMapList
+				if err := inputs.Client.List(ctx, &cms, &client.ListOptions{}); err != nil {
+					return nil, err
+				}
+				name := trivyoperator.GetPluginConfigMapName("Trivy")
+				for i := range cms.Items {
+					cm := cms.Items[i]
+					if cm.Name == name {
+						cpy := cm.DeepCopy()
+						return cpy, nil
+					}
+				}
+				return nil, nil
+			}
+
+			BeforeEach(func() {
+				ctx = context.Background()
+
+				var err error
+				pluginCM, err = findPluginConfigMap(ctx)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(pluginCM).ToNot(BeNil(), "plugin configmap not found")
+
+				if pluginCM.Data == nil {
+					pluginCM.Data = make(map[string]string)
+				}
+				originalKinds = pluginCM.Data["trivy.supportedConfigAuditKinds"]
+
+				kinds := originalKinds
+				if kinds == "" {
+					kinds = "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
+				}
+				parts := []string{}
+				for _, k := range strings.Split(kinds, ",") {
+					k = strings.TrimSpace(k)
+					if k == "PersistentVolumeClaim" {
+						continue
+					}
+					parts = append(parts, k)
+				}
+				pluginCM.Data["trivy.supportedConfigAuditKinds"] = strings.Join(parts, ",")
+				err = inputs.Client.Update(ctx, pluginCM)
+				Expect(err).ToNot(HaveOccurred())
+
+				// allow operator to reload config
+				time.Sleep(2 * time.Second)
+
+				qty := resource.MustParse("1Gi")
+				pvc = &corev1.PersistentVolumeClaim{
+					ObjectMeta: metav1.ObjectMeta{
+						Namespace: inputs.PrimaryNamespace,
+						Name:      "pvc-" + rand.String(5),
+					},
+					Spec: corev1.PersistentVolumeClaimSpec{
+						AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
+						Resources: corev1.VolumeResourceRequirements{
+							Requests: corev1.ResourceList{
+								corev1.ResourceStorage: qty,
+							},
+						},
+					},
+				}
+				err = inputs.Create(ctx, pvc)
+				Expect(err).ToNot(HaveOccurred())
+
+				cleanupPVC = func() { _ = inputs.Delete(ctx, pvc) }
+				restoreConfig = func() {
+					cm, err := findPluginConfigMap(ctx)
+					if err == nil && cm != nil {
+						if cm.Data == nil {
+							cm.Data = make(map[string]string)
+						}
+						cm.Data["trivy.supportedConfigAuditKinds"] = originalKinds
+						_ = inputs.Client.Update(ctx, cm)
+					}
+				}
+			})
+
+			AfterEach(func() {
+				if cleanupPVC != nil {
+					cleanupPVC()
+				}
+				if restoreConfig != nil {
+					restoreConfig()
+				}
+			})
+
+			It("Should not create ConfigAuditReport for PVC", func() {
+				Consistently(inputs.HasConfigAuditReportOwnedBy(ctx, pvc), time.Minute, inputs.PollingInterval).Should(BeFalse())
+			})
 		})
 	}
 }

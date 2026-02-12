@@ -35,12 +35,18 @@ type ReportBuilder struct {
 	reportTTL               *time.Duration
 	resourceLabelsToInclude []string
 	additionalReportLabels  labels.Set
+	scopeResolver           *kube.K8sScope
 }
 
 func NewReportBuilder(scheme *runtime.Scheme) *ReportBuilder {
 	return &ReportBuilder{
 		scheme: scheme,
 	}
+}
+
+func (b *ReportBuilder) ScopeResolver(sr *kube.K8sScope) *ReportBuilder {
+	b.scopeResolver = sr
+	return b
 }
 
 func (b *ReportBuilder) Controller(controller client.Object) *ReportBuilder {
@@ -177,7 +183,7 @@ func (b *ReportBuilder) GetClusterReport() (v1alpha1.ClusterInfraAssessmentRepor
 }
 
 func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
-	if kube.IsClusterScopedKind(b.controller.GetObjectKind().GroupVersionKind().Kind) {
+	if b.scopeResolver.IsClusterScope(b.controller.GetObjectKind().GroupVersionKind().Kind) {
 		report, err := b.GetClusterReport()
 		if err != nil {
 			return err

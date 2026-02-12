@@ -6,9 +6,6 @@ import (
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
-	networkingv1 "k8s.io/api/networking/v1"
-	rbacv1 "k8s.io/api/rbac/v1"
-	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/labels"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -41,32 +38,14 @@ type PolicyConfigController struct {
 
 // Controller for trivy-operator-policies-config in the operator namespace; must be cluster scoped even with namespace predicate
 // +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch
-
 func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
-
-	// Determine which Kubernetes workloads the controller will reconcile and add them to resources
 	targetWorkloads := r.Config.GetTargetWorkloads()
-	workloadResources := make([]kube.Resource, 0)
-	for _, tw := range targetWorkloads {
-		var resource kube.Resource
-		if err := resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, r.ObjectResolver); err != nil {
-			return err
-		}
-		workloadResources = append(workloadResources, resource)
+
+	resources, clusterResources, err := kube.GetActiveResource(targetWorkloads, r.ObjectResolver, r.Scheme())
+	if err != nil {
+		return fmt.Errorf("unable to setup resources for PolicyConfigController: %w", err)
 	}
 
-	// Add non workload related resources
-	resources := []kube.Resource{
-		{Kind: kube.KindService, ForObject: &corev1.Service{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
-		{Kind: kube.KindConfigMap, ForObject: &corev1.ConfigMap{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
-		{Kind: kube.KindRole, ForObject: &rbacv1.Role{}, OwnsObject: &v1alpha1.RbacAssessmentReport{}},
-		{Kind: kube.KindRoleBinding, ForObject: &rbacv1.RoleBinding{}, OwnsObject: &v1alpha1.RbacAssessmentReport{}},
-		{Kind: kube.KindNetworkPolicy, ForObject: &networkingv1.NetworkPolicy{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
-		{Kind: kube.KindResourceQuota, ForObject: &corev1.ResourceQuota{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
-		{Kind: kube.KindLimitRange, ForObject: &corev1.LimitRange{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
-	}
-
-	resources = append(resources, workloadResources...)
 	for _, configResource := range resources {
 		if err := ctrl.NewControllerManagedBy(mgr).
 			For(&corev1.ConfigMap{}, builder.WithPredicates(
@@ -77,13 +56,6 @@ func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 			Complete(r.reconcileConfig(configResource.Kind)); err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", configResource.Kind, err)
 		}
-
-	}
-
-	clusterResources := []kube.Resource{
-		{Kind: kube.KindClusterRole, ForObject: &rbacv1.ClusterRole{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
-		{Kind: kube.KindClusterRoleBindings, ForObject: &rbacv1.ClusterRoleBinding{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
-		{Kind: kube.KindCustomResourceDefinition, ForObject: &apiextensionsv1.CustomResourceDefinition{}, OwnsObject: &v1alpha1.ClusterConfigAuditReport{}},
 	}
 
 	for _, resource := range clusterResources {
@@ -97,9 +69,7 @@ func (r *PolicyConfigController) SetupWithManager(mgr ctrl.Manager) error {
 			return err
 		}
 	}
-
 	return nil
-
 }
 
 func (r *PolicyConfigController) reconcileConfig(kind kube.Kind) reconcile.Func {

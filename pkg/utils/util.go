@@ -11,9 +11,6 @@ func MapKinds(kinds []string) []string {
 	set := hashset.New()
 	updatedKinds := make([]string, 0)
 	for _, kind := range kinds {
-		if !kube.IsValidK8sKind(kind) {
-			continue
-		}
 		if kind == "Workload" {
 			set.Add(string(kube.KindPod), string(kube.KindReplicationController),
 				string(kube.KindReplicaSet), string(kube.KindStatefulSet),

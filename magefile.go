@@ -66,11 +66,15 @@ var (
 	// Tool Binaries
 	LOCALBIN       = filepath.Join(PWD, "bin")
 	CONTROLLER_GEN = filepath.Join(LOCALBIN, "controller-gen")
+	CONVERSION_GEN = filepath.Join(LOCALBIN, "conversion-gen")
 	HELM_DOCS_GEN  = filepath.Join(LOCALBIN, "helm-docs")
 	ENVTEST        = filepath.Join(LOCALBIN, "setup-envtest")
 
 	// Controller Tools Version
 	CONTROLLER_TOOLS_VERSION = "v0.18.0"
+
+	// conversion-en Version
+	CONVERSION_GEN_VERSION = "v0.35.0"
 )
 
 //func init() {
@@ -247,6 +251,13 @@ func controllerGen() error {
 	return sh.RunWithV(GOLOCALBINENV, "go", "install", "sigs.k8s.io/controller-tools/cmd/controller-gen@"+CONTROLLER_TOOLS_VERSION)
 }
 
+// Target for downloading conversion-gen locally if necessary
+func conversionGen() error {
+	mg.Deps(localBin)
+	fmt.Println("Downloading conversion-gen...")
+	return sh.RunWithV(GOLOCALBINENV, "go", "install", "k8s.io/code-generator/cmd/conversion-gen@"+CONVERSION_GEN_VERSION)
+}
+
 // Target for downloading envtest-setup locally if necessary
 func (t Test) envTestBin() error {
 	mg.Deps(localBin)
@@ -274,6 +285,13 @@ func (g Generate) Code() error {
 	return sh.RunWithV(ENV, CONTROLLER_GEN, "object:headerFile=hack/boilerplate.go.txt", "paths=./pkg/...", "+rbac:roleName=trivy-operator", "output:rbac:artifacts:config=deploy/helm/generated")
 }
 
+// Target for generating conversion
+func (g Generate) Conversion() error {
+	fmt.Println("Generating conversion...")
+	mg.Deps(conversionGen)
+	return sh.RunWithV(ENV, CONVERSION_GEN, "--output-file=zz_generated.conversion.go", "--go-header-file=hack/boilerplate.go.txt", "./pkg/apis/aquasecurity/v1alpha1")
+}
+
 // Target for generating CRDs and updating static YAML
 func (g Generate) Manifests() error {
 	fmt.Println("Generating CRDs and updating static YAML...")
@@ -288,7 +306,7 @@ func (g Generate) Manifests() error {
 // Target for generating all artifacts
 func (g Generate) All() {
 	fmt.Println("Generating all artifacts...")
-	mg.Deps(g.Code, g.Manifests)
+	mg.Deps(g.Code, g.Conversion, g.Manifests)
 }
 
 // Target for generating Helm documentation

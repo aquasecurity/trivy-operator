@@ -1713,7 +1713,7 @@ func TestObjectResolver_GetNodeArch(t *testing.T) {
 			node: &corev1.Node{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:   "no-arch-node",
-					Labels: map[string]string{},
+					Labels: make(map[string]string),
 				},
 			},
 			want:    "",
@@ -1744,18 +1744,18 @@ func TestObjectResolver_GetNodeArch(t *testing.T) {
 			}
 			objects = append(objects, tc.workload)
 
-			client := fake.NewClientBuilder().
+			k8sClient := fake.NewClientBuilder().
 				WithScheme(trivyoperator.NewScheme()).
 				WithObjects(objects...).
 				Build()
 
-			resolver := kube.NewObjectResolver(client, &kube.CompatibleObjectMapper{})
+			resolver := kube.NewObjectResolver(k8sClient, &kube.CompatibleObjectMapper{})
 			arch, err := resolver.GetNodeArch(ctx, tc.workload)
 
 			if tc.wantErr {
 				assert.Error(t, err)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				assert.Equal(t, tc.want, arch)
 			}
 		})

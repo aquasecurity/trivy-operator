@@ -61,6 +61,7 @@ const (
 	KeyVulnerabilityScansInSameNamespace = "vulnerabilityReports.scanJobsInSameNamespace"
 	keyConfigAuditReportsScanner         = "configAuditReports.scanner"
 	keyScanJobAffinity                   = "scanJob.affinity"
+	keyNodeCollectorAffinity             = "nodeCollector.affinity"
 	keyScanJobTolerations                = "scanJob.tolerations"
 	keyNodeCollectorTolerations          = "nodeCollector.tolerations"
 	KeyScanJobcompressLogs               = "scanJob.compressLogs"
@@ -217,6 +218,20 @@ func (c ConfigData) ExcludeImages() []string {
 		return patterns
 	}
 	return []string{}
+}
+
+func (c ConfigData) GetNodeCollectorAffinity() (*corev1.Affinity, error) {
+	if c[keyNodeCollectorAffinity] == "" {
+		return nil, nil
+	}
+
+	NodeCollectorAffinity := &corev1.Affinity{}
+	err := json.Unmarshal([]byte(c[keyNodeCollectorAffinity]), NodeCollectorAffinity)
+	if err != nil {
+		return nil, fmt.Errorf("failed parsing incorrectly formatted custom node collector template affinity: %s", c[keyNodeCollectorAffinity])
+	}
+
+	return NodeCollectorAffinity, nil
 }
 
 func (c ConfigData) GetNodeCollectorTolerations() ([]corev1.Toleration, error) {

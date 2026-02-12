@@ -18,6 +18,9 @@ data:
   {{- with .Values.trivyOperator.scanJobCustomVolumes }}
   scanJob.customVolumes: {{ . | toJson | quote }}
   {{- end }}
+  {{- with .Values.nodeCollector.affinity }}
+  nodeCollector.affinity: {{ . | toJson | quote }}
+  {{- end }}
   {{- with .Values.nodeCollector.tolerations }}
   nodeCollector.tolerations: {{ . | toJson | quote }}
   {{- end }}

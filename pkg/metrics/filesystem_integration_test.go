@@ -8,9 +8,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/go-logr/logr"
 	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 )
 
 // TestMetricsCollectionFromFilesystem tests end-to-end metrics collection from filesystem storage
@@ -20,10 +21,10 @@ func TestMetricsCollectionFromFilesystem(t *testing.T) {
 	vulnDir := filepath.Join(tmpDir, "vulnerability_reports")
 	configDir := filepath.Join(tmpDir, "config_audit_reports")
 
-	if err := os.MkdirAll(vulnDir, 0755); err != nil {
+	if err := os.MkdirAll(vulnDir, 0o750); err != nil {
 		t.Fatalf("failed to create vuln dir: %v", err)
 	}
-	if err := os.MkdirAll(configDir, 0755); err != nil {
+	if err := os.MkdirAll(configDir, 0o750); err != nil {
 		t.Fatalf("failed to create config dir: %v", err)
 	}
 
@@ -59,7 +60,7 @@ func TestMetricsCollectionFromFilesystem(t *testing.T) {
   }
 }`
 
-	if err := os.WriteFile(filepath.Join(vulnDir, "VulnerabilityReport-nginx.json"), []byte(vulnReport), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(vulnDir, "VulnerabilityReport-nginx.json"), []byte(vulnReport), 0o600); err != nil {
 		t.Fatalf("failed to write vuln report: %v", err)
 	}
 
@@ -86,18 +87,18 @@ func TestMetricsCollectionFromFilesystem(t *testing.T) {
   }
 }`
 
-	if err := os.WriteFile(filepath.Join(configDir, "ConfigAuditReport-nginx.json"), []byte(configReport), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(configDir, "ConfigAuditReport-nginx.json"), []byte(configReport), 0o600); err != nil {
 		t.Fatalf("failed to write config report: %v", err)
 	}
 
 	// Create storage reader with filesystem backend
 	config := etc.Config{
-		Namespace:                   "trivy-system",
-		TargetNamespaces:            "default",
-		MetricsBindAddress:          ":8080",
-		MetricsFindingsEnabled:      true,
+		Namespace:               "trivy-system",
+		TargetNamespaces:        "default",
+		MetricsBindAddress:      ":8080",
+		MetricsFindingsEnabled:  true,
 		AltReportStorageEnabled: true,
-		AltReportDir:   tmpDir,
+		AltReportDir:            tmpDir,
 	}
 
 	logger := logr.Discard()
@@ -195,7 +196,7 @@ func TestMetricsCollectionFromFilesystem(t *testing.T) {
 func formatLabels(labels prometheus.Labels) string {
 	var parts []string
 	for k, v := range labels {
-		parts = append(parts, fmt.Sprintf(`%s="%s"`, k, v))
+		parts = append(parts, fmt.Sprintf("%s=%q", k, v))
 	}
 	return strings.Join(parts, ",")
 }

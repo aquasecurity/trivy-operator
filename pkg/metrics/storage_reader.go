@@ -138,7 +138,7 @@ func readReportsFromDirectory[T any](dir string, logger logr.Logger) ([]T, error
 	// Read all files in the directory
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read directory %s: %w", dir, err)
+		return nil, fmt.Errorf("failed to read directory %q: %w", dir, err)
 	}
 
 	for _, entry := range entries {
@@ -173,7 +173,7 @@ func readReportsFromDirectory[T any](dir string, logger logr.Logger) ([]T, error
 	return reports, nil
 }
 
-func (r *FilesystemStorageReader) ReadVulnerabilityReports(ctx context.Context, namespace string) ([]v1alpha1.VulnerabilityReport, error) {
+func (r *FilesystemStorageReader) ReadVulnerabilityReports(_ context.Context, namespace string) ([]v1alpha1.VulnerabilityReport, error) {
 	dir := filepath.Join(r.baseDir, "vulnerability_reports")
 	reports, err := readReportsFromDirectory[v1alpha1.VulnerabilityReport](dir, r.logger)
 	if err != nil {
@@ -194,7 +194,7 @@ func (r *FilesystemStorageReader) ReadVulnerabilityReports(ctx context.Context, 
 	return reports, nil
 }
 
-func (r *FilesystemStorageReader) ReadExposedSecretReports(ctx context.Context, namespace string) ([]v1alpha1.ExposedSecretReport, error) {
+func (r *FilesystemStorageReader) ReadExposedSecretReports(_ context.Context, namespace string) ([]v1alpha1.ExposedSecretReport, error) {
 	dir := filepath.Join(r.baseDir, "secret_reports")
 	reports, err := readReportsFromDirectory[v1alpha1.ExposedSecretReport](dir, r.logger)
 	if err != nil {
@@ -215,7 +215,7 @@ func (r *FilesystemStorageReader) ReadExposedSecretReports(ctx context.Context, 
 	return reports, nil
 }
 
-func (r *FilesystemStorageReader) ReadConfigAuditReports(ctx context.Context, namespace string) ([]v1alpha1.ConfigAuditReport, error) {
+func (r *FilesystemStorageReader) ReadConfigAuditReports(_ context.Context, namespace string) ([]v1alpha1.ConfigAuditReport, error) {
 	dir := filepath.Join(r.baseDir, "config_audit_reports")
 	reports, err := readReportsFromDirectory[v1alpha1.ConfigAuditReport](dir, r.logger)
 	if err != nil {
@@ -248,7 +248,7 @@ func (r *FilesystemStorageReader) ReadConfigAuditReports(ctx context.Context, na
 	return validReports, nil
 }
 
-func (r *FilesystemStorageReader) ReadRbacAssessmentReports(ctx context.Context, namespace string) ([]v1alpha1.RbacAssessmentReport, error) {
+func (r *FilesystemStorageReader) ReadRbacAssessmentReports(_ context.Context, namespace string) ([]v1alpha1.RbacAssessmentReport, error) {
 	dir := filepath.Join(r.baseDir, "rbac_assessment_reports")
 	reports, err := readReportsFromDirectory[v1alpha1.RbacAssessmentReport](dir, r.logger)
 	if err != nil {
@@ -281,7 +281,7 @@ func (r *FilesystemStorageReader) ReadRbacAssessmentReports(ctx context.Context,
 	return validReports, nil
 }
 
-func (r *FilesystemStorageReader) ReadInfraAssessmentReports(ctx context.Context, namespace string) ([]v1alpha1.InfraAssessmentReport, error) {
+func (r *FilesystemStorageReader) ReadInfraAssessmentReports(_ context.Context, namespace string) ([]v1alpha1.InfraAssessmentReport, error) {
 	dir := filepath.Join(r.baseDir, "infra_assessment_reports")
 	reports, err := readReportsFromDirectory[v1alpha1.InfraAssessmentReport](dir, r.logger)
 	if err != nil {
@@ -314,7 +314,7 @@ func (r *FilesystemStorageReader) ReadInfraAssessmentReports(ctx context.Context
 	return validReports, nil
 }
 
-func (r *FilesystemStorageReader) ReadClusterRbacAssessmentReports(ctx context.Context) ([]v1alpha1.ClusterRbacAssessmentReport, error) {
+func (r *FilesystemStorageReader) ReadClusterRbacAssessmentReports(_ context.Context) ([]v1alpha1.ClusterRbacAssessmentReport, error) {
 	dir := filepath.Join(r.baseDir, "cluster_rbac_assessment_reports")
 	reports, err := readReportsFromDirectory[v1alpha1.ClusterRbacAssessmentReport](dir, r.logger)
 	if err != nil {
@@ -336,7 +336,7 @@ func (r *FilesystemStorageReader) ReadClusterRbacAssessmentReports(ctx context.C
 	return validReports, nil
 }
 
-func (r *FilesystemStorageReader) ReadClusterComplianceReports(ctx context.Context) ([]v1alpha1.ClusterComplianceReport, error) {
+func (r *FilesystemStorageReader) ReadClusterComplianceReports(_ context.Context) ([]v1alpha1.ClusterComplianceReport, error) {
 	dir := filepath.Join(r.baseDir, "cluster_compliance_report")
 	return readReportsFromDirectory[v1alpha1.ClusterComplianceReport](dir, r.logger)
 }

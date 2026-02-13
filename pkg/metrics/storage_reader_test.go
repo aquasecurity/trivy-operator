@@ -167,7 +167,7 @@ func TestFilesystemStorageReader(t *testing.T) {
 
 		// Should not return an error, just an empty list
 		require.NoError(t, err)
-		assert.Len(t, reports, 0)
+		assert.Empty(t, reports)
 	})
 
 	// Test config audit reports
@@ -284,7 +284,7 @@ func TestFilesystemStorageReader(t *testing.T) {
 
 		// Should not fail, just skip the corrupt file
 		require.NoError(t, err)
-		assert.Len(t, reports, 0)
+		assert.Empty(t, reports)
 	})
 }
 

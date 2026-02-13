@@ -837,3 +837,38 @@ alternateReportStorage:
   podSecurityContext:
     runAsUser: 10000
     fsGroup: 10000
+
+# -- extraContainers is a list of additional sidecar containers to inject into the
+# trivy-operator deployment pod. This enables use cases like log shippers, report
+# exporters, monitoring agents, or custom processing sidecars.
+# Each entry is a standard Kubernetes container spec.
+# When alternateReportStorage.enabled is true, the report PVC volume is automatically
+# mounted into each extra container at alternateReportStorage.mountPath so sidecars
+# can access report files without manual volume mount configuration.
+extraContainers: []
+# - name: log-shipper
+#   image: busybox:latest
+#   command:
+#     - /bin/sh
+#     - -c
+#     - "tail -f /var/log/*.log"
+#   volumeMounts:
+#     - name: logs
+#       mountPath: /var/log
+#   resources:
+#     requests:
+#       cpu: 100m
+#       memory: 64Mi
+#     limits:
+#       cpu: 200m
+#       memory: 128Mi
+
+# -- extraVolumes is a list of additional volumes to add to the trivy-operator
+# deployment pod. These volumes can be referenced by volumeMounts in both the main
+# operator container and any extra containers defined in extraContainers.
+extraVolumes: []
+# - name: logs
+#   emptyDir: {}
+# - name: custom-config
+#   configMap:
+#     name: my-custom-config

@@ -368,6 +368,24 @@ trivy:
     # -- pullPolicy is the imge pull policy used for trivy image , valid values are (Always, Never, IfNotPresent)
     pullPolicy: IfNotPresent
 
+  # -- registryCredentials configures private registry authentication for Trivy scan jobs.
+  # When create is true, a kubernetes.io/dockerconfigjson Secret is automatically created
+  # and injected into scan jobs via scanJobCustomVolumes/scanJobCustomVolumesMount, allowing
+  # Trivy to pull images from private registries without manual volume configuration.
+  # The secret is mounted at /root/.docker/config.json inside scan job containers.
+  # This merges with any existing scanJobCustomVolumes/scanJobCustomVolumesMount values.
+  registryCredentials:
+    # -- create determines if the docker config secret should be created and injected into scan jobs
+    create: false
+    # -- secretName is the name of the Secret to create
+    secretName: "trivy-registry-credentials"
+    # -- registry is the registry URL (e.g., "registry.example.com", "ghcr.io")
+    registry: ""
+    # -- username for registry authentication
+    username: ""
+    # -- password for registry authentication
+    password: ""
+
   # -- mode is the Trivy client mode. Either Standalone or ClientServer. Depending
   # on the active mode other settings might be applicable or required.
   mode: Standalone

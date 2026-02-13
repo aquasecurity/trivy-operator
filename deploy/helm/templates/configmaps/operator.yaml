@@ -12,11 +12,19 @@ data:
   {{- with .Values.trivyOperator.scanJobTolerations }}
   scanJob.tolerations: {{ . | toJson | quote }}
   {{- end }}
-  {{- with .Values.trivyOperator.scanJobCustomVolumesMount }}
-  scanJob.customVolumesMount: {{ . | toJson | quote }}
+  {{- $customVolumesMount := .Values.trivyOperator.scanJobCustomVolumesMount | default list }}
+  {{- $customVolumes := .Values.trivyOperator.scanJobCustomVolumes | default list }}
+  {{- if .Values.trivy.registryCredentials.create }}
+    {{- $regMount := dict "name" "registry-creds" "mountPath" "/root/.docker/config.json" "subPath" ".dockerconfigjson" "readOnly" true }}
+    {{- $regVolume := dict "name" "registry-creds" "secret" (dict "secretName" .Values.trivy.registryCredentials.secretName) }}
+    {{- $customVolumesMount = append $customVolumesMount $regMount }}
+    {{- $customVolumes = append $customVolumes $regVolume }}
   {{- end }}
-  {{- with .Values.trivyOperator.scanJobCustomVolumes }}
-  scanJob.customVolumes: {{ . | toJson | quote }}
+  {{- if $customVolumesMount }}
+  scanJob.customVolumesMount: {{ $customVolumesMount | toJson | quote }}
+  {{- end }}
+  {{- if $customVolumes }}
+  scanJob.customVolumes: {{ $customVolumes | toJson | quote }}
   {{- end }}
   {{- with .Values.nodeCollector.tolerations }}
   nodeCollector.tolerations: {{ . | toJson | quote }}

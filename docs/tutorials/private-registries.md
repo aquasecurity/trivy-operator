@@ -299,8 +299,42 @@ data:
   .dockerconfigjson: OUTPUT
 ```
 
-## Sixth Option: Grant access through managed registries
+## Sixth Option: Helm-managed registry credentials
 
-The last way that you could give the Trivy operator access to your private container registry is through managed registries. In this case, the container registry and your Kubernetes cluster would have to be on the same cloud provider; then you can define access to your container namespace as part of the IAM account. Once defined, trivy will already have the permissions for the registry.
+If you want the Helm chart to manage registry credentials for scan jobs automatically, you can use the `trivy.registryCredentials` values. This creates a `kubernetes.io/dockerconfigjson` Secret and injects it into scan jobs via `scanJobCustomVolumes`/`scanJobCustomVolumesMount`, so Trivy can authenticate against your private registry without any manual Secret or volume configuration.
+
+```yaml
+trivy:
+  registryCredentials:
+    create: true
+    secretName: "trivy-registry-credentials"
+    registry: "registry.example.com"
+    username: "my-user"
+    password: "my-password"
+```
+
+Then install or upgrade the operator:
+
+```sh
+helm upgrade --install trivy-operator aqua/trivy-operator \
+  --namespace trivy-system \
+  --create-namespace \
+  --version {{ var.chart_version }} \
+  --values ./values.yaml
+```
+
+This will:
+
+1. Create a `kubernetes.io/dockerconfigjson` Secret named `trivy-registry-credentials`
+2. Automatically append the Secret as a volume to scan jobs
+3. Mount it at `/root/.docker/config.json` inside scan job containers
+
+The credentials are merged with any existing `scanJobCustomVolumes`/`scanJobCustomVolumesMount` values, so you can combine this with other custom volumes.
+
+Note: for production use, consider providing the password through `--set` or an external secrets manager rather than storing it in a values file.
+
+## Seventh Option: Grant access through managed registries
+
+Another way to give the Trivy operator access to your private container registry is through managed registries. In this case, the container registry and your Kubernetes cluster would have to be on the same cloud provider; then you can define access to your container namespace as part of the IAM account. Once defined, trivy will already have the permissions for the registry.
 
 For additional information, please refer to the [documentation on managed registries.](https://aquasecurity.github.io/trivy-operator/v0.30.0/docs/vulnerability-scanning/managed-registries/)

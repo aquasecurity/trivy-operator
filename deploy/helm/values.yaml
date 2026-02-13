@@ -202,6 +202,11 @@ operator:
   # -- pprofBindAddress the address to bind the pprof server to. By default, it is not enabled.
   pprofBindAddress: ""
 
+  # -- shareProcessNamespace enables shared PID namespace for the pod.
+  # Required when sidecars or custom entrypoint wrappers need to signal
+  # the operator process (e.g., to kill/restart it).
+  shareProcessNamespace: false
+
 image:
   registry: "mirror.gcr.io"
   repository: "aquasec/trivy-operator"

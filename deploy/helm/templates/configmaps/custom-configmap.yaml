@@ -1,0 +1,13 @@
+{{- if .Values.operator.customConfigMap.create }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "trivy-operator.fullname" . }}-custom
+  namespace: {{ include "trivy-operator.namespace" . }}
+  labels: {{- include "trivy-operator.labels" . | nindent 4 }}
+data:
+  {{- range $key, $value := .Values.operator.customConfigMap.data }}
+  {{ $key }}: |
+    {{- tpl $value $ | nindent 4 }}
+  {{- end }}
+{{- end }}

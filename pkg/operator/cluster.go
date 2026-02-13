@@ -25,7 +25,9 @@ import (
 	"github.com/aquasecurity/trivy-kubernetes/pkg/bom"
 	tk "github.com/aquasecurity/trivy-kubernetes/pkg/k8s"
 	"github.com/aquasecurity/trivy-kubernetes/pkg/trivyk8s"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1beta1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
@@ -66,8 +68,8 @@ type ClusterController struct {
 
 func (r *ClusterController) SetupWithManager(mgr ctrl.Manager) error {
 	coreComponentsResources := []kube.Resource{
-		{Kind: kube.KindNode, ForObject: &corev1.Node{}, OwnsObject: &v1alpha1.ClusterVulnerabilityReport{}},
-		{Kind: kube.KindPod, ForObject: &corev1.Pod{}, OwnsObject: &v1alpha1.ClusterVulnerabilityReport{}},
+		{Kind: kube.KindNode, ForObject: &corev1.Node{}, OwnsObject: &v1beta1.ClusterVulnerabilityReport{}},
+		{Kind: kube.KindPod, ForObject: &corev1.Pod{}, OwnsObject: &v1beta1.ClusterVulnerabilityReport{}},
 	}
 
 	for _, resource := range coreComponentsResources {
@@ -85,7 +87,7 @@ func (r *ClusterController) SetupWithManager(mgr ctrl.Manager) error {
 	// reconcile kbom
 	return ctrl.NewControllerManagedBy(mgr).WithOptions(controller.Options{CacheSyncTimeout: r.cacheSyncTimeout}).
 		For(&v1alpha1.ClusterSbomReport{}, builder.WithPredicates(predicate.IsKbom)).
-		Owns(&v1alpha1.ClusterVulnerabilityReport{}).
+		Owns(&v1beta1.ClusterVulnerabilityReport{}).
 		Complete(r.reconcileKbom())
 }
 
@@ -190,13 +192,13 @@ func (r *ClusterController) reconcileClusterComponents(resourceKind kube.Kind) r
 
 		sbomReportData := v1alpha1.SbomReportData{
 			UpdateTimestamp: metav1.NewTime(clock.Now(ctx)),
-			Scanner: v1alpha1.Scanner{
-				Name:    v1alpha1.ScannerNameTrivy,
+			Scanner: shared.Scanner{
+				Name:    shared.ScannerNameTrivy,
 				Vendor:  "Aqua Security",
 				Version: apiVersion,
 			},
-			Registry: v1alpha1.Registry{Server: K8sRegistry},
-			Artifact: v1alpha1.Artifact{
+			Registry: shared.Registry{Server: K8sRegistry},
+			Artifact: shared.Artifact{
 				Repository: K8sRepo,
 				Tag:        r.version,
 			},
@@ -337,7 +339,7 @@ func (r *ClusterController) isOpenShift(ctx context.Context) bool {
 }
 
 func (r *ClusterController) reportExist(ctx context.Context, mlabels map[string]string) bool {
-	var list v1alpha1.ClusterVulnerabilityReportList
+	var list v1beta1.ClusterVulnerabilityReportList
 	labels := client.MatchingLabels(mlabels)
 
 	err := r.List(ctx, &list, labels)

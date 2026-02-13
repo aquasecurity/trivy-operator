@@ -22,6 +22,7 @@ import (
 	k8s_predicate "sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
@@ -442,7 +443,7 @@ func getCheck(result scan.Result, id string) *v1alpha1.Check {
 		ID:          id,
 		Title:       result.Rule().Summary,
 		Description: result.Rule().Explanation,
-		Severity:    v1alpha1.Severity(result.Rule().Severity),
+		Severity:    shared.Severity(result.Rule().Severity),
 		Category:    "Kubernetes Security Check",
 		Success:     result.Status() == scan.StatusPassed,
 		Messages:    messages,

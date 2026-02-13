@@ -10,7 +10,9 @@ import (
 	"k8s.io/utils/ptr"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1beta1"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 
@@ -45,7 +47,7 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 
 	Context("VulnerabilityReport", func() {
 		BeforeEach(func() {
-			vr1 := &v1alpha1.VulnerabilityReport{}
+			vr1 := &v1beta1.VulnerabilityReport{}
 			vr1.Namespace = "default"
 			vr1.Name = "replicaset-nginx-6d4cf56db6-nginx"
 			vr1.Labels = labels.Set{
@@ -61,12 +63,12 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr1.Report.OS.Family = "debian"
 			vr1.Report.OS.Name = "10.3"
 			vr1.Report.Summary.CriticalCount = 2
-			vr1.Report.Vulnerabilities = []v1alpha1.Vulnerability{
-				{InstalledVersion: "2.28-10", FixedVersion: "2.28-11", PublishedDate: "2023-06-28T21:15:00Z", LastModifiedDate: "2023-06-28T21:16:00Z", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "libc-bin", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR1-CRITICAL-1", Title: "VR1 Critical vulnerability 1", Score: ptr.To[float64](8.5)},
-				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR1-CRITICAL-2", Title: "VR1 Critical vulnerability 2", Score: ptr.To[float64](8.3)},
+			vr1.Report.Vulnerabilities = []v1beta1.Vulnerability{
+				{InstalledVersion: "2.28-10", FixedVersion: "2.28-11", PublishedDate: "2023-06-28T21:15:00Z", LastModifiedDate: "2023-06-28T21:16:00Z", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "libc-bin", Severity: shared.SeverityCritical, VulnerabilityID: "CVE-VR1-CRITICAL-1", Title: "VR1 Critical vulnerability 1", Score: ptr.To[float64](8.5)},
+				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "dppkg", Severity: shared.SeverityCritical, VulnerabilityID: "CVE-VR1-CRITICAL-2", Title: "VR1 Critical vulnerability 2", Score: ptr.To[float64](8.3)},
 			}
 
-			vr2 := &v1alpha1.VulnerabilityReport{}
+			vr2 := &v1beta1.VulnerabilityReport{}
 			vr2.Namespace = "some-ns"
 			vr2.Name = "replicaset-app-d327abe3c4-proxy"
 			vr2.Labels = labels.Set{
@@ -81,21 +83,21 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr2.Report.OS.Eosl = true
 			vr2.Report.Summary.CriticalCount = 4
 			vr2.Report.Summary.HighCount = 7
-			vr2.Report.Vulnerabilities = []v1alpha1.Vulnerability{
-				{InstalledVersion: "1.2.11-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "zlib", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-1", Title: "VR2 Critical vulnerability 1", Score: ptr.To[float64](7.5)},
-				{InstalledVersion: "1.34.1-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "ssl_client", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-2", Title: "VR2 Critical vulnerability 2", Score: ptr.To[float64](8.7)},
-				{InstalledVersion: "1.2.11-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "zlib", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-3", Title: "VR2 Critical vulnerability 3", Score: ptr.To[float64](8.5)},
-				{InstalledVersion: "1.1.1l-r7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "libssl1.1", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-4", Title: "VR2 Critical vulnerability 4", Score: ptr.To[float64](9.5)},
-				{InstalledVersion: "v1.9.0", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "golang.org/prometheus/client_golang", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-1", Title: "VR2 High vulnerability 1", Score: ptr.To[float64](7)},
-				{InstalledVersion: "v0.0.0-20210711020723-a769d52b0f97", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "golang.org/x/crypto", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-2", Title: "VR2 High vulnerability 2", Score: ptr.To[float64](6.7)},
-				{InstalledVersion: "v0.0.0-20210226172049-e18ecbb05110", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "golang.org/x/net", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-3", Title: "VR2 High vulnerability 3", Score: ptr.To[float64](7.1)},
-				{InstalledVersion: "v0.3.3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "golang.org/x/text", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-4", Title: "VR2 High vulnerability 4", Score: ptr.To[float64](7)},
-				{InstalledVersion: "1.2.11-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "zlib", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-5", Title: "VR2 High vulnerability 5", Score: ptr.To[float64](7)},
-				{InstalledVersion: "1.34.1-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "busybox", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-6", Title: "VR2 High vulnerability 6", Score: ptr.To[float64](6)},
-				{InstalledVersion: "1.1.1l-r7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "libssl1.1", Severity: v1alpha1.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-7", Title: "VR2 High vulnerability 7", Score: ptr.To[float64](6.4)},
+			vr2.Report.Vulnerabilities = []v1beta1.Vulnerability{
+				{InstalledVersion: "1.2.11-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "zlib", Severity: shared.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-1", Title: "VR2 Critical vulnerability 1", Score: ptr.To[float64](7.5)},
+				{InstalledVersion: "1.34.1-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "ssl_client", Severity: shared.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-2", Title: "VR2 Critical vulnerability 2", Score: ptr.To[float64](8.7)},
+				{InstalledVersion: "1.2.11-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "zlib", Severity: shared.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-3", Title: "VR2 Critical vulnerability 3", Score: ptr.To[float64](8.5)},
+				{InstalledVersion: "1.1.1l-r7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "libssl1.1", Severity: shared.SeverityCritical, VulnerabilityID: "CVE-VR2-CRITICAL-4", Title: "VR2 Critical vulnerability 4", Score: ptr.To[float64](9.5)},
+				{InstalledVersion: "v1.9.0", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "golang.org/prometheus/client_golang", Severity: shared.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-1", Title: "VR2 High vulnerability 1", Score: ptr.To[float64](7)},
+				{InstalledVersion: "v0.0.0-20210711020723-a769d52b0f97", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "golang.org/x/crypto", Severity: shared.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-2", Title: "VR2 High vulnerability 2", Score: ptr.To[float64](6.7)},
+				{InstalledVersion: "v0.0.0-20210226172049-e18ecbb05110", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "golang.org/x/net", Severity: shared.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-3", Title: "VR2 High vulnerability 3", Score: ptr.To[float64](7.1)},
+				{InstalledVersion: "v0.3.3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "golang.org/x/text", Severity: shared.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-4", Title: "VR2 High vulnerability 4", Score: ptr.To[float64](7)},
+				{InstalledVersion: "1.2.11-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "zlib", Severity: shared.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-5", Title: "VR2 High vulnerability 5", Score: ptr.To[float64](7)},
+				{InstalledVersion: "1.34.1-r3", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "busybox", Severity: shared.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-6", Title: "VR2 High vulnerability 6", Score: ptr.To[float64](6)},
+				{InstalledVersion: "1.1.1l-r7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "libssl1.1", Severity: shared.SeverityHigh, VulnerabilityID: "CVE-VR2-HIGH-7", Title: "VR2 High vulnerability 7", Score: ptr.To[float64](6.4)},
 			}
 
-			vr3 := &v1alpha1.VulnerabilityReport{}
+			vr3 := &v1beta1.VulnerabilityReport{}
 			vr3.Namespace = "ingress-nginx"
 			vr3.Name = "daemonset-ingress-nginx-controller-controller"
 			vr3.Labels = labels.Set{
@@ -109,16 +111,16 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			vr3.Report.OS.Name = "3.14.6"
 			vr3.Report.OS.Eosl = true
 			vr3.Report.Summary.CriticalCount = 9
-			vr3.Report.Vulnerabilities = []v1alpha1.Vulnerability{
-				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-1", Title: "VR3 Critical vulnerability 1", Score: ptr.To[float64](8.4)},
-				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab2", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-2", Title: "VR3 Critical vulnerability 2", Score: ptr.To[float64](8.4)},
-				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab2", Target: "ab2", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-3", Title: "VR3 Critical vulnerability 3", Score: ptr.To[float64](8.4)},
-				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "", Target: "registry.example/images:tag-1.0.0", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-4", Title: "VR3 Critical vulnerability 4", Score: ptr.To[float64](8.4)},
-				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "some/path/to/file.war/WEB-INF/lib/example-lib-1.0.0.jar", Target: "Java", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-5", Title: "VR3 Critical vulnerability 5", Score: ptr.To[float64](8.4)},
-				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab2", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-6", Title: "VR3 Critical vulnerability 6", Score: ptr.To[float64](8.4)},
-				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", Target: "ab2", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-7", Title: "VR3 Critical vulnerability 7", Score: ptr.To[float64](8.4)},
-				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-8", Title: "VR3 Critical vulnerability 8", Score: ptr.To[float64](8.4)},
-				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", Resource: "dppkg-other", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-8", Title: "VR3 Critical vulnerability 8", Score: ptr.To[float64](8.4)},
+			vr3.Report.Vulnerabilities = []v1beta1.Vulnerability{
+				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab", Resource: "dppkg", Severity: shared.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-1", Title: "VR3 Critical vulnerability 1", Score: ptr.To[float64](8.4)},
+				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab", Target: "ab2", Resource: "dppkg", Severity: shared.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-2", Title: "VR3 Critical vulnerability 2", Score: ptr.To[float64](8.4)},
+				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab2", Target: "ab2", Resource: "dppkg", Severity: shared.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-3", Title: "VR3 Critical vulnerability 3", Score: ptr.To[float64](8.4)},
+				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "", Target: "registry.example/images:tag-1.0.0", Resource: "dppkg", Severity: shared.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-4", Title: "VR3 Critical vulnerability 4", Score: ptr.To[float64](8.4)},
+				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "some/path/to/file.war/WEB-INF/lib/example-lib-1.0.0.jar", Target: "Java", Resource: "dppkg", Severity: shared.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-5", Title: "VR3 Critical vulnerability 5", Score: ptr.To[float64](8.4)},
+				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab2", Resource: "dppkg", Severity: shared.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-6", Title: "VR3 Critical vulnerability 6", Score: ptr.To[float64](8.4)},
+				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", Target: "ab2", Resource: "dppkg", Severity: shared.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-7", Title: "VR3 Critical vulnerability 7", Score: ptr.To[float64](8.4)},
+				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", Resource: "dppkg", Severity: shared.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-8", Title: "VR3 Critical vulnerability 8", Score: ptr.To[float64](8.4)},
+				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", Resource: "dppkg-other", Severity: shared.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-8", Title: "VR3 Critical vulnerability 8", Score: ptr.To[float64](8.4)},
 			}
 
 			client.WithRuntimeObjects(vr1, vr2, vr3)
@@ -354,8 +356,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			sr1.Report.Artifact.Tag = "1.16"
 			sr1.Report.Summary.CriticalCount = 2
 			sr1.Report.Secrets = []v1alpha1.ExposedSecret{
-				{Target: "/etc/apt/s3auth.conf", Category: "AWS", RuleID: "aws-access-key-id", Title: "AWS Access Key ID", Severity: v1alpha1.SeverityCritical},
-				{Target: "/app/config/secret.yaml", Category: "Stripe", RuleID: "stripe-secret-token", Title: "Stripe", Severity: v1alpha1.SeverityCritical},
+				{Target: "/etc/apt/s3auth.conf", Category: "AWS", RuleID: "aws-access-key-id", Title: "AWS Access Key ID", Severity: shared.SeverityCritical},
+				{Target: "/app/config/secret.yaml", Category: "Stripe", RuleID: "stripe-secret-token", Title: "Stripe", Severity: shared.SeverityCritical},
 			}
 
 			sr2 := &v1alpha1.ExposedSecretReport{}
@@ -371,14 +373,14 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 			sr2.Report.Summary.CriticalCount = 4
 			sr2.Report.Summary.HighCount = 3
 			sr2.Report.Secrets = []v1alpha1.ExposedSecret{
-				{Target: "/etc/apt/s3auth.conf", Category: "AWS", RuleID: "aws-access-key-id", Title: "AWS Access Key ID", Severity: v1alpha1.SeverityCritical},
-				{Target: "/etc/apt/s3auth.conf", Category: "AWS", RuleID: "aws-access-key-id", Title: "AWS Access Key ID", Severity: v1alpha1.SeverityCritical},
-				{Target: "/etc/apt/s3auth.conf", Category: "AWS", RuleID: "aws-secret-access-key", Title: "AWS Secret Access Key", Severity: v1alpha1.SeverityCritical},
-				{Target: "/app/config/secret.yaml", Category: "Stripe", RuleID: "stripe-secret-token", Title: "Stripe", Severity: v1alpha1.SeverityCritical},
-				{Target: "/app/config/secret.yaml", Category: "GitHub", RuleID: "github-pat", Title: "GitHub Personal Access Token", Severity: v1alpha1.SeverityCritical},
-				{Target: "/app2/config/secret.yaml", Category: "Shopify", RuleID: "shopify-token", Title: "Shopify token", Severity: v1alpha1.SeverityHigh},
-				{Target: "/app3/config/secret.yaml", Category: "PyPI", RuleID: "pypi-upload-token", Title: "PyPI upload token", Severity: v1alpha1.SeverityHigh},
-				{Target: "/app4/config/secret.yaml", Category: "Alibaba", RuleID: "alibaba-access-key-id", Title: "Alibaba AccessKey ID", Severity: v1alpha1.SeverityHigh},
+				{Target: "/etc/apt/s3auth.conf", Category: "AWS", RuleID: "aws-access-key-id", Title: "AWS Access Key ID", Severity: shared.SeverityCritical},
+				{Target: "/etc/apt/s3auth.conf", Category: "AWS", RuleID: "aws-access-key-id", Title: "AWS Access Key ID", Severity: shared.SeverityCritical},
+				{Target: "/etc/apt/s3auth.conf", Category: "AWS", RuleID: "aws-secret-access-key", Title: "AWS Secret Access Key", Severity: shared.SeverityCritical},
+				{Target: "/app/config/secret.yaml", Category: "Stripe", RuleID: "stripe-secret-token", Title: "Stripe", Severity: shared.SeverityCritical},
+				{Target: "/app/config/secret.yaml", Category: "GitHub", RuleID: "github-pat", Title: "GitHub Personal Access Token", Severity: shared.SeverityCritical},
+				{Target: "/app2/config/secret.yaml", Category: "Shopify", RuleID: "shopify-token", Title: "Shopify token", Severity: shared.SeverityHigh},
+				{Target: "/app3/config/secret.yaml", Category: "PyPI", RuleID: "pypi-upload-token", Title: "PyPI upload token", Severity: shared.SeverityHigh},
+				{Target: "/app4/config/secret.yaml", Category: "Alibaba", RuleID: "alibaba-access-key-id", Title: "Alibaba AccessKey ID", Severity: shared.SeverityHigh},
 			}
 
 			sr3 := &v1alpha1.ExposedSecretReport{}

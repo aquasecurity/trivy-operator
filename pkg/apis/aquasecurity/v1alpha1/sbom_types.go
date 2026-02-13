@@ -2,6 +2,8 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 )
 
 // SbomSummary is a summary of components and dependencies counts .
@@ -42,15 +44,15 @@ type SbomReportData struct {
 	UpdateTimestamp metav1.Time `json:"updateTimestamp"`
 
 	// Scanner is the scanner that generated this report.
-	Scanner Scanner `json:"scanner"`
+	Scanner shared.Scanner `json:"scanner"`
 
 	// Registry is the registry the Artifact was pulled from.
 	// +optional
-	Registry Registry `json:"registry"`
+	Registry shared.Registry `json:"registry"`
 
 	// Artifact represents a standalone, executable package of software that includes everything needed to
 	// run an application.
-	Artifact Artifact `json:"artifact"`
+	Artifact shared.Artifact `json:"artifact"`
 
 	// Summary is a summary of sbom report.
 	Summary SbomSummary `json:"summary"`

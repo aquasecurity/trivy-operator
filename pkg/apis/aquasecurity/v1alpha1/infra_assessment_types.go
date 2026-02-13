@@ -2,6 +2,8 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 )
 
 // InfraAssessmentSummary counts failed checks by severity.
@@ -76,7 +78,7 @@ type InfraAssessmentReportList struct {
 }
 
 type InfraAssessmentReportData struct {
-	Scanner Scanner                `json:"scanner"`
+	Scanner shared.Scanner         `json:"scanner"`
 	Summary InfraAssessmentSummary `json:"summary"`
 
 	// Checks provides results of conducting audit steps.
@@ -91,13 +93,13 @@ func InfraAssessmentSummaryFromChecks(checks []Check) InfraAssessmentSummary {
 			continue
 		}
 		switch check.Severity {
-		case SeverityCritical:
+		case shared.SeverityCritical:
 			summary.CriticalCount++
-		case SeverityHigh:
+		case shared.SeverityHigh:
 			summary.HighCount++
-		case SeverityMedium:
+		case shared.SeverityMedium:
 			summary.MediumCount++
-		case SeverityLow:
+		case shared.SeverityLow:
 			summary.LowCount++
 		}
 	}

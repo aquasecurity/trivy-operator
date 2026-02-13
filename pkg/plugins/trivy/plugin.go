@@ -10,7 +10,9 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1beta1"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
@@ -130,8 +132,8 @@ const (
 	SslCertDir                  = "/var/ssl-cert"
 )
 
-func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef string, logsReader io.ReadCloser) (v1alpha1.VulnerabilityReportData, v1alpha1.ExposedSecretReportData, *v1alpha1.SbomReportData, error) {
-	var vulnReport v1alpha1.VulnerabilityReportData
+func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef string, logsReader io.ReadCloser) (v1beta1.VulnerabilityReportData, v1alpha1.ExposedSecretReportData, *v1alpha1.SbomReportData, error) {
+	var vulnReport v1beta1.VulnerabilityReportData
 	var secretReport v1alpha1.ExposedSecretReportData
 
 	config, err := getConfig(ctx)
@@ -182,10 +184,10 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 			return vulnReport, secretReport, nil, err
 		}
 	}
-	vulnerabilities := make([]v1alpha1.Vulnerability, 0)
+	vulnerabilities := make([]v1beta1.Vulnerability, 0)
 	secrets := make([]v1alpha1.ExposedSecret, 0)
+	addFields := config.GetAdditionalVulnerabilityReportFields()
 	for _, report := range reports.Results {
-		addFields := config.GetAdditionalVulnerabilityReportFields()
 		vulnerabilities = append(vulnerabilities, vulnerabilityreport.GetVulnerabilitiesFromScanResult(report, addFields)...)
 		secrets = append(secrets, getExposedSecretsFromScanResult(report)...)
 	}
@@ -203,7 +205,7 @@ func getExposedSecretsFromScanResult(report ty.Result) []v1alpha1.ExposedSecret 
 			Target:   report.Target,
 			RuleID:   sr.RuleID,
 			Title:    sr.Title,
-			Severity: v1alpha1.Severity(sr.Severity),
+			Severity: shared.Severity(sr.Severity),
 			Category: string(sr.Category),
 			Match:    sr.Match,
 		})
@@ -217,15 +219,15 @@ func (p *plugin) NewConfigForConfigAudit(ctx trivyoperator.PluginContext) (confi
 	return getConfig(ctx)
 }
 
-func ParseImageRef(imageRef, imageDigest string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
+func ParseImageRef(imageRef, imageDigest string) (shared.Registry, shared.Artifact, error) {
 	ref, err := containerimage.ParseReference(imageRef)
 	if err != nil {
-		return v1alpha1.Registry{}, v1alpha1.Artifact{}, err
+		return shared.Registry{}, shared.Artifact{}, err
 	}
-	registry := v1alpha1.Registry{
+	registry := shared.Registry{
 		Server: ref.Context().RegistryStr(),
 	}
-	artifact := v1alpha1.Artifact{
+	artifact := shared.Artifact{
 		Repository: ref.Context().RepositoryStr(),
 	}
 	switch t := ref.(type) {
@@ -241,8 +243,8 @@ func ParseImageRef(imageRef, imageDigest string) (v1alpha1.Registry, v1alpha1.Ar
 	return registry, artifact, nil
 }
 
-func (p *plugin) parseOSRef(reports ty.Report) v1alpha1.OS {
-	os := v1alpha1.OS{}
+func (p *plugin) parseOSRef(reports ty.Report) shared.OS {
+	os := shared.OS{}
 	if reports.Metadata.OS != nil {
 		os.Family = reports.Metadata.OS.Family
 		os.Name = reports.Metadata.OS.Name

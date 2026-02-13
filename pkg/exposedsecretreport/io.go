@@ -8,6 +8,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
@@ -15,15 +16,15 @@ import (
 
 // Writer is the interface that wraps the basic Write method.
 //
-// Write creates or updates the given slice of v1alpha1.VulnerabilityReport
+// Write creates or updates the given slice of v1alpha1.ExposedSecretReport
 // instances.
 type Writer interface {
 	Write(context.Context, []v1alpha1.ExposedSecretReport) error
 }
 
-// Reader is the interface that wraps methods for finding v1alpha1.VulnerabilityReport objects.
+// Reader is the interface that wraps methods for finding v1alpha1.ExposedSecretReport objects.
 //
-// FindByOwner returns the slice of v1alpha1.VulnerabilityReport instances
+// FindByOwner returns the slice of v1alpha1.ExposedSecretReport instances
 // owned by the given kube.ObjectRef or an empty slice if the reports are not found.
 type Reader interface {
 	FindByOwner(context.Context, kube.ObjectRef) ([]v1alpha1.ExposedSecretReport, error)
@@ -92,11 +93,11 @@ func (r *readWriter) FindByOwner(ctx context.Context, owner kube.ObjectRef) ([]v
 	return list.DeepCopy().Items, nil
 }
 
-func BuildExposedSecretsReportData(clock ext.Clock, registry v1alpha1.Registry, artifact v1alpha1.Artifact, version string, secrets []v1alpha1.ExposedSecret) v1alpha1.ExposedSecretReportData {
+func BuildExposedSecretsReportData(clock ext.Clock, registry shared.Registry, artifact shared.Artifact, version string, secrets []v1alpha1.ExposedSecret) v1alpha1.ExposedSecretReportData {
 	return v1alpha1.ExposedSecretReportData{
 		UpdateTimestamp: metav1.NewTime(clock.Now()),
-		Scanner: v1alpha1.Scanner{
-			Name:    v1alpha1.ScannerNameTrivy,
+		Scanner: shared.Scanner{
+			Name:    shared.ScannerNameTrivy,
 			Vendor:  "Aqua Security",
 			Version: version,
 		},
@@ -111,13 +112,13 @@ func secretSummary(secrets []v1alpha1.ExposedSecret) v1alpha1.ExposedSecretSumma
 	var s v1alpha1.ExposedSecretSummary
 	for _, v := range secrets {
 		switch v.Severity {
-		case v1alpha1.SeverityCritical:
+		case shared.SeverityCritical:
 			s.CriticalCount++
-		case v1alpha1.SeverityHigh:
+		case shared.SeverityHigh:
 			s.HighCount++
-		case v1alpha1.SeverityMedium:
+		case shared.SeverityMedium:
 			s.MediumCount++
-		case v1alpha1.SeverityLow:
+		case shared.SeverityLow:
 			s.LowCount++
 		}
 	}

@@ -20,6 +20,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
+	ctrlwebhook "sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
@@ -39,6 +40,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 	vcontroller "github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/webhook"
+	webhookv1beta1 "github.com/aquasecurity/trivy-operator/pkg/webhook/v1beta1"
 	"github.com/aquasecurity/trivy/pkg/fanal/types"
 )
 
@@ -102,6 +104,14 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		Controller: controllerconfig.Controller{
 			SkipNameValidation: &skipNameValidation,
 		},
+		WebhookServer: ctrlwebhook.NewServer(
+			ctrlwebhook.Options{
+				Port:     operatorConfig.WebhookPort,
+				CertDir:  operatorConfig.WebhookCertDir,
+				CertName: operatorConfig.WebhookCertName,
+				KeyName:  operatorConfig.WebhookKeyName,
+			},
+		),
 	}
 
 	// Enable profiling if the flag is set.
@@ -416,6 +426,14 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		if err := cc.SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup cluster reconciler: %w", err)
 		}
+	}
+
+	if err := webhookv1beta1.SetupClusterVulnerabiliyReportWebhookWithManager(mgr); err != nil {
+		return fmt.Errorf("unable to setup VulnerabiliyReport webhook: %w", err)
+	}
+
+	if err := webhookv1beta1.SetupVulnerabiliyReportWebhookWithManager(mgr); err != nil {
+		return fmt.Errorf("unable to setup ClusterVulnerabiliyReport webhook: %w", err)
 	}
 
 	setupLog.Info("Starting controllers manager")

@@ -10,7 +10,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1beta1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 
@@ -19,23 +21,23 @@ import (
 )
 
 var (
-	trivyScanner = v1alpha1.Scanner{
-		Name:    v1alpha1.ScannerNameTrivy,
+	trivyScanner = shared.Scanner{
+		Name:    shared.ScannerNameTrivy,
 		Vendor:  "Aqua Security",
 		Version: "0.36.0",
 	}
-	builtInScanner = v1alpha1.Scanner{
-		Name:    v1alpha1.ScannerNameTrivy,
+	builtInScanner = shared.Scanner{
+		Name:    shared.ScannerNameTrivy,
 		Vendor:  "Aqua Security",
 		Version: "dev",
 	}
 )
 
-// IsVulnerabilityReportForContainerOwnedBy succeeds if a v1alpha1.VulnerabilityReport has a valid structure,
+// IsVulnerabilityReportForContainerOwnedBy succeeds if a v1beta1.VulnerabilityReport has a valid structure,
 // corresponds to the given container and is owned by the specified client.Object.
 //
 // Note: This matcher is not suitable for unit tests because it does not perform a strict validation
-// of the actual v1alpha1.VulnerabilityReport.
+// of the actual v1beta1.VulnerabilityReport.
 func IsVulnerabilityReportForContainerOwnedBy(containerName string, owner client.Object) types.GomegaMatcher {
 	return &vulnerabilityReportMatcher{
 		scheme:        trivyoperator.NewScheme(),
@@ -53,9 +55,9 @@ type vulnerabilityReportMatcher struct {
 }
 
 func (m *vulnerabilityReportMatcher) Match(actual any) (bool, error) {
-	_, ok := actual.(v1alpha1.VulnerabilityReport)
+	_, ok := actual.(v1beta1.VulnerabilityReport)
 	if !ok {
-		return false, fmt.Errorf("%T expects a %T", vulnerabilityReportMatcher{}, v1alpha1.VulnerabilityReport{})
+		return false, fmt.Errorf("%T expects a %T", vulnerabilityReportMatcher{}, v1beta1.VulnerabilityReport{})
 	}
 	gvk, err := apiutil.GVKForObject(m.owner, m.scheme)
 	if err != nil {

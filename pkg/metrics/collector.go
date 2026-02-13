@@ -3,6 +3,7 @@ package metrics
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	"github.com/go-logr/logr"
 	"github.com/prometheus/client_golang/prometheus"
@@ -638,11 +639,6 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 			}
 			var vulnList = make(map[string]bool)
 			for _, vuln := range r.Report.Vulnerabilities {
-				vulnKey := kube.ComputeHash(vuln)
-				if vulnList[vulnKey] {
-					continue
-				}
-				vulnList[vulnKey] = true
 				vulnLabelValues[9] = vuln.InstalledVersion
 				vulnLabelValues[10] = vuln.FixedVersion
 				vulnLabelValues[11] = vuln.PublishedDate
@@ -659,6 +655,11 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 				if vuln.Score != nil {
 					vulnLabelValues[21] = strconv.FormatFloat(*vuln.Score, 'f', -1, 64)
 				}
+				vulnKey := strings.Join(vulnLabelValues, "|")
+				if vulnList[vulnKey] {
+					continue
+				}
+				vulnList[vulnKey] = true
 				metrics <- prometheus.MustNewConstMetric(c.vulnIdDesc, prometheus.GaugeValue, float64(1), vulnLabelValues...)
 			}
 		}

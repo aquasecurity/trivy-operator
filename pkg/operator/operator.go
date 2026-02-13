@@ -20,6 +20,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
+	ctrlwebhook "sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
@@ -103,6 +104,14 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		Controller: controllerconfig.Controller{
 			SkipNameValidation: &skipNameValidation,
 		},
+		WebhookServer: ctrlwebhook.NewServer(
+			ctrlwebhook.Options{
+				Port:     operatorConfig.WebhookPort,
+				CertDir:  operatorConfig.WebhookCertDir,
+				CertName: operatorConfig.WebhookCertName,
+				KeyName:  operatorConfig.WebhookKeyName,
+			},
+		),
 	}
 
 	// Enable profiling if the flag is set.

@@ -113,6 +113,21 @@ spec:
             - name: {{ .Values.alternateReportStorage.volumeName }}
               mountPath: {{ .Values.alternateReportStorage.mountPath }}
           {{- end }}
+        {{- if .Values.extraContainers }}
+        {{- range .Values.extraContainers }}
+        {{- if $.Values.alternateReportStorage.enabled }}
+        - {{- toYaml (omit . "volumeMounts") | nindent 10 }}
+          volumeMounts:
+          {{- with .volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+            - name: {{ $.Values.alternateReportStorage.volumeName }}
+              mountPath: {{ $.Values.alternateReportStorage.mountPath }}
+        {{- else }}
+        - {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
       {{- with .Values.image.pullSecrets }}
       imagePullSecrets: {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -127,16 +142,19 @@ spec:
         fsGroup:   {{ .Values.alternateReportStorage.podSecurityContext.fsGroup }}
       {{- end }}
       {{- end }}
+      {{- if or .Values.volumes .Values.alternateReportStorage.enabled .Values.extraVolumes }}
+      volumes:
       {{- with .Values.volumes }}
-      volumes: {{- toYaml . | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- if .Values.alternateReportStorage.enabled }}
-      {{- if not .Values.volumes }}
-      volumes:
-      {{- end }}
         - name: {{ .Values.alternateReportStorage.volumeName }}
           persistentVolumeClaim:
             claimName: {{ .Values.alternateReportStorage.volumeName }}
+      {{- end }}
+      {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}

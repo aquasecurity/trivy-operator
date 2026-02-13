@@ -20,8 +20,16 @@ targetNamespaces: ""
 # mode, i.e. when the targetNamespaces values is a blank string.
 excludeNamespaces: ""
 
-# -- extraEnv is a list of extra environment variables for the trivy-operator.
-extraEnv: []
+# -- extraEnv is a map of extra environment variables for the trivy-operator.
+# Rendered into a ConfigMap and attached via envFrom.
+extraEnv: {}
+  # LOG_LEVEL: "info"
+  # FEATURE_X: "true"
+
+# -- extraEnvSecrets is a map of sensitive environment variables for the trivy-operator.
+# Rendered into a Secret (stringData) and attached via envFrom.
+extraEnvSecrets: {}
+  # DATABASE_URL: "postgres://user:pass@db:5432/app"
 
 # -- hostAliases for `deployment` (TrivyOperator) and `statefulset` (TrivyServer)
 

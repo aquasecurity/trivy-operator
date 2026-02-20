@@ -18,6 +18,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
@@ -153,7 +154,7 @@ func (b *ReportBuilder) GetReport() (v1alpha1.RbacAssessmentReport, error) {
 	}
 	if b.reportTTL != nil {
 		report.Annotations = map[string]string{
-			v1alpha1.TTLReportAnnotation: b.reportTTL.String(),
+			shared.TTLReportAnnotation: b.reportTTL.String(),
 		}
 	}
 	err := kube.ObjectToObjectMeta(b.controller, &report.ObjectMeta)

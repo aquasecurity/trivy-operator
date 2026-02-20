@@ -15,7 +15,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1beta1"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/predicate"
 )
@@ -45,7 +47,7 @@ func (r *WebhookReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	}
 
 	reports := []client.Object{
-		&v1alpha1.VulnerabilityReport{},
+		&v1beta1.VulnerabilityReport{},
 		&v1alpha1.ExposedSecretReport{},
 		&v1alpha1.ConfigAuditReport{},
 		&v1alpha1.InfraAssessmentReport{},
@@ -133,7 +135,7 @@ func sendReport[T any](reports T, endpoint string, timeout time.Duration, header
 }
 
 func ignoreHistoricalReport(reportType client.Object) bool {
-	ttlReportAnnotationStr, ok := reportType.GetAnnotations()[v1alpha1.TTLReportAnnotation]
+	ttlReportAnnotationStr, ok := reportType.GetAnnotations()[shared.TTLReportAnnotation]
 	if !ok {
 		return false
 	}

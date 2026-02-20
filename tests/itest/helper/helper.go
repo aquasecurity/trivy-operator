@@ -19,7 +19,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1beta1"
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -236,8 +238,8 @@ func (b *DeploymentBuilder) Build() *appsv1.Deployment {
 }
 
 var (
-	trivyScanner = v1alpha1.Scanner{
-		Name:    v1alpha1.ScannerNameTrivy,
+	trivyScanner = shared.Scanner{
+		Name:    shared.ScannerNameTrivy,
 		Vendor:  "Aqua Security",
 		Version: "0.30.0",
 	}
@@ -270,8 +272,8 @@ func (b *VulnerabilityReportBuilder) WithOwnerName(name string) *VulnerabilityRe
 	return b
 }
 
-func (b *VulnerabilityReportBuilder) Build() *v1alpha1.VulnerabilityReport {
-	return &v1alpha1.VulnerabilityReport{
+func (b *VulnerabilityReportBuilder) Build() *v1beta1.VulnerabilityReport {
+	return &v1beta1.VulnerabilityReport{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      b.name,
 			Namespace: b.namespace,
@@ -283,30 +285,30 @@ func (b *VulnerabilityReportBuilder) Build() *v1alpha1.VulnerabilityReport {
 				trivyoperator.LabelK8SAppManagedBy:   trivyoperator.AppTrivyOperator,
 			},
 		},
-		Report: v1alpha1.VulnerabilityReportData{
+		Report: v1beta1.VulnerabilityReportData{
 			UpdateTimestamp: metav1.NewTime(time.Now()),
 			Scanner:         trivyScanner,
-			Registry: v1alpha1.Registry{
+			Registry: shared.Registry{
 				Server: "index.docker.io",
 			},
-			Artifact: v1alpha1.Artifact{
+			Artifact: shared.Artifact{
 				Repository: "library/nginx",
 				Tag:        "1.16",
 			},
-			OS: v1alpha1.OS{
+			OS: shared.OS{
 				Family: "debian",
 				Name:   "10.3",
 			},
-			Summary: v1alpha1.VulnerabilitySummary{
+			Summary: shared.VulnerabilitySummary{
 				MediumCount: 1,
 			},
-			Vulnerabilities: []v1alpha1.Vulnerability{
+			Vulnerabilities: []v1beta1.Vulnerability{
 				{
 					VulnerabilityID:  "CVE-2020-3810",
 					Resource:         "apt",
 					InstalledVersion: "1.8.2",
 					FixedVersion:     "1.8.2.1",
-					Severity:         v1alpha1.SeverityMedium,
+					Severity:         shared.SeverityMedium,
 					Title:            "",
 					Description:      "Missing input validation in the ar/tar implementations of APT before version 2.1.2 could result in denial of service when processing specially crafted deb files.",
 					Links: []string{
@@ -347,7 +349,7 @@ func (h *Helper) HasVulnerabilityReportOwnedBy(ctx context.Context, obj client.O
 		if err != nil {
 			return false, err
 		}
-		var reportList v1alpha1.VulnerabilityReportList
+		var reportList v1beta1.VulnerabilityReportList
 		err = h.kubeClient.List(ctx, &reportList, client.MatchingLabels{
 			trivyoperator.LabelResourceKind:      gvk.Kind,
 			trivyoperator.LabelResourceName:      obj.GetName(),

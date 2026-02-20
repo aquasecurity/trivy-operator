@@ -64,6 +64,10 @@ type Config struct {
 	AltReportStorageEnabled                      bool           `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_ENABLED" envDefault:"false"`
 	AltReportDir                                 string         `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_DIR" envDefault:""`
 	PprofBindAddress                             string         `env:"OPERATOR_PPROF_BIND_ADDRESS" envDefault:""`
+	WebhookPort                                  int            `env:"OPERATOR_WEBHOOK_PORT" envDefault:"9443"`
+	WebhookCertDir                               string         `env:"OPERATOR_WEBHOOK_CERT_DIR" envDefault:"/tmp/k8s-webhook-server/serving-certs/"`
+	WebhookCertName                              string         `env:"OPERATOR_WEBHOOK_CERT_NAME" envDefault:"tls.crt"`
+	WebhookKeyName                               string         `env:"OPERATOR_WEBHOOK_KEY_NAME" envDefault:"tls.key"`
 }
 
 // GetOperatorConfig loads Config from environment variables.

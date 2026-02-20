@@ -14,6 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
@@ -173,7 +174,7 @@ func ImageRef(imageRef string) (string, error) {
 	return ReportGlobalName(fmt.Sprintf("%s/%s:%s", server, strings.TrimPrefix(repo, "library/"), tag)), nil
 }
 
-func BuildSbomReportData(reports ty.Report, clock ext.Clock, registry v1alpha1.Registry, artifact v1alpha1.Artifact, version string) (*v1alpha1.SbomReportData, error) {
+func BuildSbomReportData(reports ty.Report, clock ext.Clock, registry shared.Registry, artifact shared.Artifact, version string) (*v1alpha1.SbomReportData, error) {
 	bom, err := generateSbomFromScanResult(reports, version)
 	if err != nil {
 		return nil, err
@@ -183,8 +184,8 @@ func BuildSbomReportData(reports ty.Report, clock ext.Clock, registry v1alpha1.R
 	}
 	return &v1alpha1.SbomReportData{
 		UpdateTimestamp: metav1.NewTime(clock.Now()),
-		Scanner: v1alpha1.Scanner{
-			Name:    v1alpha1.ScannerNameTrivy,
+		Scanner: shared.Scanner{
+			Name:    shared.ScannerNameTrivy,
 			Vendor:  "Aqua Security",
 			Version: version,
 		},

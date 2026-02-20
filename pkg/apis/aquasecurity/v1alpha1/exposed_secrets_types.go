@@ -2,6 +2,8 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 )
 
 // ExposedSecretSummary is a summary of ExposedSecret counts grouped by Severity.
@@ -34,7 +36,7 @@ type ExposedSecret struct {
 	Title    string `json:"title"`
 	Category string `json:"category"`
 	// +kubebuilder:validation:Enum={CRITICAL,HIGH,MEDIUM,LOW}
-	Severity Severity `json:"severity"`
+	Severity shared.Severity `json:"severity"`
 	// Match where the exposed rule matched.
 	Match string `json:"match"`
 }
@@ -71,15 +73,15 @@ type ExposedSecretReportData struct {
 	UpdateTimestamp metav1.Time `json:"updateTimestamp"`
 
 	// Scanner is the scanner that generated this report.
-	Scanner Scanner `json:"scanner"`
+	Scanner shared.Scanner `json:"scanner"`
 
 	// Registry is the registry the Artifact was pulled from.
 	// +optional
-	Registry Registry `json:"registry"`
+	Registry shared.Registry `json:"registry"`
 
 	// Artifact represents a standalone, executable package of software that includes everything needed to
 	// run an application.
-	Artifact Artifact `json:"artifact"`
+	Artifact shared.Artifact `json:"artifact"`
 
 	// Summary is the exposed secrets counts grouped by Severity.
 	Summary ExposedSecretSummary `json:"summary"`

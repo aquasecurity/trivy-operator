@@ -16,7 +16,9 @@ import (
 	"k8s.io/utils/strings/slices"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1beta1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
@@ -130,7 +132,7 @@ func GetReportsByLabel(ctx context.Context, resolver kube.ObjectResolver, object
 // MarkOldReportForImmediateDeletion set old (historical replicaSets) reports with TTL = 0 for immediate deletion
 func MarkOldReportForImmediateDeletion(ctx context.Context, resolver kube.ObjectResolver, namespace, resourceName string) error {
 	annotation := map[string]string{
-		v1alpha1.TTLReportAnnotation: time.Duration(0).String(),
+		shared.TTLReportAnnotation: time.Duration(0).String(),
 	}
 	resourceNameLabels := map[string]string{trivyoperator.LabelResourceName: resourceName}
 	err := markOldVulnerabilityReports(ctx, resolver, namespace, resourceNameLabels, annotation)
@@ -154,7 +156,7 @@ func MarkOldReportForImmediateDeletion(ctx context.Context, resolver kube.Object
 
 func markOldVulnerabilityReports(ctx context.Context, resolver kube.ObjectResolver, namespace string, resourceNameLabels, annotation map[string]string) error {
 	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		var vulnerabilityReportList v1alpha1.VulnerabilityReportList
+		var vulnerabilityReportList v1beta1.VulnerabilityReportList
 		err := GetReportsByLabel(ctx, resolver, &vulnerabilityReportList, namespace, resourceNameLabels)
 		if err != nil {
 			return err

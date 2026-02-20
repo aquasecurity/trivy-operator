@@ -12,7 +12,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1beta1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/operator"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
@@ -45,7 +45,7 @@ func TestRegenerateReportIfExpired(t *testing.T) {
 	instance := operator.TTLReportReconciler{Logger: logger, Config: config, Clock: clock}
 
 	// vuln report data
-	vulnReport := v1alpha1.VulnerabilityReport{
+	vulnReport := v1beta1.VulnerabilityReport{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "aquasecurity.github.io/v1alpha1",
 			Kind:       "VulnerabilityReport",
@@ -67,34 +67,34 @@ func TestRegenerateReportIfExpired(t *testing.T) {
 			name:                  "Report timestamp < TTL",
 			reportUpdateTimestamp: -15 * time.Hour, // < 24h TTL
 			ttlStr:                "24h",
-			reportType:            &v1alpha1.VulnerabilityReport{},
+			reportType:            &v1beta1.VulnerabilityReport{},
 		},*/
 		{
 			name:                  "Report timestamp exceeds TTL",
 			reportUpdateTimestamp: -25 * time.Hour, // > 24 TTL
 			wantReportDeleted:     true,            // = time.Duration(0)
 			ttlStr:                "24h",
-			reportType:            &v1alpha1.VulnerabilityReport{},
+			reportType:            &v1beta1.VulnerabilityReport{},
 		},
 		/*
 			{
 				name:       "missing TTL annotation in the report",
 				wantError:  false, // Ignoring report without TTL set
 				ttlStr:     "24h",
-				reportType: &v1alpha1.VulnerabilityReport{},
+				reportType: &v1beta1.VulnerabilityReport{},
 			},
 			{
 				name:       "invalid TTL in the annotation",
 				ttlStr:     "badtime",
 				wantError:  true,
-				reportType: &v1alpha1.VulnerabilityReport{},
+				reportType: &v1beta1.VulnerabilityReport{},
 			},
 			{
 				name:              "non-existent report name",
 				invalidReportName: true,  // sets the report name to empty string
 				wantError:         false, // missing/invalid report ignored
 				ttlStr:            "24h",
-				reportType:        &v1alpha1.VulnerabilityReport{},
+				reportType:        &v1beta1.VulnerabilityReport{},
 			},*/
 	}
 
@@ -114,14 +114,14 @@ func TestRegenerateReportIfExpired(t *testing.T) {
 			nsName := types.NamespacedName{Namespace: ns, Name: vulnReport.Name}
 
 			// Check if TTL expired for the vulnerability report
-			_, err := instance.DeleteReportIfExpired(t.Context(), nsName, &v1alpha1.VulnerabilityReport{})
+			_, err := instance.DeleteReportIfExpired(t.Context(), nsName, &v1beta1.VulnerabilityReport{})
 			if tt.wantError {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
 
-			vr := v1alpha1.VulnerabilityReport{}
+			vr := v1beta1.VulnerabilityReport{}
 			err = instance.Client.Get(t.Context(), nsName, &vr)
 
 			if tt.wantReportDeleted {

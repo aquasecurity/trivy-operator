@@ -11,7 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	crclient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	v1alpha1 "github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1beta1"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/tests/itest/helper"
@@ -63,7 +63,7 @@ var _ = Describe("Trivy ignoreFile integration", func() {
 		By("Waiting for VulnerabilityReport")
 		Eventually(inputs.HasVulnerabilityReportOwnedBy(ctx, pod), inputs.AssertTimeout, inputs.PollingInterval).Should(BeTrue())
 
-		vrList := &v1alpha1.VulnerabilityReportList{}
+		vrList := &v1beta1.VulnerabilityReportList{}
 		Expect(kubeClient.List(ctx, vrList, clientListOptionsForOwner(pod.ObjectMeta, "Pod"))).To(Succeed())
 		Expect(vrList.Items).ToNot(BeEmpty(), "expected at least one VulnerabilityReport for the pod")
 

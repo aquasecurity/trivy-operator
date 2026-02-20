@@ -8,7 +8,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/utils/ptr"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1beta1"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/tests/itest/matcher"
 
@@ -21,7 +23,7 @@ func TestVulnerabilityReportMatcher(t *testing.T) {
 		g := NewGomegaWithT(t)
 		instance := matcher.IsVulnerabilityReportForContainerOwnedBy("nginx", &corev1.Pod{})
 		_, err := instance.Match("I AM INVALID ACTUAL")
-		g.Expect(err).To(MatchError("matcher.vulnerabilityReportMatcher expects a v1alpha1.VulnerabilityReport"))
+		g.Expect(err).To(MatchError("matcher.vulnerabilityReportMatcher expects a v1beta1.VulnerabilityReport"))
 	})
 
 	t.Run("Should return true when VulnerabilityReport matches", func(t *testing.T) {
@@ -33,7 +35,7 @@ func TestVulnerabilityReportMatcher(t *testing.T) {
 				UID:       "56d53a84-c81b-4620-81a1-e226c35d3983",
 			},
 		})
-		success, err := instance.Match(v1alpha1.VulnerabilityReport{
+		success, err := instance.Match(v1beta1.VulnerabilityReport{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "pod-nginx-pod-nginx-container",
 				Namespace: "default",
@@ -54,13 +56,13 @@ func TestVulnerabilityReportMatcher(t *testing.T) {
 					},
 				},
 			},
-			Report: v1alpha1.VulnerabilityReportData{
-				Scanner: v1alpha1.Scanner{
-					Name:    v1alpha1.ScannerNameTrivy,
+			Report: v1beta1.VulnerabilityReportData{
+				Scanner: shared.Scanner{
+					Name:    shared.ScannerNameTrivy,
 					Vendor:  "Aqua Security",
 					Version: "0.36.0",
 				},
-				Vulnerabilities: []v1alpha1.Vulnerability{},
+				Vulnerabilities: []v1beta1.Vulnerability{},
 			},
 		})
 		g.Expect(err).ToNot(HaveOccurred())
@@ -107,8 +109,8 @@ func TestConfigAuditReportMatcher(t *testing.T) {
 				},
 			},
 			Report: v1alpha1.ConfigAuditReportData{
-				Scanner: v1alpha1.Scanner{
-					Name:    v1alpha1.ScannerNameTrivy,
+				Scanner: shared.Scanner{
+					Name:    shared.ScannerNameTrivy,
 					Vendor:  "Aqua Security",
 					Version: "dev",
 				},

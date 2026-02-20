@@ -11,7 +11,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	k8smetrics "sigs.k8s.io/controller-runtime/pkg/metrics"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1beta1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
@@ -81,7 +83,7 @@ const (
 
 type metricDescriptors struct {
 	// Severities
-	imageVulnSeverities       map[string]func(vs v1alpha1.VulnerabilitySummary) int
+	imageVulnSeverities       map[string]func(vs shared.VulnerabilitySummary) int
 	exposedSecretSeverities   map[string]func(vs v1alpha1.ExposedSecretSummary) int
 	configAuditSeverities     map[string]func(vs v1alpha1.ConfigAuditSummary) int
 	rbacAssessmentSeverities  map[string]func(vs v1alpha1.RbacAssessmentSummary) int
@@ -159,20 +161,20 @@ func NewResourcesMetricsCollector(logger logr.Logger, config etc.Config, trvConf
 }
 
 func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
-	imageVulnSeverities := map[string]func(vs v1alpha1.VulnerabilitySummary) int{
-		SeverityCritical().Label: func(vs v1alpha1.VulnerabilitySummary) int {
+	imageVulnSeverities := map[string]func(vs shared.VulnerabilitySummary) int{
+		SeverityCritical().Label: func(vs shared.VulnerabilitySummary) int {
 			return vs.CriticalCount
 		},
-		SeverityHigh().Label: func(vs v1alpha1.VulnerabilitySummary) int {
+		SeverityHigh().Label: func(vs shared.VulnerabilitySummary) int {
 			return vs.HighCount
 		},
-		SeverityMedium().Label: func(vs v1alpha1.VulnerabilitySummary) int {
+		SeverityMedium().Label: func(vs shared.VulnerabilitySummary) int {
 			return vs.MediumCount
 		},
-		SeverityLow().Label: func(vs v1alpha1.VulnerabilitySummary) int {
+		SeverityLow().Label: func(vs shared.VulnerabilitySummary) int {
 			return vs.LowCount
 		},
-		SeverityUnknown().Label: func(vs v1alpha1.VulnerabilitySummary) int {
+		SeverityUnknown().Label: func(vs shared.VulnerabilitySummary) int {
 			return vs.UnknownCount
 		},
 	}
@@ -585,7 +587,7 @@ func (c ResourcesMetricsCollector) Collect(metrics chan<- prometheus.Metric) {
 }
 
 func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
-	reports := &v1alpha1.VulnerabilityReportList{}
+	reports := &v1beta1.VulnerabilityReportList{}
 	labelValues := make([]string, len(c.imageVulnLabels))
 	for _, n := range targetNamespaces {
 		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
@@ -616,7 +618,7 @@ func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Conte
 }
 
 func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
-	reports := &v1alpha1.VulnerabilityReportList{}
+	reports := &v1beta1.VulnerabilityReportList{}
 	vulnLabelValues := make([]string, len(c.vulnIdLabels))
 	for _, n := range targetNamespaces {
 		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
@@ -959,7 +961,7 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceReports(ctx context.
 func (c ResourcesMetricsCollector) collectImageReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
 	// Use Vuln reports
 
-	reports := &v1alpha1.VulnerabilityReportList{}
+	reports := &v1beta1.VulnerabilityReportList{}
 	labelValues := make([]string, len(c.imageInfoLabels))
 	for _, n := range targetNamespaces {
 		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {

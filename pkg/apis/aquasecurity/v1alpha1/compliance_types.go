@@ -6,6 +6,8 @@ import (
 	"github.com/aquasecurity/trivy/pkg/compliance/report"
 	"github.com/aquasecurity/trivy/pkg/compliance/spec"
 	defsecTypes "github.com/aquasecurity/trivy/pkg/iac/types"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 )
 
 // +kubebuilder:object:root=true
@@ -57,7 +59,7 @@ type Control struct {
 	Commands []Commands `json:"commands,omitempty"`
 	// define the severity of the control
 	// +kubebuilder:validation:Enum={CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN}
-	Severity Severity `json:"severity"`
+	Severity shared.Severity `json:"severity"`
 	// define the default value for check status in case resource not found
 	// +kubebuilder:validation:Enum={PASS,WARN,FAIL}
 	DefaultStatus ControlStatus `json:"defaultStatus,omitempty"`
@@ -151,12 +153,12 @@ type ControlCheckResult struct {
 
 // ComplianceCheck provides the result of conducting a single compliance step.
 type ComplianceCheck struct {
-	ID          string   `json:"checkID"`
-	Target      string   `json:"target,omitempty"`
-	Title       string   `json:"title,omitempty"`
-	Description string   `json:"description,omitempty"`
-	Severity    Severity `json:"severity"`
-	Category    string   `json:"category,omitempty"`
+	ID          string          `json:"checkID"`
+	Target      string          `json:"target,omitempty"`
+	Title       string          `json:"title,omitempty"`
+	Description string          `json:"description,omitempty"`
+	Severity    shared.Severity `json:"severity"`
+	Category    string          `json:"category,omitempty"`
 
 	Messages []string `json:"messages,omitempty"`
 
@@ -225,7 +227,7 @@ func FromDetailReport(sr *report.ComplianceReport) *ComplianceReport {
 					Target:      r.Target,
 					Title:       ms.Title,
 					Description: ms.Description,
-					Severity:    Severity(ms.Severity),
+					Severity:    shared.Severity(ms.Severity),
 					Category:    "Kubernetes Security Check",
 					Remediation: ms.Resolution,
 					Messages:    []string{ms.Message},

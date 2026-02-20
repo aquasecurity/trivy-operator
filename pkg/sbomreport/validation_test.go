@@ -7,6 +7,7 @@ import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/stretchr/testify/require"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 )
 
@@ -134,8 +135,8 @@ func TestCycloneDXBOMConversionAndValidity(t *testing.T) {
 
 			// Build a full SbomReportData and ensure fields wire up
 			report := v1alpha1.SbomReportData{
-				Scanner: v1alpha1.Scanner{
-					Name:    v1alpha1.ScannerNameTrivy,
+				Scanner: shared.Scanner{
+					Name:    shared.ScannerNameTrivy,
 					Vendor:  "Aqua Security",
 					Version: "0.0.0-test",
 				},

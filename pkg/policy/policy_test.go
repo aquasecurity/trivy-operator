@@ -17,7 +17,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
@@ -279,7 +279,7 @@ func TestPolicies_Eval(t *testing.T) {
 						ID:          "KSV014",
 						Title:       "Root file system is not read-only",
 						Description: "An immutable root file system prevents applications from writing to their local disk",
-						Severity:    v1alpha1.SeverityLow,
+						Severity:    shared.SeverityLow,
 						Type:        "Kubernetes Security Check",
 					},
 					Messages: []string{"Containers must not run as root"},
@@ -348,7 +348,7 @@ func TestPolicies_Eval(t *testing.T) {
 					Success: true,
 					Metadata: Metadata{
 						ID:          "KSV014",
-						Severity:    v1alpha1.SeverityLow,
+						Severity:    shared.SeverityLow,
 						Title:       "Root file system is not read-only",
 						Description: "An immutable root file system prevents applications from writing to their local disk",
 						Type:        "Kubernetes Security Check",
@@ -860,7 +860,7 @@ func getPolicyResults(results scan.Results) Results {
 		if len(result.Rule().Aliases) > 0 {
 			id = result.Rule().Aliases[0]
 		}
-		pr := Result{Metadata: Metadata{ID: id, Title: result.Rule().Summary, Severity: v1alpha1.Severity(result.Severity()), Type: "Kubernetes Security Check", Description: result.Rule().Explanation}, Success: result.Status() == scan.StatusPassed, Messages: msgs}
+		pr := Result{Metadata: Metadata{ID: id, Title: result.Rule().Summary, Severity: shared.Severity(result.Severity()), Type: "Kubernetes Security Check", Description: result.Rule().Explanation}, Success: result.Status() == scan.StatusPassed, Messages: msgs}
 		prs = append(prs, pr)
 	}
 	sort.Sort(resultSort(prs))
@@ -876,7 +876,7 @@ func NewMetadata(values map[string]any) (Metadata, error) {
 	if err != nil {
 		return Metadata{}, err
 	}
-	severity, err := v1alpha1.StringToSeverity(severityString)
+	severity, err := shared.StringToSeverity(severityString)
 	if err != nil {
 		return Metadata{}, fmt.Errorf("failed parsing severity: %w", err)
 	}
@@ -910,7 +910,7 @@ func NewMetadata(values map[string]any) (Metadata, error) {
 type Metadata struct {
 	ID          string
 	Title       string
-	Severity    v1alpha1.Severity
+	Severity    shared.Severity
 	Type        string
 	Description string
 }

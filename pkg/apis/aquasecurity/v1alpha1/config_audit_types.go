@@ -2,6 +2,8 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 )
 
 // ConfigAuditSummary counts failed checks by severity.
@@ -80,7 +82,7 @@ type ConfigAuditReportData struct {
 	// +optional
 	UpdateTimestamp metav1.Time `json:"updateTimestamp"`
 	// +optional
-	Scanner Scanner `json:"scanner"`
+	Scanner shared.Scanner `json:"scanner"`
 	// +optional
 	Summary ConfigAuditSummary `json:"summary"`
 
@@ -108,11 +110,11 @@ type CheckScope struct {
 
 // Check provides the result of conducting a single audit step.
 type Check struct {
-	ID          string   `json:"checkID"`
-	Title       string   `json:"title,omitempty"`
-	Description string   `json:"description,omitempty"`
-	Severity    Severity `json:"severity"`
-	Category    string   `json:"category,omitempty"`
+	ID          string          `json:"checkID"`
+	Title       string          `json:"title,omitempty"`
+	Description string          `json:"description,omitempty"`
+	Severity    shared.Severity `json:"severity"`
+	Category    string          `json:"category,omitempty"`
 
 	Messages []string `json:"messages,omitempty"`
 
@@ -135,13 +137,13 @@ func ConfigAuditSummaryFromChecks(checks []Check) ConfigAuditSummary {
 			continue
 		}
 		switch check.Severity {
-		case SeverityCritical:
+		case shared.SeverityCritical:
 			summary.CriticalCount++
-		case SeverityHigh:
+		case shared.SeverityHigh:
 			summary.HighCount++
-		case SeverityMedium:
+		case shared.SeverityMedium:
 			summary.MediumCount++
-		case SeverityLow:
+		case shared.SeverityLow:
 			summary.LowCount++
 		}
 	}

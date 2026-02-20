@@ -13,6 +13,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1beta1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -215,14 +216,14 @@ var _ = Describe("Workload controller", func() {
 			Expect(k8sClient.Create(ctx, report)).Should(Succeed())
 
 			caLookupKey := client.ObjectKeyFromObject(report)
-			createdVulnerabilityReport := &v1alpha1.VulnerabilityReport{}
+			createdVulnerabilityReport := &v1beta1.VulnerabilityReport{}
 			time.Sleep(2 * time.Second)
 			// We'll need to retry getting this newly created Job, given that creation may not immediately happen.
 			Eventually(func() error {
 				return k8sClient.Get(ctx, caLookupKey, createdVulnerabilityReport)
 			}, timeout, interval).ShouldNot(Succeed())
 		},
-		Entry("Should delete vulnerability report", &v1alpha1.VulnerabilityReport{}, "vulnerability-ttl.yaml", nil, ""),
+		Entry("Should delete vulnerability report", &v1beta1.VulnerabilityReport{}, "vulnerability-ttl.yaml", nil, ""),
 		Entry("Should delete config audit report", &v1alpha1.ConfigAuditReport{}, "config-audit-ttl-historical.yaml", nil, ""),
 		Entry("Should delete config audit report", &v1alpha1.ConfigAuditReport{}, "config-audit-ttl.yaml", &corev1.ConfigMap{}, "policy.yaml"),
 	)

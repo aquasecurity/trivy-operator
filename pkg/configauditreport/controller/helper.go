@@ -11,6 +11,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
@@ -122,9 +123,9 @@ func evaluate(ctx context.Context, policies *policy.Policies, resource client.Ob
 	return filter(results, resource, bi, cd, c, policies.GetDefaultSeverity()), nil
 }
 
-func scanner(bi trivyoperator.BuildInfo) v1alpha1.Scanner {
-	return v1alpha1.Scanner{
-		Name:    v1alpha1.ScannerNameTrivy,
+func scanner(bi trivyoperator.BuildInfo) shared.Scanner {
+	return shared.Scanner{
+		Name:    shared.ScannerNameTrivy,
 		Vendor:  "Aqua Security",
 		Version: bi.Version,
 	}

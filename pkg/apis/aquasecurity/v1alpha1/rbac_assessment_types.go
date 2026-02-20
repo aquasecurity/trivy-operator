@@ -2,6 +2,8 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 )
 
 // RbacAssessmentSummary counts failed checks by severity.
@@ -77,7 +79,7 @@ type ClusterRbacAssessmentReportList struct {
 }
 
 type RbacAssessmentReportData struct {
-	Scanner Scanner               `json:"scanner"`
+	Scanner shared.Scanner        `json:"scanner"`
 	Summary RbacAssessmentSummary `json:"summary"`
 
 	// Checks provides results of conducting audit steps.
@@ -92,13 +94,13 @@ func RbacAssessmentSummaryFromChecks(checks []Check) RbacAssessmentSummary {
 			continue
 		}
 		switch check.Severity {
-		case SeverityCritical:
+		case shared.SeverityCritical:
 			summary.CriticalCount++
-		case SeverityHigh:
+		case shared.SeverityHigh:
 			summary.HighCount++
-		case SeverityMedium:
+		case shared.SeverityMedium:
 			summary.MediumCount++
-		case SeverityLow:
+		case shared.SeverityLow:
 			summary.LowCount++
 		}
 	}

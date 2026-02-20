@@ -14,7 +14,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/shared"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1beta1"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
 	control "github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
@@ -46,7 +48,7 @@ func (r *TTLReportReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.ConfigAuditReport{}})
 	}
 	if r.Config.VulnerabilityScannerEnabled {
-		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.VulnerabilityReport{}})
+		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1beta1.VulnerabilityReport{}})
 	}
 	if r.Config.ExposedSecretScannerEnabled {
 		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.ExposedSecretReport{}})
@@ -91,14 +93,14 @@ func (r *TTLReportReconciler) DeleteReportIfExpired(ctx context.Context, namespa
 		}
 		return ctrl.Result{}, fmt.Errorf("getting report from cache: %w", err)
 	}
-	ttlReportAnnotationStr, ok := reportType.GetAnnotations()[v1alpha1.TTLReportAnnotation]
+	ttlReportAnnotationStr, ok := reportType.GetAnnotations()[shared.TTLReportAnnotation]
 	if !ok {
 		log.V(1).Info("Ignoring report without TTL set")
 		return ctrl.Result{}, nil
 	}
 	reportTTLTime, err := time.ParseDuration(ttlReportAnnotationStr)
 	if err != nil {
-		return ctrl.Result{}, fmt.Errorf("failed parsing %v with value %v %w", v1alpha1.TTLReportAnnotation, ttlReportAnnotationStr, err)
+		return ctrl.Result{}, fmt.Errorf("failed parsing %v with value %v %w", shared.TTLReportAnnotation, ttlReportAnnotationStr, err)
 	}
 	ttlExpired, durationToTTLExpiration := utils.IsTTLExpired(reportTTLTime, reportType.GetCreationTimestamp().Time, r.Clock)
 
@@ -123,7 +125,7 @@ func (r *TTLReportReconciler) applicableForDeletion(ctx context.Context, report 
 	// In controller-runtime >= v0.22 fake client may not set GVK on Get; fall back to Go type
 	if reportKind == "" {
 		switch report.(type) {
-		case *v1alpha1.VulnerabilityReport:
+		case *v1beta1.VulnerabilityReport:
 			reportKind = "VulnerabilityReport"
 		case *v1alpha1.ExposedSecretReport:
 			reportKind = "ExposedSecretReport"
@@ -216,14 +218,14 @@ func (r *TTLSecretReconciler) reconcileSecret(scanJobSecret client.Object) recon
 			}
 			return ctrl.Result{}, fmt.Errorf("getting secret from cache: %w", err)
 		}
-		ttlSecretAnnotationStr, ok := scanJobSecret.GetAnnotations()[v1alpha1.TTLSecretAnnotation]
+		ttlSecretAnnotationStr, ok := scanJobSecret.GetAnnotations()[shared.TTLSecretAnnotation]
 		if !ok {
 			log.V(1).Info("Ignoring report without TTL set")
 			return ctrl.Result{}, nil
 		}
 		secretTTLTime, err := time.ParseDuration(ttlSecretAnnotationStr)
 		if err != nil {
-			return ctrl.Result{}, fmt.Errorf("failed parsing %v with value %v %w", v1alpha1.TTLSecretAnnotation, ttlSecretAnnotationStr, err)
+			return ctrl.Result{}, fmt.Errorf("failed parsing %v with value %v %w", shared.TTLSecretAnnotation, ttlSecretAnnotationStr, err)
 		}
 		ttlExpired, durationToTTLExpiration := utils.IsTTLExpired(secretTTLTime, scanJobSecret.GetCreationTimestamp().Time, r.Clock)
 

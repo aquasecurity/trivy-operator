@@ -64,6 +64,16 @@ type Config struct {
 	AltReportStorageEnabled                      bool           `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_ENABLED" envDefault:"false"`
 	AltReportDir                                 string         `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_DIR" envDefault:""`
 	PprofBindAddress                             string         `env:"OPERATOR_PPROF_BIND_ADDRESS" envDefault:""`
+
+	// TrivyJSONReport configuration - stores complete raw Trivy JSON output to file storage
+	TrivyJSONReportEnabled               bool           `env:"OPERATOR_TRIVY_JSON_REPORT_ENABLED" envDefault:"false"`
+	TrivyJSONReportStorageDir            string         `env:"OPERATOR_TRIVY_JSON_REPORT_STORAGE_DIR" envDefault:""`
+	TrivyJSONReportDeliveryEnabled       bool           `env:"OPERATOR_TRIVY_JSON_REPORT_DELIVERY_ENABLED" envDefault:"false"`
+	TrivyJSONReportDeliveryURL           string         `env:"OPERATOR_TRIVY_JSON_REPORT_DELIVERY_URL"`
+	TrivyJSONReportDeliveryTimeout       *time.Duration `env:"OPERATOR_TRIVY_JSON_REPORT_DELIVERY_TIMEOUT" envDefault:"60s"`
+	TrivyJSONReportDeliveryCustomHeaders string         `env:"OPERATOR_TRIVY_JSON_REPORT_DELIVERY_CUSTOM_HEADERS"`
+	TrivyJSONReportDeliveryRetryAttempts int            `env:"OPERATOR_TRIVY_JSON_REPORT_DELIVERY_RETRY_ATTEMPTS" envDefault:"3"`
+	TrivyJSONReportTTL                   *time.Duration `env:"OPERATOR_TRIVY_JSON_REPORT_TTL" envDefault:"24h"`
 }
 
 // GetOperatorConfig loads Config from environment variables.
@@ -110,6 +120,23 @@ func (c Config) GetPrivateRegistryScanSecretsNames() (map[string]string, error) 
 
 func (c Config) GetWebhookBroadcastCustomHeaders() http.Header {
 	customHeaders := c.WebhookBroadcastCustomHeaders
+	headers := http.Header{}
+
+	if customHeaders != "" {
+		for _, header := range strings.Split(customHeaders, ",") {
+			s := strings.SplitN(header, ":", 2)
+			if len(s) != 2 {
+				continue
+			}
+			headers.Set(s[0], s[1])
+		}
+	}
+
+	return headers
+}
+
+func (c Config) GetTrivyJSONReportDeliveryCustomHeaders() http.Header {
+	customHeaders := c.TrivyJSONReportDeliveryCustomHeaders
 	headers := http.Header{}
 
 	if customHeaders != "" {

@@ -1603,3 +1603,5 @@ func (in *VulnerabilitySummary) DeepCopy() *VulnerabilitySummary {
 	in.DeepCopyInto(out)
 	return out
 }
+
+

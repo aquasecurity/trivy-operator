@@ -113,6 +113,13 @@ spec:
             - name: {{ .Values.alternateReportStorage.volumeName }}
               mountPath: {{ .Values.alternateReportStorage.mountPath }}
           {{- end }}
+          {{- if and .Values.operator.trivyJSONReportEnabled (eq .Values.operator.trivyJSONReportStorage "operator") (not .Values.operator.trivyJSONReportStorageDir) }}
+          {{- if and (not .Values.volumeMounts) (not .Values.alternateReportStorage.enabled) }}
+          volumeMounts:
+          {{- end }}
+            - name: trivy-json-reports
+              mountPath: /var/trivy-json-reports
+          {{- end }}
       {{- with .Values.image.pullSecrets }}
       imagePullSecrets: {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -137,6 +144,13 @@ spec:
         - name: {{ .Values.alternateReportStorage.volumeName }}
           persistentVolumeClaim:
             claimName: {{ .Values.alternateReportStorage.volumeName }}
+      {{- end }}
+      {{- if and .Values.operator.trivyJSONReportEnabled (eq .Values.operator.trivyJSONReportStorage "operator") (not .Values.operator.trivyJSONReportStorageDir) }}
+      {{- if and (not .Values.volumes) (not .Values.alternateReportStorage.enabled) }}
+      volumes:
+      {{- end }}
+        - name: trivy-json-reports
+          emptyDir: {}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}

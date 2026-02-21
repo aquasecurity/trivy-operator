@@ -23,7 +23,7 @@ import (
 
 	"github.com/aquasecurity/trivy-operator/pkg/compliance"
 	"github.com/aquasecurity/trivy-operator/pkg/configauditreport"
-	"github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
+	cacontroller "github.com/aquasecurity/trivy-operator/pkg/configauditreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/exposedsecretreport"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
@@ -35,6 +35,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
+	"github.com/aquasecurity/trivy-operator/pkg/trivyjsonreport"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 	vcontroller "github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
@@ -226,6 +227,30 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			return fmt.Errorf("unable to setup vulnerabilityreport reconciler: %w", err)
 		}
 
+		// Create TrivyJSON writer and delivery service if enabled
+		var trivyJSONWriter *trivyjsonreport.Writer
+		var trivyJSONDelivery *trivyjsonreport.DeliveryService
+		if operatorConfig.TrivyJSONReportEnabled {
+			if operatorConfig.TrivyJSONReportStorageDir != "" {
+				trivyJSONWriter = trivyjsonreport.NewWriter(operatorConfig.TrivyJSONReportStorageDir)
+			}
+			if operatorConfig.TrivyJSONReportDeliveryEnabled {
+				trivyJSONDelivery = trivyjsonreport.NewDeliveryService(
+					ctrl.Log.WithName("trivyjson-delivery"),
+					operatorConfig,
+				)
+			}
+			// Start cleanup service if TTL is configured
+			if operatorConfig.TrivyJSONReportTTL != nil && operatorConfig.TrivyJSONReportStorageDir != "" {
+				cleanupService := trivyjsonreport.NewCleanupService(
+					ctrl.Log.WithName("trivyjson-cleanup"),
+					operatorConfig.TrivyJSONReportStorageDir,
+					*operatorConfig.TrivyJSONReportTTL,
+				)
+				go cleanupService.Start(ctx)
+			}
+		}
+
 		if err = (&vcontroller.ScanJobController{
 			Logger:                  ctrl.Log.WithName("reconciler").WithName("scan job"),
 			Config:                  operatorConfig,
@@ -237,15 +262,17 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			SbomReadWriter:          sbomreport.NewReadWriter(&objectResolver),
 			VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(&objectResolver),
 			ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(&objectResolver),
+			TrivyJSONWriter:         trivyJSONWriter,
+			TrivyJSONDelivery:       trivyJSONDelivery,
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup scan job  reconciler: %w", err)
 		}
 	}
 	var policyLoader policy.Loader
-	var checksLoader *controller.ChecksLoader
+	var checksLoader *cacontroller.ChecksLoader
 	if operatorConfig.ConfigAuditScannerEnabled {
 		policyLoader = buildPolicyLoader(trivyOperatorConfig)
-		checksLoader = controller.NewChecksLoader(
+		checksLoader = cacontroller.NewChecksLoader(
 			operatorConfig,
 			ctrl.Log.WithName("checks-loader"),
 			mgr.GetClient(),
@@ -297,6 +324,8 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			return fmt.Errorf("unable to setup webhookreporter: %w", err)
 		}
 	}
+
+
 	var gitVersion string
 	if version, err := clientSet.ServerVersion(); err == nil {
 		gitVersion = strings.TrimPrefix(version.GitVersion, "v")
@@ -305,7 +334,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 
 	if operatorConfig.ConfigAuditScannerEnabled {
 		setupLog.Info("Enabling built-in configuration audit scanner")
-		if err = (&controller.ResourceController{
+		if err = (&cacontroller.ResourceController{
 			Logger:           ctrl.Log.WithName("resourcecontroller"),
 			Config:           operatorConfig,
 			PolicyLoader:     policyLoader,
@@ -323,7 +352,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup resource controller: %w", err)
 		}
-		if err = (&controller.PolicyConfigController{
+		if err = (&cacontroller.PolicyConfigController{
 			Logger:         ctrl.Log.WithName("resourcecontroller"),
 			Config:         operatorConfig,
 			PolicyLoader:   policyLoader,
@@ -336,7 +365,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 		if operatorConfig.InfraAssessmentScannerEnabled {
 			limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
-			if err = (&controller.NodeReconciler{
+			if err = (&cacontroller.NodeReconciler{
 				Logger:           ctrl.Log.WithName("node-reconciler"),
 				Config:           operatorConfig,
 				PolicyLoader:     policyLoader,
@@ -351,7 +380,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			}).SetupWithManager(mgr); err != nil {
 				return fmt.Errorf("unable to setup node collector controller: %w", err)
 			}
-			if err = (&controller.NodeCollectorJobController{
+			if err = (&cacontroller.NodeCollectorJobController{
 				Logger:          ctrl.Log.WithName("node-collectorontroller"),
 				Config:          operatorConfig,
 				ConfigData:      trivyOperatorConfig,

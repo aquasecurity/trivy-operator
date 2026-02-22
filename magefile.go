@@ -66,11 +66,15 @@ var (
 	// Tool Binaries
 	LOCALBIN       = filepath.Join(PWD, "bin")
 	CONTROLLER_GEN = filepath.Join(LOCALBIN, "controller-gen")
+	CLIENT_GEN     = filepath.Join(LOCALBIN, "client-gen")
 	HELM_DOCS_GEN  = filepath.Join(LOCALBIN, "helm-docs")
 	ENVTEST        = filepath.Join(LOCALBIN, "setup-envtest")
 
 	// Controller Tools Version
 	CONTROLLER_TOOLS_VERSION = "v0.18.0"
+
+	// Code Generator Version
+	CODE_GENERATOR_VERSION = "v0.34.0"
 )
 
 //func init() {
@@ -247,6 +251,13 @@ func controllerGen() error {
 	return sh.RunWithV(GOLOCALBINENV, "go", "install", "sigs.k8s.io/controller-tools/cmd/controller-gen@"+CONTROLLER_TOOLS_VERSION)
 }
 
+// Target for downloading client-gen locally if necessary
+func clientGen() error {
+	mg.Deps(localBin)
+	fmt.Println("Downloading client-gen...")
+	return sh.RunWithV(GOLOCALBINENV, "go", "install", "k8s.io/code-generator/cmd/client-gen@"+CODE_GENERATOR_VERSION)
+}
+
 // Target for downloading envtest-setup locally if necessary
 func (t Test) envTestBin() error {
 	mg.Deps(localBin)
@@ -274,6 +285,12 @@ func (g Generate) Code() error {
 	return sh.RunWithV(ENV, CONTROLLER_GEN, "object:headerFile=hack/boilerplate.go.txt", "paths=./pkg/...", "+rbac:roleName=trivy-operator", "output:rbac:artifacts:config=deploy/helm/generated")
 }
 
+func (g Generate) Clientset() error {
+	fmt.Println("Generating clientset...")
+	mg.Deps(clientGen)
+	return sh.RunV(CLIENT_GEN, "--go-header-file=hack/boilerplate.go.txt", "--input-base=github.com/aquasecurity/trivy-operator/pkg/apis", "--input=aquasecurity/v1alpha1", "--output-dir=./pkg", "--output-pkg=github.com/aquasecurity/trivy-operator/pkg", "--clientset-name=clientset")
+}
+
 // Target for generating CRDs and updating static YAML
 func (g Generate) Manifests() error {
 	fmt.Println("Generating CRDs and updating static YAML...")
@@ -288,7 +305,7 @@ func (g Generate) Manifests() error {
 // Target for generating all artifacts
 func (g Generate) All() {
 	fmt.Println("Generating all artifacts...")
-	mg.Deps(g.Code, g.Manifests)
+	mg.Deps(g.Code, g.Clientset, g.Manifests)
 }
 
 // Target for generating Helm documentation

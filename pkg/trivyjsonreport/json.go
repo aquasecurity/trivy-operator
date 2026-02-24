@@ -3,6 +3,7 @@ package trivyjsonreport
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
@@ -14,7 +15,7 @@ func ExtractJSON(data []byte) ([]byte, error) {
 	data = bytes.TrimSpace(data)
 
 	if len(data) == 0 {
-		return nil, fmt.Errorf("empty data")
+		return nil, errors.New("empty data")
 	}
 
 	// Find the start of JSON - look for '{' or '['
@@ -27,7 +28,7 @@ func ExtractJSON(data []byte) ([]byte, error) {
 	}
 
 	if jsonStart == -1 {
-		return nil, fmt.Errorf("no JSON object or array found in data")
+		return nil, errors.New("no JSON object or array found in data")
 	}
 
 	// Extract from the JSON start to the end
@@ -52,13 +53,13 @@ func ExtractJSON(data []byte) ([]byte, error) {
 	}
 
 	if jsonEnd == 0 {
-		return nil, fmt.Errorf("no matching end bracket found for JSON")
+		return nil, errors.New("no matching end bracket found for JSON")
 	}
 
 	jsonData = jsonData[:jsonEnd]
 
 	// Validate the JSON by unmarshaling into a generic interface
-	var obj interface{}
+	var obj any
 	if err := json.Unmarshal(jsonData, &obj); err != nil {
 		// Try to find valid JSON by trimming trailing garbage
 		for i := len(jsonData) - 1; i > 0; i-- {
@@ -78,4 +79,3 @@ func ExtractJSON(data []byte) ([]byte, error) {
 
 	return jsonData, nil
 }
-

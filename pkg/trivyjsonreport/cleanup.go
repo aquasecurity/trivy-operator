@@ -107,20 +107,24 @@ func (c *CleanupService) cleanupEmptyDirs() {
 	// Walk in reverse order to handle nested empty dirs
 	var dirs []string
 
-	filepath.Walk(c.BaseDir, func(path string, info os.FileInfo, err error) error {
+	if err := filepath.Walk(c.BaseDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil || !info.IsDir() || path == c.BaseDir {
 			return nil
 		}
 		dirs = append(dirs, path)
 		return nil
-	})
+	}); err != nil {
+		c.Logger.Error(err, "Error walking directory for empty dir cleanup")
+		return
+	}
 
 	// Remove empty directories (reverse order for nested)
 	for i := len(dirs) - 1; i >= 0; i-- {
 		entries, err := os.ReadDir(dirs[i])
 		if err == nil && len(entries) == 0 {
-			os.Remove(dirs[i])
+			if removeErr := os.Remove(dirs[i]); removeErr != nil {
+				c.Logger.V(1).Info("Failed to remove empty directory", "path", dirs[i], "error", removeErr)
+			}
 		}
 	}
 }
-

@@ -120,6 +120,7 @@ func sendReport[T any](reports T, endpoint string, timeout time.Duration, header
 	headerValues.Set("Content-Type", "application/json")
 	req.Header = headerValues
 
+	// #nosec G704 -- URL is from operator config (user-configured webhook), not user input taint
 	resp, err := hc.Do(req)
 	defer func() {
 		if resp != nil {

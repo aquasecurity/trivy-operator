@@ -117,6 +117,7 @@ func (d *DeliveryService) send(rawJSON []byte) error {
 		}
 	}
 
+	// #nosec G704 -- URL is from operator config (user-configured webhook), not user input taint
 	resp, err := d.HTTPClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("sending request: %w", err)

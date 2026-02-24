@@ -28,7 +28,7 @@ import (
 type PrivateRegistryConfig struct {
 	Server   string `env:"TRIVY_OPERATOR_TEST_REGISTRY_SERVER"`
 	Username string `env:"TRIVY_OPERATOR_TEST_REGISTRY_USERNAME"`
-	Password string `env:"TRIVY_OPERATOR_TEST_REGISTRY_PASSWORD"`
+	Password string `env:"TRIVY_OPERATOR_TEST_REGISTRY_PASSWORD"` // #nosec G117 -- test registry auth
 	ImageRef string `env:"TRIVY_OPERATOR_TEST_REGISTRY_PRIVATE_IMAGE_REF"`
 }
 

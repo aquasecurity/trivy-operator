@@ -2,6 +2,7 @@ package trivyjsonreport
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -51,7 +52,7 @@ func NewWriter(baseDir string) *Writer {
 // WriteReport writes a namespaced TrivyJSON report and its metadata to file storage
 func (w *Writer) WriteReport(namespace, workloadKind, workloadName, containerName, artifactName, artifactType string, rawJSON []byte) (*ReportMetadata, error) {
 	if w.BaseDir == "" {
-		return nil, fmt.Errorf("storage directory not configured")
+		return nil, errors.New("storage directory not configured")
 	}
 
 	// Create directory structure
@@ -66,7 +67,7 @@ func (w *Writer) WriteReport(namespace, workloadKind, workloadName, containerNam
 	metadataFile := filepath.Join(dir, baseName+".metadata.json")
 
 	// Write raw JSON report
-	if err := os.WriteFile(reportFile, rawJSON, 0o640); err != nil {
+	if err := os.WriteFile(reportFile, rawJSON, 0o600); err != nil {
 		return nil, fmt.Errorf("failed to write report file: %w", err)
 	}
 
@@ -95,7 +96,7 @@ func (w *Writer) WriteReport(namespace, workloadKind, workloadName, containerNam
 // WriteClusterReport writes a cluster-scoped TrivyJSON report and its metadata to file storage
 func (w *Writer) WriteClusterReport(workloadKind, workloadName, containerName, artifactName, artifactType string, rawJSON []byte) (*ReportMetadata, error) {
 	if w.BaseDir == "" {
-		return nil, fmt.Errorf("storage directory not configured")
+		return nil, errors.New("storage directory not configured")
 	}
 
 	// Create directory structure
@@ -110,7 +111,7 @@ func (w *Writer) WriteClusterReport(workloadKind, workloadName, containerName, a
 	metadataFile := filepath.Join(dir, baseName+".metadata.json")
 
 	// Write raw JSON report
-	if err := os.WriteFile(reportFile, rawJSON, 0o640); err != nil {
+	if err := os.WriteFile(reportFile, rawJSON, 0o600); err != nil {
 		return nil, fmt.Errorf("failed to write report file: %w", err)
 	}
 
@@ -149,7 +150,7 @@ func (w *Writer) writeMetadata(filePath string, metadata *ReportMetadata) error 
 	if err != nil {
 		return fmt.Errorf("failed to marshal metadata: %w", err)
 	}
-	return os.WriteFile(filePath, data, 0o640)
+	return os.WriteFile(filePath, data, 0o600)
 }
 
 // ReadMetadata reads metadata from a file

@@ -36,6 +36,7 @@ const (
 
 	LabelVulnerabilityReportScanner = "vulnerabilityReport.scanner"
 	LabelNodeInfoCollector          = "node-info.collector"
+	LabelNodeScanning             = "node-rootfs.scanner"
 
 	LabelK8SAppManagedBy = "app.kubernetes.io/managed-by"
 	AppTrivyOperator     = "trivy-operator"
@@ -46,6 +47,12 @@ const (
 	LabelOpenShiftScheduler         = "scheduler"
 	LabelOpenShiftEtcd              = "etcd"
 	LabelKbom                       = "trivy-operator.aquasecurity.github.io/sbom-type"
+)
+
+const (
+	// AnnotationNodeScanningToken is used to trigger manual rescan of node rootfs.
+	// When the value changes, the operator will create a new scan job.
+	AnnotationNodeScanningToken = "trivy-operator.aquasecurity.github.io/node-rootfs-scan"
 )
 
 const (

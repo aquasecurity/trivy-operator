@@ -71,6 +71,7 @@ rules:
   - configauditreports
   - exposedsecretreports
   - infraassessmentreports
+  - nodevulnerabilityreports
   - rbacassessmentreports
   - sbomreports
   - vulnerabilityreports

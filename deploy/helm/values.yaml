@@ -107,6 +107,28 @@ operator:
   infraAssessmentScannerEnabled: true
   # -- clusterComplianceEnabled the flag to enable cluster compliance scanner
   clusterComplianceEnabled: true
+
+  # -- nodeScanningEnabled the flag to enable node vulnerability scanning
+  # This feature scans the host filesystem of each node for OS package vulnerabilities.
+  nodeScanningEnabled: false
+  # -- nodeScanningScanners comma-separated list of scanners for node scan (default: vuln)
+  nodeScanningScanners: "vuln"
+  # -- nodeScanningPkgTypes comma-separated list of package types to scan (default: os)
+  nodeScanningPkgTypes: "os"
+  # -- nodeScanningSkipDirs comma-separated list of directories to skip during node scanning
+  # By default, container runtime directories and virtual filesystems are excluded.
+  nodeScanningSkipDirs: "/proc,/sys,/dev,/run,/var/lib/containerd,/var/lib/docker,/var/lib/kubelet/pods"
+  # -- nodeScanningTimeout the timeout for node scan jobs. If not set, uses scanJobTimeout.
+  nodeScanningTimeout: ""
+  # -- concurrentNodeScanningLimit the maximum number of node scan jobs to run concurrently
+  concurrentNodeScanningLimit: 1
+  # -- nodeScanningNodeSelector filter nodes by labels (JSON format).
+  nodeScanningNodeSelector: ""
+  # -- nodeScanningSeverities filter vulnerabilities by severity (comma-separated).
+  # WARNING: Without filtering, reports can exceed etcd's 3MB object size limit on nodes with many packages.
+  nodeScanningSeverities: "CRITICAL,HIGH"
+  # -- nodeScanningHideUnfixedCVEs when true, only report vulnerabilities that have a fix available.
+  nodeScanningHideUnfixedCVEs: false
   # -- batchDeleteLimit the maximum number of config audit reports deleted by the operator when the plugin's config has changed.
   batchDeleteLimit: 10
   # -- vulnerabilityScannerScanOnlyCurrentRevisions the flag to only create vulnerability scans on the current revision of a deployment.

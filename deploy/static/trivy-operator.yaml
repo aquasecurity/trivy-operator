@@ -2075,6 +2075,289 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.18.0
+  name: nodevulnerabilityreports.aquasecurity.github.io
+spec:
+  group: aquasecurity.github.io
+  names:
+    kind: NodeVulnerabilityReport
+    listKind: NodeVulnerabilityReportList
+    plural: nodevulnerabilityreports
+    shortNames:
+    - nodevuln
+    - nodevulns
+    singular: nodevulnerabilityreport
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - description: The name of the node
+      jsonPath: .report.artifact.nodeName
+      name: Node
+      type: string
+    - description: The name of the vulnerability scanner
+      jsonPath: .report.scanner.name
+      name: Scanner
+      type: string
+    - description: The age of the report
+      jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - description: The number of critical vulnerabilities
+      jsonPath: .report.summary.criticalCount
+      name: Critical
+      priority: 1
+      type: integer
+    - description: The number of high vulnerabilities
+      jsonPath: .report.summary.highCount
+      name: High
+      priority: 1
+      type: integer
+    - description: The number of medium vulnerabilities
+      jsonPath: .report.summary.mediumCount
+      name: Medium
+      priority: 1
+      type: integer
+    - description: The number of low vulnerabilities
+      jsonPath: .report.summary.lowCount
+      name: Low
+      priority: 1
+      type: integer
+    - description: The number of unknown vulnerabilities
+      jsonPath: .report.summary.unknownCount
+      name: Unknown
+      priority: 1
+      type: integer
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: |-
+          NodeVulnerabilityReport summarizes vulnerabilities in operating system packages
+          and software installed on a Kubernetes node's filesystem (rootfs).
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          report:
+            description: Report is the actual node vulnerability report data.
+            properties:
+              artifact:
+                description: Artifact represents the node filesystem that was scanned.
+                properties:
+                  kind:
+                    description: |-
+                      Kind indicates the type of artifact being scanned.
+                      For node rootfs scanning, this is typically "node-rootfs".
+                    type: string
+                  nodeName:
+                    description: NodeName is the name of the Kubernetes node.
+                    type: string
+                  rootPath:
+                    description: RootPath is the path that was scanned on the node.
+                    type: string
+                required:
+                - nodeName
+                type: object
+              os:
+                description: OS information of the node
+                properties:
+                  eosl:
+                    description: Eosl is true if OS version has reached end of service
+                      life
+                    type: boolean
+                  family:
+                    description: Operating System Family
+                    type: string
+                  name:
+                    description: Name or version of the OS
+                    type: string
+                type: object
+              scanner:
+                description: Scanner is the scanner that generated this report.
+                properties:
+                  name:
+                    description: Name the name of the scanner.
+                    type: string
+                  vendor:
+                    description: Vendor the name of the vendor providing the scanner.
+                    type: string
+                  version:
+                    description: Version the version of the scanner.
+                    type: string
+                required:
+                - name
+                - vendor
+                - version
+                type: object
+              summary:
+                description: Summary is a summary of Vulnerability counts grouped
+                  by Severity.
+                properties:
+                  criticalCount:
+                    description: CriticalCount is the number of vulnerabilities with
+                      Critical Severity.
+                    minimum: 0
+                    type: integer
+                  highCount:
+                    description: HighCount is the number of vulnerabilities with High
+                      Severity.
+                    minimum: 0
+                    type: integer
+                  lowCount:
+                    description: LowCount is the number of vulnerabilities with Low
+                      Severity.
+                    minimum: 0
+                    type: integer
+                  mediumCount:
+                    description: MediumCount is the number of vulnerabilities with
+                      Medium Severity.
+                    minimum: 0
+                    type: integer
+                  noneCount:
+                    description: NoneCount is the number of packages without any vulnerability.
+                    minimum: 0
+                    type: integer
+                  unknownCount:
+                    description: UnknownCount is the number of vulnerabilities with
+                      unknown severity.
+                    minimum: 0
+                    type: integer
+                required:
+                - criticalCount
+                - highCount
+                - lowCount
+                - mediumCount
+                - unknownCount
+                type: object
+              updateTimestamp:
+                description: UpdateTimestamp is a timestamp representing the server
+                  time in UTC when this report was updated.
+                format: date-time
+                type: string
+              vulnerabilities:
+                description: |-
+                  Vulnerabilities is a list of operating system (OS) or application software
+                  Vulnerability items found on the node filesystem.
+                items:
+                  description: Vulnerability is the spec for a vulnerability record.
+                  properties:
+                    class:
+                      type: string
+                    cvss:
+                      additionalProperties:
+                        properties:
+                          V2Score:
+                            type: number
+                          V2Vector:
+                            type: string
+                          V3Score:
+                            type: number
+                          V3Vector:
+                            type: string
+                          V40Score:
+                            type: number
+                          V40Vector:
+                            type: string
+                        type: object
+                      type: object
+                    cvsssource:
+                      type: string
+                    description:
+                      type: string
+                    fixedVersion:
+                      description: FixedVersion indicates the version of the Resource
+                        in which this vulnerability has been fixed.
+                      type: string
+                    installedVersion:
+                      description: InstalledVersion indicates the installed version
+                        of the Resource.
+                      type: string
+                    lastModifiedDate:
+                      description: LastModifiedDate indicates the last date CVE has
+                        been modified.
+                      type: string
+                    links:
+                      items:
+                        type: string
+                      type: array
+                    packagePURL:
+                      type: string
+                    packagePath:
+                      type: string
+                    packageType:
+                      type: string
+                    primaryLink:
+                      type: string
+                    publishedDate:
+                      description: PublishedDate indicates the date of published CVE.
+                      type: string
+                    resource:
+                      description: Resource is a vulnerable package, application,
+                        or library.
+                      type: string
+                    score:
+                      type: number
+                    severity:
+                      description: Severity level of a vulnerability or a configuration
+                        audit check.
+                      enum:
+                      - CRITICAL
+                      - HIGH
+                      - MEDIUM
+                      - LOW
+                      - UNKNOWN
+                      type: string
+                    target:
+                      type: string
+                    title:
+                      type: string
+                    vulnerabilityID:
+                      description: VulnerabilityID the vulnerability identifier.
+                      type: string
+                  required:
+                  - fixedVersion
+                  - installedVersion
+                  - lastModifiedDate
+                  - publishedDate
+                  - resource
+                  - severity
+                  - title
+                  - vulnerabilityID
+                  type: object
+                type: array
+            required:
+            - artifact
+            - os
+            - scanner
+            - summary
+            - updateTimestamp
+            - vulnerabilities
+            type: object
+        required:
+        - report
+        type: object
+        x-kubernetes-preserve-unknown-fields: true
+    served: true
+    storage: true
+    subresources: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.18.0
   name: rbacassessmentreports.aquasecurity.github.io
 spec:
   group: aquasecurity.github.io
@@ -3033,6 +3316,15 @@ data:
   TRIVY_SERVER_HEALTH_CHECK_CACHE_EXPIRATION: "10h"
   OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT: "false"
   OPERATOR_CLUSTER_COMPLIANCE_ENABLED: "true"
+  OPERATOR_NODE_SCANNING_ENABLED: "false"
+  OPERATOR_NODE_SCANNING_SCANNERS: "vuln"
+  OPERATOR_NODE_SCANNING_PKG_TYPES: "os"
+  OPERATOR_NODE_SCANNING_SKIP_DIRS: "/proc,/sys,/dev,/run,/var/lib/containerd,/var/lib/docker,/var/lib/kubelet/pods"
+  OPERATOR_NODE_SCANNING_TIMEOUT: ""
+  OPERATOR_CONCURRENT_NODE_SCANNING_LIMIT: "1"
+  OPERATOR_NODE_SCANNING_NODE_SELECTOR: ""
+  OPERATOR_NODE_SCANNING_SEVERITIES: "CRITICAL,HIGH"
+  OPERATOR_NODE_SCANNING_HIDE_UNFIXED_CVES: "false"
 ---
 # Source: trivy-operator/templates/configmaps/trivy.yaml
 apiVersion: v1
@@ -3119,7 +3411,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 6feb2b6c22f8014906182348d8177d799c7d86e5186981c1ba73667fe206bbbb
+        checksum/config: 662d58ef4db6ae87cd516331b4160efa8ce9095a5103af360cba203eaf6d45d0
       labels:
         app.kubernetes.io/name: trivy-operator
         app.kubernetes.io/instance: trivy-operator
@@ -3277,6 +3569,7 @@ rules:
   - configauditreports
   - exposedsecretreports
   - infraassessmentreports
+  - nodevulnerabilityreports
   - rbacassessmentreports
   - sbomreports
   - vulnerabilityreports

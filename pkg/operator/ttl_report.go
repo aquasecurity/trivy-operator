@@ -37,7 +37,7 @@ type TTLReportReconciler struct {
 }
 
 func (r *TTLReportReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	// watch reports for ttl
+	// watch reports for ttl - namespaced resources
 	ttlResources := make([]kube.Resource, 0)
 	if r.Config.RbacAssessmentScannerEnabled {
 		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.RbacAssessmentReport{}})
@@ -54,13 +54,23 @@ func (r *TTLReportReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	if r.Config.InfraAssessmentScannerEnabled {
 		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.InfraAssessmentReport{}})
 	}
+
+	// cluster-scoped resources - don't apply installModePredicate
+	// because they don't have a namespace and predicate would always return false
+	clusterScopedResources := make([]kube.Resource, 0)
 	if r.Config.ClusterSbomCacheEnable {
-		ttlResources = append(ttlResources, kube.Resource{ForObject: &v1alpha1.ClusterSbomReport{}})
+		clusterScopedResources = append(clusterScopedResources, kube.Resource{ForObject: &v1alpha1.ClusterSbomReport{}})
 	}
+	if r.Config.NodeScanningEnabled {
+		clusterScopedResources = append(clusterScopedResources, kube.Resource{ForObject: &v1alpha1.NodeVulnerabilityReport{}})
+	}
+
 	installModePredicate, err := predicate.InstallModePredicate(r.Config)
 	if err != nil {
 		return err
 	}
+
+	// Register namespaced resources with installModePredicate
 	for _, reportType := range ttlResources {
 		err = ctrl.NewControllerManagedBy(mgr).
 			For(reportType.ForObject, builder.WithPredicates(
@@ -71,6 +81,18 @@ func (r *TTLReportReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			return err
 		}
 	}
+
+	// Register cluster-scoped resources without installModePredicate
+	for _, reportType := range clusterScopedResources {
+		err = ctrl.NewControllerManagedBy(mgr).
+			For(reportType.ForObject, builder.WithPredicates(
+				predicate.Not(predicate.IsBeingTerminated))).
+			Complete(r.reconcileReport(reportType.ForObject))
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -135,9 +157,11 @@ func (r *TTLReportReconciler) applicableForDeletion(ctx context.Context, report 
 			reportKind = "InfraAssessmentReport"
 		case *v1alpha1.RbacAssessmentReport:
 			reportKind = "RbacAssessmentReport"
+		case *v1alpha1.NodeVulnerabilityReport:
+			reportKind = "NodeVulnerabilityReport"
 		}
 	}
-	if reportKind == "VulnerabilityReport" || reportKind == "ExposedSecretReport" || reportKind == "ClusterSbomReport" {
+	if reportKind == "VulnerabilityReport" || reportKind == "ExposedSecretReport" || reportKind == "ClusterSbomReport" || reportKind == "NodeVulnerabilityReport" {
 		return true
 	}
 	if ttlReportAnnotationStr == time.Duration(0).String() { // check if it marked as historical report

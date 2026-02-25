@@ -127,6 +127,13 @@ var IsNodeInfoCollector = predicate.NewPredicateFuncs(func(obj client.Object) bo
 	return false
 })
 
+var IsNodeScanning = predicate.NewPredicateFuncs(func(obj client.Object) bool {
+	if _, ok := obj.GetLabels()[trivyoperator.LabelNodeScanning]; ok {
+		return true
+	}
+	return false
+})
+
 var IsLinuxNode = predicate.NewPredicateFuncs(func(obj client.Object) bool {
 	if os, exists := obj.GetLabels()[corev1.LabelOSStable]; exists && os == "linux" {
 		return true

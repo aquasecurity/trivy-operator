@@ -36,7 +36,7 @@ const (
 
 	LabelVulnerabilityReportScanner = "vulnerabilityReport.scanner"
 	LabelNodeInfoCollector          = "node-info.collector"
-	LabelNodeScanning             = "node-rootfs.scanner"
+	LabelNodeScanning               = "node-rootfs.scanner"
 
 	LabelK8SAppManagedBy = "app.kubernetes.io/managed-by"
 	AppTrivyOperator     = "trivy-operator"

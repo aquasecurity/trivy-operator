@@ -61,7 +61,7 @@ func (c *checker) CheckNodes(ctx context.Context) (bool, int, error) {
 func (c *checker) CheckNodeScanning(ctx context.Context) (bool, int, error) {
 	matchinglabels := client.MatchingLabels{
 		trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
-		trivyoperator.LabelNodeScanning:  ScannerName,
+		trivyoperator.LabelNodeScanning:    ScannerName,
 	}
 	scanJobsCount, err := c.countJobs(ctx, matchinglabels)
 	if err != nil {

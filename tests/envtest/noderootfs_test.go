@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -12,9 +14,6 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/nodevulnerabilityreport"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Node rootfs scan controller", func() {
@@ -55,7 +54,7 @@ var _ = Describe("Node rootfs scan controller", func() {
 			jobList := &batchv1.JobList{}
 			_ = k8sClient.List(ctx, jobList, client.MatchingLabels{
 				trivyoperator.LabelNodeScanning: "Trivy",
-				trivyoperator.LabelResourceName:   testNode.Name,
+				trivyoperator.LabelResourceName: testNode.Name,
 			})
 			for _, job := range jobList.Items {
 				_ = k8sClient.Delete(ctx, &job, client.PropagationPolicy(metav1.DeletePropagationBackground))
@@ -158,7 +157,7 @@ var _ = Describe("Node rootfs scan controller", func() {
 						trivyoperator.LabelResourceKind:     "Node",
 						trivyoperator.LabelResourceName:     testNode.Name,
 						trivyoperator.LabelK8SAppManagedBy:  trivyoperator.AppTrivyOperator,
-						trivyoperator.LabelNodeScanning:   "Trivy",
+						trivyoperator.LabelNodeScanning:     "Trivy",
 						trivyoperator.LabelResourceSpecHash: nodeHash,
 					},
 				},

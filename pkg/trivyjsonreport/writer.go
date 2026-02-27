@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -49,10 +50,33 @@ func NewWriter(baseDir string) *Writer {
 	return &Writer{BaseDir: baseDir}
 }
 
+// safePathSegment returns an error if the segment could be used for path traversal.
+func safePathSegment(name, segment string) error {
+	if segment == "" {
+		return nil
+	}
+	if strings.Contains(segment, "..") || strings.Contains(segment, "/") || strings.Contains(segment, "\\") {
+		return fmt.Errorf("%s contains invalid path characters", name)
+	}
+	return nil
+}
+
 // WriteReport writes a namespaced TrivyJSON report and its metadata to file storage
 func (w *Writer) WriteReport(namespace, workloadKind, workloadName, containerName, artifactName, artifactType string, rawJSON []byte) (*ReportMetadata, error) {
 	if w.BaseDir == "" {
 		return nil, errors.New("storage directory not configured")
+	}
+	if err := safePathSegment("namespace", namespace); err != nil {
+		return nil, err
+	}
+	if err := safePathSegment("workloadKind", workloadKind); err != nil {
+		return nil, err
+	}
+	if err := safePathSegment("workloadName", workloadName); err != nil {
+		return nil, err
+	}
+	if err := safePathSegment("containerName", containerName); err != nil {
+		return nil, err
 	}
 
 	// Create directory structure
@@ -98,6 +122,15 @@ func (w *Writer) WriteClusterReport(workloadKind, workloadName, containerName, a
 	if w.BaseDir == "" {
 		return nil, errors.New("storage directory not configured")
 	}
+	if err := safePathSegment("workloadKind", workloadKind); err != nil {
+		return nil, err
+	}
+	if err := safePathSegment("workloadName", workloadName); err != nil {
+		return nil, err
+	}
+	if err := safePathSegment("containerName", containerName); err != nil {
+		return nil, err
+	}
 
 	// Create directory structure
 	dir := filepath.Join(w.BaseDir, "cluster")
@@ -139,8 +172,10 @@ func (w *Writer) WriteClusterReport(workloadKind, workloadName, containerName, a
 
 // UpdateMetadata updates the metadata file for a report
 func (w *Writer) UpdateMetadata(metadata *ReportMetadata) error {
-	// Derive metadata file path from report file path
-	metadataFile := metadata.ReportFile[:len(metadata.ReportFile)-5] + ".metadata.json"
+	metadataFile, err := getMetadataFilePath(metadata.ReportFile)
+	if err != nil {
+		return err
+	}
 	return w.writeMetadata(metadataFile, metadata)
 }
 
@@ -168,7 +203,19 @@ func (w *Writer) ReadMetadata(metadataFile string) (*ReportMetadata, error) {
 	return &metadata, nil
 }
 
-// GetMetadataFilePath returns the metadata file path for a report file
+// getMetadataFilePath returns the metadata file path for a report file ending with ".json".
+func getMetadataFilePath(reportFile string) (string, error) {
+	if len(reportFile) < 5 || !strings.HasSuffix(reportFile, ".json") {
+		return "", fmt.Errorf("report file path must end with .json: %q", reportFile)
+	}
+	return reportFile[:len(reportFile)-5] + ".metadata.json", nil
+}
+
+// GetMetadataFilePath returns the metadata file path for a report file.
+// Returns the derived path without validation; use getMetadataFilePath when the path must be validated.
 func GetMetadataFilePath(reportFile string) string {
+	if len(reportFile) < 5 || !strings.HasSuffix(reportFile, ".json") {
+		return reportFile + ".metadata.json"
+	}
 	return reportFile[:len(reportFile)-5] + ".metadata.json"
 }

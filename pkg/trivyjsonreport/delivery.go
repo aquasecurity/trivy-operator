@@ -122,10 +122,14 @@ func (d *DeliveryService) send(rawJSON []byte) error {
 	if err != nil {
 		return fmt.Errorf("sending request: %w", err)
 	}
+	if resp == nil {
+		return fmt.Errorf("no response from endpoint")
+	}
 	defer resp.Body.Close()
 
-	// Read response body for error messages
-	body, _ := io.ReadAll(resp.Body)
+	// Read response body for error messages (limit size to avoid unbounded memory use)
+	const maxResponseBodySize = 1 << 20 // 1 MiB
+	body, _ := io.ReadAll(io.LimitReader(resp.Body, maxResponseBodySize))
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return fmt.Errorf("endpoint returned status %d: %s", resp.StatusCode, string(body))

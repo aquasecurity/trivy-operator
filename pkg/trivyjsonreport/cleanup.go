@@ -66,7 +66,8 @@ func (c *CleanupService) cleanup() {
 
 	err := filepath.Walk(c.BaseDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return nil // Skip errors
+			c.Logger.V(1).Error(err, "Failed to access path during TrivyJSON cleanup", "path", path)
+			return nil
 		}
 
 		if info.IsDir() {

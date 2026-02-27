@@ -99,4 +99,43 @@ func TestWriter_UpdateMetadata(t *testing.T) {
 func TestGetMetadataFilePath(t *testing.T) {
 	assert.Equal(t, "/path/to/report.metadata.json", GetMetadataFilePath("/path/to/report.json"))
 	assert.Equal(t, "foo.metadata.json", GetMetadataFilePath("foo.json"))
+	assert.Equal(t, "foo.metadata.json", GetMetadataFilePath("foo")) // no .json suffix -> append
+}
+
+func TestWriter_WriteReport_RejectsPathTraversal(t *testing.T) {
+	dir := t.TempDir()
+	w := NewWriter(dir)
+	raw := []byte(`{}`)
+
+	_, err := w.WriteReport("ns/../etc", "Deployment", "app", "c", "img", "container_image", raw)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "namespace")
+
+	_, err = w.WriteReport("default", "Deployment", "app/../other", "c", "img", "container_image", raw)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "workloadName")
+
+	_, err = w.WriteReport("default", "Deployment", "app", "c\\..\\x", "img", "container_image", raw)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "containerName")
+}
+
+func TestWriter_WriteClusterReport_RejectsPathTraversal(t *testing.T) {
+	dir := t.TempDir()
+	w := NewWriter(dir)
+	raw := []byte(`{}`)
+
+	_, err := w.WriteClusterReport("Deployment", "..", "c", "img", "container_image", raw)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "workloadName")
+}
+
+func TestWriter_UpdateMetadata_InvalidReportFile(t *testing.T) {
+	dir := t.TempDir()
+	w := NewWriter(dir)
+	meta := &ReportMetadata{ReportFile: "not-a-json-path", ArtifactName: "img"}
+
+	err := w.UpdateMetadata(meta)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "must end with .json")
 }

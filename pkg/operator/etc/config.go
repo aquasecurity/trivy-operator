@@ -128,7 +128,7 @@ func (c Config) GetWebhookBroadcastCustomHeaders() http.Header {
 			if len(s) != 2 {
 				continue
 			}
-			headers.Set(s[0], s[1])
+			headers.Set(strings.TrimSpace(s[0]), strings.TrimSpace(s[1]))
 		}
 	}
 
@@ -145,7 +145,7 @@ func (c Config) GetTrivyJSONReportDeliveryCustomHeaders() http.Header {
 			if len(s) != 2 {
 				continue
 			}
-			headers.Set(s[0], s[1])
+			headers.Set(strings.TrimSpace(s[0]), strings.TrimSpace(s[1]))
 		}
 	}
 

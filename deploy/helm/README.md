@@ -87,6 +87,15 @@ Keeps security report resources updated
 | operator.scanSecretTTL | string | `""` | scanSecretTTL set an automatic cleanup for scan job secrets |
 | operator.scannerReportTTL | string | `"24h"` | scannerReportTTL the flag to set how long a report should exist. "" means that the ScannerReportTTL feature is disabled |
 | operator.serverAdditionalAnnotations | object | `{}` | serverAdditionalAnnotations the flag to set additional annotations for the trivy server pod |
+| operator.trivyJSONReportDeliveryCustomHeaders | string | `""` | trivyJSONReportDeliveryCustomHeaders custom headers to include when delivering reports (format: "Header1:Value1,Header2:Value2") |
+| operator.trivyJSONReportDeliveryEnabled | bool | `false` | trivyJSONReportDeliveryEnabled enables automatic delivery of raw Trivy JSON to a configured endpoint. |
+| operator.trivyJSONReportDeliveryRetryAttempts | int | `3` | trivyJSONReportDeliveryRetryAttempts number of retry attempts for failed deliveries. |
+| operator.trivyJSONReportDeliveryTimeout | string | `"60s"` | trivyJSONReportDeliveryTimeout the timeout for HTTP requests when delivering reports. |
+| operator.trivyJSONReportDeliveryURL | string | `""` | trivyJSONReportDeliveryURL the URL endpoint to send raw Trivy JSON reports to. The endpoint receives the raw Trivy JSON output directly (no wrapper/envelope). |
+| operator.trivyJSONReportEnabled | bool | `false` | trivyJSONReportEnabled enables capturing raw Trivy JSON output. Reports are stored to file storage and/or delivered to an HTTP endpoint. |
+| operator.trivyJSONReportStorage | string | `""` | trivyJSONReportStorage where to store raw Trivy JSON reports. Options:   "" (empty): no file storage (webhook-only).   "operator": operator filesystem (emptyDir at /var/trivy-json-reports). Ephemeral; lost on pod restart.   "alternate": same volume as alternateReportStorage (requires alternateReportStorage.enabled). CRD storage is not supported for Trivy JSON. |
+| operator.trivyJSONReportStorageDir | string | `""` | trivyJSONReportStorageDir overrides the storage path when set. Use for custom volumes (e.g. your own PVC). When set, trivyJSONReportStorage is ignored for the path. Leave empty to use trivyJSONReportStorage. |
+| operator.trivyJSONReportTTL | string | `"24h"` | trivyJSONReportTTL sets the time-to-live for stored TrivyJSON report files. Files older than this are automatically cleaned up. |
 | operator.trivyServerHealthCheckCacheExpiration | string | `"10h"` | trivyServerHealthCheckCacheExpiration The flag to set the interval for trivy server health cache before it invalidate |
 | operator.valuesFromConfigMap | string | `""` | vaulesFromConfigMap name of a ConfigMap to apply OPERATOR_* environment variables. Will override Helm values. |
 | operator.valuesFromSecret | string | `""` | valuesFromSecret name of a Secret to apply OPERATOR_* environment variables. Will override Helm AND ConfigMap values. |
@@ -96,15 +105,6 @@ Keeps security report resources updated
 | operator.webhookBroadcastTimeout | string | `"30s"` | webhookBroadcastTimeout the flag to set timeout for webhook requests if webhookBroadcastURL is enabled |
 | operator.webhookBroadcastURL | string | `""` | webhookBroadcastURL the flag to set reports should be sent to a webhook endpoint. "" means that the webhookBroadcastURL feature is disabled |
 | operator.webhookSendDeletedReports | bool | `false` | webhookSendDeletedReports the flag to enable sending deleted reports if webhookBroadcastURL is enabled |
-| operator.trivyJSONReportEnabled | bool | `false` | trivyJSONReportEnabled enables capturing raw Trivy JSON output. Reports are stored to file storage and/or delivered to an HTTP endpoint. |
-| operator.trivyJSONReportStorage | string | `""` | trivyJSONReportStorage where to store raw Trivy JSON reports. Options: "" (no file storage, webhook-only), "operator" (operator filesystem, emptyDir at /var/trivy-json-reports; ephemeral, lost on pod restart), "alternate" (same volume as alternateReportStorage at subpath trivy_json_reports; requires alternateReportStorage.enabled). CRD storage is not supported for Trivy JSON. |
-| operator.trivyJSONReportStorageDir | string | `""` | trivyJSONReportStorageDir overrides the storage path when set (e.g. custom PVC). When set, trivyJSONReportStorage is ignored for the path. Leave empty to use trivyJSONReportStorage. |
-| operator.trivyJSONReportDeliveryEnabled | bool | `false` | trivyJSONReportDeliveryEnabled enables automatic delivery of raw Trivy JSON to the configured endpoint. |
-| operator.trivyJSONReportDeliveryURL | string | `""` | trivyJSONReportDeliveryURL the URL endpoint to send raw Trivy JSON reports to. |
-| operator.trivyJSONReportDeliveryTimeout | string | `"60s"` | trivyJSONReportDeliveryTimeout the timeout for HTTP requests when delivering reports. |
-| operator.trivyJSONReportDeliveryCustomHeaders | string | `""` | trivyJSONReportDeliveryCustomHeaders custom headers for delivery (format "Header1:Value1,Header2:Value2"). |
-| operator.trivyJSONReportDeliveryRetryAttempts | int | `3` | trivyJSONReportDeliveryRetryAttempts number of retry attempts for failed deliveries. |
-| operator.trivyJSONReportTTL | string | `"24h"` | trivyJSONReportTTL time-to-live for stored Trivy JSON report files; files older than this are cleaned up. |
 | podAnnotations | object | `{}` | podAnnotations annotations added to the operator's pod |
 | podSecurityContext | object | `{}` |  |
 | policiesBundle.existingSecret | bool | `false` | existingSecret if a secret containing registry credentials that have been created outside the chart (e.g external-secrets, sops, etc...). Keys must be at least one of the following: policies.bundle.oci.user, policies.bundle.oci.password Overrides policiesBundle.registryUser, policiesBundle.registryPassword values. Note: The secret has to be named "trivy-operator". |

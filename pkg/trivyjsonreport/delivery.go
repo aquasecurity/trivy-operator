@@ -2,6 +2,7 @@ package trivyjsonreport
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -123,7 +124,7 @@ func (d *DeliveryService) send(rawJSON []byte) error {
 		return fmt.Errorf("sending request: %w", err)
 	}
 	if resp == nil {
-		return fmt.Errorf("no response from endpoint")
+		return errors.New("no response from endpoint")
 	}
 	defer resp.Body.Close()
 

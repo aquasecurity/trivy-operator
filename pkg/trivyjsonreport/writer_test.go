@@ -38,7 +38,7 @@ func TestWriter_WriteReport_Success(t *testing.T) {
 	reportPath := filepath.Join(dir, "namespaced", "default", "Deployment-nginx-app.json")
 	content, err := os.ReadFile(reportPath)
 	require.NoError(t, err)
-	assert.Equal(t, rawJSON, content)
+	assert.JSONEq(t, string(rawJSON), string(content))
 
 	// Metadata file exists and is valid
 	metaPath := filepath.Join(dir, "namespaced", "default", "Deployment-nginx-app.metadata.json")
@@ -70,7 +70,7 @@ func TestWriter_WriteClusterReport_Success(t *testing.T) {
 	reportPath := filepath.Join(dir, "cluster", "Deployment-global-app.json")
 	content, err := os.ReadFile(reportPath)
 	require.NoError(t, err)
-	assert.Equal(t, rawJSON, content)
+	assert.JSONEq(t, string(rawJSON), string(content))
 }
 
 func TestWriter_UpdateMetadata(t *testing.T) {

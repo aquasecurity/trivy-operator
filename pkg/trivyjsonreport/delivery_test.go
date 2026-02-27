@@ -46,8 +46,8 @@ func TestDeliveryService_DeliverReport_Success(t *testing.T) {
 	defer server.Close()
 
 	config := etc.Config{
-		TrivyJSONReportDeliveryEnabled: true,
-		TrivyJSONReportDeliveryURL:     server.URL,
+		TrivyJSONReportDeliveryEnabled:       true,
+		TrivyJSONReportDeliveryURL:           server.URL,
 		TrivyJSONReportDeliveryRetryAttempts: 1,
 	}
 	svc := NewDeliveryService(log.Log, config)

@@ -21,6 +21,8 @@ updates:
       aqua:
         patterns:
           - "*aquasecurity*"
+    cooldown:
+      default-days: 7
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -29,7 +31,11 @@ updates:
       github-actions:
         patterns:
           - "*"
+    cooldown:
+      default-days: 7
   - package-ecosystem: docker
     directory: /build/trivy-operator
     schedule:
       interval: daily
+    cooldown:
+      default-days: 7

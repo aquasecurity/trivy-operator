@@ -25,14 +25,19 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # was: docker/setup-buildx-action@v3
       - name: Available platforms
-        run: echo ${{ steps.buildx.outputs.platforms }}
+        run: echo ${STEPS_BUILDX_OUTPUTS_PLATFORMS}
+        env:
+          STEPS_BUILDX_OUTPUTS_PLATFORMS: ${{ steps.buildx.outputs.platforms }}
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # was: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Setup Go
         uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # was: actions/setup-go@v6
         with:
           go-version-file: go.mod
           check-latest: true
+          cache: false
       - name: Install cosign
         uses: sigstore/cosign-installer@3454372f43399081ed03b604cb2d021dabca52bb # was: sigstore/cosign-installer@v3.8.2
       - name: Release snapshot

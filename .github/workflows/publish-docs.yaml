@@ -52,8 +52,12 @@ jobs:
       - name: Checkout main input
         if: github.event.inputs.ref  != ''
         run: |
-          mike deploy --push --update-aliases ${{ github.event.inputs.ref }} latest
+          mike deploy --push --update-aliases ${GITHUB_EVENT_INPUTS_REF} latest
+        env:
+          GITHUB_EVENT_INPUTS_REF: ${{ github.event.inputs.ref }}
       - name: Checkout main release
         if: github.event.inputs.ref  == ''
         run: |
-          mike deploy --push --update-aliases ${{ github.event.client_payload.tag }} latest
+          mike deploy --push --update-aliases ${GITHUB_EVENT_CLIENT_PAYLOAD_TAG} latest
+        env:
+          GITHUB_EVENT_CLIENT_PAYLOAD_TAG: ${{ github.event.client_payload.tag }}

@@ -41,7 +41,9 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v3
       - name: Available platforms
-        run: echo ${{ steps.buildx.outputs.platforms }}
+        run: echo "$PLATFORMS"
+        env:
+          PLATFORMS: ${{ steps.buildx.outputs.platforms }}
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Setup Go
@@ -70,10 +72,13 @@ jobs:
 
           kubectl create secret docker-registry artcred \
             --docker-server=https://index.docker.io/v1 \
-            --docker-username=${{ secrets.DOCKERHUB_USER }} \
-            --docker-password=${{ secrets.DOCKERHUB_TOKEN }} \
+            --docker-username="$DOCKERHUB_USER" \
+            --docker-password="$DOCKERHUB_TOKEN" \
             --docker-email=private@gmail.com \
             -n private
+        env:
+          DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Load operator image to cluster
         run: >
           docker tag mirror.gcr.io/aquasec/trivy-operator:${{ github.sha }}-amd64

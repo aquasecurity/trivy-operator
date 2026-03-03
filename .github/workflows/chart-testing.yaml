@@ -43,7 +43,9 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v3
       - name: Available platforms
-        run: echo ${{ steps.buildx.outputs.platforms }}
+        run: echo "$PLATFORMS"
+        env:
+          PLATFORMS: ${{ steps.buildx.outputs.platforms }}
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Setup Go
@@ -75,7 +77,7 @@ jobs:
 
           chmod 700 get_helm.sh
       - name: update appVersion
-        uses: mikefarah/yq@master
+        uses: mikefarah/yq@v4.44.6
         with:
           cmd: yq -i '.appVersion = "ct"' ./deploy/helm/Chart.yaml
       - name: Load operator image to cluster

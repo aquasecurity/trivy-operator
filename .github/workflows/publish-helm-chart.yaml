@@ -7,6 +7,7 @@ on:
     types: [publish-chart]
     paths:
       - deploy/helm/Chart.yaml
+permissions: {}
 env:
   CR_PACKAGE_PATH: .cr-release-packages
   HELM_REP: helm-charts
@@ -106,7 +107,7 @@ jobs:
         id: latest_tag
         run: |
           latest_tag=$(git describe --tags --abbrev=0)
-          echo "::set-output name=tag::$latest_tag"
+          echo "tag=$latest_tag" >> "$GITHUB_OUTPUT"
 
       - name: Repository Dispatch Publish docs
         if: github.event.client_payload.action == 'chart-and-app-release' && !contains(steps.latest_tag.outputs.tag, 'rc')

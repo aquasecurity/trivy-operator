@@ -24,13 +24,13 @@ jobs:
         id: latest_tag
         run: |
           latest_tag=$(git describe --tags --abbrev=0 | sed 's/v//')
-          echo "::set-output name=tag::$latest_tag"
+          echo "tag=$latest_tag" >> "$GITHUB_OUTPUT"
 
       - name: Read Chart.yaml appVersion
         id: chart_version
         run: |
           app_version=$(grep -E '^appVersion:' deploy/helm/Chart.yaml | awk '{print $2}')
-          echo "::set-output name=app_version::$app_version"
+          echo "app_version=$app_version" >> "$GITHUB_OUTPUT"
 
       - name: Repository Dispatch Publish Helm Chart
         if: ${{ steps.latest_tag.outputs.tag == steps.chart_version.outputs.app_version }}

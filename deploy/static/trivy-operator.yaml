@@ -3033,6 +3033,14 @@ data:
   TRIVY_SERVER_HEALTH_CHECK_CACHE_EXPIRATION: "10h"
   OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT: "false"
   OPERATOR_CLUSTER_COMPLIANCE_ENABLED: "true"
+  OPERATOR_TRIVY_JSON_REPORT_ENABLED: "false"
+  OPERATOR_TRIVY_JSON_REPORT_STORAGE_DIR: ""
+  OPERATOR_TRIVY_JSON_REPORT_DELIVERY_ENABLED: "false"
+  OPERATOR_TRIVY_JSON_REPORT_DELIVERY_URL: ""
+  OPERATOR_TRIVY_JSON_REPORT_DELIVERY_TIMEOUT: "60s"
+  OPERATOR_TRIVY_JSON_REPORT_DELIVERY_CUSTOM_HEADERS: ""
+  OPERATOR_TRIVY_JSON_REPORT_DELIVERY_RETRY_ATTEMPTS: "3"
+  OPERATOR_TRIVY_JSON_REPORT_TTL: "24h"
 ---
 # Source: trivy-operator/templates/configmaps/trivy.yaml
 apiVersion: v1
@@ -3119,7 +3127,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 6feb2b6c22f8014906182348d8177d799c7d86e5186981c1ba73667fe206bbbb
+        checksum/config: a72320f213bdad4e90c38833eb7e761ad80cc97df329855c012e1613c32374e5
       labels:
         app.kubernetes.io/name: trivy-operator
         app.kubernetes.io/instance: trivy-operator

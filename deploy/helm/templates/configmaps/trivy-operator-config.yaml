@@ -49,6 +49,22 @@ data:
   TRIVY_SERVER_HEALTH_CHECK_CACHE_EXPIRATION: {{ .Values.operator.trivyServerHealthCheckCacheExpiration | quote }}
   OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT: {{ .Values.operator.mergeRbacFindingWithConfigAudit | quote }}
   OPERATOR_CLUSTER_COMPLIANCE_ENABLED: {{ .Values.operator.clusterComplianceEnabled | quote }}
+  OPERATOR_TRIVY_JSON_REPORT_ENABLED: {{ .Values.operator.trivyJSONReportEnabled | quote }}
+  {{- $trivyJSONStorageDir := "" }}
+  {{- if .Values.operator.trivyJSONReportStorageDir }}
+  {{- $trivyJSONStorageDir = .Values.operator.trivyJSONReportStorageDir }}
+  {{- else if eq .Values.operator.trivyJSONReportStorage "operator" }}
+  {{- $trivyJSONStorageDir = "/var/trivy-json-reports" }}
+  {{- else if and (eq .Values.operator.trivyJSONReportStorage "alternate") .Values.alternateReportStorage.enabled }}
+  {{- $trivyJSONStorageDir = printf "%s/trivy_json_reports" .Values.alternateReportStorage.mountPath }}
+  {{- end }}
+  OPERATOR_TRIVY_JSON_REPORT_STORAGE_DIR: {{ $trivyJSONStorageDir | quote }}
+  OPERATOR_TRIVY_JSON_REPORT_DELIVERY_ENABLED: {{ .Values.operator.trivyJSONReportDeliveryEnabled | quote }}
+  OPERATOR_TRIVY_JSON_REPORT_DELIVERY_URL: {{ .Values.operator.trivyJSONReportDeliveryURL | quote }}
+  OPERATOR_TRIVY_JSON_REPORT_DELIVERY_TIMEOUT: {{ .Values.operator.trivyJSONReportDeliveryTimeout | quote }}
+  OPERATOR_TRIVY_JSON_REPORT_DELIVERY_CUSTOM_HEADERS: {{ .Values.operator.trivyJSONReportDeliveryCustomHeaders | quote }}
+  OPERATOR_TRIVY_JSON_REPORT_DELIVERY_RETRY_ATTEMPTS: {{ .Values.operator.trivyJSONReportDeliveryRetryAttempts | quote }}
+  OPERATOR_TRIVY_JSON_REPORT_TTL: {{ .Values.operator.trivyJSONReportTTL | quote }}
 {{- if gt (int .Values.operator.replicas) 1 }}
   OPERATOR_LEADER_ELECTION_ENABLED: "true"
   OPERATOR_LEADER_ELECTION_ID: {{ .Values.operator.leaderElectionId | quote }}

@@ -178,6 +178,40 @@ operator:
   # -- webhookSendDeletedReports the flag to enable sending deleted reports if webhookBroadcastURL is enabled
   webhookSendDeletedReports: false
 
+  # -- trivyJSONReportEnabled enables capturing raw Trivy JSON output.
+  # Reports are stored to file storage and/or delivered to an HTTP endpoint.
+  trivyJSONReportEnabled: false
+
+  # -- trivyJSONReportStorage where to store raw Trivy JSON reports. Options:
+  #   "" (empty): no file storage (webhook-only).
+  #   "operator": operator filesystem (emptyDir at /var/trivy-json-reports). Ephemeral; lost on pod restart.
+  #   "alternate": same volume as alternateReportStorage (requires alternateReportStorage.enabled).
+  # CRD storage is not supported for Trivy JSON.
+  trivyJSONReportStorage: ""
+
+  # -- trivyJSONReportStorageDir overrides the storage path when set. Use for custom volumes (e.g. your own PVC).
+  # When set, trivyJSONReportStorage is ignored for the path. Leave empty to use trivyJSONReportStorage.
+  trivyJSONReportStorageDir: ""
+
+  # -- trivyJSONReportDeliveryEnabled enables automatic delivery of raw Trivy JSON to a configured endpoint.
+  trivyJSONReportDeliveryEnabled: false
+
+  # -- trivyJSONReportDeliveryURL the URL endpoint to send raw Trivy JSON reports to.
+  # The endpoint receives the raw Trivy JSON output directly (no wrapper/envelope).
+  trivyJSONReportDeliveryURL: ""
+
+  # -- trivyJSONReportDeliveryTimeout the timeout for HTTP requests when delivering reports.
+  trivyJSONReportDeliveryTimeout: 60s
+
+  # -- trivyJSONReportDeliveryCustomHeaders custom headers to include when delivering reports (format: "Header1:Value1,Header2:Value2")
+  trivyJSONReportDeliveryCustomHeaders: ""
+
+  # -- trivyJSONReportDeliveryRetryAttempts number of retry attempts for failed deliveries.
+  trivyJSONReportDeliveryRetryAttempts: 3
+
+  # -- trivyJSONReportTTL sets the time-to-live for stored TrivyJSON report files. Files older than this are automatically cleaned up.
+  trivyJSONReportTTL: "24h"
+
   # -- privateRegistryScanSecretsNames is map of namespace:secrets, secrets are comma seperated which can be used to authenticate in private registries in case if there no imagePullSecrets provided example : {"mynamespace":"mySecrets,anotherSecret"}
   privateRegistryScanSecretsNames: {}
 

@@ -44,7 +44,7 @@ func (v BasicAuth) String() string {
 type Auth struct {
 	Auth     BasicAuth `json:"auth,omitempty"`
 	Username string    `json:"username,omitempty"`
-	Password string    `json:"password,omitempty"`
+	Password string    `json:"password,omitempty"` // #nosec G117 -- Docker auth config, redacted in String()
 }
 
 func (v Auth) String() string {

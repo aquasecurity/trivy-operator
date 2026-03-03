@@ -30,7 +30,7 @@ jobs:
           remove-swapfile: 'true'
 
       - name: Checkout code
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # was: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # was: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
       - name: Setup Go
@@ -39,7 +39,7 @@ jobs:
           go-version-file: go.mod
           check-latest: true
       - name: Install tools
-        uses: aquaproj/aqua-installer@9ebf656952a20c45a5d66606f083ff34f58b8ce0 # was: aquaproj/aqua-installer@v4.0.0
+        uses: aquaproj/aqua-installer@11dd79b4e498d471a9385aa9fb7f62bb5f52a73c # was: aquaproj/aqua-installer@v4.0.4
         with:
           aqua_version: v1.25.0
       - name: Run unit tests
@@ -52,14 +52,14 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout code
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # was: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # was: actions/checkout@v6.0.2
       - name: Setup Go
         uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # was: actions/setup-go@v6
         with:
           go-version-file: go.mod
           check-latest: true
       - name: Install tools
-        uses: aquaproj/aqua-installer@9ebf656952a20c45a5d66606f083ff34f58b8ce0 # was: aquaproj/aqua-installer@v4.0.0
+        uses: aquaproj/aqua-installer@11dd79b4e498d471a9385aa9fb7f62bb5f52a73c # was: aquaproj/aqua-installer@v4.0.4
         with:
           aqua_version: v1.25.0
       - name: Setup Kubernetes cluster (KIND)
@@ -111,7 +111,7 @@ jobs:
       - name: Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
       - name: Checkout code
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # was: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # was: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
       - name: Setup Go
@@ -120,26 +120,26 @@ jobs:
           go-version-file: go.mod
           check-latest: true
       - name: Install cosign
-        uses: sigstore/cosign-installer@3454372f43399081ed03b604cb2d021dabca52bb # was: sigstore/cosign-installer@v3.8.2
+        uses: sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad # was: sigstore/cosign-installer@v4.0.0
       - name: Login to docker.io registry
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # was: docker/login-action@v3.4.0
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # was: docker/login-action@v3.7.0
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Login to ECR
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # was: docker/login-action@v3.4.0
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # was: docker/login-action@v3.7.0
         with:
           registry: public.ecr.aws
           username: ${{ secrets.ECR_ACCESS_KEY_ID }}
           password: ${{ secrets.ECR_SECRET_ACCESS_KEY }}
       - name: Login to ghcr.io
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # was: docker/login-action@v3.4.0
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # was: docker/login-action@v3.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Release
-        uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # was: goreleaser/goreleaser-action@v6
+        uses: goreleaser/goreleaser-action@ec59f474b9834571250b370d4735c50f8e2d1e29 # was: goreleaser/goreleaser-action@v7.0.0
         with:
           version: v2.4.8
           args: release --clean
@@ -148,7 +148,7 @@ jobs:
           COSIGN_EXPERIMENTAL: 1
       - name: Repository Dispatch Publish Helm Chart
         if: ${{ steps.latest_tag.outputs.tag == steps.chart_version.outputs.app_version }}
-        uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0 # was: peter-evans/repository-dispatch@v3
+        uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # was: peter-evans/repository-dispatch@v4.0.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           event-type: publish-chart

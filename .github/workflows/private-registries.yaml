@@ -36,29 +36,29 @@ jobs:
       DOCKER_CLI_EXPERIMENTAL: enabled
     steps:
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # was: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # was: docker/setup-buildx-action@v3
       - name: Available platforms
         run: echo "$PLATFORMS"
         env:
           PLATFORMS: ${{ steps.buildx.outputs.platforms }}
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # was: actions/checkout@v4
       - name: Setup Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # was: actions/setup-go@v6
         with:
           go-version-file: go.mod
           check-latest: true
       - name: Release snapshot
-        uses: goreleaser/goreleaser-action@v6
+        uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # was: goreleaser/goreleaser-action@v6
         with:
           version: v2.4.8
           args: release -f=goreleaser-e2e.yaml --snapshot --skip=publish --clean
 
       - name: Setup Kubernetes cluster (KIND)
-        uses: engineerd/setup-kind@v0.6.2
+        uses: engineerd/setup-kind@ecfad61750951586a9ef973db567df1d28671bdc # was: engineerd/setup-kind@v0.6.2
         with:
           version: ${{ env.KIND_VERSION }}
           image: ${{ env.KIND_IMAGE }}

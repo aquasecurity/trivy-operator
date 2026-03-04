@@ -78,6 +78,11 @@ const (
 	// compliance
 	compliance_id   = "compliance_id"
 	compliance_name = "compliance_name"
+
+	// node vulnerability
+	node_name      = "node_name"
+	node_os_family = "node_os_family"
+	node_os_name   = "node_os_name"
 )
 
 type metricDescriptors struct {
@@ -103,6 +108,7 @@ type metricDescriptors struct {
 	complianceLabels          []string
 	imageInfoLabels           []string
 	complianceInfoLabels      []string
+	nodeVulnLabels            []string
 
 	// Descriptors
 	imageVulnDesc             *prometheus.Desc
@@ -119,6 +125,7 @@ type metricDescriptors struct {
 	complianceDesc            *prometheus.Desc
 	imageInfoDesc             *prometheus.Desc
 	complianceInfoDesc        *prometheus.Desc
+	nodeVulnDesc              *prometheus.Desc
 }
 
 // ResourcesMetricsCollector is a custom Prometheus collector that produces
@@ -494,6 +501,24 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		clusterComplianceInfoLabels,
 		nil,
 	)
+
+	// Node vulnerability metrics
+	nodeVulnLabels := []string{
+		name,
+		node_name,
+		node_os_family,
+		node_os_name,
+		severity,
+	}
+	nodeVulnLabels = append(nodeVulnLabels, dynamicLabels...)
+
+	nodeVulnDesc := prometheus.NewDesc(
+		prometheus.BuildFQName("trivy", "node", "vulnerabilities"),
+		"Number of node filesystem vulnerabilities",
+		nodeVulnLabels,
+		nil,
+	)
+
 	return metricDescriptors{
 		imageVulnSeverities:       imageVulnSeverities,
 		exposedSecretSeverities:   exposedSecretSeverities,
@@ -515,6 +540,7 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		complianceLabels:          clusterComplianceLabels,
 		imageInfoLabels:           imageInfoLabels,
 		complianceInfoLabels:      clusterComplianceInfoLabels,
+		nodeVulnLabels:            nodeVulnLabels,
 
 		imageVulnDesc:             imageVulnDesc,
 		vulnIdDesc:                vulnIdDesc,
@@ -530,6 +556,7 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		complianceDesc:            complianceDesc,
 		imageInfoDesc:             imageInfoDesc,
 		complianceInfoDesc:        complianceInfoDesc,
+		nodeVulnDesc:              nodeVulnDesc,
 	}
 }
 
@@ -582,6 +609,11 @@ func (c ResourcesMetricsCollector) Collect(metrics chan<- prometheus.Metric) {
 
 	if c.Config.MetricsClusterComplianceInfo {
 		c.collectClusterComplianceInfoReports(ctx, metrics)
+	}
+
+	// Collect node vulnerability reports (cluster-scoped)
+	if c.Config.NodeScanningEnabled {
+		c.collectNodeVulnerabilityReports(ctx, metrics)
 	}
 }
 
@@ -1036,6 +1068,30 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceInfoReports(ctx cont
 	}
 }
 
+func (c *ResourcesMetricsCollector) collectNodeVulnerabilityReports(ctx context.Context, metrics chan<- prometheus.Metric) {
+	reports := &v1alpha1.NodeVulnerabilityReportList{}
+	labelValues := make([]string, len(c.nodeVulnLabels))
+	if err := c.List(ctx, reports); err != nil {
+		c.Logger.Error(err, "failed to list nodevulnerabilityreports from API")
+		return
+	}
+	for _, r := range reports.Items {
+		labelValues[0] = r.Name
+		labelValues[1] = r.Report.Artifact.NodeName
+		labelValues[2] = string(r.Report.OS.Family)
+		labelValues[3] = r.Report.OS.Name
+
+		for i, label := range c.GetReportResourceLabels() {
+			labelValues[i+5] = r.Labels[label]
+		}
+		for severity, countFn := range c.imageVulnSeverities {
+			labelValues[4] = severity
+			count := countFn(r.Report.Summary)
+			metrics <- prometheus.MustNewConstMetric(c.nodeVulnDesc, prometheus.GaugeValue, float64(count), labelValues...)
+		}
+	}
+}
+
 func (c *ResourcesMetricsCollector) populateComplianceValues(labelValues []string, desc *prometheus.Desc, summary v1alpha1.ComplianceSummary, metrics chan<- prometheus.Metric, index int) {
 	for status, countFn := range c.complianceStatuses {
 		labelValues[index] = status
@@ -1075,6 +1131,7 @@ func (c ResourcesMetricsCollector) Describe(descs chan<- *prometheus.Desc) {
 	descs <- c.complianceDesc
 	descs <- c.imageInfoDesc
 	descs <- c.complianceInfoDesc
+	descs <- c.nodeVulnDesc
 }
 
 func (c ResourcesMetricsCollector) Start(ctx context.Context) error {

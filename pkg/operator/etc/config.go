@@ -64,6 +64,17 @@ type Config struct {
 	AltReportStorageEnabled                      bool           `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_ENABLED" envDefault:"false"`
 	AltReportDir                                 string         `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_DIR" envDefault:""`
 	PprofBindAddress                             string         `env:"OPERATOR_PPROF_BIND_ADDRESS" envDefault:""`
+
+	// Node vulnerability scanning configuration
+	NodeScanningEnabled         bool           `env:"OPERATOR_NODE_SCANNING_ENABLED" envDefault:"false"`
+	NodeScanningScanners        string         `env:"OPERATOR_NODE_SCANNING_SCANNERS" envDefault:"vuln"`
+	NodeScanningPkgTypes        string         `env:"OPERATOR_NODE_SCANNING_PKG_TYPES" envDefault:"os"`
+	NodeScanningSkipDirs        string         `env:"OPERATOR_NODE_SCANNING_SKIP_DIRS" envDefault:"/proc,/sys,/dev,/run,/var/lib/containerd,/var/lib/docker,/var/lib/kubelet/pods"`
+	NodeScanningTimeout         *time.Duration `env:"OPERATOR_NODE_SCANNING_TIMEOUT"`
+	ConcurrentNodeScanningLimit int            `env:"OPERATOR_CONCURRENT_NODE_SCANNING_LIMIT" envDefault:"1"`
+	NodeScanningNodeSelector    string         `env:"OPERATOR_NODE_SCANNING_NODE_SELECTOR" envDefault:""`
+	NodeScanningSeverities      string         `env:"OPERATOR_NODE_SCANNING_SEVERITIES" envDefault:"CRITICAL,HIGH"`
+	NodeScanningHideUnfixedCVEs bool           `env:"OPERATOR_NODE_SCANNING_HIDE_UNFIXED_CVES" envDefault:"false"`
 }
 
 // GetOperatorConfig loads Config from environment variables.
@@ -132,6 +143,51 @@ func (c Config) GetTargetWorkloads() []string {
 	}
 
 	return []string{"pod", "replicaset", "replicationcontroller", "statefulset", "daemonset", "cronjob", "job"}
+}
+
+// GetNodeScanningSkipDirs returns a list of directories to skip during node scanning.
+func (c Config) GetNodeScanningSkipDirs() []string {
+	if c.NodeScanningSkipDirs == "" {
+		return []string{}
+	}
+	return strings.Split(c.NodeScanningSkipDirs, ",")
+}
+
+// GetNodeScanningTimeout returns the timeout for node scan jobs.
+// If not set, returns the default ScanJobTimeout.
+func (c Config) GetNodeScanningTimeout() time.Duration {
+	if c.NodeScanningTimeout != nil {
+		return *c.NodeScanningTimeout
+	}
+	return c.ScanJobTimeout
+}
+
+// GetNodeScanningNodeSelector returns a map of labels for filtering nodes to scan.
+// Accepts JSON format from Helm template.
+func (c Config) GetNodeScanningNodeSelector() map[string]string {
+	if c.NodeScanningNodeSelector == "" {
+		return nil
+	}
+	selector := make(map[string]string)
+	// Try JSON format first (from Helm template)
+	if err := json.Unmarshal([]byte(c.NodeScanningNodeSelector), &selector); err == nil {
+		if len(selector) == 0 {
+			return nil
+		}
+		return selector
+	}
+	// Fallback to CSV format for backward compatibility
+	pairs := strings.Split(c.NodeScanningNodeSelector, ",")
+	for _, pair := range pairs {
+		parts := strings.SplitN(pair, "=", 2)
+		if len(parts) == 2 {
+			selector[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
+		}
+	}
+	if len(selector) == 0 {
+		return nil
+	}
+	return selector
 }
 
 // InstallMode represents multitenancy support defined by the Operator Lifecycle Manager spec.

@@ -49,6 +49,15 @@ data:
   TRIVY_SERVER_HEALTH_CHECK_CACHE_EXPIRATION: {{ .Values.operator.trivyServerHealthCheckCacheExpiration | quote }}
   OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT: {{ .Values.operator.mergeRbacFindingWithConfigAudit | quote }}
   OPERATOR_CLUSTER_COMPLIANCE_ENABLED: {{ .Values.operator.clusterComplianceEnabled | quote }}
+  OPERATOR_NODE_SCANNING_ENABLED: {{ .Values.operator.nodeScanningEnabled | quote }}
+  OPERATOR_NODE_SCANNING_SCANNERS: {{ .Values.operator.nodeScanningScanners | quote }}
+  OPERATOR_NODE_SCANNING_PKG_TYPES: {{ .Values.operator.nodeScanningPkgTypes | quote }}
+  OPERATOR_NODE_SCANNING_SKIP_DIRS: {{ .Values.operator.nodeScanningSkipDirs | quote }}
+  OPERATOR_NODE_SCANNING_TIMEOUT: {{ .Values.operator.nodeScanningTimeout | quote }}
+  OPERATOR_CONCURRENT_NODE_SCANNING_LIMIT: {{ .Values.operator.concurrentNodeScanningLimit | quote }}
+  OPERATOR_NODE_SCANNING_NODE_SELECTOR: {{ .Values.operator.nodeScanningNodeSelector | quote }}
+  OPERATOR_NODE_SCANNING_SEVERITIES: {{ .Values.operator.nodeScanningSeverities | quote }}
+  OPERATOR_NODE_SCANNING_HIDE_UNFIXED_CVES: {{ .Values.operator.nodeScanningHideUnfixedCVEs | quote }}
 {{- if gt (int .Values.operator.replicas) 1 }}
   OPERATOR_LEADER_ELECTION_ENABLED: "true"
   OPERATOR_LEADER_ELECTION_ID: {{ .Values.operator.leaderElectionId | quote }}

@@ -29,9 +29,12 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
 	"github.com/aquasecurity/trivy-operator/pkg/metrics"
+	"github.com/aquasecurity/trivy-operator/pkg/nodevulnerabilityreport"
+	nvcontroller "github.com/aquasecurity/trivy-operator/pkg/nodevulnerabilityreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
 	"github.com/aquasecurity/trivy-operator/pkg/plugins"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
@@ -380,6 +383,49 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		}
 		if err := cc.SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup clustercompliancereport reconciler: %w", err)
+		}
+	}
+
+	// Node rootfs vulnerability scanning
+	if operatorConfig.NodeScanningEnabled {
+		setupLog.Info("Enabling node rootfs vulnerability scanning")
+		nodeRootfsLimitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
+		nodeVulnReadWriter := nodevulnerabilityreport.NewReadWriter(&objectResolver)
+
+		// Get trivy image ref for version extraction in scan job controller
+		pConfig, err := pluginContext.GetConfig()
+		if err != nil {
+			return fmt.Errorf("getting plugin config for node scanning: %w", err)
+		}
+		trivyImageRef, err := trivy.Config{PluginConfig: pConfig}.GetImageRef()
+		if err != nil {
+			return fmt.Errorf("getting trivy image ref for node scanning: %w", err)
+		}
+
+		if err = (&nvcontroller.NodeScanningReconciler{
+			Logger:           ctrl.Log.WithName("node-rootfs-reconciler"),
+			Config:           operatorConfig,
+			ConfigData:       trivyOperatorConfig,
+			ObjectResolver:   objectResolver,
+			PluginContext:    pluginContext,
+			LimitChecker:     nodeRootfsLimitChecker,
+			ReadWriter:       nodeVulnReadWriter,
+			CacheSyncTimeout: *operatorConfig.ControllerCacheSyncTimeout,
+		}).SetupWithManager(mgr); err != nil {
+			return fmt.Errorf("unable to setup node rootfs scan reconciler: %w", err)
+		}
+
+		if err = (&nvcontroller.NodeScanningJobController{
+			Logger:         ctrl.Log.WithName("node-rootfs-scanjob-controller"),
+			Config:         operatorConfig,
+			ConfigData:     trivyOperatorConfig,
+			ObjectResolver: objectResolver,
+			LogsReader:     logsReader,
+			ReadWriter:     nodeVulnReadWriter,
+			Clock:          ext.NewSystemClock(),
+			TrivyImageRef:  trivyImageRef,
+		}).SetupWithManager(mgr); err != nil {
+			return fmt.Errorf("unable to setup node rootfs scan job controller: %w", err)
 		}
 	}
 

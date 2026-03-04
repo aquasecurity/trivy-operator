@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
@@ -26,6 +28,8 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/infraassessment"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
+	"github.com/aquasecurity/trivy-operator/pkg/nodevulnerabilityreport"
+	nodecontroller "github.com/aquasecurity/trivy-operator/pkg/nodevulnerabilityreport/controller"
 	"github.com/aquasecurity/trivy-operator/pkg/operator"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/jobs"
@@ -36,9 +40,6 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport/controller"
-
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 )
 
 var (
@@ -103,6 +104,12 @@ var _ = BeforeSuite(func() {
 		InfraAssessmentScannerEnabled: true,
 		ClusterComplianceEnabled:      true,
 		InvokeClusterComplianceOnce:   true,
+		// Node rootfs scanning
+		NodeScanningEnabled:         true,
+		NodeScanningScanners:        "vuln",
+		NodeScanningPkgTypes:        "os",
+		NodeScanningSkipDirs:        "/proc,/sys,/dev",
+		ConcurrentNodeScanningLimit: 2,
 	}
 
 	trivyOperatorConfig := trivyoperator.GetDefaultConfig()
@@ -206,6 +213,30 @@ var _ = BeforeSuite(func() {
 		Config: config,
 		Mgr:    compliance.NewMgr(k8sClient),
 		Clock:  ext.NewSystemClock(),
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	// Node rootfs scan controllers
+	nodeReadWriter := nodevulnerabilityreport.NewReadWriter(&objectResolver)
+	err = (&nodecontroller.NodeScanningReconciler{
+		Logger:           ctrl.Log.WithName("reconciler").WithName("noderootfsscan"),
+		Config:           config,
+		ConfigData:       trivyOperatorConfig,
+		ObjectResolver:   objectResolver,
+		PluginContext:    pluginContext,
+		ReadWriter:       nodeReadWriter,
+		LimitChecker:     jobs.NewLimitChecker(config, managerClient, trivyOperatorConfig),
+		CacheSyncTimeout: 60 * time.Second,
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	err = (&nodecontroller.NodeScanningJobController{
+		Logger:         ctrl.Log.WithName("reconciler").WithName("noderootfsscanjob"),
+		Config:         config,
+		ConfigData:     trivyOperatorConfig,
+		ObjectResolver: objectResolver,
+		ReadWriter:     nodeReadWriter,
+		Clock:          ext.NewSystemClock(),
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 

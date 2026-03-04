@@ -15,6 +15,7 @@ const ScannerName = "Trivy"
 type LimitChecker interface {
 	Check(ctx context.Context) (bool, int, error)
 	CheckNodes(ctx context.Context) (bool, int, error)
+	CheckNodeScanning(ctx context.Context) (bool, int, error)
 }
 
 func NewLimitChecker(config etc.Config, c client.Client, trivyOperatorConfig trivyoperator.ConfigData) LimitChecker {
@@ -55,6 +56,19 @@ func (c *checker) CheckNodes(ctx context.Context) (bool, int, error) {
 	}
 
 	return scanJobsCount >= c.config.ConcurrentNodeCollectorLimit, scanJobsCount, nil
+}
+
+func (c *checker) CheckNodeScanning(ctx context.Context) (bool, int, error) {
+	matchinglabels := client.MatchingLabels{
+		trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
+		trivyoperator.LabelNodeScanning:    ScannerName,
+	}
+	scanJobsCount, err := c.countJobs(ctx, matchinglabels)
+	if err != nil {
+		return false, 0, err
+	}
+
+	return scanJobsCount >= c.config.ConcurrentNodeScanningLimit, scanJobsCount, nil
 }
 
 func (c *checker) countJobs(ctx context.Context, matchingLabels client.MatchingLabels) (int, error) {

@@ -56,6 +56,8 @@ jobs:
           GOEXPERIMENT: jsonv2
       - name: Verify YAML code
         uses: ibiqlik/action-yamllint@2576378a8e339169678f9939646ee3ee325e845c # was: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: .github
       - name: Vendor Go modules
         run: go mod tidy
       - name: Verify all generated
@@ -261,8 +263,7 @@ jobs:
           chmod 700 get_helm.sh
 
           ./get_helm.sh
-      - name: Image scan mode producing vulnerability,misconfig and exposedsecrets
-          reports tests
+      - name: Image scan mode producing vulnerability,misconfig and exposedsecrets reports tests
         run: >
           kubectl create namespace e2e-test
 
@@ -276,32 +277,28 @@ jobs:
           ./bin/kuttl test --start-kind=false --namespace e2e-test --config tests/e2e/config/fs-mode.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
-      - name: Client/server mode producing vulnerability,misconfig and exposedsecrets
-          reports tests
+      - name: Client/server mode producing vulnerability,misconfig and exposedsecrets reports tests
         run: >
           kubectl create namespace e2e-test
 
           ./bin/kuttl test --start-kind=false --namespace e2e-test --config tests/e2e/config/client-server.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
-      - name: Standalon mode with Sbom scanning
-          reports tests
+      - name: Standalon mode with Sbom scanning reports tests
         run: >
           kubectl create namespace e2e-test
 
           ./bin/kuttl test --start-kind=false --namespace e2e-test --config tests/e2e/config/sbom-standalone.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
-      - name: Client/Server with Sbom scanning
-          reports tests
+      - name: Client/Server with Sbom scanning reports tests
         run: >
           kubectl create namespace e2e-test
 
           ./bin/kuttl test --start-kind=false --namespace e2e-test --config tests/e2e/config/client-server-sbom.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
-      - name: file system with Sbom scanning
-          reports tests
+      - name: file system with Sbom scanning reports tests
         run: >
           kubectl create namespace e2e-test
 

@@ -46,21 +46,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COSIGN_EXPERIMENTAL: 1
       - name: Scan Trivy Operator image for vulnerabilities
-<<<<<<< actions-update
-        uses: aquasecurity/trivy-action@v0.34.2
-=======
         uses: aquasecurity/trivy-action@97e0b3872f55f89b95b2f65b3dbab56962816478 # was: aquasecurity/trivy-action@master
->>>>>>> main
         with:
           image-ref: 'mirror.gcr.io/aquasec/trivy-operator:${{ github.sha }}-amd64'
           exit-code: '1'
           ignore-unfixed: true
       - name: Scan Trivy Operator (ubi) image for vulnerabilities
-<<<<<<< actions-update
-        uses: aquasecurity/trivy-action@v0.34.2
-=======
         uses: aquasecurity/trivy-action@97e0b3872f55f89b95b2f65b3dbab56962816478 # was: aquasecurity/trivy-action@master
->>>>>>> main
         with:
           image-ref: 'mirror.gcr.io/aquasec/trivy-operator:${{ github.sha }}-ubi9-amd64'
           exit-code: '1'

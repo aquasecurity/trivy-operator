@@ -255,107 +255,7 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 		}
 		containerVolumeMounts = slices.Concat(containerVolumeMounts, volumeMounts)
 
-		env := []corev1.EnvVar{
-			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, KeyTrivySeverity),
-			constructEnvVarSourceFromConfigMap("TRIVY_IGNORE_UNFIXED", trivyConfigName, keyTrivyIgnoreUnfixed),
-			constructEnvVarSourceFromConfigMap("TRIVY_OFFLINE_SCAN", trivyConfigName, keyTrivyOfflineScan),
-			constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY", trivyConfigName, keyTrivyJavaDBRepository),
-			constructEnvVarSourceFromConfigMap("TRIVY_TIMEOUT", trivyConfigName, keyTrivyTimeout),
-			ConfigWorkloadAnnotationEnvVars(workload, SkipFilesAnnotation, "TRIVY_SKIP_FILES", trivyConfigName, keyTrivySkipFiles),
-			ConfigWorkloadAnnotationEnvVars(workload, SkipDirsAnnotation, "TRIVY_SKIP_DIRS", trivyConfigName, keyTrivySkipDirs),
-			constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
-			constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
-			constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
-		}
-		if dockerConfigPath != "" {
-			env = append(env, corev1.EnvVar{
-				Name:  "DOCKER_CONFIG",
-				Value: dockerConfigPath,
-			})
-		}
-		if mode == ClientServer {
-			env = append(env,
-				constructEnvVarSourceFromConfigMap("TRIVY_TOKEN_HEADER", trivyConfigName, keyTrivyServerTokenHeader),
-				constructEnvVarSourceFromSecret("TRIVY_TOKEN", trivyConfigName, keyTrivyServerToken),
-				constructEnvVarSourceFromSecret("TRIVY_CUSTOM_HEADERS", trivyConfigName, keyTrivyServerCustomHeaders),
-			)
-			if config.GetServerInsecure() {
-				env = append(env, corev1.EnvVar{
-					Name:  "TRIVY_INSECURE",
-					Value: "true",
-				})
-			}
-		}
-		if config.GetSslCertDir() != "" {
-			env = append(env, corev1.EnvVar{
-				Name:  "SSL_CERT_DIR",
-				Value: SslCertDir,
-			})
-		}
-		if config.IgnoreFileExists() {
-			env = append(env, corev1.EnvVar{
-				Name:  "TRIVY_IGNOREFILE",
-				Value: config.IgnoreFileMountPath(),
-			})
-		}
-		if config.FindIgnorePolicyKey(workload) != "" {
-			env = append(env, corev1.EnvVar{
-				Name:  "TRIVY_IGNORE_POLICY",
-				Value: ignorePolicyMountPath,
-			})
-		}
-		if config.GetDBRepositoryInsecure() {
-			env = append(env, corev1.EnvVar{
-				Name:  "TRIVY_INSECURE",
-				Value: "true",
-			})
-		}
-
-		region := CheckAwsEcrPrivateRegistry(c.Image)
-		if region != "" {
-			env = append(env, corev1.EnvVar{
-				Name:  "AWS_REGION",
-				Value: region,
-			})
-		}
-
-		if _, ok := containersCredentials[c.Name]; ok && secret != nil {
-			registryUsernameKey := fmt.Sprintf("%s.username", c.Name)
-			registryPasswordKey := fmt.Sprintf("%s.password", c.Name)
-			if CheckGcpCrOrPrivateRegistry(c.Image) &&
-				ctx.GetTrivyOperatorConfig().GetScanJobUseGCRServiceAccount() {
-				createEnvandVolumeForGcr(&env, &containerVolumeMounts, &volumes, &registryPasswordKey, &secret.Name)
-			} else {
-				env = append(env, corev1.EnvVar{
-					Name: "TRIVY_USERNAME",
-					ValueFrom: &corev1.EnvVarSource{
-						SecretKeyRef: &corev1.SecretKeySelector{
-							LocalObjectReference: corev1.LocalObjectReference{
-								Name: secret.Name,
-							},
-							Key: registryUsernameKey,
-						},
-					},
-				}, corev1.EnvVar{
-					Name: "TRIVY_PASSWORD",
-					ValueFrom: &corev1.EnvVarSource{
-						SecretKeyRef: &corev1.SecretKeySelector{
-							LocalObjectReference: corev1.LocalObjectReference{
-								Name: secret.Name,
-							},
-							Key: registryPasswordKey,
-						},
-					},
-				})
-			}
-		}
-
-		env, err = appendTrivyInsecureEnv(config, c.Image, env)
-		if err != nil {
-			return corev1.PodSpec{}, nil, err
-		}
-
-		env, err = appendTrivyNonSSLEnv(config, c.Image, env)
+		env, err := buildScanContainerEnv(ctx, config, mode, trivyConfigName, dockerConfigPath, workload, c, secret, containersCredentials, &containerVolumeMounts, &volumes)
 		if err != nil {
 			return corev1.PodSpec{}, nil, err
 		}
@@ -403,6 +303,127 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 		InitContainers:               initContainers,
 		SecurityContext:              &corev1.PodSecurityContext{},
 	}, secrets, nil
+}
+
+func buildScanContainerEnv(
+	ctx trivyoperator.PluginContext,
+	config Config,
+	mode Mode,
+	trivyConfigName string,
+	dockerConfigPath string,
+	workload client.Object,
+	c corev1.Container,
+	secret *corev1.Secret,
+	containersCredentials map[string]docker.Auth,
+	containerVolumeMounts *[]corev1.VolumeMount,
+	volumes *[]corev1.Volume,
+) ([]corev1.EnvVar, error) {
+	env := []corev1.EnvVar{
+		constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, KeyTrivySeverity),
+		constructEnvVarSourceFromConfigMap("TRIVY_IGNORE_UNFIXED", trivyConfigName, keyTrivyIgnoreUnfixed),
+		constructEnvVarSourceFromConfigMap("TRIVY_OFFLINE_SCAN", trivyConfigName, keyTrivyOfflineScan),
+		constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY", trivyConfigName, keyTrivyJavaDBRepository),
+		constructEnvVarSourceFromConfigMap("TRIVY_TIMEOUT", trivyConfigName, keyTrivyTimeout),
+		ConfigWorkloadAnnotationEnvVars(workload, SkipFilesAnnotation, "TRIVY_SKIP_FILES", trivyConfigName, keyTrivySkipFiles),
+		ConfigWorkloadAnnotationEnvVars(workload, SkipDirsAnnotation, "TRIVY_SKIP_DIRS", trivyConfigName, keyTrivySkipDirs),
+		constructEnvVarSourceFromConfigMap("HTTP_PROXY", trivyConfigName, keyTrivyHTTPProxy),
+		constructEnvVarSourceFromConfigMap("HTTPS_PROXY", trivyConfigName, keyTrivyHTTPSProxy),
+		constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
+	}
+	if dockerConfigPath != "" {
+		env = append(env, corev1.EnvVar{
+			Name:  "DOCKER_CONFIG",
+			Value: dockerConfigPath,
+		})
+	}
+	if mode == ClientServer {
+		env = append(env,
+			constructEnvVarSourceFromConfigMap("TRIVY_TOKEN_HEADER", trivyConfigName, keyTrivyServerTokenHeader),
+			constructEnvVarSourceFromSecret("TRIVY_TOKEN", trivyConfigName, keyTrivyServerToken),
+			constructEnvVarSourceFromSecret("TRIVY_CUSTOM_HEADERS", trivyConfigName, keyTrivyServerCustomHeaders),
+		)
+		if config.GetServerInsecure() {
+			env = append(env, corev1.EnvVar{
+				Name:  "TRIVY_INSECURE",
+				Value: "true",
+			})
+		}
+	}
+	if config.GetSslCertDir() != "" {
+		env = append(env, corev1.EnvVar{
+			Name:  "SSL_CERT_DIR",
+			Value: SslCertDir,
+		})
+	}
+	if config.IgnoreFileExists() {
+		env = append(env, corev1.EnvVar{
+			Name:  "TRIVY_IGNOREFILE",
+			Value: config.IgnoreFileMountPath(),
+		})
+	}
+	if config.FindIgnorePolicyKey(workload) != "" {
+		env = append(env, corev1.EnvVar{
+			Name:  "TRIVY_IGNORE_POLICY",
+			Value: ignorePolicyMountPath,
+		})
+	}
+	if config.GetDBRepositoryInsecure() {
+		env = append(env, corev1.EnvVar{
+			Name:  "TRIVY_INSECURE",
+			Value: "true",
+		})
+	}
+
+	region := CheckAwsEcrPrivateRegistry(c.Image)
+	if region != "" {
+		env = append(env, corev1.EnvVar{
+			Name:  "AWS_REGION",
+			Value: region,
+		})
+	}
+
+	if _, ok := containersCredentials[c.Name]; ok && secret != nil {
+		registryUsernameKey := fmt.Sprintf("%s.username", c.Name)
+		registryPasswordKey := fmt.Sprintf("%s.password", c.Name)
+		if CheckGcpCrOrPrivateRegistry(c.Image) &&
+			ctx.GetTrivyOperatorConfig().GetScanJobUseGCRServiceAccount() {
+			createEnvandVolumeForGcr(&env, containerVolumeMounts, volumes, &registryPasswordKey, &secret.Name)
+		} else {
+			env = append(env, corev1.EnvVar{
+				Name: "TRIVY_USERNAME",
+				ValueFrom: &corev1.EnvVarSource{
+					SecretKeyRef: &corev1.SecretKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: secret.Name,
+						},
+						Key: registryUsernameKey,
+					},
+				},
+			}, corev1.EnvVar{
+				Name: "TRIVY_PASSWORD",
+				ValueFrom: &corev1.EnvVarSource{
+					SecretKeyRef: &corev1.SecretKeySelector{
+						LocalObjectReference: corev1.LocalObjectReference{
+							Name: secret.Name,
+						},
+						Key: registryPasswordKey,
+					},
+				},
+			})
+		}
+	}
+
+	env, err := appendTrivyInsecureEnv(config, c.Image, env)
+	if err != nil {
+		return nil, err
+	}
+
+	env, err = appendTrivyNonSSLEnv(config, c.Image, env)
+	if err != nil {
+		return nil, err
+	}
+
+	return env, nil
 }
 
 func getAdditionalVolumes(config *Config, trivyConfigName string, workload client.Object) ([]corev1.Volume, []corev1.VolumeMount) {

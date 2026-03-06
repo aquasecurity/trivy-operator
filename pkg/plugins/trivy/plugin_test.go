@@ -7953,14 +7953,6 @@ func getScanResultVolumeMount() corev1.VolumeMount {
 	}
 }
 
-func getTmpVolumeMount() corev1.VolumeMount {
-	return corev1.VolumeMount{
-		Name:      "tmp",
-		ReadOnly:  false,
-		MountPath: "/tmp",
-	}
-}
-
 func getTmpVolumeMountWithSubPath(subPath string) corev1.VolumeMount {
 	return corev1.VolumeMount{
 		Name:      "tmp",

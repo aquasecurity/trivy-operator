@@ -70,10 +70,10 @@ Each commit message doesn't have to follow conventions as long as it is clear an
    ```
 
 3. Access to a Kubernetes cluster. We assume that you're using a [KIND][kind] cluster. To create a single-node KIND
-   cluster, run:
+   cluster with the same settings used in CI (including a hostPath mount for local-path-provisioner), run:
 
    ```
-   kind create cluster
+   kind create cluster --config tests/kind-config.yaml
    ```
 
 Note: Some of our tests performs integration testing by starting a local

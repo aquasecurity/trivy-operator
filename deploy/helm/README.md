@@ -55,6 +55,7 @@ Keeps security report resources updated
 | operator.configAuditScannerScanOnlyCurrentRevisions | bool | `true` | configAuditScannerScanOnlyCurrentRevisions the flag to only create config audit scans on the current revision of a deployment. |
 | operator.controllerCacheSyncTimeout | string | `"5m"` | controllerCacheSyncTimeout the duration to wait for controller resources cache sync (default: 5m). |
 | operator.exposedSecretScannerEnabled | bool | `true` | exposedSecretScannerEnabled the flag to enable exposed secret scanner |
+| operator.extraContainers | list | `[]` | Additional containers to be added to the operator pod. See https://github.com/lemonldap-ng-controller/lemonldap-ng-controller as example. |
 | operator.httpProxy | string | `nil` | httpProxy is the HTTP proxy used by Trivy operator to download the default policies from GitHub. |
 | operator.httpsProxy | string | `nil` | httpsProxy is the HTTPS proxy used by Trivy operator to download the default policies from GitHub. |
 | operator.infraAssessmentScannerEnabled | bool | `true` | infraAssessmentScannerEnabled the flag to enable infra assessment scanner |

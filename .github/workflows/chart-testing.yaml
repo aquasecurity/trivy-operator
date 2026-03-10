@@ -47,7 +47,7 @@ jobs:
         env:
           PLATFORMS: ${{ steps.buildx.outputs.platforms }}
       - name: Checkout code
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # was: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # was: actions/checkout@v6.0.2
         with:
           persist-credentials: false
       - name: Setup Go
@@ -57,7 +57,7 @@ jobs:
           check-latest: true
           cache: false
       - name: Release snapshot
-        uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # was: goreleaser/goreleaser-action@v6
+        uses: goreleaser/goreleaser-action@ec59f474b9834571250b370d4735c50f8e2d1e29 # was: goreleaser/goreleaser-action@v7.0.0
         with:
           version: v2.4.8
           args: release -f=goreleaser-e2e.yaml --snapshot --skip=publish --clean
@@ -80,7 +80,7 @@ jobs:
 
           chmod 700 get_helm.sh
       - name: update appVersion
-        uses: mikefarah/yq@88a31ae8c6b34aad77d2efdecc146113cb3315d0 # was: mikefarah/yq@master
+        uses: mikefarah/yq@16e4df2304fbbb5a6d4b59ac3a478666d793b6a2 # was: mikefarah/yq@master
         with:
           cmd: yq -i '.appVersion = "ct"' ./deploy/helm/Chart.yaml
       - name: Load operator image to cluster
@@ -93,14 +93,14 @@ jobs:
           kind load image-archive trivy-operator.tar
 
       - name: Set up python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # was: actions/setup-python@v5.6.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # was: actions/setup-python@v6.2.0
         with:
           python-version: '3.x'
           check-latest: true
 
       - name: Setup chart-testing
         id: lint
-        uses: helm/chart-testing-action@0d28d3144d3a25ea2cc349d6e59901c4ff469b3b # was: helm/chart-testing-action@v2.7.0
+        uses: helm/chart-testing-action@6ec842c01de15ebb84c8627d2744a0c2f2755c9f # was: helm/chart-testing-action@v2.8.0
         with:
           # v6.0.0 resolved the compatibility issue with Python > 3.13. may be removed after the action itself is updated
           yamale_version: "6.0.0"

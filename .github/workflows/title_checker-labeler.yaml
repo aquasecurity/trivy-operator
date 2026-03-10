@@ -8,10 +8,14 @@ on:
       - synchronize
       - reopened
 
+permissions: {}
+
 jobs:
   pr-title-checker:
     name: Validate PR title
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - uses: amannn/action-semantic-pull-request@e32d7e603df1aa1ba07e981f2a23455dee596825 # was: amannn/action-semantic-pull-request@v5
         env:

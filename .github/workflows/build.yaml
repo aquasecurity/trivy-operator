@@ -35,6 +35,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # was: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Setup Go
         uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # was: actions/setup-go@v6
         with:
@@ -54,6 +56,8 @@ jobs:
           GOEXPERIMENT: jsonv2
       - name: Verify YAML code
         uses: ibiqlik/action-yamllint@2576378a8e339169678f9939646ee3ee325e845c # was: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: .github
       - name: Vendor Go modules
         run: go mod tidy
       - name: Verify all generated
@@ -77,6 +81,8 @@ jobs:
           remove-swapfile: 'true'
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # was: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Setup Go
         uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # was: actions/setup-go@v6
         with:
@@ -101,6 +107,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # was: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Setup Go
         uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # was: actions/setup-go@v6
         with:
@@ -137,6 +145,8 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # was: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Setup Go
         uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # was: actions/setup-go@v6
@@ -202,14 +212,19 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # was: docker/setup-buildx-action@v3
       - name: Available platforms
-        run: echo ${{ steps.buildx.outputs.platforms }}
+        run: echo "$PLATFORMS"
+        env:
+          PLATFORMS: ${{ steps.buildx.outputs.platforms }}
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # was: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Setup Go
         uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # was: actions/setup-go@v6
         with:
           go-version-file: go.mod
           check-latest: true
+          cache: false
       - name: Release snapshot
         uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # was: goreleaser/goreleaser-action@v6
         with:
@@ -248,8 +263,7 @@ jobs:
           chmod 700 get_helm.sh
 
           ./get_helm.sh
-      - name: Image scan mode producing vulnerability,misconfig and exposedsecrets
-          reports tests
+      - name: Image scan mode producing vulnerability,misconfig and exposedsecrets reports tests
         run: >
           kubectl create namespace e2e-test
 
@@ -263,32 +277,28 @@ jobs:
           ./bin/kuttl test --start-kind=false --namespace e2e-test --config tests/e2e/config/fs-mode.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
-      - name: Client/server mode producing vulnerability,misconfig and exposedsecrets
-          reports tests
+      - name: Client/server mode producing vulnerability,misconfig and exposedsecrets reports tests
         run: >
           kubectl create namespace e2e-test
 
           ./bin/kuttl test --start-kind=false --namespace e2e-test --config tests/e2e/config/client-server.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
-      - name: Standalon mode with Sbom scanning
-          reports tests
+      - name: Standalon mode with Sbom scanning reports tests
         run: >
           kubectl create namespace e2e-test
 
           ./bin/kuttl test --start-kind=false --namespace e2e-test --config tests/e2e/config/sbom-standalone.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
-      - name: Client/Server with Sbom scanning
-          reports tests
+      - name: Client/Server with Sbom scanning reports tests
         run: >
           kubectl create namespace e2e-test
 
           ./bin/kuttl test --start-kind=false --namespace e2e-test --config tests/e2e/config/client-server-sbom.yaml
 
           ./tests/resources-cleanup.sh > /dev/null 2>&1
-      - name: file system with Sbom scanning
-          reports tests
+      - name: file system with Sbom scanning reports tests
         run: >
           kubectl create namespace e2e-test
 

@@ -19,18 +19,19 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # was: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Get latest tag
         id: latest_tag
         run: |
           latest_tag=$(git describe --tags --abbrev=0 | sed 's/v//')
-          echo "::set-output name=tag::$latest_tag"
+          echo "tag=$latest_tag" >> "$GITHUB_OUTPUT"
 
       - name: Read Chart.yaml appVersion
         id: chart_version
         run: |
           app_version=$(grep -E '^appVersion:' deploy/helm/Chart.yaml | awk '{print $2}')
-          echo "::set-output name=app_version::$app_version"
+          echo "app_version=$app_version" >> "$GITHUB_OUTPUT"
 
       - name: Repository Dispatch Publish Helm Chart
         if: ${{ steps.latest_tag.outputs.tag == steps.chart_version.outputs.app_version }}

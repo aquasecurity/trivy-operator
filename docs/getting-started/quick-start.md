@@ -2,7 +2,7 @@
 
 ## Before you Begin
 
-You need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your
+You need to have a Kubernetes cluster with the [kubectl] command-line tool installed and configured to communicate with your
 cluster. If you do not already have a cluster, you can create one by installing [minikube], [kind] or [microk8s], or you can use the following [Kubernetes playground].
 
 You also need the Trivy-Operator to be installed in the `trivy-system` namespace, e.g. with
@@ -108,14 +108,10 @@ previous ReplicaSet named `nginx-78449c65d4` is deleted the VulnerabilityReport 
 as well as the ConfigAuditReport named `replicaset-nginx-78449c65d46` are automatically garbage collected.
 
 !!! tip
-If you do not want only the latest ReplicaSet in your Deployment to be scanned for vulnerabilities, you can set the value
-of the `OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS` environment variable to `false` in the operator's
-deployment descriptor.
+If you want the vulnerability scanner to analyze more than just the most recent ReplicaSet in your Deployment, set the `OPERATOR_VULNERABILITY_SCANNER_SCAN_ONLY_CURRENT_REVISIONS` environment variable to false in the operator’s deployment descriptor.
 
 !!! tip
-If you do not want only the latest ReplicaSet in your Deployment to be scanned for config audit, you can set the value
-of the `OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS` environment variable to `false` in the operator's
-deployment descriptor.
+To have the configuration audit scanner check all ReplicaSets instead of only the latest one, set the `OPERATOR_CONFIG_AUDIT_SCANNER_SCAN_ONLY_CURRENT_REVISIONS` environment variable to false in the operator’s deployment descriptor.
 
 !!! tip
 You can get and describe `vulnerabilityreports` and `configauditreports` as built-in Kubernetes objects:
@@ -184,12 +180,14 @@ No resources found in default namespace.
 ## What's Next?
 
 - Find out how the operator scans workloads that use container images from [Private Registries].
-- By default, the operator uses Trivy as Vulnerability Scanner and Polaris as Configuration Checker, but you can
-  choose other tools that are integrated with Trivy-Operator or even implement your own plugin.
+- By default, the operator uses Trivy as the Vulnerability Scanner and Polaris as the Configuration Checker, but you are free to
+  choose other tools that are integrated with the Trivy-Operator or even implement your own plugin.
 
+[kubectl]: https://kubernetes.io/docs/reference/kubectl/
 [minikube]: https://minikube.sigs.k8s.io/docs/
 [kind]: https://kind.sigs.k8s.io/docs/
 [microk8s]: https://microk8s.io/
 [Kubernetes playground]: http://labs.play-with-k8s.com/
 [tree]: https://github.com/ahmetb/kubectl-tree
 [Private Registries]: ./../docs/vulnerability-scanning/private-registries.md
+

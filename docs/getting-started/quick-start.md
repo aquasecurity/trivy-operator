@@ -185,7 +185,7 @@ No resources found in default namespace.
 
 - Find out how the operator scans workloads that use container images from [Private Registries].
 - By default, the operator uses Trivy as Vulnerability Scanner and Polaris as Configuration Checker, but you can
-  choose other tools that are integrated with Trivy-Operator or even implement you own plugin.
+  choose other tools that are integrated with Trivy-Operator or even implement your own plugin.
 
 [minikube]: https://minikube.sigs.k8s.io/docs/
 [kind]: https://kind.sigs.k8s.io/docs/

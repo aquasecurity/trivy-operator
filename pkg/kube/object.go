@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -17,6 +18,7 @@ import (
 	rbacv1 "k8s.io/api/rbac/v1"
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/validation"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
@@ -25,6 +27,7 @@ import (
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
+	"github.com/aquasecurity/trivy/pkg/set"
 )
 
 // ObjectRef is a simplified representation of a Kubernetes client.Object.
@@ -91,26 +94,69 @@ func IsBuiltInWorkload(controller *metav1.OwnerReference) bool {
 // IsWorkload returns true if the specified resource kinds represents Kubernetes
 // workload, false otherwise.
 func IsWorkload(kind string) bool {
-	return kind == "Pod" ||
-		kind == "Deployment" ||
-		kind == "ReplicaSet" ||
-		kind == "ReplicationController" ||
-		kind == "StatefulSet" ||
-		kind == "DaemonSet" ||
-		kind == "Job" ||
-		kind == "CronJob"
+	workloads := []string{"pod", "deployment", "replicaset", "replicationcontroller", "statefulset", "daemonset", "job", "cronjob"}
+	return slices.Contains(workloads, strings.ToLower(kind))
 }
 
-// IsClusterScopedKind returns true if the specified kind is ClusterRole,
-// ClusterRoleBinding, and CustomResourceDefinition.
-// TODO Use discovery client to have a generic implementation.
-func IsClusterScopedKind(kind string) bool {
-	switch kind {
-	case string(KindClusterRole), string(KindClusterRoleBindings), string(KindCustomResourceDefinition), string(KindNode):
-		return true
-	default:
-		return false
+// GetActiveResource returns a list of active resources based on the target workloads.
+// it includes namespaced and cluster-scope resources.
+func GetActiveResource(targetWorkloads []string, objectResolver ObjectResolver, schm *runtime.Scheme) ([]Resource, []Resource, error) {
+	customTargets := set.New[string]()
+	workloadResources := make([]Resource, 0)
+	for _, tw := range targetWorkloads {
+		if !IsWorkload(tw) {
+			customTargets.Append(strings.ToLower(tw))
+			continue
+		}
+		var resource Resource
+		if err := resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, objectResolver); err != nil {
+			return nil, nil, fmt.Errorf("failed to get workload resource for %s: %w", tw, err)
+		}
+		workloadResources = append(workloadResources, resource)
 	}
+	resources := DefaultNonWorkloadResources()
+	resources = append(resources, workloadResources...)
+
+	clusterResources := []Resource{
+		{Kind: KindClusterRole, ForObject: &rbacv1.ClusterRole{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
+		{Kind: KindClusterRoleBindings, ForObject: &rbacv1.ClusterRoleBinding{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
+		{Kind: KindCustomResourceDefinition, ForObject: &apiextensionsv1.CustomResourceDefinition{}, OwnsObject: &v1alpha1.ClusterConfigAuditReport{}},
+	}
+
+	if customTargets.Size() > 0 {
+		allKinds := schm.AllKnownTypes()
+
+		for gvk := range allKinds {
+			kind := strings.ToLower(gvk.Kind)
+			if !customTargets.Contains(kind) {
+				continue
+			}
+			obj, err := schm.New(gvk)
+			if err != nil {
+				return nil, nil, fmt.Errorf("cannot create object for GVK %v: %w", gvk, err)
+			}
+			typedObj, ok := obj.(client.Object)
+			if !ok {
+				return nil, nil, fmt.Errorf("object does not implement client.Object: %T", obj)
+			}
+			if objectResolver.IsClusterScope(kind) {
+				// If the resource is not namespaced, we add it to clusterResources
+				clusterResources = append(clusterResources, Resource{
+					Kind:       Kind(gvk.Kind),
+					ForObject:  typedObj,
+					OwnsObject: &v1alpha1.ClusterConfigAuditReport{},
+				})
+				continue
+			}
+			// If the resource is namespaced, we add it to resources
+			resources = append(resources, Resource{
+				Kind:       Kind(gvk.Kind),
+				ForObject:  typedObj,
+				OwnsObject: &v1alpha1.ConfigAuditReport{},
+			})
+		}
+	}
+	return resources, clusterResources, nil
 }
 
 // ObjectRefToLabels encodes the specified ObjectRef as a set of labels.
@@ -202,11 +248,11 @@ func ObjectRefFromKindAndObjectKey(kind Kind, name client.ObjectKey) ObjectRef {
 // adding it as the trivy-operator.LabelResourceSpecHash label to an instance of a
 // security report.
 func ComputeSpecHash(obj client.Object) (string, error) {
-	switch t := obj.(type) {
+	switch obj.(type) {
 	case *corev1.Pod, *appsv1.Deployment, *appsv1.ReplicaSet, *corev1.ReplicationController, *appsv1.StatefulSet, *appsv1.DaemonSet, *batchv1.CronJob, *batchv1beta1.CronJob, *batchv1.Job:
 		spec, err := GetPodSpec(obj)
 		if err != nil {
-			return "", err
+			return "", fmt.Errorf("error getting pod spec for %T: %w", obj, err)
 		}
 		return ComputeHash(spec), nil
 	case *corev1.Service:
@@ -234,7 +280,7 @@ func ComputeSpecHash(obj client.Object) (string, error) {
 	case *apiextensionsv1.CustomResourceDefinition:
 		return ComputeHash(obj), nil
 	default:
-		return "", fmt.Errorf("computing spec hash of unsupported object: %T", t)
+		return ComputeHash(obj), nil
 	}
 }
 
@@ -282,10 +328,11 @@ type CompatibleObjectMapper struct {
 type ObjectResolver struct {
 	client.Client
 	CompatibleMgr
+	K8sScope
 }
 
 func NewObjectResolver(c client.Client, cm CompatibleMgr) ObjectResolver {
-	return ObjectResolver{c, cm}
+	return ObjectResolver{c, cm, NewK8sScopeResolver(c)}
 }
 
 // InitCompatibleMgr initializes a CompatibleObjectMapper who store a map the of supported kinds with it compatible Objects (group/api/kind)
@@ -379,7 +426,18 @@ func (o *ObjectResolver) ObjectFromObjectRef(ctx context.Context, ref ObjectRef)
 	case KindClusterSbomReport:
 		obj = &v1alpha1.ClusterSbomReport{}
 	default:
-		return nil, fmt.Errorf("unknown kind: %s", ref.Kind)
+		gvk, ok := o.K8sScope.GVKbyKind(string(ref.Kind))
+		if !ok {
+			return nil, fmt.Errorf("can't get GVK by kind %s", ref.Kind)
+		}
+		rawobj, err := o.Scheme().New(gvk)
+		if err != nil {
+			return nil, fmt.Errorf("cannot create object for GVK %v: %w", gvk, err)
+		}
+		obj, ok = rawobj.(client.Object)
+		if !ok {
+			return nil, fmt.Errorf("object does not implement client.Object: %T", obj)
+		}
 	}
 	err := o.Client.Get(ctx, client.ObjectKey{
 		Name:      ref.Name,
@@ -711,6 +769,19 @@ type Resource struct {
 	OwnsObject client.Object
 }
 
+func DefaultNonWorkloadResources() []Resource {
+	// Add non workload related resources
+	return []Resource{
+		{Kind: KindService, ForObject: &corev1.Service{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
+		{Kind: KindConfigMap, ForObject: &corev1.ConfigMap{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
+		{Kind: KindRole, ForObject: &rbacv1.Role{}, OwnsObject: &v1alpha1.RbacAssessmentReport{}},
+		{Kind: KindRoleBinding, ForObject: &rbacv1.RoleBinding{}, OwnsObject: &v1alpha1.RbacAssessmentReport{}},
+		{Kind: KindNetworkPolicy, ForObject: &networkingv1.NetworkPolicy{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
+		{Kind: KindResourceQuota, ForObject: &corev1.ResourceQuota{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
+		{Kind: KindLimitRange, ForObject: &corev1.LimitRange{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
+	}
+}
+
 // GetWorkloadResource returns a Resource object which can be used by controllers for reconciliation
 func (r *Resource) GetWorkloadResource(kind string, object client.Object, resolver ObjectResolver) error {
 
@@ -740,13 +811,6 @@ func (r *Resource) GetWorkloadResource(kind string, object client.Object, resolv
 	return nil
 }
 
-func IsValidK8sKind(kind string) bool {
-	if IsWorkload(kind) || IsClusterScopedKind(kind) || IsRoleRelatedNamespaceScope(Kind(kind)) || isValidNamespaceResource(Kind(kind)) || kind == "Workload" {
-		return true
-	}
-	return false
-}
-
 func IsRoleRelatedNamespaceScope(kind Kind) bool {
 	if kind == KindRole || kind == KindRoleBinding {
 		return true
@@ -756,13 +820,6 @@ func IsRoleRelatedNamespaceScope(kind Kind) bool {
 
 func IsRoleTypes(kind Kind) bool {
 	if kind == KindRole || kind == KindClusterRole {
-		return true
-	}
-	return false
-}
-
-func isValidNamespaceResource(kind Kind) bool {
-	if kind == KindConfigMap || kind == KindNetworkPolicy || kind == KindIngress || kind == KindResourceQuota || kind == KindLimitRange || kind == KindService {
 		return true
 	}
 	return false

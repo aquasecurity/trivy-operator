@@ -527,6 +527,11 @@ func GetFSScanningArgs(ctx trivyoperator.PluginContext, command Command, mode Mo
 		args = append(args, "--server", trivyServerURL)
 	}
 
+	skipJavaDBUpdate := SkipJavaDBUpdate(c)
+	if skipJavaDBUpdate != "" {
+		args = append(args, skipJavaDBUpdate)
+	}
+
 	slow := Slow(c)
 	if slow != "" {
 		args = append(args, slow)
@@ -568,6 +573,10 @@ func GetSbomFSScanningArgs(ctx trivyoperator.PluginContext, mode Mode, trivyServ
 
 	if mode == ClientServer {
 		args = append(args, "--server", trivyServerURL)
+	}
+	skipJavaDBUpdate := SkipJavaDBUpdate(c)
+	if skipJavaDBUpdate != "" {
+		args = append(args, skipJavaDBUpdate)
 	}
 	slow := Slow(c)
 	if slow != "" {

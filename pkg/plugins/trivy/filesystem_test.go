@@ -75,12 +75,13 @@ func TestGetSbomFSScanningArgs(t *testing.T) {
 
 func TestGetFSScanningArgs(t *testing.T) {
 	testCases := []struct {
-		name           string
-		mode           trivy.Mode
-		command        trivy.Command
-		serverUrl      string
-		resultFileName string
-		wantArgs       []string
+		name             string
+		mode             trivy.Mode
+		command          trivy.Command
+		serverUrl        string
+		resultFileName   string
+		skipJavaDBUpdate bool
+		wantArgs         []string
 	}{
 		{
 			name:     "command and args for standalone mode",
@@ -96,9 +97,32 @@ func TestGetFSScanningArgs(t *testing.T) {
 			resultFileName: "",
 			wantArgs:       []string{"--cache-dir", "/var/trivyoperator/trivy-db", "--quiet", "filesystem", "--scanners", "", "--skip-db-update", "--format", "json", "/", "--server", "http://trivy-server:8080", "--slow", "--include-dev-deps"},
 		},
+		{
+			name:             "standalone mode with skip java db update",
+			mode:             trivy.Standalone,
+			command:          trivy.Filesystem,
+			skipJavaDBUpdate: true,
+			wantArgs:         []string{"--cache-dir", "/var/trivyoperator/trivy-db", "--quiet", "filesystem", "--scanners", "", "--skip-db-update", "--format", "json", "/", "--skip-java-db-update", "--slow", "--include-dev-deps"},
+		},
+		{
+			name:             "client/server mode with skip java db update",
+			mode:             trivy.ClientServer,
+			command:          trivy.Rootfs,
+			serverUrl:        "http://trivy-server:8080",
+			skipJavaDBUpdate: true,
+			wantArgs:         []string{"--cache-dir", "/var/trivyoperator/trivy-db", "--quiet", "filesystem", "--scanners", "", "--skip-db-update", "--format", "json", "/", "--server", "http://trivy-server:8080", "--skip-java-db-update", "--slow", "--include-dev-deps"},
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			configData := map[string]string{
+				"trivy.tag":                    "0.41.0",
+				"trivy.clientServerSkipUpdate": "false",
+				"trivy.includeDevDeps":         "true",
+			}
+			if tc.skipJavaDBUpdate {
+				configData["trivy.skipJavaDBUpdate"] = "true"
+			}
 			client := fake.NewClientBuilder().
 				WithScheme(trivyoperator.NewScheme()).
 				WithObjects(&corev1.ConfigMap{
@@ -106,11 +130,7 @@ func TestGetFSScanningArgs(t *testing.T) {
 						Name:      "trivy-operator-trivy-config",
 						Namespace: "trivyoperator-ns",
 					},
-					Data: map[string]string{
-						"trivy.tag":                    "0.41.0",
-						"trivy.clientServerSkipUpdate": "false",
-						"trivy.includeDevDeps":         "true",
-					},
+					Data: configData,
 				}).
 				Build()
 

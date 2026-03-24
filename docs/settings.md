@@ -74,6 +74,7 @@ configuration settings for common use cases. For example, switch Trivy from [Sta
 | `alternateReportStorage.mountPath`|`"/mnt/data/trivy-operator"`| The mount path for your persistent volume.|
 | `alternateReportStorage.volumeName`|`"trivy-operator-pvc"`| Name of your persistant volume.|
 |`alternateReportStorage.storage`|`"10Gi"`| Amount of storage for your persistent volume.|
+|`alternateReportStorage.accessModes`|`"- ReadWriteOnce"`| The accessMode for the persistent volume.  See https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes .|
 |`alternateReportStorage.podSecurityContext.runAsUser`| `10000` | Specifies the UNIX user ID that all processes in the container should run as (for the persistent volume), ensuring they don’t execute as the root user and limiting their privileges.|
 |`alternateReportStorage.podSecurityContext.fsGroup`| `10000` | Defines a UNIX group ID that Kubernetes will use to change the ownership of any mounted volumes so that files created by the container (persistent volume) are accessible to processes running under that group.|
 

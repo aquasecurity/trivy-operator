@@ -190,6 +190,7 @@ Keeps security report resources updated
 | trivy.storageClassEnabled | bool | `true` | whether to use a storage class for trivy server or emptydir (one mey want to use ephemeral storage) |
 | trivy.storageClassName | string | `""` | storageClassName is the name of the storage class to be used for trivy server PVC. If empty, tries to find default storage class |
 | trivy.storageSize | string | `"5Gi"` | storageSize is the size of the trivy server PVC |
+| trivy.storageAccessModes | list | `[ ReadWriteOnce ]` | storageAccessModes is the PVC accessModes list |
 | trivy.supportedConfigAuditKinds | string | `"Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"` | The Flag is the list of supported kinds separated by comma delimiter to be scanned by the config audit scanner  |
 | trivy.timeout | string | `"5m0s"` | timeout is the duration to wait for scan completion. |
 | trivy.useBuiltinRegoPolicies | string | `"false"` | The Flag to enable the usage of builtin rego policies by default, these policies are downloaded by default from mirror.gcr.io/aquasec/trivy-checks  |

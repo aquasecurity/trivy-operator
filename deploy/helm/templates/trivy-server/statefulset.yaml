@@ -29,7 +29,7 @@ spec:
           requests:
             storage: {{ .Values.trivy.storageSize }}
         accessModes:
-          - ReadWriteOnce
+          {{- toYaml .Values.trivy.storageAccessModes | nindent 10 }}
         storageClassName: {{ .Values.trivy.storageClassName }}
   {{- end }}
   template:

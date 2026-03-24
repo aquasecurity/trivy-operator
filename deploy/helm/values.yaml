@@ -834,6 +834,8 @@ alternateReportStorage:
   storage: "10Gi"
   # -- storageClassName for the PVC (optional, uses cluster default if not specified)
   storageClassName: ""
+  accessModes:
+    - ReadWriteOnce
   podSecurityContext:
     runAsUser: 10000
     fsGroup: 10000

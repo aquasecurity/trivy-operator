@@ -33,6 +33,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # was: actions/setup-go@v6
         with:
+          cache: false
           go-version-file: go.mod
           check-latest: true
       - name: Install cosign

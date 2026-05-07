@@ -35,9 +35,13 @@ jobs:
             revert
         run: |
           set -euo pipefail
-            if [[ ! "$PR_TITLE" =~ ^(${VALID_TYPES// /|})(\(.+\))?:\ .+ ]]; then
-                echo "Error: PR title does not follow the Conventional Commits format."
-                echo "Expected format: <type>(<scope>): <description>"
-                echo "Valid types: $VALID_TYPES"
-                exit 1
-            fi
+
+          TYPES_REGEX=$(echo "$VALID_TYPES" | grep -v '^$' | paste -sd '|')
+
+          if [[ ! "$PR_TITLE" =~ ^(${TYPES_REGEX})(\(.+\))?:\ .+ ]]; then
+            echo "Error: PR title does not follow the Conventional Commits format."
+            echo "Expected format: <type>(<scope>): <description>"
+            echo "Valid types: $VALID_TYPES"
+            echo -e "\nCurrent title: $PR_TITLE"
+            exit 1
+          fi

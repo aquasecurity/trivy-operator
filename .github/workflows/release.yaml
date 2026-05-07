@@ -90,7 +90,7 @@ jobs:
     name: Release
     needs:
       - itest-trivy-operator
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-2404-2core
     env:
       DOCKER_CLI_EXPERIMENTAL: "enabled"
     permissions:

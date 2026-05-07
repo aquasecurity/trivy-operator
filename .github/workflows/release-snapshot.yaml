@@ -13,7 +13,7 @@ permissions: {}
 jobs:
   release-snapshot:
     name: Release unversioned snapshot
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-2404-2core
     env:
       DOCKER_CLI_EXPERIMENTAL: "enabled"
     permissions:

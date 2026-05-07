@@ -18,7 +18,7 @@ permissions: {}
 jobs:
   deploy:
     name: Deploy documentation
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-2404-2core
     permissions:
       contents: write
     steps:
@@ -40,12 +40,8 @@ jobs:
         with:
           python-version: 3.x
       - run: |
-          pip install git+https://${GH_TOKEN}@github.com/squidfunk/mkdocs-material-insiders.git
-          pip install mike
-          pip install mkdocs-macros-plugin
-        env:
-          # Note: It is not the same as ${{ secrets.GITHUB_TOKEN }} !
-          GH_TOKEN: ${{ secrets.MKDOCS_AQUA_BOT }}
+          pip install mkdocs-material==9.7.6 mkdocs-macros-plugin mike
+
       - run: |
           git config user.name "aqua-bot"
           git config user.email "aqua-bot@users.noreply.github.com"

@@ -1,0 +1,5 @@
+rules:
+  # GitHub environments are not currently used, so secrets are accessed outside of them.
+  # See: https://docs.zizmor.sh/audits/#secrets-outside-env
+  secrets-outside-env:
+    disable: true

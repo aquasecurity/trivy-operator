@@ -1,0 +1,24 @@
+# If you need to update the base image, please use manifest list digest SHA256 from the following link:
+# https://catalog.redhat.com/software/containers/ubi9/ubi-minimal/615bd9b4075b022acc111bf5?container-tabs=gti&gti-tabs=unauthenticated
+
+FROM registry.access.redhat.com/ubi9/ubi-minimal@sha256:c7d44146f826037f6873d99da479299b889473492d3c1ab8af86f08af04ec8a0
+
+# Image metadata
+LABEL name="Trivy" \
+      maintainer="Aqua Security Software Ltd." \
+      vendor="Aqua Security Software Ltd."
+
+# Install shadow-utils non-interactively and clean up package metadata to keep image small
+RUN microdnf -y install shadow-utils \
+    && microdnf clean all
+
+# Include license in the image
+RUN mkdir -p /licenses
+COPY LICENSE /licenses/LICENSE
+RUN useradd -u 10000 trivyoperator
+WORKDIR /opt/bin/
+COPY trivy-operator-fips /usr/local/bin/trivy-operator
+
+USER trivyoperator
+
+ENTRYPOINT ["trivy-operator"]

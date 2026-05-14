@@ -90,24 +90,6 @@ dockers:
       - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/trivy-operator/v{{ .Version }}/"
       - "--platform=linux/amd64"
   - image_templates:
-      - "mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}-fips-amd64"
-    use: buildx
-    goos: linux
-    dockerfile: build/trivy-operator/Dockerfile.fips
-    goarch: amd64
-    ids:
-      - trivy-operator-fips
-    build_flag_templates:
-      - "--label=org.opencontainers.image.title=trivy-operator"
-      - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"
-      - "--label=org.opencontainers.image.vendor=Aqua Security"
-      - "--label=org.opencontainers.image.version={{ .Version }}"
-      - "--label=org.opencontainers.image.created={{ .Date }}"
-      - "--label=org.opencontainers.image.source=https://github.com/aquasecurity/trivy-operator"
-      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
-      - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/trivy-operator/v{{ .Version }}/"
-      - "--platform=linux/amd64"
-  - image_templates:
       - "mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}-fips-ubi9-amd64"
     use: buildx
     goos: linux
@@ -134,9 +116,6 @@ docker_manifests:
   - name_template: "mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}-ubi9"
     image_templates:
       - "mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}-ubi9-amd64"
-  - name_template: "mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}-fips"
-    image_templates:
-      - "mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}-fips-amd64"
   - name_template: "mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}-fips-ubi9"
     image_templates:
       - "mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}-fips-ubi9-amd64"

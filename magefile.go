@@ -53,8 +53,7 @@ var (
 	IMAGE_TAG                       = "dev"
 	TRIVY_OPERATOR_IMAGE            = "aquasecurity/trivy-operator:" + IMAGE_TAG
 	TRIVY_OPERATOR_IMAGE_UBI9       = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-ubi9"
-	TRIVY_OPERATOR_IMAGE_FIPS       = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-fips"
-	TRIVY_OPERATOR_IMAGE_FIPS_UBI9  = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-fips-ubi9"
+	TRIVY_OPERATOR_IMAGE_FIPS_UBI9 = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-fips-ubi9"
 
 	MKDOCS_IMAGE = "aquasec/mkdocs-material:trivy-operator"
 	MKDOCS_PORT  = 8000
@@ -222,12 +221,6 @@ func (b Build) DockerUbi9() error {
 		return fmt.Errorf("Could not copy license file: %v", err)
 	}
 	return sh.RunV("docker", "build", "--no-cache", "-f", "build/trivy-operator/Dockerfile.ubi9", "-t", TRIVY_OPERATOR_IMAGE_UBI9, "bin")
-}
-
-// Target for building Docker image for trivy-operator FIPS
-func (b Build) DockerFips() error {
-	fmt.Println("Building Docker image for trivy-operator FIPS...")
-	return sh.RunV("docker", "build", "--no-cache", "-t", TRIVY_OPERATOR_IMAGE_FIPS, "-f", "build/trivy-operator/Dockerfile.fips", "bin")
 }
 
 // Target for building Docker image for trivy-operator FIPS ubi9

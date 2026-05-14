@@ -251,7 +251,8 @@ func controllerGen() error {
 func (t Test) envTestBin() error {
 	mg.Deps(localBin)
 	fmt.Println("Downloading envtest-setup...")
-	return sh.RunWithV(GOLOCALBINENV, "go", "install", "sigs.k8s.io/controller-runtime/tools/setup-envtest@latest")
+	// use a specific setup-envtest version - v0.23.3
+	return sh.RunWithV(GOLOCALBINENV, "go", "install", "sigs.k8s.io/controller-runtime/tools/setup-envtest@f9589b9f2b9dddf8532b432bb8315f2820ab9971")
 }
 
 type Generate mg.Namespace

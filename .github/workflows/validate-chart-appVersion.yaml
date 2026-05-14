@@ -1,6 +1,6 @@
 name: Chart-Content
 on:
-  pull_request_target:
+  pull_request:
     types:
       - closed
     paths:
@@ -8,7 +8,8 @@ on:
 
 jobs:
   appVersion-validation:
-    if: github.event.pull_request.merged == true
+    if: false
+#    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       contents: write

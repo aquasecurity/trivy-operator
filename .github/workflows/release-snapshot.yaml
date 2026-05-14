@@ -13,7 +13,7 @@ permissions: {}
 jobs:
   release-snapshot:
     name: Release unversioned snapshot
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-2404-2core
     env:
       DOCKER_CLI_EXPERIMENTAL: "enabled"
     permissions:
@@ -30,9 +30,13 @@ jobs:
           PLATFORMS: ${{ steps.buildx.outputs.platforms }}
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # was: actions/checkout@v4
+        with:
+          persist-credentials: false
+
       - name: Setup Go
         uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # was: actions/setup-go@v6
         with:
+          cache: false
           go-version-file: go.mod
           check-latest: true
       - name: Install cosign

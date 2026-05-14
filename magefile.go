@@ -102,7 +102,7 @@ func (b Build) BinaryFips() error {
 	fmt.Println("Building trivy-operator FIPS binary...")
 	fipsEnv := map[string]string{
 		"CGO_ENABLED":  "1",
-		"GOEXPERIMENT": "boringcrypto",
+		"GOEXPERIMENT": "boringcrypto,jsonv2",
 		"GOOS":         "linux",
 	}
 	return sh.RunWithV(fipsEnv, "go", "build", "-tags=fipsonly", "-o", "./bin/trivy-operator-fips", "./cmd/trivy-operator/main.go")

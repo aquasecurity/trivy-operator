@@ -32,7 +32,7 @@ builds:
       - -tags=fipsonly
     env:
       - CGO_ENABLED=1
-      - GOEXPERIMENT=boringcrypto
+      - GOEXPERIMENT=boringcrypto,jsonv2
     goos:
       - linux
     goarch:

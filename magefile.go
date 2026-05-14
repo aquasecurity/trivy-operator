@@ -204,7 +204,6 @@ func (b Build) DockerAll() {
 	fmt.Println("Building Docker images for all binaries...")
 	b.Docker()
 	b.DockerUbi9()
-	b.DockerFips()
 	b.DockerFipsUbi9()
 }
 

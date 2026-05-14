@@ -53,7 +53,7 @@ var (
 	IMAGE_TAG                       = "dev"
 	TRIVY_OPERATOR_IMAGE            = "aquasecurity/trivy-operator:" + IMAGE_TAG
 	TRIVY_OPERATOR_IMAGE_UBI9       = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-ubi9"
-	TRIVY_OPERATOR_IMAGE_FIPS_UBI9 = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-fips-ubi9"
+	TRIVY_OPERATOR_IMAGE_FIPS_UBI9 = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-ubi9-fips"
 
 	MKDOCS_IMAGE = "aquasec/mkdocs-material:trivy-operator"
 	MKDOCS_PORT  = 8000

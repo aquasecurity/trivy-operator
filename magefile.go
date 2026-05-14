@@ -50,9 +50,11 @@ var (
 	GOBIN       = filepath.Join(goEnv("GOPATH"), "bin")
 	GINKGO      = filepath.Join(PWD, "bin", "ginkgo")
 
-	IMAGE_TAG                 = "dev"
-	TRIVY_OPERATOR_IMAGE      = "aquasecurity/trivy-operator:" + IMAGE_TAG
-	TRIVY_OPERATOR_IMAGE_UBI9 = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-ubi9"
+	IMAGE_TAG                       = "dev"
+	TRIVY_OPERATOR_IMAGE            = "aquasecurity/trivy-operator:" + IMAGE_TAG
+	TRIVY_OPERATOR_IMAGE_UBI9       = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-ubi9"
+	TRIVY_OPERATOR_IMAGE_FIPS       = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-fips"
+	TRIVY_OPERATOR_IMAGE_FIPS_UBI9  = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-fips-ubi9"
 
 	MKDOCS_IMAGE = "aquasec/mkdocs-material:trivy-operator"
 	MKDOCS_PORT  = 8000
@@ -93,6 +95,17 @@ type Build mg.Namespace
 func (b Build) Binary() error {
 	fmt.Println("Building trivy-operator binary...")
 	return sh.RunWithV(LINUX_ENV, "go", "build", "-o", "./bin/trivy-operator", "./cmd/trivy-operator/main.go")
+}
+
+// Target for building trivy-operator FIPS binary.
+func (b Build) BinaryFips() error {
+	fmt.Println("Building trivy-operator FIPS binary...")
+	fipsEnv := map[string]string{
+		"CGO_ENABLED":  "1",
+		"GOEXPERIMENT": "boringcrypto",
+		"GOOS":         "linux",
+	}
+	return sh.RunWithV(fipsEnv, "go", "build", "-tags=fipsonly", "-o", "./bin/trivy-operator-fips", "./cmd/trivy-operator/main.go")
 }
 
 // Target for installing Ginkgo CLI.
@@ -192,6 +205,8 @@ func (b Build) DockerAll() {
 	fmt.Println("Building Docker images for all binaries...")
 	b.Docker()
 	b.DockerUbi9()
+	b.DockerFips()
+	b.DockerFipsUbi9()
 }
 
 // Target for building Docker image for trivy-operator
@@ -207,6 +222,21 @@ func (b Build) DockerUbi9() error {
 		return fmt.Errorf("Could not copy license file: %v", err)
 	}
 	return sh.RunV("docker", "build", "--no-cache", "-f", "build/trivy-operator/Dockerfile.ubi9", "-t", TRIVY_OPERATOR_IMAGE_UBI9, "bin")
+}
+
+// Target for building Docker image for trivy-operator FIPS
+func (b Build) DockerFips() error {
+	fmt.Println("Building Docker image for trivy-operator FIPS...")
+	return sh.RunV("docker", "build", "--no-cache", "-t", TRIVY_OPERATOR_IMAGE_FIPS, "-f", "build/trivy-operator/Dockerfile.fips", "bin")
+}
+
+// Target for building Docker image for trivy-operator FIPS ubi9
+func (b Build) DockerFipsUbi9() error {
+	fmt.Println("Building Docker image for trivy-operator FIPS ubi9...")
+	if err := sh.RunV("cp", "LICENSE", "./bin/LICENSE"); err != nil {
+		return fmt.Errorf("Could not copy license file: %v", err)
+	}
+	return sh.RunV("docker", "build", "--no-cache", "-f", "build/trivy-operator/Dockerfile.fips.ubi9", "-t", TRIVY_OPERATOR_IMAGE_FIPS_UBI9, "bin")
 }
 
 // Target for loading Docker images into the KIND cluster

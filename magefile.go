@@ -50,9 +50,9 @@ var (
 	GOBIN       = filepath.Join(goEnv("GOPATH"), "bin")
 	GINKGO      = filepath.Join(PWD, "bin", "ginkgo")
 
-	IMAGE_TAG                       = "dev"
-	TRIVY_OPERATOR_IMAGE            = "aquasecurity/trivy-operator:" + IMAGE_TAG
-	TRIVY_OPERATOR_IMAGE_UBI9       = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-ubi9"
+	IMAGE_TAG                      = "dev"
+	TRIVY_OPERATOR_IMAGE           = "aquasecurity/trivy-operator:" + IMAGE_TAG
+	TRIVY_OPERATOR_IMAGE_UBI9      = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-ubi9"
 	TRIVY_OPERATOR_IMAGE_FIPS_UBI9 = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-ubi9-fips"
 
 	MKDOCS_IMAGE = "aquasec/mkdocs-material:trivy-operator"

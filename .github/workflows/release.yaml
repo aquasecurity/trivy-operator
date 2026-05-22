@@ -128,6 +128,8 @@ jobs:
           go-version-file: go.mod
           check-latest: true
           cache: false
+      - name: Install ARM64 cross-compiler
+        run: sudo apt-get install -y gcc-aarch64-linux-gnu
       - name: Install cosign
         uses: sigstore/cosign-installer@3454372f43399081ed03b604cb2d021dabca52bb # was: sigstore/cosign-installer@v3.8.2
       - name: Login to docker.io registry

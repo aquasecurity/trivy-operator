@@ -89,7 +89,7 @@ jobs:
     name: Release
     needs:
       - itest-trivy-operator
-    runs-on: ubuntu-2404-2core
+    runs-on: ubuntu-24.04
     env:
       DOCKER_CLI_EXPERIMENTAL: "enabled"
     permissions:
@@ -135,12 +135,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Login to ECR
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # was: docker/login-action@v3.4.0
-        with:
-          registry: public.ecr.aws
-          username: ${{ secrets.ECR_ACCESS_KEY_ID }}
-          password: ${{ secrets.ECR_SECRET_ACCESS_KEY }}
+#      - name: Login to ECR
+#        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # was: docker/login-action@v3.4.0
+#        with:
+#          registry: public.ecr.aws
+#          username: ${{ secrets.ECR_ACCESS_KEY_ID }}
+#          password: ${{ secrets.ECR_SECRET_ACCESS_KEY }}
       - name: Login to ghcr.io
         uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # was: docker/login-action@v3.4.0
         with:

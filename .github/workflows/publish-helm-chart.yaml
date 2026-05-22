@@ -17,7 +17,7 @@ jobs:
     if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
     permissions:
       contents: read
-    runs-on: ubuntu-2404-2core
+    runs-on: ubuntu-24.04
     steps:
       - name: Generate token
         id: app-token

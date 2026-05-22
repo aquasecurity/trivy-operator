@@ -51,7 +51,7 @@ changelog:
       - ^release
 dockers:
   - image_templates:
-      - mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}-amd64
+      - docker.io/afdesk/trivy-operator:{{ .Version }}-amd64
     use: buildx
     goos: linux
     dockerfile: build/trivy-operator/Dockerfile
@@ -70,7 +70,7 @@ dockers:
         .Version }}/
       - --platform=linux/amd64
   - image_templates:
-      - "mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}-ubi9-amd64"
+      - "docker.io/afdesk/trivy-operator:{{ .Version }}-ubi9-amd64"
     use: buildx
     goos: linux
     dockerfile: build/trivy-operator/Dockerfile.ubi9
@@ -90,7 +90,7 @@ dockers:
       - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/trivy-operator/v{{ .Version }}/"
       - "--platform=linux/amd64"
   - image_templates:
-      - "mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}-ubi9-fips-amd64"
+      - "docker.io/afdesk/trivy-operator:{{ .Version }}-ubi9-fips-amd64"
     use: buildx
     goos: linux
     dockerfile: build/trivy-operator/Dockerfile.fips.ubi9
@@ -110,12 +110,12 @@ dockers:
       - "--label=org.opencontainers.image.documentation=https://aquasecurity.github.io/trivy-operator/v{{ .Version }}/"
       - "--platform=linux/amd64"
 docker_manifests:
-  - name_template: mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}
+  - name_template: docker.io/afdesk/trivy-operator:{{ .Version }}
     image_templates:
-      - mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}-amd64
-  - name_template: "mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}-ubi9"
+      - docker.io/afdesk/trivy-operator:{{ .Version }}-amd64
+  - name_template: "docker.io/afdesk/trivy-operator:{{ .Version }}-ubi9"
     image_templates:
-      - "mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}-ubi9-amd64"
-  - name_template: "mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}-ubi9-fips"
+      - "docker.io/afdesk/trivy-operator:{{ .Version }}-ubi9-amd64"
+  - name_template: "docker.io/afdesk/trivy-operator:{{ .Version }}-ubi9-fips"
     image_templates:
-      - "mirror.gcr.io/aquasec/trivy-operator:{{ .Version }}-ubi9-fips-amd64"
+      - "docker.io/afdesk/trivy-operator:{{ .Version }}-ubi9-fips-amd64"

@@ -203,8 +203,8 @@ operator:
   pprofBindAddress: ""
 
 image:
-  registry: "mirror.gcr.io"
-  repository: "aquasec/trivy-operator"
+  registry: "docker.io"
+  repository: "afdesk/trivy-operator"
   # -- tag is an override of the image tag, which is by default set by the
   # appVersion field in Chart.yaml.
   tag: ""

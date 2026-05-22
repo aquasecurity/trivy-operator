@@ -1,6 +1,6 @@
 # trivy-operator
 
-![Version: 0.32.1](https://img.shields.io/badge/Version-0.32.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.30.1](https://img.shields.io/badge/AppVersion-0.30.1-informational?style=flat-square)
+![Version: 0.33.0](https://img.shields.io/badge/Version-0.33.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.31.0](https://img.shields.io/badge/AppVersion-0.31.0-informational?style=flat-square)
 
 Keeps security report resources updated
 
@@ -27,8 +27,8 @@ Keeps security report resources updated
 | hostAliases | list | `[]` | hostAliases for `deployment` (TrivyOperator) and `statefulset` (TrivyServer) |
 | image.pullPolicy | string | `"IfNotPresent"` | pullPolicy set the operator pullPolicy |
 | image.pullSecrets | list | `[]` | pullSecrets set the operator pullSecrets |
-| image.registry | string | `"mirror.gcr.io"` |  |
-| image.repository | string | `"aquasec/trivy-operator"` |  |
+| image.registry | string | `"docker.io"` |  |
+| image.repository | string | `"afdesk/trivy-operator"` |  |
 | image.tag | string | `""` | tag is an override of the image tag, which is by default set by the appVersion field in Chart.yaml. |
 | managedBy | string | `"Helm"` | managedBy is similar to .Release.Service but allows to overwrite the value |
 | nameOverride | string | `""` | nameOverride override operator name |

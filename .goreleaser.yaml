@@ -38,6 +38,14 @@ builds:
     goarch:
       - amd64
       - arm64
+    overrides:
+      - goos: linux
+        goarch: arm64
+        env:
+          - CGO_ENABLED=1
+          - GOEXPERIMENT=boringcrypto,jsonv2
+          - CC=aarch64-linux-gnu-gcc
+          - CXX=aarch64-linux-gnu-g++
 archives:
   - name_template: >-
       {{- .ProjectName }}_

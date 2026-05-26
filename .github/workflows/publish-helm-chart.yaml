@@ -1,122 +1,40 @@
 ---
-# This is a manually triggered workflow to package and upload the Helm chart from the
-# main branch to Aqua Security repository at https://github.com/aquasecurity/helm-charts.
+# Triggered when a PR modifying the Helm chart is merged into main (or manually).
+# Uses a GitHub App token to trigger the publish-chart workflow in the helm-charts repo.
 name: Publish Helm chart
 on:
-  repository_dispatch:
-    types: [publish-chart]
+  workflow_dispatch:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
     paths:
-      - deploy/helm/Chart.yaml
+      - deploy/helm/**
 permissions: {}
-env:
-  CR_PACKAGE_PATH: .cr-release-packages
-  HELM_REP: helm-charts
-  GH_OWNER: aquasecurity
-  CHART_DIR: deploy/helm
-  KIND_VERSION: v0.30.0
-  KIND_IMAGE: kindest/node:v1.34.0@sha256:7416a61b42b1662ca6ca89f02028ac133a309a2a30ba309614e8ec94d976dc5a
 jobs:
-  release:
-    # this job will only run if the PR has been merged
-    if: false
-    # if: github.event.client_payload.action == 'chart-release' || github.event.client_payload.action == 'chart-and-app-release'
+  publish-chart:
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
     permissions:
-      contents: write  # for peter-evans/repository-dispatch to create a repository dispatch event
-      packages: write  # to push OCI chart package to GitHub Registry
-    runs-on: ubuntu-latest
+      contents: read
+    runs-on: ubuntu-2404-2core
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # was: actions/checkout@v4
+      - name: Generate token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: Install Helm
-        uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # v4.3.0
-        with:
-          version: v3.14.2
-
-      - name: Set up python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # was: actions/setup-python@v5.6.0
-        with:
-          python-version: '3.x'
-          check-latest: true
-
-      - name: Setup Chart Linting
-        id: lint
-        uses: helm/chart-testing-action@0d28d3144d3a25ea2cc349d6e59901c4ff469b3b # was: helm/chart-testing-action@v2.7.0
-        with:
-          # v6.0.0 resolved the compatibility issue with Python > 3.13. may be removed after the action itself is updated
-          yamale_version: "6.0.0"
-
-      - name: Setup Kubernetes cluster (KIND)
-        uses: helm/kind-action@a1b0e391336a6ee6713a0583f8c6240d70863de3 # v1.12.0
-        with:
-          version: ${{ env.KIND_VERSION }}
-          node_image: ${{ env.KIND_IMAGE }}
-
-      - name: Run chart-testing
-        run: ct lint-and-install --validate-maintainers=false --charts deploy/helm
-
-      - name: Install chart-releaser
-        run: |
-          wget https://github.com/helm/chart-releaser/releases/download/v1.3.0/chart-releaser_1.3.0_linux_amd64.tar.gz
-          echo "baed2315a9bb799efb71d512c5198a2a3b8dcd139d7f22f878777cffcd649a37  chart-releaser_1.3.0_linux_amd64.tar.gz" | sha256sum -c -
-          tar xzvf chart-releaser_1.3.0_linux_amd64.tar.gz cr
-      - name: Package helm chart
-        run: |
-          ./cr package ${{ env.CHART_DIR }}
-
-        # Classic helm repository with GitHub pages
-      - name: Upload helm chart
-        # Failed with upload the same version: https://github.com/helm/chart-releaser/issues/101
-        continue-on-error: true
+          client-id: ${{ secrets.HELM_CHARTS_GH_APP_CLIENT_ID }}
+          private-key: ${{ secrets.HELM_CHARTS_GH_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: helm-charts
+      - name: Trigger publish-chart workflow in helm-charts
         env:
-          ORG_REPO_TOKEN: ${{ secrets.ORG_REPO_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          REF: ${{ github.sha }}
         run: |
-          ./cr upload -o ${{ env.GH_OWNER }} -r ${{ env.HELM_REP }} --token $ORG_REPO_TOKEN
-      - name: Index helm chart
-        run: |
-          ./cr index -o ${{ env.GH_OWNER }} -r ${{ env.HELM_REP }} -c https://${{ env.GH_OWNER }}.github.io/${{ env.HELM_REP }}/ -i index.yaml
-      - name: Push index file
-        uses: dmnemec/copy_file_to_another_repo_action@c93037aa10fa8893de271f19978c980d0c1a9b37 # v1.1.1
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.ORG_REPO_TOKEN }}
-        with:
-          source_file: "index.yaml"
-          destination_repo: "${{ env.GH_OWNER }}/${{ env.HELM_REP }}"
-          destination_folder: "."
-          destination_branch: "gh-pages"
-          user_email: aqua-bot@users.noreply.github.com
-          user_name: "aqua-bot"
-
-      # OCI registry as helm repository (helm 3.8+)
-      - name: Login to GHCR
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Push chart to GHCR
-        run: |
-          shopt -s nullglob
-          for pkg in ${{ env.CR_PACKAGE_PATH }}/*.tgz; do
-            if [ -z "${pkg:-}" ]; then
-              break
-            fi
-            helm push "${pkg}" oci://ghcr.io/${{ env.GH_OWNER }}/${{ env.HELM_REP }}
-          done
-
-      - name: Get latest tag
-        id: latest_tag
-        run: |
-          latest_tag=$(git describe --tags --abbrev=0)
-          echo "tag=$latest_tag" >> "$GITHUB_OUTPUT"
-
-      - name: Repository Dispatch Publish docs
-        if: github.event.client_payload.action == 'chart-and-app-release' && !contains(steps.latest_tag.outputs.tag, 'rc')
-        uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0 # was: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          event-type: publish-docs
-          client-payload: '{"action": "docs-release", "tag": "${{ steps.latest_tag.outputs.tag }}"}'
+          gh workflow run publish-chart.yaml \
+            --repo "$GITHUB_REPOSITORY_OWNER/helm-charts" \
+            --ref main \
+            --field "repository=$GITHUB_REPOSITORY" \
+            --field "ref=$REF" \
+            --field "chart_dir=deploy/helm"

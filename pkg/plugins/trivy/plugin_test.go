@@ -2,7 +2,6 @@ package trivy_test
 
 import (
 	"bytes"
-	"encoding/base64"
 	"errors"
 	"io"
 	"log"
@@ -13,7 +12,6 @@ import (
 	"testing"
 	"time"
 
-	bz "github.com/dsnet/compress/bzip2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	appsv1 "k8s.io/api/apps/v1"
@@ -28,6 +26,7 @@ import (
 
 	dbtypes "github.com/aquasecurity/trivy-db/pkg/types"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
@@ -8227,11 +8226,11 @@ func getReportAsString(fixture string) string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	value, err := writeBzip2AndEncode(b)
-	if err != nil {
+	var encoded bytes.Buffer
+	if err := utils.WriteCompressData(&encoded, bytes.NewReader(b)); err != nil {
 		log.Fatal(err)
 	}
-	return value
+	return encoded.String()
 }
 func getReportAsStringnonCompressed(fixture string) string {
 	f, err := os.Open("./testdata/fixture/" + fixture)
@@ -8281,23 +8280,6 @@ func getTmpVolumeMount() corev1.VolumeMount {
 		ReadOnly:  false,
 		MountPath: "/tmp",
 	}
-}
-
-func writeBzip2AndEncode(data []byte) (string, error) {
-	var in bytes.Buffer
-	w, err := bz.NewWriter(&in, &bz.WriterConfig{})
-	if err != nil {
-		return "", err
-	}
-	_, err = w.Write(data)
-	if err != nil {
-		return "", err
-	}
-	err = w.Close()
-	if err != nil {
-		return "", err
-	}
-	return base64.StdEncoding.EncodeToString(in.Bytes()), nil
 }
 
 func TestSkipDirFileEnvVars(t *testing.T) {

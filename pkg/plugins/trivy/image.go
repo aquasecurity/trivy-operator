@@ -377,19 +377,16 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 			VolumeMounts:             volumeMounts,
 		})
 	}
-	// Mount the scan-wrapper binary into the (potentially distroless)
-	// scan container via a shared emptyDir. The wrapper is shipped in
-	// the operator image at /usr/local/bin/scan-wrapper and copied
-	// into the volume by a tiny init container. Only added when
-	// compressed-log mode is enabled — otherwise the scan container
-	// just runs trivy directly and no wrapper is needed.
-	if ctx.GetTrivyOperatorConfig().CompressLogs() && operatorImageRef() != "" {
+	// In compress mode the scan container's Command is the
+	// scan-wrapper binary, which is bundled in the operator image and
+	// landed in a shared emptyDir by an init container.
+	if opImage := operatorImageRef(); ctx.GetTrivyOperatorConfig().CompressLogs() && opImage != "" {
 		vol, mount := scanWrapperVolumeAndMount()
 		volumes = append(volumes, vol)
 		for i := range containers {
 			containers[i].VolumeMounts = append(containers[i].VolumeMounts, mount)
 		}
-		initContainers = append(initContainers, scanWrapperInstallContainer(operatorImageRef(), mount, securityContext))
+		initContainers = append(initContainers, scanWrapperInstallContainer(opImage, mount, securityContext))
 	}
 
 	return corev1.PodSpec{
@@ -404,13 +401,12 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 	}, secrets, nil
 }
 
-// operatorImageRef returns the operator's own container image
-// reference, set at deploy time via the OPERATOR_IMAGE environment
-// variable. Returns "" if unset — in which case compress-mode scans
-// will not have a scan-wrapper installer initContainer attached, and
-// the scan container will fail because the wrapper binary is missing
-// from its filesystem. The helm chart and static manifest set this
-// for every supported deployment path.
+// operatorImageRef returns the operator's own image reference. Set
+// at deploy time via OPERATOR_IMAGE (the helm chart and static
+// manifest both wire this). Returns "" if unset, in which case
+// compress-mode scans will not attach the wrapper init container —
+// document this limitation when deploying outside the supplied
+// chart/manifest.
 func operatorImageRef() string {
 	return os.Getenv("OPERATOR_IMAGE")
 }
@@ -422,9 +418,6 @@ const (
 	scanWrapperInitContainer = "scan-wrapper-installer"
 )
 
-// scanWrapperVolumeAndMount returns the shared emptyDir volume and
-// its mount, used by both the install init container and every scan
-// container when compressLogs is enabled.
 func scanWrapperVolumeAndMount() (corev1.Volume, corev1.VolumeMount) {
 	return corev1.Volume{
 			Name: scanWrapperVolumeName,
@@ -438,17 +431,6 @@ func scanWrapperVolumeAndMount() (corev1.Volume, corev1.VolumeMount) {
 		}
 }
 
-// ScanWrapperInstallContainerForTest exposes the init container
-// builder for use in tests outside this package. Not part of the
-// stable API; only the test suite imports it.
-func ScanWrapperInstallContainerForTest(operatorImage string, mount corev1.VolumeMount, securityContext *corev1.SecurityContext) corev1.Container {
-	return scanWrapperInstallContainer(operatorImage, mount, securityContext)
-}
-
-// scanWrapperInstallContainer returns an init container using the
-// operator's own image that copies the bundled scan-wrapper binary
-// into the shared emptyDir, where the main scan container's command
-// expects to find it at ScanWrapperPath.
 func scanWrapperInstallContainer(operatorImage string, mount corev1.VolumeMount, securityContext *corev1.SecurityContext) corev1.Container {
 	return corev1.Container{
 		Name:                     scanWrapperInitContainer,
@@ -578,30 +560,22 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef, tri
 }
 
 // ScanWrapperPath is where the scan-wrapper binary is mounted inside
-// the scan container. The trivy-operator image ships the binary at
-// /usr/local/bin/scan-wrapper; an init container copies it to this
-// path in a shared emptyDir so the (potentially distroless) scan
-// container can exec it.
+// the scan container. Exported so trivy_test can reference it.
 const ScanWrapperPath = "/var/trivyoperator/bin/scan-wrapper"
 
+const scanResultDir = "/tmp/scan"
+
 // scanCommandAndArgs translates a logical trivy invocation into the
-// container Command + Args.
-//
-// When CompressLogs is disabled the operator runs trivy directly,
-// passing --quiet so progress chatter does not contaminate the JSON
-// trivy writes to its own stdout. No shell, no cat, no bzip2, no
-// base64 — works on a distroless trivy image.
-//
-// When CompressLogs is enabled the scan-wrapper binary is executed
-// instead. The wrapper runs trivy, then in pure Go streams the
-// resulting report file through bzip2+base64 to its own stdout. The
-// wire format matches pkg/utils.ReadCompressData so the operator-
-// side decode is unchanged.
+// scan container's Command + Args. When CompressLogs is off, trivy
+// runs directly with --quiet (works on a distroless trivy image).
+// When on, the operator-shipped scan-wrapper drives trivy and
+// bzip2+base64-encodes the report on stdout in the format
+// pkg/utils.ReadCompressData decodes.
 func scanCommandAndArgs(trivyArgs []string, resultFileName string, compressLogs bool) ([]string, []string) {
 	if !compressLogs {
 		return []string{"trivy"}, append(trivyArgs, "--quiet")
 	}
-	resultPath := fmt.Sprintf("/tmp/scan/%s", resultFileName)
+	resultPath := fmt.Sprintf("%s/%s", scanResultDir, resultFileName)
 	wrapperArgs := []string{"--compress", "--result", resultPath, "--", "trivy"}
 	wrapperArgs = append(wrapperArgs, trivyArgs...)
 	wrapperArgs = append(wrapperArgs, "--output", resultPath)
@@ -624,7 +598,6 @@ func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomF
 		skipUpdate = SkipDBUpdate(c)
 	}
 	args := []string{
-		"trivy",
 		"--cache-dir",
 		"/tmp/trivy/.cache",
 		"sbom",
@@ -649,9 +622,7 @@ func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomF
 	if skipUpdate != "" {
 		args = append(args, skipUpdate)
 	}
-	// args is built with "trivy" as element 0; strip it because
-	// scanCommandAndArgs prepends its own Command.
-	return scanCommandAndArgs(args[1:], resultFileName, compressLogs)
+	return scanCommandAndArgs(args, resultFileName, compressLogs)
 }
 
 func vulnTypeFilter(ctx trivyoperator.PluginContext) []string {

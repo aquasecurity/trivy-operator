@@ -12,7 +12,11 @@ import (
 	"io"
 	"os"
 	"os/exec"
+
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
 )
+
+const stderrCaptureLimit = 1 << 20 // bound trivy's captured stderr at 1 MiB
 
 func main() {
 	os.Exit(run(os.Args, os.Stdout, os.Stderr))
@@ -62,16 +66,22 @@ func parseArgs(args []string) (options, error) {
 	return opts, nil
 }
 
-// cappedBuffer is an io.Writer that buffers up to cap bytes then
+// cappedBuffer is an io.Writer that buffers up to limit bytes then
 // silently drops further writes. Used to bound memory for trivy's
 // stderr chatter so a chatty failure cannot exhaust the wrapper.
+// Write reports len(p) even when bytes are dropped, so the producer
+// isn't disrupted.
 type cappedBuffer struct {
-	buf []byte
-	cap int
+	buf   []byte
+	limit int
+}
+
+func newCappedBuffer(limit int) *cappedBuffer {
+	return &cappedBuffer{buf: make([]byte, 0, limit), limit: limit}
 }
 
 func (b *cappedBuffer) Write(p []byte) (int, error) {
-	remaining := b.cap - len(b.buf)
+	remaining := b.limit - len(b.buf)
 	if remaining <= 0 {
 		return len(p), nil
 	}
@@ -94,29 +104,22 @@ func run(args []string, stdout, stderr io.Writer) int {
 
 	cmd := exec.Command(opts.trivyArgs[0], opts.trivyArgs[1:]...)
 	cmd.Stdout = io.Discard
-	stderrBuf := &cappedBuffer{cap: 1 << 20}
+	stderrBuf := newCappedBuffer(stderrCaptureLimit)
 	cmd.Stderr = stderrBuf
 
 	runErr := cmd.Run()
-	exitCode := 0
 	if runErr != nil {
 		var exitErr *exec.ExitError
-		if errors.As(runErr, &exitErr) {
-			exitCode = exitErr.ExitCode()
-		} else {
+		if !errors.As(runErr, &exitErr) {
 			fmt.Fprintf(stderr, "scan-wrapper: failed to invoke trivy: %v\n", runErr)
 			return 127
 		}
-	}
-
-	if exitCode != 0 {
 		// Diagnostic path: dump captured stderr to our stdout so the
 		// operator/user reading pod logs sees what went wrong.
 		_, _ = stdout.Write(stderrBuf.Bytes())
-		return exitCode
+		return exitErr.ExitCode()
 	}
 
-	// Success path: emit the report file to stdout, optionally compressed.
 	f, err := os.Open(opts.resultPath)
 	if err != nil {
 		fmt.Fprintf(stderr, "scan-wrapper: result file missing after successful scan: %v\n", err)
@@ -124,7 +127,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 	}
 	defer f.Close()
 	if opts.compress {
-		if err := encodeBzip2Base64(stdout, f); err != nil {
+		if err := utils.WriteCompressData(stdout, f); err != nil {
 			fmt.Fprintf(stderr, "scan-wrapper: encode result: %v\n", err)
 			return 1
 		}

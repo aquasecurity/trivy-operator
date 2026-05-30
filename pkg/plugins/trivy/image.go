@@ -501,25 +501,38 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef, tri
 		args = append(args, "--config", configFileMountPath)
 	}
 
-	// Add command to args as it is now need to pipe output to compress.
-	args = append([]string{"trivy"}, args...)
-	args = append(args,
-		"--output",
-		fmt.Sprintf("/tmp/scan/%s 2>/tmp/scan/%s.log", resultFileName, resultFileName),
-		buildTrailingCommandArgs(resultFileName, trivyOperatorConfig.CompressLogs()),
-	)
-
-	return []string{"/bin/sh"}, append([]string{"-c"}, strings.Join(args, " "))
+	return scanCommandAndArgs(args, resultFileName, trivyOperatorConfig.CompressLogs())
 }
 
-func buildTrailingCommandArgs(resultFileName string, compressLogs bool) string {
-	var cmd string
-	if compressLogs {
-		cmd = fmt.Sprintf("bzip2 -c /tmp/scan/%s | base64", resultFileName)
-	} else {
-		cmd = fmt.Sprintf("cat /tmp/scan/%s", resultFileName)
+// ScanWrapperPath is where the scan-wrapper binary is mounted inside
+// the scan container. The trivy-operator image ships the binary at
+// /usr/local/bin/scan-wrapper; an init container copies it to this
+// path in a shared emptyDir so the (potentially distroless) scan
+// container can exec it.
+const ScanWrapperPath = "/var/trivyoperator/bin/scan-wrapper"
+
+// scanCommandAndArgs translates a logical trivy invocation into the
+// container Command + Args.
+//
+// When CompressLogs is disabled the operator runs trivy directly,
+// passing --quiet so progress chatter does not contaminate the JSON
+// trivy writes to its own stdout. No shell, no cat, no bzip2, no
+// base64 — works on a distroless trivy image.
+//
+// When CompressLogs is enabled the scan-wrapper binary is executed
+// instead. The wrapper runs trivy, then in pure Go streams the
+// resulting report file through bzip2+base64 to its own stdout. The
+// wire format matches pkg/utils.ReadCompressData so the operator-
+// side decode is unchanged.
+func scanCommandAndArgs(trivyArgs []string, resultFileName string, compressLogs bool) ([]string, []string) {
+	if !compressLogs {
+		return []string{"trivy"}, append(trivyArgs, "--quiet")
 	}
-	return fmt.Sprintf("; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/%s.log; else %s; fi; exit $rc", resultFileName, cmd)
+	resultPath := fmt.Sprintf("/tmp/scan/%s", resultFileName)
+	wrapperArgs := []string{"--compress", "--result", resultPath, "--", "trivy"}
+	wrapperArgs = append(wrapperArgs, trivyArgs...)
+	wrapperArgs = append(wrapperArgs, "--output", resultPath)
+	return []string{ScanWrapperPath}, wrapperArgs
 }
 
 func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomFile, trivyServerURL, resultFileName string) ([]string, []string) {
@@ -563,13 +576,9 @@ func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomF
 	if skipUpdate != "" {
 		args = append(args, skipUpdate)
 	}
-	outputFile := fmt.Sprintf("/tmp/scan/%s", resultFileName)
-
-	args = append(args,
-		"--output", outputFile, fmt.Sprintf("2>/tmp/scan/%s.log", resultFileName),
-		buildTrailingCommandArgs(resultFileName, compressLogs),
-	)
-	return []string{"/bin/sh"}, append([]string{"-c"}, strings.Join(args, " "))
+	// args is built with "trivy" as element 0; strip it because
+	// scanCommandAndArgs prepends its own Command.
+	return scanCommandAndArgs(args[1:], resultFileName, compressLogs)
 }
 
 func vulnTypeFilter(ctx trivyoperator.PluginContext) []string {

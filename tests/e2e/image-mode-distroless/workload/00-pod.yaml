@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod-distroless
+  labels:
+    app.kubernetes.io/name: distroless-scan
+    app: nginx
+spec:
+  containers:
+    - image: nginx:1.14.2
+      name: app

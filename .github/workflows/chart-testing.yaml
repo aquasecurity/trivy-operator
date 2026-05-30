@@ -19,6 +19,19 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  helm-unittest:
+    name: Run helm unittest
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # was: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install helm-unittest plugin
+        run: helm plugin install https://github.com/helm-unittest/helm-unittest --version 1.0.3
+      - name: Run helm unittest
+        run: helm unittest deploy/helm
+
   chart-testing:
     name: Run chart testing
     runs-on: ubuntu-22.04

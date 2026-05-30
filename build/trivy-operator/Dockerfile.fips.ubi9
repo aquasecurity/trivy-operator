@@ -18,6 +18,7 @@ COPY LICENSE /licenses/LICENSE
 RUN useradd -u 10000 trivyoperator
 WORKDIR /opt/bin/
 COPY trivy-operator-fips /usr/local/bin/trivy-operator
+COPY scan-wrapper /usr/local/bin/scan-wrapper
 
 USER trivyoperator
 

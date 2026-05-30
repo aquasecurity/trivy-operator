@@ -5,6 +5,7 @@ RUN apk --no-cache upgrade
 RUN adduser -u 10000 -D -g '' trivyoperator trivyoperator
 
 COPY trivy-operator /usr/local/bin/trivy-operator
+COPY scan-wrapper /usr/local/bin/scan-wrapper
 
 USER 10000
 

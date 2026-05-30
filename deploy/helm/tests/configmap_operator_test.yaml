@@ -23,3 +23,51 @@ tests:
       - equal:
           path: data["scanJob.compressLogs"]
           value: "true"
+
+  - it: renders scanJob.automountServiceAccountToken as "false" when set to false
+    set:
+      trivyOperator.scanJobAutomountServiceAccountToken: false
+    asserts:
+      - equal:
+          path: data["scanJob.automountServiceAccountToken"]
+          value: "false"
+
+  - it: renders scanJob.automountServiceAccountToken as "true" when set to true
+    set:
+      trivyOperator.scanJobAutomountServiceAccountToken: true
+    asserts:
+      - equal:
+          path: data["scanJob.automountServiceAccountToken"]
+          value: "true"
+
+  - it: renders scanJob.skipInitContainers as "false" when set to false
+    set:
+      trivyOperator.skipInitContainers: false
+    asserts:
+      - equal:
+          path: data["scanJob.skipInitContainers"]
+          value: "false"
+
+  - it: renders scanJob.skipInitContainers as "true" when set to true
+    set:
+      trivyOperator.skipInitContainers: true
+    asserts:
+      - equal:
+          path: data["scanJob.skipInitContainers"]
+          value: "true"
+
+  - it: renders report.recordFailedChecksOnly as "false" when set to false
+    set:
+      trivyOperator.reportRecordFailedChecksOnly: false
+    asserts:
+      - equal:
+          path: data["report.recordFailedChecksOnly"]
+          value: "false"
+
+  - it: renders report.recordFailedChecksOnly as "true" when set to true
+    set:
+      trivyOperator.reportRecordFailedChecksOnly: true
+    asserts:
+      - equal:
+          path: data["report.recordFailedChecksOnly"]
+          value: "true"

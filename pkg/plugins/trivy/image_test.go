@@ -62,6 +62,25 @@ func TestGetMirroredImage(t *testing.T) {
 	}
 }
 
+// TestScanWrapperInstallContainer asserts the structure of the init
+// container that lands the scan-wrapper binary in the shared
+// emptyDir consumed by the (potentially distroless) scan container.
+func TestScanWrapperInstallContainer(t *testing.T) {
+	mount := corev1.VolumeMount{Name: "scan-wrapper-bin", MountPath: "/var/trivyoperator/bin"}
+	c := trivy.ScanWrapperInstallContainerForTest("ghcr.io/aquasec/trivy-operator:0.30.1", mount, nil)
+
+	assert.Equal(t, "scan-wrapper-installer", c.Name)
+	assert.Equal(t, "ghcr.io/aquasec/trivy-operator:0.30.1", c.Image)
+	assert.Equal(t, corev1.PullIfNotPresent, c.ImagePullPolicy)
+	assert.Equal(t,
+		[]string{"cp", "/usr/local/bin/scan-wrapper", "/var/trivyoperator/bin/scan-wrapper"},
+		c.Command,
+	)
+	require.Len(t, c.VolumeMounts, 1)
+	assert.Equal(t, "scan-wrapper-bin", c.VolumeMounts[0].Name)
+	assert.Equal(t, "/var/trivyoperator/bin", c.VolumeMounts[0].MountPath)
+}
+
 // TestScanCommands_NoShellTokens is a regression guard against the
 // scan Job's Command/Args reintroducing /bin/sh or its coreutils
 // pals. Removing those was the entire point of the distroless

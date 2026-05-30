@@ -3,6 +3,7 @@ package trivy
 import (
 	"fmt"
 	"net/url"
+	"os"
 	"regexp"
 	"strings"
 
@@ -376,6 +377,21 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 			VolumeMounts:             volumeMounts,
 		})
 	}
+	// Mount the scan-wrapper binary into the (potentially distroless)
+	// scan container via a shared emptyDir. The wrapper is shipped in
+	// the operator image at /usr/local/bin/scan-wrapper and copied
+	// into the volume by a tiny init container. Only added when
+	// compressed-log mode is enabled — otherwise the scan container
+	// just runs trivy directly and no wrapper is needed.
+	if ctx.GetTrivyOperatorConfig().CompressLogs() && operatorImageRef() != "" {
+		vol, mount := scanWrapperVolumeAndMount()
+		volumes = append(volumes, vol)
+		for i := range containers {
+			containers[i].VolumeMounts = append(containers[i].VolumeMounts, mount)
+		}
+		initContainers = append(initContainers, scanWrapperInstallContainer(operatorImageRef(), mount, securityContext))
+	}
+
 	return corev1.PodSpec{
 		Affinity:                     trivyoperator.LinuxNodeAffinity(),
 		RestartPolicy:                corev1.RestartPolicyNever,
@@ -386,6 +402,63 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 		InitContainers:               initContainers,
 		SecurityContext:              &corev1.PodSecurityContext{},
 	}, secrets, nil
+}
+
+// operatorImageRef returns the operator's own container image
+// reference, set at deploy time via the OPERATOR_IMAGE environment
+// variable. Returns "" if unset — in which case compress-mode scans
+// will not have a scan-wrapper installer initContainer attached, and
+// the scan container will fail because the wrapper binary is missing
+// from its filesystem. The helm chart and static manifest set this
+// for every supported deployment path.
+func operatorImageRef() string {
+	return os.Getenv("OPERATOR_IMAGE")
+}
+
+const (
+	scanWrapperVolumeName    = "scan-wrapper-bin"
+	scanWrapperMountPath     = "/var/trivyoperator/bin"
+	scanWrapperSourcePath    = "/usr/local/bin/scan-wrapper"
+	scanWrapperInitContainer = "scan-wrapper-installer"
+)
+
+// scanWrapperVolumeAndMount returns the shared emptyDir volume and
+// its mount, used by both the install init container and every scan
+// container when compressLogs is enabled.
+func scanWrapperVolumeAndMount() (corev1.Volume, corev1.VolumeMount) {
+	return corev1.Volume{
+			Name: scanWrapperVolumeName,
+			VolumeSource: corev1.VolumeSource{
+				EmptyDir: &corev1.EmptyDirVolumeSource{Medium: corev1.StorageMediumDefault},
+			},
+		},
+		corev1.VolumeMount{
+			Name:      scanWrapperVolumeName,
+			MountPath: scanWrapperMountPath,
+		}
+}
+
+// ScanWrapperInstallContainerForTest exposes the init container
+// builder for use in tests outside this package. Not part of the
+// stable API; only the test suite imports it.
+func ScanWrapperInstallContainerForTest(operatorImage string, mount corev1.VolumeMount, securityContext *corev1.SecurityContext) corev1.Container {
+	return scanWrapperInstallContainer(operatorImage, mount, securityContext)
+}
+
+// scanWrapperInstallContainer returns an init container using the
+// operator's own image that copies the bundled scan-wrapper binary
+// into the shared emptyDir, where the main scan container's command
+// expects to find it at ScanWrapperPath.
+func scanWrapperInstallContainer(operatorImage string, mount corev1.VolumeMount, securityContext *corev1.SecurityContext) corev1.Container {
+	return corev1.Container{
+		Name:                     scanWrapperInitContainer,
+		Image:                    operatorImage,
+		ImagePullPolicy:          corev1.PullIfNotPresent,
+		TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
+		Command:                  []string{"cp", scanWrapperSourcePath, ScanWrapperPath},
+		SecurityContext:          securityContext,
+		VolumeMounts:             []corev1.VolumeMount{mount},
+	}
 }
 
 func getAdditionalVolumes(config *Config, trivyConfigName string, workload client.Object) ([]corev1.Volume, []corev1.VolumeMount) {

@@ -3,10 +3,13 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime"
 	"testing"
+
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
 )
 
 // fakeTrivy writes a tiny shell script that emulates trivy: it
@@ -110,6 +113,32 @@ func TestRun_TrivyNotFound_ReturnsExecError(t *testing.T) {
 	}
 	if !bytes.Contains(stderr.Bytes(), []byte("failed to invoke trivy")) {
 		t.Fatalf("expected stderr to mention invoke failure, got: %q", stderr.String())
+	}
+}
+
+func TestRun_CompressPath_RoundTrip(t *testing.T) {
+	payload := `{"SchemaVersion":2,"Results":[]}`
+	trivy := fakeTrivy(t, payload, "", 0)
+	resultPath := filepath.Join(t.TempDir(), "result.json")
+
+	var stdout, stderr bytes.Buffer
+	code := run(
+		[]string{"scan-wrapper", "--compress", "--result", resultPath, "--", trivy, "--output", resultPath},
+		&stdout, &stderr,
+	)
+	if code != 0 {
+		t.Fatalf("expected exit 0, got %d. stderr: %s", code, stderr.String())
+	}
+	// Confirm wrapper's stdout decodes through the operator's existing decoder
+	// and round-trips back to the same payload.
+	dec, err := utils.ReadCompressData(io.NopCloser(bytes.NewReader(stdout.Bytes())))
+	if err != nil {
+		t.Fatalf("decode wrapper stdout: %v", err)
+	}
+	defer dec.Close()
+	got, _ := io.ReadAll(dec)
+	if string(got) != payload {
+		t.Fatalf("round-trip mismatch:\n want=%q\n got =%q", payload, got)
 	}
 }
 

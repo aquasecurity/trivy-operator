@@ -116,13 +116,20 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return exitCode
 	}
 
-	// Success path: emit the report file to stdout.
+	// Success path: emit the report file to stdout, optionally compressed.
 	f, err := os.Open(opts.resultPath)
 	if err != nil {
 		fmt.Fprintf(stderr, "scan-wrapper: result file missing after successful scan: %v\n", err)
 		return 1
 	}
 	defer f.Close()
+	if opts.compress {
+		if err := encodeBzip2Base64(stdout, f); err != nil {
+			fmt.Fprintf(stderr, "scan-wrapper: encode result: %v\n", err)
+			return 1
+		}
+		return 0
+	}
 	if _, err := io.Copy(stdout, f); err != nil {
 		fmt.Fprintf(stderr, "scan-wrapper: copy result to stdout: %v\n", err)
 		return 1

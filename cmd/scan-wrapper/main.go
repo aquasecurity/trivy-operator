@@ -16,7 +16,19 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
 )
 
-const stderrCaptureLimit = 1 << 20 // bound trivy's captured stderr at 1 MiB
+const stderrCaptureLimit = 1 << 20
+
+// 127 follows POSIX "command not found" so operators can distinguish
+// a missing trivy binary from a scan that ran and failed.
+const (
+	exitInternal  = 1
+	exitUsage     = 2
+	exitExecError = 127
+)
+
+// execCommand is the os/exec seam stubFakeTrivy swaps in tests; the
+// real binary always uses exec.Command.
+var execCommand = exec.Command
 
 func main() {
 	os.Exit(run(os.Args, os.Stdout, os.Stderr))
@@ -28,67 +40,45 @@ type options struct {
 	trivyArgs  []string
 }
 
-// parseArgs splits args around a literal `--` separator, parses the
-// scan-wrapper flags on the left, and returns the trivy command and
-// its args on the right.
-func parseArgs(args []string) (options, error) {
+// parseArgs splits scan-wrapper's own flags from the trailing trivy
+// command. flag.Parse stops at the first non-flag token *or* at a `--`
+// separator, so the operator can invoke us either way.
+func parseArgs(args []string, errOut io.Writer) (options, error) {
 	var opts options
 	fs := flag.NewFlagSet("scan-wrapper", flag.ContinueOnError)
+	fs.SetOutput(errOut)
 	fs.BoolVar(&opts.compress, "compress", false, "bzip2+base64 encode the result on stdout")
 	fs.StringVar(&opts.resultPath, "result", "", "path to the file trivy writes its report to (required)")
-
-	var beforeSep, afterSep []string
-	sepFound := false
-	for _, a := range args[1:] {
-		if !sepFound && a == "--" {
-			sepFound = true
-			continue
-		}
-		if sepFound {
-			afterSep = append(afterSep, a)
-		} else {
-			beforeSep = append(beforeSep, a)
-		}
-	}
-	if !sepFound {
-		return opts, errors.New("missing `--` separator between scan-wrapper flags and trivy command")
-	}
-	if err := fs.Parse(beforeSep); err != nil {
+	if err := fs.Parse(args[1:]); err != nil {
 		return opts, err
-	}
-	if len(afterSep) == 0 {
-		return opts, errors.New("no trivy command provided after `--`")
 	}
 	if opts.resultPath == "" {
 		return opts, errors.New("--result is required")
 	}
-	opts.trivyArgs = afterSep
+	opts.trivyArgs = fs.Args()
+	if len(opts.trivyArgs) == 0 {
+		return opts, errors.New("no trivy command provided")
+	}
 	return opts, nil
 }
 
-// cappedBuffer is an io.Writer that buffers up to limit bytes then
-// silently drops further writes. Used to bound memory for trivy's
-// stderr chatter so a chatty failure cannot exhaust the wrapper.
-// Write reports len(p) even when bytes are dropped, so the producer
-// isn't disrupted.
+// cappedBuffer buffers up to limit bytes then silently drops the rest.
+// Write returns len(p) even when bytes are dropped so the producer
+// (os/exec's stderr copier) doesn't see io.ErrShortWrite and abort.
 type cappedBuffer struct {
 	buf   []byte
 	limit int
 }
 
+var _ io.Writer = (*cappedBuffer)(nil)
+
 func newCappedBuffer(limit int) *cappedBuffer {
-	return &cappedBuffer{buf: make([]byte, 0, limit), limit: limit}
+	return &cappedBuffer{limit: limit}
 }
 
 func (b *cappedBuffer) Write(p []byte) (int, error) {
-	remaining := b.limit - len(b.buf)
-	if remaining <= 0 {
-		return len(p), nil
-	}
-	if len(p) > remaining {
-		b.buf = append(b.buf, p[:remaining]...)
-	} else {
-		b.buf = append(b.buf, p...)
+	if remaining := b.limit - len(b.buf); remaining > 0 {
+		b.buf = append(b.buf, p[:min(len(p), remaining)]...)
 	}
 	return len(p), nil
 }
@@ -96,13 +86,13 @@ func (b *cappedBuffer) Write(p []byte) (int, error) {
 func (b *cappedBuffer) Bytes() []byte { return b.buf }
 
 func run(args []string, stdout, stderr io.Writer) int {
-	opts, err := parseArgs(args)
+	opts, err := parseArgs(args, stderr)
 	if err != nil {
 		fmt.Fprintf(stderr, "scan-wrapper: %v\n", err)
-		return 2
+		return exitUsage
 	}
 
-	cmd := exec.Command(opts.trivyArgs[0], opts.trivyArgs[1:]...)
+	cmd := execCommand(opts.trivyArgs[0], opts.trivyArgs[1:]...)
 	cmd.Stdout = io.Discard
 	stderrBuf := newCappedBuffer(stderrCaptureLimit)
 	cmd.Stderr = stderrBuf
@@ -112,10 +102,9 @@ func run(args []string, stdout, stderr io.Writer) int {
 		var exitErr *exec.ExitError
 		if !errors.As(runErr, &exitErr) {
 			fmt.Fprintf(stderr, "scan-wrapper: failed to invoke trivy: %v\n", runErr)
-			return 127
+			return exitExecError
 		}
-		// Diagnostic path: dump captured stderr to our stdout so the
-		// operator/user reading pod logs sees what went wrong.
+		// Surface captured stderr on stdout so pod logs show why trivy failed.
 		_, _ = stdout.Write(stderrBuf.Bytes())
 		return exitErr.ExitCode()
 	}
@@ -123,19 +112,19 @@ func run(args []string, stdout, stderr io.Writer) int {
 	f, err := os.Open(opts.resultPath)
 	if err != nil {
 		fmt.Fprintf(stderr, "scan-wrapper: result file missing after successful scan: %v\n", err)
-		return 1
+		return exitInternal
 	}
 	defer f.Close()
 	if opts.compress {
 		if err := utils.WriteCompressData(stdout, f); err != nil {
 			fmt.Fprintf(stderr, "scan-wrapper: encode result: %v\n", err)
-			return 1
+			return exitInternal
 		}
 		return 0
 	}
 	if _, err := io.Copy(stdout, f); err != nil {
 		fmt.Fprintf(stderr, "scan-wrapper: copy result to stdout: %v\n", err)
-		return 1
+		return exitInternal
 	}
 	return 0
 }

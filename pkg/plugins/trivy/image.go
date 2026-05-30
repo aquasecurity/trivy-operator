@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"path"
 	"regexp"
 	"strings"
 
@@ -575,7 +576,7 @@ func scanCommandAndArgs(trivyArgs []string, resultFileName string, compressLogs 
 	if !compressLogs {
 		return []string{"trivy"}, append(trivyArgs, "--quiet")
 	}
-	resultPath := fmt.Sprintf("%s/%s", scanResultDir, resultFileName)
+	resultPath := path.Join(scanResultDir, resultFileName)
 	wrapperArgs := []string{"--compress", "--result", resultPath, "--", "trivy"}
 	wrapperArgs = append(wrapperArgs, trivyArgs...)
 	wrapperArgs = append(wrapperArgs, "--output", resultPath)

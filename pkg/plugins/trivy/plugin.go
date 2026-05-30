@@ -144,11 +144,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	}
 	compressedLogs := ctx.GetTrivyOperatorConfig().CompressLogs()
 	if compressedLogs && cmd != Filesystem && cmd != Rootfs {
-		var errCompress error
-		logsReader, errCompress = utils.ReadCompressData(logsReader)
-		if errCompress != nil {
-			return vulnReport, secretReport, nil, errCompress
-		}
+		logsReader = utils.ReadCompressData(logsReader)
 	}
 
 	var reports ty.Report

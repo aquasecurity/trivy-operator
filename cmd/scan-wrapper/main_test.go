@@ -5,54 +5,81 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
-	"runtime"
+	"slices"
+	"strconv"
 	"testing"
 
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
 )
 
-// fakeTrivy writes a tiny shell script that emulates trivy: it
-// recognises --output <path>, writes outputContent there, writes
-// stderrContent to stderr, and exits with exitCode. Returned path is
-// the script the caller passes as the trivy command.
-func fakeTrivy(t *testing.T, outputContent, stderrContent string, exitCode int) string {
+// Env-var contract between stubFakeTrivy (parent) and TestHelperProcess
+// (child re-exec). Both sides must agree on these names — they cross a
+// process boundary.
+const (
+	envHelperMarker  = "GO_WANT_HELPER_PROCESS"
+	envFakeStdoutKey = "FAKE_TRIVY_STDOUT"
+	envFakeStderrKey = "FAKE_TRIVY_STDERR"
+	envFakeExitKey   = "FAKE_TRIVY_EXIT"
+)
+
+func stubFakeTrivy(t *testing.T, stdoutContent, stderrContent string, exitCode int) {
 	t.Helper()
-	if runtime.GOOS == "windows" {
-		t.Skip("fakeTrivy uses /bin/sh; skipping on windows")
+	orig := execCommand
+	t.Cleanup(func() { execCommand = orig })
+	execCommand = func(name string, args ...string) *exec.Cmd {
+		passthrough := slices.Concat([]string{"-test.run=TestHelperProcess", "--", name}, args)
+		cmd := exec.Command(os.Args[0], passthrough...)
+		cmd.Env = append(os.Environ(),
+			envHelperMarker+"=1",
+			envFakeStdoutKey+"="+stdoutContent,
+			envFakeStderrKey+"="+stderrContent,
+			envFakeExitKey+"="+strconv.Itoa(exitCode),
+		)
+		return cmd
 	}
-	dir := t.TempDir()
-	script := filepath.Join(dir, "trivy")
-	body := fmt.Sprintf(`#!/bin/sh
-out=""
-while [ $# -gt 0 ]; do
-  case "$1" in
-    --output) out="$2"; shift 2 ;;
-    *) shift ;;
-  esac
-done
-if [ -n "$out" ]; then
-  printf '%%s' '%s' > "$out"
-fi
-if [ -n "%s" ]; then
-  printf '%%s' '%s' >&2
-fi
-exit %d
-`, outputContent, stderrContent, stderrContent, exitCode)
-	if err := os.WriteFile(script, []byte(body), 0o755); err != nil {
-		t.Fatalf("write fake trivy: %v", err)
-	}
-	return script
 }
 
-func TestRun_NoSeparator_ReturnsUsageError(t *testing.T) {
+// TestHelperProcess is not a real test — it's the re-exec target for
+// stubFakeTrivy. The early return makes it a no-op in normal `go test`
+// runs; the helper-process flow only fires when GO_WANT_HELPER_PROCESS
+// is set on the child. Pattern borrowed from os/exec's own tests.
+func TestHelperProcess(t *testing.T) {
+	if os.Getenv(envHelperMarker) != "1" {
+		return
+	}
+	args := os.Args
+	if i := slices.Index(args, "--"); i >= 0 {
+		args = args[i+1:]
+	}
+	if i := slices.Index(args, "--output"); i >= 0 && i+1 < len(args) {
+		if v := os.Getenv(envFakeStdoutKey); v != "" {
+			if err := os.WriteFile(args[i+1], []byte(v), 0o600); err != nil {
+				fmt.Fprintf(os.Stderr, "fake-trivy: write output: %v\n", err)
+				os.Exit(2)
+			}
+		}
+	}
+	if errMsg := os.Getenv(envFakeStderrKey); errMsg != "" {
+		fmt.Fprint(os.Stderr, errMsg)
+	}
+	code, err := strconv.Atoi(os.Getenv(envFakeExitKey))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "fake-trivy: invalid %s: %v\n", envFakeExitKey, err)
+		os.Exit(2)
+	}
+	os.Exit(code)
+}
+
+func TestRun_NoTrivyCommand_ReturnsUsageError(t *testing.T) {
 	var stdout, stderr bytes.Buffer
-	code := run([]string{"scan-wrapper", "--compress"}, &stdout, &stderr)
+	code := run([]string{"scan-wrapper", "--compress", "--result", "/tmp/x"}, &stdout, &stderr)
 	if code == 0 {
 		t.Fatalf("expected non-zero exit code, got 0")
 	}
-	if !bytes.Contains(stderr.Bytes(), []byte("--")) {
-		t.Fatalf("expected stderr to mention `--`, got: %q", stderr.String())
+	if !bytes.Contains(stderr.Bytes(), []byte("no trivy command")) {
+		t.Fatalf("expected stderr to mention missing trivy command, got: %q", stderr.String())
 	}
 }
 
@@ -68,12 +95,12 @@ func TestRun_MissingResult_ReturnsUsageError(t *testing.T) {
 }
 
 func TestRun_PlainPath_EmitsReportToStdout(t *testing.T) {
-	trivy := fakeTrivy(t, `{"hello":"world"}`, "", 0)
+	stubFakeTrivy(t, `{"hello":"world"}`, "", 0)
 	resultPath := filepath.Join(t.TempDir(), "result.json")
 
 	var stdout, stderr bytes.Buffer
 	code := run(
-		[]string{"scan-wrapper", "--result", resultPath, "--", trivy, "--output", resultPath},
+		[]string{"scan-wrapper", "--result", resultPath, "--", "trivy", "--output", resultPath},
 		&stdout, &stderr,
 	)
 	if code != 0 {
@@ -85,12 +112,12 @@ func TestRun_PlainPath_EmitsReportToStdout(t *testing.T) {
 }
 
 func TestRun_TrivyFails_EmitsStderrAndPropagatesExitCode(t *testing.T) {
-	trivy := fakeTrivy(t, "", "boom: scan failed", 1)
+	stubFakeTrivy(t, "", "boom: scan failed", 1)
 	resultPath := filepath.Join(t.TempDir(), "result.json")
 
 	var stdout, stderr bytes.Buffer
 	code := run(
-		[]string{"scan-wrapper", "--result", resultPath, "--", trivy, "--output", resultPath},
+		[]string{"scan-wrapper", "--result", resultPath, "--", "trivy", "--output", resultPath},
 		&stdout, &stderr,
 	)
 	if code != 1 {
@@ -102,6 +129,9 @@ func TestRun_TrivyFails_EmitsStderrAndPropagatesExitCode(t *testing.T) {
 }
 
 func TestRun_TrivyNotFound_ReturnsExecError(t *testing.T) {
+	// Intentionally NOT stubbed: we want the real exec.Command to
+	// fail with "no such file or directory" so the wrapper takes
+	// its "failed to invoke trivy" path.
 	resultPath := filepath.Join(t.TempDir(), "result.json")
 	var stdout, stderr bytes.Buffer
 	code := run(
@@ -118,23 +148,18 @@ func TestRun_TrivyNotFound_ReturnsExecError(t *testing.T) {
 
 func TestRun_CompressPath_RoundTrip(t *testing.T) {
 	payload := `{"SchemaVersion":2,"Results":[]}`
-	trivy := fakeTrivy(t, payload, "", 0)
+	stubFakeTrivy(t, payload, "", 0)
 	resultPath := filepath.Join(t.TempDir(), "result.json")
 
 	var stdout, stderr bytes.Buffer
 	code := run(
-		[]string{"scan-wrapper", "--compress", "--result", resultPath, "--", trivy, "--output", resultPath},
+		[]string{"scan-wrapper", "--compress", "--result", resultPath, "--", "trivy", "--output", resultPath},
 		&stdout, &stderr,
 	)
 	if code != 0 {
 		t.Fatalf("expected exit 0, got %d. stderr: %s", code, stderr.String())
 	}
-	// Confirm wrapper's stdout decodes through the operator's existing decoder
-	// and round-trips back to the same payload.
-	dec, err := utils.ReadCompressData(io.NopCloser(bytes.NewReader(stdout.Bytes())))
-	if err != nil {
-		t.Fatalf("decode wrapper stdout: %v", err)
-	}
+	dec := utils.ReadCompressData(bytes.NewReader(stdout.Bytes()))
 	defer dec.Close()
 	got, _ := io.ReadAll(dec)
 	if string(got) != payload {
@@ -143,15 +168,15 @@ func TestRun_CompressPath_RoundTrip(t *testing.T) {
 }
 
 func TestRun_SuccessButResultMissing_ReturnsError(t *testing.T) {
-	// trivy "succeeds" but doesn't write the file.
-	trivy := fakeTrivy(t, "", "", 0)
+	stubFakeTrivy(t, "", "", 0)
 	resultPath := filepath.Join(t.TempDir(), "missing.json")
-	// Pass --output to a different path so trivy doesn't create resultPath.
+	// trivy is told to write to a different path, so resultPath
+	// never gets created — wrapper's open must fail.
 	wrongPath := filepath.Join(t.TempDir(), "elsewhere.json")
 
 	var stdout, stderr bytes.Buffer
 	code := run(
-		[]string{"scan-wrapper", "--result", resultPath, "--", trivy, "--output", wrongPath},
+		[]string{"scan-wrapper", "--result", resultPath, "--", "trivy", "--output", wrongPath},
 		&stdout, &stderr,
 	)
 	if code == 0 {

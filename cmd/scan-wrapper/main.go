@@ -1,6 +1,6 @@
 // Command scan-wrapper executes trivy inside a scan Job container and
 // post-processes its output, so the scan image itself does not need
-// /bin/sh, cat, bzip2, or base64. The trivy-operator ships this
+// /bin/sh, cat, zstd, or base64. The trivy-operator ships this
 // binary inside its own image and mounts it into the (potentially
 // distroless) scan container via an emptyDir + initContainer.
 package main
@@ -47,7 +47,7 @@ func parseArgs(args []string, errOut io.Writer) (options, error) {
 	var opts options
 	fs := flag.NewFlagSet("scan-wrapper", flag.ContinueOnError)
 	fs.SetOutput(errOut)
-	fs.BoolVar(&opts.compress, "compress", false, "bzip2+base64 encode the result on stdout")
+	fs.BoolVar(&opts.compress, "compress", false, "zstd+base64 encode the result on stdout")
 	fs.StringVar(&opts.resultPath, "result", "", "path to the file trivy writes its report to (required)")
 	if err := fs.Parse(args[1:]); err != nil {
 		return opts, err

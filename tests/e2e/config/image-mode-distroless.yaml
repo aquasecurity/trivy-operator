@@ -1,8 +1,8 @@
 ---
-# Image-mode scan against Chainguard's distroless Trivy image
-# (cgr.dev/chainguard/trivy). The scan container has no shell,
-# no cat, no bzip2, no base64 — proves the scan-wrapper init
-# container + compress path works in a distroless environment.
+# Image-mode scan run from within Chainguard's distroless Trivy image
+# (cgr.dev/chainguard/trivy) as the scanner runtime. The scan container
+# has no shell, no cat, no zstd, no base64 — proves the scan-wrapper
+# init container + compress path works in a distroless environment.
 apiVersion: kuttl.dev/v1beta1
 kind: TestSuite
 commands:

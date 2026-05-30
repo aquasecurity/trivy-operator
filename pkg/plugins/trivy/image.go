@@ -570,7 +570,7 @@ const scanResultDir = "/tmp/scan"
 // scan container's Command + Args. When CompressLogs is off, trivy
 // runs directly with --quiet (works on a distroless trivy image).
 // When on, the operator-shipped scan-wrapper drives trivy and
-// bzip2+base64-encodes the report on stdout in the format
+// zstd+base64-encodes the report on stdout in the format
 // pkg/utils.ReadCompressData decodes.
 func scanCommandAndArgs(trivyArgs []string, resultFileName string, compressLogs bool) ([]string, []string) {
 	if !compressLogs {

@@ -2,32 +2,29 @@ package utils
 
 import (
 	"bufio"
-	"compress/bzip2"
 	"encoding/base64"
 	"io"
 
-	dsnetbzip2 "github.com/dsnet/compress/bzip2"
+	"github.com/klauspost/compress/zstd"
 	"go.uber.org/multierr"
 )
 
-// WriteCompressData streams src through bzip2 compression and then
+// WriteCompressData streams src through zstd compression and then
 // base64 encoding to dst. The wire format is the inverse of what
-// ReadCompressData accepts. The stdlib's compress/bzip2 only
-// provides a Reader, so the encoder side uses
-// github.com/dsnet/compress/bzip2.
+// ReadCompressData accepts.
 func WriteCompressData(dst io.Writer, src io.Reader) (err error) {
 	b64 := base64.NewEncoder(base64.StdEncoding, dst)
 	defer multierr.AppendInvoke(&err, multierr.Close(b64))
-	bz, err := dsnetbzip2.NewWriter(b64, &dsnetbzip2.WriterConfig{Level: dsnetbzip2.DefaultCompression})
+	z, err := zstd.NewWriter(b64)
 	if err != nil {
 		return err
 	}
-	defer multierr.AppendInvoke(&err, multierr.Close(bz))
-	_, err = io.Copy(bz, src)
+	defer multierr.AppendInvoke(&err, multierr.Close(z))
+	_, err = io.Copy(z, src)
 	return err
 }
 
-// ReadCompressData returns a reader that base64-decodes then bzip2-
+// ReadCompressData returns a reader that base64-decodes then zstd-
 // decompresses src on the fly. It is the streaming inverse of
 // WriteCompressData and never materializes the full payload in
 // memory. ASCII whitespace surrounding or interleaved in the base64
@@ -40,7 +37,10 @@ func ReadCompressData(src io.Reader) io.ReadCloser {
 	// layer amortizes that into one syscall per ~4 KiB of source.
 	buffered := bufio.NewReader(src)
 	b64 := base64.NewDecoder(base64.StdEncoding, skipWhitespaceReader{r: buffered})
-	return io.NopCloser(bzip2.NewReader(b64))
+	// zstd.NewReader only errors on bad options; with none passed it
+	// cannot fail.
+	z, _ := zstd.NewReader(b64)
+	return z.IOReadCloser()
 }
 
 // skipWhitespaceReader drops ASCII whitespace from the underlying

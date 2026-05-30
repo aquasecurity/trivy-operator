@@ -7666,7 +7666,7 @@ func TestPlugin_ParseReportData(t *testing.T) {
 			name:                        "Should convert vulnerability report in JSON format when OS is not detected",
 			imageRef:                    "alpine:3.10.2",
 			input:                       `null`,
-			expectedError:               errors.New("bzip2 data invalid: bad magic value"),
+			expectedError:               errors.New("unexpected EOF"),
 			expectedVulnerabilityReport: emptyVulnerabilityReport,
 			expectedExposedSecretReport: emptyExposedSecretReport,
 			compressed:                  "true",

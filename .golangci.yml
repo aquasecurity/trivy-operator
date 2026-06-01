@@ -1,6 +1,8 @@
 version: "2"
 run:
-  go: "1.24"
+  go: "1.26"
+  build-tags:
+    - goexperiment.jsonv2
 linters:
   default: none
   enable:

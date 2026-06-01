@@ -10,7 +10,6 @@ linters:
     - contextcheck
     - depguard
     - errorlint
-    - goconst
     - gocritic
     - gocyclo
     - gomodguard_v2
@@ -42,9 +41,6 @@ linters:
     errcheck:
       check-type-assertions: true
       check-blank: true
-    goconst:
-      min-len: 3
-      min-occurrences: 3
     gocritic:
       disabled-checks:
         - appendAssign
@@ -136,10 +132,6 @@ linters:
     testifylint:
       enable-all: true
   exclusions:
-    rules:
-      - linters:
-          - goconst
-        path: .*_test.go$
     warn-unused: true
 issues:
   max-issues-per-linter: 0

@@ -1,6 +1,8 @@
 version: "2"
 run:
-  go: "1.24"
+  go: "1.26"
+  build-tags:
+    - goexperiment.jsonv2
 linters:
   default: none
   enable:
@@ -8,10 +10,9 @@ linters:
     - contextcheck
     - depguard
     - errorlint
-    - goconst
     - gocritic
     - gocyclo
-    - gomodguard
+    - gomodguard_v2
     - gosec
     - govet
     - ineffassign
@@ -40,9 +41,6 @@ linters:
     errcheck:
       check-type-assertions: true
       check-blank: true
-    goconst:
-      min-len: 3
-      min-occurrences: 3
     gocritic:
       disabled-checks:
         - appendAssign
@@ -63,17 +61,16 @@ linters:
           rules: ${base-path}/misc/lint/rules.go
     gocyclo:
       min-complexity: 40
-    gomodguard:
+    gomodguard_v2:
       blocked:
-        modules:
-          - github.com/hashicorp/go-version:
-              recommendations:
-                - github.com/aquasecurity/go-version
-              reason: '`aquasecurity/go-version` is designed for our use-cases'
-          - github.com/Masterminds/semver:
-              recommendations:
-                - github.com/aquasecurity/go-version
-              reason: '`aquasecurity/go-version` is designed for our use-cases'
+      - module: github.com/hashicorp/go-version
+        recommendations:
+          - github.com/aquasecurity/go-version
+        reason: "`aquasecurity/go-version` is designed for our use-cases"
+      - module: github.com/Masterminds/semver
+        recommendations:
+          - github.com/aquasecurity/go-version
+        reason: "`aquasecurity/go-version` is designed for our use-cases"
     gosec:
       excludes:
         - G101
@@ -135,10 +132,6 @@ linters:
     testifylint:
       enable-all: true
   exclusions:
-    rules:
-      - linters:
-          - goconst
-        path: .*_test.go$
     warn-unused: true
 issues:
   max-issues-per-linter: 0

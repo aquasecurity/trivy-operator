@@ -154,6 +154,7 @@ func (t Test) Integration() error {
 // Target for downloading test images and upload them into KinD
 func prepareImages() error {
 	images := []string{
+		"mirror.gcr.io/aquasec/trivy:0.71.0",
 		"mirror.gcr.io/knqyf263/vuln-image:1.2.3",
 		"wordpress:4.9",
 		"wordpress:6.7",
@@ -382,18 +383,18 @@ type Lint mg.Namespace
 // Run runs linters
 func (Lint) Run() error {
 	//mg.Deps(Tool{}.GolangciLint)
-	return sh.RunV("golangci-lint", "run")
+	return sh.RunWithV(ENV, "golangci-lint", "run")
 }
 
 // Fix auto fixes linters
 func (Lint) Fix() error {
 	//mg.Deps(Tool{}.GolangciLint)
-	return sh.RunV("golangci-lint", "run", "--fix")
+	return sh.RunWithV(ENV, "golangci-lint", "run", "--fix")
 }
 
 // GolangciLint installs golangci-lint
 func (t Tool) GolangciLint() error {
-	const version = "v2.1.6"
+	const version = "v2.12.2"
 	bin := filepath.Join(GOBIN, "golangci-lint")
 	if exists(bin) && t.matchGolangciLintVersion(bin, version) {
 		return nil

@@ -2,7 +2,6 @@ package trivy_test
 
 import (
 	"bytes"
-	"encoding/base64"
 	"errors"
 	"io"
 	"log"
@@ -13,7 +12,6 @@ import (
 	"testing"
 	"time"
 
-	bz "github.com/dsnet/compress/bzip2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	appsv1 "k8s.io/api/apps/v1"
@@ -28,6 +26,7 @@ import (
 
 	dbtypes "github.com/aquasecurity/trivy-db/pkg/types"
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
+	"github.com/aquasecurity/trivy-operator/pkg/utils"
 	"github.com/aquasecurity/trivy-operator/pkg/docker"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
@@ -338,12 +337,29 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 							},
 						},
 						Command: []string{
-							"/bin/sh",
-						},
-						Args: []string{
-							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
-						},
+								trivy.ScanWrapperPath,
+							},
+							Args: []string{
+								"--compress",
+								"--result",
+								"/tmp/scan/result_nginx.json",
+								"--",
+								"trivy",
+								"image",
+								"nginx:1.16",
+								"--cache-dir",
+								"/tmp/trivy/.cache",
+								"--format",
+								"json",
+								"--image-config-scanners",
+								"secret",
+								"--security-checks",
+								"vuln,secret",
+								"--skip-update",
+								"--slow",
+								"--output",
+								"/tmp/scan/result_nginx.json",
+							},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -626,12 +642,29 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 							},
 						},
 						Command: []string{
-							"/bin/sh",
-						},
-						Args: []string{
-							"-c",
-							"trivy image poc.myregistry.harbor.com.pl/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
-						},
+								trivy.ScanWrapperPath,
+							},
+							Args: []string{
+								"--compress",
+								"--result",
+								"/tmp/scan/result_nginx.json",
+								"--",
+								"trivy",
+								"image",
+								"poc.myregistry.harbor.com.pl/nginx:1.16",
+								"--cache-dir",
+								"/tmp/trivy/.cache",
+								"--format",
+								"json",
+								"--image-config-scanners",
+								"secret",
+								"--security-checks",
+								"secret",
+								"--skip-update",
+								"--slow",
+								"--output",
+								"/tmp/scan/result_nginx.json",
+							},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -914,12 +947,27 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 							},
 						},
 						Command: []string{
-							"/bin/sh",
-						},
-						Args: []string{
-							"-c",
-							"trivy image poc.myregistry.harbor.com.pl/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --security-checks vuln --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
-						},
+								trivy.ScanWrapperPath,
+							},
+							Args: []string{
+								"--compress",
+								"--result",
+								"/tmp/scan/result_nginx.json",
+								"--",
+								"trivy",
+								"image",
+								"poc.myregistry.harbor.com.pl/nginx:1.16",
+								"--cache-dir",
+								"/tmp/trivy/.cache",
+								"--format",
+								"json",
+								"--security-checks",
+								"vuln",
+								"--skip-update",
+								"--slow",
+								"--output",
+								"/tmp/scan/result_nginx.json",
+							},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -1222,12 +1270,29 @@ CVE-2019-1543`,
 							},
 						},
 						Command: []string{
-							"/bin/sh",
-						},
-						Args: []string{
-							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
-						},
+								trivy.ScanWrapperPath,
+							},
+							Args: []string{
+								"--compress",
+								"--result",
+								"/tmp/scan/result_nginx.json",
+								"--",
+								"trivy",
+								"image",
+								"nginx:1.16",
+								"--cache-dir",
+								"/tmp/trivy/.cache",
+								"--format",
+								"json",
+								"--image-config-scanners",
+								"secret",
+								"--security-checks",
+								"vuln,secret",
+								"--skip-update",
+								"--slow",
+								"--output",
+								"/tmp/scan/result_nginx.json",
+							},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -1535,12 +1600,29 @@ default ignore = false`,
 							},
 						},
 						Command: []string{
-							"/bin/sh",
-						},
-						Args: []string{
-							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
-						},
+								trivy.ScanWrapperPath,
+							},
+							Args: []string{
+								"--compress",
+								"--result",
+								"/tmp/scan/result_nginx.json",
+								"--",
+								"trivy",
+								"image",
+								"nginx:1.16",
+								"--cache-dir",
+								"/tmp/trivy/.cache",
+								"--format",
+								"json",
+								"--image-config-scanners",
+								"secret",
+								"--security-checks",
+								"vuln,secret",
+								"--skip-update",
+								"--slow",
+								"--output",
+								"/tmp/scan/result_nginx.json",
+							},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -1827,12 +1909,29 @@ default ignore = false`,
 							},
 						},
 						Command: []string{
-							"/bin/sh",
-						},
-						Args: []string{
-							"-c",
-							"trivy image mirror.io/library/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
-						},
+								trivy.ScanWrapperPath,
+							},
+							Args: []string{
+								"--compress",
+								"--result",
+								"/tmp/scan/result_nginx.json",
+								"--",
+								"trivy",
+								"image",
+								"mirror.io/library/nginx:1.16",
+								"--cache-dir",
+								"/tmp/trivy/.cache",
+								"--format",
+								"json",
+								"--image-config-scanners",
+								"secret",
+								"--security-checks",
+								"vuln,secret",
+								"--skip-update",
+								"--slow",
+								"--output",
+								"/tmp/scan/result_nginx.json",
+							},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -2115,12 +2214,29 @@ default ignore = false`,
 							},
 						},
 						Command: []string{
-							"/bin/sh",
-						},
-						Args: []string{
-							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
-						},
+								trivy.ScanWrapperPath,
+							},
+							Args: []string{
+								"--compress",
+								"--result",
+								"/tmp/scan/result_nginx.json",
+								"--",
+								"trivy",
+								"image",
+								"nginx:1.16",
+								"--cache-dir",
+								"/tmp/trivy/.cache",
+								"--format",
+								"json",
+								"--image-config-scanners",
+								"secret",
+								"--security-checks",
+								"vuln,secret",
+								"--skip-update",
+								"--slow",
+								"--output",
+								"/tmp/scan/result_nginx.json",
+							},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -2347,12 +2463,30 @@ default ignore = false`,
 							},
 						},
 						Command: []string{
-							"/bin/sh",
-						},
-						Args: []string{
-							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --server http://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
-						},
+								trivy.ScanWrapperPath,
+							},
+							Args: []string{
+								"--compress",
+								"--result",
+								"/tmp/scan/result_nginx.json",
+								"--",
+								"trivy",
+								"image",
+								"nginx:1.16",
+								"--cache-dir",
+								"/tmp/trivy/.cache",
+								"--format",
+								"json",
+								"--image-config-scanners",
+								"secret",
+								"--security-checks",
+								"vuln,secret",
+								"--server",
+								"http://trivy.trivy:4954",
+								"--slow",
+								"--output",
+								"/tmp/scan/result_nginx.json",
+							},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -2577,12 +2711,30 @@ default ignore = false`,
 							},
 						},
 						Command: []string{
-							"/bin/sh",
-						},
-						Args: []string{
-							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --server http://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
-						},
+								trivy.ScanWrapperPath,
+							},
+							Args: []string{
+								"--compress",
+								"--result",
+								"/tmp/scan/result_nginx.json",
+								"--",
+								"trivy",
+								"image",
+								"nginx:1.16",
+								"--cache-dir",
+								"/tmp/trivy/.cache",
+								"--format",
+								"json",
+								"--image-config-scanners",
+								"secret",
+								"--security-checks",
+								"vuln,secret",
+								"--server",
+								"http://trivy.trivy:4954",
+								"--slow",
+								"--output",
+								"/tmp/scan/result_nginx.json",
+							},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -2812,12 +2964,30 @@ default ignore = false`,
 							},
 						},
 						Command: []string{
-							"/bin/sh",
-						},
-						Args: []string{
-							"-c",
-							"trivy image poc.myregistry.harbor.com.pl/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --server https://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
-						},
+								trivy.ScanWrapperPath,
+							},
+							Args: []string{
+								"--compress",
+								"--result",
+								"/tmp/scan/result_nginx.json",
+								"--",
+								"trivy",
+								"image",
+								"poc.myregistry.harbor.com.pl/nginx:1.16",
+								"--cache-dir",
+								"/tmp/trivy/.cache",
+								"--format",
+								"json",
+								"--image-config-scanners",
+								"secret",
+								"--security-checks",
+								"vuln,secret",
+								"--server",
+								"https://trivy.trivy:4954",
+								"--slow",
+								"--output",
+								"/tmp/scan/result_nginx.json",
+							},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -3047,12 +3217,28 @@ default ignore = false`,
 							},
 						},
 						Command: []string{
-							"/bin/sh",
-						},
-						Args: []string{
-							"-c",
-							"trivy image poc.myregistry.harbor.com.pl/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --security-checks vuln --server http://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
-						},
+								trivy.ScanWrapperPath,
+							},
+							Args: []string{
+								"--compress",
+								"--result",
+								"/tmp/scan/result_nginx.json",
+								"--",
+								"trivy",
+								"image",
+								"poc.myregistry.harbor.com.pl/nginx:1.16",
+								"--cache-dir",
+								"/tmp/trivy/.cache",
+								"--format",
+								"json",
+								"--security-checks",
+								"vuln",
+								"--server",
+								"http://trivy.trivy:4954",
+								"--slow",
+								"--output",
+								"/tmp/scan/result_nginx.json",
+							},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -3302,12 +3488,30 @@ CVE-2019-1543`,
 							},
 						},
 						Command: []string{
-							"/bin/sh",
-						},
-						Args: []string{
-							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks secret --server http://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
-						},
+								trivy.ScanWrapperPath,
+							},
+							Args: []string{
+								"--compress",
+								"--result",
+								"/tmp/scan/result_nginx.json",
+								"--",
+								"trivy",
+								"image",
+								"nginx:1.16",
+								"--cache-dir",
+								"/tmp/trivy/.cache",
+								"--format",
+								"json",
+								"--image-config-scanners",
+								"secret",
+								"--security-checks",
+								"secret",
+								"--server",
+								"http://trivy.trivy:4954",
+								"--slow",
+								"--output",
+								"/tmp/scan/result_nginx.json",
+							},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -3563,12 +3767,30 @@ default ignore = false`,
 							},
 						},
 						Command: []string{
-							"/bin/sh",
-						},
-						Args: []string{
-							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks secret --server http://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
-						},
+								trivy.ScanWrapperPath,
+							},
+							Args: []string{
+								"--compress",
+								"--result",
+								"/tmp/scan/result_nginx.json",
+								"--",
+								"trivy",
+								"image",
+								"nginx:1.16",
+								"--cache-dir",
+								"/tmp/trivy/.cache",
+								"--format",
+								"json",
+								"--image-config-scanners",
+								"secret",
+								"--security-checks",
+								"secret",
+								"--server",
+								"http://trivy.trivy:4954",
+								"--slow",
+								"--output",
+								"/tmp/scan/result_nginx.json",
+							},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -3799,12 +4021,30 @@ default ignore = false`,
 							},
 						},
 						Command: []string{
-							"/bin/sh",
-						},
-						Args: []string{
-							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --server http://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
-						},
+								trivy.ScanWrapperPath,
+							},
+							Args: []string{
+								"--compress",
+								"--result",
+								"/tmp/scan/result_nginx.json",
+								"--",
+								"trivy",
+								"image",
+								"nginx:1.16",
+								"--cache-dir",
+								"/tmp/trivy/.cache",
+								"--format",
+								"json",
+								"--image-config-scanners",
+								"secret",
+								"--security-checks",
+								"vuln,secret",
+								"--server",
+								"http://trivy.trivy:4954",
+								"--slow",
+								"--output",
+								"/tmp/scan/result_nginx.json",
+							},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -5416,12 +5656,29 @@ default ignore = false`,
 							},
 						},
 						Command: []string{
-							"/bin/sh",
-						},
-						Args: []string{
-							"-c",
-							"trivy image 000000000000.dkr.ecr.eu-west-1.amazonaws.com/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
-						},
+								trivy.ScanWrapperPath,
+							},
+							Args: []string{
+								"--compress",
+								"--result",
+								"/tmp/scan/result_nginx.json",
+								"--",
+								"trivy",
+								"image",
+								"000000000000.dkr.ecr.eu-west-1.amazonaws.com/nginx:1.16",
+								"--cache-dir",
+								"/tmp/trivy/.cache",
+								"--format",
+								"json",
+								"--image-config-scanners",
+								"secret",
+								"--security-checks",
+								"vuln,secret",
+								"--skip-update",
+								"--slow",
+								"--output",
+								"/tmp/scan/result_nginx.json",
+							},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -5731,12 +5988,29 @@ default ignore = false`,
 							},
 						},
 						Command: []string{
-							"/bin/sh",
-						},
-						Args: []string{
-							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
-						},
+								trivy.ScanWrapperPath,
+							},
+							Args: []string{
+								"--compress",
+								"--result",
+								"/tmp/scan/result_nginx.json",
+								"--",
+								"trivy",
+								"image",
+								"nginx:1.16",
+								"--cache-dir",
+								"/tmp/trivy/.cache",
+								"--format",
+								"json",
+								"--image-config-scanners",
+								"secret",
+								"--security-checks",
+								"vuln,secret",
+								"--skip-update",
+								"--slow",
+								"--output",
+								"/tmp/scan/result_nginx.json",
+							},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -6048,12 +6322,29 @@ default ignore = false`,
 							},
 						},
 						Command: []string{
-							"/bin/sh",
-						},
-						Args: []string{
-							"-c",
-							"trivy image mirror.io/library/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
-						},
+								trivy.ScanWrapperPath,
+							},
+							Args: []string{
+								"--compress",
+								"--result",
+								"/tmp/scan/result_nginx.json",
+								"--",
+								"trivy",
+								"image",
+								"mirror.io/library/nginx:1.16",
+								"--cache-dir",
+								"/tmp/trivy/.cache",
+								"--format",
+								"json",
+								"--image-config-scanners",
+								"secret",
+								"--security-checks",
+								"vuln,secret",
+								"--skip-update",
+								"--slow",
+								"--output",
+								"/tmp/scan/result_nginx.json",
+							},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -6334,12 +6625,23 @@ default ignore = false`,
 							},
 						},
 						Command: []string{
-							"/bin/sh",
-						},
-						Args: []string{
-							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --scanners vuln,secret --skip-db-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else cat /tmp/scan/result_nginx.json; fi; exit $rc",
-						},
+								"trivy",
+							},
+							Args: []string{
+								"image",
+								"nginx:1.16",
+								"--cache-dir",
+								"/tmp/trivy/.cache",
+								"--format",
+								"json",
+								"--image-config-scanners",
+								"secret",
+								"--scanners",
+								"vuln,secret",
+								"--skip-db-update",
+								"--slow",
+								"--quiet",
+							},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -6645,12 +6947,31 @@ default ignore = false`,
 							},
 						},
 						Command: []string{
-							"/bin/sh",
-						},
-						Args: []string{
-							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --scanners vuln,secret --skip-db-update --slow --config /etc/trivy/trivy-config.yaml --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
-						},
+								trivy.ScanWrapperPath,
+							},
+							Args: []string{
+								"--compress",
+								"--result",
+								"/tmp/scan/result_nginx.json",
+								"--",
+								"trivy",
+								"image",
+								"nginx:1.16",
+								"--cache-dir",
+								"/tmp/trivy/.cache",
+								"--format",
+								"json",
+								"--image-config-scanners",
+								"secret",
+								"--scanners",
+								"vuln,secret",
+								"--skip-db-update",
+								"--slow",
+								"--config",
+								"/etc/trivy/trivy-config.yaml",
+								"--output",
+								"/tmp/scan/result_nginx.json",
+							},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
 								corev1.ResourceCPU:    resource.MustParse("100m"),
@@ -7345,7 +7666,7 @@ func TestPlugin_ParseReportData(t *testing.T) {
 			name:                        "Should convert vulnerability report in JSON format when OS is not detected",
 			imageRef:                    "alpine:3.10.2",
 			input:                       `null`,
-			expectedError:               errors.New("bzip2 data invalid: bad magic value"),
+			expectedError:               errors.New("unexpected EOF"),
 			expectedVulnerabilityReport: emptyVulnerabilityReport,
 			expectedExposedSecretReport: emptyExposedSecretReport,
 			compressed:                  "true",
@@ -7905,11 +8226,11 @@ func getReportAsString(fixture string) string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	value, err := writeBzip2AndEncode(b)
-	if err != nil {
+	var encoded bytes.Buffer
+	if err := utils.WriteCompressData(&encoded, bytes.NewReader(b)); err != nil {
 		log.Fatal(err)
 	}
-	return value
+	return encoded.String()
 }
 func getReportAsStringnonCompressed(fixture string) string {
 	f, err := os.Open("./testdata/fixture/" + fixture)
@@ -7959,23 +8280,6 @@ func getTmpVolumeMount() corev1.VolumeMount {
 		ReadOnly:  false,
 		MountPath: "/tmp",
 	}
-}
-
-func writeBzip2AndEncode(data []byte) (string, error) {
-	var in bytes.Buffer
-	w, err := bz.NewWriter(&in, &bz.WriterConfig{})
-	if err != nil {
-		return "", err
-	}
-	_, err = w.Write(data)
-	if err != nil {
-		return "", err
-	}
-	err = w.Close()
-	if err != nil {
-		return "", err
-	}
-	return base64.StdEncoding.EncodeToString(in.Bytes()), nil
 }
 
 func TestSkipDirFileEnvVars(t *testing.T) {

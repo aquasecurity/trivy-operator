@@ -3141,6 +3141,9 @@ spec:
               value: "pod,replicaset,replicationcontroller,statefulset,daemonset,cronjob,job"
             - name: OPERATOR_SERVICE_ACCOUNT
               value: "trivy-operator"
+            # Image the operator injects as the scan-wrapper init container when scanJobCompressLogs is enabled.
+            - name: OPERATOR_IMAGE
+              value: "mirror.gcr.io/aquasec/trivy-operator:0.30.1"
           envFrom:
             - configMapRef:
                 name: trivy-operator-config

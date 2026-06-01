@@ -31,6 +31,13 @@ builds:
       - linux
     goarch:
       - amd64
+  - id: scan-wrapper
+    main: ./cmd/scan-wrapper
+    binary: scan-wrapper
+    goos:
+      - linux
+    goarch:
+      - amd64
 archives:
   - name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
     builds:
@@ -58,6 +65,7 @@ dockers:
     goarch: amd64
     ids:
       - trivy-operator
+      - scan-wrapper
     build_flag_templates:
       - --label=org.opencontainers.image.title=trivy-operator
       - --label=org.opencontainers.image.description=Keeps trivy-operator resources updated
@@ -79,6 +87,7 @@ dockers:
       - LICENSE
     ids:
       - trivy-operator
+      - scan-wrapper
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
       - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"
@@ -99,6 +108,7 @@ dockers:
       - LICENSE
     ids:
       - trivy-operator-fips
+      - scan-wrapper
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
       - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"

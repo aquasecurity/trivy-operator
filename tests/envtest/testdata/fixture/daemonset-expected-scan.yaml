@@ -1,4 +1,3 @@
----
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -38,144 +37,159 @@ spec:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/os
-                    operator: In
-                    values:
-                      - linux
+            - matchExpressions:
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                - linux
       automountServiceAccountToken: false
       containers:
-        - args:
-            - -c
-            - trivy image quay.io/fluentd_elasticsearch/fluentd:v2.5.2 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_fluentd-elasticsearch.json 2>/tmp/scan/result_fluentd-elasticsearch.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_fluentd-elasticsearch.json.log; else bzip2 -c /tmp/scan/result_fluentd-elasticsearch.json | base64; fi; exit $rc
-          command:
-            - /bin/sh
-          env:
-            - name: TRIVY_SEVERITY
-              valueFrom:
-                configMapKeyRef:
-                  key: trivy.severity
-                  name: trivy-operator-trivy-config
-                  optional: true
-            - name: TRIVY_IGNORE_UNFIXED
-              valueFrom:
-                configMapKeyRef:
-                  key: trivy.ignoreUnfixed
-                  name: trivy-operator-trivy-config
-                  optional: true
-            - name: TRIVY_OFFLINE_SCAN
-              valueFrom:
-                configMapKeyRef:
-                  key: trivy.offlineScan
-                  name: trivy-operator-trivy-config
-                  optional: true
-            - name: TRIVY_JAVA_DB_REPOSITORY
-              valueFrom:
-                configMapKeyRef:
-                  key: trivy.javaDbRepository
-                  name: trivy-operator-trivy-config
-                  optional: true
-            - name: TRIVY_TIMEOUT
-              valueFrom:
-                configMapKeyRef:
-                  key: trivy.timeout
-                  name: trivy-operator-trivy-config
-                  optional: true
-            - name: TRIVY_SKIP_FILES
-              valueFrom:
-                configMapKeyRef:
-                  key: trivy.skipFiles
-                  name: trivy-operator-trivy-config
-                  optional: true
-            - name: TRIVY_SKIP_DIRS
-              valueFrom:
-                configMapKeyRef:
-                  key: trivy.skipDirs
-                  name: trivy-operator-trivy-config
-                  optional: true
-            - name: HTTP_PROXY
-              valueFrom:
-                configMapKeyRef:
-                  key: trivy.httpProxy
-                  name: trivy-operator-trivy-config
-                  optional: true
-            - name: HTTPS_PROXY
-              valueFrom:
-                configMapKeyRef:
-                  key: trivy.httpsProxy
-                  name: trivy-operator-trivy-config
-                  optional: true
-            - name: NO_PROXY
-              valueFrom:
-                configMapKeyRef:
-                  key: trivy.noProxy
-                  name: trivy-operator-trivy-config
-                  optional: true
-          image: mirror.gcr.io/aquasec/trivy:0.35.0
-          imagePullPolicy: IfNotPresent
-          name: fluentd-elasticsearch
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: FallbackToLogsOnError
-          volumeMounts:
-            - mountPath: /tmp
-              name: tmp
-              readonly: false
-            - mountPath: /tmp/scan
-              name: scanresult
-              readonly: false
+      - args:
+        - --compress
+        - --result
+        - /tmp/scan/result_fluentd-elasticsearch.json
+        - --
+        - trivy
+        - image
+        - quay.io/fluentd_elasticsearch/fluentd:v2.5.2
+        - --cache-dir
+        - /tmp/trivy/.cache
+        - --format
+        - json
+        - --image-config-scanners
+        - secret
+        - --security-checks
+        - vuln,secret
+        - --skip-update
+        - --slow
+        - --output
+        - /tmp/scan/result_fluentd-elasticsearch.json
+        command:
+        - /var/trivyoperator/bin/scan-wrapper
+        env:
+        - name: TRIVY_SEVERITY
+          valueFrom:
+            configMapKeyRef:
+              key: trivy.severity
+              name: trivy-operator-trivy-config
+              optional: true
+        - name: TRIVY_IGNORE_UNFIXED
+          valueFrom:
+            configMapKeyRef:
+              key: trivy.ignoreUnfixed
+              name: trivy-operator-trivy-config
+              optional: true
+        - name: TRIVY_OFFLINE_SCAN
+          valueFrom:
+            configMapKeyRef:
+              key: trivy.offlineScan
+              name: trivy-operator-trivy-config
+              optional: true
+        - name: TRIVY_JAVA_DB_REPOSITORY
+          valueFrom:
+            configMapKeyRef:
+              key: trivy.javaDbRepository
+              name: trivy-operator-trivy-config
+              optional: true
+        - name: TRIVY_TIMEOUT
+          valueFrom:
+            configMapKeyRef:
+              key: trivy.timeout
+              name: trivy-operator-trivy-config
+              optional: true
+        - name: TRIVY_SKIP_FILES
+          valueFrom:
+            configMapKeyRef:
+              key: trivy.skipFiles
+              name: trivy-operator-trivy-config
+              optional: true
+        - name: TRIVY_SKIP_DIRS
+          valueFrom:
+            configMapKeyRef:
+              key: trivy.skipDirs
+              name: trivy-operator-trivy-config
+              optional: true
+        - name: HTTP_PROXY
+          valueFrom:
+            configMapKeyRef:
+              key: trivy.httpProxy
+              name: trivy-operator-trivy-config
+              optional: true
+        - name: HTTPS_PROXY
+          valueFrom:
+            configMapKeyRef:
+              key: trivy.httpsProxy
+              name: trivy-operator-trivy-config
+              optional: true
+        - name: NO_PROXY
+          valueFrom:
+            configMapKeyRef:
+              key: trivy.noProxy
+              name: trivy-operator-trivy-config
+              optional: true
+        image: mirror.gcr.io/aquasec/trivy:0.35.0
+        imagePullPolicy: IfNotPresent
+        name: fluentd-elasticsearch
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: FallbackToLogsOnError
+        volumeMounts:
+        - mountPath: /tmp
+          name: tmp
+        - mountPath: /tmp/scan
+          name: scanresult
       dnsPolicy: ClusterFirst
       initContainers:
-        - args:
-            - --cache-dir
-            - /tmp/trivy/.cache
-            - image
-            - --download-db-only
-            - --db-repository
-            - mirror.gcr.io/aquasec/trivy-db
-          command:
-            - trivy
-          env:
-            - name: HTTP_PROXY
-              valueFrom:
-                configMapKeyRef:
-                  key: trivy.httpProxy
-                  name: trivy-operator-trivy-config
-                  optional: true
-            - name: HTTPS_PROXY
-              valueFrom:
-                configMapKeyRef:
-                  key: trivy.httpsProxy
-                  name: trivy-operator-trivy-config
-                  optional: true
-            - name: NO_PROXY
-              valueFrom:
-                configMapKeyRef:
-                  key: trivy.noProxy
-                  name: trivy-operator-trivy-config
-                  optional: true
-            - name: GITHUB_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  key: trivy.githubToken
-                  name: trivy-operator-trivy-config
-                  optional: true
-          image: "mirror.gcr.io/aquasec/trivy:0.35.0"
-          imagePullPolicy: IfNotPresent
-          name: <INIT-CONTAINER-NAME>
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: FallbackToLogsOnError
-          volumeMounts:
-            - mountPath: /tmp
-              name: tmp
-              readonly: false
+      - args:
+        - --cache-dir
+        - /tmp/trivy/.cache
+        - image
+        - --download-db-only
+        - --db-repository
+        - mirror.gcr.io/aquasec/trivy-db
+        command:
+        - trivy
+        env:
+        - name: HTTP_PROXY
+          valueFrom:
+            configMapKeyRef:
+              key: trivy.httpProxy
+              name: trivy-operator-trivy-config
+              optional: true
+        - name: HTTPS_PROXY
+          valueFrom:
+            configMapKeyRef:
+              key: trivy.httpsProxy
+              name: trivy-operator-trivy-config
+              optional: true
+        - name: NO_PROXY
+          valueFrom:
+            configMapKeyRef:
+              key: trivy.noProxy
+              name: trivy-operator-trivy-config
+              optional: true
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: trivy.githubToken
+              name: trivy-operator-trivy-config
+              optional: true
+        image: mirror.gcr.io/aquasec/trivy:0.35.0
+        imagePullPolicy: IfNotPresent
+        name: <INIT-CONTAINER-NAME>
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: FallbackToLogsOnError
+        volumeMounts:
+        - mountPath: /tmp
+          name: tmp
       restartPolicy: Never
       schedulerName: default-scheduler
       securityContext: {}
       terminationGracePeriodSeconds: 30
       volumes:
-        - emptyDir:
-            medium: ""
-          name: tmp
-        - emptyDir:
-            medium: ""
-          name: scanresult
+      - emptyDir: {}
+        name: tmp
+      - emptyDir: {}
+        name: scanresult
+status: {}

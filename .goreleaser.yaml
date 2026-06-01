@@ -46,6 +46,20 @@ builds:
           - GOEXPERIMENT=boringcrypto,jsonv2
           - CC=aarch64-linux-gnu-gcc
           - CXX=aarch64-linux-gnu-g++
+  # Bundled into every operator image; no FIPS variant needed (pure Go, no crypto).
+  - id: scan-wrapper
+    main: ./cmd/scan-wrapper
+    binary: scan-wrapper
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm
+      - arm64
+      - s390x
+      - ppc64le
+    goarm:
+      - "7"
 archives:
   - name_template: >-
       {{- .ProjectName }}_
@@ -99,6 +113,7 @@ dockers:
     goarch: amd64
     ids:
       - trivy-operator
+      - scan-wrapper
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
       - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"
@@ -121,6 +136,7 @@ dockers:
       - LICENSE
     ids:
       - trivy-operator
+      - scan-wrapper
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
       - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"
@@ -141,6 +157,7 @@ dockers:
     goarch: arm64
     ids:
       - trivy-operator
+      - scan-wrapper
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
       - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"
@@ -163,6 +180,7 @@ dockers:
       - LICENSE
     ids:
       - trivy-operator
+      - scan-wrapper
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
       - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"
@@ -183,6 +201,7 @@ dockers:
     goarch: s390x
     ids:
       - trivy-operator
+      - scan-wrapper
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
       - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"
@@ -203,6 +222,7 @@ dockers:
     goarch: ppc64le
     ids:
       - trivy-operator
+      - scan-wrapper
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
       - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"
@@ -225,6 +245,7 @@ dockers:
       - LICENSE
     ids:
       - trivy-operator
+      - scan-wrapper
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
       - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"
@@ -247,6 +268,7 @@ dockers:
       - LICENSE
     ids:
       - trivy-operator
+      - scan-wrapper
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
       - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"
@@ -268,6 +290,7 @@ dockers:
       - LICENSE
     ids:
       - trivy-operator-fips
+      - scan-wrapper
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
       - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"
@@ -289,6 +312,7 @@ dockers:
       - LICENSE
     ids:
       - trivy-operator-fips
+      - scan-wrapper
     build_flag_templates:
       - "--label=org.opencontainers.image.title=trivy-operator"
       - "--label=org.opencontainers.image.description=Keeps trivy-operator resources updated"

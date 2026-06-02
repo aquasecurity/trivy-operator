@@ -89,7 +89,7 @@ jobs:
     name: Release
     needs:
       - itest-trivy-operator
-    runs-on: ubuntu-2404-2core
+    runs-on: ubuntu-2404-4core
     env:
       DOCKER_CLI_EXPERIMENTAL: "enabled"
     permissions:
@@ -153,7 +153,7 @@ jobs:
         uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # was: goreleaser/goreleaser-action@v6
         with:
           version: v2.4.8
-          args: release --clean
+          args: release --clean --timeout 120m
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COSIGN_EXPERIMENTAL: 1

@@ -776,7 +776,7 @@ func TestPlugin_Init(t *testing.T) {
 			},
 			Data: map[string]string{
 				"trivy.repository":                DefaultImageRepository,
-				"trivy.tag":                       "0.67.0",
+				"trivy.tag":                       "0.71.0",
 				"trivy.severity":                  DefaultSeverity,
 				"trivy.slow":                      "true",
 				"trivy.mode":                      string(Standalone),
@@ -918,6 +918,44 @@ func TestPlugin_FindIgnorePolicyKey(t *testing.T) {
 				},
 			}
 			assert.Equal(t, tc.expectedKey, config.FindIgnorePolicyKey(workload))
+		})
+	}
+}
+
+func TestConfig_IgnoreFileMountPath(t *testing.T) {
+	tests := []struct {
+		name     string
+		value    string
+		setKey   bool
+		expected string
+	}{
+		{
+			name:     "default name when unset",
+			setKey:   false,
+			expected: "/etc/trivy/.trivyignore",
+		},
+		{
+			name:     "custom file name",
+			setKey:   true,
+			value:    "custom.ignore",
+			expected: "/etc/trivy/custom.ignore",
+		},
+		{
+			name:     "whitespace falls back to default",
+			setKey:   true,
+			value:    "   ",
+			expected: "/etc/trivy/.trivyignore",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := Config{PluginConfig: trivyoperator.PluginConfig{Data: make(map[string]string)}}
+			if tt.setKey {
+				cfg.Data[keyTrivyIgnoreFileName] = tt.value
+			}
+			got := cfg.IgnoreFileMountPath()
+			assert.Equal(t, tt.expected, got)
 		})
 	}
 }

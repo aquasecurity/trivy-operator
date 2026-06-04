@@ -17,7 +17,7 @@ RUN mkdir -p /licenses
 COPY LICENSE /licenses/LICENSE
 RUN useradd -u 10000 trivyoperator
 WORKDIR /opt/bin/
-COPY trivy-operator /usr/local/bin/trivy-operator
+COPY trivy-operator-fips /usr/local/bin/trivy-operator
 
 USER trivyoperator
 

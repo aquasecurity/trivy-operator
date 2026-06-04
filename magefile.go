@@ -50,9 +50,10 @@ var (
 	GOBIN       = filepath.Join(goEnv("GOPATH"), "bin")
 	GINKGO      = filepath.Join(PWD, "bin", "ginkgo")
 
-	IMAGE_TAG                 = "dev"
-	TRIVY_OPERATOR_IMAGE      = "aquasecurity/trivy-operator:" + IMAGE_TAG
-	TRIVY_OPERATOR_IMAGE_UBI9 = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-ubi9"
+	IMAGE_TAG                      = "dev"
+	TRIVY_OPERATOR_IMAGE           = "aquasecurity/trivy-operator:" + IMAGE_TAG
+	TRIVY_OPERATOR_IMAGE_UBI9      = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-ubi9"
+	TRIVY_OPERATOR_IMAGE_FIPS_UBI9 = "aquasecurity/trivy-operator:" + IMAGE_TAG + "-ubi9-fips"
 
 	MKDOCS_IMAGE = "aquasec/mkdocs-material:trivy-operator"
 	MKDOCS_PORT  = 8000
@@ -97,6 +98,17 @@ type Build mg.Namespace
 func (b Build) Binary() error {
 	fmt.Println("Building trivy-operator binary...")
 	return sh.RunWithV(LINUX_ENV, "go", "build", "-o", "./bin/trivy-operator", "./cmd/trivy-operator/main.go")
+}
+
+// Target for building trivy-operator FIPS binary.
+func (b Build) BinaryFips() error {
+	fmt.Println("Building trivy-operator FIPS binary...")
+	fipsEnv := map[string]string{
+		"CGO_ENABLED":  "1",
+		"GOEXPERIMENT": "boringcrypto,jsonv2",
+		"GOOS":         "linux",
+	}
+	return sh.RunWithV(fipsEnv, "go", "build", "-tags=fipsonly", "-o", "./bin/trivy-operator-fips", "./cmd/trivy-operator/main.go")
 }
 
 // Target for installing Ginkgo CLI.
@@ -146,6 +158,7 @@ func (t Test) Integration() error {
 // Target for downloading test images and upload them into KinD
 func prepareImages() error {
 	images := []string{
+		"mirror.gcr.io/aquasec/trivy:0.71.0",
 		"mirror.gcr.io/knqyf263/vuln-image:1.2.3",
 		"wordpress:4.9",
 		"wordpress:6.7",
@@ -196,6 +209,7 @@ func (b Build) DockerAll() {
 	fmt.Println("Building Docker images for all binaries...")
 	b.Docker()
 	b.DockerUbi9()
+	b.DockerFipsUbi9()
 }
 
 // Target for building Docker image for trivy-operator
@@ -207,7 +221,19 @@ func (b Build) Docker() error {
 // Target for building Docker image for trivy-operator ubi9
 func (b Build) DockerUbi9() error {
 	fmt.Println("Building Docker image for trivy-operator ubi9...")
+	if err := sh.RunV("cp", "LICENSE", "./bin/LICENSE"); err != nil {
+		return fmt.Errorf("Could not copy license file: %v", err)
+	}
 	return sh.RunV("docker", "build", "--no-cache", "-f", "build/trivy-operator/Dockerfile.ubi9", "-t", TRIVY_OPERATOR_IMAGE_UBI9, "bin")
+}
+
+// Target for building Docker image for trivy-operator FIPS ubi9
+func (b Build) DockerFipsUbi9() error {
+	fmt.Println("Building Docker image for trivy-operator FIPS ubi9...")
+	if err := sh.RunV("cp", "LICENSE", "./bin/LICENSE"); err != nil {
+		return fmt.Errorf("Could not copy license file: %v", err)
+	}
+	return sh.RunV("docker", "build", "--no-cache", "-f", "build/trivy-operator/Dockerfile.fips.ubi9", "-t", TRIVY_OPERATOR_IMAGE_FIPS_UBI9, "bin")
 }
 
 // Target for loading Docker images into the KIND cluster
@@ -259,7 +285,8 @@ func clientGen() error {
 func (t Test) envTestBin() error {
 	mg.Deps(localBin)
 	fmt.Println("Downloading envtest-setup...")
-	return sh.RunWithV(GOLOCALBINENV, "go", "install", "sigs.k8s.io/controller-runtime/tools/setup-envtest@latest")
+	// use a specific setup-envtest version - v0.23.3
+	return sh.RunWithV(GOLOCALBINENV, "go", "install", "sigs.k8s.io/controller-runtime/tools/setup-envtest@f9589b9f2b9dddf8532b432bb8315f2820ab9971")
 }
 
 type Generate mg.Namespace
@@ -373,18 +400,18 @@ type Lint mg.Namespace
 // Run runs linters
 func (Lint) Run() error {
 	//mg.Deps(Tool{}.GolangciLint)
-	return sh.RunV("golangci-lint", "run")
+	return sh.RunWithV(ENV, "golangci-lint", "run")
 }
 
 // Fix auto fixes linters
 func (Lint) Fix() error {
 	//mg.Deps(Tool{}.GolangciLint)
-	return sh.RunV("golangci-lint", "run", "--fix")
+	return sh.RunWithV(ENV, "golangci-lint", "run", "--fix")
 }
 
 // GolangciLint installs golangci-lint
 func (t Tool) GolangciLint() error {
-	const version = "v2.1.6"
+	const version = "v2.12.2"
 	bin := filepath.Join(GOBIN, "golangci-lint")
 	if exists(bin) && t.matchGolangciLintVersion(bin, version) {
 		return nil

@@ -1,0 +1,47 @@
+name: "Lint PR title"
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+permissions: {}
+
+jobs:
+  pr-title-checker:
+    name: Validate PR title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR title
+        shell: bash
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          VALID_TYPES: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            sec
+            chore
+            release
+            revert
+        run: |
+          set -euo pipefail
+
+          TYPES_REGEX=$(echo "$VALID_TYPES" | grep -v '^$' | paste -sd '|')
+
+          if [[ ! "$PR_TITLE" =~ ^(${TYPES_REGEX})(\(.+\))?:\ .+ ]]; then
+            echo "Error: PR title does not follow the Conventional Commits format."
+            echo "Expected format: <type>(<scope>): <description>"
+            echo "Valid types: $VALID_TYPES"
+            echo -e "\nCurrent title: $PR_TITLE"
+            exit 1
+          fi

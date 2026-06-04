@@ -342,7 +342,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 						},
 						Args: []string{
 							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -630,7 +630,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 						},
 						Args: []string{
 							"-c",
-							"trivy image poc.myregistry.harbor.com.pl/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image poc.myregistry.harbor.com.pl/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -918,7 +918,7 @@ func TestPlugin_GetScanJobSpec(t *testing.T) {
 						},
 						Args: []string{
 							"-c",
-							"trivy image poc.myregistry.harbor.com.pl/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --security-checks vuln --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image poc.myregistry.harbor.com.pl/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --security-checks vuln --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1226,7 +1226,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1539,7 +1539,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -1831,7 +1831,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image mirror.io/library/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image mirror.io/library/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2119,7 +2119,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2201,42 +2201,6 @@ default ignore = false`,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
 							{
-								Name: "HTTP_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "HTTPS_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpsProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "NO_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.noProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
 								Name: "TRIVY_SEVERITY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -2310,6 +2274,42 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "HTTP_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "HTTPS_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpsProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "NO_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.noProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_TOKEN_HEADER",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -2351,7 +2351,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --server http://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --server http://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2374,6 +2374,7 @@ default ignore = false`,
 						},
 					},
 				},
+				SecurityContext: &corev1.PodSecurityContext{},
 			},
 		},
 		{
@@ -2430,42 +2431,6 @@ default ignore = false`,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
 							{
-								Name: "HTTP_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "HTTPS_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpsProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "NO_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.noProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
 								Name: "TRIVY_SEVERITY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -2539,6 +2504,42 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "HTTP_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "HTTPS_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpsProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "NO_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.noProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_TOKEN_HEADER",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -2580,7 +2581,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --server http://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --server http://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2603,6 +2604,7 @@ default ignore = false`,
 						},
 					},
 				},
+				SecurityContext: &corev1.PodSecurityContext{},
 			},
 		},
 		{
@@ -2660,42 +2662,6 @@ default ignore = false`,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
 							{
-								Name: "HTTP_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "HTTPS_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpsProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "NO_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.noProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
 								Name: "TRIVY_SEVERITY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -2769,6 +2735,42 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "HTTP_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "HTTPS_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpsProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "NO_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.noProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_TOKEN_HEADER",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -2814,7 +2816,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image poc.myregistry.harbor.com.pl/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --server https://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image poc.myregistry.harbor.com.pl/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --server https://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -2837,6 +2839,7 @@ default ignore = false`,
 						},
 					},
 				},
+				SecurityContext: &corev1.PodSecurityContext{},
 			},
 		},
 		{
@@ -2894,42 +2897,6 @@ default ignore = false`,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
 							{
-								Name: "HTTP_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "HTTPS_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpsProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "NO_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.noProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
 								Name: "TRIVY_SEVERITY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -3003,6 +2970,42 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "HTTP_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "HTTPS_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpsProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "NO_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.noProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_TOKEN_HEADER",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -3048,7 +3051,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image poc.myregistry.harbor.com.pl/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --security-checks vuln --server http://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image poc.myregistry.harbor.com.pl/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --security-checks vuln --server http://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3071,6 +3074,7 @@ default ignore = false`,
 						},
 					},
 				},
+				SecurityContext: &corev1.PodSecurityContext{},
 			},
 		},
 		{
@@ -3148,42 +3152,6 @@ CVE-2019-1543`,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
 							{
-								Name: "HTTP_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "HTTPS_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpsProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "NO_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.noProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
 								Name: "TRIVY_SEVERITY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -3257,6 +3225,42 @@ CVE-2019-1543`,
 								},
 							},
 							{
+								Name: "HTTP_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "HTTPS_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpsProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "NO_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.noProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_TOKEN_HEADER",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -3302,7 +3306,7 @@ CVE-2019-1543`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks secret --server http://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks secret --server http://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3331,6 +3335,7 @@ CVE-2019-1543`,
 						},
 					},
 				},
+				SecurityContext: &corev1.PodSecurityContext{},
 			},
 		},
 		{
@@ -3408,42 +3413,6 @@ default ignore = false`,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
 							{
-								Name: "HTTP_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "HTTPS_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpsProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "NO_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.noProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
 								Name: "TRIVY_SEVERITY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -3517,6 +3486,42 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "HTTP_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "HTTPS_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpsProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "NO_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.noProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_TOKEN_HEADER",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -3562,7 +3567,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks secret --server http://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks secret --server http://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3591,6 +3596,7 @@ default ignore = false`,
 						},
 					},
 				},
+				SecurityContext: &corev1.PodSecurityContext{},
 			},
 		},
 		{
@@ -3647,42 +3653,6 @@ default ignore = false`,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
 							{
-								Name: "HTTP_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "HTTPS_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.httpsProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
-								Name: "NO_PROXY",
-								ValueFrom: &corev1.EnvVarSource{
-									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-										LocalObjectReference: corev1.LocalObjectReference{
-											Name: "trivy-operator-trivy-config",
-										},
-										Key:      "trivy.noProxy",
-										Optional: ptr.To[bool](true),
-									},
-								},
-							},
-							{
 								Name: "TRIVY_SEVERITY",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -3756,6 +3726,42 @@ default ignore = false`,
 								},
 							},
 							{
+								Name: "HTTP_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "HTTPS_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.httpsProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
+								Name: "NO_PROXY",
+								ValueFrom: &corev1.EnvVarSource{
+									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
+										LocalObjectReference: corev1.LocalObjectReference{
+											Name: "trivy-operator-trivy-config",
+										},
+										Key:      "trivy.noProxy",
+										Optional: ptr.To[bool](true),
+									},
+								},
+							},
+							{
 								Name: "TRIVY_TOKEN_HEADER",
 								ValueFrom: &corev1.EnvVarSource{
 									ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
@@ -3797,7 +3803,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --server http://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --server http://trivy.trivy:4954 --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -3820,6 +3826,7 @@ default ignore = false`,
 						},
 					},
 				},
+				SecurityContext: &corev1.PodSecurityContext{},
 			},
 		},
 		{
@@ -5413,7 +5420,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image 000000000000.dkr.ecr.eu-west-1.amazonaws.com/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image 000000000000.dkr.ecr.eu-west-1.amazonaws.com/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -5728,7 +5735,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -6045,7 +6052,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image mirror.io/library/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image mirror.io/library/nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --security-checks vuln,secret --skip-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -6082,7 +6089,7 @@ default ignore = false`,
 			},
 			config: map[string]string{
 				"trivy.repository":                "docker.io/aquasec/trivy",
-				"trivy.tag":                       "0.67.0",
+				"trivy.tag":                       "0.71.0",
 				"trivy.mode":                      string(trivy.Standalone),
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
@@ -6122,7 +6129,7 @@ default ignore = false`,
 				InitContainers: []corev1.Container{
 					{
 						Name:                     "00000000-0000-0000-0000-000000000001",
-						Image:                    "docker.io/aquasec/trivy:0.67.0",
+						Image:                    "docker.io/aquasec/trivy:0.71.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -6212,7 +6219,7 @@ default ignore = false`,
 				Containers: []corev1.Container{
 					{
 						Name:                     "nginx",
-						Image:                    "docker.io/aquasec/trivy:0.67.0",
+						Image:                    "docker.io/aquasec/trivy:0.71.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -6331,7 +6338,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --scanners vuln,secret --skip-db-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && cat /tmp/scan/result_nginx.json",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --scanners vuln,secret --skip-db-update --slow --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else cat /tmp/scan/result_nginx.json; fi; exit $rc",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -6369,7 +6376,7 @@ default ignore = false`,
 			},
 			config: map[string]string{
 				"trivy.repository":                "docker.io/aquasec/trivy",
-				"trivy.tag":                       "0.67.0",
+				"trivy.tag":                       "0.71.0",
 				"trivy.mode":                      string(trivy.Standalone),
 				"trivy.dbRepository":              trivy.DefaultDBRepository,
 				"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
@@ -6426,7 +6433,7 @@ default ignore = false`,
 				InitContainers: []corev1.Container{
 					{
 						Name:                     "00000000-0000-0000-0000-000000000001",
-						Image:                    "docker.io/aquasec/trivy:0.67.0",
+						Image:                    "docker.io/aquasec/trivy:0.71.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -6486,11 +6493,11 @@ default ignore = false`,
 							"--cache-dir",
 							"/tmp/trivy/.cache",
 							"image",
+							"--config",
+							"/etc/trivy/trivy-config.yaml",
 							"--download-db-only",
 							"--db-repository",
 							trivy.DefaultDBRepository,
-							"--config",
-							"/etc/trivy/trivy-config.yaml",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -6523,7 +6530,7 @@ default ignore = false`,
 				Containers: []corev1.Container{
 					{
 						Name:                     "nginx",
-						Image:                    "docker.io/aquasec/trivy:0.67.0",
+						Image:                    "docker.io/aquasec/trivy:0.71.0",
 						ImagePullPolicy:          corev1.PullIfNotPresent,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 						Env: []corev1.EnvVar{
@@ -6642,7 +6649,7 @@ default ignore = false`,
 						},
 						Args: []string{
 							"-c",
-							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --scanners vuln,secret --skip-db-update --slow --config /etc/trivy/trivy-config.yaml --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log && bzip2 -c /tmp/scan/result_nginx.json | base64",
+							"trivy image nginx:1.16 --cache-dir /tmp/trivy/.cache --format json --image-config-scanners secret --scanners vuln,secret --skip-db-update --slow --config /etc/trivy/trivy-config.yaml --output /tmp/scan/result_nginx.json 2>/tmp/scan/result_nginx.json.log ; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/result_nginx.json.log; else bzip2 -c /tmp/scan/result_nginx.json | base64; fi; exit $rc",
 						},
 						Resources: corev1.ResourceRequirements{
 							Requests: corev1.ResourceList{
@@ -7406,7 +7413,7 @@ func TestGetScoreFromCVSS(t *testing.T) {
 		expectedScore *float64
 	}{
 		{
-			name: "Should return nvd score when nvd and vendor v3 score exist",
+			name: "Should return vendor score when nvd and vendor v3 score exist",
 			cvss: dbtypes.VendorCVSS{
 				"nvd": {
 					V3Score: 8.1,
@@ -7415,7 +7422,7 @@ func TestGetScoreFromCVSS(t *testing.T) {
 					V3Score: 8.3,
 				},
 			},
-			expectedScore: ptr.To[float64](8.1),
+			expectedScore: ptr.To[float64](8.3),
 		},
 		{
 			name: "Should return nvd score when vendor v3 score is nil",
@@ -7643,134 +7650,249 @@ func TestGetContainers(t *testing.T) {
 	}
 }
 
-func TestGetInitContainers(t *testing.T) {
+func TestGetInitContainers_StandaloneMode(t *testing.T) {
 	workloadSpec := &appsv1.ReplicaSet{
 		Spec: appsv1.ReplicaSetSpec{
 			Template: corev1.PodTemplateSpec{
-
-				Spec: corev1.PodSpec{
-					Containers: []corev1.Container{
-						{Name: "container1", Image: "busybox:1.34.1"},
-					},
-				},
+				Spec: corev1.PodSpec{Containers: []corev1.Container{{Name: "container1", Image: "busybox:1.34.1"}}},
 			},
 		},
 	}
 
-	testCases := []struct {
-		name       string
-		configData map[string]string
-	}{
-		{
-			name: "Standalone mode with image command java-db from private registry",
-			configData: map[string]string{
-				"trivy.dbRepository":     trivy.DefaultDBRepository,
-				"trivy.javaDbRepository": "my-private-registry.io/aquasec/trivy-java-db",
-				"trivy.skipJavaDBUpdate": "false",
+	configData := map[string]string{
+		"trivy.dbRepository":     trivy.DefaultDBRepository,
+		"trivy.javaDbRepository": "my-private-registry.io/aquasec/trivy-java-db",
+		"trivy.skipJavaDBUpdate": "false",
+		"trivy.repository":       "gcr.io/aquasec/trivy",
+		"trivy.tag":              "0.35.0",
+		"trivy.mode":             string(trivy.Standalone),
+		"trivy.command":          string(trivy.Image),
+	}
+
+	fakeclient := fake.NewClientBuilder().WithObjects(
+		&corev1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: "trivy-operator-trivy-config", Namespace: "trivyoperator-ns"}, Data: configData},
+		&corev1.Secret{ObjectMeta: metav1.ObjectMeta{Name: "trivy-operator-trivy-config", Namespace: "trivyoperator-ns"}, Data: map[string][]byte{
+			"trivy.dbRepositoryUsername": []byte("my-username"),
+			"trivy.dbRepositoryPassword": []byte("my-password"),
+		}},
+	).Build()
+
+	pluginContext := trivyoperator.NewPluginContext().
+		WithName(trivy.Plugin).
+		WithNamespace("trivyoperator-ns").
+		WithServiceAccountName("trivyoperator-sa").
+		WithClient(fakeclient).
+		Get()
+
+	resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
+	instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
+	jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil, make(map[string]v1alpha1.SbomReportData))
+	require.NoError(t, err)
+
+	assert.Len(t, jobSpec.InitContainers, 2)
+
+	// Second init container should only download trivy-db
+	trivyDbInitContainer := jobSpec.InitContainers[1]
+	containsDownloadDBOnly := false
+	for _, arg := range trivyDbInitContainer.Args {
+		if arg == "--download-db-only" {
+			containsDownloadDBOnly = true
+			break
+		}
+	}
+	assert.True(t, containsDownloadDBOnly, "Expected second init container to only download trivy-db")
+
+	// Credentials must be present
+	hasUser, hasPass := false, false
+	for _, e := range trivyDbInitContainer.Env {
+		if e.Name == "TRIVY_USERNAME" {
+			hasUser = true
+		}
+		if e.Name == "TRIVY_PASSWORD" {
+			hasPass = true
+		}
+	}
+	assert.True(t, hasUser)
+	assert.True(t, hasPass)
+
+	// First init container should be a login container with creds
+	login := jobSpec.InitContainers[0]
+	hasLogin := false
+	for _, a := range login.Args {
+		if a == "login" {
+			hasLogin = true
+			break
+		}
+	}
+	assert.True(t, hasLogin)
+	hasUser, hasPass = false, false
+	for _, e := range login.Env {
+		if e.Name == "TRIVY_USERNAME" {
+			hasUser = true
+		}
+		if e.Name == "TRIVY_PASSWORD" {
+			hasPass = true
+		}
+	}
+	assert.True(t, hasUser)
+	assert.True(t, hasPass)
+}
+
+func TestGetInitContainers_ClientServerMode(t *testing.T) {
+	workloadSpec := &appsv1.ReplicaSet{
+		Spec: appsv1.ReplicaSetSpec{
+			Template: corev1.PodTemplateSpec{
+				Spec: corev1.PodSpec{Containers: []corev1.Container{{Name: "container1", Image: "busybox:1.34.1"}}},
+			},
+		},
+	}
+
+	configData := map[string]string{
+		"trivy.dbRepository":     trivy.DefaultDBRepository,
+		"trivy.javaDbRepository": "my-private-registry.io/aquasec/trivy-java-db",
+		"trivy.skipJavaDBUpdate": "false",
+		"trivy.repository":       "gcr.io/aquasec/trivy",
+		"trivy.tag":              "0.35.0",
+		"trivy.mode":             string(trivy.ClientServer),
+		"trivy.serverURL":        "http://trivy.trivy:4954",
+		"trivy.command":          string(trivy.Image),
+	}
+
+	fakeclient := fake.NewClientBuilder().WithObjects(
+		&corev1.ConfigMap{ObjectMeta: metav1.ObjectMeta{Name: "trivy-operator-trivy-config", Namespace: "trivyoperator-ns"}, Data: configData},
+		&corev1.Secret{ObjectMeta: metav1.ObjectMeta{Name: "trivy-operator-trivy-config", Namespace: "trivyoperator-ns"}, Data: map[string][]byte{
+			"trivy.dbRepositoryUsername": []byte("my-username"),
+			"trivy.dbRepositoryPassword": []byte("my-password"),
+		}},
+	).Build()
+
+	pluginContext := trivyoperator.NewPluginContext().
+		WithName(trivy.Plugin).
+		WithNamespace("trivyoperator-ns").
+		WithServiceAccountName("trivyoperator-sa").
+		WithClient(fakeclient).
+		Get()
+
+	resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
+	instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
+	jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil, make(map[string]v1alpha1.SbomReportData))
+	require.NoError(t, err)
+
+	assert.Len(t, jobSpec.InitContainers, 1)
+
+	// Single init container should be login with credentials
+	login := jobSpec.InitContainers[0]
+	hasLogin := false
+	for _, a := range login.Args {
+		if a == "login" {
+			hasLogin = true
+			break
+		}
+	}
+	assert.True(t, hasLogin, "Expected a login init container")
+	hasUser, hasPass := false, false
+	for _, e := range login.Env {
+		if e.Name == "TRIVY_USERNAME" {
+			hasUser = true
+		}
+		if e.Name == "TRIVY_PASSWORD" {
+			hasPass = true
+		}
+	}
+	assert.True(t, hasUser, "Expected username env var for private java-db registry")
+	assert.True(t, hasPass, "Expected password env var for private java-db registry")
+}
+
+// Ensure that when using GCR service account credentials for multiple GCR images,
+// the operator adds the GCR volume and mount only once (early return), resulting
+// in fewer effective invocations of the helper.
+func TestStandalone_GCRServiceAccount(t *testing.T) {
+	fakeclient := fake.NewClientBuilder().WithObjects(
+		&corev1.ConfigMap{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "trivy-operator-trivy-config",
+				Namespace: "trivyoperator-ns",
+			},
+			Data: map[string]string{
 				"trivy.repository":       "gcr.io/aquasec/trivy",
-				"trivy.tag":              "0.35.0",
+				"trivy.tag":              "0.68.1",
 				"trivy.mode":             string(trivy.Standalone),
-				"trivy.command":          string(trivy.Image),
+				"trivy.dbRepository":     trivy.DefaultDBRepository,
+				"trivy.javaDbRepository": trivy.DefaultJavaDBRepository,
+			},
+		},
+	).Build()
+
+	// Two GCR images to trigger multiple potential invocations.
+	workload := &corev1.Pod{
+		TypeMeta:   metav1.TypeMeta{Kind: "Pod", APIVersion: "v1"},
+		ObjectMeta: metav1.ObjectMeta{Name: "gcr-pod", Namespace: "prod-ns"},
+		Spec: corev1.PodSpec{
+			Containers: []corev1.Container{
+				{Name: "app", Image: "gcr.io/company/application:1.0.0"},
+				{Name: "sidecar", Image: "us.gcr.io/company/sidecar:1.0.0"},
 			},
 		},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			fakeclient := fake.NewClientBuilder().WithObjects(
-				&corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "trivy-operator-trivy-config",
-						Namespace: "trivyoperator-ns",
-					},
-					Data: tc.configData,
-				},
-				&corev1.Secret{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "trivy-operator-trivy-config",
-						Namespace: "trivyoperator-ns",
-					},
-					Data: map[string][]byte{
-						"trivy.dbRepositoryUsername": []byte("my-username"),
-						"trivy.dbRepositoryPassword": []byte("my-password"),
-					},
-				},
-			).Build()
+	pluginContext := trivyoperator.NewPluginContext().
+		WithName(trivy.Plugin).
+		WithNamespace("trivyoperator-ns").
+		WithServiceAccountName("trivyoperator-sa").
+		WithClient(fakeclient).
+		WithTrivyOperatorConfig(map[string]string{
+			trivyoperator.KeyScanJobUseGCRServiceAccount: trivyoperator.TrueString,
+		}).
+		Get()
 
-			pluginContext := trivyoperator.NewPluginContext().
-				WithName(trivy.Plugin).
-				WithNamespace("trivyoperator-ns").
-				WithServiceAccountName("trivyoperator-sa").
-				WithClient(fakeclient).
-				Get()
+	resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
+	instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
 
-			config, err := pluginContext.GetConfig()
-			if err != nil {
-				t.Fatalf("failed to get config: %v", err)
-			}
-			config.SecretData = map[string][]byte{
-				"my-username": []byte("my-username"),
-				"my-password": []byte("my-password"),
-			}
-
-			resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
-			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
-			jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workloadSpec, nil, nil, make(map[string]v1alpha1.SbomReportData))
-			require.NoError(t, err)
-
-			assert.Len(t, jobSpec.InitContainers, 2)
-			// Assert first init container to download trivy-db from private registry
-			trivyDbInitContainer := jobSpec.InitContainers[0]
-
-			containsDownloadDBOnly := false
-			for _, arg := range trivyDbInitContainer.Args {
-				if arg == "--download-db-only" {
-					containsDownloadDBOnly = true
-					break
-				}
-			}
-			assert.True(t, containsDownloadDBOnly, "Expected first init container to only download try-db")
-
-			hasTrivyUsername := false
-			hasTrivyPassword := false
-			for _, envVar := range trivyDbInitContainer.Env {
-				if envVar.Name == "TRIVY_USERNAME" {
-					hasTrivyUsername = true
-				}
-				if envVar.Name == "TRIVY_PASSWORD" {
-					hasTrivyPassword = true
-				}
-			}
-			assert.True(t, hasTrivyUsername, "Expected init container to have username env var for private trivy-db registry")
-			assert.True(t, hasTrivyPassword, "Expected init container to have password env var for private trivy-db registry")
-
-			// Assert second init container to download java-db from private registry
-			javaDbInitContainer := jobSpec.InitContainers[1]
-
-			containsDownloadJavaDBOnly := false
-			for _, arg := range javaDbInitContainer.Args {
-				if arg == "--download-java-db-only" {
-					containsDownloadJavaDBOnly = true
-					break
-				}
-			}
-			assert.True(t, containsDownloadJavaDBOnly, "Expected second init container to only download java-db")
-
-			hasTrivyUsername = false
-			hasTrivyPassword = false
-			for _, envVar := range javaDbInitContainer.Env {
-				if envVar.Name == "TRIVY_USERNAME" {
-					hasTrivyUsername = true
-				}
-				if envVar.Name == "TRIVY_PASSWORD" {
-					hasTrivyPassword = true
-				}
-			}
-			assert.True(t, hasTrivyUsername, "Expected init container to have username env var for private java-db registry")
-			assert.True(t, hasTrivyPassword, "Expected init container to have password env var for private java-db registry")
-
-		})
+	// Provide credentials for the GCR servers so that the plugin creates the aggregate secret
+	// and enters the credentials-handling path that may call the GCR helper.
+	creds := map[string]docker.Auth{
+		"gcr.io":    {Username: "u", Password: "p"},
+		"us.gcr.io": {Username: "u2", Password: "p2"},
 	}
+
+	jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workload, creds, nil, make(map[string]v1alpha1.SbomReportData))
+	require.NoError(t, err)
+
+	// Assert single GCR volume at pod level.
+	gcrVolCount := 0
+	for _, v := range jobSpec.Volumes {
+		if v.Name == "gcrvol" {
+			gcrVolCount++
+		}
+	}
+	assert.Equal(t, 1, gcrVolCount, "expected only one GCR volume to be added")
+
+	// Assert containers mount GCR volume at most once, and env var is present only once overall
+	// due to early return on subsequent helper invocations.
+	totalGcrMounts := 0
+	totalGacEnv := 0
+	totalTrivyUsernameEnv := 0
+	for _, c := range jobSpec.Containers {
+		for _, m := range c.VolumeMounts {
+			if m.Name == "gcrvol" {
+				totalGcrMounts++
+			}
+		}
+		for _, e := range c.Env {
+			if e.Name == "GOOGLE_APPLICATION_CREDENTIALS" {
+				totalGacEnv++
+				assert.Equal(t, "/cred/credential.json", e.Value)
+			}
+			if e.Name == "TRIVY_USERNAME" {
+				totalTrivyUsernameEnv++
+			}
+		}
+	}
+	// One mount per container, but created only once in the pod spec and shared.
+	assert.Equal(t, 2, totalGcrMounts, "expected GCR mount present once per container")
+	// Early return prevents re-adding envs; only the first container gets them.
+	assert.Equal(t, 1, totalGacEnv, "expected GOOGLE_APPLICATION_CREDENTIALS to be added once")
+	assert.Equal(t, 1, totalTrivyUsernameEnv, "expected TRIVY_USERNAME to be added once")
 }
 
 func getReportAsString(fixture string) string {

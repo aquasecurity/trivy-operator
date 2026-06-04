@@ -118,7 +118,8 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", PkgPath: "ab2", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-6", Title: "VR3 Critical vulnerability 6", Score: ptr.To[float64](8.4)},
 				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", Target: "ab2", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-7", Title: "VR3 Critical vulnerability 7", Score: ptr.To[float64](8.4)},
 				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", Resource: "dppkg", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-8", Title: "VR3 Critical vulnerability 8", Score: ptr.To[float64](8.4)},
-				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", Resource: "dppkg-other", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-8", Title: "VR3 Critical vulnerability 8", Score: ptr.To[float64](8.4)},
+				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", Resource: "dppkg-other", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-8", Title: "VR3 Critical vulnerability 8", Score: ptr.To[float64](8.4), CVSSSource: "some source"},
+				{InstalledVersion: "1.19.7", Class: "os-pkgs", PackageType: "debian", Resource: "dppkg-other", Severity: v1alpha1.SeverityCritical, VulnerabilityID: "CVE-VR3-CRITICAL-8", Title: "VR3 Critical vulnerability 8", Score: ptr.To[float64](8.4), CVSSSource: "another source"},
 			}
 
 			client.WithRuntimeObjects(vr1, vr2, vr3)

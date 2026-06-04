@@ -880,7 +880,7 @@ func TestGetVersionFromImageRef(t *testing.T) {
 }
 
 func TestConfigManager_Read(t *testing.T) {
-	clientset := fake.NewSimpleClientset(
+	clientset := fake.NewClientset(
 		&corev1.ConfigMap{
 			ObjectMeta: metav1.ObjectMeta{
 				Namespace: trivyoperator.NamespaceName,
@@ -917,7 +917,7 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 		g := gomega.NewGomegaWithT(t)
 
 		namespace := "trivyoperator-ns"
-		clientset := fake.NewSimpleClientset()
+		clientset := fake.NewClientset()
 
 		err := trivyoperator.NewConfigManager(clientset, namespace).EnsureDefault(t.Context())
 		g.Expect(err).ToNot(gomega.HaveOccurred())
@@ -936,7 +936,7 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 	t.Run("Should not modify ConfigMaps nor Secret", func(t *testing.T) {
 		g := gomega.NewGomegaWithT(t)
 		namespace := "trivyoperator-ns"
-		clientset := fake.NewSimpleClientset(
+		clientset := fake.NewClientset(
 			&corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: namespace,
@@ -997,13 +997,13 @@ func TestConfigManager_EnsureDefault(t *testing.T) {
 
 func TestConfigManager_Delete(t *testing.T) {
 	t.Run("Should not return error when ConfigMap and secret do not exist", func(t *testing.T) {
-		clientset := fake.NewSimpleClientset()
+		clientset := fake.NewClientset()
 		err := trivyoperator.NewConfigManager(clientset, trivyoperator.NamespaceName).Delete(t.Context())
 		require.NoError(t, err)
 	})
 
 	t.Run("Should delete ConfigMap and secret", func(t *testing.T) {
-		clientset := fake.NewSimpleClientset(
+		clientset := fake.NewClientset(
 			&corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: trivyoperator.NamespaceName,

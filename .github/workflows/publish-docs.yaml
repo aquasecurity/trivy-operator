@@ -18,42 +18,42 @@ permissions: {}
 jobs:
   deploy:
     name: Deploy documentation
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-2404-2core
     permissions:
       contents: write
     steps:
       - name: Checkout main
         if: github.event.inputs.ref == ''
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # was: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.client_payload.tag }}
           persist-credentials: true
       - name: Checkout main
         if: github.event.inputs.ref != ''
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # was: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.ref }}
           persist-credentials: true
-      - uses: actions/setup-python@5db1cf9a59fb97c40a68accab29236f0da7e94db
+      - uses: actions/setup-python@5db1cf9a59fb97c40a68accab29236f0da7e94db # was: actions/setup-python@5db1cf9a59fb97c40a68accab29236f0da7e94db
         with:
           python-version: 3.x
       - run: |
-          pip install git+https://${GH_TOKEN}@github.com/squidfunk/mkdocs-material-insiders.git
-          pip install mike
-          pip install mkdocs-macros-plugin
-        env:
-          # Note: It is not the same as ${{ secrets.GITHUB_TOKEN }} !
-          GH_TOKEN: ${{ secrets.MKDOCS_AQUA_BOT }}
+          pip install mkdocs-material==9.7.6 mkdocs-macros-plugin mike
+
       - run: |
           git config user.name "aqua-bot"
           git config user.email "aqua-bot@users.noreply.github.com"
       - name: Checkout main input
         if: github.event.inputs.ref  != ''
         run: |
-          mike deploy --push --update-aliases ${{ github.event.inputs.ref }} latest
+          mike deploy --push --update-aliases "$DEPLOY_REF" latest
+        env:
+          DEPLOY_REF: ${{ github.event.inputs.ref }}
       - name: Checkout main release
         if: github.event.inputs.ref  == ''
         run: |
-          mike deploy --push --update-aliases ${{ github.event.client_payload.tag }} latest
+          mike deploy --push --update-aliases "$DEPLOY_TAG" latest
+        env:
+          DEPLOY_TAG: ${{ github.event.client_payload.tag }}

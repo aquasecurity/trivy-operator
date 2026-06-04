@@ -117,7 +117,7 @@ func (pl *policyLoader) getBuiltInPolicies(ctx context.Context) ([]string, error
 		return nil, xerrors.Errorf("failed to download built-in policies: %w", err)
 	}
 
-	return []string{client.LoadBuiltinChecks()}, nil
+	return []string{client.BuiltinChecksPath()}, nil
 }
 
 func LoadPoliciesData(policyPath []string) ([]string, error) {

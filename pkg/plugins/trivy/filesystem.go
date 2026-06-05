@@ -216,9 +216,6 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 			return corev1.PodSpec{}, nil, err
 		}
 		command := config.GetCommand()
-		if err != nil {
-			return corev1.PodSpec{}, nil, err
-		}
 
 		fscommand := []string{SharedVolumeLocationOfTrivy}
 		args := GetFSScanningArgs(ctx, command, Standalone, "")
@@ -446,9 +443,6 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 			return corev1.PodSpec{}, nil, err
 		}
 		command := config.GetCommand()
-		if err != nil {
-			return corev1.PodSpec{}, nil, err
-		}
 
 		fscommand := []string{SharedVolumeLocationOfTrivy}
 		args := GetFSScanningArgs(ctx, command, ClientServer, encodedTrivyServerURL.String())

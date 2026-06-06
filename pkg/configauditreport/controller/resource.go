@@ -220,6 +220,12 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			return ctrl.Result{}, err
 		}
 
+		resourceAnnotationsToInclude := r.GetReportResourceAnnotations()
+		additionalCustomAnnotations, err := r.GetAdditionalReportAnnotations()
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+
 		log.V(1).Info("Checking whether configuration audit report exists")
 		hasReport, err := r.hasReport(ctx, resourceRef, resourceHash, policiesHash)
 		if err != nil {
@@ -251,6 +257,8 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 				PluginConfigHash(policiesHash).
 				ResourceLabelsToInclude(resourceLabelsToInclude).
 				AdditionalReportLabels(additionalCustomLabel).
+				ResourceAnnotationsToInclude(resourceAnnotationsToInclude).
+				AdditionalReportAnnotations(additionalCustomAnnotations).
 				Data(misConfigData.configAuditReportData)
 			if r.Config.ScannerReportTTL != nil {
 				reportBuilder.ReportTTL(r.Config.ScannerReportTTL)
@@ -266,6 +274,8 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 					PluginConfigHash(policiesHash).
 					ResourceLabelsToInclude(resourceLabelsToInclude).
 					AdditionalReportLabels(additionalCustomLabel).
+					ResourceAnnotationsToInclude(resourceAnnotationsToInclude).
+					AdditionalReportAnnotations(additionalCustomAnnotations).
 					Data(misConfigData.infraAssessmentReportData)
 				if r.Config.ScannerReportTTL != nil {
 					infraReportBuilder.ReportTTL(r.Config.ScannerReportTTL)
@@ -283,6 +293,8 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 				PluginConfigHash(policiesHash).
 				ResourceLabelsToInclude(resourceLabelsToInclude).
 				AdditionalReportLabels(additionalCustomLabel).
+				ResourceAnnotationsToInclude(resourceAnnotationsToInclude).
+				AdditionalReportAnnotations(additionalCustomAnnotations).
 				Data(misConfigData.rbacAssessmentReportData)
 			if r.Config.ScannerReportTTL != nil {
 				rbacReportBuilder.ReportTTL(r.Config.ScannerReportTTL)

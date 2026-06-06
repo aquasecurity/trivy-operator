@@ -13,7 +13,7 @@ Keeps security report resources updated
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` | affinity set the operator affinity |
-| alternateReportStorage | object | `{"enabled":false,"mountPath":"/mnt/data/trivy-operator","podSecurityContext":{"fsGroup":10000,"runAsUser":10000},"storage":"10Gi","storageClassName":"","volumeName":"trivy-operator-pvc"}` | alternateReportStorage is the flag to enable alternate storage for all trivy reports (crds) in the form json files inside of a persistent volume |
+| alternateReportStorage | object | `{"enabled":false,"mountPath":"/mnt/data/trivy-operator","podSecurityContext":{"fsGroup":10000,"runAsUser":10000},"storage":"10Gi","storageClassName":"","accessModes":["ReadWriteOnce"],"volumeName":"trivy-operator-pvc"}` | alternateReportStorage is the flag to enable alternate storage for all trivy reports (crds) in the form json files inside of a persistent volume |
 | alternateReportStorage.storageClassName | string | `""` | storageClassName for the PVC (optional, uses cluster default if not specified) |
 | automountServiceAccountToken | bool | `true` | automountServiceAccountToken the flag to enable automount for service account token |
 | compliance.cron | string | `"0 */6 * * *"` | cron this flag control the cron interval for compliance report generation |
@@ -190,6 +190,7 @@ Keeps security report resources updated
 | trivy.storageClassEnabled | bool | `true` | whether to use a storage class for trivy server or emptydir (one mey want to use ephemeral storage) |
 | trivy.storageClassName | string | `""` | storageClassName is the name of the storage class to be used for trivy server PVC. If empty, tries to find default storage class |
 | trivy.storageSize | string | `"5Gi"` | storageSize is the size of the trivy server PVC |
+| trivy.storageAccessModes | list | `[ ReadWriteOnce ]` | storageAccessModes is the PVC accessModes list |
 | trivy.supportedConfigAuditKinds | string | `"Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"` | The Flag is the list of supported kinds separated by comma delimiter to be scanned by the config audit scanner  |
 | trivy.timeout | string | `"5m0s"` | timeout is the duration to wait for scan completion. |
 | trivy.useBuiltinRegoPolicies | string | `"false"` | The Flag to enable the usage of builtin rego policies by default, these policies are downloaded by default from mirror.gcr.io/aquasec/trivy-checks  |

@@ -1,0 +1,12 @@
+{{- if .Values.extraEnv }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "trivy-operator.fullname" . }}-extraenv
+  namespace: {{ include "trivy-operator.namespace" . }}
+  labels: {{- include "trivy-operator.labels" . | nindent 4 }}
+data:
+  {{- range $key, $value := .Values.extraEnv }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+{{- end }}

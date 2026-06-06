@@ -160,6 +160,7 @@ func (r *NodeCollectorJobController) processCompleteScanJob(ctx context.Context,
 		return fmt.Errorf("failed to evaluate policies on Node : %w", err)
 	}
 	infraReportBuilder := infraassessment.NewReportBuilder(r.Client.Scheme()).
+		ScopeResolver(&r.ObjectResolver.K8sScope).
 		Controller(node).
 		ResourceSpecHash(resourceHash).
 		PluginConfigHash(policiesHash).

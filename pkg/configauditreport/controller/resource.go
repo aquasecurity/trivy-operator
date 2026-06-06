@@ -10,10 +10,6 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	corev1 "k8s.io/api/core/v1"
-	networkingv1 "k8s.io/api/networking/v1"
-	rbacv1 "k8s.io/api/rbac/v1"
-	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
@@ -88,13 +84,13 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 
 	// Determine which Kubernetes workloads the controller will reconcile and add them to resources
 	targetWorkloads := r.Config.GetTargetWorkloads()
-	targetWorkloads = append(targetWorkloads, strings.ToLower(string(kube.KindIngress)))
-	for _, tw := range targetWorkloads {
-		var resource kube.Resource
-		err = resource.GetWorkloadResource(tw, &v1alpha1.ConfigAuditReport{}, r.ObjectResolver)
-		if err != nil {
-			return err
-		}
+
+	resources, clusterResources, err := kube.GetActiveResource(targetWorkloads, r.ObjectResolver, r.Scheme())
+	if err != nil {
+		return fmt.Errorf("unable to setup resources for ResourceController: %w", err)
+	}
+
+	for _, resource := range resources {
 		resourceBuilder := r.buildControlMgr(mgr, resource, installModePredicate)
 		if r.Config.InfraAssessmentScannerEnabled {
 			resourceBuilder.Owns(&v1alpha1.InfraAssessmentReport{})
@@ -102,30 +98,6 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		if err = resourceBuilder.Complete(r.reconcileResource(resource.Kind)); err != nil {
 			return fmt.Errorf("constructing controller for %s: %w", resource.Kind, err)
 		}
-	}
-
-	// Add non workload related resources
-	resources := []kube.Resource{
-		{Kind: kube.KindService, ForObject: &corev1.Service{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
-		{Kind: kube.KindConfigMap, ForObject: &corev1.ConfigMap{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
-		{Kind: kube.KindRole, ForObject: &rbacv1.Role{}, OwnsObject: &v1alpha1.RbacAssessmentReport{}},
-		{Kind: kube.KindRoleBinding, ForObject: &rbacv1.RoleBinding{}, OwnsObject: &v1alpha1.RbacAssessmentReport{}},
-		{Kind: kube.KindNetworkPolicy, ForObject: &networkingv1.NetworkPolicy{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
-		{Kind: kube.KindResourceQuota, ForObject: &corev1.ResourceQuota{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
-		{Kind: kube.KindLimitRange, ForObject: &corev1.LimitRange{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
-	}
-
-	for _, configResource := range resources {
-		if err := r.buildControlMgr(mgr, configResource, installModePredicate).
-			Complete(r.reconcileResource(configResource.Kind)); err != nil {
-			return fmt.Errorf("constructing controller for %s: %w", configResource.Kind, err)
-		}
-	}
-
-	clusterResources := []kube.Resource{
-		{Kind: kube.KindClusterRole, ForObject: &rbacv1.ClusterRole{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
-		{Kind: kube.KindClusterRoleBindings, ForObject: &rbacv1.ClusterRoleBinding{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
-		{Kind: kube.KindCustomResourceDefinition, ForObject: &apiextensionsv1.CustomResourceDefinition{}, OwnsObject: &v1alpha1.ClusterConfigAuditReport{}},
 	}
 
 	for _, resource := range clusterResources {
@@ -246,6 +218,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		// create config-audit report
 		if !kube.IsRoleTypes(kube.Kind(kind)) || r.MergeRbacFindingWithConfigAudit {
 			reportBuilder := configauditreport.NewReportBuilder(r.Client.Scheme()).
+				ScopeResolver(&r.ObjectResolver.K8sScope).
 				Controller(resource).
 				ResourceSpecHash(resourceHash).
 				PluginConfigHash(policiesHash).
@@ -261,6 +234,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 			// create infra-assessment report
 			if k8sCoreComponent(resource) && r.Config.InfraAssessmentScannerEnabled {
 				infraReportBuilder := infraassessment.NewReportBuilder(r.Client.Scheme()).
+					ScopeResolver(&r.ObjectResolver.K8sScope).
 					Controller(resource).
 					ResourceSpecHash(resourceHash).
 					PluginConfigHash(policiesHash).
@@ -278,6 +252,7 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 		// create rbac-assessment report
 		if kube.IsRoleTypes(kube.Kind(kind)) && r.Config.RbacAssessmentScannerEnabled && !r.MergeRbacFindingWithConfigAudit {
 			rbacReportBuilder := rbacassessment.NewReportBuilder(r.Client.Scheme()).
+				ScopeResolver(&r.ObjectResolver.K8sScope).
 				Controller(resource).
 				ResourceSpecHash(resourceHash).
 				PluginConfigHash(policiesHash).
@@ -366,7 +341,7 @@ func (r *ResourceController) hasReport(ctx context.Context, owner kube.ObjectRef
 	if kube.IsRoleTypes(owner.Kind) {
 		io = r.RbacReadWriter
 	}
-	if kube.IsClusterScopedKind(string(owner.Kind)) {
+	if r.ObjectResolver.IsClusterScope(string(owner.Kind)) {
 		hasClusterReport, err := r.hasClusterReport(ctx, owner, podSpecHash, pluginConfigHash, io)
 		if err != nil {
 			return false, err

@@ -341,6 +341,24 @@ func (h *Helper) HasActiveReplicaSet(ctx context.Context, namespace, name string
 	}
 }
 
+// HasNewActiveReplicaSet returns a condition func that polls until the active ReplicaSet
+// for the given deployment has a name different from oldRSName, then stores it in out.
+// This avoids the race where HasActiveReplicaSet can satisfy immediately with the old RS
+// because the deployment controller has not yet incremented its revision annotation.
+func (h *Helper) HasNewActiveReplicaSet(ctx context.Context, namespace, name, oldRSName string, out **appsv1.ReplicaSet) func() (bool, error) {
+	return func() (bool, error) {
+		rs, err := h.GetActiveReplicaSetForDeployment(ctx, namespace, name)
+		if err != nil {
+			return false, err
+		}
+		if rs == nil || rs.Name == oldRSName {
+			return false, nil
+		}
+		*out = rs
+		return true, nil
+	}
+}
+
 func (h *Helper) HasVulnerabilityReportOwnedBy(ctx context.Context, obj client.Object) func() (bool, error) {
 	return func() (bool, error) {
 		gvk, err := apiutil.GVKForObject(obj, h.scheme)

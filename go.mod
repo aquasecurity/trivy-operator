@@ -8,7 +8,7 @@ require (
 	github.com/aquasecurity/trivy v0.71.0
 	github.com/aquasecurity/trivy-checks v1.12.2-0.20251219190323-79d27547baf5
 	github.com/aquasecurity/trivy-kubernetes v0.9.1
-	github.com/aws/aws-sdk-go-v2 v1.41.7
+	github.com/aws/aws-sdk-go-v2 v1.41.9
 	github.com/bluele/gcache v0.0.2
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
@@ -21,7 +21,7 @@ require (
 	github.com/liamg/memoryfs v1.6.0
 	github.com/magefile/mage v1.17.2
 	github.com/onsi/ginkgo/v2 v2.29.0
-	github.com/onsi/gomega v1.40.0
+	github.com/onsi/gomega v1.41.0
 	github.com/openshift/api v0.0.0-20231025170628-b8a18fdc040d
 	github.com/prometheus/client_golang v1.23.2
 	github.com/quasilyte/go-ruleguard/dsl v0.3.23
@@ -103,7 +103,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.30.17 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.35.21 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.42.1 // indirect
-	github.com/aws/smithy-go v1.25.1 // indirect
+	github.com/aws/smithy-go v1.26.0 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/bitnami/go-version v0.0.0-20231130084017-bb00604d650c // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect

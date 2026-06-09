@@ -88,9 +88,7 @@ func (r *ClusterComplianceReportReconciler) generateComplianceReport(ctx context
 				log.Info("Cluster compliance report written", "path", reportPath)
 
 				// Send webhook notification for compliance report
-				webhook.SendWebhookReport(reportData, r.Config, log)
-
-				return nil
+				webhook.SendWebhookReportIfAvailable(reportData, r.Config, log)
 			}
 			err = r.Mgr.GenerateComplianceReport(ctx, report.Spec)
 			if err != nil {

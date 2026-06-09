@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -72,9 +73,10 @@ func (r *WebhookReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return nil
 }
 
-// SendWebhookReport sends a report directly via webhook without going through CRD reconciliation
-// This is used when AltReportStorageEnabled is true and reports are written to filesystem
-func SendWebhookReport(reportData []byte, config etc.Config, log logr.Logger) {
+// SendWebhookReportIfAvailable sends a report directly via webhook without going through CRD reconciliation
+// This is used when AltReportStorageEnabled is true and reports are written to filesystem.
+// It is a no-op when no webhook URL is configured.
+func SendWebhookReportIfAvailable(reportData []byte, config etc.Config, log logr.Logger) {
 	if config.WebhookBroadcastURL == "" {
 		return // No webhook URL configured
 	}
@@ -132,13 +134,14 @@ func sendEncodedReport(data []byte, endpoint string, timeout time.Duration, head
 	req.Header = headerValues
 
 	resp, err := hc.Do(req)
-	defer func() {
-		if resp != nil {
-			_ = resp.Body.Close()
-		}
-	}()
 	if err != nil {
 		return fmt.Errorf("failed to send reports to endpoint: %w", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("webhook endpoint returned %s: %s", resp.Status, bytes.TrimSpace(body))
 	}
 	return nil
 }

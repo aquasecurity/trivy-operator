@@ -126,6 +126,8 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		{Kind: kube.KindClusterRole, ForObject: &rbacv1.ClusterRole{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
 		{Kind: kube.KindClusterRoleBindings, ForObject: &rbacv1.ClusterRoleBinding{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
 		{Kind: kube.KindCustomResourceDefinition, ForObject: &apiextensionsv1.CustomResourceDefinition{}, OwnsObject: &v1alpha1.ClusterConfigAuditReport{}},
+		{Kind: kube.KindPersistentVolume, ForObject: &corev1.PersistentVolume{}, OwnsObject: &v1alpha1.ClusterConfigAuditReport{}},
+		{Kind: kube.KindPersistentVolumeClaim, ForObject: &corev1.KindPersistentVolumeClaim{}, OwnsObject: &v1alpha1.ClusterConfigAuditReport{}},
 	}
 
 	for _, resource := range clusterResources {

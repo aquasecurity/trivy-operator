@@ -57,6 +57,8 @@ const (
 	KindIngress               Kind = "Ingress"
 	KindResourceQuota         Kind = "ResourceQuota"
 	KindLimitRange            Kind = "LimitRange"
+	KindPersistentVolume      Kind = "PersistentVolume"
+	KindPersistentVolumeClaim Kind = "PersistentVolumeClaim"
 
 	KindClusterRole              Kind = "ClusterRole"
 	KindClusterRoleBindings      Kind = "ClusterRoleBinding"
@@ -106,7 +108,7 @@ func IsWorkload(kind string) bool {
 // TODO Use discovery client to have a generic implementation.
 func IsClusterScopedKind(kind string) bool {
 	switch kind {
-	case string(KindClusterRole), string(KindClusterRoleBindings), string(KindCustomResourceDefinition), string(KindNode):
+	case string(KindClusterRole), string(KindClusterRoleBindings), string(KindCustomResourceDefinition), string(KindNode), string(KindPersistentVolume), string(KindPersistentVolumeClaim):
 		return true
 	default:
 		return false
@@ -224,6 +226,10 @@ func ComputeSpecHash(obj client.Object) (string, error) {
 	case *corev1.ResourceQuota:
 		return ComputeHash(obj), nil
 	case *corev1.Node:
+		return ComputeHash(obj), nil
+	case *corev1.PersistentVolume:
+		return ComputeHash(obj), nil
+	case *corev1.PersistentVolumeClaim:
 		return ComputeHash(obj), nil
 	case *corev1.LimitRange:
 		return ComputeHash(obj), nil
@@ -372,6 +378,10 @@ func (o *ObjectResolver) ObjectFromObjectRef(ctx context.Context, ref ObjectRef)
 		obj = &corev1.LimitRange{}
 	case KindClusterRole:
 		obj = &rbacv1.ClusterRole{}
+	case KindPersistentVolume:
+		obj = &corev1.PersistentVolume{}
+	case KindPersistentVolumeClaim:
+		obj = &corev1.PersistentVolumeClaim{}
 	case KindClusterRoleBindings:
 		obj = &rbacv1.ClusterRoleBinding{}
 	case KindCustomResourceDefinition:

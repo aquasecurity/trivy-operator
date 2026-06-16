@@ -2,10 +2,12 @@ package trivy_operator
 
 import (
 	"context"
+	"strings"
 	"testing"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -14,6 +16,7 @@ import (
 
 	"github.com/aquasecurity/trivy-operator/pkg/operator"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/plugins/trivy"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/tests/itest/helper"
 	"github.com/aquasecurity/trivy-operator/tests/itest/trivy-operator/behavior"
@@ -66,6 +69,30 @@ var _ = BeforeSuite(func() {
 	})
 	Expect(err).ToNot(HaveOccurred())
 
+	installMode, operatorNamespace, _, err := operatorConfig.ResolveInstallMode()
+	Expect(err).ToNot(HaveOccurred(), "install mode: %s", installMode)
+
+	pluginCM := &corev1.ConfigMap{}
+	pluginCM.Namespace = operatorNamespace
+	pluginCM.Name = trivyoperator.GetPluginConfigMapName("Trivy")
+	_ = kubeClient.Delete(context.Background(), pluginCM)
+	pluginCM = &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: operatorNamespace,
+			Name:      trivyoperator.GetPluginConfigMapName("Trivy"),
+		},
+		Data: map[string]string{
+			"trivy.useBuiltinRegoPolicies":    "true",
+			"trivy.supportedConfigAuditKinds": "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota,PersistentVolume,PersistentVolumeClaim",
+			"trivy.repository":                trivy.DefaultImageRepository,
+			"trivy.tag":                       "0.65.0",
+			"trivy.dbRepository":              trivy.DefaultDBRepository,
+			"trivy.javaDbRepository":          trivy.DefaultJavaDBRepository,
+		},
+	}
+	_ = kubeClient.Create(context.Background(), pluginCM)
+	_ = kubeClient.Update(context.Background(), pluginCM)
+
 	inputs = behavior.Inputs{
 		AssertTimeout:         5 * time.Minute,
 		PollingInterval:       5 * time.Second,
@@ -90,6 +117,12 @@ func ApplyTestConfiguration(operatorConfig *etc.Config) {
 	// Default is 0. Set to 30 seconds for testing scan job TTL behavior.
 	scanJobTTL := 30 * time.Second
 	operatorConfig.ScanJobTTL = &scanJobTTL
+
+	if operatorConfig.TargetWorkloads == "" {
+		operatorConfig.TargetWorkloads = "Pod,ReplicaSet,ReplicationController,StatefulSet,DaemonSet,CronJob,Job,PersistentVolume,PersistentVolumeClaim"
+	} else if !strings.Contains(operatorConfig.TargetWorkloads, "PersistentVolumeClaim") {
+		operatorConfig.TargetWorkloads += ",PersistentVolumeClaim"
+	}
 }
 
 var _ = AfterSuite(func() {

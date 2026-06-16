@@ -181,6 +181,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	if err != nil {
 		return err
 	}
+
 	objectResolver := kube.NewObjectResolver(mgr.GetClient(), compatibleObjectMapper)
 	limitChecker := jobs.NewLimitChecker(operatorConfig, mgr.GetClient(), trivyOperatorConfig)
 	logsReader := kube.NewLogsReader(clientSet)
@@ -324,7 +325,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			return fmt.Errorf("unable to setup resource controller: %w", err)
 		}
 		if err = (&controller.PolicyConfigController{
-			Logger:         ctrl.Log.WithName("resourcecontroller"),
+			Logger:         ctrl.Log.WithName("policyconfigcontroller"),
 			Config:         operatorConfig,
 			PolicyLoader:   policyLoader,
 			ObjectResolver: objectResolver,

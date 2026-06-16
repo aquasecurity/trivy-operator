@@ -126,15 +126,14 @@ func VulnerabilityScannerBehavior(inputs *Inputs) func() {
 				By("Waiting for VulnerabilityReport")
 				Eventually(inputs.HasVulnerabilityReportOwnedBy(ctx, rs), inputs.AssertTimeout).Should(BeTrue())
 
+				oldRSName := rs.Name
+
 				By("Updating deployment image to wordpress:6.7")
 				err = inputs.UpdateDeploymentImage(ctx, inputs.PrimaryNamespace, deploy.Name)
 				Expect(err).ToNot(HaveOccurred())
 
-				Eventually(inputs.HasActiveReplicaSet(ctx, inputs.PrimaryNamespace, deploy.Name), inputs.AssertTimeout).Should(BeTrue())
-
-				By("Getting new active replicaset")
-				rs, err = inputs.GetActiveReplicaSetForDeployment(ctx, inputs.PrimaryNamespace, deploy.Name)
-				Expect(err).ToNot(HaveOccurred())
+				By("Waiting for new active ReplicaSet")
+				Eventually(inputs.HasNewActiveReplicaSet(ctx, inputs.PrimaryNamespace, deploy.Name, oldRSName, &rs), inputs.AssertTimeout).Should(BeTrue())
 				Expect(rs).ToNot(BeNil())
 
 				By("Waiting for new VulnerabilityReport")
@@ -302,15 +301,14 @@ func ConfigurationCheckerBehavior(inputs *Inputs) func() {
 				By("Waiting for ConfigAuditReport")
 				Eventually(inputs.HasConfigAuditReportOwnedBy(ctx, rs), inputs.AssertTimeout).Should(BeTrue())
 
+				oldRSName := rs.Name
+
 				By("Updating deployment image to wordpress:6.7")
 				err = inputs.UpdateDeploymentImage(ctx, inputs.PrimaryNamespace, deploy.Name)
 				Expect(err).ToNot(HaveOccurred())
 
-				Eventually(inputs.HasActiveReplicaSet(ctx, inputs.PrimaryNamespace, deploy.Name), inputs.AssertTimeout).Should(BeTrue())
-
-				By("Getting new active replicaset")
-				rs, err = inputs.GetActiveReplicaSetForDeployment(ctx, inputs.PrimaryNamespace, deploy.Name)
-				Expect(err).ToNot(HaveOccurred())
+				By("Waiting for new active ReplicaSet")
+				Eventually(inputs.HasNewActiveReplicaSet(ctx, inputs.PrimaryNamespace, deploy.Name, oldRSName, &rs), inputs.AssertTimeout).Should(BeTrue())
 				Expect(rs).ToNot(BeNil())
 
 				By("Waiting for new Config Audit Report")

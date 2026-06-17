@@ -73,6 +73,8 @@ type ResourceController struct {
 // +kubebuilder:rbac:groups=aquasecurity.github.io,resources=configauditreports,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aquasecurity.github.io,resources=rbacassessmentreports,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=aquasecurity.github.io,resources=infraassessmentreports,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups="",resources=persistentvolumes,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=persistentvolumeclaims,verbs=get;list;watch
 
 // +kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterroles,verbs=get;list;watch
 // +kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=clusterrolebindings,verbs=get;list;watch
@@ -113,6 +115,7 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		{Kind: kube.KindNetworkPolicy, ForObject: &networkingv1.NetworkPolicy{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
 		{Kind: kube.KindResourceQuota, ForObject: &corev1.ResourceQuota{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
 		{Kind: kube.KindLimitRange, ForObject: &corev1.LimitRange{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
+		{Kind: kube.KindPersistentVolumeClaim, ForObject: &corev1.PersistentVolumeClaim{}, OwnsObject: &v1alpha1.ConfigAuditReport{}},
 	}
 
 	for _, configResource := range resources {
@@ -126,6 +129,7 @@ func (r *ResourceController) SetupWithManager(mgr ctrl.Manager) error {
 		{Kind: kube.KindClusterRole, ForObject: &rbacv1.ClusterRole{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
 		{Kind: kube.KindClusterRoleBindings, ForObject: &rbacv1.ClusterRoleBinding{}, OwnsObject: &v1alpha1.ClusterRbacAssessmentReport{}},
 		{Kind: kube.KindCustomResourceDefinition, ForObject: &apiextensionsv1.CustomResourceDefinition{}, OwnsObject: &v1alpha1.ClusterConfigAuditReport{}},
+		{Kind: kube.KindPersistentVolume, ForObject: &corev1.PersistentVolume{}, OwnsObject: &v1alpha1.ClusterConfigAuditReport{}},
 	}
 
 	for _, resource := range clusterResources {

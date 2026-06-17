@@ -202,8 +202,10 @@ func (b *DeploymentBuilder) WithNamespace(namespace string) *DeploymentBuilder {
 
 func (b *DeploymentBuilder) WithContainer(name, image string) *DeploymentBuilder {
 	b.containers = append(b.containers, corev1.Container{
-		Name:  name,
-		Image: image,
+		Name:    name,
+		Image:   image,
+		Command: []string{"/bin/sh", "-c", "--"},
+		Args:    []string{"while true; do sleep 3600; done;"},
 	})
 	return b
 }
@@ -489,7 +491,7 @@ func (h *Helper) UpdateDeploymentImage(ctx context.Context, namespace, name stri
 		}
 
 		dcDeploy := deployment.DeepCopy()
-		dcDeploy.Spec.Template.Spec.Containers[0].Image = "wordpress:6.7"
+		dcDeploy.Spec.Template.Spec.Containers[0].Image = "alpine:3.22"
 		err = h.kubeClient.Update(ctx, dcDeploy)
 		if err != nil && errors.IsConflict(err) {
 			return false, nil

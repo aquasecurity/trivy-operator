@@ -156,8 +156,8 @@ func prepareImages() error {
 	images := []string{
 		"mirror.gcr.io/aquasec/trivy:0.71.1",
 		"mirror.gcr.io/knqyf263/vuln-image:1.2.3",
-		"wordpress:4.9",
-		"wordpress:6.7",
+		"alpine:3.21.1",
+		"alpine:3.22",
 	}
 	fmt.Printf("Preparing %d image(s) for Trivy Operator...\n", len(images))
 	for _, image := range images {

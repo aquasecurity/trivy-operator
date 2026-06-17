@@ -3063,7 +3063,7 @@ data:
   trivy.dbRepositoryInsecure: "false"
   trivy.useBuiltinRegoPolicies: "false"
   trivy.useEmbeddedRegoPolicies: "true"
-  trivy.supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota"
+  trivy.supportedConfigAuditKinds: "Workload,Service,Role,ClusterRole,NetworkPolicy,Ingress,LimitRange,ResourceQuota,PersistentVolume,PersistentVolumeClaim"
   trivy.timeout: "5m0s"
   trivy.mode: "Standalone"
   trivy.resources.requests.cpu: "100m"
@@ -3217,6 +3217,8 @@ rules:
   - limitranges
   - nodes
   - pods
+  - persistentvolumes
+  - persistentvolumeclaims
   - replicationcontrollers
   - resourcequotas
   - services

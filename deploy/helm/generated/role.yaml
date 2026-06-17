@@ -11,6 +11,8 @@ rules:
   - limitranges
   - nodes
   - pods
+  - persistentvolumes
+  - persistentvolumeclaims
   - replicationcontrollers
   - resourcequotas
   - services

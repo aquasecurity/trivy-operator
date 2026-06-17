@@ -108,7 +108,7 @@ func IsWorkload(kind string) bool {
 // TODO Use discovery client to have a generic implementation.
 func IsClusterScopedKind(kind string) bool {
 	switch kind {
-	case string(KindClusterRole), string(KindClusterRoleBindings), string(KindCustomResourceDefinition), string(KindNode), string(KindPersistentVolume), string(KindPersistentVolumeClaim):
+	case string(KindClusterRole), string(KindClusterRoleBindings), string(KindCustomResourceDefinition), string(KindNode), string(KindPersistentVolume):
 		return true
 	default:
 		return false
@@ -772,7 +772,7 @@ func IsRoleTypes(kind Kind) bool {
 }
 
 func isValidNamespaceResource(kind Kind) bool {
-	if kind == KindConfigMap || kind == KindNetworkPolicy || kind == KindIngress || kind == KindResourceQuota || kind == KindLimitRange || kind == KindService {
+	if kind == KindConfigMap || kind == KindNetworkPolicy || kind == KindIngress || kind == KindResourceQuota || kind == KindLimitRange || kind == KindService || kind == KindPersistentVolumeClaim {
 		return true
 	}
 	return false

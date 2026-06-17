@@ -3216,9 +3216,9 @@ rules:
   - configmaps
   - limitranges
   - nodes
-  - pods
-  - persistentvolumes
   - persistentvolumeclaims
+  - persistentvolumes
+  - pods
   - replicationcontrollers
   - resourcequotas
   - services

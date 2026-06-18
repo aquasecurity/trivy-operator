@@ -90,8 +90,8 @@ extra:
     provider: mike
     default: latest
   var:
-    prev_git_tag: "v0.30.1"
-    chart_version: "0.33.1"
+    prev_git_tag: "v0.31.1"
+    chart_version: "0.33.2"
   social:
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/AquaTrivy

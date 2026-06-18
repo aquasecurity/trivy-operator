@@ -137,8 +137,8 @@ github.com/aquasecurity/testdocker v0.0.0-20260423080828-99e7cbfdbe56 h1:VUjEtNq
 github.com/aquasecurity/testdocker v0.0.0-20260423080828-99e7cbfdbe56/go.mod h1:4ahMSJAwow5T1YsPOvyUpCz6faBXlD7p/fdKmA9baEQ=
 github.com/aquasecurity/tml v0.6.1 h1:y2ZlGSfrhnn7t4ZJ/0rotuH+v5Jgv6BDDO5jB6A9gwo=
 github.com/aquasecurity/tml v0.6.1/go.mod h1:OnYMWY5lvI9ejU7yH9LCberWaaTBW7hBFsITiIMY2yY=
-github.com/aquasecurity/trivy v0.71.0 h1:mXskgiicbR/z5dzTjD9UjwNfwaFJORAs81M/gTwHv94=
-github.com/aquasecurity/trivy v0.71.0/go.mod h1:GRZTF7odD36IsTb8FD+SD79sIxv+G6fo1K+e9nWhW84=
+github.com/aquasecurity/trivy v0.71.1 h1:dXCZlFUoDQe8g6CCXqojNU3jAsmqeWOwfiYD1h2ePNQ=
+github.com/aquasecurity/trivy v0.71.1/go.mod h1:GRZTF7odD36IsTb8FD+SD79sIxv+G6fo1K+e9nWhW84=
 github.com/aquasecurity/trivy-checks v1.12.2-0.20251219190323-79d27547baf5 h1:8HnXyjgCiJwVX1mTKeqdyizd7ZBmXMPL+BMQ5UZd0Nk=
 github.com/aquasecurity/trivy-checks v1.12.2-0.20251219190323-79d27547baf5/go.mod h1:hBSA3ziBFwGENK6/PYNIKm6N24SFg0wsv1VXeqPG/3M=
 github.com/aquasecurity/trivy-db v0.0.0-20251222105351-a833f47f8f0d h1:mwCxwhDRnW5UkSQdZfekTCjaLyWp1rqfIa6KKRdMDAo=

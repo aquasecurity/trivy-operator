@@ -12,6 +12,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/util/retry"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -121,10 +122,13 @@ func GetReportsByLabel(ctx context.Context, resolver kube.ObjectResolver, object
 		client.InNamespace(namespace),
 		client.MatchingLabels(labels))
 	if err != nil {
+		if meta.IsNoMatchError(err) {
+			return nil
+		}
 		return fmt.Errorf("listing reports in namespace %s matching labels %v: %w", namespace,
 			labels, err)
 	}
-	return err
+	return nil
 }
 
 // MarkOldReportForImmediateDeletion set old (historical replicaSets) reports with TTL = 0 for immediate deletion

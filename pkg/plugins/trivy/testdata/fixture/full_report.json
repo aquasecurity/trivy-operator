@@ -30,7 +30,15 @@
           "FixedVersion": "1.1.1d-r0",
           "Title": "openssl: information disclosure in fork()",
           "Description": "Usually this long long description of CVE-2019-1549",
-          "Severity": "MEDIUM",
+          "SeveritySource": "nvd",
+          "VendorSeverity": {
+            "amazon": 2,
+            "nvd": 2,
+            "oracle-oval": 2,
+            "photon": 2,
+            "redhat": 1,
+            "ubuntu": 1
+          },
           "PrimaryURL": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-1549",
           "References": [
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-1549"
@@ -43,7 +51,15 @@
           "InstalledVersion": "1.1.1c-r0",
           "FixedVersion": "1.1.1d-r0",
           "Title": "openssl: side-channel weak encryption vulnerability",
-          "Severity": "LOW",
+          "SeveritySource": "nvd",
+          "VendorSeverity": {
+            "amazon": 2,
+            "nvd": 1,
+            "oracle-oval": 2,
+            "photon": 2,
+            "redhat": 2,
+            "ubuntu": 1
+          },
           "PrimaryURL": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-1547",
           "References": [
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-1547"

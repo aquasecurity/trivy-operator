@@ -154,7 +154,7 @@ func (t Test) Integration() error {
 // Target for downloading test images and upload them into KinD
 func prepareImages() error {
 	images := []string{
-		"mirror.gcr.io/aquasec/trivy:0.71.1",
+		"mirror.gcr.io/aquasec/trivy:0.72.0",
 		"mirror.gcr.io/knqyf263/vuln-image:1.2.3",
 		"alpine:3.21.1",
 		"alpine:3.22",

@@ -20,21 +20,21 @@ jobs:
       id-token: write
     steps:
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # was: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3 # was: docker/setup-qemu-action@v4.1.0
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # was: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # was: docker/setup-buildx-action@v4.1.0
       - name: Available platforms
         run: echo "$PLATFORMS"
         env:
           PLATFORMS: ${{ steps.buildx.outputs.platforms }}
       - name: Checkout code
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # was: actions/checkout@v4
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # was: actions/checkout@v7.0.0
         with:
           persist-credentials: false
 
       - name: Setup Go
-        uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # was: actions/setup-go@v6
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # was: actions/setup-go@v6
         with:
           cache: false
           go-version-file: go.mod
@@ -44,9 +44,9 @@ jobs:
         run: sudo apt-get install -y gcc-aarch64-linux-gnu
 
       - name: Install cosign
-        uses: sigstore/cosign-installer@3454372f43399081ed03b604cb2d021dabca52bb # was: sigstore/cosign-installer@v3.8.2
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # was: sigstore/cosign-installer@v4.1.2
       - name: Release snapshot
-        uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # was: goreleaser/goreleaser-action@v6
+        uses: goreleaser/goreleaser-action@5daf1e915a5f0af01ddbcd89a43b8061ff4f1a89 # was: goreleaser/goreleaser-action@v7.2.2
         with:
           version: v2.4.8
           args: release -f=goreleaser-e2e.yaml --snapshot --skip=publish --clean --timeout 120m
@@ -54,13 +54,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COSIGN_EXPERIMENTAL: 1
       - name: Scan Trivy Operator image for vulnerabilities
-        uses: aquasecurity/trivy-action@97e0b3872f55f89b95b2f65b3dbab56962816478 # was: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@df678dbccf677bc6937338d569ba0da18964a8cc # was: aquasecurity/trivy-action@master
         with:
           image-ref: 'mirror.gcr.io/aquasec/trivy-operator:${{ github.sha }}-amd64'
           exit-code: '1'
           ignore-unfixed: true
       - name: Scan Trivy Operator (ubi) image for vulnerabilities
-        uses: aquasecurity/trivy-action@97e0b3872f55f89b95b2f65b3dbab56962816478 # was: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@df678dbccf677bc6937338d569ba0da18964a8cc # was: aquasecurity/trivy-action@master
         with:
           image-ref: 'mirror.gcr.io/aquasec/trivy-operator:${{ github.sha }}-ubi9-amd64'
           exit-code: '1'

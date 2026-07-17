@@ -671,6 +671,17 @@ compliance:
 
 rbac:
   create: true
+  # -- aggregateClusterRoles controls the aggregation ClusterRoles that expose the
+  # report CRDs (vulnerability/config-audit/exposed-secret) to the built-in view/edit/admin roles
+  aggregateClusterRoles:
+    # -- create specifies whether the aggregation ClusterRoles should be created.
+    # When multiple releases are installed in the same cluster, set this to true on a
+    # single release only to avoid ownership conflicts on these cluster-scoped resources
+    create: true
+    # -- namePrefix is prepended to the aggregation ClusterRole names. Set a unique value
+    # per release (e.g. "{{ .Release.Name }}-") to avoid ArgoCD ownership conflicts across
+    # releases. Empty keeps the historical fixed names
+    namePrefix: ""
 serviceAccount:
   # -- Specifies whether a service account should be created.
   create: true

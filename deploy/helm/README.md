@@ -185,7 +185,7 @@ Keeps security report resources updated
 | trivy.skipDirs | string | `nil` | a comma separated list of directories for Trivy to skip |
 | trivy.skipFiles | string | `nil` | a comma separated list of file paths for Trivy to skip |
 | trivy.skipJavaDBUpdate | bool | `false` | skipJavaDBUpdate is the flag to enable skip Java index databases update for Trivy client. |
-| trivy.slow | bool | `true` | slow this flag is to use less CPU/memory for scanning though it takes more time than normal scanning. It fits small-footprint |
+| trivy.parallel | int | `1` | number of parallel executions for scanning. 1 fits small-footprint environments |
 | trivy.sslCertDir | string | `nil` | sslCertDir can be used to override the system default locations for SSL certificate files directory, example: /ssl/certs |
 | trivy.storageClassEnabled | bool | `true` | whether to use a storage class for trivy server or emptydir (one mey want to use ephemeral storage) |
 | trivy.storageClassName | string | `""` | storageClassName is the name of the storage class to be used for trivy server PVC. If empty, tries to find default storage class |

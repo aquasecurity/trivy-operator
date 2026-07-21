@@ -171,50 +171,59 @@ func TestConfig_GetMode(t *testing.T) {
 	}
 }
 
-func TestGetSlow(t *testing.T) {
+func TestGetParallel(t *testing.T) {
 	testCases := []struct {
 		name       string
 		configData Config
-		want       bool
+		want       int
 	}{
 		{
-			name: "slow param set to true",
+			name: "parallel param set to 1",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
-					"trivy.slow": "true",
+					"trivy.parallel": "1",
 				},
 			}},
-			want: true,
+			want: 1,
 		},
 		{
-			name: "slow param set to false",
+			name: "parallel param set to 5",
+			configData: Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.parallel": "5",
+				},
+			}},
+			want: 5,
+		},
+		{
+			name: "parallel param set to no valid value",
+			configData: Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.parallel": "invalid",
+				},
+			}},
+			want: 1,
+		},
+		{
+			name: "parallel param set to no value",
+			configData: Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: make(map[string]string),
+			}},
+			want: 1,
+		},
+		{
+			name: "slow param set to false for backward compatibility",
 			configData: Config{PluginConfig: trivyoperator.PluginConfig{
 				Data: map[string]string{
 					"trivy.slow": "false",
 				},
 			}},
-			want: false,
-		},
-		{
-			name: "slow param set to no valid value",
-			configData: Config{PluginConfig: trivyoperator.PluginConfig{
-				Data: map[string]string{
-					"trivy.slow": "false2",
-				},
-			}},
-			want: true,
-		},
-		{
-			name: "slow param set to no  value",
-			configData: Config{PluginConfig: trivyoperator.PluginConfig{
-				Data: make(map[string]string),
-			}},
-			want: true,
+			want: 0,
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := tc.configData.GetSlow()
+			got := tc.configData.GetParallel()
 			assert.Equal(t, tc.want, got)
 
 		})
@@ -778,7 +787,7 @@ func TestPlugin_Init(t *testing.T) {
 				"trivy.repository":                DefaultImageRepository,
 				"trivy.tag":                       "0.72.0",
 				"trivy.severity":                  DefaultSeverity,
-				"trivy.slow":                      "true",
+				"trivy.parallel":                  "1",
 				"trivy.mode":                      string(Standalone),
 				"trivy.timeout":                   "5m0s",
 				"trivy.dbRepository":              DefaultDBRepository,

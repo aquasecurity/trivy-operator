@@ -527,9 +527,9 @@ func GetFSScanningArgs(ctx trivyoperator.PluginContext, command Command, mode Mo
 		args = append(args, "--server", trivyServerURL)
 	}
 
-	slow := Slow(c)
-	if slow != "" {
-		args = append(args, slow)
+	parallel := Parallel(c)
+	if len(parallel) > 0 {
+		args = append(args, parallel...)
 	}
 	if sbomSources := c.GetSbomSources(); sbomSources != "" {
 		args = append(args, []string{"--sbom-sources", sbomSources}...)
@@ -569,9 +569,9 @@ func GetSbomFSScanningArgs(ctx trivyoperator.PluginContext, mode Mode, trivyServ
 	if mode == ClientServer {
 		args = append(args, "--server", trivyServerURL)
 	}
-	slow := Slow(c)
-	if slow != "" {
-		args = append(args, slow)
+	parallel := Parallel(c)
+	if len(parallel) > 0 {
+		args = append(args, parallel...)
 	}
 	return command, args
 }

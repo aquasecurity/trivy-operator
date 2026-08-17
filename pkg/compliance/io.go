@@ -26,16 +26,18 @@ type Mgr interface {
 	GenerateComplianceReport(ctx context.Context, spec v1alpha1.ReportSpec) error
 }
 
-func NewMgr(c client.Client) Mgr {
+func NewMgr(c client.Client, trivyOperatorConfig trivyoperator.ConfigData) Mgr {
 	return &cm{
-		client: c,
+		client:              c,
+		trivyOperatorConfig: trivyOperatorConfig,
 	}
 }
 
 type cm struct {
 	logr.Logger
 	etc.Config
-	client client.Client
+	client              client.Client
+	trivyOperatorConfig trivyoperator.ConfigData
 }
 
 // GenerateComplianceReport generate and public compliance report by spec
@@ -129,7 +131,16 @@ func (w *cm) buildComplianceReport(spec v1alpha1.ReportSpec, complianceResults [
 		rs := report.BuildSummary(cr)
 		return v1alpha1.ReportStatus{SummaryReport: v1alpha1.FromSummaryReport(rs), Summary: summary}, nil
 	case v1alpha1.ReportDetail:
-		return v1alpha1.ReportStatus{DetailReport: v1alpha1.FromDetailReport(cr), Summary: summary}, nil
+		// compliance.failEntriesLimit caps the failing checks kept per control.
+		// Without it a cluster with many workloads produces a detail report that
+		// the API server refuses to store ("etcdserver: request is too large" /
+		// "Request entity too large"), and the report then silently stops
+		// updating. The summary counts above are computed from the full result
+		// set, so they stay accurate.
+		return v1alpha1.ReportStatus{
+			DetailReport: v1alpha1.FromDetailReport(cr, w.trivyOperatorConfig.ComplianceFailEntriesLimit()),
+			Summary:      summary,
+		}, nil
 	default:
 		return v1alpha1.ReportStatus{}, errors.New("report type is invalid")
 	}

@@ -263,7 +263,7 @@ func TestGenerateComplianceReport(t *testing.T) {
 				WithObjects(tt.clusterComplianceReport).
 				WithStatusSubresource(tt.clusterComplianceReport).
 				Build()
-			mgr := NewMgr(c)
+			mgr := NewMgr(c, trivyoperator.ConfigData{})
 			err := mgr.GenerateComplianceReport(t.Context(), tt.clusterComplianceReport.Spec)
 			require.NoError(t, err)
 			ccr, err := getReport(t.Context(), c)

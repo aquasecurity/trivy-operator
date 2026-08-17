@@ -204,7 +204,7 @@ var _ = BeforeSuite(func() {
 		Logger: ctrl.Log.WithName("reconciler").WithName("compliance report"),
 		Client: k8sClient,
 		Config: config,
-		Mgr:    compliance.NewMgr(k8sClient),
+		Mgr:    compliance.NewMgr(k8sClient, trivyoperator.ConfigData{}),
 		Clock:  ext.NewSystemClock(),
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())

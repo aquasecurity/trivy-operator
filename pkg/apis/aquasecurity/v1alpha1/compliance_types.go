@@ -213,13 +213,20 @@ func FromSummaryReport(sr *report.SummaryReport) *SummaryReport {
 	}
 }
 
-// FromDetailReport map data from trivy summary report to crd summary report
-func FromDetailReport(sr *report.ComplianceReport) *ComplianceReport {
+// FromDetailReport map data from trivy summary report to crd summary report.
+// failEntriesLimit caps the number of failing checks kept per control — the
+// `compliance.failEntriesLimit` setting, which exists to keep the detail report
+// small enough to store. A value <= 0 means no limit.
+func FromDetailReport(sr *report.ComplianceReport, failEntriesLimit int) *ComplianceReport {
 	controlResults := make([]*ControlCheckResult, 0)
 	for _, sr := range sr.Results {
 		checks := make([]ComplianceCheck, 0)
+	collect:
 		for _, r := range sr.Results {
 			for _, ms := range r.Misconfigurations {
+				if failEntriesLimit > 0 && len(checks) >= failEntriesLimit {
+					break collect
+				}
 				checks = append(checks, ComplianceCheck{
 					ID:          ms.ID,
 					Target:      r.Target,

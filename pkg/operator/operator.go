@@ -375,7 +375,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			Logger: logger,
 			Config: operatorConfig,
 			Client: mgr.GetClient(),
-			Mgr:    compliance.NewMgr(mgr.GetClient()),
+			Mgr:    compliance.NewMgr(mgr.GetClient(), trivyOperatorConfig),
 			Clock:  ext.NewSystemClock(),
 		}
 		if err := cc.SetupWithManager(mgr); err != nil {

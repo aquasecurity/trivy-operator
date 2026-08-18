@@ -67,7 +67,7 @@ Install the Helm Chart:
    helm install trivy-operator aqua/trivy-operator \
      --namespace trivy-system \
      --create-namespace \
-     --version 0.35.0
+     --version 0.35.1
 ```
 
 #### Option 2: Install from OCI registry (supported in Helm v3.8.0+)
@@ -78,7 +78,7 @@ Install the Helm Chart:
    helm install trivy-operator oci://ghcr.io/aquasecurity/helm-charts/trivy-operator \
      --namespace trivy-system \
      --create-namespace \
-     --version 0.35.0
+     --version 0.35.1
 ```
 
 This will install the Trivy Helm Chart into the `trivy-system` namespace and start triggering the scans.
@@ -100,8 +100,8 @@ Kubernetes-native ways.
 
 ---
 
-Trivy-Operator is an [Aqua Security](https://aquasec.com) open source project.  
-Learn about our [Open Source Work and Portfolio].  
+Trivy-Operator is an [Aqua Security](https://aquasec.com) open source project.
+Learn about our [Open Source Work and Portfolio].
 Join the community, and talk to us about any matter in [GitHub Discussions] or [Slack].
 
 [release-img]: https://img.shields.io/github/release/aquasecurity/trivy-operator.svg?logo=github

@@ -219,7 +219,7 @@ service:
   # -- if true, the Service doesn't allocate any IP
   headless: true
   # -- port exposed by the Service
-  metricsPort: 80
+  metricsPort: 8080
   # -- annotations added to the operator's service
   annotations: {}
   # -- appProtocol of the monitoring service

@@ -146,16 +146,19 @@ type ResourcesMetricsCollector struct {
 	trivyoperator.ConfigData
 	client.Client
 	metricDescriptors
+	storageReader StorageReader
 }
 
 func NewResourcesMetricsCollector(logger logr.Logger, config etc.Config, trvConfig trivyoperator.ConfigData, clt client.Client) *ResourcesMetricsCollector {
 	metricDescriptors := buildMetricDescriptors(trvConfig)
+	storageReader := NewStorageReader(config, clt, logger)
 	return &ResourcesMetricsCollector{
 		Logger:            logger,
 		Config:            config,
 		ConfigData:        trvConfig,
 		Client:            clt,
 		metricDescriptors: metricDescriptors,
+		storageReader:     storageReader,
 	}
 }
 
@@ -586,14 +589,14 @@ func (c ResourcesMetricsCollector) Collect(metrics chan<- prometheus.Metric) {
 }
 
 func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
-	reports := &v1alpha1.VulnerabilityReportList{}
 	labelValues := make([]string, len(c.imageVulnLabels))
 	for _, n := range targetNamespaces {
-		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
-			c.Logger.Error(err, "failed to list vulnerabilityreports from API", "namespace", n)
+		reports, err := c.storageReader.ReadVulnerabilityReports(ctx, n)
+		if err != nil {
+			c.Logger.Error(err, "failed to read vulnerabilityreports", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for _, r := range reports {
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
@@ -617,14 +620,14 @@ func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Conte
 }
 
 func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
-	reports := &v1alpha1.VulnerabilityReportList{}
 	vulnLabelValues := make([]string, len(c.vulnIdLabels))
 	for _, n := range targetNamespaces {
-		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
-			c.Logger.Error(err, "failed to list vulnerabilityreports from API", "namespace", n)
+		reports, err := c.storageReader.ReadVulnerabilityReports(ctx, n)
+		if err != nil {
+			c.Logger.Error(err, "failed to read vulnerabilityreports", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for _, r := range reports {
 			vulnLabelValues[0] = r.Namespace
 			vulnLabelValues[1] = r.Name
 			vulnLabelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
@@ -667,14 +670,14 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 }
 
 func (c ResourcesMetricsCollector) collectExposedSecretsReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
-	reports := &v1alpha1.ExposedSecretReportList{}
 	labelValues := make([]string, len(c.exposedSecretLabels))
 	for _, n := range targetNamespaces {
-		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
-			c.Logger.Error(err, "failed to list exposedsecretreports from API", "namespace", n)
+		reports, err := c.storageReader.ReadExposedSecretReports(ctx, n)
+		if err != nil {
+			c.Logger.Error(err, "failed to read exposedsecretreports", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for _, r := range reports {
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
@@ -697,14 +700,14 @@ func (c ResourcesMetricsCollector) collectExposedSecretsReports(ctx context.Cont
 }
 
 func (c ResourcesMetricsCollector) collectExposedSecretsInfoReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
-	reports := &v1alpha1.ExposedSecretReportList{}
 	labelValues := make([]string, len(c.exposedSecretInfoLabels))
 	for _, n := range targetNamespaces {
-		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
-			c.Logger.Error(err, "failed to list exposedsecretreports from API", "namespace", n)
+		reports, err := c.storageReader.ReadExposedSecretReports(ctx, n)
+		if err != nil {
+			c.Logger.Error(err, "failed to read exposedsecretreports", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for _, r := range reports {
 			if !c.Config.MetricsExposedSecretInfo {
 				continue
 			}
@@ -740,14 +743,14 @@ func (c ResourcesMetricsCollector) collectExposedSecretsInfoReports(ctx context.
 }
 
 func (c *ResourcesMetricsCollector) collectConfigAuditReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
-	reports := &v1alpha1.ConfigAuditReportList{}
 	labelValues := make([]string, len(c.configAuditLabels))
 	for _, n := range targetNamespaces {
-		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
-			c.Logger.Error(err, "failed to list configauditreports from API", "namespace", n)
+		reports, err := c.storageReader.ReadConfigAuditReports(ctx, n)
+		if err != nil {
+			c.Logger.Error(err, "failed to read configauditreports", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for _, r := range reports {
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
@@ -765,14 +768,14 @@ func (c *ResourcesMetricsCollector) collectConfigAuditReports(ctx context.Contex
 }
 
 func (c *ResourcesMetricsCollector) collectConfigAuditInfoReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
-	reports := &v1alpha1.ConfigAuditReportList{}
 	labelValues := make([]string, len(c.configAuditInfoLabels))
 	for _, n := range targetNamespaces {
-		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
-			c.Logger.Error(err, "failed to list configauditreports from API", "namespace", n)
+		reports, err := c.storageReader.ReadConfigAuditReports(ctx, n)
+		if err != nil {
+			c.Logger.Error(err, "failed to read configauditreports", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for _, r := range reports {
 			if !c.Config.MetricsConfigAuditInfo {
 				continue
 			}
@@ -805,14 +808,14 @@ func (c *ResourcesMetricsCollector) collectConfigAuditInfoReports(ctx context.Co
 }
 
 func (c *ResourcesMetricsCollector) collectRbacAssessmentReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
-	reports := &v1alpha1.RbacAssessmentReportList{}
 	labelValues := make([]string, len(c.rbacAssessmentLabels))
 	for _, n := range targetNamespaces {
-		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
-			c.Logger.Error(err, "failed to list rbacAssessment from API", "namespace", n)
+		reports, err := c.storageReader.ReadRbacAssessmentReports(ctx, n)
+		if err != nil {
+			c.Logger.Error(err, "failed to read rbacAssessment", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for _, r := range reports {
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
@@ -826,14 +829,14 @@ func (c *ResourcesMetricsCollector) collectRbacAssessmentReports(ctx context.Con
 }
 
 func (c *ResourcesMetricsCollector) collectRbacAssessmentInfoReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
-	reports := &v1alpha1.RbacAssessmentReportList{}
 	labelValues := make([]string, len(c.rbacAssessmentInfoLabels))
 	for _, n := range targetNamespaces {
-		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
-			c.Logger.Error(err, "failed to list rbacAssessment from API", "namespace", n)
+		reports, err := c.storageReader.ReadRbacAssessmentReports(ctx, n)
+		if err != nil {
+			c.Logger.Error(err, "failed to read rbacAssessment", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for _, r := range reports {
 			if !c.Config.MetricsRbacAssessmentInfo {
 				continue
 			}
@@ -864,14 +867,14 @@ func (c *ResourcesMetricsCollector) collectRbacAssessmentInfoReports(ctx context
 }
 
 func (c *ResourcesMetricsCollector) collectInfraAssessmentReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
-	reports := &v1alpha1.InfraAssessmentReportList{}
 	labelValues := make([]string, len(c.infraAssessmentLabels))
 	for _, n := range targetNamespaces {
-		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
-			c.Logger.Error(err, "failed to list infraAssessment from API", "namespace", n)
+		reports, err := c.storageReader.ReadInfraAssessmentReports(ctx, n)
+		if err != nil {
+			c.Logger.Error(err, "failed to read infraAssessment", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for _, r := range reports {
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
@@ -885,14 +888,14 @@ func (c *ResourcesMetricsCollector) collectInfraAssessmentReports(ctx context.Co
 }
 
 func (c *ResourcesMetricsCollector) collectInfraAssessmentInfoReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
-	reports := &v1alpha1.RbacAssessmentReportList{}
 	labelValues := make([]string, len(c.infraAssessmentInfoLabels))
 	for _, n := range targetNamespaces {
-		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
-			c.Logger.Error(err, "failed to list infraAssessment from API", "namespace", n)
+		reports, err := c.storageReader.ReadInfraAssessmentReports(ctx, n)
+		if err != nil {
+			c.Logger.Error(err, "failed to read infraAssessment", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for _, r := range reports {
 			if !c.Config.MetricsInfraAssessmentInfo {
 				continue
 			}
@@ -923,13 +926,13 @@ func (c *ResourcesMetricsCollector) collectInfraAssessmentInfoReports(ctx contex
 }
 
 func (c *ResourcesMetricsCollector) collectClusterRbacAssessmentReports(ctx context.Context, metrics chan<- prometheus.Metric) {
-	reports := &v1alpha1.ClusterRbacAssessmentReportList{}
 	labelValues := make([]string, len(c.rbacAssessmentLabels[1:]))
-	if err := c.List(ctx, reports); err != nil {
-		c.Logger.Error(err, "failed to list cluster rbacAssessment from API")
+	reports, err := c.storageReader.ReadClusterRbacAssessmentReports(ctx)
+	if err != nil {
+		c.Logger.Error(err, "failed to read cluster rbacAssessment")
 		return
 	}
-	for _, r := range reports.Items {
+	for _, r := range reports {
 		labelValues[0] = r.Name
 		labelValues[1] = r.Labels[trivyoperator.LabelResourceKind]
 		labelValues[2] = r.Labels[trivyoperator.LabelResourceName]
@@ -941,13 +944,13 @@ func (c *ResourcesMetricsCollector) collectClusterRbacAssessmentReports(ctx cont
 }
 
 func (c *ResourcesMetricsCollector) collectClusterComplianceReports(ctx context.Context, metrics chan<- prometheus.Metric) {
-	reports := &v1alpha1.ClusterComplianceReportList{}
 	labelValues := make([]string, len(c.complianceLabels[0:]))
-	if err := c.List(ctx, reports); err != nil {
-		c.Logger.Error(err, "failed to list cluster compliance from API")
+	reports, err := c.storageReader.ReadClusterComplianceReports(ctx)
+	if err != nil {
+		c.Logger.Error(err, "failed to read cluster compliance")
 		return
 	}
-	for _, r := range reports.Items {
+	for _, r := range reports {
 		labelValues[0] = r.Spec.Compliance.Title
 		labelValues[1] = r.Spec.Compliance.Description
 		for i, label := range c.GetReportResourceLabels() {
@@ -959,15 +962,14 @@ func (c *ResourcesMetricsCollector) collectClusterComplianceReports(ctx context.
 
 func (c ResourcesMetricsCollector) collectImageReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
 	// Use Vuln reports
-
-	reports := &v1alpha1.VulnerabilityReportList{}
 	labelValues := make([]string, len(c.imageInfoLabels))
 	for _, n := range targetNamespaces {
-		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
-			c.Logger.Error(err, "failed to list vulnerabilityreports from API", "namespace", n)
+		reports, err := c.storageReader.ReadVulnerabilityReports(ctx, n)
+		if err != nil {
+			c.Logger.Error(err, "failed to read vulnerabilityreports", "namespace", n)
 			continue
 		}
-		for _, r := range reports.Items {
+		for _, r := range reports {
 			if !c.Config.MetricsImageInfo {
 				continue
 			}
@@ -997,13 +999,13 @@ func (c ResourcesMetricsCollector) collectImageReports(ctx context.Context, metr
 }
 
 func (c *ResourcesMetricsCollector) collectClusterComplianceInfoReports(ctx context.Context, metrics chan<- prometheus.Metric) {
-	reports := &v1alpha1.ClusterComplianceReportList{}
 	labelValues := make([]string, len(c.complianceInfoLabels[0:]))
-	if err := c.List(ctx, reports); err != nil {
-		c.Logger.Error(err, "failed to list cluster compliance from API")
+	reports, err := c.storageReader.ReadClusterComplianceReports(ctx)
+	if err != nil {
+		c.Logger.Error(err, "failed to read cluster compliance")
 		return
 	}
-	for _, r := range reports.Items {
+	for _, r := range reports {
 		if r.Spec.ReportFormat == "all" {
 			continue
 		}

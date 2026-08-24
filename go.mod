@@ -29,7 +29,7 @@ require (
 	github.com/stretchr/testify v1.12.0
 	go.uber.org/automaxprocs v1.6.0
 	go.uber.org/multierr v1.11.0
-	golang.org/x/text v0.40.0
+	golang.org/x/text v0.41.0
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da
 	k8s.io/api v0.36.3
 	k8s.io/apiextensions-apiserver v0.36.3

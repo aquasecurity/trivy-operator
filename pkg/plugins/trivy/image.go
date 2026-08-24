@@ -519,7 +519,12 @@ func buildTrailingCommandArgs(resultFileName string, compressLogs bool) string {
 	} else {
 		cmd = fmt.Sprintf("cat /tmp/scan/%s", resultFileName)
 	}
-	return fmt.Sprintf("; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/%s.log; else %s; fi; exit $rc", resultFileName, cmd)
+
+	// Sync ensures the scan report is complete and not be cut off halfway
+	// due to race condition between the container's main process exiting and kubelet finishing reading stdout/stderr.
+	// Without the sync the kubelet may not have finished reading all of stdout/stderr before
+	// the container is marked as terminated when a container's main process (trivy) exits.
+	return fmt.Sprintf("; rc=$?; if [ $rc -eq 1 ]; then cat /tmp/scan/%s.log; else %s; sync; fi; exit $rc", resultFileName, cmd)
 }
 
 func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomFile, trivyServerURL, resultFileName string) ([]string, []string) {

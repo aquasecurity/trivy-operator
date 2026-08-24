@@ -43,7 +43,7 @@ data:
   trivy.registry.mirror.{{ $key }}: {{ $registry | quote }}
   {{- end }}
   trivy.severity: {{ .Values.trivy.severity | quote }}
-  trivy.slow: {{ .Values.trivy.slow | quote }}
+  trivy.parallel: {{ .Values.trivy.parallel | quote }}
   trivy.skipJavaDBUpdate: {{ .Values.trivy.skipJavaDBUpdate | quote }}
   trivy.includeDevDeps: {{ .Values.trivy.includeDevDeps | quote }}
   trivy.imageScanCacheDir: {{ .Values.trivy.imageScanCacheDir | quote }}

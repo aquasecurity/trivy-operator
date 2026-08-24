@@ -26,6 +26,7 @@ const (
 	keyTrivyCommand                             = "trivy.command"
 	keyTrivySbomSources                         = "trivy.sbomSources"
 	KeyTrivySeverity                            = "trivy.severity"
+	keyTrivyParallel                            = "trivy.parallel"
 	keyTrivySlow                                = "trivy.slow"
 	keyTrivyVulnType                            = "trivy.vulnType"
 	keyTrivyIgnoreUnfixed                       = "trivy.ignoreUnfixed"
@@ -309,16 +310,21 @@ func (c Config) GetSeverity() string {
 	return val
 }
 
-func (c Config) GetSlow() bool {
-	val, ok := c.Data[keyTrivySlow]
+func (c Config) GetParallel() int {
+	val, ok := c.Data[keyTrivyParallel]
 	if !ok {
-		return true
+		if slowVal, slowOk := c.Data[keyTrivySlow]; slowOk {
+			if boolVal, err := strconv.ParseBool(slowVal); err == nil && !boolVal {
+				return 0
+			}
+		}
+		return 1
 	}
-	boolVal, err := strconv.ParseBool(val)
+	intVal, err := strconv.Atoi(val)
 	if err != nil {
-		return true
+		return 1
 	}
-	return boolVal
+	return intVal
 }
 
 func (c Config) GetVulnType() string {

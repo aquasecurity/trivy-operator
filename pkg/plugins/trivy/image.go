@@ -482,9 +482,9 @@ func getCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, imageRef, tri
 		args = append(args, skipJavaDBUpdate)
 	}
 
-	slow := Slow(trivyConfig)
-	if slow != "" {
-		args = append(args, slow)
+	parallel := Parallel(trivyConfig)
+	if len(parallel) > 0 {
+		args = append(args, parallel...)
 	}
 
 	vulnTypeArgs := vulnTypeFilter(ctx)
@@ -529,7 +529,7 @@ func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomF
 	if err != nil {
 		return []string{}, []string{}
 	}
-	slow := Slow(c)
+	parallel := Parallel(c)
 
 	var skipUpdate string
 	if c.GetClientServerSkipUpdate() && mode == ClientServer {
@@ -551,8 +551,8 @@ func GetSbomScanCommandAndArgs(ctx trivyoperator.PluginContext, mode Mode, sbomF
 
 	args = append(args, sbomFile)
 
-	if slow != "" {
-		args = append(args, slow)
+	if len(parallel) > 0 {
+		args = append(args, parallel...)
 	}
 
 	vulnTypeArgs := vulnTypeFilter(ctx)

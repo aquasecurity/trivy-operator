@@ -1,0 +1,6 @@
+# ct lint-and-install scenario: scanJobCompressLogs disabled.
+# Proves the rendering fix works end-to-end: setting the value to
+# false renders "false" into the ConfigMap rather than silently
+# falling back to the operator's hard-coded default.
+trivyOperator:
+  scanJobCompressLogs: false

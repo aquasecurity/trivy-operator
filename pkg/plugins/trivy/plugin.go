@@ -152,14 +152,16 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	}
 
 	var reports ty.Report
+
 	err = json.NewDecoder(logsReader).Decode(&reports)
 	if err != nil {
 		return vulnReport, secretReport, nil, err
 	}
 
 	imageDigest := p.getImageDigest(reports)
+	imageLabels := reports.Metadata.ImageConfig.Config.Labels
 
-	registry, artifact, err := ParseImageRef(imageRef, imageDigest)
+	registry, artifact, err := ParseImageRef(imageRef, imageDigest, imageLabels)
 	if err != nil {
 		return vulnReport, secretReport, nil, err
 	}
@@ -217,7 +219,7 @@ func (p *plugin) NewConfigForConfigAudit(ctx trivyoperator.PluginContext) (confi
 	return getConfig(ctx)
 }
 
-func ParseImageRef(imageRef, imageDigest string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
+func ParseImageRef(imageRef, imageDigest string, imageLabels map[string]string) (v1alpha1.Registry, v1alpha1.Artifact, error) {
 	ref, err := containerimage.ParseReference(imageRef)
 	if err != nil {
 		return v1alpha1.Registry{}, v1alpha1.Artifact{}, err
@@ -238,6 +240,9 @@ func ParseImageRef(imageRef, imageDigest string) (v1alpha1.Registry, v1alpha1.Ar
 	if artifact.Digest == "" {
 		artifact.Digest = imageDigest
 	}
+
+	artifact.Labels = imageLabels
+
 	return registry, artifact, nil
 }
 

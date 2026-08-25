@@ -8372,6 +8372,7 @@ func TestParseImageRef(t *testing.T) {
 		name             string
 		inputImageRef    string
 		inputImageID     string
+		inputImageLabels map[string]string
 		expectedRegistry v1alpha1.Registry
 		expectedArtifact v1alpha1.Artifact
 		expectedErr      error
@@ -8468,6 +8469,29 @@ func TestParseImageRef(t *testing.T) {
 			},
 		},
 		{
+			name:          "well known image with labels",
+			inputImageRef: "docker.io/library/busybox:latest",
+			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			inputImageLabels: map[string]string{
+				"org.opencontainers.image.source":  "https://github.com/docker-library/busybox",
+				"org.opencontainers.image.url":     "docker.io/library/busybox",
+				"org.opencontainers.image.created": "2019-10-12T07:20:50.52Z",
+			},
+			expectedRegistry: v1alpha1.Registry{
+				Server: "index.docker.io",
+			},
+			expectedArtifact: v1alpha1.Artifact{
+				Repository: "library/busybox",
+				Digest:     "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+				Labels: map[string]string{
+					"org.opencontainers.image.source":  "https://github.com/docker-library/busybox",
+					"org.opencontainers.image.url":     "docker.io/library/busybox",
+					"org.opencontainers.image.created": "2019-10-12T07:20:50.52Z",
+				},
+				Tag: "latest",
+			},
+		},
+		{
 			name:          "repo with digest",
 			inputImageRef: "quay.io/prometheus-operator/prometheus-operator@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
 			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
@@ -8502,7 +8526,7 @@ func TestParseImageRef(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			registry, artifact, err := trivy.ParseImageRef(tc.inputImageRef, tc.inputImageID)
+			registry, artifact, err := trivy.ParseImageRef(tc.inputImageRef, tc.inputImageID, tc.inputImageLabels)
 			if tc.expectedErr != nil {
 				require.Errorf(t, err, "expected: %v", tc.expectedErr)
 			}

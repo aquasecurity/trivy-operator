@@ -106,6 +106,9 @@ Keeps security report resources updated
 | policiesBundle.repository | string | `"aquasec/trivy-checks"` | repository of the policies bundle |
 | policiesBundle.tag | int | `1` | tag version of the policies bundle |
 | priorityClassName | string | `""` | priorityClassName set the operator priorityClassName |
+| rbac.aggregateClusterRoles | object | `{"create":true,"namePrefix":""}` | aggregateClusterRoles controls the aggregation ClusterRoles that expose the report CRDs (vulnerability/config-audit/exposed-secret) to the built-in view/edit/admin roles |
+| rbac.aggregateClusterRoles.create | bool | `true` | create specifies whether the aggregation ClusterRoles should be created. When multiple releases are installed in the same cluster, set this to true on a single release only to avoid ownership conflicts on these cluster-scoped resources |
+| rbac.aggregateClusterRoles.namePrefix | string | `""` | namePrefix is prepended to the aggregation ClusterRole names. Set a unique value per release (e.g. "{{ .Release.Name }}-") to avoid ArgoCD ownership conflicts across releases. Empty keeps the historical fixed names |
 | rbac.create | bool | `true` |  |
 | resources | object | `{}` |  |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true}` | securityContext security context |

@@ -56,9 +56,6 @@ spec:
               value: {{ tpl .Values.targetWorkloads . | quote }}
             - name: OPERATOR_SERVICE_ACCOUNT
               value: {{ include "trivy-operator.serviceAccountName" . | quote }}
-            {{- with .Values.extraEnv }}
-            {{- toYaml . | nindent 12 }}
-            {{- end }}
           {{- if .Values.alternateReportStorage.enabled }}
             - name: OPERATOR_ALTERNATE_REPORT_STORAGE_ENABLED
               value: "true"
@@ -75,6 +72,14 @@ spec:
             {{- if .Values.operator.valuesFromSecret }}
             - secretRef:
                 name: {{ .Values.operator.valuesFromSecret }}
+            {{- end }}
+            {{- if .Values.extraEnv }}
+            - configMapRef:
+                name: {{ include "trivy-operator.fullname" . }}-extraenv
+            {{- end }}
+            {{- if .Values.extraEnvSecrets }}
+            - secretRef:
+                name: {{ include "trivy-operator.fullname" . }}-extraenv
             {{- end }}
           ports:
             - name: metrics

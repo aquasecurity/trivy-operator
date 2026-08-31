@@ -53,6 +53,10 @@ type ResourceController struct {
 	ClusterVersion   string
 	CacheSyncTimeout time.Duration
 	ChecksLoader     *ChecksLoader
+	// APIReader reads straight from the API server, bypassing the shared
+	// informer cache. It is required to scan ConfigMap contents - see
+	// restoreConfigMapData.
+	APIReader client.Reader
 }
 
 // +kubebuilder:rbac:groups="",resources=pods,verbs=get;list;watch
@@ -206,6 +210,13 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 				"reason", reason,
 				"retryAfter", r.ScanJobRetryAfter)
 			return ctrl.Result{RequeueAfter: r.Config.ScanJobRetryAfter}, nil
+		}
+		if err := r.restoreConfigMapData(ctx, req.NamespacedName, resource); err != nil {
+			if errors.IsNotFound(err) {
+				log.V(1).Info("Ignoring ConfigMap that must have been deleted")
+				return ctrl.Result{}, nil
+			}
+			return ctrl.Result{}, fmt.Errorf("getting ConfigMap data from API server: %w", err)
 		}
 
 		resourceHash, err := kube.ComputeSpecHash(resource)
@@ -419,6 +430,45 @@ type Misconfiguration struct {
 	configAuditReportData     v1alpha1.ConfigAuditReportData
 	rbacAssessmentReportData  v1alpha1.RbacAssessmentReportData
 	infraAssessmentReportData v1alpha1.InfraAssessmentReportData
+}
+
+// restoreConfigMapData puts Data and BinaryData back onto a ConfigMap that was
+// resolved through the shared informer cache.
+//
+// The operator installs a cache transform that nils ConfigMap.Data and
+// ConfigMap.BinaryData for every ConfigMap except its own two, which keeps the
+// cache small (see pkg/operator.Start). Config-audit, however, serializes the
+// resolved object and hands the bytes to Rego (policy.Policies.Eval), so checks
+// that inspect ConfigMap contents - the built-in "ConfigMap with secrets" check
+// and any custom check reading input.data - see no data at all and pass
+// vacuously.
+//
+// Reading the contents here rather than caching them cluster-wide keeps the
+// memory optimization intact: the request is made only for ConfigMaps that
+// config-audit has already decided to scan.
+//
+// resource is the reconcile-local object produced by
+// kube.ObjectResolver.ObjectFromObjectRef. controller-runtime's CacheReader deep
+// copies before handing an object out (pkg/cache/internal/cache_reader.go, Get),
+// and this repo never sets UnsafeDisableDeepCopy, so rebinding the Data and
+// BinaryData fields below cannot reach the object held in the informer store.
+// That also holds if the deep copy were ever disabled: the fields are reassigned
+// on a separately allocated struct, never mutated through a shared map. The
+// cache keeps storing nil across repeated reconciles.
+func (r *ResourceController) restoreConfigMapData(ctx context.Context, key client.ObjectKey, resource client.Object) error {
+	cm, ok := resource.(*corev1.ConfigMap)
+	if !ok || r.APIReader == nil {
+		return nil
+	}
+
+	var live corev1.ConfigMap
+	if err := r.APIReader.Get(ctx, key, &live); err != nil {
+		return err
+	}
+
+	cm.Data = live.Data
+	cm.BinaryData = live.BinaryData
+	return nil
 }
 
 func infraCheck(id string) bool {

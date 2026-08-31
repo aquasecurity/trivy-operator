@@ -11,6 +11,7 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	controllerconfig "sigs.k8s.io/controller-runtime/pkg/config"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
@@ -44,9 +45,12 @@ import (
 var (
 	cfg       *rest.Config
 	k8sClient client.Client // You'll be using this client in your tests.
-	testEnv   *envtest.Environment
-	ctx       context.Context
-	cancel    context.CancelFunc
+	// cachedClient reads through the manager's shared informer cache, i.e. the
+	// same client the controllers use.
+	cachedClient client.Client
+	testEnv      *envtest.Environment
+	ctx          context.Context
+	cancel       context.CancelFunc
 )
 
 func TestAPIs(t *testing.T) {
@@ -84,11 +88,18 @@ var _ = BeforeSuite(func() {
 	skipNameValidation := true
 
 	k8sManager, err := ctrl.NewManager(cfg, ctrl.Options{
-		Scheme:     scheme.Scheme,
+		Scheme: scheme.Scheme,
+		Cache: cache.Options{
+			// Use the same transform the operator installs in production, so that
+			// cache-related regressions - such as ConfigMap contents being
+			// stripped before config-audit reads them - are reproducible here.
+			DefaultTransform: operator.CacheTransform(),
+		},
 		Controller: controllerconfig.Controller{SkipNameValidation: &skipNameValidation},
 	})
 	Expect(err).ToNot(HaveOccurred())
 	managerClient := k8sManager.GetClient()
+	cachedClient = managerClient
 	compatibleObjectMapper := &kube.CompatibleObjectMapper{}
 	objectResolver := kube.NewObjectResolver(managerClient, compatibleObjectMapper)
 	Expect(err).ToNot(HaveOccurred())
@@ -126,6 +137,8 @@ var _ = BeforeSuite(func() {
 			"trivy.slow":                   "true",
 			"trivy.dbRepository":           trivy.DefaultDBRepository,
 			"trivy.useBuiltinRegoPolicies": "true",
+			"trivy.supportedConfigAuditKinds": "Workload,Service,Role,ClusterRole,NetworkPolicy," +
+				"Ingress,LimitRange,ResourceQuota,ConfigMap",
 		},
 	})
 	Expect(err).ToNot(HaveOccurred())
@@ -187,6 +200,7 @@ var _ = BeforeSuite(func() {
 		InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
 		BuildInfo:       buildInfo,
 		ChecksLoader:    checksLoader,
+		APIReader:       k8sManager.GetAPIReader(),
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 

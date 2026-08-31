@@ -437,7 +437,7 @@ type Misconfiguration struct {
 //
 // The operator installs a cache transform that nils ConfigMap.Data and
 // ConfigMap.BinaryData for every ConfigMap except its own two, which keeps the
-// cache small (see pkg/operator.Start). Config-audit, however, serialises the
+// cache small (see pkg/operator.Start). Config-audit, however, serializes the
 // resolved object and hands the bytes to Rego (policy.Policies.Eval), so checks
 // that inspect ConfigMap contents - the built-in "ConfigMap with secrets" check
 // and any custom check reading input.data - see no data at all and pass
@@ -470,7 +470,6 @@ func (r *ResourceController) restoreConfigMapData(ctx context.Context, key clien
 	cm.BinaryData = live.BinaryData
 	return nil
 }
-
 
 func infraCheck(id string) bool {
 	return strings.HasPrefix(id, "KCV") || strings.HasPrefix(id, "AVD-KCV")

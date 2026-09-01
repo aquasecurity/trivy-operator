@@ -548,6 +548,89 @@ func TestPolicies_Eval(t *testing.T) {
 			},
 			results: []Result{}, // passing an invalid policy should not return any results but not an error
 		},
+		{
+			name:               "using a few rules with incorrect one",
+			resource:           simpleNginxPod,
+			useBuiltInPolicies: false,
+			policies: map[string]string{
+				"policy.always_false.kinds": "Pod",
+				"policy.always_false.rego": `
+   package trivyoperator.policy.k8s.custom
+   __rego_metadata__ := {
+        "id": "CUSTOMCHECK",
+        "title": "custom check title",
+        "severity": "LOW",
+        "type": "Kubernetes Security Check",
+        "description": "custom check description",
+    }
+
+   alwaysTrue {
+      1 == 1
+   }
+
+   deny[res] {
+        alwaysTrue
+		res := {
+				"msg": "the check should be always failed",
+			}
+   }`,
+
+				"policy.wrong_name.kinds": "Pod",
+				"policy.wrong_name.rego": `
+   package myfunnyname.policy.k8s.custom
+   __rego_metadata__ := {
+        "id": "CUSTOMCHECK",
+        "title": "custom check title",
+        "severity": "LOW",
+        "type": "Kubernetes Security Check",
+        "description": "custom check description",
+    }
+
+   deny[{"msg": "this message should be hidden"}]`,
+			},
+			results: []Result{
+				{
+					Metadata: Metadata{
+						ID:          "CUSTOMCHECK",
+						Title:       "custom check title",
+						Description: "custom check description",
+						Severity:    "LOW",
+						Type:        "Kubernetes Security Check",
+					},
+					Messages: []string{"the check should be always failed"},
+					Success:  false,
+				},
+			},
+		},
+		{
+			name:               "using a correct deployment rule for a pod",
+			resource:           simpleNginxPod,
+			useBuiltInPolicies: false,
+			policies: map[string]string{
+				"policy.always_false.kinds": "Deployment",
+				"policy.always_false.rego": `
+   package trivyoperator.policy.k8s.custom
+   __rego_metadata__ := {
+        "id": "CUSTOMCHECK",
+        "title": "custom check title",
+        "severity": "LOW",
+        "type": "Kubernetes Security Check",
+        "description": "custom check description",
+    }
+
+   alwaysTrue {
+      1 == 1
+   }
+
+   deny[res] {
+        alwaysTrue
+		res := {
+				"msg": "the check should be always failed",
+			}
+   }`,
+			},
+			results: []Result{},
+		},
 	}
 
 	for _, tc := range testCases {

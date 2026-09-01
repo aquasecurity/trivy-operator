@@ -2,11 +2,15 @@ package trivy_operator
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -49,6 +53,28 @@ func TestTrivyOperator(t *testing.T) {
 	RunSpecs(t, "Trivy Operator")
 }
 
+// ensureCRDsInstalled checks if the required trivy-operator CRDs are installed
+func ensureCRDsInstalled(c client.Client) error {
+	requiredCRDs := []string{
+		"configauditreports.aquasecurity.github.io",
+		"vulnerabilityreports.aquasecurity.github.io",
+		"clusterconfigauditreports.aquasecurity.github.io",
+	}
+
+	ctx := context.Background()
+	for _, crdName := range requiredCRDs {
+		crd := &apiextensionsv1.CustomResourceDefinition{}
+		err := c.Get(ctx, types.NamespacedName{Name: crdName}, crd)
+		if err != nil {
+			if apierrors.IsNotFound(err) {
+				return fmt.Errorf("required CRD %s not found in cluster", crdName)
+			}
+			return err
+		}
+	}
+	return nil
+}
+
 var _ = BeforeSuite(func() {
 	operatorConfig, err := etc.GetOperatorConfig()
 	Expect(err).ToNot(HaveOccurred())
@@ -65,6 +91,15 @@ var _ = BeforeSuite(func() {
 		Scheme: scheme,
 	})
 	Expect(err).ToNot(HaveOccurred())
+
+	// Ensure CRDs are installed before running tests
+	By("Checking if trivy-operator CRDs are installed")
+	err = ensureCRDsInstalled(kubeClient)
+	if err != nil {
+		Fail(fmt.Sprintf("CRDs are not installed in the cluster. Please install them first:\n"+
+			"kubectl apply -f deploy/helm/crds/\n"+
+			"Error: %v", err))
+	}
 
 	inputs = behavior.Inputs{
 		AssertTimeout:         5 * time.Minute,

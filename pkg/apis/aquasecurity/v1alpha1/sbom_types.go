@@ -1,6 +1,9 @@
 package v1alpha1
 
 import (
+	"encoding/json"
+	"fmt"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -68,6 +71,51 @@ type BOM struct {
 	Metadata     *Metadata     `json:"metadata,omitempty"`
 	Components   []*Component  `json:"components,omitempty"`
 	Dependencies *[]Dependency `json:"dependencies,omitempty"`
+}
+
+// UnmarshalJSON implements a lenient decoder for BOM that additionally
+// tolerates a specVersion value stored as a bare JSON number (e.g. 1.4)
+// instead of the spec-compliant JSON string (e.g. "1.4"). Some
+// SbomReport/ClusterSbomReport objects were persisted with specVersion
+// as a number by older versions of this project; encoding/json's
+// default reflection-based decode rejects such an object outright, and
+// because client-go unmarshals an entire List/Watch response in one
+// shot, a single malformed object like this takes down the informer
+// cache (and so the whole operator) for the resource type instead of
+// just that one report. See aquasecurity/trivy-operator#1398.
+func (b *BOM) UnmarshalJSON(data []byte) error {
+	type bomAlias BOM
+	aux := &struct {
+		SpecVersion json.RawMessage `json:"specVersion"`
+		*bomAlias
+	}{
+		bomAlias: (*bomAlias)(b),
+	}
+	if err := json.Unmarshal(data, aux); err != nil {
+		return err
+	}
+
+	if len(aux.SpecVersion) == 0 {
+		b.SpecVersion = ""
+		return nil
+	}
+
+	var s string
+	if err := json.Unmarshal(aux.SpecVersion, &s); err == nil {
+		b.SpecVersion = s
+		return nil
+	}
+
+	// Not a JSON string: accept a bare JSON number by keeping its raw
+	// textual representation (avoids float round-tripping surprises,
+	// e.g. 1.10 staying "1.10" rather than becoming "1.1").
+	var num json.Number
+	if err := json.Unmarshal(aux.SpecVersion, &num); err == nil {
+		b.SpecVersion = num.String()
+		return nil
+	}
+
+	return fmt.Errorf("specVersion: cannot unmarshal %s into a string", string(aux.SpecVersion))
 }
 
 type Component struct {

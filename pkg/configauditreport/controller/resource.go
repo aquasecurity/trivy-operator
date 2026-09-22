@@ -302,67 +302,56 @@ func (r *ResourceController) reconcileResource(resourceKind kube.Kind) reconcile
 func (r *ResourceController) writeAlternateReports(resource client.Object, misConfigData Misconfiguration, log logr.Logger) (ctrl.Result, error) {
 	// Write reports to alternate storage if enabled
 	if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
-		// Get the report directory from the environment variable
 		reportDir := r.Config.AltReportDir
-		// Create subdirectories for each type of report
-		configAuditDir := filepath.Join(reportDir, "config_audit_reports")
-		rbacAssessmentDir := filepath.Join(reportDir, "rbac_assessment_reports")
-		infraAssessmentDir := filepath.Join(reportDir, "infra_assessment_reports")
+		kind := resource.GetObjectKind().GroupVersionKind().Kind
+		fileName := fmt.Sprintf("%s-%s.json", kind, resource.GetName())
 
-		// Ensure the directories exist
-		if err := os.MkdirAll(configAuditDir, 0o750); err != nil {
-			log.Error(err, "Failed to create configAuditDir")
-			return ctrl.Result{}, err
-		}
-		if err := os.MkdirAll(rbacAssessmentDir, 0o750); err != nil {
-			log.Error(err, "Failed to create rbacAssessmentDir")
-			return ctrl.Result{}, err
-		}
-		if err := os.MkdirAll(infraAssessmentDir, 0o750); err != nil {
-			log.Error(err, "Failed to create infraAssessmentDir")
-			return ctrl.Result{}, err
-		}
-		// Extract workload kind and name from resource labels
-		workloadKind := resource.GetObjectKind().GroupVersionKind().Kind
-		workloadName := resource.GetName()
+		// filter() only populates one report type per resource, so we mirror the
+		// same gating the CRD path uses. Writing every type unconditionally would
+		// serialize zero-value structs into empty report files (see #2853).
+		isRole := kube.IsRoleTypes(kube.Kind(kind))
 
-		// Write config audit report to a file
-		configReportData, err := json.Marshal(misConfigData.configAuditReportData)
-		if err != nil {
-			return ctrl.Result{}, err
+		// config-audit report
+		if !isRole || r.MergeRbacFindingWithConfigAudit {
+			if err := r.writeReportFile(reportDir, "config_audit_reports", fileName, misConfigData.configAuditReportData, log); err != nil {
+				return ctrl.Result{}, err
+			}
+			// infra-assessment report
+			if k8sCoreComponent(resource) && r.Config.InfraAssessmentScannerEnabled {
+				if err := r.writeReportFile(reportDir, "infra_assessment_reports", fileName, misConfigData.infraAssessmentReportData, log); err != nil {
+					return ctrl.Result{}, err
+				}
+			}
 		}
-		configReportPath := filepath.Join(configAuditDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-		err = os.WriteFile(configReportPath, configReportData, 0o600)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		log.Info("Config audit report written", "path", configReportPath)
 
-		// Write infra assessment report to a file
-		infraReportData, err := json.Marshal(misConfigData.infraAssessmentReportData)
-		if err != nil {
-			return ctrl.Result{}, err
+		// rbac-assessment report
+		if isRole && r.Config.RbacAssessmentScannerEnabled && !r.MergeRbacFindingWithConfigAudit {
+			if err := r.writeReportFile(reportDir, "rbac_assessment_reports", fileName, misConfigData.rbacAssessmentReportData, log); err != nil {
+				return ctrl.Result{}, err
+			}
 		}
-		infraReportPath := filepath.Join(infraAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-		err = os.WriteFile(infraReportPath, infraReportData, 0o600)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		log.Info("Infra assessment report written", "path", infraReportPath)
-
-		// Write RBAC assessment report to a file
-		rbacReportData, err := json.Marshal(misConfigData.rbacAssessmentReportData)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		rbacReportPath := filepath.Join(rbacAssessmentDir, fmt.Sprintf("%s-%s.json", workloadKind, workloadName))
-		err = os.WriteFile(rbacReportPath, rbacReportData, 0o600)
-		if err != nil {
-			return ctrl.Result{}, err
-		}
-		log.Info("RBAC assessment report written", "path", rbacReportPath)
 	}
 	return ctrl.Result{}, nil
+}
+
+// writeReportFile marshals report and writes it under reportDir/subDir/fileName,
+// creating the subdirectory only when there is something to write.
+func (r *ResourceController) writeReportFile(reportDir, subDir, fileName string, report any, log logr.Logger) error {
+	data, err := json.Marshal(report)
+	if err != nil {
+		return err
+	}
+	dir := filepath.Join(reportDir, subDir)
+	if err := os.MkdirAll(dir, 0o750); err != nil {
+		log.Error(err, "Failed to create report directory", "dir", dir)
+		return err
+	}
+	path := filepath.Join(dir, fileName)
+	if err := os.WriteFile(path, data, 0o600); err != nil {
+		return err
+	}
+	log.Info("Report written", "path", path)
+	return nil
 }
 
 func (r *ResourceController) hasReport(ctx context.Context, owner kube.ObjectRef, podSpecHash, pluginConfigHash string) (bool, error) {

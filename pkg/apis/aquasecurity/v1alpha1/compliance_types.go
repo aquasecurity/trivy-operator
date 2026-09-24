@@ -196,29 +196,29 @@ func ToComplianceSpec(cSpec Compliance) spec.ComplianceSpec {
 }
 
 // FromSummaryReport map data from trivy summary report to crd summary report
-func FromSummaryReport(sr *report.SummaryReport) *SummaryReport {
+func FromSummaryReport(r *report.SummaryReport) *SummaryReport {
 	summaryControls := make([]ControlCheckSummary, 0)
-	for _, sr := range sr.SummaryControls {
+	for _, sc := range r.SummaryControls {
 		summaryControls = append(summaryControls, ControlCheckSummary{
-			ID:        sr.ID,
-			Name:      sr.Name,
-			Severity:  sr.Severity,
-			TotalFail: sr.TotalFail,
+			ID:        sc.ID,
+			Name:      sc.Name,
+			Severity:  sc.Severity,
+			TotalFail: sc.TotalFail,
 		})
 	}
 	return &SummaryReport{
-		ID:              sr.ID,
-		Title:           sr.Title,
+		ID:              r.ID,
+		Title:           r.Title,
 		SummaryControls: summaryControls,
 	}
 }
 
 // FromDetailReport map data from trivy summary report to crd summary report
-func FromDetailReport(sr *report.ComplianceReport) *ComplianceReport {
+func FromDetailReport(rpt *report.ComplianceReport) *ComplianceReport {
 	controlResults := make([]*ControlCheckResult, 0)
-	for _, sr := range sr.Results {
+	for _, ctrl := range rpt.Results {
 		checks := make([]ComplianceCheck, 0)
-		for _, r := range sr.Results {
+		for _, r := range ctrl.Results {
 			for _, ms := range r.Misconfigurations {
 				checks = append(checks, ComplianceCheck{
 					ID:          ms.ID,
@@ -240,20 +240,20 @@ func FromDetailReport(sr *report.ComplianceReport) *ComplianceReport {
 			})
 		}
 		controlResults = append(controlResults, &ControlCheckResult{
-			ID:            sr.ID,
-			Name:          sr.Name,
-			Severity:      sr.Severity,
-			Description:   sr.Description,
-			DefaultStatus: sr.DefaultStatus,
+			ID:            ctrl.ID,
+			Name:          ctrl.Name,
+			Severity:      ctrl.Severity,
+			Description:   ctrl.Description,
+			DefaultStatus: ctrl.DefaultStatus,
 			Checks:        checks,
 		})
 	}
 	return &ComplianceReport{
-		ID:               sr.ID,
-		Title:            sr.Title,
-		Version:          sr.Version,
-		Description:      sr.Description,
-		RelatedResources: sr.RelatedResources,
+		ID:               rpt.ID,
+		Title:            rpt.Title,
+		Version:          rpt.Version,
+		Description:      rpt.Description,
+		RelatedResources: rpt.RelatedResources,
 		Results:          controlResults,
 	}
 }

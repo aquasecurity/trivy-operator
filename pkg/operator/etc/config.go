@@ -18,6 +18,8 @@ type Config struct {
 	ServiceAccount                               string         `env:"OPERATOR_SERVICE_ACCOUNT" envDefault:"trivy-operator"`
 	LogDevMode                                   bool           `env:"OPERATOR_LOG_DEV_MODE" envDefault:"false"`
 	ScanJobTimeout                               time.Duration  `env:"OPERATOR_SCAN_JOB_TIMEOUT" envDefault:"5m"`
+	SerializeScanJobScanners                     bool           `env:"OPERATOR_SCAN_JOB_SERIALIZE_SCANNERS" envDefault:"false"`
+	ScanJobMaxRetries                            *int           `env:"OPERATOR_SCAN_JOB_MAX_RETRIES"`
 	ScanJobTTL                                   *time.Duration `env:"OPERATOR_SCAN_JOB_TTL"`
 	ScanSecretTTL                                *time.Duration `env:"OPERATOR_SCAN_SECRET_TTL"`
 	ConcurrentScanJobsLimit                      int            `env:"OPERATOR_CONCURRENT_SCAN_JOBS_LIMIT" envDefault:"10"`

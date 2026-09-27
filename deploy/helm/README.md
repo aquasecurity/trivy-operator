@@ -109,11 +109,11 @@ Keeps security report resources updated
 | rbac.create | bool | `true` |  |
 | resources | object | `{}` |  |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true}` | securityContext security context |
-| service | object | `{"annotations":{},"headless":true,"metricsAppProtocol":"TCP","metricsPort":80,"nodePort":null,"type":"ClusterIP"}` | service only expose a metrics endpoint for prometheus to scrape, trivy-operator does not have a user interface. |
+| service | object | `{"annotations":{},"headless":true,"metricsAppProtocol":"TCP","metricsPort":8080,"nodePort":null,"type":"ClusterIP"}` | service only expose a metrics endpoint for prometheus to scrape, trivy-operator does not have a user interface. |
 | service.annotations | object | `{}` | annotations added to the operator's service |
 | service.headless | bool | `true` | if true, the Service doesn't allocate any IP |
 | service.metricsAppProtocol | string | `"TCP"` | appProtocol of the monitoring service |
-| service.metricsPort | int | `80` | port exposed by the Service |
+| service.metricsPort | int | `8080` | port exposed by the Service |
 | service.nodePort | string | `nil` | the nodeport to use when service type is LoadBalancer or NodePort. If not set, Kubernetes automatically select one. |
 | service.type | string | `"ClusterIP"` | the Service type |
 | serviceAccount.annotations | object | `{}` |  |

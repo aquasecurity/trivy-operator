@@ -233,7 +233,14 @@ func ParseImageRef(imageRef, imageDigest string) (v1alpha1.Registry, v1alpha1.Ar
 		artifact.Tag = t.TagStr()
 	case containerimage.Digest:
 		artifact.Digest = t.DigestStr()
-		artifact.Tag = strings.TrimPrefix(strings.TrimSuffix(strings.TrimPrefix(imageRef, ref.Context().Name()), "@"+artifact.Digest), ":")
+		// A digest reference drops the tag, so parse the part before "@" again as a
+		// tag reference. This is what name.NewDigest does internally and it copes
+		// with every spelling of the repository (Docker Hub shorthand, registry
+		// ports, ...). An empty default tag keeps "repo@digest" tag-less.
+		base, _, _ := strings.Cut(imageRef, "@")
+		if tag, err := containerimage.NewTag(base, containerimage.WithDefaultTag("")); err == nil {
+			artifact.Tag = tag.TagStr()
+		}
 	}
 	if artifact.Digest == "" {
 		artifact.Digest = imageDigest

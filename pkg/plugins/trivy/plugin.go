@@ -82,7 +82,7 @@ func (p *plugin) Init(ctx trivyoperator.PluginContext) error {
 			keyTrivyImageRepository:           DefaultImageRepository,
 			keyTrivyImageTag:                  "0.74.0",
 			KeyTrivySeverity:                  DefaultSeverity,
-			keyTrivySlow:                      "true",
+			keyTrivyParallel:                  "1",
 			keyTrivyMode:                      string(Standalone),
 			keyTrivyTimeout:                   "5m0s",
 			keyTrivyDBRepository:              DefaultDBRepository,

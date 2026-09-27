@@ -1,0 +1,2 @@
+# ct lint-and-install scenario: chart defaults.
+# Intentionally empty — exercises every value from values.yaml unchanged.

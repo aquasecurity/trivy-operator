@@ -1,3 +1,7 @@
+{{- $storageType := .Values.alternateReportStorage.type | default "filesystem" }}
+{{- if and .Values.alternateReportStorage.enabled (not (has $storageType (list "filesystem" "s3"))) }}
+{{- fail (printf "alternateReportStorage.type must be \"filesystem\" or \"s3\", got %q" $storageType) }}
+{{- end -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -59,11 +63,28 @@ spec:
             {{- with .Values.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-          {{- if .Values.alternateReportStorage.enabled }}
+          {{- if and .Values.alternateReportStorage.enabled (eq $storageType "filesystem") }}
             - name: OPERATOR_ALTERNATE_REPORT_STORAGE_ENABLED
               value: "true"
             - name: OPERATOR_ALTERNATE_REPORT_STORAGE_DIR
               value: {{ .Values.alternateReportStorage.mountPath | quote }}
+          {{- else if and .Values.alternateReportStorage.enabled (eq $storageType "s3") }}
+          {{- with .Values.alternateReportStorage.s3 }}
+            - name: OPERATOR_ALTERNATE_REPORT_STORAGE_ENABLED
+              value: "true"
+            - name: OPERATOR_ALTERNATE_REPORT_STORAGE_TYPE
+              value: "s3"
+            - name: OPERATOR_ALTERNATE_REPORT_STORAGE_S3_BUCKET
+              value: {{ required "alternateReportStorage.s3.bucket is required when alternateReportStorage.type is s3" .bucket | quote }}
+            - name: OPERATOR_ALTERNATE_REPORT_STORAGE_S3_PREFIX
+              value: {{ .prefix | quote }}
+            - name: OPERATOR_ALTERNATE_REPORT_STORAGE_S3_ENDPOINT
+              value: {{ .endpoint | quote }}
+            - name: OPERATOR_ALTERNATE_REPORT_STORAGE_S3_REGION
+              value: {{ .region | quote }}
+            - name: OPERATOR_ALTERNATE_REPORT_STORAGE_S3_USE_PATH_STYLE
+              value: {{ .usePathStyle | quote }}
+          {{- end }}
           {{- end }}
           envFrom:
             - configMapRef:
@@ -75,6 +96,10 @@ spec:
             {{- if .Values.operator.valuesFromSecret }}
             - secretRef:
                 name: {{ .Values.operator.valuesFromSecret }}
+            {{- end }}
+            {{- if and .Values.alternateReportStorage.enabled (eq $storageType "s3") .Values.alternateReportStorage.s3.existingSecret }}
+            - secretRef:
+                name: {{ .Values.alternateReportStorage.s3.existingSecret }}
             {{- end }}
           ports:
             - name: metrics
@@ -106,7 +131,7 @@ spec:
           {{- with .Values.volumeMounts }}
           volumeMounts: {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if .Values.alternateReportStorage.enabled }}
+          {{- if and .Values.alternateReportStorage.enabled (eq $storageType "filesystem") }}
           {{- if not .Values.volumeMounts }}
           volumeMounts:
           {{- end }}
@@ -116,13 +141,13 @@ spec:
       {{- with .Values.image.pullSecrets }}
       imagePullSecrets: {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if or (not (empty .Values.podSecurityContext)) .Values.alternateReportStorage.enabled }}
+      {{- if or (not (empty .Values.podSecurityContext)) (and .Values.alternateReportStorage.enabled (eq $storageType "filesystem")) }}
       securityContext:
       {{- with .Values.podSecurityContext }}
         {{ toYaml . | nindent 8 }}
       {{- end }}
       # ── but only add runAsUser/fsGroup if alternateReportStorage is on ─────────
-      {{- if .Values.alternateReportStorage.enabled }}
+      {{- if and .Values.alternateReportStorage.enabled (eq $storageType "filesystem") }}
         runAsUser: {{ .Values.alternateReportStorage.podSecurityContext.runAsUser }}
         fsGroup:   {{ .Values.alternateReportStorage.podSecurityContext.fsGroup }}
       {{- end }}
@@ -130,7 +155,7 @@ spec:
       {{- with .Values.volumes }}
       volumes: {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.alternateReportStorage.enabled }}
+      {{- if and .Values.alternateReportStorage.enabled (eq $storageType "filesystem") }}
       {{- if not .Values.volumes }}
       volumes:
       {{- end }}

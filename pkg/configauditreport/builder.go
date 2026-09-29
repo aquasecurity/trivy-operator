@@ -16,7 +16,6 @@ import (
 
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/kube"
-	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
@@ -29,7 +28,6 @@ type ReportBuilder struct {
 	reportTTL               *time.Duration
 	resourceLabelsToInclude []string
 	additionalReportLabels  labels.Set
-	etc.Config
 }
 
 func NewReportBuilder(scheme *runtime.Scheme) *ReportBuilder {
@@ -177,17 +175,11 @@ func (b *ReportBuilder) Write(ctx context.Context, writer Writer) error {
 		if err != nil {
 			return err
 		}
-		if b.Config.AltReportStorageEnabled && b.Config.AltReportDir != "" {
-			return nil
-		}
 		return writer.WriteClusterReport(ctx, report)
 	}
 	report, err := b.GetReport()
 	if err != nil {
 		return err
-	}
-	if b.Config.AltReportStorageEnabled && b.Config.AltReportDir != "" {
-		return nil
 	}
 	return writer.WriteReport(ctx, report)
 }

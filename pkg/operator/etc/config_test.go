@@ -208,3 +208,38 @@ func TestOperator_GetPrivateRegistryScanSecretsNames(t *testing.T) {
 		})
 	}
 }
+
+func TestOperator_AltReportStorageActive(t *testing.T) {
+	testCases := []struct {
+		name     string
+		operator etc.Config
+		expected bool
+	}{
+		{
+			name:     "Should be inactive when disabled",
+			operator: etc.Config{AltReportStorageType: etc.AltReportStorageS3},
+			expected: false,
+		},
+		{
+			name:     "Should be inactive for filesystem without directory",
+			operator: etc.Config{AltReportStorageEnabled: true, AltReportStorageType: etc.AltReportStorageFilesystem},
+			expected: false,
+		},
+		{
+			name:     "Should be active for filesystem with directory",
+			operator: etc.Config{AltReportStorageEnabled: true, AltReportStorageType: etc.AltReportStorageFilesystem, AltReportDir: "/mnt/data"},
+			expected: true,
+		},
+		{
+			name:     "Should be active for s3 without directory",
+			operator: etc.Config{AltReportStorageEnabled: true, AltReportStorageType: etc.AltReportStorageS3},
+			expected: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, tc.operator.AltReportStorageActive())
+		})
+	}
+}

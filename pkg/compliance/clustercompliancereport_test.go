@@ -17,6 +17,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/reportstorage"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
@@ -91,7 +92,7 @@ func TestClusterComplianceReconciler_generateComplianceReport(t *testing.T) {
 				cr := mkReport(10*time.Minute, 2*time.Minute, "* * * * *", v1alpha1.ReportSummary)
 				c := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(cr).Build()
 				fm := &fakeMgr{}
-				r := &ClusterComplianceReportReconciler{Client: c, Mgr: fm, Clock: ext.NewFixedClock(now), Config: etc.Config{AltReportStorageEnabled: true, AltReportDir: dir}}
+				r := &ClusterComplianceReportReconciler{Client: c, Mgr: fm, Clock: ext.NewFixedClock(now), Config: etc.Config{AltReportStorageEnabled: true, AltReportDir: dir}, ReportStore: reportstorage.NewFilesystem(dir)}
 				return r, types.NamespacedName{Name: "nsa"}, fm, dir
 			},
 			expect: expectation{wantErr: false, mgrCalled: true, requeuePos: false, wantFile: true},

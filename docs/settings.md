@@ -76,6 +76,21 @@ configuration settings for common use cases. For example, switch Trivy from [Sta
 |`alternateReportStorage.storage`|`"10Gi"`| Amount of storage for your persistent volume.|
 |`alternateReportStorage.podSecurityContext.runAsUser`| `10000` | Specifies the UNIX user ID that all processes in the container should run as (for the persistent volume), ensuring they don’t execute as the root user and limiting their privileges.|
 |`alternateReportStorage.podSecurityContext.fsGroup`| `10000` | Defines a UNIX group ID that Kubernetes will use to change the ownership of any mounted volumes so that files created by the container (persistent volume) are accessible to processes running under that group.|
+| `alternateReportStorage.type`| `"filesystem"` | Where alternate storage writes reports. `filesystem` writes JSON files to a persistent volume. `s3` uploads them to an S3 or S3-compatible bucket (MinIO, Garage, SeaweedFS) and creates no persistent volume.|
+| `alternateReportStorage.s3.bucket`| `""` | Bucket for reports. Required when `type` is `s3`.|
+| `alternateReportStorage.s3.prefix`| `""` | Prefix prepended to every object key. The rest of the key mirrors the persistent volume layout, e.g. `vulnerability_reports/default/ReplicaSet-nginx-6d9676f5c4-nginx.json`.|
+| `alternateReportStorage.s3.endpoint`| `""` | Endpoint of an S3-compatible server, e.g. `http://minio.minio:9000`. Leave empty for AWS S3.|
+| `alternateReportStorage.s3.region`| `""` | Bucket region. Falls back to `AWS_REGION`, then `us-east-1`.|
+| `alternateReportStorage.s3.usePathStyle`| `false` | Address the bucket as `endpoint/bucket`. Most self-hosted S3-compatible servers need it.|
+| `alternateReportStorage.s3.existingSecret`| `""` | Secret with `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` keys, loaded as environment variables. Leave empty to use IRSA or EKS Pod Identity.|
+
+!!! note "Alternate report storage"
+    Reports are stored as `<type>_reports/<namespace>/<Kind>-<name>[-<container>].json`. Cluster-scoped objects have no namespace directory.
+    Before scanning a workload, the operator checks the stored vulnerability report. It skips the scan when the report has the current
+    spec hash and is younger than `operator.scannerReportTTL`, and requeues the workload for a rescan when the report expires.
+
+    The S3 backend needs `s3:ListBucket` on the bucket and `s3:PutObject` and `s3:GetObject` on its objects.
+    Without `s3:ListBucket`, S3 answers 403 instead of 404 for a missing report, and every check fails.
 
 !!! note
     For parameters that use time values, such as `ScanJobTTL`, valid time units are "ns", "us" (or "µs"), "ms", "s", "m", and "h".

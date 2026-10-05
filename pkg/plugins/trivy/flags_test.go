@@ -9,57 +9,57 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 )
 
-func TestSlow(t *testing.T) {
+func TestParallel(t *testing.T) {
 	testCases := []struct {
 		name       string
 		configData trivyoperator.ConfigData
-		want       string
+		want       []string
 	}{{
 
-		name: "slow param set to true",
+		name: "parallel param set to 1",
 		configData: map[string]string{
-			"trivy.tag":  "0.35.0",
-			"trivy.slow": "true",
+			"trivy.tag":      "0.35.0",
+			"trivy.parallel": "1",
 		},
-		want: "--slow",
+		want: []string{"--parallel", "1"},
 	},
 		{
-			name: "slow param set to false",
+			name: "parallel param set to 0",
 			configData: map[string]string{
-				"trivy.tag":  "0.35.0",
-				"trivy.slow": "false",
+				"trivy.tag":      "0.35.0",
+				"trivy.parallel": "0",
 			},
-			want: "",
+			want: []string{},
 		},
 		{
-			name: "slow param set to no valid value",
+			name: "parallel param set to invalid value defaults to 1",
 			configData: map[string]string{
-				"trivy.tag":  "0.35.0",
-				"trivy.slow": "false2",
+				"trivy.tag":      "0.35.0",
+				"trivy.parallel": "invalid",
 			},
-			want: "--slow",
+			want: []string{"--parallel", "1"},
 		},
 		{
-			name: "slow param set to true and trivy tag is less then 0.35.0",
+			name: "parallel param set to 1 and trivy tag is less than 0.35.0",
 			configData: map[string]string{
-				"trivy.slow": "true",
-				"trivy.tag":  "0.33.0",
+				"trivy.parallel": "1",
+				"trivy.tag":      "0.33.0",
 			},
-			want: "",
+			want: []string{},
 		},
 
 		{
-			name: "slow param set to true and trivy tag is bigger then 0.35.0",
+			name: "parallel param set to 1 and trivy tag is greater than 0.35.0",
 			configData: map[string]string{
-				"trivy.slow": "true",
-				"trivy.tag":  "0.36.0",
+				"trivy.parallel": "1",
+				"trivy.tag":      "0.36.0",
 			},
-			want: "--slow",
+			want: []string{"--parallel", "1"},
 		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := trivy.Slow(trivy.Config{PluginConfig: trivyoperator.PluginConfig{Data: tc.configData}})
+			got := trivy.Parallel(trivy.Config{PluginConfig: trivyoperator.PluginConfig{Data: tc.configData}})
 			assert.Equal(t, tc.want, got)
 		})
 	}

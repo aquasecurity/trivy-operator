@@ -154,7 +154,7 @@ func (t Test) Integration() error {
 // Target for downloading test images and upload them into KinD
 func prepareImages() error {
 	images := []string{
-		"mirror.gcr.io/aquasec/trivy:0.74.0",
+		"mirror.gcr.io/aquasec/trivy:0.75.0",
 		"mirror.gcr.io/knqyf263/vuln-image:1.2.3",
 		"alpine:3.21.1",
 		"alpine:3.22",
@@ -394,7 +394,7 @@ func (Lint) Fix() error {
 
 // GolangciLint installs golangci-lint
 func (t Tool) GolangciLint() error {
-	const version = "v2.12.2"
+	const version = "v2.13.1"
 	bin := filepath.Join(GOBIN, "golangci-lint")
 	if exists(bin) && t.matchGolangciLintVersion(bin, version) {
 		return nil

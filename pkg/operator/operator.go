@@ -32,6 +32,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/plugins"
 	"github.com/aquasecurity/trivy-operator/pkg/policy"
 	"github.com/aquasecurity/trivy-operator/pkg/rbacassessment"
+	"github.com/aquasecurity/trivy-operator/pkg/reportstorage"
 	"github.com/aquasecurity/trivy-operator/pkg/sbomreport"
 	"github.com/aquasecurity/trivy-operator/pkg/trivyoperator"
 	"github.com/aquasecurity/trivy-operator/pkg/vulnerabilityreport"
@@ -58,6 +59,15 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 		"target namespaces", targetNamespaces,
 		"exclude namespaces", operatorConfig.ExcludeNamespaces,
 		"target workloads", operatorConfig.GetTargetWorkloads())
+
+	var reportStore reportstorage.Store
+	if operatorConfig.AltReportStorageActive() {
+		reportStore, err = reportstorage.New(ctx, operatorConfig)
+		if err != nil {
+			return fmt.Errorf("setting up alternate report storage: %w", err)
+		}
+		setupLog.Info("Writing reports to alternate storage", "type", operatorConfig.AltReportStorageType)
+	}
 
 	// Set the default manager options.
 	skipNameValidation := true
@@ -190,7 +200,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			limitChecker,
 			secretsReader,
 			trivyOperatorConfig,
-			mgr, plugin, pluginContext)
+			mgr, plugin, pluginContext, reportStore)
 		if err != nil {
 			return err
 		}
@@ -209,6 +219,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			SbomReadWriter:          sbomreport.NewReadWriter(&objectResolver),
 			VulnerabilityReadWriter: vulnerabilityreport.NewReadWriter(&objectResolver),
 			ExposedSecretReadWriter: exposedsecretreport.NewReadWriter(&objectResolver),
+			ReportStore:             reportStore,
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup scan job  reconciler: %w", err)
 		}
@@ -292,6 +303,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			ClusterVersion:   gitVersion,
 			CacheSyncTimeout: *operatorConfig.ControllerCacheSyncTimeout,
 			ChecksLoader:     checksLoader,
+			ReportStore:      reportStore,
 		}).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup resource controller: %w", err)
 		}
@@ -335,6 +347,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 				InfraReadWriter: infraassessment.NewReadWriter(&objectResolver),
 				BuildInfo:       buildInfo,
 				ChecksLoader:    checksLoader,
+				ReportStore:     reportStore,
 			}).SetupWithManager(mgr); err != nil {
 				return fmt.Errorf("unable to setup node collector controller: %w", err)
 			}
@@ -344,11 +357,12 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 	if operatorConfig.ClusterComplianceEnabled {
 		logger := ctrl.Log.WithName("reconciler").WithName("clustercompliancereport")
 		cc := &compliance.ClusterComplianceReportReconciler{
-			Logger: logger,
-			Config: operatorConfig,
-			Client: mgr.GetClient(),
-			Mgr:    compliance.NewMgr(mgr.GetClient()),
-			Clock:  ext.NewSystemClock(),
+			Logger:      logger,
+			Config:      operatorConfig,
+			Client:      mgr.GetClient(),
+			Mgr:         compliance.NewMgr(mgr.GetClient()),
+			Clock:       ext.NewSystemClock(),
+			ReportStore: reportStore,
 		}
 		if err := cc.SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("unable to setup clustercompliancereport reconciler: %w", err)
@@ -373,7 +387,7 @@ func Start(ctx context.Context, buildInfo trivyoperator.BuildInfo, operatorConfi
 			limitChecker,
 			secretsReader,
 			trivyOperatorConfig,
-			mgr, plugin, pluginContext)
+			mgr, plugin, pluginContext, reportStore)
 		if err != nil {
 			return err
 		}
@@ -418,7 +432,8 @@ func newWorkloadController(operatorConfig etc.Config,
 	secretsReader kube.SecretsReader,
 	trivyOperatorConfig trivyoperator.ConfigData,
 	mgr ctrl.Manager,
-	plugin vulnerabilityreport.Plugin, pluginContext trivyoperator.PluginContext) (*vcontroller.WorkloadController, error) {
+	plugin vulnerabilityreport.Plugin, pluginContext trivyoperator.PluginContext,
+	reportStore reportstorage.Store) (*vcontroller.WorkloadController, error) {
 
 	return &vcontroller.WorkloadController{
 		Logger:           ctrl.Log.WithName("reconciler").WithName("vulnerabilityreport"),
@@ -440,6 +455,7 @@ func newWorkloadController(operatorConfig etc.Config,
 		SbomReadWriter:          sbomreport.NewReadWriter(&objectResolver),
 		SubmitScanJobChan:       make(chan vcontroller.ScanJobRequest, operatorConfig.ConcurrentScanJobsLimit),
 		ResultScanJobChan:       make(chan vcontroller.ScanJobResult, operatorConfig.ConcurrentScanJobsLimit),
+		ReportStore:             reportStore,
 	}, nil
 }
 

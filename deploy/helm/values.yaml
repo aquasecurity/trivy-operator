@@ -826,9 +826,11 @@ nodeCollector:
     - name: etc-cni-netd
       hostPath:
         path: /etc/cni/net.d/
-# -- alternateReportStorage is the flag to enable alternate storage for all trivy reports (crds) in the form json files inside of a persistent volume
+# -- alternateReportStorage is the flag to enable alternate storage for all trivy reports (crds) in the form json files inside of a persistent volume or an S3-compatible bucket
 alternateReportStorage:
   enabled: false
+  # -- type of alternate storage: "filesystem" writes JSON files to a PersistentVolumeClaim, "s3" uploads them to an S3-compatible bucket
+  type: filesystem
   mountPath: "/mnt/data/trivy-operator"
   volumeName: "trivy-operator-pvc"
   storage: "10Gi"
@@ -837,3 +839,17 @@ alternateReportStorage:
   podSecurityContext:
     runAsUser: 10000
     fsGroup: 10000
+  # -- s3 settings, used when type is "s3". Works with AWS S3 and S3-compatible servers such as MinIO, Garage, SeaweedFS
+  s3:
+    # -- bucket to upload reports to (required)
+    bucket: ""
+    # -- prefix prepended to every object key
+    prefix: ""
+    # -- endpoint of an S3-compatible server, e.g. "http://minio.minio:9000". Leave empty for AWS S3
+    endpoint: ""
+    # -- region of the bucket. Falls back to AWS_REGION, then "us-east-1"
+    region: ""
+    # -- usePathStyle addresses the bucket as endpoint/bucket. Most self-hosted S3-compatible servers need it
+    usePathStyle: false
+    # -- existingSecret with AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY keys, loaded as environment variables. Leave empty to use IRSA or EKS Pod Identity
+    existingSecret: ""

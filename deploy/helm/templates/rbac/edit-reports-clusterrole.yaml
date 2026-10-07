@@ -1,0 +1,34 @@
+{{- if .Values.rbac.aggregate.create }}
+# permissions for editors and admins to manage trivy-operator reports
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: aggregate-reports-edit
+  labels:
+    {{- include "trivy-operator.labels" . | nindent 4 }}
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+rules:
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - clustercompliancereports
+      - clustercompliancereports/status
+      - clusterconfigauditreports
+      - clusterinfraassessmentreports
+      - clusterrbacassessmentreports
+      - clustersbomreports
+      - clustervulnerabilityreports
+      - configauditreports
+      - exposedsecretreports
+      - infraassessmentreports
+      - rbacassessmentreports
+      - sbomreports
+      - vulnerabilityreports
+    verbs:
+      - create
+      - delete
+      - deletecollection
+      - patch
+      - update
+{{- end }}

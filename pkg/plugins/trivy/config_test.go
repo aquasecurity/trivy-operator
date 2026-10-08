@@ -88,7 +88,7 @@ func TestConfig_GetAdditionalVulnerabilityReportFields(t *testing.T) {
 		{
 			name:             "no additional fields are set",
 			configData:       Config{PluginConfig: trivyoperator.PluginConfig{}},
-			additionalFields: vulnerabilityreport.AdditionalFields{},
+			additionalFields: vulnerabilityreport.NewDefaultAdditionalFields(),
 		},
 		{
 			name: "all additional fields are set",
@@ -97,7 +97,25 @@ func TestConfig_GetAdditionalVulnerabilityReportFields(t *testing.T) {
 					"trivy.additionalVulnerabilityReportFields": "PackageType,PkgPath,Class,Target,Links,Description,CVSS",
 				},
 			}},
-			additionalFields: vulnerabilityreport.AdditionalFields{Description: true, Links: true, CVSS: true, Class: true, PackageType: true, PkgPath: true, Target: true},
+			additionalFields: vulnerabilityreport.AdditionalFields{
+				// default
+				Resource:         true,
+				InstalledVersion: true,
+				FixedVersion:     true,
+				PublishedDate:    true,
+				LastModifiedDate: true,
+				Title:            true,
+				PrimaryLink:      true,
+				Score:            true,
+				PkgPURL:          true,
+				// added
+				Description: true,
+				Links:       true,
+				CVSS:        true,
+				Class:       true,
+				PackageType: true,
+				Target:      true,
+			},
 		},
 		{
 			name: "some additional fields are set",
@@ -106,19 +124,77 @@ func TestConfig_GetAdditionalVulnerabilityReportFields(t *testing.T) {
 					"trivy.additionalVulnerabilityReportFields": "PackageType,Target,Links,CVSS",
 				},
 			}},
-			additionalFields: vulnerabilityreport.AdditionalFields{Links: true, CVSS: true, PackageType: true, Target: true},
+			additionalFields: vulnerabilityreport.AdditionalFields{
+				// default
+				Resource:         true,
+				InstalledVersion: true,
+				FixedVersion:     true,
+				PublishedDate:    true,
+				LastModifiedDate: true,
+				Title:            true,
+				PrimaryLink:      true,
+				Score:            true,
+				PkgPURL:          true,
+				// added
+				Links:       true,
+				CVSS:        true,
+				PackageType: true,
+				Target:      true,
+			},
+		},
+		{
+			name: "all fields are removed",
+			configData: Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.additionalVulnerabilityReportFields": " -Resource,- InstalledVersion,   -  FixedVersion, - PublishedDate,-LastModifiedDate,-Title,-PrimaryLink,-Score,-PackagePURL",
+				},
+			}},
+			additionalFields: vulnerabilityreport.AdditionalFields{},
+		},
+		{
+			name: "some fields are added and some are removed",
+			configData: Config{PluginConfig: trivyoperator.PluginConfig{
+				Data: map[string]string{
+					"trivy.additionalVulnerabilityReportFields": "CVSS,PackageType,-PublishedDate,-LastModifiedDate",
+				},
+			}},
+			additionalFields: vulnerabilityreport.AdditionalFields{
+				// default
+				Resource:         true,
+				InstalledVersion: true,
+				FixedVersion:     true,
+				PublishedDate:    false, // removed
+				LastModifiedDate: false, // removed
+				Title:            true,
+				PrimaryLink:      true,
+				Score:            true,
+				PkgPURL:          true,
+				// added
+				CVSS:        true,
+				PackageType: true,
+			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			addFields := tc.configData.GetAdditionalVulnerabilityReportFields()
+			assert.Equal(t, tc.additionalFields.Resource, addFields.Resource)
+			assert.Equal(t, tc.additionalFields.InstalledVersion, addFields.InstalledVersion)
+			assert.Equal(t, tc.additionalFields.FixedVersion, addFields.FixedVersion)
+			assert.Equal(t, tc.additionalFields.PublishedDate, addFields.PublishedDate)
+			assert.Equal(t, tc.additionalFields.LastModifiedDate, addFields.LastModifiedDate)
+			assert.Equal(t, tc.additionalFields.Title, addFields.Title)
+			assert.Equal(t, tc.additionalFields.PrimaryLink, addFields.PrimaryLink)
+			assert.Equal(t, tc.additionalFields.Score, addFields.Score)
+			assert.Equal(t, tc.additionalFields.PkgPURL, addFields.PkgPURL)
 			assert.Equal(t, tc.additionalFields.Description, addFields.Description)
+			assert.Equal(t, tc.additionalFields.Links, addFields.Links)
 			assert.Equal(t, tc.additionalFields.CVSS, addFields.CVSS)
 			assert.Equal(t, tc.additionalFields.Target, addFields.Target)
-			assert.Equal(t, tc.additionalFields.PackageType, addFields.PackageType)
 			assert.Equal(t, tc.additionalFields.Class, addFields.Class)
-			assert.Equal(t, tc.additionalFields.Links, addFields.Links)
+			assert.Equal(t, tc.additionalFields.PackageType, addFields.PackageType)
+			assert.Equal(t, tc.additionalFields.PkgPath, addFields.PkgPath)
 		})
 	}
 }

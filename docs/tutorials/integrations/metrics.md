@@ -14,6 +14,16 @@ trivy_image_vulnerabilities{
     } 10
 ```
 
+### ImageSize
+
+Exposes the uncompressed size in bytes of each scanned image, as reported by Trivy, enable by setting the EnvVar: `OPERATOR_METRICS_IMAGE_SIZE_ENABLED" envDefault:"false"`. One series is exposed per unique image, regardless of how many workloads use it. Images without a known size are skipped. For example:
+
+```shell
+trivy_image_size_bytes{
+    image_digest="sha256:5516d103a9c2ecc4f026efbd4b40662ce22dc1f824fb129ed121460aaa5c47f8",image_registry="index.docker.io",image_repository="library/mongo",image_tag="7.0.14"
+    } 7.86905088e+08
+```
+
 ### ConfigAudit
 
 A report summary series exposes the count of checks of each status reported in a given `ConfigAuditReport`. For example:

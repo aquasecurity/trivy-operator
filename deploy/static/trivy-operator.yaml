@@ -897,6 +897,11 @@ spec:
                     description: Repository is the name of the repository in the Artifact
                       registry.
                     type: string
+                  size:
+                    description: Size is the uncompressed size of the Artifact in
+                      bytes.
+                    format: int64
+                    type: integer
                   tag:
                     description: Tag is a mutable, human-readable string used to identify
                       an Artifact.
@@ -1308,6 +1313,11 @@ spec:
                     description: Repository is the name of the repository in the Artifact
                       registry.
                     type: string
+                  size:
+                    description: Size is the uncompressed size of the Artifact in
+                      bytes.
+                    format: int64
+                    type: integer
                   tag:
                     description: Tag is a mutable, human-readable string used to identify
                       an Artifact.
@@ -1778,6 +1788,11 @@ spec:
                     description: Repository is the name of the repository in the Artifact
                       registry.
                     type: string
+                  size:
+                    description: Size is the uncompressed size of the Artifact in
+                      bytes.
+                    format: int64
+                    type: integer
                   tag:
                     description: Tag is a mutable, human-readable string used to identify
                       an Artifact.
@@ -2335,6 +2350,11 @@ spec:
                     description: Repository is the name of the repository in the Artifact
                       registry.
                     type: string
+                  size:
+                    description: Size is the uncompressed size of the Artifact in
+                      bytes.
+                    format: int64
+                    type: integer
                   tag:
                     description: Tag is a mutable, human-readable string used to identify
                       an Artifact.
@@ -2748,6 +2768,11 @@ spec:
                     description: Repository is the name of the repository in the Artifact
                       registry.
                     type: string
+                  size:
+                    description: Size is the uncompressed size of the Artifact in
+                      bytes.
+                    format: int64
+                    type: integer
                   tag:
                     description: Tag is a mutable, human-readable string used to identify
                       an Artifact.
@@ -3022,6 +3047,7 @@ data:
   OPERATOR_METRICS_RBAC_ASSESSMENT_INFO_ENABLED: "false"
   OPERATOR_METRICS_INFRA_ASSESSMENT_INFO_ENABLED: "false"
   OPERATOR_METRICS_IMAGE_INFO_ENABLED: "false"
+  OPERATOR_METRICS_IMAGE_SIZE_ENABLED: "false"
   OPERATOR_METRICS_CLUSTER_COMPLIANCE_INFO_ENABLED: "false"
   OPERATOR_WEBHOOK_BROADCAST_URL: ""
   OPERATOR_WEBHOOK_BROADCAST_TIMEOUT: "30s"
@@ -3119,7 +3145,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: a632e0c58963df1d04745e8f18c64d7064780411dd5e1efc4c01b4b9d76ac1cc
+        checksum/config: 970de781eddc70e3c9039f3bb0b67fb9f3585c323ba70e49e47ac9067a9369cf
       labels:
         app.kubernetes.io/name: trivy-operator
         app.kubernetes.io/instance: trivy-operator

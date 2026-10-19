@@ -38,6 +38,7 @@ data:
   OPERATOR_METRICS_RBAC_ASSESSMENT_INFO_ENABLED: {{ .Values.operator.metricsRbacAssessmentInfo | quote }}
   OPERATOR_METRICS_INFRA_ASSESSMENT_INFO_ENABLED: {{ .Values.operator.metricsInfraAssessmentInfo | quote }}
   OPERATOR_METRICS_IMAGE_INFO_ENABLED: {{ .Values.operator.metricsImageInfo | quote }}
+  OPERATOR_METRICS_IMAGE_SIZE_ENABLED: {{ .Values.operator.metricsImageSize | quote }}
   OPERATOR_METRICS_CLUSTER_COMPLIANCE_INFO_ENABLED: {{ .Values.operator.metricsClusterComplianceInfo | quote }}
   OPERATOR_WEBHOOK_BROADCAST_URL: {{ .Values.operator.webhookBroadcastURL | quote }}
   OPERATOR_WEBHOOK_BROADCAST_TIMEOUT: {{ .Values.operator.webhookBroadcastTimeout | quote }}

@@ -118,6 +118,7 @@ type metricDescriptors struct {
 	infraAssessmentInfoDesc   *prometheus.Desc
 	complianceDesc            *prometheus.Desc
 	imageInfoDesc             *prometheus.Desc
+	imageSizeDesc             *prometheus.Desc
 	complianceInfoDesc        *prometheus.Desc
 }
 
@@ -488,6 +489,19 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		nil,
 	)
 
+	imageSizeLabels := []string{
+		image_registry,
+		image_repository,
+		image_tag,
+		image_digest,
+	}
+	imageSizeDesc := prometheus.NewDesc(
+		prometheus.BuildFQName("trivy", "image", "size_bytes"),
+		"uncompressed size of scanned container images in bytes",
+		imageSizeLabels,
+		nil,
+	)
+
 	complianceInfoDesc := prometheus.NewDesc(
 		prometheus.BuildFQName("trivy", "compliance", "info"),
 		"cluster compliance report Info",
@@ -529,6 +543,7 @@ func buildMetricDescriptors(config trivyoperator.ConfigData) metricDescriptors {
 		infraAssessmentInfoDesc:   infraAssessmentInfoDesc,
 		complianceDesc:            complianceDesc,
 		imageInfoDesc:             imageInfoDesc,
+		imageSizeDesc:             imageSizeDesc,
 		complianceInfoDesc:        complianceInfoDesc,
 	}
 }
@@ -578,6 +593,10 @@ func (c ResourcesMetricsCollector) Collect(metrics chan<- prometheus.Metric) {
 
 	if c.Config.MetricsImageInfo {
 		c.collectImageReports(ctx, metrics, targetNamespaces)
+	}
+
+	if c.Config.MetricsImageSize {
+		c.collectImageSizeReports(ctx, metrics, targetNamespaces)
 	}
 
 	if c.Config.MetricsClusterComplianceInfo {
@@ -996,6 +1015,42 @@ func (c ResourcesMetricsCollector) collectImageReports(ctx context.Context, metr
 	}
 }
 
+// collectImageSizeReports exposes the uncompressed size of each scanned image.
+// The same image may be referenced by many workloads, so series are
+// deduplicated by image identity and do not carry workload labels.
+func (c ResourcesMetricsCollector) collectImageSizeReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
+	type imageKey struct {
+		registry, repository, tag, digest string
+	}
+	sizes := make(map[imageKey]int64)
+	reports := &v1alpha1.VulnerabilityReportList{}
+	for _, n := range targetNamespaces {
+		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {
+			c.Logger.Error(err, "failed to list vulnerabilityreports from API", "namespace", n)
+			continue
+		}
+		for _, r := range reports.Items {
+			size := r.Report.Artifact.Size
+			if size <= 0 {
+				continue
+			}
+			key := imageKey{
+				registry:   r.Report.Registry.Server,
+				repository: r.Report.Artifact.Repository,
+				tag:        r.Report.Artifact.Tag,
+				digest:     r.Report.Artifact.Digest,
+			}
+			if size > sizes[key] {
+				sizes[key] = size
+			}
+		}
+	}
+	for key, size := range sizes {
+		metrics <- prometheus.MustNewConstMetric(c.imageSizeDesc, prometheus.GaugeValue, float64(size),
+			key.registry, key.repository, key.tag, key.digest)
+	}
+}
+
 func (c *ResourcesMetricsCollector) collectClusterComplianceInfoReports(ctx context.Context, metrics chan<- prometheus.Metric) {
 	reports := &v1alpha1.ClusterComplianceReportList{}
 	labelValues := make([]string, len(c.complianceInfoLabels[0:]))
@@ -1074,6 +1129,7 @@ func (c ResourcesMetricsCollector) Describe(descs chan<- *prometheus.Desc) {
 	descs <- c.clusterRbacAssessmentDesc
 	descs <- c.complianceDesc
 	descs <- c.imageInfoDesc
+	descs <- c.imageSizeDesc
 	descs <- c.complianceInfoDesc
 }
 

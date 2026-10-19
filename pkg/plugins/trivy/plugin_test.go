@@ -7406,6 +7406,59 @@ func TestPlugin_ParseReportData(t *testing.T) {
 
 }
 
+func TestPlugin_ParseReportData_ImageSize(t *testing.T) {
+	config := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "trivy-operator-trivy-config",
+			Namespace: "trivyoperator-ns",
+		},
+		Data: map[string]string{
+			"trivy.repository": "aquasec/trivy",
+			"trivy.tag":        "0.9.1",
+			"trivy.mode":       string(trivy.Standalone),
+			"trivy.command":    string(trivy.Image),
+		},
+	}
+
+	testCases := []struct {
+		name         string
+		input        string
+		expectedSize int64
+	}{
+		{
+			name:         "Should copy image size from report metadata",
+			input:        `{"SchemaVersion":2,"ArtifactName":"mongo:7.0.14","Metadata":{"Size":786905088}}`,
+			expectedSize: 786905088,
+		},
+		{
+			name:         "Should leave image size empty when report metadata has no size",
+			input:        `{"SchemaVersion":2,"ArtifactName":"mongo:7.0.14","Metadata":{}}`,
+			expectedSize: 0,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			fakeClient := fake.NewClientBuilder().WithObjects(config).Build()
+			ctx := trivyoperator.NewPluginContext().
+				WithName("Trivy").
+				WithNamespace("trivyoperator-ns").
+				WithServiceAccountName("trivyoperator-sa").
+				WithClient(fakeClient).
+				WithTrivyOperatorConfig(map[string]string{
+					"scanJob.compressLogs": "false",
+					"generateSbomEnabled":  "false",
+				}).
+				Get()
+			resolver := kube.NewObjectResolver(fakeClient, &kube.CompatibleObjectMapper{})
+			instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
+			vulnReport, _, _, err := instance.ParseReportData(ctx, "mongo:7.0.14", io.NopCloser(strings.NewReader(tc.input)))
+			require.NoError(t, err)
+			assert.Equal(t, tc.expectedSize, vulnReport.Artifact.Size)
+		})
+	}
+}
+
 func TestGetScoreFromCVSS(t *testing.T) {
 	testCases := []struct {
 		name          string

@@ -116,7 +116,7 @@ operator:
   # -- batchDeleteDelay the duration to wait before deleting another batch of config audit reports.
   batchDeleteDelay: 10s
   # -- accessGlobalSecretsAndServiceAccount The flag to enable access to global secrets/service accounts to allow `vulnerability scan job` to pull images from private registries
-  accessGlobalSecretsAndServiceAccount: true
+  accessGlobalSecretsAndServiceAccount: false
   # -- builtInTrivyServer The flag enables the usage of built-in trivy server in cluster. It also overrides the following trivy params with built-in values
   # trivy.mode = ClientServer and serverURL = http://<serverServiceName>.<trivy operator namespace>:4975
   builtInTrivyServer: false

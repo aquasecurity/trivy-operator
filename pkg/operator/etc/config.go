@@ -55,7 +55,7 @@ type Config struct {
 	WebhookBroadcastCustomHeaders                string         `env:"OPERATOR_WEBHOOK_BROADCAST_CUSTOM_HEADERS"`
 	WebhookSendDeletedReports                    bool           `env:"OPERATOR_SEND_DELETED_REPORTS" envDefault:"false"`
 	TargetWorkloads                              string         `env:"OPERATOR_TARGET_WORKLOADS" envDefault:"Pod,ReplicaSet,ReplicationController,StatefulSet,DaemonSet,CronJob,Job"`
-	AccessGlobalSecretsAndServiceAccount         bool           `env:"OPERATOR_ACCESS_GLOBAL_SECRETS_SERVICE_ACCOUNTS" envDefault:"true"`
+	AccessGlobalSecretsAndServiceAccount         bool           `env:"OPERATOR_ACCESS_GLOBAL_SECRETS_SERVICE_ACCOUNTS" envDefault:"false"`
 	PrivateRegistryScanSecretsNames              string         `env:"OPERATOR_PRIVATE_REGISTRY_SCAN_SECRETS_NAMES"`
 	BuiltInTrivyServer                           bool           `env:"OPERATOR_BUILT_IN_TRIVY_SERVER" envDefault:"false"`
 	TrivyServerHealthCheckCacheExpiration        *time.Duration `env:"TRIVY_SERVER_HEALTH_CHECK_CACHE_EXPIRATION" envDefault:"10h"`

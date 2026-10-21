@@ -341,6 +341,51 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		})
 	})
 
+	Context("VulnerabilityReport image size", func() {
+		BeforeEach(func() {
+			newReport := func(namespace, name, resourceName, container string, size int64) *v1alpha1.VulnerabilityReport {
+				vr := &v1alpha1.VulnerabilityReport{}
+				vr.Namespace = namespace
+				vr.Name = name
+				vr.Labels = labels.Set{
+					trivyoperator.LabelResourceKind:  "ReplicaSet",
+					trivyoperator.LabelResourceName:  resourceName,
+					trivyoperator.LabelContainerName: container}
+				vr.Report.Registry.Server = "index.docker.io"
+				vr.Report.Artifact.Repository = "library/mongo"
+				vr.Report.Artifact.Tag = "7.0.14"
+				vr.Report.Artifact.Digest = "sha256:abc"
+				vr.Report.Artifact.Size = size
+				return vr
+			}
+			// Two workloads in different namespaces share the same image.
+			vr1 := newReport("default", "replicaset-mongo-a-mongo", "mongo-a", "mongo", 786905088)
+			vr2 := newReport("other", "replicaset-mongo-b-mongo", "mongo-b", "mongo", 786905088)
+			// Reports without a size must not produce a series.
+			vr3 := newReport("other", "replicaset-nosize-nosize", "nosize", "nosize", 0)
+			vr3.Report.Artifact.Repository = "library/nosize"
+			client.WithRuntimeObjects(vr1, vr2, vr3)
+		})
+
+		AssertNoLintIssues()
+
+		It("should produce one image size series per unique image with MetricsImageSize option enabled", func() {
+			collector.Config.MetricsImageSize = true
+			const expected = `
+		# HELP trivy_image_size_bytes uncompressed size of scanned container images in bytes
+		# TYPE trivy_image_size_bytes gauge
+		trivy_image_size_bytes{image_digest="sha256:abc",image_registry="index.docker.io",image_repository="library/mongo",image_tag="7.0.14"} 7.86905088e+08
+		`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_image_size_bytes")).
+				To(Succeed())
+		})
+
+		It("should not produce image size metrics with MetricsImageSize option disabled", func() {
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(""), "trivy_image_size_bytes")).
+				To(Succeed())
+		})
+	})
+
 	Context("ExposedSecretReport", func() {
 		BeforeEach(func() {
 			sr1 := &v1alpha1.ExposedSecretReport{}

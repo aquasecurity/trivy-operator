@@ -86,6 +86,11 @@ spec:
                     description: Repository is the name of the repository in the Artifact
                       registry.
                     type: string
+                  size:
+                    description: Size is the uncompressed size of the Artifact in
+                      bytes.
+                    format: int64
+                    type: integer
                   tag:
                     description: Tag is a mutable, human-readable string used to identify
                       an Artifact.

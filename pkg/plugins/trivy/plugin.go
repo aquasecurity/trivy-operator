@@ -163,6 +163,7 @@ func (p *plugin) ParseReportData(ctx trivyoperator.PluginContext, imageRef strin
 	if err != nil {
 		return vulnReport, secretReport, nil, err
 	}
+	artifact.Size = reports.Metadata.Size
 
 	os := p.parseOSRef(reports)
 

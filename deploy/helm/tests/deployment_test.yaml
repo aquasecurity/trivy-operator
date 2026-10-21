@@ -1,0 +1,28 @@
+suite: deployment.yaml — numeric field rendering
+templates:
+  - deployment.yaml
+  - configmaps/trivy-operator-config.yaml
+tests:
+  - it: renders revisionHistoryLimit as 0 when set to 0
+    set:
+      operator.revisionHistoryLimit: 0
+    template: deployment.yaml
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 0
+
+  - it: renders revisionHistoryLimit as 5 when set to 5
+    set:
+      operator.revisionHistoryLimit: 5
+    template: deployment.yaml
+    asserts:
+      - equal:
+          path: spec.revisionHistoryLimit
+          value: 5
+
+  - it: omits revisionHistoryLimit when unset (defers to Kubernetes default)
+    template: deployment.yaml
+    asserts:
+      - notExists:
+          path: spec.revisionHistoryLimit

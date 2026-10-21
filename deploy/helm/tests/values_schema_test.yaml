@@ -1,0 +1,21 @@
+suite: values.schema.json — type validation
+templates:
+  - configmaps/operator.yaml
+tests:
+  - it: rejects scanJobCompressLogs set to a string
+    set:
+      trivyOperator.scanJobCompressLogs: "false"
+    asserts:
+      - failedTemplate: {}
+
+  - it: rejects revisionHistoryLimit set to a string
+    set:
+      operator.revisionHistoryLimit: "five"
+    asserts:
+      - failedTemplate: {}
+
+  - it: rejects trivy.mode set to an unknown value
+    set:
+      trivy.mode: "Bogus"
+    asserts:
+      - failedTemplate: {}

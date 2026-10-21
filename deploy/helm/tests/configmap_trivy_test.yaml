@@ -1,0 +1,103 @@
+suite: configmaps/trivy.yaml — bool field rendering
+templates:
+  - configmaps/trivy.yaml
+tests:
+  - it: renders trivy.serverInsecure as "false" when set to false
+    set:
+      trivy.serverInsecure: false
+    asserts:
+      - equal:
+          path: data["trivy.serverInsecure"]
+          value: "false"
+
+  - it: renders trivy.serverInsecure as "true" when set to true
+    set:
+      trivy.serverInsecure: true
+    asserts:
+      - equal:
+          path: data["trivy.serverInsecure"]
+          value: "true"
+
+  - it: renders trivy.dbRepositoryInsecure as "false" when set to false
+    set:
+      trivy.dbRepositoryInsecure: false
+    asserts:
+      - equal:
+          path: data["trivy.dbRepositoryInsecure"]
+          value: "false"
+
+  - it: renders trivy.dbRepositoryInsecure as "true" when set to true
+    set:
+      trivy.dbRepositoryInsecure: true
+    asserts:
+      - equal:
+          path: data["trivy.dbRepositoryInsecure"]
+          value: "true"
+
+  - it: renders trivy.useBuiltinRegoPolicies as "false" when set to false
+    set:
+      trivy.useBuiltinRegoPolicies: false
+    asserts:
+      - equal:
+          path: data["trivy.useBuiltinRegoPolicies"]
+          value: "false"
+
+  - it: renders trivy.useEmbeddedRegoPolicies as "false" when set to false
+    set:
+      trivy.useEmbeddedRegoPolicies: false
+    asserts:
+      - equal:
+          path: data["trivy.useEmbeddedRegoPolicies"]
+          value: "false"
+
+  - it: renders trivy.offlineScan as "false" when set to false
+    set:
+      trivy.offlineScan: false
+    asserts:
+      - equal:
+          path: data["trivy.offlineScan"]
+          value: "false"
+
+  - it: renders trivy.offlineScan as "true" when set to true
+    set:
+      trivy.offlineScan: true
+    asserts:
+      - equal:
+          path: data["trivy.offlineScan"]
+          value: "true"
+
+  - it: renders trivy.ignoreUnfixed as "false" when set to false
+    set:
+      trivy.ignoreUnfixed: false
+    asserts:
+      - equal:
+          path: data["trivy.ignoreUnfixed"]
+          value: "false"
+
+  - it: renders trivy.ignoreUnfixed as "true" when set to true
+    set:
+      trivy.ignoreUnfixed: true
+    asserts:
+      - equal:
+          path: data["trivy.ignoreUnfixed"]
+          value: "true"
+
+  - it: renders trivy.clientServerSkipUpdate as "false" when set to false in ClientServer mode
+    set:
+      trivy.mode: ClientServer
+      trivy.serverURL: "https://trivy.example.com:4975"
+      trivy.clientServerSkipUpdate: false
+    asserts:
+      - equal:
+          path: data["trivy.clientServerSkipUpdate"]
+          value: "false"
+
+  - it: renders trivy.clientServerSkipUpdate as "true" when set to true in ClientServer mode
+    set:
+      trivy.mode: ClientServer
+      trivy.serverURL: "https://trivy.example.com:4975"
+      trivy.clientServerSkipUpdate: true
+    asserts:
+      - equal:
+          path: data["trivy.clientServerSkipUpdate"]
+          value: "true"

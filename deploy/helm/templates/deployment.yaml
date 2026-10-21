@@ -13,8 +13,8 @@ metadata:
     {{- end }}
 spec:
   replicas: {{ .Values.operator.replicas }}
-  {{- with .Values.operator.revisionHistoryLimit }}
-  revisionHistoryLimit: {{ . }}
+  {{- if not (kindIs "invalid" .Values.operator.revisionHistoryLimit) }}
+  revisionHistoryLimit: {{ .Values.operator.revisionHistoryLimit }}
   {{- end }}
   strategy:
     type: Recreate

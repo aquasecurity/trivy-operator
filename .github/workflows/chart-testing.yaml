@@ -1,6 +1,7 @@
 ---
 name: Helm
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -62,10 +63,10 @@ jobs:
           args: release -f=goreleaser-e2e.yaml --snapshot --skip=publish --clean
 
       - name: Setup Kubernetes cluster (KIND)
-        uses: engineerd/setup-kind@ecfad61750951586a9ef973db567df1d28671bdc # was: engineerd/setup-kind@v0.6.2
+        uses: helm/kind-action@a1b0e391336a6ee6713a0583f8c6240d70863de3 # v1.12.0
         with:
           version: ${{ env.KIND_VERSION }}
-          image: ${{ env.KIND_IMAGE }}
+          node_image: ${{ env.KIND_IMAGE }}
 
       - name: Test connection to Kubernetes cluster
         run: |

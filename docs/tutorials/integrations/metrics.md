@@ -123,6 +123,40 @@ trivy_vulnerability_id{
 } 1
 ```
 
+## Workload Scans That Never Happen
+
+Every metric above is derived from report objects that exist. The operator also
+*declines* to scan some workloads, and those decisions return `nil` and leave
+nothing behind — no scan job, no report, no event. A workload skipped this way
+is indistinguishable from one that was scanned and found clean.
+
+`trivy_workload_scan_skipped_total` counts them, labelled by namespace, workload
+kind, and why:
+
+```shell
+trivy_workload_scan_skipped_total{
+    kind="ReplicaSet",namespace="rook-ceph",reason="no_running_pods"
+} 2
+```
+
+`reason` is one of:
+
+| reason | meaning |
+| --- | --- |
+| `replicaset_not_found` | the Deployment's current-revision ReplicaSet could not be resolved |
+| `no_running_pods` | the workload has no running pod to read a pod spec from |
+| `unsupported_kind` | the workload kind is not scannable (a CronJob, for example) |
+| `no_containers` | the generated scan job had no containers to run |
+
+None of these are errors, and most are legitimate — a scaled-to-zero Deployment
+will report `no_running_pods` forever. The point is that they become countable,
+so "this workload has no report" can be answered without turning on debug
+logging:
+
+```promql
+sum by (namespace, kind, reason) (increase(trivy_workload_scan_skipped_total[24h]))
+```
+
 ## Adding Custom Label to Metrics
 
 User might wants to include custom labels to resources that can be exposed and associated with the Prometheus metrics.

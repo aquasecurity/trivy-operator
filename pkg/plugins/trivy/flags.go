@@ -18,7 +18,9 @@ func compareTagVersion(currentTag, constraint string) bool {
 	return c.Check(v)
 }
 
-// Slow determine if to use the slow flag (improve memory footprint)
+// Slow determine if to use the slow flag or its replacement --parallel
+// (improve memory footprint). Trivy >= 0.48.0 deprecated --slow in favor
+// of --parallel 1.
 func Slow(c Config) string {
 	tag, err := c.GetImageTag()
 	if err != nil {
@@ -29,6 +31,9 @@ func Slow(c Config) string {
 		return ""
 	}
 	if c.GetSlow() {
+		if compareTagVersion(tag, ">= 0.48.0") {
+			return "--parallel 1"
+		}
 		return "--slow"
 	}
 	return ""

@@ -24,6 +24,7 @@ spec:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmaps/trivy-operator-config.yaml") . | sha256sum }}
+        checksum/operator-config: {{ include (print $.Template.BasePath "/configmaps/operator.yaml") . | sha256sum }}
         {{- with .Values.podAnnotations }}
           {{- toYaml . | nindent 8 }}
         {{- end }}

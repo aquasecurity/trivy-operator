@@ -202,6 +202,49 @@ operator:
   # -- pprofBindAddress the address to bind the pprof server to. By default, it is not enabled.
   pprofBindAddress: ""
 
+  # -- command override for the operator container (list)
+  command: []
+  # -- args override for the operator container (list)
+  args: []
+
+  # -- customConfigMap mounts a ConfigMap into the operator pod as a volume.
+  # Use this for entrypoint scripts, config files, or any data the operator needs.
+  # Either provide inline data (create: true + data) or reference an existing ConfigMap.
+  customConfigMap:
+    # -- create a ConfigMap from inline data below
+    create: false
+    # -- name of the existing ConfigMap to mount (when create is false)
+    existingConfigMap: ""
+    # -- inline data for the ConfigMap (only when create: true).
+    # Keys are filenames, values are file contents. Supports Helm templating via tpl.
+    data: {}
+    # -- mountPath where the ConfigMap is mounted in the container
+    mountPath: "/scripts"
+    # -- defaultMode for the mounted files (0555 = read+execute)
+    defaultMode: 0555
+
+  # Example: periodic restart wrapper for alternateReportStorage TTL workaround
+  # When using alternateReportStorage (file-based mode), scannerReportTTL is not
+  # enforced by the operator (see https://github.com/aquasecurity/trivy-operator/issues/2869).
+  # This wrapper periodically kills and restarts the operator to force rescans.
+  #
+  # operator:
+  #   command: ["/bin/sh", "/scripts/entrypoint.sh"]
+  #   customConfigMap:
+  #     create: true
+  #     data:
+  #       entrypoint.sh: |
+  #         #!/bin/sh
+  #         TTL=$((24 * 3600))  # 24h in seconds — adjust to match scannerReportTTL
+  #         trap 'kill $PID $TIMER 2>/dev/null; exit 0' TERM INT
+  #         while true; do
+  #           trivy-operator & PID=$!
+  #           (sleep "$TTL" && kill $PID 2>/dev/null) & TIMER=$!
+  #           wait $PID 2>/dev/null || true
+  #           kill $TIMER 2>/dev/null; wait $TIMER 2>/dev/null || true
+  #           sleep 2
+  #         done
+
 image:
   registry: "mirror.gcr.io"
   repository: "aquasec/trivy-operator"

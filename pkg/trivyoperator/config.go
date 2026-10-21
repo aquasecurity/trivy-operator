@@ -94,6 +94,8 @@ const (
 	KeyNodeCollectorImagePullSecret        = "node.collector.imagePullSecret"
 	KeyAdditionalReportLabels              = "report.additionalLabels"
 	KeyNodeCollectorNodeSelector           = "node.collector.nodeSelector"
+	KeyReportResourceAnnotations           = "report.resourceAnnotations"
+	KeyAdditionalReportAnnotations         = "report.additionalAnnotations"
 )
 
 const (
@@ -429,6 +431,34 @@ func (c ConfigData) GetReportResourceLabels() []string {
 	}
 
 	return strings.Split(resourceLabelsStr, ",")
+}
+
+func (c ConfigData) GetAdditionalReportAnnotations() (labels.Set, error) {
+	additionalReportAnnotationsStr, found := c[KeyAdditionalReportAnnotations]
+	if !found || strings.TrimSpace(additionalReportAnnotationsStr) == "" {
+		return labels.Set{}, nil
+	}
+
+	additionalReportAnnotationsMap := make(map[string]string)
+	for _, annotation := range strings.Split(additionalReportAnnotationsStr, ",") {
+		sepByEqual := strings.Split(annotation, "=")
+		if len(sepByEqual) != 2 {
+			return labels.Set{}, fmt.Errorf("failed parsing incorrectly formatted custom report annotations: %s", additionalReportAnnotationsStr)
+		}
+		key, value := sepByEqual[0], sepByEqual[1]
+		additionalReportAnnotationsMap[key] = value
+	}
+
+	return additionalReportAnnotationsMap, nil
+}
+
+func (c ConfigData) GetReportResourceAnnotations() []string {
+	resourceAnnotationsStr, found := c[KeyReportResourceAnnotations]
+	if !found || strings.TrimSpace(resourceAnnotationsStr) == "" {
+		return []string{}
+	}
+
+	return strings.Split(resourceAnnotationsStr, ",")
 }
 
 func (c ConfigData) GetSkipResourceByLabels() []string {

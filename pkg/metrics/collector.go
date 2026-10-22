@@ -885,7 +885,7 @@ func (c *ResourcesMetricsCollector) collectInfraAssessmentReports(ctx context.Co
 }
 
 func (c *ResourcesMetricsCollector) collectInfraAssessmentInfoReports(ctx context.Context, metrics chan<- prometheus.Metric, targetNamespaces []string) {
-	reports := &v1alpha1.RbacAssessmentReportList{}
+	reports := &v1alpha1.InfraAssessmentReportList{}
 	labelValues := make([]string, len(c.infraAssessmentInfoLabels))
 	for _, n := range targetNamespaces {
 		if err := c.List(ctx, reports, client.InNamespace(n)); err != nil {

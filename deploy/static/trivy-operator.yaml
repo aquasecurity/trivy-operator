@@ -3375,6 +3375,45 @@ subjects:
   - kind: ServiceAccount
     name: trivy-operator
     namespace: trivy-system
+
+---
+# Source: trivy-operator/templates/rbac/edit-reports-clusterrole.yaml
+# permissions for editors and admins to manage trivy-operator reports
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: aggregate-reports-edit
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.35.0"
+    app.kubernetes.io/managed-by: kubectl
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+rules:
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - clustercompliancereports
+      - clustercompliancereports/status
+      - clusterconfigauditreports
+      - clusterinfraassessmentreports
+      - clusterrbacassessmentreports
+      - clustersbomreports
+      - clustervulnerabilityreports
+      - configauditreports
+      - exposedsecretreports
+      - infraassessmentreports
+      - rbacassessmentreports
+      - sbomreports
+      - vulnerabilityreports
+    verbs:
+      - create
+      - delete
+      - deletecollection
+      - patch
+      - update
+
 ---
 # Source: trivy-operator/templates/rbac/leader-election-role.yaml
 # permissions to do leader election.
@@ -3474,6 +3513,164 @@ subjects:
   - kind: ServiceAccount
     name: trivy-operator
     namespace: trivy-system
+
+---
+# Source: trivy-operator/templates/rbac/view-clustercompliancereports-clusterrole.yaml
+# permissions for end users to view clustercompliancereports
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: aggregate-cluster-compliance-reports-view
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.35.0"
+    app.kubernetes.io/managed-by: kubectl
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-cluster-reader: "true"
+rules:
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - clustercompliancereports
+      - clustercompliancereports/status
+    verbs:
+      - get
+      - list
+      - watch
+
+---
+# Source: trivy-operator/templates/rbac/view-clusterconfigauditreports-clusterrole.yaml
+# permissions for end users to view clusterconfigauditreports
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: aggregate-cluster-config-audit-reports-view
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.35.0"
+    app.kubernetes.io/managed-by: kubectl
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-cluster-reader: "true"
+rules:
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - clusterconfigauditreports
+    verbs:
+      - get
+      - list
+      - watch
+
+---
+# Source: trivy-operator/templates/rbac/view-clusterinfraassessmentreports-clusterrole.yaml
+# permissions for end users to view clusterinfraassessmentreports
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: aggregate-cluster-infra-assessment-reports-view
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.35.0"
+    app.kubernetes.io/managed-by: kubectl
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-cluster-reader: "true"
+rules:
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - clusterinfraassessmentreports
+    verbs:
+      - get
+      - list
+      - watch
+
+---
+# Source: trivy-operator/templates/rbac/view-clusterrbacassessmentreports-clusterrole.yaml
+# permissions for end users to view clusterrbacassessmentreports
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: aggregate-cluster-rbac-assessment-reports-view
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.35.0"
+    app.kubernetes.io/managed-by: kubectl
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-cluster-reader: "true"
+rules:
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - clusterrbacassessmentreports
+    verbs:
+      - get
+      - list
+      - watch
+
+---
+# Source: trivy-operator/templates/rbac/view-clustersbomreports-clusterrole.yaml
+# permissions for end users to view clustersbomreports
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: aggregate-cluster-sbom-reports-view
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.35.0"
+    app.kubernetes.io/managed-by: kubectl
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-cluster-reader: "true"
+rules:
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - clustersbomreports
+    verbs:
+      - get
+      - list
+      - watch
+
+---
+# Source: trivy-operator/templates/rbac/view-clustervulnerabilityreports-clusterrole.yaml
+# permissions for end users to view clustervulnerabilityreports
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: aggregate-cluster-vulnerability-reports-view
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.35.0"
+    app.kubernetes.io/managed-by: kubectl
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-cluster-reader: "true"
+rules:
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - clustervulnerabilityreports
+    verbs:
+      - get
+      - list
+      - watch
+
 ---
 # Source: trivy-operator/templates/rbac/view-configauditreports-clusterrole.yaml
 # permissions for end users to view configauditreports
@@ -3524,6 +3721,85 @@ rules:
       - get
       - list
       - watch
+
+---
+# Source: trivy-operator/templates/rbac/view-infraassessmentreports-clusterrole.yaml
+# permissions for end users to view infraassessmentreports
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: aggregate-infra-assessment-reports-view
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.35.0"
+    app.kubernetes.io/managed-by: kubectl
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-cluster-reader: "true"
+rules:
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - infraassessmentreports
+    verbs:
+      - get
+      - list
+      - watch
+
+---
+# Source: trivy-operator/templates/rbac/view-rbacassessmentreports-clusterrole.yaml
+# permissions for end users to view rbacassessmentreports
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: aggregate-rbac-assessment-reports-view
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.35.0"
+    app.kubernetes.io/managed-by: kubectl
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-cluster-reader: "true"
+rules:
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - rbacassessmentreports
+    verbs:
+      - get
+      - list
+      - watch
+
+---
+# Source: trivy-operator/templates/rbac/view-sbomreports-clusterrole.yaml
+# permissions for end users to view sbomreports
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: aggregate-sbom-reports-view
+  labels:
+    app.kubernetes.io/name: trivy-operator
+    app.kubernetes.io/instance: trivy-operator
+    app.kubernetes.io/version: "0.35.0"
+    app.kubernetes.io/managed-by: kubectl
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+    rbac.authorization.k8s.io/aggregate-to-cluster-reader: "true"
+rules:
+  - apiGroups:
+      - aquasecurity.github.io
+    resources:
+      - sbomreports
+    verbs:
+      - get
+      - list
+      - watch
+
 ---
 # Source: trivy-operator/templates/rbac/view-vulnerabilityreports-clusterrole.yaml
 # permissions for end users to view vulnerabilityreports

@@ -628,6 +628,15 @@ trivy:
     # -- the number of replicas of the trivy-server
     replicas: 1
 
+    # -- nodeSelector set trivy-server nodeSelector (overrides the root nodeSelector)
+    nodeSelector: {}
+
+    # -- affinity set trivy-server affinity
+    affinity: {}
+
+    # -- tolerations set trivy-server tolerations (overrides the root tolerations)
+    tolerations: []
+
     # -- volumes set trivy-server volumes
     extraServerVolumes:
       # Statefulset volumeMounts

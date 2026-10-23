@@ -80,28 +80,49 @@ type Config struct {
 }
 
 func (c Config) GetAdditionalVulnerabilityReportFields() vulnerabilityreport.AdditionalFields {
-	addFields := vulnerabilityreport.AdditionalFields{}
+	addFields := vulnerabilityreport.NewDefaultAdditionalFields()
 
 	fields, ok := c.Data[keyTrivyAdditionalVulnerabilityReportFields]
 	if !ok {
 		return addFields
 	}
 	for _, field := range strings.Split(fields, ",") {
+		trimmed_field := strings.TrimSpace(field)
+		value := !strings.HasPrefix(trimmed_field, "-")
+		field = strings.TrimPrefix(trimmed_field, "-")
 		switch strings.TrimSpace(field) {
+		case "Resource":
+			addFields.Resource = value
+		case "InstalledVersion":
+			addFields.InstalledVersion = value
+		case "FixedVersion":
+			addFields.FixedVersion = value
+		case "PublishedDate":
+			addFields.PublishedDate = value
+		case "LastModifiedDate":
+			addFields.LastModifiedDate = value
+		case "Title":
+			addFields.Title = value
+		case "PrimaryLink":
+			addFields.PrimaryLink = value
+		case "Score":
+			addFields.Score = value
+		case "PackagePURL":
+			addFields.PkgPURL = value
 		case "Description":
-			addFields.Description = true
+			addFields.Description = value
 		case "Links":
-			addFields.Links = true
+			addFields.Links = value
 		case "CVSS":
-			addFields.CVSS = true
+			addFields.CVSS = value
 		case "Target":
-			addFields.Target = true
+			addFields.Target = value
 		case "Class":
-			addFields.Class = true
+			addFields.Class = value
 		case "PackageType":
-			addFields.PackageType = true
+			addFields.PackageType = value
 		case "PackagePath":
-			addFields.PkgPath = true
+			addFields.PkgPath = value
 		}
 	}
 	return addFields

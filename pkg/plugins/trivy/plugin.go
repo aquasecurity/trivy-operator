@@ -114,6 +114,7 @@ func (p *plugin) GetScanJobSpec(ctx trivyoperator.PluginContext, workload client
 
 const (
 	tmpVolumeName               = "tmp"
+	tmpDirEnvVar                = "TMPDIR"
 	dockerConfigVolumeName      = "dockerconfig"
 	ignoreFileVolumeName        = "ignorefile"
 	configFileVolumeName        = "configfile"

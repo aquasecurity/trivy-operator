@@ -4039,6 +4039,7 @@ default ignore = false`,
 						Image:                    "nginx:1.9.1",
 						ImagePullPolicy:          corev1.PullNever,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
+						WorkingDir:               "/tmp",
 						Env: []corev1.EnvVar{
 							{
 								Name: "TRIVY_SEVERITY",
@@ -4135,6 +4136,10 @@ default ignore = false`,
 										Optional: ptr.To[bool](true),
 									},
 								},
+							},
+							{
+								Name:  "TMPDIR",
+								Value: "/tmp",
 							},
 						},
 						Command: []string{
@@ -4304,6 +4309,7 @@ default ignore = false`,
 						Image:                    "nginx:1.9.1",
 						ImagePullPolicy:          corev1.PullNever,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
+						WorkingDir:               "/tmp",
 						Env: []corev1.EnvVar{
 							{
 								Name: "TRIVY_SEVERITY",
@@ -4436,6 +4442,10 @@ default ignore = false`,
 										Optional: ptr.To[bool](true),
 									},
 								},
+							},
+							{
+								Name:  "TMPDIR",
+								Value: "/tmp",
 							},
 						},
 						Command: []string{
@@ -4703,6 +4713,7 @@ default ignore = false`,
 						Image:                    "nginx:1.9.1",
 						ImagePullPolicy:          corev1.PullNever,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
+						WorkingDir:               "/tmp",
 						Env: []corev1.EnvVar{
 							{
 								Name: "TRIVY_SEVERITY",
@@ -4799,6 +4810,10 @@ default ignore = false`,
 										Optional: ptr.To[bool](true),
 									},
 								},
+							},
+							{
+								Name:  "TMPDIR",
+								Value: "/tmp",
 							},
 						},
 						Command: []string{
@@ -4968,6 +4983,7 @@ default ignore = false`,
 						Image:                    "nginx:1.9.1",
 						ImagePullPolicy:          corev1.PullNever,
 						TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
+						WorkingDir:               "/tmp",
 						Env: []corev1.EnvVar{
 							{
 								Name: "TRIVY_SEVERITY",
@@ -5100,6 +5116,10 @@ default ignore = false`,
 										Optional: ptr.To[bool](true),
 									},
 								},
+							},
+							{
+								Name:  "TMPDIR",
+								Value: "/tmp",
 							},
 						},
 						Command: []string{
@@ -6943,6 +6963,7 @@ default ignore = false`,
 					Image:                    "nginx:1.9.1",
 					ImagePullPolicy:          corev1.PullIfNotPresent,
 					TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
+					WorkingDir:               "/tmp",
 					Env: []corev1.EnvVar{
 						{
 							Name: "TRIVY_SEVERITY",
@@ -7039,6 +7060,10 @@ default ignore = false`,
 									Optional: ptr.To[bool](true),
 								},
 							},
+						},
+						{
+							Name:  "TMPDIR",
+							Value: "/tmp",
 						},
 					},
 					Command: []string{

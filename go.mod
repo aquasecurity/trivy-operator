@@ -4,6 +4,7 @@ go 1.27.3
 
 require (
 	github.com/CycloneDX/cyclonedx-go v0.12.0
+	github.com/KimMachineGun/automemlimit v1.0.0
 	github.com/aquasecurity/go-version v0.0.1
 	github.com/aquasecurity/trivy v0.76.1
 	github.com/aquasecurity/trivy-checks v1.12.2-0.20261012053351-ac85645895ed
@@ -296,6 +297,7 @@ require (
 	github.com/owenrumney/squealer v1.2.12 // indirect
 	github.com/package-url/packageurl-go v0.1.7 // indirect
 	github.com/pandatix/go-cvss v0.6.2 // indirect
+	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
 	github.com/pelletier/go-toml/v2 v2.4.3 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pjbgf/sha1cd v0.7.0 // indirect

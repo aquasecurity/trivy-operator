@@ -53,6 +53,11 @@ func matchSubDomain(wildcardServers []string, subDomain string) string {
 // to the Docker authentication credentials for the specified slice of image pull Secrets.
 func MapDockerRegistryServersToAuths(imagePullSecrets []corev1.Secret, multiSecretSupport bool) (map[string]docker.Auth, error) {
 	auths := make(map[string]docker.Auth)
+	// Credentials already mapped, per server. The same credentials often arrive more than
+	// once, e.g. when an image pull secret is listed both in the pod spec and on its service
+	// account. Joining them again would only repeat them, and breaks passwords that contain
+	// commas, such as a GCR JSON key, because Trivy splits the joined values on commas.
+	seen := make(map[string]map[docker.Auth]bool)
 	for _, secret := range imagePullSecrets {
 		var data []byte
 		var hasRequiredData, isLegacy bool
@@ -82,6 +87,13 @@ func MapDockerRegistryServersToAuths(imagePullSecrets []corev1.Secret, multiSecr
 			if err != nil {
 				return nil, err
 			}
+			if seen[server][auth] {
+				continue
+			}
+			if seen[server] == nil {
+				seen[server] = make(map[docker.Auth]bool)
+			}
+			seen[server][auth] = true
 			if a, ok := auths[server]; multiSecretSupport && ok {
 				user := fmt.Sprintf("%s,%s", a.Username, auth.Username)
 				pass := fmt.Sprintf("%s,%s", a.Password, auth.Password)

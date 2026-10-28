@@ -13,7 +13,7 @@ permissions: {}
 jobs:
   pr-title-checker:
     name: Validate PR title
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Validate PR title
         shell: bash

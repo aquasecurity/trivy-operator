@@ -2979,6 +2979,7 @@ data:
   policies.bundle.insecure: "false"
 
   node.collector.nodeSelector: "true"
+
 ---
 # Source: trivy-operator/templates/configmaps/trivy-operator-config.yaml
 kind: ConfigMap
@@ -3033,6 +3034,7 @@ data:
   TRIVY_SERVER_HEALTH_CHECK_CACHE_EXPIRATION: "10h"
   OPERATOR_MERGE_RBAC_FINDING_WITH_CONFIG_AUDIT: "false"
   OPERATOR_CLUSTER_COMPLIANCE_ENABLED: "true"
+
 ---
 # Source: trivy-operator/templates/configmaps/trivy.yaml
 apiVersion: v1
@@ -3070,6 +3072,7 @@ data:
   trivy.resources.requests.memory: "100M"
   trivy.resources.limits.cpu: "500m"
   trivy.resources.limits.memory: "500M"
+
 ---
 # Source: trivy-operator/templates/secrets/operator.yaml
 apiVersion: v1
@@ -3179,6 +3182,7 @@ spec:
       volumes:
         - emptyDir: {}
           name: cache-policies
+
 ---
 # Source: trivy-operator/templates/monitor/service.yaml
 apiVersion: v1
@@ -3203,6 +3207,7 @@ spec:
     app.kubernetes.io/name: trivy-operator
     app.kubernetes.io/instance: trivy-operator
   type: ClusterIP
+
 ---
 # Source: trivy-operator/templates/rbac/clusterrole.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -3356,6 +3361,7 @@ rules:
     - nodes/proxy
   verbs:
     - get
+
 ---
 # Source: trivy-operator/templates/rbac/clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -3375,6 +3381,7 @@ subjects:
   - kind: ServiceAccount
     name: trivy-operator
     namespace: trivy-system
+
 ---
 # Source: trivy-operator/templates/rbac/leader-election-role.yaml
 # permissions to do leader election.
@@ -3403,6 +3410,7 @@ rules:
       - events
     verbs:
       - create
+
 ---
 # Source: trivy-operator/templates/rbac/leader-election-rolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -3423,6 +3431,7 @@ subjects:
   - kind: ServiceAccount
     name: trivy-operator
     namespace: trivy-system
+
 ---
 # Source: trivy-operator/templates/rbac/role.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -3454,6 +3463,7 @@ rules:
       - get
       - delete
       - update
+
 ---
 # Source: trivy-operator/templates/rbac/rolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -3474,6 +3484,7 @@ subjects:
   - kind: ServiceAccount
     name: trivy-operator
     namespace: trivy-system
+
 ---
 # Source: trivy-operator/templates/rbac/view-configauditreports-clusterrole.yaml
 # permissions for end users to view configauditreports
@@ -3499,6 +3510,7 @@ rules:
       - get
       - list
       - watch
+
 ---
 # Source: trivy-operator/templates/rbac/view-exposedsecretreports-clusterrole.yaml
 # permissions for end users to view exposedsecretreports
@@ -3524,6 +3536,7 @@ rules:
       - get
       - list
       - watch
+
 ---
 # Source: trivy-operator/templates/rbac/view-vulnerabilityreports-clusterrole.yaml
 # permissions for end users to view vulnerabilityreports
@@ -3549,6 +3562,7 @@ rules:
       - get
       - list
       - watch
+
 ---
 # Source: trivy-operator/templates/serviceaccount.yaml
 apiVersion: v1
@@ -3561,3 +3575,4 @@ metadata:
     app.kubernetes.io/instance: trivy-operator
     app.kubernetes.io/version: "0.36.1"
     app.kubernetes.io/managed-by: kubectl
+

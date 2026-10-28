@@ -159,6 +159,15 @@ func prepareImages() error {
 		"alpine:3.21.1",
 		"alpine:3.22",
 	}
+	nodes, err := sh.Output(KIND, "get", "nodes")
+	if err != nil {
+		return fmt.Errorf("couldn't get kind nodes: %w", err)
+	}
+	nodeNames := strings.Fields(nodes)
+	if len(nodeNames) == 0 {
+		return fmt.Errorf("no kind nodes found")
+	}
+
 	fmt.Printf("Preparing %d image(s) for Trivy Operator...\n", len(images))
 	for _, image := range images {
 		fmt.Printf("Preparing image %q for Trivy Operator...\n", image)
@@ -166,12 +175,59 @@ func prepareImages() error {
 		if err != nil {
 			return fmt.Errorf("couldn't pull image %q: %v", image, err)
 		}
-		err = sh.Run("kind", "load", "docker-image", image)
-		if err != nil {
-			return fmt.Errorf("couldn't load image %q: %v", image, err)
+		for _, node := range nodeNames {
+			if err := loadImageToKindNode(image, node); err != nil {
+				return fmt.Errorf("couldn't load image %q to node %q: %w", image, node, err)
+			}
 		}
 	}
 	return nil
+}
+
+func loadImageToKindNode(image, node string) error {
+	save := exec.Command("docker", "save", image)
+	importImage := exec.Command("docker", kindImageImportArgs(node)...)
+	imageArchive, imageArchiveWriter, err := os.Pipe()
+	if err != nil {
+		return fmt.Errorf("couldn't create image archive pipe: %w", err)
+	}
+	importImage.Stdin = imageArchive
+	save.Stdout = imageArchiveWriter
+	save.Stderr = os.Stderr
+	importImage.Stdout = os.Stdout
+	importImage.Stderr = os.Stderr
+
+	if err := importImage.Start(); err != nil {
+		_ = imageArchive.Close()
+		_ = imageArchiveWriter.Close()
+		return fmt.Errorf("couldn't start image import: %w", err)
+	}
+	_ = imageArchive.Close()
+	if err := save.Start(); err != nil {
+		_ = imageArchiveWriter.Close()
+		_ = importImage.Process.Kill()
+		_ = importImage.Wait()
+		return fmt.Errorf("couldn't start saving image: %w", err)
+	}
+	_ = imageArchiveWriter.Close()
+
+	saveErr := save.Wait()
+	importErr := importImage.Wait()
+	if saveErr != nil {
+		return fmt.Errorf("couldn't save image: %w", saveErr)
+	}
+	if importErr != nil {
+		return fmt.Errorf("couldn't import image: %w", importErr)
+	}
+	return nil
+}
+
+func kindImageImportArgs(node string) []string {
+	return []string{
+		"exec", "--privileged", "-i", node,
+		"ctr", "--namespace=k8s.io", "images", "import",
+		"--digests", "--snapshotter=overlayfs", "-",
+	}
 }
 
 // Targets for checking if environment variables are set.

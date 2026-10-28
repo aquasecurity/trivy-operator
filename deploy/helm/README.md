@@ -106,7 +106,8 @@ Keeps security report resources updated
 | policiesBundle.repository | string | `"aquasec/trivy-checks"` | repository of the policies bundle |
 | policiesBundle.tag | int | `1` | tag version of the policies bundle |
 | priorityClassName | string | `""` | priorityClassName set the operator priorityClassName |
-| rbac.create | bool | `true` |  |
+| rbac.aggregate.create | bool | `true` | create specifies whether the user-facing aggregate ClusterRoles (view/edit/admin access to trivy-operator reports) should be created. |
+| rbac.create | bool | `true` | create specifies whether the operator's own RBAC resources should be created. |
 | resources | object | `{}` |  |
 | securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"privileged":false,"readOnlyRootFilesystem":true}` | securityContext security context |
 | service | object | `{"annotations":{},"headless":true,"metricsAppProtocol":"TCP","metricsPort":80,"nodePort":null,"type":"ClusterIP"}` | service only expose a metrics endpoint for prometheus to scrape, trivy-operator does not have a user interface. |

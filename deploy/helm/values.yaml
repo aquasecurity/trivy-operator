@@ -670,7 +670,11 @@ compliance:
     - k8s-pss-restricted-0.1
 
 rbac:
+  # -- create specifies whether the operator's own RBAC resources should be created.
   create: true
+  aggregate:
+    # -- create specifies whether the user-facing aggregate ClusterRoles (view/edit/admin access to trivy-operator reports) should be created.
+    create: true
 serviceAccount:
   # -- Specifies whether a service account should be created.
   create: true

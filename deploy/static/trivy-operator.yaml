@@ -3195,7 +3195,7 @@ spec:
   clusterIP: None
   ports:
     - name: metrics
-      port: 80
+      port: 8080
       targetPort: metrics
       protocol: TCP
       appProtocol: TCP

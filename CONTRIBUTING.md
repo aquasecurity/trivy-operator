@@ -442,5 +442,5 @@ You can find more details about testing Operators with Operator Framework [here]
 [Operator Lifecycle Manager]: https://github.com/operator-framework/operator-lifecycle-manager
 [community-operators]: https://github.com/k8s-operatorhub/community-operators
 [olm-operator-groups]: https://github.com/operator-framework/operator-lifecycle-manager/blob/master/doc/design/operatorgroups.md
-[trivy-operator-install-olm]: https://aquasecurity.github.io/trivy-operator/latest/operator/installation/olm
+[trivy-operator-install-olm]: https://aquasecurity.github.io/trivy-operator/latest/getting-started/installation/olm/
 [olm-testing-operators]: https://github.com/operator-framework/community-operators/blob/master/docs/testing-operators.md

@@ -167,6 +167,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 			constructEnvVarSourceFromConfigMap("NO_PROXY", trivyConfigName, keyTrivyNoProxy),
 			constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY", trivyConfigName, keyTrivyJavaDBRepository),
 		}
+		env = append(env, corev1.EnvVar{Name: "TMPDIR", Value: "/tmp"})
 		if config.GetSslCertDir() != "" {
 			env = append(env, corev1.EnvVar{
 				Name:  "SSL_CERT_DIR",
@@ -239,6 +240,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 		containers = append(containers, corev1.Container{
 			Name:                     c.Name,
 			Image:                    c.Image,
+			WorkingDir:               "/tmp",
 			ImagePullPolicy:          pullPolicy,
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 			Env:                      env,
@@ -397,6 +399,7 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 			constructEnvVarSourceFromSecret("TRIVY_CUSTOM_HEADERS", trivyConfigName, keyTrivyServerCustomHeaders),
 			constructEnvVarSourceFromConfigMap("TRIVY_JAVA_DB_REPOSITORY", trivyConfigName, keyTrivyJavaDBRepository),
 		}
+		env = append(env, corev1.EnvVar{Name: "TMPDIR", Value: "/tmp"})
 		if config.GetSslCertDir() != "" {
 			env = append(env, corev1.EnvVar{
 				Name:  "SSL_CERT_DIR",
@@ -469,6 +472,7 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 		containers = append(containers, corev1.Container{
 			Name:                     c.Name,
 			Image:                    c.Image,
+			WorkingDir:               "/tmp",
 			ImagePullPolicy:          pullPolicy,
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
 			Env:                      env,

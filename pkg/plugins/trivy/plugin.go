@@ -3,7 +3,7 @@ package trivy
 import (
 	"encoding/json"
 	"io"
-	"path/filepath"
+	"path"
 	"strings"
 
 	containerimage "github.com/google/go-containerregistry/pkg/name"
@@ -255,13 +255,15 @@ func (p *plugin) parseOSRef(reports ty.Report) v1alpha1.OS {
 	return os
 }
 
-// ExcludeImage checks if the image should be excluded from scanning based on the excludeImagePattern (glob pattern)
+// ExcludeImage checks if the image should be excluded from scanning based on the excludeImagePattern (glob pattern).
+// Image references are always '/'-separated, so path.Match is used instead of filepath.Match:
+// the result must not depend on the OS separator (on Windows filepath.Match lets '*' cross '/').
 func ExcludeImage(excludeImagePattern []string, imageName string) bool {
 	if len(excludeImagePattern) == 0 {
 		return false
 	}
 	for _, pattern := range excludeImagePattern {
-		if matched, err := filepath.Match(pattern, imageName); err == nil && matched {
+		if matched, err := path.Match(pattern, imageName); err == nil && matched {
 			return true
 		}
 	}

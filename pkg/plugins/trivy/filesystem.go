@@ -236,12 +236,21 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 				fscommand, args = GetSbomFSScanningArgs(ctx, Standalone, "", fmt.Sprintf("%s/%s", mountPath, fileName))
 			}
 		}
+		// The scan container reuses the scanned image, so it inherits the image's
+		// working directory and environment. Images whose WORKDIR cannot be entered
+		// by the scan job's user (e.g. distroless nonroot images with a mode 0700
+		// home) make Trivy fail to load its config file from the current directory,
+		// and images that set TMPDIR to a directory that only exists at runtime
+		// break Trivy's temp dir creation, since the operator mounts its own
+		// writable volume on /tmp. Pin the working directory and TMPDIR to that
+		// volume so filesystem scans no longer depend on the scanned image (#3103).
 		containers = append(containers, corev1.Container{
 			Name:                     c.Name,
 			Image:                    c.Image,
 			ImagePullPolicy:          pullPolicy,
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
-			Env:                      env,
+			WorkingDir:               "/tmp",
+			Env:                      append(env, corev1.EnvVar{Name: tmpDirEnvVar, Value: "/tmp"}),
 			Command:                  fscommand,
 			Args:                     args,
 			Resources:                resourceRequirements,
@@ -466,12 +475,21 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 				fscommand, args = GetSbomFSScanningArgs(ctx, ClientServer, encodedTrivyServerURL.String(), fmt.Sprintf("%s/%s", mountPath, fileName))
 			}
 		}
+		// The scan container reuses the scanned image, so it inherits the image's
+		// working directory and environment. Images whose WORKDIR cannot be entered
+		// by the scan job's user (e.g. distroless nonroot images with a mode 0700
+		// home) make Trivy fail to load its config file from the current directory,
+		// and images that set TMPDIR to a directory that only exists at runtime
+		// break Trivy's temp dir creation, since the operator mounts its own
+		// writable volume on /tmp. Pin the working directory and TMPDIR to that
+		// volume so filesystem scans no longer depend on the scanned image (#3103).
 		containers = append(containers, corev1.Container{
 			Name:                     c.Name,
 			Image:                    c.Image,
 			ImagePullPolicy:          pullPolicy,
 			TerminationMessagePolicy: corev1.TerminationMessageFallbackToLogsOnError,
-			Env:                      env,
+			WorkingDir:               "/tmp",
+			Env:                      append(env, corev1.EnvVar{Name: tmpDirEnvVar, Value: "/tmp"}),
 			Command:                  fscommand,
 			Args:                     args,
 			Resources:                resourceRequirements,

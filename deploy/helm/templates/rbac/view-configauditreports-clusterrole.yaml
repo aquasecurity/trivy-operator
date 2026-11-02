@@ -1,8 +1,9 @@
+{{- if .Values.rbac.aggregateClusterRoles.create }}
 # permissions for end users to view configauditreports
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: aggregate-config-audit-reports-view
+  name: {{ tpl .Values.rbac.aggregateClusterRoles.namePrefix . }}aggregate-config-audit-reports-view
   labels:
     {{- include "trivy-operator.labels" . | nindent 4 }}
     rbac.authorization.k8s.io/aggregate-to-view: "true"
@@ -18,3 +19,4 @@ rules:
       - get
       - list
       - watch
+{{- end }}

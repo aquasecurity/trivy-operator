@@ -156,7 +156,7 @@ func GetPodSpecForStandaloneFSMode(ctx trivyoperator.PluginContext, config Confi
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
-	for _, c := range getContainers(spec) {
+	for _, c := range getContainers(spec, ctx.GetTrivyOperatorConfig().GetSkipInitContainers()) {
 		env := []corev1.EnvVar{
 			constructEnvVarSourceFromConfigMap("TRIVY_SEVERITY", trivyConfigName, KeyTrivySeverity),
 			ConfigWorkloadAnnotationEnvVars(workload, SkipFilesAnnotation, "TRIVY_SKIP_FILES", trivyConfigName, keyTrivySkipFiles),
@@ -380,7 +380,7 @@ func GetPodSpecForClientServerFSMode(ctx trivyoperator.PluginContext, config Con
 		volumeMounts = append(volumeMounts, *volumeMount)
 	}
 
-	for _, c := range getContainers(spec) {
+	for _, c := range getContainers(spec, ctx.GetTrivyOperatorConfig().GetSkipInitContainers()) {
 		if ExcludeImage(ctx.GetTrivyOperatorConfig().ExcludeImages(), c.Image) {
 			continue
 		}

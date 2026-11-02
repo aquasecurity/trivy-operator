@@ -72,7 +72,7 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 		return corev1.PodSpec{}, nil, err
 	}
 
-	for _, c := range getContainers(spec) {
+	for _, c := range getContainers(spec, ctx.GetTrivyOperatorConfig().GetSkipInitContainers()) {
 		optionalMirroredImage, err := GetMirroredImage(c.Image, config.GetMirrors())
 		if err != nil {
 			return corev1.PodSpec{}, nil, err

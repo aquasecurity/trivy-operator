@@ -149,9 +149,11 @@ func getSecurityChecks(ctx trivyoperator.PluginContext) string {
 	return strings.Join(securityChecks, ",")
 }
 
-func getContainers(spec corev1.PodSpec) []corev1.Container {
+func getContainers(spec corev1.PodSpec, skipInitContainers bool) []corev1.Container {
 	containers := spec.Containers
-	containers = append(containers, spec.InitContainers...)
+	if !skipInitContainers {
+		containers = append(containers, spec.InitContainers...)
+	}
 
 	// ephemeral container are not the same type as Containers/InitContainers,
 	// then we add it in a different loop

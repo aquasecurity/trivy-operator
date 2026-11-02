@@ -24,9 +24,7 @@ data:
   {{- with .Values.trivy.httpsProxy }}
   trivy.httpsProxy: {{ . | quote }}
   {{- end }}
-  {{- with .Values.trivy.serverInsecure }}
-  trivy.serverInsecure: {{ . | quote }}
-  {{- end }}
+  trivy.serverInsecure: {{ .Values.trivy.serverInsecure | quote }}
   {{- with .Values.trivy.sslCertDir }}
   trivy.sslCertDir: {{ . | quote }}
   {{- end }}
@@ -61,22 +59,12 @@ data:
   {{- with .Values.trivy.vulnType }}
   trivy.vulnType: {{ . | quote }}
   {{- end }}
-  {{- with .Values.trivy.dbRepositoryInsecure }}
-  trivy.dbRepositoryInsecure: {{ . | quote }}
-  {{- end }}
-  {{- with .Values.trivy.useBuiltinRegoPolicies }}
-  trivy.useBuiltinRegoPolicies: {{ . | quote }}
-  {{- end }}
-  {{- with .Values.trivy.useEmbeddedRegoPolicies }}
-  trivy.useEmbeddedRegoPolicies: {{ . | quote }}
-  {{- end }}
-  {{- with .Values.trivy.offlineScan }}
-  trivy.offlineScan: {{ . | quote }}
-  {{- end }}
+  trivy.dbRepositoryInsecure: {{ .Values.trivy.dbRepositoryInsecure | quote }}
+  trivy.useBuiltinRegoPolicies: {{ .Values.trivy.useBuiltinRegoPolicies | quote }}
+  trivy.useEmbeddedRegoPolicies: {{ .Values.trivy.useEmbeddedRegoPolicies | quote }}
+  trivy.offlineScan: {{ .Values.trivy.offlineScan | quote }}
   trivy.supportedConfigAuditKinds: {{ .Values.trivy.supportedConfigAuditKinds | quote }}
-  {{- with .Values.trivy.ignoreUnfixed }}
-  trivy.ignoreUnfixed: {{ . | quote }}
-  {{- end }}
+  trivy.ignoreUnfixed: {{ .Values.trivy.ignoreUnfixed | quote }}
   {{- with .Values.trivy.timeout }}
   trivy.timeout: {{ . | quote }}
   {{- end }}
@@ -104,9 +92,7 @@ data:
   trivy.mode: {{ .Values.trivy.mode | quote }}
   {{- if eq .Values.trivy.mode "ClientServer" }}
   trivy.serverURL: {{ required ".Values.trivy.serverURL is required" .Values.trivy.serverURL | quote }}
-  {{- with .Values.trivy.clientServerSkipUpdate }}
-  trivy.clientServerSkipUpdate: {{ . | quote }}
-  {{- end }}
+  trivy.clientServerSkipUpdate: {{ .Values.trivy.clientServerSkipUpdate | quote }}
   {{- end }}
   {{- end }}
   {{- with dig "resources" "requests" "cpu" "" .Values.trivy }}

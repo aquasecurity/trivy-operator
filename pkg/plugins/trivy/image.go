@@ -602,12 +602,6 @@ func appendTrivyNonSSLEnv(config Config, image string, env []corev1.EnvVar) ([]c
 
 func createEnvandVolumeForGcr(env *[]corev1.EnvVar, volumeMounts *[]corev1.VolumeMount, volumes *[]corev1.Volume, registryPasswordKey, secretName *string) {
 	const googlecredVolumeName = "gcrvol"
-	for _, v := range *volumes {
-		if v.Name == googlecredVolumeName {
-			return
-		}
-	}
-
 	*env = append(*env,
 		corev1.EnvVar{
 			Name:  "TRIVY_USERNAME",
@@ -615,8 +609,19 @@ func createEnvandVolumeForGcr(env *[]corev1.EnvVar, volumeMounts *[]corev1.Volum
 		},
 		corev1.EnvVar{
 			Name:  "GOOGLE_APPLICATION_CREDENTIALS",
-			Value: "/cred/credential.json",
+			Value: "/cred/" + *registryPasswordKey,
 		})
+	googlecredItem := corev1.KeyToPath{
+		Key:  *registryPasswordKey,
+		Path: *registryPasswordKey,
+	}
+	for i := range *volumes {
+		if (*volumes)[i].Name == googlecredVolumeName {
+			(*volumes)[i].Secret.Items = append((*volumes)[i].Secret.Items, googlecredItem)
+			return
+		}
+	}
+
 	googlecredMount := corev1.VolumeMount{
 		Name:      googlecredVolumeName,
 		MountPath: "/cred",
@@ -627,12 +632,7 @@ func createEnvandVolumeForGcr(env *[]corev1.EnvVar, volumeMounts *[]corev1.Volum
 		VolumeSource: corev1.VolumeSource{
 			Secret: &corev1.SecretVolumeSource{
 				SecretName: *secretName,
-				Items: []corev1.KeyToPath{
-					{
-						Key:  *registryPasswordKey,
-						Path: "credential.json",
-					},
-				},
+				Items:      []corev1.KeyToPath{googlecredItem},
 			},
 		},
 	}

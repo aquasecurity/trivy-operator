@@ -7851,8 +7851,8 @@ func TestStandalone_GCRServiceAccount(t *testing.T) {
 	// Provide credentials for the GCR servers so that the plugin creates the aggregate secret
 	// and enters the credentials-handling path that may call the GCR helper.
 	creds := map[string]docker.Auth{
-		"gcr.io":    {Username: "u", Password: "p"},
-		"us.gcr.io": {Username: "u2", Password: "p2"},
+		"gcr.io":    {Username: "_json_key", Password: "p"},
+		"us.gcr.io": {Username: "_json_key", Password: "p2"},
 	}
 
 	jobSpec, _, err := instance.GetScanJobSpec(pluginContext, workload, creds, nil, make(map[string]v1alpha1.SbomReportData))
@@ -7893,6 +7893,91 @@ func TestStandalone_GCRServiceAccount(t *testing.T) {
 	// Early return prevents re-adding envs; only the first container gets them.
 	assert.Equal(t, 1, totalGacEnv, "expected GOOGLE_APPLICATION_CREDENTIALS to be added once")
 	assert.Equal(t, 1, totalTrivyUsernameEnv, "expected TRIVY_USERNAME to be added once")
+}
+
+func TestStandalone_GCRJSONKeyBase64(t *testing.T) {
+	fakeclient := fake.NewClientBuilder().WithObjects(
+		&corev1.ConfigMap{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "trivy-operator-trivy-config",
+				Namespace: "trivyoperator-ns",
+			},
+			Data: map[string]string{
+				"trivy.repository":       "gcr.io/aquasec/trivy",
+				"trivy.tag":              "0.68.1",
+				"trivy.mode":             string(trivy.Standalone),
+				"trivy.dbRepository":     trivy.DefaultDBRepository,
+				"trivy.javaDbRepository": trivy.DefaultJavaDBRepository,
+			},
+		},
+	).Build()
+
+	workload := &corev1.Pod{
+		TypeMeta:   metav1.TypeMeta{Kind: "Pod", APIVersion: "v1"},
+		ObjectMeta: metav1.ObjectMeta{Name: "gar-pod", Namespace: "prod-ns"},
+		Spec: corev1.PodSpec{
+			Containers: []corev1.Container{
+				{Name: "app", Image: "europe-docker.pkg.dev/company/repo/application:1.0.0"},
+			},
+		},
+	}
+
+	pluginContext := trivyoperator.NewPluginContext().
+		WithName(trivy.Plugin).
+		WithNamespace("trivyoperator-ns").
+		WithServiceAccountName("trivyoperator-sa").
+		WithClient(fakeclient).
+		WithTrivyOperatorConfig(map[string]string{
+			trivyoperator.KeyScanJobUseGCRServiceAccount: trivyoperator.TrueString,
+		}).
+		Get()
+
+	resolver := kube.NewObjectResolver(fakeclient, &kube.CompatibleObjectMapper{})
+	instance := trivy.NewPlugin(fixedClock, ext.NewSimpleIDGenerator(), &resolver)
+
+	creds := map[string]docker.Auth{
+		"europe-docker.pkg.dev": {Username: "_json_key_base64", Password: "eyJ0eXBlIjoic2VydmljZV9hY2NvdW50In0="},
+	}
+
+	jobSpec, secrets, err := instance.GetScanJobSpec(pluginContext, workload, creds, nil, make(map[string]v1alpha1.SbomReportData))
+	require.NoError(t, err)
+	require.Len(t, secrets, 1)
+	require.Len(t, jobSpec.Containers, 1)
+
+	for _, v := range jobSpec.Volumes {
+		assert.NotEqual(t, "gcrvol", v.Name)
+	}
+	for _, m := range jobSpec.Containers[0].VolumeMounts {
+		assert.NotEqual(t, "gcrvol", m.Name)
+	}
+
+	var credentialsEnv []corev1.EnvVar
+	for _, e := range jobSpec.Containers[0].Env {
+		assert.NotEqual(t, "GOOGLE_APPLICATION_CREDENTIALS", e.Name)
+		if e.Name == "TRIVY_USERNAME" || e.Name == "TRIVY_PASSWORD" {
+			credentialsEnv = append(credentialsEnv, e)
+		}
+	}
+	assert.Equal(t, []corev1.EnvVar{
+		{
+			Name: "TRIVY_USERNAME",
+			ValueFrom: &corev1.EnvVarSource{
+				SecretKeyRef: &corev1.SecretKeySelector{
+					LocalObjectReference: corev1.LocalObjectReference{Name: secrets[0].Name},
+					Key:                  "app.username",
+				},
+			},
+		},
+		{
+			Name: "TRIVY_PASSWORD",
+			ValueFrom: &corev1.EnvVarSource{
+				SecretKeyRef: &corev1.SecretKeySelector{
+					LocalObjectReference: corev1.LocalObjectReference{Name: secrets[0].Name},
+					Key:                  "app.password",
+				},
+			},
+		},
+	}, credentialsEnv)
 }
 
 func getReportAsString(fixture string) string {

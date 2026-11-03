@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path"
 	"reflect"
 	"sort"
 	"strings"
@@ -7804,8 +7805,8 @@ func TestGetInitContainers_ClientServerMode(t *testing.T) {
 }
 
 // Ensure that when using GCR service account credentials for multiple GCR images,
-// the operator adds the GCR volume and mount only once (early return), resulting
-// in fewer effective invocations of the helper.
+// the operator adds the GCR volume and mount only once, and every container gets
+// its own credentials file from that volume.
 func TestStandalone_GCRServiceAccount(t *testing.T) {
 	fakeclient := fake.NewClientBuilder().WithObjects(
 		&corev1.ConfigMap{
@@ -7859,40 +7860,46 @@ func TestStandalone_GCRServiceAccount(t *testing.T) {
 	require.NoError(t, err)
 
 	// Assert single GCR volume at pod level.
-	gcrVolCount := 0
+	var gcrVolumes []corev1.Volume
 	for _, v := range jobSpec.Volumes {
 		if v.Name == "gcrvol" {
-			gcrVolCount++
+			gcrVolumes = append(gcrVolumes, v)
 		}
 	}
-	assert.Equal(t, 1, gcrVolCount, "expected only one GCR volume to be added")
+	require.Len(t, gcrVolumes, 1, "expected only one GCR volume to be added")
+	require.NotNil(t, gcrVolumes[0].Secret)
+	require.Len(t, jobSpec.Containers, len(workload.Spec.Containers))
+	assert.Len(t, gcrVolumes[0].Secret.Items, len(jobSpec.Containers), "expected one GCR volume item per container")
 
-	// Assert containers mount GCR volume at most once, and env var is present only once overall
-	// due to early return on subsequent helper invocations.
-	totalGcrMounts := 0
-	totalGacEnv := 0
-	totalTrivyUsernameEnv := 0
 	for _, c := range jobSpec.Containers {
+		var gcrMounts []corev1.VolumeMount
 		for _, m := range c.VolumeMounts {
 			if m.Name == "gcrvol" {
-				totalGcrMounts++
+				gcrMounts = append(gcrMounts, m)
 			}
 		}
+		require.Lenf(t, gcrMounts, 1, "expected GCR mount once in container %s", c.Name)
+
+		credentialsPath := ""
+		hasTrivyUsername := false
 		for _, e := range c.Env {
 			if e.Name == "GOOGLE_APPLICATION_CREDENTIALS" {
-				totalGacEnv++
-				assert.Equal(t, "/cred/credential.json", e.Value)
+				credentialsPath = e.Value
 			}
 			if e.Name == "TRIVY_USERNAME" {
-				totalTrivyUsernameEnv++
+				hasTrivyUsername = true
 			}
 		}
+		assert.Truef(t, hasTrivyUsername, "expected TRIVY_USERNAME in container %s", c.Name)
+
+		credentialsKey := ""
+		for _, item := range gcrVolumes[0].Secret.Items {
+			if path.Join(gcrMounts[0].MountPath, item.Path) == credentialsPath {
+				credentialsKey = item.Key
+			}
+		}
+		assert.Equalf(t, c.Name+".password", credentialsKey, "expected GOOGLE_APPLICATION_CREDENTIALS of container %s to point to its own key", c.Name)
 	}
-	// One mount per container, but created only once in the pod spec and shared.
-	assert.Equal(t, 2, totalGcrMounts, "expected GCR mount present once per container")
-	// Early return prevents re-adding envs; only the first container gets them.
-	assert.Equal(t, 1, totalGacEnv, "expected GOOGLE_APPLICATION_CREDENTIALS to be added once")
-	assert.Equal(t, 1, totalTrivyUsernameEnv, "expected TRIVY_USERNAME to be added once")
 }
 
 func getReportAsString(fixture string) string {

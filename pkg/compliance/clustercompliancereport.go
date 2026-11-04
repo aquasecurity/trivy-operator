@@ -2,10 +2,8 @@ package compliance
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
+	"path"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -19,6 +17,7 @@ import (
 	"github.com/aquasecurity/trivy-operator/pkg/apis/aquasecurity/v1alpha1"
 	"github.com/aquasecurity/trivy-operator/pkg/ext"
 	"github.com/aquasecurity/trivy-operator/pkg/operator/etc"
+	"github.com/aquasecurity/trivy-operator/pkg/reportstorage"
 	"github.com/aquasecurity/trivy-operator/pkg/utils"
 )
 
@@ -28,6 +27,7 @@ type ClusterComplianceReportReconciler struct {
 	etc.Config
 	Mgr
 	ext.Clock
+	ReportStore reportstorage.Store
 }
 
 // +kubebuilder:rbac:groups=aquasecurity.github.io,resources=clustercompliancereports,verbs=get;list;watch;create;update;patch;delete
@@ -64,27 +64,13 @@ func (r *ClusterComplianceReportReconciler) generateComplianceReport(ctx context
 			return fmt.Errorf("failed to check report cron expression %w", err)
 		}
 		if utils.DurationExceeded(durationToNextGeneration) || r.Config.InvokeClusterComplianceOnce {
-			if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
-				// Write the compliance report to a file
-				reportDir := r.Config.AltReportDir
-				complianceReportDir := filepath.Join(reportDir, "cluster_compliance_report")
-				if err := os.MkdirAll(complianceReportDir, 0o750); err != nil {
-					return fmt.Errorf("failed to create report directory: %w", err)
-				}
-				reportData, err := json.Marshal(report)
-				if err != nil {
-					log.Error(err, "Failed to marshal compliance report")
+			if r.Config.AltReportStorageActive() {
+				key := path.Join("cluster_compliance_report", fmt.Sprintf("%s-%s.json", report.Kind, report.Name))
+				if err := r.ReportStore.Put(ctx, key, report, reportstorage.Meta{}); err != nil {
+					log.Error(err, "Failed to write compliance report", "key", key)
 					return err
 				}
-
-				reportPath := filepath.Join(complianceReportDir, fmt.Sprintf("%s-%s.json", report.Kind, report.Name))
-				log.Info("Writing cluster compliance report to alternate storage", "path", reportPath)
-				err = os.WriteFile(reportPath, reportData, 0o600)
-				if err != nil {
-					log.Error(err, "Failed to write compliance report", "path", reportPath)
-					return err
-				}
-				log.Info("Cluster compliance report written", "path", reportPath)
+				log.Info("Cluster compliance report written", "key", key)
 			}
 			err = r.Mgr.GenerateComplianceReport(ctx, report.Spec)
 			if err != nil {

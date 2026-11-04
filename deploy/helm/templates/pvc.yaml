@@ -1,4 +1,4 @@
-{{- if .Values.alternateReportStorage.enabled }}
+{{- if and .Values.alternateReportStorage.enabled (eq (.Values.alternateReportStorage.type | default "filesystem") "filesystem") }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

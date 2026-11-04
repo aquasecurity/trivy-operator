@@ -63,7 +63,7 @@ func NewReadWriter(objectResolver *kube.ObjectResolver) ReadWriter {
 
 func (r *readWriter) Write(ctx context.Context, reports []v1alpha1.SbomReport) error {
 	for _, report := range reports {
-		if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
+		if r.Config.AltReportStorageActive() {
 			return nil
 		}
 		err := r.createOrUpdate(ctx, report)
@@ -76,7 +76,7 @@ func (r *readWriter) Write(ctx context.Context, reports []v1alpha1.SbomReport) e
 
 func (r *readWriter) WriteCluster(ctx context.Context, reports []v1alpha1.ClusterSbomReport) error {
 	for _, report := range reports {
-		if r.Config.AltReportStorageEnabled && r.Config.AltReportDir != "" {
+		if r.Config.AltReportStorageActive() {
 			return nil
 		}
 		err := r.createOrUpdateCluster(ctx, report)

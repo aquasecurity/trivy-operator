@@ -63,6 +63,12 @@ type Config struct {
 	ControllerCacheSyncTimeout                   *time.Duration `env:"CONTROLLER_CACHE_SYNC_TIMEOUT" envDefault:"5m"`
 	AltReportStorageEnabled                      bool           `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_ENABLED" envDefault:"false"`
 	AltReportDir                                 string         `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_DIR" envDefault:""`
+	AltReportStorageType                         string         `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_TYPE" envDefault:"filesystem"`
+	AltReportS3Bucket                            string         `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_S3_BUCKET" envDefault:""`
+	AltReportS3Prefix                            string         `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_S3_PREFIX" envDefault:""`
+	AltReportS3Endpoint                          string         `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_S3_ENDPOINT" envDefault:""`
+	AltReportS3Region                            string         `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_S3_REGION" envDefault:""`
+	AltReportS3UsePathStyle                      bool           `env:"OPERATOR_ALTERNATE_REPORT_STORAGE_S3_USE_PATH_STYLE" envDefault:"false"`
 	PprofBindAddress                             string         `env:"OPERATOR_PPROF_BIND_ADDRESS" envDefault:""`
 }
 
@@ -76,6 +82,23 @@ func GetOperatorConfig() (Config, error) {
 	}
 
 	return config, nil
+}
+
+// Alternate report storage backends.
+const (
+	AltReportStorageFilesystem = "filesystem"
+	AltReportStorageS3         = "s3"
+)
+
+// AltReportStorageActive reports whether reports go to alternate storage instead of CRDs.
+func (c Config) AltReportStorageActive() bool {
+	if !c.AltReportStorageEnabled {
+		return false
+	}
+	if c.AltReportStorageType == AltReportStorageS3 {
+		return true
+	}
+	return c.AltReportDir != ""
 }
 
 // GetOperatorNamespace returns the namespace the operator should be running in.

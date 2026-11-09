@@ -7,13 +7,13 @@ policy that checks for recommended Kubernetes labels on any resource kind.
 
 ### Processing information
 
-The Trivy Operator pulls the information from the [trivy-policies] repository.
+The Trivy Operator pulls the information from the [trivy-checks] repository.
 
 Once the Trivy Operator is installed inside the Kubernetes cluster, it will perform the following processes:
 
 1. The [node-collector] will collect infrastructure data from node filesystem and processes
 2. It then outputs the data as JSON output 
-3. The the Rego policies (cis-controls) from [trivy-policies] are executed against the infrastructure data (JSON) and return evaluation results as ConfigAudit and Compliance reports
+3. The Rego policies (cis-controls) from [trivy-checks] are executed against the infrastructure data (JSON) and return evaluation results as ConfigAudit and Compliance reports
 
 ## General
 
@@ -98,7 +98,7 @@ Once the Trivy Operator is installed inside the Kubernetes cluster, it will perf
 
 
 [Writing Custom Configuration Audit Policies]: ./../../tutorials/writing-custom-configuration-audit-policies.md
-[trivy-policies]: https://github.com/aquasecurity/trivy-policies/tree/main/checks/kubernetes/cisbenchmarks
+[trivy-checks]: https://github.com/aquasecurity/trivy-checks/tree/main/checks/kubernetes
 [node-collector]: https://github.com/aquasecurity/k8s-node-collector
 
 [CPU not limited]: https://avd.aquasec.com/misconfig/kubernetes/ksv011/
@@ -140,7 +140,7 @@ Once the Trivy Operator is installed inside the Kubernetes cluster, it will perf
 [Non-ephemeral volume types used]: https://avd.aquasec.com/misconfig/kubernetes/ksv028/
 [Process can elevate its own privileges]: https://avd.aquasec.com/misconfig/kubernetes/ksv001/
 [Runs as root user]: https://avd.aquasec.com/misconfig/kubernetes/ksv012/
-[A root primary or supplementary GID set]: https://avd.aquasec.com/misconfig/kubernetes/ksv029/
+[A root primary or supplementary GID set]: https://avd.aquasec.com/misconfig/kubernetes/ksv116/
 [Default Seccomp profile not set]: https://avd.aquasec.com/misconfig/kubernetes/ksv030/
 
 [Allow Role Clusterrolebindings Associate Privileged Cluster Role]: https://avd.aquasec.com/misconfig/rbac/general/avd-ksv-0052/

@@ -13,8 +13,16 @@ Keeps security report resources updated
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` | affinity set the operator affinity |
-| alternateReportStorage | object | `{"enabled":false,"mountPath":"/mnt/data/trivy-operator","podSecurityContext":{"fsGroup":10000,"runAsUser":10000},"storage":"10Gi","storageClassName":"","volumeName":"trivy-operator-pvc"}` | alternateReportStorage is the flag to enable alternate storage for all trivy reports (crds) in the form json files inside of a persistent volume |
+| alternateReportStorage | object | `{"enabled":false,"mountPath":"/mnt/data/trivy-operator","podSecurityContext":{"fsGroup":10000,"runAsUser":10000},"s3":{"bucket":"","endpoint":"","existingSecret":"","prefix":"","region":"","usePathStyle":false},"storage":"10Gi","storageClassName":"","type":"filesystem","volumeName":"trivy-operator-pvc"}` | alternateReportStorage is the flag to enable alternate storage for all trivy reports (crds) in the form json files inside of a persistent volume or an S3-compatible bucket |
+| alternateReportStorage.s3 | object | `{"bucket":"","endpoint":"","existingSecret":"","prefix":"","region":"","usePathStyle":false}` | s3 settings, used when type is "s3". Works with AWS S3 and S3-compatible servers such as MinIO, Garage, SeaweedFS |
+| alternateReportStorage.s3.bucket | string | `""` | bucket to upload reports to (required) |
+| alternateReportStorage.s3.endpoint | string | `""` | endpoint of an S3-compatible server, e.g. "http://minio.minio:9000". Leave empty for AWS S3 |
+| alternateReportStorage.s3.existingSecret | string | `""` | existingSecret with AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY keys, loaded as environment variables. Leave empty to use IRSA or EKS Pod Identity |
+| alternateReportStorage.s3.prefix | string | `""` | prefix prepended to every object key |
+| alternateReportStorage.s3.region | string | `""` | region of the bucket. Falls back to AWS_REGION, then "us-east-1" |
+| alternateReportStorage.s3.usePathStyle | bool | `false` | usePathStyle addresses the bucket as endpoint/bucket. Most self-hosted S3-compatible servers need it |
 | alternateReportStorage.storageClassName | string | `""` | storageClassName for the PVC (optional, uses cluster default if not specified) |
+| alternateReportStorage.type | string | `"filesystem"` | type of alternate storage: "filesystem" writes JSON files to a PersistentVolumeClaim, "s3" uploads them to an S3-compatible bucket |
 | automountServiceAccountToken | bool | `true` | automountServiceAccountToken the flag to enable automount for service account token |
 | compliance.cron | string | `"0 */6 * * *"` | cron this flag control the cron interval for compliance report generation |
 | compliance.failEntriesLimit | int | `10` | failEntriesLimit the flag to limit the number of fail entries per control check in the cluster compliance detail report this limit is for preventing the report from being too large per control checks |

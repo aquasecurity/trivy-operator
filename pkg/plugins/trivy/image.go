@@ -302,10 +302,10 @@ func GetPodSpecForImageScan(ctx trivyoperator.PluginContext,
 			})
 		}
 
-		if _, ok := containersCredentials[c.Name]; ok && secret != nil {
+		if auth, ok := containersCredentials[c.Name]; ok && secret != nil {
 			registryUsernameKey := fmt.Sprintf("%s.username", c.Name)
 			registryPasswordKey := fmt.Sprintf("%s.password", c.Name)
-			if CheckGcpCrOrPrivateRegistry(c.Image) &&
+			if auth.Username == "_json_key" && CheckGcpCrOrPrivateRegistry(c.Image) &&
 				ctx.GetTrivyOperatorConfig().GetScanJobUseGCRServiceAccount() {
 				createEnvandVolumeForGcr(&env, &volumeMounts, &volumes, &registryPasswordKey, &secret.Name)
 			} else {

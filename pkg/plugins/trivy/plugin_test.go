@@ -7471,6 +7471,54 @@ func TestGetScoreFromCVSS(t *testing.T) {
 			cvss:          dbtypes.VendorCVSS{},
 			expectedScore: nil,
 		},
+		{
+			name: "Should return deterministic vendor score in alphabetical precedence when multiple vendors and nvd exist",
+			cvss: dbtypes.VendorCVSS{
+				"nvd": {
+					V3Score: 8.1,
+				},
+				"redhat": {
+					V3Score: 7.5,
+				},
+				"ubuntu": {
+					V3Score: 8.2,
+				},
+			},
+			expectedScore: ptr.To[float64](7.5),
+		},
+		{
+			name: "Should return next non-nil vendor score in alphabetical precedence when first vendor v3 score is nil",
+			cvss: dbtypes.VendorCVSS{
+				"nvd": {
+					V3Score: 8.1,
+				},
+				"debian": {
+					V3Score: 0.0,
+				},
+				"redhat": {
+					V3Score: 7.5,
+				},
+				"ubuntu": {
+					V3Score: 8.2,
+				},
+			},
+			expectedScore: ptr.To[float64](7.5),
+		},
+		{
+			name: "Should return nvd score when all multiple vendors have nil v3 scores",
+			cvss: dbtypes.VendorCVSS{
+				"nvd": {
+					V3Score: 8.1,
+				},
+				"debian": {
+					V3Score: 0.0,
+				},
+				"redhat": {
+					V3Score: 0.0,
+				},
+			},
+			expectedScore: ptr.To[float64](8.1),
+		},
 	}
 
 	for _, tc := range testCases {
@@ -7479,6 +7527,31 @@ func TestGetScoreFromCVSS(t *testing.T) {
 			assert.Equal(t, tc.expectedScore, score)
 		})
 	}
+
+	t.Run("Should return deterministic score consistently across 100 iterations without flapping", func(t *testing.T) {
+		multiVendorCVSS := dbtypes.VendorCVSS{
+			"nvd": {
+				V3Score: 8.1,
+			},
+			"redhat": {
+				V3Score: 7.5,
+			},
+			"ubuntu": {
+				V3Score: 8.2,
+			},
+			"debian": {
+				V3Score: 6.8,
+			},
+			"alpine": {
+				V3Score: 7.1,
+			},
+		}
+		expected := ptr.To[float64](7.1)
+		for i := 0; i < 100; i++ {
+			score := vulnerabilityreport.GetScoreFromCVSS(vulnerabilityreport.GetCvssV3(multiVendorCVSS))
+			assert.Equal(t, expected, score, "iteration %d produced non-deterministic score", i)
+		}
+	})
 }
 
 func TestGetCVSSV3(t *testing.T) {

@@ -100,11 +100,12 @@ func (b Build) Binary() error {
 func (b Build) BinaryFips() error {
 	fmt.Println("Building trivy-operator FIPS binary...")
 	fipsEnv := map[string]string{
-		"CGO_ENABLED":  "1",
-		"GOEXPERIMENT": "boringcrypto,jsonv2",
+		"CGO_ENABLED":  "0",
+		"GOEXPERIMENT": "jsonv2",
+		"GOFIPS140":    "certified",
 		"GOOS":         "linux",
 	}
-	return sh.RunWithV(fipsEnv, "go", "build", "-tags=fipsonly", "-o", "./bin/trivy-operator-fips", "./cmd/trivy-operator/main.go")
+	return sh.RunWithV(fipsEnv, "go", "build", "-o", "./bin/trivy-operator-fips", "./cmd/trivy-operator/main.go")
 }
 
 // Target for installing Ginkgo CLI.

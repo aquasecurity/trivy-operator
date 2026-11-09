@@ -28,24 +28,16 @@ builds:
   - id: trivy-operator-fips
     main: ./cmd/trivy-operator/main.go
     binary: trivy-operator-fips
-    flags:
-      - -tags=fipsonly
     env:
-      - CGO_ENABLED=1
-      - GOEXPERIMENT=boringcrypto,jsonv2
+      - CGO_ENABLED=0
+      # Use the CMVP-certified FIPS 140-3 Go Cryptographic Module.
+      # It also sets the default GODEBUG=fips140=on for the binary.
+      - GOFIPS140=certified
     goos:
       - linux
     goarch:
       - amd64
       - arm64
-    overrides:
-      - goos: linux
-        goarch: arm64
-        env:
-          - CGO_ENABLED=1
-          - GOEXPERIMENT=boringcrypto,jsonv2
-          - CC=aarch64-linux-gnu-gcc
-          - CXX=aarch64-linux-gnu-g++
 archives:
   - name_template: >-
       {{- .ProjectName }}_

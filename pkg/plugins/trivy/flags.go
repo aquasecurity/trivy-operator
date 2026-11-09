@@ -1,6 +1,8 @@
 package trivy
 
 import (
+	"strconv"
+
 	"github.com/aquasecurity/go-version/pkg/semver"
 )
 
@@ -18,20 +20,20 @@ func compareTagVersion(currentTag, constraint string) bool {
 	return c.Check(v)
 }
 
-// Slow determine if to use the slow flag (improve memory footprint)
-func Slow(c Config) string {
+// Parallel determine if to use the parallel flag (control concurrency / memory footprint)
+func Parallel(c Config) []string {
 	tag, err := c.GetImageTag()
 	if err != nil {
-		return ""
+		return []string{}
 	}
 	// support backward compatibility with older tags
 	if compareTagVersion(tag, "< 0.35.0") {
-		return ""
+		return []string{}
 	}
-	if c.GetSlow() {
-		return "--slow"
+	if parallel := c.GetParallel(); parallel > 0 {
+		return []string{"--parallel", strconv.Itoa(parallel)}
 	}
-	return ""
+	return []string{}
 }
 
 // Scanners use scanners flag

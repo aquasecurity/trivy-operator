@@ -3051,7 +3051,7 @@ data:
   trivy.imagePullPolicy: "IfNotPresent"
   trivy.additionalVulnerabilityReportFields: ""
   trivy.severity: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
-  trivy.slow: "true"
+  trivy.parallel: "1"
   trivy.skipJavaDBUpdate: "false"
   trivy.includeDevDeps: "false"
   trivy.imageScanCacheDir: "/tmp/trivy/.cache"

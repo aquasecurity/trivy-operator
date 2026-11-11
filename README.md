@@ -100,8 +100,8 @@ Kubernetes-native ways.
 
 ---
 
-Trivy-Operator is an [Aqua Security](https://aquasec.com) open source project.  
-Learn about our [Open Source Work and Portfolio].  
+Trivy-Operator is an [Aqua Security](https://aquasec.com) open source project.
+Learn about our [Open Source Work and Portfolio].
 Join the community, and talk to us about any matter in [GitHub Discussions] or [Slack].
 
 [release-img]: https://img.shields.io/github/release/aquasecurity/trivy-operator.svg?logo=github

@@ -49,5 +49,8 @@ const (
 )
 
 const (
-	AnnotationContainerImages = "trivy-operator.container-images"
+	AnnotationContainerImages    = "trivy-operator.container-images"
+	AnnotationScanJobRetryCount = "trivy-operator.aquasecurity.github.io/scan-job-retry-count"
+	AnnotationScanJobRetryAt    = "trivy-operator.aquasecurity.github.io/scan-job-retry-at"
+	AnnotationScanJobRetryDone  = "trivy-operator.aquasecurity.github.io/scan-job-retry-done"
 )

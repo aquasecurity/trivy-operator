@@ -79,6 +79,7 @@ Keeps security report resources updated
 | operator.replicas | int | `1` | replicas the number of replicas of the operator's pod |
 | operator.revisionHistoryLimit | string | `nil` | number of old history to retain to allow rollback (if not set, default Kubernetes value is set to 10) |
 | operator.sbomGenerationEnabled | bool | `true` | the flag to enable sbom generation, required for enabling ClusterVulnerabilityReports |
+| operator.scanJobMaxRetries | int | `nil` | scanJobMaxRetries maximum number of scan job pod recreations after failures. Leave unset to preserve unlimited retries; retries wait scanJobsRetryDelay between attempts. |
 | operator.scanJobTTL | string | `""` | scanJobTTL the set automatic cleanup time after the job is completed |
 | operator.scanJobTimeout | string | `"5m"` | scanJobTimeout the length of time to wait before giving up on a scan job |
 | operator.scanJobsConcurrentLimit | int | `10` | scanJobsConcurrentLimit the maximum number of scan jobs create by the operator |
@@ -86,6 +87,7 @@ Keeps security report resources updated
 | operator.scanNodeCollectorLimit | int | `1` | scanNodeCollectorLimit the maximum number of node collector jobs create by the operator |
 | operator.scanSecretTTL | string | `""` | scanSecretTTL set an automatic cleanup for scan job secrets |
 | operator.scannerReportTTL | string | `"24h"` | scannerReportTTL the flag to set how long a report should exist. "" means that the ScannerReportTTL feature is disabled |
+| operator.serializeScanJobScanners | bool | `false` | serializeScanJobScanners run scanner containers in a scan job sequentially instead of in parallel |
 | operator.serverAdditionalAnnotations | object | `{}` | serverAdditionalAnnotations the flag to set additional annotations for the trivy server pod |
 | operator.trivyServerHealthCheckCacheExpiration | string | `"10h"` | trivyServerHealthCheckCacheExpiration The flag to set the interval for trivy server health cache before it invalidate |
 | operator.valuesFromConfigMap | string | `""` | vaulesFromConfigMap name of a ConfigMap to apply OPERATOR_* environment variables. Will override Helm values. |
@@ -226,4 +228,3 @@ Keeps security report resources updated
 | volumeMounts[0].readOnly | bool | `false` |  |
 | volumes[0].emptyDir | object | `{}` |  |
 | volumes[0].name | string | `"cache-policies"` |  |
-

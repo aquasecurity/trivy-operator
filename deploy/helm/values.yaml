@@ -80,6 +80,12 @@ operator:
   # -- scanJobTimeout the length of time to wait before giving up on a scan job
   scanJobTimeout: 5m
 
+  # -- serializeScanJobScanners run scanner containers in a scan job sequentially instead of in parallel
+  serializeScanJobScanners: false
+
+  # -- scanJobMaxRetries maximum number of scan job pod recreations after failures. Leave unset to preserve unlimited retries; retries wait scanJobsRetryDelay between attempts.
+  scanJobMaxRetries: ~
+
   # -- scanJobsConcurrentLimit the maximum number of scan jobs create by the operator
   scanJobsConcurrentLimit: 10
 

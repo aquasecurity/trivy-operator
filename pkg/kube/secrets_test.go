@@ -176,6 +176,67 @@ func TestMapDockerRegistryServersToAuths(t *testing.T) {
 			}),
 		}))
 	})
+
+	// A GCR JSON key as the password: it contains commas, so joining it with a copy of
+	// itself produces a value Trivy can no longer split back into one credential.
+	gcrJSONKey := corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{Name: "gcr-json-key", Namespace: "default"},
+		Type:       corev1.SecretTypeDockerConfigJson,
+		Data: map[string][]byte{
+			corev1.DockerConfigJsonKey: []byte(`{
+  "auths": {
+    "gcr.io": {
+      "username": "_json_key",
+      "password": "{\"type\": \"service_account\", \"project_id\": \"my-project\"}"
+    }
+  }
+}`),
+		},
+	}
+	gcrJSONKeyAuth := docker.Auth{
+		Username: "_json_key",
+		Password: `{"type": "service_account", "project_id": "my-project"}`,
+	}
+
+	t.Run("should not repeat credentials listed more than once with multi secret support", func(t *testing.T) {
+		otherNameSameCredentials := *gcrJSONKey.DeepCopy()
+		otherNameSameCredentials.Name = "gcr-json-key-copy"
+
+		auths, err := kube.MapDockerRegistryServersToAuths(
+			[]corev1.Secret{gcrJSONKey, gcrJSONKey, otherNameSameCredentials}, true)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]docker.Auth{"gcr.io": gcrJSONKeyAuth}, auths)
+	})
+
+	t.Run("should not repeat a secret listed in both the pod spec and its service account", func(t *testing.T) {
+		sa := corev1.ServiceAccount{
+			ObjectMeta:       metav1.ObjectMeta{Name: "default", Namespace: "default"},
+			ImagePullSecrets: []corev1.LocalObjectReference{{Name: "gcr-json-key"}},
+		}
+		client := fake.NewClientBuilder().WithScheme(trivyoperator.NewScheme()).WithObjects(&sa, gcrJSONKey.DeepCopy()).Build()
+		sr := kube.NewSecretsReader(client)
+		spec := corev1.PodSpec{ImagePullSecrets: []corev1.LocalObjectReference{{Name: "gcr-json-key"}}, ServiceAccountName: "default"}
+
+		secrets, err := sr.ListImagePullSecretsByPodSpec(t.Context(), spec, "default")
+		require.NoError(t, err)
+		require.Len(t, secrets, 2)
+		auths, err := kube.MapDockerRegistryServersToAuths(secrets, true)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]docker.Auth{"gcr.io": gcrJSONKeyAuth}, auths)
+	})
+
+	t.Run("should still join different credentials for the same server with multi secret support", func(t *testing.T) {
+		otherKey := *gcrJSONKey.DeepCopy()
+		otherKey.Name = "gcr-other-key"
+		otherKey.Data[corev1.DockerConfigJsonKey] = []byte(`{"auths": {"gcr.io": {"username": "oauth2accesstoken", "password": "token"}}}`)
+
+		auths, err := kube.MapDockerRegistryServersToAuths([]corev1.Secret{gcrJSONKey, otherKey, gcrJSONKey}, true)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]docker.Auth{"gcr.io": {
+			Username: "_json_key,oauth2accesstoken",
+			Password: gcrJSONKeyAuth.Password + ",token",
+		}}, auths)
+	})
 }
 
 func TestMapContainerNamesToDockerAuths(t *testing.T) {

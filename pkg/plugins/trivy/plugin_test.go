@@ -8494,6 +8494,71 @@ func TestParseImageRef(t *testing.T) {
 			},
 		},
 		{
+			name:          "docker hub official image with tag & digest",
+			inputImageRef: "nginx:1.27.3@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			expectedRegistry: v1alpha1.Registry{
+				Server: "index.docker.io",
+			},
+			expectedArtifact: v1alpha1.Artifact{
+				Repository: "library/nginx",
+				Digest:     "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+				Tag:        "1.27.3",
+			},
+		},
+		{
+			name:          "docker hub short repo with tag & digest",
+			inputImageRef: "grafana/grafana:12.1.0@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			expectedRegistry: v1alpha1.Registry{
+				Server: "index.docker.io",
+			},
+			expectedArtifact: v1alpha1.Artifact{
+				Repository: "grafana/grafana",
+				Digest:     "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+				Tag:        "12.1.0",
+			},
+		},
+		{
+			name:          "docker.io prefixed image ref with tag & digest",
+			inputImageRef: "docker.io/library/alpine:3.21@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			expectedRegistry: v1alpha1.Registry{
+				Server: "index.docker.io",
+			},
+			expectedArtifact: v1alpha1.Artifact{
+				Repository: "library/alpine",
+				Digest:     "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+				Tag:        "3.21",
+			},
+		},
+		{
+			name:          "registry with port and digest",
+			inputImageRef: "localhost:5000/my-app@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			expectedRegistry: v1alpha1.Registry{
+				Server: "localhost:5000",
+			},
+			expectedArtifact: v1alpha1.Artifact{
+				Repository: "my-app",
+				Digest:     "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+				Tag:        "",
+			},
+		},
+		{
+			name:          "registry with port, tag & digest",
+			inputImageRef: "localhost:5000/my-app:1.2.3@sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",
+			expectedRegistry: v1alpha1.Registry{
+				Server: "localhost:5000",
+			},
+			expectedArtifact: v1alpha1.Artifact{
+				Repository: "my-app",
+				Digest:     "sha256:1420cefd4b20014b3361951c22593de6e9a2476bbbadd1759464eab5bfc0d34f",
+				Tag:        "1.2.3",
+			},
+		},
+		{
 			name:          "incorrect input",
 			inputImageRef: "## some incorrect input ###",
 			inputImageID:  "sha256:2bc57c6bcb194869d18676e003dfed47b87d257fce49667557fb8eb1f324d5d6",

@@ -21,14 +21,16 @@ import (
 )
 
 type ReportBuilder struct {
-	scheme                  *runtime.Scheme
-	controller              client.Object
-	container               string
-	hash                    string
-	data                    v1alpha1.SbomReportData
-	resourceLabelsToInclude []string
-	additionalReportLabels  labels.Set
-	cacheTTL                *time.Duration
+	scheme                       *runtime.Scheme
+	controller                   client.Object
+	container                    string
+	hash                         string
+	data                         v1alpha1.SbomReportData
+	resourceLabelsToInclude      []string
+	additionalReportLabels       labels.Set
+	resourceAnnotationsToInclude []string
+	additionalReportAnnotations  map[string]string
+	cacheTTL                     *time.Duration
 }
 
 func NewReportBuilder(scheme *runtime.Scheme) *ReportBuilder {
@@ -64,6 +66,16 @@ func (b *ReportBuilder) ResourceLabelsToInclude(resourceLabelsToInclude []string
 
 func (b *ReportBuilder) AdditionalReportLabels(additionalReportLabels map[string]string) *ReportBuilder {
 	b.additionalReportLabels = additionalReportLabels
+	return b
+}
+
+func (b *ReportBuilder) ResourceAnnotationsToInclude(resourceAnnotationsToInclude []string) *ReportBuilder {
+	b.resourceAnnotationsToInclude = resourceAnnotationsToInclude
+	return b
+}
+
+func (b *ReportBuilder) AdditionalReportAnnotations(additionalReportAnnotations map[string]string) *ReportBuilder {
+	b.additionalReportAnnotations = additionalReportAnnotations
 	return b
 }
 
@@ -112,11 +124,18 @@ func (b *ReportBuilder) NamespacedReport() (v1alpha1.SbomReport, error) {
 		reportLabels[trivyoperator.LabelResourceSpecHash] = b.hash
 	}
 
+	annotationsSet := make(map[string]string)
+	// append matching resource annotations by config to report
+	kube.AppendResourceAnnotations(b.resourceAnnotationsToInclude, b.controller.GetAnnotations(), annotationsSet)
+	// append custom annotations by config to report
+	kube.AppendCustomAnnotations(b.additionalReportAnnotations, annotationsSet)
+
 	report := v1alpha1.SbomReport{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      b.reportName(),
-			Namespace: b.controller.GetNamespace(),
-			Labels:    reportLabels,
+			Name:        b.reportName(),
+			Namespace:   b.controller.GetNamespace(),
+			Labels:      reportLabels,
+			Annotations: annotationsSet,
 		},
 		Report: b.data,
 	}
@@ -155,18 +174,24 @@ func (b *ReportBuilder) ClusterReport() v1alpha1.ClusterSbomReport {
 		trivyoperator.LabelK8SAppManagedBy: trivyoperator.AppTrivyOperator,
 	}
 	kube.AppendCustomLabels(b.additionalReportLabels, reportLabels)
+
+	reportAnnotations := make(map[string]string)
+	// append custom annotations by config to report
+	kube.AppendCustomAnnotations(b.additionalReportAnnotations, reportAnnotations)
+
+	if b.cacheTTL != nil {
+		reportAnnotations[v1alpha1.TTLReportAnnotation] = b.cacheTTL.String()
+	}
+
 	clusterReport := v1alpha1.ClusterSbomReport{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   artifactRef,
-			Labels: reportLabels,
+			Name:        artifactRef,
+			Labels:      reportLabels,
+			Annotations: reportAnnotations,
 		},
 		Report: b.data,
 	}
-	if b.cacheTTL != nil {
-		clusterReport.Annotations = map[string]string{
-			v1alpha1.TTLReportAnnotation: b.cacheTTL.String(),
-		}
-	}
+
 	return clusterReport
 }
 

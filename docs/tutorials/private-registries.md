@@ -216,9 +216,11 @@ kubectl apply -f imagepullsecret.yaml -n app
 ```
 
 Next, we will change the `privateRegistryScanSecretsNames` of the `values.yaml` manifest. For this, we can create a new `values.yaml` manifest with our desired modification. We need to provide desired namespace and secret name. In our example they are `app` and `dockerconfigjson-github-com` accordingly.
+Note that `privateRegistryScanSecretsNames` are evaluated only when `accessGlobalSecretsAndServiceAccount` is set to `false`.
 
 ```sh
 operator:
+    accessGlobalSecretsAndServiceAccount: false
     privateRegistryScanSecretsNames: {"app":"dockerconfigjson-github-com"}
 ```
 

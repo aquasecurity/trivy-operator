@@ -123,6 +123,28 @@ trivy_vulnerability_id{
 } 1
 ```
 
+## Report Write Failures
+
+Every metric above is derived from report objects that exist. A report the Kubernetes API server refuses to store therefore leaves no trace in any of them: no object is created, so there is nothing left to collect and the workload looks exactly like one that was never scanned.
+
+`trivy_report_write_failures_total` is the counter for that case. It increments whenever a report write is rejected, labelled with the namespace, the image the report belonged to, the report kind, and why the write was refused.
+
+```shell
+trivy_report_write_failures_total{
+    image_repository="library/nextcloud",kind="VulnerabilityReport",namespace="nextcloud",reason="too_large"
+} 1
+```
+
+`reason` is one of `too_large`, `conflict`, `forbidden`, `timeout` or `other`.
+
+`too_large` is the common one. A report bigger than the API server's request limit (2 MiB by default, and etcd's own limit below that) is rejected outright, which is why a very large image can end up with no `VulnerabilityReport` at all. Alerting on this counter is the way to notice, since the absence of a report is not otherwise observable:
+
+```promql
+increase(trivy_report_write_failures_total[1h]) > 0
+```
+
+If it fires with `reason="too_large"`, the options are to reduce report size — `OPERATOR_SCANNER_REPORT_TTL`, a narrower `trivy.severity`, or fewer `additionalVulnerabilityReportFields` (`Description` and `Links` are by far the largest) — or to move reports out of etcd entirely with `alternateReportStorage`.
+
 ## Adding Custom Label to Metrics
 
 User might wants to include custom labels to resources that can be exposed and associated with the Prometheus metrics.

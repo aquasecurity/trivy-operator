@@ -45,6 +45,12 @@ spec:
           {{- with .Values.image.pullPolicy }}
           imagePullPolicy: {{ . }}
           {{- end }}
+          {{- with .Values.operator.command }}
+          command: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.operator.args }}
+          args: {{- toYaml . | nindent 12 }}
+          {{- end }}
           env:
             - name: OPERATOR_NAMESPACE
               value: {{ include "trivy-operator.namespace" . }}
@@ -103,15 +109,20 @@ spec:
           {{- with .Values.securityContext }}
           securityContext: {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- if or .Values.volumeMounts .Values.alternateReportStorage.enabled .Values.operator.customConfigMap.create .Values.operator.customConfigMap.existingConfigMap }}
+          volumeMounts:
           {{- with .Values.volumeMounts }}
-          volumeMounts: {{- toYaml . | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- if .Values.alternateReportStorage.enabled }}
-          {{- if not .Values.volumeMounts }}
-          volumeMounts:
-          {{- end }}
             - name: {{ .Values.alternateReportStorage.volumeName }}
               mountPath: {{ .Values.alternateReportStorage.mountPath }}
+          {{- end }}
+          {{- if or .Values.operator.customConfigMap.create .Values.operator.customConfigMap.existingConfigMap }}
+            - name: custom-configmap
+              mountPath: {{ .Values.operator.customConfigMap.mountPath }}
+              readOnly: true
+          {{- end }}
           {{- end }}
       {{- with .Values.image.pullSecrets }}
       imagePullSecrets: {{- toYaml . | nindent 8 }}
@@ -127,16 +138,22 @@ spec:
         fsGroup:   {{ .Values.alternateReportStorage.podSecurityContext.fsGroup }}
       {{- end }}
       {{- end }}
+      {{- if or .Values.volumes .Values.alternateReportStorage.enabled .Values.operator.customConfigMap.create .Values.operator.customConfigMap.existingConfigMap }}
+      volumes:
       {{- with .Values.volumes }}
-      volumes: {{- toYaml . | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- if .Values.alternateReportStorage.enabled }}
-      {{- if not .Values.volumes }}
-      volumes:
-      {{- end }}
         - name: {{ .Values.alternateReportStorage.volumeName }}
           persistentVolumeClaim:
             claimName: {{ .Values.alternateReportStorage.volumeName }}
+      {{- end }}
+      {{- if or .Values.operator.customConfigMap.create .Values.operator.customConfigMap.existingConfigMap }}
+        - name: custom-configmap
+          configMap:
+            name: {{ if .Values.operator.customConfigMap.existingConfigMap }}{{ .Values.operator.customConfigMap.existingConfigMap }}{{ else }}{{ include "trivy-operator.fullname" . }}-custom{{ end }}
+            defaultMode: {{ .Values.operator.customConfigMap.defaultMode }}
+      {{- end }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}

@@ -61,7 +61,7 @@ spec:
           list.
         id: "6"
         checks:
-          - id: avd-ksv-0024
+          - id: AVD-KSV-0024
         severity: HIGH
       - name: AppArmor
         description: On supported hosts, the runtime/default AppArmor profile is applied
@@ -70,27 +70,27 @@ spec:
           of profiles.
         id: "7"
         checks:
-          - id: avd-ksv-0002
+          - id: AVD-KSV-0002
         severity: HIGH
       - name: SELinux
         description: Setting the SELinux type is restricted, and setting a custom
           SELinux user or role option is forbidden.
         id: "8"
         checks:
-          - id: avd-ksv-0025
+          - id: AVD-KSV-0025
         severity: MEDIUM
       - name: /proc Mount Type
         description: The default /proc masks are set up to reduce attack surface, and
           should be required.
         id: "9"
         checks:
-          - id: avd-ksv-0027
+          - id: AVD-KSV-0027
         severity: MEDIUM
       - name: Seccomp
         description: Seccomp profile must not be explicitly set to Unconfined.
         id: "10"
         checks:
-          - id: avd-ksv-0104
+          - id: AVD-KSV-0104
         severity: MEDIUM
       - name: Sysctls
         description: Sysctls can disable security mechanisms or affect all containers on
@@ -100,6 +100,6 @@ spec:
           Node.
         id: "11"
         checks:
-          - id: avd-ksv-0026
+          - id: AVD-KSV-0026
         severity: MEDIUM
 {{- end }}

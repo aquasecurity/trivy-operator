@@ -1,0 +1,8 @@
+# ct lint-and-install scenario: trivy ClientServer mode with the
+# in-cluster built-in server. Exercises the templates that only
+# render under this combination (trivy.serverURL, the built-in
+# server StatefulSet, etc.).
+operator:
+  builtInTrivyServer: true
+trivy:
+  mode: ClientServer

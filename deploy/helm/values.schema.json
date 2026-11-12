@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "trivy-operator chart values",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "global": { "type": "object", "additionalProperties": true },
+    "managedBy": { "type": "string" },
+    "nameOverride": { "type": "string" },
+    "fullnameOverride": { "type": "string" },
+    "namespaceOverride": { "type": "string" },
+    "targetNamespaces": { "type": "string" },
+    "excludeNamespaces": { "type": "string" },
+    "targetWorkloads": { "type": "string" },
+    "extraEnv": { "type": "array" },
+    "hostAliases": { "type": "array" },
+    "podAnnotations": { "type": "object", "additionalProperties": true },
+    "podSecurityContext": { "type": "object", "additionalProperties": true },
+    "securityContext": { "type": "object", "additionalProperties": true },
+    "volumeMounts": { "type": "array" },
+    "volumes": { "type": "array" },
+    "resources": { "type": "object", "additionalProperties": true },
+    "nodeSelector": { "type": "object", "additionalProperties": true },
+    "tolerations": { "type": "array" },
+    "affinity": { "type": "object", "additionalProperties": true },
+    "priorityClassName": { "type": "string" },
+    "automountServiceAccountToken": { "type": "boolean" },
+    "image": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "registry": { "type": "string" },
+        "repository": { "type": "string" },
+        "tag": { "type": ["string", "null"] },
+        "pullPolicy": { "type": "string", "enum": ["Always", "IfNotPresent", "Never"] },
+        "pullSecrets": { "type": "array" }
+      }
+    },
+    "operator": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "namespace": { "type": "string" },
+        "replicas": { "type": "integer", "minimum": 0 },
+        "revisionHistoryLimit": { "type": ["integer", "null"], "minimum": 0 },
+        "logDevMode": { "type": "boolean" },
+        "vulnerabilityScannerEnabled": { "type": "boolean" },
+        "sbomGenerationEnabled": { "type": "boolean" },
+        "clusterSbomCacheEnabled": { "type": "boolean" },
+        "configAuditScannerEnabled": { "type": "boolean" },
+        "rbacAssessmentScannerEnabled": { "type": "boolean" },
+        "infraAssessmentScannerEnabled": { "type": "boolean" },
+        "clusterComplianceEnabled": { "type": "boolean" },
+        "vulnerabilityScannerScanOnlyCurrentRevisions": { "type": "boolean" },
+        "configAuditScannerScanOnlyCurrentRevisions": { "type": "boolean" },
+        "accessGlobalSecretsAndServiceAccount": { "type": "boolean" },
+        "builtInTrivyServer": { "type": "boolean" },
+        "builtInServerRegistryInsecure": { "type": "boolean" },
+        "metricsFindingsEnabled": { "type": "boolean" },
+        "metricsVulnIdEnabled": { "type": "boolean" },
+        "exposedSecretScannerEnabled": { "type": "boolean" },
+        "metricsExposedSecretInfo": { "type": "boolean" },
+        "metricsConfigAuditInfo": { "type": "boolean" },
+        "metricsRbacAssessmentInfo": { "type": "boolean" },
+        "metricsInfraAssessmentInfo": { "type": "boolean" },
+        "metricsImageInfo": { "type": "boolean" },
+        "metricsClusterComplianceInfo": { "type": "boolean" },
+        "webhookSendDeletedReports": { "type": "boolean" },
+        "mergeRbacFindingWithConfigAudit": { "type": "boolean" }
+      }
+    },
+    "service": { "type": "object", "additionalProperties": true },
+    "serviceMonitor": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "honorLabels": { "type": "boolean" }
+      }
+    },
+    "trivyOperator": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "vulnerabilityReportsPlugin": { "type": "string" },
+        "configAuditReportsPlugin": { "type": "string" },
+        "scanJobCompressLogs": { "type": "boolean" },
+        "scanJobsInSameNamespace": { "type": "boolean" },
+        "useGCRServiceAccount": { "type": "boolean" },
+        "scanJobAutomountServiceAccountToken": { "type": "boolean" },
+        "skipInitContainers": { "type": "boolean" },
+        "reportRecordFailedChecksOnly": { "type": "boolean" }
+      }
+    },
+    "trivy": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "createConfig": { "type": "boolean" },
+        "serverInsecure": { "type": "boolean" },
+        "dbRepositoryInsecure": { "type": "boolean" },
+        "useBuiltinRegoPolicies": { "type": "boolean" },
+        "useEmbeddedRegoPolicies": { "type": "boolean" },
+        "offlineScan": { "type": "boolean" },
+        "ignoreUnfixed": { "type": "boolean" },
+        "clientServerSkipUpdate": { "type": "boolean" },
+        "skipJavaDBUpdate": { "type": "boolean" },
+        "slow": { "type": "boolean" },
+        "debug": { "type": "boolean" },
+        "includeDevDeps": { "type": "boolean" },
+        "mode": { "type": "string", "enum": ["Standalone", "ClientServer"] },
+        "image": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "registry": { "type": "string" },
+            "repository": { "type": "string" },
+            "tag": { "type": ["string", "number"] }
+          }
+        }
+      }
+    },
+    "compliance": { "type": "object", "additionalProperties": true },
+    "rbac": { "type": "object", "additionalProperties": true },
+    "serviceAccount": { "type": "object", "additionalProperties": true },
+    "policiesBundle": { "type": "object", "additionalProperties": true },
+    "nodeCollector": { "type": "object", "additionalProperties": true },
+    "alternateReportStorage": { "type": "object", "additionalProperties": true }
+  }
+}

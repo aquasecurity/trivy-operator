@@ -33,14 +33,6 @@ func SkipProcessing(ctx context.Context, resource client.Object, or kube.ObjectR
 	}
 	switch r := resource.(type) {
 	case *appsv1.ReplicaSet:
-		_, err := or.GetActivePodsMatchingLabels(ctx, resource.GetNamespace(), r.Spec.Selector.MatchLabels)
-		if err != nil {
-			if errors.Is(err, kube.ErrNoRunningPods) {
-				log.V(1).Info("Ignoring ReplicaSet with no active pods", "name", resource.GetName())
-				return true, nil
-			}
-			return true, err
-		}
 		if scanOnlyCurrentRevisions {
 			controller := metav1.GetControllerOf(resource)
 			activeReplicaSet, err := or.IsActiveReplicaSet(ctx, resource, controller)
@@ -56,15 +48,15 @@ func SkipProcessing(ctx context.Context, resource client.Object, or kube.ObjectR
 				return true, nil
 			}
 		}
-	case *corev1.ReplicationController:
-		_, err := or.GetActivePodsMatchingLabels(ctx, resource.GetNamespace(), r.Spec.Selector)
+		_, err := or.GetActivePodsMatchingLabels(ctx, resource.GetNamespace(), r.Spec.Selector.MatchLabels)
 		if err != nil {
 			if errors.Is(err, kube.ErrNoRunningPods) {
-				log.V(1).Info("Ignoring ReplicationController with no active pods", "name", resource.GetName())
+				log.V(1).Info("Ignoring ReplicaSet with no active pods", "name", resource.GetName())
 				return true, nil
 			}
 			return true, err
 		}
+	case *corev1.ReplicationController:
 		if scanOnlyCurrentRevisions {
 			controller := metav1.GetControllerOf(resource)
 			activeReplicationController, err := or.IsActiveReplicationController(ctx, resource, controller)
@@ -79,6 +71,14 @@ func SkipProcessing(ctx context.Context, resource client.Object, or kube.ObjectR
 				}
 				return true, nil
 			}
+		}
+		_, err := or.GetActivePodsMatchingLabels(ctx, resource.GetNamespace(), r.Spec.Selector)
+		if err != nil {
+			if errors.Is(err, kube.ErrNoRunningPods) {
+				log.V(1).Info("Ignoring ReplicationController with no active pods", "name", resource.GetName())
+				return true, nil
+			}
+			return true, err
 		}
 	case *appsv1.StatefulSet:
 		_, err := or.GetActivePodsMatchingLabels(ctx, resource.GetNamespace(), r.Spec.Selector.MatchLabels)

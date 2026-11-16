@@ -1,7 +1,6 @@
 package main
 
 import (
-	"crypto/fips140"
 	"fmt"
 	"os"
 
@@ -53,11 +52,7 @@ func main() {
 
 func run(operatorConfig etc.Config) error {
 	setupLog.Info("Starting operator", "buildInfo", buildInfo)
-	if fips140.Enabled() {
-		setupLog.Info("FIPS 140-3 mode enabled",
-			"moduleVersion", fips140.Version(),
-			"enforced", fips140.Enforced())
-	}
+	logFIPSStatus()
 
 	return operator.Start(ctrl.SetupSignalHandler(), buildInfo, operatorConfig)
 }

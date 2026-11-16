@@ -24,11 +24,18 @@ FIPS mode is controlled by the `fips140` setting of the `GODEBUG` environment va
 |----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `fips140=on`   | Default for the FIPS image. Approved algorithms are served by the FIPS 140-3 module, and `crypto/tls` negotiates only FIPS-approved protocol versions, cipher suites, signature algorithms and key exchanges. |
 | `fips140=only` | Same as `on`, and additionally non-approved algorithms return an error or panic. Use it only after verifying that your environment (registries, Kubernetes API server, cloud providers) works with it.       |
+| `fips140=off`  | Disables FIPS mode: the binary uses non-validated cryptography. Do not set it if you need FIPS 140-3 compliance.                                                                                              |
 
-When FIPS mode is enabled, the operator logs it at startup:
+The operator logs the FIPS mode at startup. With the default `logDevMode: false`, the log line looks like this:
 
+```json
+{"level":"info","ts":"...","logger":"main","msg":"FIPS 140-3 mode enabled","moduleVersion":"v1.0.0","enforced":false}
 ```
-INFO main FIPS 140-3 mode enabled {"moduleVersion": "v1.0.0", "enforced": false}
+
+`enforced` is `true` when `fips140=only` is set. If FIPS mode is disabled with `fips140=off`, the operator logs it instead:
+
+```json
+{"level":"info","ts":"...","logger":"main","msg":"FIPS 140-3 mode disabled, although the binary was built with the FIPS 140-3 module","buildModule":"v1.0.0-c2097c7c"}
 ```
 
 ## Installing with Helm

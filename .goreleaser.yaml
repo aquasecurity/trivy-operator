@@ -30,9 +30,12 @@ builds:
     binary: trivy-operator-fips
     env:
       - CGO_ENABLED=0
-      # Use the CMVP-certified FIPS 140-3 Go Cryptographic Module.
+      # Pin the FIPS 140-3 Go Cryptographic Module v1.0.0 (CMVP certificate #5247).
+      # Do not use the "certified" alias: it depends on the Go toolchain and can
+      # silently switch to another module. Keep in sync with
+      # docs/getting-started/installation/fips.md and magefile.go.
       # It also sets the default GODEBUG=fips140=on for the binary.
-      - GOFIPS140=certified
+      - GOFIPS140=v1.0.0
     goos:
       - linux
     goarch:

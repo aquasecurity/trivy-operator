@@ -102,7 +102,7 @@ func (b Build) BinaryFips() error {
 	fipsEnv := map[string]string{
 		"CGO_ENABLED":  "0",
 		"GOEXPERIMENT": "jsonv2",
-		"GOFIPS140":    "certified",
+		"GOFIPS140":    "v1.0.0", // keep in sync with .goreleaser.yaml
 		"GOOS":         "linux",
 	}
 	return sh.RunWithV(fipsEnv, "go", "build", "-o", "./bin/trivy-operator-fips", "./cmd/trivy-operator/main.go")

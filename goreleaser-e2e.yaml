@@ -24,7 +24,7 @@ builds:
     binary: trivy-operator-fips
     env:
       - CGO_ENABLED=0
-      - GOFIPS140=certified
+      - GOFIPS140=v1.0.0
     goos:
       - linux
     goarch:

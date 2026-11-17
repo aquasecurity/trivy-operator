@@ -8,9 +8,9 @@ public.ecr.aws/aquasecurity/trivy-operator:<version>-ubi9-fips
 ```
 
 The operator binary in this image uses a FIPS 140-3 validated cryptographic module: the native
-[Go Cryptographic Module][go-fips] v1.0.0, covered by [CMVP certificate #5247][cmvp-5247]. It is selected at build time
-with `GOFIPS140=certified`. The binary is statically linked and does not depend on the cryptographic libraries of the
-base image or the host.
+[Go Cryptographic Module][go-fips] v1.0.0, covered by [CMVP certificate #5247][cmvp-5247]. The module version is pinned
+at build time with `GOFIPS140=v1.0.0`, and the operator logs it at startup (see [Modes](#modes)). The binary is
+statically linked and does not depend on the cryptographic libraries of the base image or the host.
 
 !!! note
     The certificate covers the cryptographic module, not Trivy Operator as a whole. See the security policy attached to

@@ -1,8 +1,10 @@
 package main
 
 import (
+	"crypto/fips140"
 	"fmt"
 	"os"
+	"runtime/debug"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -52,6 +54,51 @@ func main() {
 
 func run(operatorConfig etc.Config) error {
 	setupLog.Info("Starting operator", "buildInfo", buildInfo)
+	if err := checkFIPS(); err != nil {
+		return err
+	}
 
 	return operator.Start(ctrl.SetupSignalHandler(), buildInfo, operatorConfig)
+}
+
+// checkFIPS logs the FIPS 140-3 mode and refuses to start a binary built with
+// the FIPS 140-3 module (GOFIPS140) when the mode was disabled at runtime,
+// e.g. with GODEBUG=fips140=off. This keeps the FIPS image from running with
+// non-validated cryptography, as the crypto/tls/fipsonly import did for the
+// former BoringCrypto build.
+func checkFIPS() error {
+	if fips140.Enabled() {
+		setupLog.Info("FIPS 140-3 mode enabled",
+			"moduleVersion", fips140.Version(),
+			"enforced", fips140.Enforced())
+		return nil
+	}
+
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		return nil
+	}
+	return fipsDisabledError(fipsBuildModule(info))
+}
+
+// fipsDisabledError returns an error if FIPS 140-3 mode is disabled in a binary
+// built with the FIPS 140-3 module buildModule, and nil for a binary built
+// without it.
+func fipsDisabledError(buildModule string) error {
+	if buildModule == "" {
+		return nil
+	}
+	return fmt.Errorf("FIPS 140-3 mode is disabled, but the binary was built with the FIPS 140-3 module %s "+
+		"and cannot run without it: remove fips140=off from the GODEBUG environment variable", buildModule)
+}
+
+// fipsBuildModule returns the GOFIPS140 value the binary was built with,
+// or an empty string if it was built without the FIPS 140-3 module.
+func fipsBuildModule(info *debug.BuildInfo) string {
+	for _, s := range info.Settings {
+		if s.Key == "GOFIPS140" && s.Value != "off" {
+			return s.Value
+		}
+	}
+	return ""
 }

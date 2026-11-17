@@ -38,3 +38,14 @@ func TestFIPSBuildModule(t *testing.T) {
 		})
 	}
 }
+
+func TestFIPSDisabledError(t *testing.T) {
+	t.Run("built with FIPS module", func(t *testing.T) {
+		err := fipsDisabledError("v1.0.0-c2097c7c")
+		assert.ErrorContains(t, err, "FIPS 140-3 mode is disabled")
+		assert.ErrorContains(t, err, "v1.0.0-c2097c7c")
+	})
+	t.Run("built without FIPS module", func(t *testing.T) {
+		assert.NoError(t, fipsDisabledError(""))
+	})
+}

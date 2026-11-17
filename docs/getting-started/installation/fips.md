@@ -24,7 +24,7 @@ FIPS mode is controlled by the `fips140` setting of the `GODEBUG` environment va
 |----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `fips140=on`   | Default for the FIPS image. Approved algorithms are served by the FIPS 140-3 module, and `crypto/tls` negotiates only FIPS-approved protocol versions, cipher suites, signature algorithms and key exchanges. |
 | `fips140=only` | Same as `on`, and additionally non-approved algorithms return an error or panic. Use it only after verifying that your environment (registries, Kubernetes API server, cloud providers) works with it.       |
-| `fips140=off`  | Disables FIPS mode: the binary uses non-validated cryptography. Do not set it if you need FIPS 140-3 compliance.                                                                                              |
+| `fips140=off`  | Not supported. The operator in the FIPS image refuses to start, so that it never runs with non-validated cryptography.                                                                                        |
 
 The operator logs the FIPS mode at startup. With the default `logDevMode: false`, the log line looks like this:
 
@@ -32,10 +32,12 @@ The operator logs the FIPS mode at startup. With the default `logDevMode: false`
 {"level":"info","ts":"...","logger":"main","msg":"FIPS 140-3 mode enabled","moduleVersion":"v1.0.0","enforced":false}
 ```
 
-`enforced` is `true` when `fips140=only` is set. If FIPS mode is disabled with `fips140=off`, the operator logs it instead:
+`enforced` is `true` when `fips140=only` is set.
 
-```json
-{"level":"info","ts":"...","logger":"main","msg":"FIPS 140-3 mode disabled, although the binary was built with the FIPS 140-3 module","buildModule":"v1.0.0-c2097c7c"}
+If FIPS mode is disabled with `fips140=off`, the operator exits at startup with an error:
+
+```
+unable to run trivy operator: FIPS 140-3 mode is disabled, but the binary was built with the FIPS 140-3 module v1.0.0-c2097c7c and cannot run without it: remove fips140=off from the GODEBUG environment variable
 ```
 
 ## Installing with Helm

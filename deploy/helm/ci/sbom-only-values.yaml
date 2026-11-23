@@ -1,0 +1,11 @@
+# SBOM generation with every other scanner off and no report TTL. The operator
+# still needs vulnerabilityReports.scanner in its config map to start (#3149).
+operator:
+  sbomGenerationEnabled: true
+  vulnerabilityScannerEnabled: false
+  exposedSecretScannerEnabled: false
+  configAuditScannerEnabled: false
+  rbacAssessmentScannerEnabled: false
+  infraAssessmentScannerEnabled: false
+  clusterComplianceEnabled: false
+  scannerReportTTL: ""

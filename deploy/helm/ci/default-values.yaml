@@ -1,0 +1,2 @@
+# chart-testing installs the chart once per file in this directory. This one
+# keeps the install with the chart's default values.

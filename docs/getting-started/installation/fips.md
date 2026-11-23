@@ -40,6 +40,13 @@ If FIPS mode is disabled with `fips140=off`, the operator exits at startup with 
 unable to run trivy operator: FIPS 140-3 mode is disabled, but the binary was built with the FIPS 140-3 module v1.0.0-c2097c7c and cannot run without it: remove fips140=off from the GODEBUG environment variable
 ```
 
+The standard (non-FIPS) image also accepts `GODEBUG=fips140=on`, but it then uses a non-validated module and is not
+FIPS 140-3 compliant. The operator logs a warning in this case:
+
+```json
+{"level":"info","ts":"...","logger":"main","msg":"WARNING: FIPS 140-3 mode enabled with a non-validated module: use the -ubi9-fips image for FIPS 140-3 compliance","moduleVersion":"latest","enforced":false}
+```
+
 ## Installing with Helm
 
 ```bash

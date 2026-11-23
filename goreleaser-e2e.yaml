@@ -24,6 +24,8 @@ builds:
     binary: trivy-operator-fips
     env:
       - CGO_ENABLED=0
+      # Keep in sync with .goreleaser.yaml, magefile.go and
+      # docs/getting-started/installation/fips.md.
       - GOFIPS140=v1.0.0
     goos:
       - linux

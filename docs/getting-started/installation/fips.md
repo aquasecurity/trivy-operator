@@ -26,7 +26,7 @@ FIPS mode is controlled by the `fips140` setting of the `GODEBUG` environment va
 | `fips140=only` | Same as `on`, and additionally non-approved algorithms return an error or panic. Use it only after verifying that your environment (registries, Kubernetes API server, cloud providers) works with it.       |
 | `fips140=off`  | Not supported. The operator in the FIPS image refuses to start, so that it never runs with non-validated cryptography.                                                                                        |
 
-The operator logs the FIPS mode at startup. With the default `logDevMode: false`, the log line looks like this:
+The operator logs the FIPS mode at startup. With the default `operator.logDevMode: false` Helm value, the log line looks like this:
 
 ```json
 {"level":"info","ts":"...","logger":"main","msg":"FIPS 140-3 mode enabled","moduleVersion":"v1.0.0","enforced":false}

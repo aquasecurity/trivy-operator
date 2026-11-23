@@ -22,11 +22,11 @@ builds:
   - id: trivy-operator-fips
     main: ./cmd/trivy-operator/main.go
     binary: trivy-operator-fips
-    flags:
-      - -tags=fipsonly
     env:
-      - CGO_ENABLED=1
-      - GOEXPERIMENT=boringcrypto,jsonv2
+      - CGO_ENABLED=0
+      # Keep in sync with .goreleaser.yaml, magefile.go and
+      # docs/getting-started/installation/fips.md.
+      - GOFIPS140=v1.0.0
     goos:
       - linux
     goarch:

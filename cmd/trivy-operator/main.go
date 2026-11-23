@@ -1,8 +1,10 @@
 package main
 
 import (
+	"crypto/fips140"
 	"fmt"
 	"os"
+	"runtime/debug"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -52,6 +54,63 @@ func main() {
 
 func run(operatorConfig etc.Config) error {
 	setupLog.Info("Starting operator", "buildInfo", buildInfo)
+	if err := checkFIPS(); err != nil {
+		return err
+	}
 
 	return operator.Start(ctrl.SetupSignalHandler(), buildInfo, operatorConfig)
+}
+
+// checkFIPS logs the FIPS 140-3 mode and refuses to start a binary built with
+// the FIPS 140-3 module (GOFIPS140) when the mode was disabled at runtime,
+// e.g. with GODEBUG=fips140=off, so that the FIPS image never runs with
+// non-validated cryptography. A binary built without the module may still run
+// with GODEBUG=fips140=on, but it then uses a non-validated module, and the
+// log message says so.
+func checkFIPS() error {
+	var buildModule string
+	if info, ok := debug.ReadBuildInfo(); ok {
+		buildModule = fipsBuildModule(info)
+	}
+
+	if fips140.Enabled() {
+		setupLog.Info(fipsEnabledMessage(buildModule),
+			"moduleVersion", fips140.Version(),
+			"enforced", fips140.Enforced())
+		return nil
+	}
+	return fipsDisabledError(buildModule)
+}
+
+// fipsEnabledMessage returns the startup log message for enabled FIPS 140-3
+// mode. For a binary built without the FIPS 140-3 module it warns that the
+// module is not validated, so the log is not mistaken for FIPS 140-3 compliance.
+func fipsEnabledMessage(buildModule string) string {
+	if buildModule == "" {
+		return "WARNING: FIPS 140-3 mode enabled with a non-validated module: " +
+			"use the -ubi9-fips image for FIPS 140-3 compliance"
+	}
+	return "FIPS 140-3 mode enabled"
+}
+
+// fipsDisabledError returns an error if FIPS 140-3 mode is disabled in a binary
+// built with the FIPS 140-3 module buildModule, and nil for a binary built
+// without it.
+func fipsDisabledError(buildModule string) error {
+	if buildModule == "" {
+		return nil
+	}
+	return fmt.Errorf("FIPS 140-3 mode is disabled, but the binary was built with the FIPS 140-3 module %s "+
+		"and cannot run without it: remove fips140=off from the GODEBUG environment variable", buildModule)
+}
+
+// fipsBuildModule returns the GOFIPS140 value the binary was built with,
+// or an empty string if it was built without the FIPS 140-3 module.
+func fipsBuildModule(info *debug.BuildInfo) string {
+	for _, s := range info.Settings {
+		if s.Key == "GOFIPS140" && s.Value != "off" {
+			return s.Value
+		}
+	}
+	return ""
 }

@@ -17,6 +17,7 @@ nav:
           - Operator Lifecycle Manager: getting-started/installation/olm.md
           - Upgrade: getting-started/installation/upgrade.md
           - Configuration: getting-started/installation/configuration.md
+          - FIPS 140-3: getting-started/installation/fips.md
           - Troubleshooting: getting-started/installation/troubleshooting.md
           - Settings: settings.md
       - Quick Start:

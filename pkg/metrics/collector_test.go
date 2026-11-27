@@ -341,6 +341,41 @@ var _ = Describe("ResourcesMetricsCollector", func() {
 		})
 	})
 
+	Context("VulnerabilityReport of a resource whose name is not a valid label value", func() {
+		BeforeEach(func() {
+			// kube.ObjectToObjectMeta stores a name longer than 63 characters
+			// as the trivy-operator.resource.name annotation, with a hash label.
+			vr := &v1alpha1.VulnerabilityReport{}
+			vr.Namespace = "default"
+			vr.Name = "replicaset-5647d47457"
+			vr.Labels = labels.Set{
+				trivyoperator.LabelResourceKind:     "ReplicaSet",
+				trivyoperator.LabelResourceNameHash: "77dd477fc9",
+				trivyoperator.LabelContainerName:    "app"}
+			vr.Annotations = map[string]string{
+				trivyoperator.LabelResourceName: "app-consumer-clickstream-collector-page-impression-69fc78c655"}
+			vr.Report.Registry.Server = "index.docker.io"
+			vr.Report.Artifact.Repository = "library/app"
+			vr.Report.Artifact.Tag = "1.0"
+			vr.Report.Summary.CriticalCount = 1
+			client.WithRuntimeObjects(vr)
+		})
+
+		It("should take resource_name from the annotation", func() {
+			const expected = `
+		# HELP trivy_image_vulnerabilities Number of container image vulnerabilities
+		# TYPE trivy_image_vulnerabilities gauge
+		trivy_image_vulnerabilities{container_name="app",image_digest="",image_registry="index.docker.io",image_repository="library/app",image_tag="1.0",name="replicaset-5647d47457",namespace="default",resource_kind="ReplicaSet",resource_name="app-consumer-clickstream-collector-page-impression-69fc78c655",severity="Critical"} 1
+		trivy_image_vulnerabilities{container_name="app",image_digest="",image_registry="index.docker.io",image_repository="library/app",image_tag="1.0",name="replicaset-5647d47457",namespace="default",resource_kind="ReplicaSet",resource_name="app-consumer-clickstream-collector-page-impression-69fc78c655",severity="High"} 0
+		trivy_image_vulnerabilities{container_name="app",image_digest="",image_registry="index.docker.io",image_repository="library/app",image_tag="1.0",name="replicaset-5647d47457",namespace="default",resource_kind="ReplicaSet",resource_name="app-consumer-clickstream-collector-page-impression-69fc78c655",severity="Low"} 0
+		trivy_image_vulnerabilities{container_name="app",image_digest="",image_registry="index.docker.io",image_repository="library/app",image_tag="1.0",name="replicaset-5647d47457",namespace="default",resource_kind="ReplicaSet",resource_name="app-consumer-clickstream-collector-page-impression-69fc78c655",severity="Medium"} 0
+		trivy_image_vulnerabilities{container_name="app",image_digest="",image_registry="index.docker.io",image_repository="library/app",image_tag="1.0",name="replicaset-5647d47457",namespace="default",resource_kind="ReplicaSet",resource_name="app-consumer-clickstream-collector-page-impression-69fc78c655",severity="Unknown"} 0
+`
+			Expect(testutil.CollectAndCompare(collector, strings.NewReader(expected), "trivy_image_vulnerabilities")).
+				To(Succeed())
+		})
+	})
+
 	Context("ExposedSecretReport", func() {
 		BeforeEach(func() {
 			sr1 := &v1alpha1.ExposedSecretReport{}

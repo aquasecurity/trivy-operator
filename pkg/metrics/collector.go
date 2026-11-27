@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/prometheus/client_golang/prometheus"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -597,7 +598,7 @@ func (c ResourcesMetricsCollector) collectVulnerabilityReports(ctx context.Conte
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
-			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			labelValues[3] = reportResourceName(r.ObjectMeta)
 			labelValues[4] = r.Labels[trivyoperator.LabelContainerName]
 			labelValues[5] = r.Report.Registry.Server
 			labelValues[6] = r.Report.Artifact.Repository
@@ -628,7 +629,7 @@ func (c ResourcesMetricsCollector) collectVulnerabilityIdReports(ctx context.Con
 			vulnLabelValues[0] = r.Namespace
 			vulnLabelValues[1] = r.Name
 			vulnLabelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
-			vulnLabelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			vulnLabelValues[3] = reportResourceName(r.ObjectMeta)
 			vulnLabelValues[4] = r.Labels[trivyoperator.LabelContainerName]
 			vulnLabelValues[5] = r.Report.Registry.Server
 			vulnLabelValues[6] = r.Report.Artifact.Repository
@@ -678,7 +679,7 @@ func (c ResourcesMetricsCollector) collectExposedSecretsReports(ctx context.Cont
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
-			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			labelValues[3] = reportResourceName(r.ObjectMeta)
 			labelValues[4] = r.Labels[trivyoperator.LabelContainerName]
 			labelValues[5] = r.Report.Registry.Server
 			labelValues[6] = r.Report.Artifact.Repository
@@ -711,7 +712,7 @@ func (c ResourcesMetricsCollector) collectExposedSecretsInfoReports(ctx context.
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
-			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			labelValues[3] = reportResourceName(r.ObjectMeta)
 			labelValues[4] = r.Labels[trivyoperator.LabelContainerName]
 			labelValues[5] = r.Report.Registry.Server
 			labelValues[6] = r.Report.Artifact.Repository
@@ -751,7 +752,7 @@ func (c *ResourcesMetricsCollector) collectConfigAuditReports(ctx context.Contex
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
-			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			labelValues[3] = reportResourceName(r.ObjectMeta)
 			for i, label := range c.GetReportResourceLabels() {
 				labelValues[i+5] = r.Labels[label]
 			}
@@ -779,7 +780,7 @@ func (c *ResourcesMetricsCollector) collectConfigAuditInfoReports(ctx context.Co
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
-			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			labelValues[3] = reportResourceName(r.ObjectMeta)
 			var configMap = make(map[string]bool)
 			for _, config := range r.Report.Checks {
 				if configMap[config.ID] {
@@ -816,7 +817,7 @@ func (c *ResourcesMetricsCollector) collectRbacAssessmentReports(ctx context.Con
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
-			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			labelValues[3] = reportResourceName(r.ObjectMeta)
 			for i, label := range c.GetReportResourceLabels() {
 				labelValues[i+5] = r.Labels[label]
 			}
@@ -840,7 +841,7 @@ func (c *ResourcesMetricsCollector) collectRbacAssessmentInfoReports(ctx context
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
-			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			labelValues[3] = reportResourceName(r.ObjectMeta)
 			var configMap = make(map[string]bool)
 			for _, rbac := range r.Report.Checks {
 				if configMap[rbac.ID] {
@@ -875,7 +876,7 @@ func (c *ResourcesMetricsCollector) collectInfraAssessmentReports(ctx context.Co
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
-			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			labelValues[3] = reportResourceName(r.ObjectMeta)
 			for i, label := range c.GetReportResourceLabels() {
 				labelValues[i+5] = r.Labels[label]
 			}
@@ -899,7 +900,7 @@ func (c *ResourcesMetricsCollector) collectInfraAssessmentInfoReports(ctx contex
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
-			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			labelValues[3] = reportResourceName(r.ObjectMeta)
 			var configMap = make(map[string]bool)
 			for _, infra := range r.Report.Checks {
 				if configMap[infra.ID] {
@@ -932,7 +933,7 @@ func (c *ResourcesMetricsCollector) collectClusterRbacAssessmentReports(ctx cont
 	for _, r := range reports.Items {
 		labelValues[0] = r.Name
 		labelValues[1] = r.Labels[trivyoperator.LabelResourceKind]
-		labelValues[2] = r.Labels[trivyoperator.LabelResourceName]
+		labelValues[2] = reportResourceName(r.ObjectMeta)
 		for i, label := range c.GetReportResourceLabels() {
 			labelValues[i+4] = r.Labels[label]
 		}
@@ -975,7 +976,7 @@ func (c ResourcesMetricsCollector) collectImageReports(ctx context.Context, metr
 			labelValues[0] = r.Namespace
 			labelValues[1] = r.Name
 			labelValues[2] = r.Labels[trivyoperator.LabelResourceKind]
-			labelValues[3] = r.Labels[trivyoperator.LabelResourceName]
+			labelValues[3] = reportResourceName(r.ObjectMeta)
 			labelValues[4] = r.Labels[trivyoperator.LabelContainerName]
 			labelValues[5] = r.Report.Registry.Server
 			labelValues[6] = r.Report.Artifact.Repository
@@ -1097,3 +1098,15 @@ func (c ResourcesMetricsCollector) NeedLeaderElection() bool {
 
 // Ensure ResourcesMetricsCollector is leader-election aware
 var _ manager.LeaderElectionRunnable = &ResourcesMetricsCollector{}
+
+// reportResourceName returns the name of the resource a report was made for.
+// A name that is not a valid label value, such as a ReplicaSet name longer
+// than 63 characters, is stored in the trivy-operator.resource.name
+// annotation instead of the label (see kube.ObjectToObjectMeta), so the
+// annotation is the fallback.
+func reportResourceName(meta metav1.ObjectMeta) string {
+	if name, ok := meta.Labels[trivyoperator.LabelResourceName]; ok {
+		return name
+	}
+	return meta.Annotations[trivyoperator.LabelResourceName]
+}
